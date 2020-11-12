@@ -434,6 +434,20 @@ public class LittleTiles {
 			}
 		});
 		
+		GuiHandler.registerGuiHandler("structureoverview2", new LittleStructureGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubGuiStructureOverview(structure.mainBlock);
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubContainerStructureOverview(player, structure.mainBlock);
+			}
+		});
+		
 		GuiHandler.registerGuiHandler("grabber", new CustomGuiHandler() {
 			
 			@Override

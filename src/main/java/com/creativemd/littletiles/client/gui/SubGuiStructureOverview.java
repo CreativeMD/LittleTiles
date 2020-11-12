@@ -10,16 +10,16 @@ import com.creativemd.littletiles.common.structure.connection.IStructureConnecti
 import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiStructureOverview extends SubGui {
 	
-	public StructureTileList list;
+	public IStructureTileList list;
 	
-	public SubGuiStructureOverview(StructureTileList list) {
+	public SubGuiStructureOverview(IStructureTileList list) {
 		super(300, 300);
 		this.list = list;
 	}
@@ -27,7 +27,7 @@ public class SubGuiStructureOverview extends SubGui {
 	@Override
 	public void createControls() {
 		try {
-			controls.add(new GuiLabel(printStructureTitle(list), 0, 3));
+			controls.add(new GuiLabel(printStructureTitle((IStructureConnection) list), 0, 3));
 			LittleStructure structure = list.getStructure();
 			
 			if (structure.getParent() == null)
@@ -41,7 +41,7 @@ public class SubGuiStructureOverview extends SubGui {
 						@Override
 						public void onClicked(int x, int y, int button) {
 							try {
-								LittleStructureGuiHandler.openGui("structureoverview", new NBTTagCompound(), getPlayer(), structure.getParent().getStructure());
+								LittleStructureGuiHandler.openGui("structureoverview2", new NBTTagCompound(), getPlayer(), structure.getParent().getStructure());
 							} catch (CorruptedConnectionException | NotYetConnectedException e) {
 								e.printStackTrace();
 							}
@@ -77,7 +77,7 @@ public class SubGuiStructureOverview extends SubGui {
 						@Override
 						public void onClicked(int x, int y, int button) {
 							try {
-								LittleStructureGuiHandler.openGui("structureoverview", new NBTTagCompound(), getPlayer(), child.getStructure());
+								LittleStructureGuiHandler.openGui("structureoverview2", new NBTTagCompound(), getPlayer(), child.getStructure());
 							} catch (CorruptedConnectionException | NotYetConnectedException e) {
 								e.printStackTrace();
 							}
@@ -110,7 +110,7 @@ public class SubGuiStructureOverview extends SubGui {
 				@Override
 				public void onClicked(int x, int y, int button) {
 					try {
-						list.checkConnection();
+						((IStructureConnection) list).checkConnection();
 					} catch (CorruptedConnectionException | NotYetConnectedException e) {
 						e.printStackTrace();
 					}

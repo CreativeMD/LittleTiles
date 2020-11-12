@@ -61,4 +61,10 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
 		
 	}
 	
+	public static abstract class LittleStructureGuiParserNotFoundHandler {
+		
+		public abstract LittleStructureGuiParser create(LittleStructure structure, GuiParent parent, AnimationGuiHandler handler);
+		
+	}
+	
 }
