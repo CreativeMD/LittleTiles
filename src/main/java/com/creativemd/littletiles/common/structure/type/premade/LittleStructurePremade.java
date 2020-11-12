@@ -6,13 +6,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.io.IOUtils;
 
 import com.creativemd.creativecore.client.rendering.RenderBox;
+import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable;
@@ -139,6 +145,47 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType(new LittleStructureTypeInput("single_input1", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
 		registerPremadeStructureType(new LittleStructureTypeInput("single_input4", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));
 		registerPremadeStructureType(new LittleStructureTypeInput("single_input16", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 16));
+		
+		LittleStructureRegistry.registerGuiParserNotFoundHandler(new LittleStructureGuiParserNotFoundHandler() {
+			
+			@Override
+			public LittleStructureGuiParser create(LittleStructure structure, GuiParent parent, AnimationGuiHandler handler) {
+				if (structure instanceof LittleStructurePremade)
+					return new LittleStructureGuiParser(parent, handler) {
+						
+						@Override
+						@SideOnly(Side.CLIENT)
+						public void create(LittlePreviews previews, @Nullable LittleStructure structure) {
+						
+						}
+						
+						@Override
+						@SideOnly(Side.CLIENT)
+						public LittleStructure parse(LittlePreviews previews) {
+							return structure;
+						}
+						
+						@Override
+						@SideOnly(Side.CLIENT)
+						protected LittleStructure parseStructure(LittlePreviews previews) {
+							return structure;
+						}
+						
+						@Override
+						@SideOnly(Side.CLIENT)
+						protected LittleStructureType getStructureType() {
+							return null;
+						}
+						
+						@Override
+						@SideOnly(Side.CLIENT)
+						protected void createControls(LittlePreviews previews, LittleStructure structure) {
+							
+						}
+					};
+				return null;
+			}
+		});
 	}
 	
 	public static class LittleStructureTypePremade extends LittleStructureType {

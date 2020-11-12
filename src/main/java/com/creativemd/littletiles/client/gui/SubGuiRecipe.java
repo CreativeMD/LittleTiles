@@ -211,14 +211,18 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		GuiComboBoxCategory comboBox = (GuiComboBoxCategory) get("types");
 		this.structure = structure;
 		int index = 0;
+		boolean found = false;
 		for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> category : craftables) {
 			int currentIndex = category.value.indexOfKey("structure." + (structure != null ? structure.type.id : "none") + ".name");
 			if (currentIndex != -1) {
 				comboBox.select(currentIndex + index);
+				found = true;
 				break;
 			}
 			index += category.value.size();
 		}
+		
+		comboBox.enabled = found;
 		
 		GuiTextfield textfield = (GuiTextfield) get("name");
 		textfield.text = (structure != null && structure.name != null) ? structure.name : "";
@@ -239,40 +243,30 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		GuiPanel panel = (GuiPanel) get("panel");
 		panel.controls.clear();
 		
-		GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>> types = (GuiComboBoxCategory) get("types");
-		Pair<String, Class<? extends LittleStructureGuiParser>> selected = types.getSelected();
-		
-		/*if (selected.value == null && this.selected.parent != null) {
-			int index = 0;
-			for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> category : craftables) {
-				int currentIndex = category.value.indexOfKey("structure." + (structure != null ? structure.type.id : "none") + ".name");
-				if (currentIndex != -1) {
-					types.select(currentIndex + index);
-					break;
-				}
-				index += category.value.size();
-			}
-			return;
-		}*/
-		
 		if (parser != null)
 			removeListener(parser);
 		
 		LittleStructure saved = this.structure;
-		if (saved != null && !selected.key.equals("structure." + saved.type.id + ".name"))
-			saved = null;
 		
-		parser = LittleStructureRegistry.getParser(panel, handler, selected.value);
+		GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>> types = (GuiComboBoxCategory) get("types");
+		if (types.enabled) {
+			Pair<String, Class<? extends LittleStructureGuiParser>> selected = types.getSelected();
+			
+			if (saved != null && !selected.key.equals("structure." + saved.type.id + ".name"))
+				saved = null;
+			
+			parser = LittleStructureRegistry.getParser(panel, handler, selected.value);
+		} else
+			parser = LittleStructureRegistry.getParserNotFound(panel, handler, this.structure);
+		
 		if (parser != null) {
 			handler.setTimeline(null, null);
 			parser.create(this.selected.previews, saved);
 			panel.refreshControls();
 			addListener(parser);
-			if (animationPreview != null) {
+			if (animationPreview != null)
 				onLoaded(panel, animationPreview);
-			}
-		} else
-			parser = null;
+		}
 		
 		get("name").setEnabled(parser != null);
 	}

@@ -1,7 +1,9 @@
 package com.creativemd.littletiles.common.structure.registry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.type.Pair;
@@ -9,6 +11,7 @@ import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
@@ -31,6 +34,7 @@ public class LittleStructureRegistry {
 	private static HashMap<Class<? extends LittleStructure>, LittleStructureType> structuresClass = new LinkedHashMap<Class<? extends LittleStructure>, LittleStructureType>();
 	
 	private static PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> craftables = new PairList<>();
+	private static List<LittleStructureGuiParserNotFoundHandler> premadeParsers = new ArrayList<>();
 	
 	public static LittleStructureType registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, int attribute, Class<? extends LittleStructureGuiParser> parser) {
 		return registerStructureType(new LittleStructureType(id, category, classStructure, attribute), parser);
@@ -44,6 +48,10 @@ public class LittleStructureRegistry {
 			craftables.add(category, categoryList);
 		}
 		categoryList.add("structure." + id + ".name", parser);
+	}
+	
+	public static void registerGuiParserNotFoundHandler(LittleStructureGuiParserNotFoundHandler handler) {
+		premadeParsers.add(handler);
 	}
 	
 	public static PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> getCraftables() {
@@ -80,6 +88,15 @@ public class LittleStructureRegistry {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static LittleStructureGuiParser getParserNotFound(GuiParent parent, AnimationGuiHandler handler, LittleStructure structure) {
+		for (LittleStructureGuiParserNotFoundHandler notFound : premadeParsers) {
+			LittleStructureGuiParser parser = notFound.create(structure, parent, handler);
+			if (parser != null)
+				return parser;
+		}
+		return null;
 	}
 	
 	public static LittleStructureType registerStructureType(LittleStructureType entry, Class<? extends LittleStructureGuiParser> parser) {
