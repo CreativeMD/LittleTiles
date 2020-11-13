@@ -16,7 +16,6 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
@@ -55,21 +54,11 @@ public class ChildActivateEvent extends AnimationEvent {
 			if (!(connector.getStructure() instanceof LittleDoor))
 				return true;
 			LittleDoor door = (LittleDoor) connector.getStructure();
-			DoorOpeningResult result;
-			if (controller instanceof DoorController) {
-				if (((DoorController) controller).result.isEmpty() || !((DoorController) controller).result.nbt.hasKey("c" + door.getParent().getChildId()))
-					result = LittleDoor.EMPTY_OPENING_RESULT;
-				else
-					result = new DoorOpeningResult(((DoorController) controller).result.nbt.getCompoundTag("c" + door.getParent().getChildId()));
-			} else
-				result = LittleDoor.EMPTY_OPENING_RESULT;
 			
-			if (!door.canOpenDoor(null, result))
-				result = door.canOpenDoor(null);
-			if (result == null)
+			if (!door.canOpenDoor(null))
 				return true;
 			
-			EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, result, true);
+			EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, true);
 			if (childAnimation != null)
 				childAnimation.controller.onServerApproves();
 			
@@ -105,7 +94,7 @@ public class ChildActivateEvent extends AnimationEvent {
 				LittleDoor child = (LittleDoor) childStructure;
 				EntityAnimation childAnimation;
 				if (!connector.isLinkToAnotherWorld())
-					childAnimation = child.openDoor(null, new UUIDSupplier(), LittleDoor.EMPTY_OPENING_RESULT, false);
+					childAnimation = child.openDoor(null, new UUIDSupplier(), false);
 				else if (child instanceof IAnimatedStructure)
 					childAnimation = ((IAnimatedStructure) child).getAnimation();
 				else

@@ -61,7 +61,7 @@ public abstract class LittleDoor extends LittleStructure {
 		nbt.setBoolean("opened", opened);
 	}
 	
-	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
+	public EntityAnimation activate(@Nullable EntityPlayer player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
 		if (waitingForApproval)
 			throw new LittleActionExceptionHidden("Door has not been approved yet!");
 		
@@ -74,17 +74,16 @@ public abstract class LittleDoor extends LittleStructure {
 			LittleStructure parentStructure = getParent().getStructure();
 			if (parentStructure instanceof LittleDoor)
 				return ((LittleDoor) parentStructure).activate(player, uuid, sendUpdate);
-			return null;
+			throw new LittleActionException("Invalid parent");
 		}
 		
 		if (isInMotion())
 			throw new StillInMotionException();
 		
-		DoorOpeningResult result = canOpenDoor(player);
-		if (result == null) {
+		if (!canOpenDoor(player)) {
 			if (player != null)
 				player.sendStatusMessage(new TextComponentTranslation("exception.door.notenoughspace"), true);
-			return null;
+			throw new LittleActionException("Cannot open door");
 		}
 		
 		if (uuid == null)
@@ -95,14 +94,12 @@ public abstract class LittleDoor extends LittleStructure {
 			
 		if (sendUpdate) {
 			if (getWorld().isRemote)
-				sendActivationToServer(player, uuid, result);
+				sendActivationToServer(player, uuid);
 			else
-				sendActivationToClient(player, uuid, result);
+				sendActivationToClient(player, uuid);
 		}
 		opened = !opened;
-		EntityAnimation animation = openDoor(player, new UUIDSupplier(uuid), result, false);
-		
-		return new DoorActivationResult(animation, result);
+		return openDoor(player, new UUIDSupplier(uuid), false);
 	}
 	
 	@Override
@@ -128,12 +125,12 @@ public abstract class LittleDoor extends LittleStructure {
 		
 	}
 	
-	public void sendActivationToServer(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
-		PacketHandler.sendPacketToServer(new LittleActivateDoorPacket(getStructureLoaction(), uuid, result));
+	public void sendActivationToServer(EntityPlayer activator, UUID uuid) {
+		PacketHandler.sendPacketToServer(new LittleActivateDoorPacket(getStructureLoaction(), uuid));
 	}
 	
-	public void sendActivationToClient(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
-		PacketHandler.sendPacketToTrackingPlayers(new LittleActivateDoorPacket(getStructureLoaction(), uuid, result), getWorld(), getPos(), activator != null ? (x) -> x != activator : null);
+	public void sendActivationToClient(EntityPlayer activator, UUID uuid) {
+		PacketHandler.sendPacketToTrackingPlayers(new LittleActivateDoorPacket(getStructureLoaction(), uuid), getWorld(), getPos(), activator != null ? (x) -> x != activator : null);
 	}
 	
 	public abstract int getCompleteDuration();
@@ -142,38 +139,14 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	public abstract boolean isInMotion();
 	
-	public DoorOpeningResult canOpenDoor(@Nullable EntityPlayer player) {
-		if (isInMotion())
-			return null;
-		
-		NBTTagCompound nbt = null;
-		
-		for (LittleDoor door : collectDoorsToCheck()) {
-			
-			DoorOpeningResult subResult = door.canOpenDoor(player);
-			
-			if (subResult == null)
-				return null;
-			
-			if (!subResult.isEmpty()) {
-				if (nbt == null)
-					nbt = new NBTTagCompound();
-				nbt.setTag("e" + door.getParent().getChildId(), subResult.nbt);
-			}
-		}
-		
-		if (nbt == null)
-			return EMPTY_OPENING_RESULT;
-		return new DoorOpeningResult(nbt);
-	}
-	
-	public boolean canOpenDoor(@Nullable EntityPlayer player, DoorOpeningResult result) {
+	public boolean canOpenDoor(@Nullable EntityPlayer player) {
 		if (isInMotion())
 			return false;
 		
 		for (LittleDoor door : collectDoorsToCheck())
-			if (!door.canOpenDoor(player, result))
+			if (!door.canOpenDoor(player))
 				return false;
+			
 		return true;
 	}
 	
@@ -183,7 +156,7 @@ public abstract class LittleDoor extends LittleStructure {
 		return this;
 	}
 	
-	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) throws LittleActionException;
+	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, boolean tickOnce) throws LittleActionException;
 	
 	public void onChildComplete(LittleDoor door, int childId) {
 		
@@ -212,38 +185,6 @@ public abstract class LittleDoor extends LittleStructure {
 				} catch (LittleActionException e) {}
 	}
 	
-	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);
-	
-	public static class DoorOpeningResult {
-		
-		public final NBTTagCompound nbt;
-		
-		public DoorOpeningResult(NBTTagCompound nbt) {
-			this.nbt = nbt;
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof DoorOpeningResult)
-				return nbt != null ? nbt.equals(((DoorOpeningResult) obj).nbt) : ((DoorOpeningResult) obj).nbt == null;
-			return false;
-		}
-		
-		public boolean isEmpty() {
-			return nbt == null;
-		}
-		
-		@Override
-		public int hashCode() {
-			return nbt != null ? nbt.hashCode() : super.hashCode();
-		}
-		
-		@Override
-		public String toString() {
-			return "" + nbt;
-		}
-	}
-	
 	public static class LittleDoorType extends LittleDoorBaseType {
 		
 		public LittleDoorType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
@@ -258,18 +199,6 @@ public abstract class LittleDoor extends LittleStructure {
 				if (event instanceof ChildActivateEvent)
 					set.set(((ChildActivateEvent) event).childId);
 			}
-		}
-		
-	}
-	
-	public static class DoorActivationResult {
-		
-		public final DoorOpeningResult result;
-		public final EntityAnimation animation;
-		
-		public DoorActivationResult(EntityAnimation animation, DoorOpeningResult result) {
-			this.animation = animation;
-			this.result = result;
 		}
 		
 	}

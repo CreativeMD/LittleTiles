@@ -46,7 +46,6 @@ import com.creativemd.littletiles.common.structure.type.door.LittleDoorActivator
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -54,7 +53,6 @@ import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementResult;
-import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -115,14 +113,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			nbt.removeTag("noClip");
 	}
 	
-	public abstract LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player);
+	public abstract void transformDoorPreview(LittleAbsolutePreviews previews);
 	
-	public abstract void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation);
-	
-	public LittleAbsolutePreviews getDoorPreviews(LittleTransformation transformation) throws CorruptedConnectionException, NotYetConnectedException {
-		LittleAbsolutePreviews previews = getAbsolutePreviewsSameWorldOnly(transformation.center);
-		transformDoorPreview(previews, transformation);
-		transformation.transform(previews);
+	public LittleAbsolutePreviews getDoorPreviews() throws CorruptedConnectionException, NotYetConnectedException {
+		LittleAbsolutePreviews previews = getAbsolutePreviewsSameWorldOnly(getPos());
+		transformDoorPreview(previews);
 		return previews;
 	}
 	
@@ -180,45 +175,20 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	@Override
-	public DoorOpeningResult canOpenDoor(@Nullable EntityPlayer player) {
-		DoorOpeningResult result = super.canOpenDoor(player);
-		
-		if (result == null)
-			return null;
+	public boolean canOpenDoor(@Nullable EntityPlayer player) {
+		if (!super.canOpenDoor(player))
+			return false;
 		
 		for (AnimationEvent event : events)
 			event.reset();
 		
 		if (isAnimated()) // No transformations done if the door is already an animation
-			return result;
+			return true;
 		
-		LittleTransformation[] transformations = getDoorTransformations(player); // Only done if the door is placed down
-		for (LittleTransformation transformation : transformations) {
-			List<PlacePreview> placePreviews = new ArrayList<>();
-			
-			try {
-				LittleAbsolutePreviews previews = getDoorPreviews(transformation);
-				Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(getWorld(), previews, previews.pos, PlacementMode.all)).setPredicate((x, y) -> !x.isStructureChildSafe(this));
-				
-				if (placement.canPlace()) {
-					if (transformations.length == 1)
-						return result;
-					
-					if (result.isEmpty())
-						result = new DoorOpeningResult(new NBTTagCompound());
-					result.nbt.setIntArray("transform", transformation.array());
-					
-					return result;
-				}
-			} catch (CorruptedConnectionException | NotYetConnectedException e) {
-				e.printStackTrace();
-			}
-			
-		}
-		return null;
+		return true;
 	}
 	
-	public EntityAnimation place(World world, SubWorld fakeWorld, @Nullable EntityPlayer player, DoorOpeningResult doorResult, Placement placement, UUIDSupplier supplier, StructureAbsolute absolute, LittleTransformation transformation, boolean tickOnce) throws LittleActionException {
+	public EntityAnimation place(World world, SubWorld fakeWorld, @Nullable EntityPlayer player, Placement placement, UUIDSupplier supplier, StructureAbsolute absolute, boolean tickOnce) throws LittleActionException {
 		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 		
 		fakeWorld.preventNeighborUpdate = true;
@@ -228,7 +198,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		if (result == null)
 			throw new RuntimeException("Something went wrong during placing the door!");
 		
-		DoorController controller = createController(doorResult, supplier, placement, transformation, getCompleteDuration());
+		DoorController controller = createController(supplier, placement, getCompleteDuration());
 		controller.noClip = noClip;
 		
 		controller.activator = player;
@@ -244,7 +214,6 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		// Move animated worlds
 		newDoor.transferChildrenToAnimation(animation);
-		newDoor.transformAnimation(transformation);
 		
 		if (getParent() != null) {
 			LittleStructure parentStructure = getParent().getStructure();
@@ -262,29 +231,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	@Override
-	public boolean canOpenDoor(@Nullable EntityPlayer player, DoorOpeningResult result) {
-		if (!super.canOpenDoor(player, result))
-			return false;
-		LittleTransformation transform;
-		if (!result.isEmpty() && result.nbt.hasKey("transform"))
-			transform = new LittleTransformation(result.nbt.getIntArray("transform"));
-		else
-			transform = getDoorTransformations(player)[0];
-		
-		List<PlacePreview> placePreviews = new ArrayList<>();
-		
-		try {
-			LittleAbsolutePreviews previews = getDoorPreviews(transform);
-			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(getWorld(), previews, previews.pos, PlacementMode.all)).setPredicate((x, y) -> !x.isStructureChildSafe(this));
-			return placement.canPlace();
-		} catch (CorruptedConnectionException | NotYetConnectedException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
-	
-	@Override
-	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) throws LittleActionException {
+	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, boolean tickOnce) throws LittleActionException {
 		if (isAnimated()) {
 			((DoorController) animation.controller).activate();
 			if (tickOnce)
@@ -292,13 +239,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			return animation;
 		}
 		
-		LittleTransformation transform;
-		if (!result.isEmpty() && result.nbt.hasKey("transform"))
-			transform = new LittleTransformation(result.nbt.getIntArray("transform"));
-		else
-			transform = getDoorTransformations(player)[0];
-		
-		LittleAbsolutePreviews previews = getDoorPreviews(transform);
+		LittleAbsolutePreviews previews = getDoorPreviews();
 		World world = getWorld();
 		SubWorld fakeWorld = SubWorld.createFakeWorld(world);
 		if (world.isRemote)
@@ -308,7 +249,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		HashMapList<BlockPos, IStructureTileList> blocks = collectAllBlocksList();
 		
-		EntityAnimation animation = place(getWorld(), fakeWorld, player, result, placement, uuid, absolute, transform, tickOnce);
+		EntityAnimation animation = place(getWorld(), fakeWorld, player, placement, uuid, absolute, tickOnce);
 		
 		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
 		
@@ -328,7 +269,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 	}
 	
-	public abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration);
+	public abstract DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration);
 	
 	public abstract StructureAbsolute getAbsoluteAxis();
 	

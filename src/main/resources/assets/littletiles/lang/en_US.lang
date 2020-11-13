@@ -172,6 +172,8 @@ gui.sound.pitch=Pitch
 gui.structure.hierarchy=Hierarchy
 gui.color.rightclick=right click to drain
 gui.signal.events=Signals
+gui.door.axis.clockwise=right-turning
+gui.door.axis.counterclockwise=left-turning
 
 animation.event.child.name=Activate Child
 animation.event.sound-event.name=Play Sound Event

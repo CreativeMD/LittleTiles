@@ -53,7 +53,6 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHol
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
-import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
 import net.minecraft.entity.Entity;
@@ -821,16 +820,6 @@ public abstract class LittleStructure {
 				subAnimation.updateTickState();
 			} else
 				childStructure.transferChildrenFromAnimation(animation);
-		}
-	}
-	
-	public void transformAnimation(LittleTransformation transformation) throws CorruptedConnectionException, NotYetConnectedException {
-		for (StructureChildConnection child : children) {
-			LittleStructure childStructure = child.getStructure();
-			if (child.isLinkToAnotherWorld())
-				((IAnimatedStructure) childStructure).getAnimation().transformWorld(transformation);
-			else
-				childStructure.transformAnimation(transformation);
 		}
 	}
 	

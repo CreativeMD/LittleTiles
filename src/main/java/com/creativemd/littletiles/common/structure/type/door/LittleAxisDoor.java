@@ -5,8 +5,6 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
@@ -48,7 +46,6 @@ import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.Placement;
-import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -116,20 +113,14 @@ public class LittleAxisDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration) {
-		return doorRotation.createController(result, supplier, transformation.getRotation(axis), this, completeDuration, interpolation);
+	public DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration) {
+		return doorRotation.createController(supplier, this, completeDuration, interpolation);
 	}
 	
 	@Override
-	public LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
-		return doorRotation.getDoorTransformations(this, player);
-	}
-	
-	@Override
-	public void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation) {
+	public void transformDoorPreview(LittleAbsolutePreviews previews) {
 		StructureRelative axisCenter = (StructureRelative) previews.getStructureType().loadDirectional(previews, "axisCenter");
 		axisCenter.forceContext(previews);
-		transformation.doubledRotationCenter = axisCenter.getDoubledCenterVec();
 	}
 	
 	@Deprecated
@@ -503,9 +494,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		protected abstract boolean shouldRotatePreviews(LittleAxisDoor door);
 		
-		protected abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration, int interpolation);
-		
-		protected abstract LittleTransformation[] getDoorTransformations(LittleAxisDoor door, @Nullable EntityPlayer player);
+		protected abstract DoorController createController(UUIDSupplier supplier, LittleAxisDoor door, int completeDuration, int interpolation);
 		
 		@SideOnly(Side.CLIENT)
 		public abstract boolean shouldUpdateTimeline(GuiControl control);
@@ -545,37 +534,36 @@ public class LittleAxisDoor extends LittleDoorBase {
 				clockwise = !clockwise;
 		}
 		
-		protected Rotation getRotation(EntityPlayer player, LittleAxisDoor door, StructureAbsolute absolute) {
+		protected Rotation getRotation(EntityPlayer player, LittleAxisDoor door) {
 			return Rotation.getRotation(door.axis, clockwise);
 		}
 		
-		protected Rotation getDefaultRotation(LittleAxisDoor door, StructureAbsolute absolute) {
+		protected Rotation getDefaultRotation(LittleAxisDoor door) {
 			return Rotation.getRotation(door.axis, clockwise);
 		}
 		
 		@Override
-		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration, int interpolation) {
-			if (door.stayAnimated)
-				return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration, completeDuration, interpolation);
-			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? -90 : 90), new AnimationState(), true, door.duration, completeDuration, interpolation);
+		protected DoorController createController(UUIDSupplier supplier, LittleAxisDoor door, int completeDuration, int interpolation) {
+			Rotation rotation = getRotation(null, door);
+			return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration, completeDuration, interpolation);
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
 		protected void onSelected(GuiTileViewer viewer, GuiParent parent) {
-			
+			parent.addControl(new GuiStateButton("direction", clockwise ? 0 : 1, 0, 0, 70, GuiControl.translate("gui.door.axis.clockwise"), GuiControl.translate("gui.door.axis.counterclockwise")));
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
 		protected void parseGui(GuiTileViewer viewer, GuiParent parent) {
-			
+			this.clockwise = ((GuiStateButton) parent.get("direction")).getState() == 0;
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean shouldUpdateTimeline(GuiControl control) {
-			return false;
+			return control.is("direction");
 		}
 		
 		@Override
@@ -585,14 +573,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		public void populateTimeline(AnimationTimeline timeline, int duration, int interpolation, AnimationKey key) {
-			timeline.values.add(key, ValueTimeline.create(interpolation).addPoint(0, 0D).addPoint(duration, 90D));
-		}
-		
-		@Override
-		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
-			StructureAbsolute absolute = door.getAbsoluteAxis();
-			Rotation rotation = player != null ? getRotation(player, door, absolute) : getDefaultRotation(door, absolute);
-			return new LittleTransformation[] { new LittleTransformation(door.getPos(), rotation), new LittleTransformation(door.getPos(), rotation.getOpposite()) };
+			timeline.values.add(key, ValueTimeline.create(interpolation).addPoint(0, 0D).addPoint(duration, clockwise ? 90D : -90D));
 		}
 		
 	}
@@ -623,8 +604,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration, int interpolation) {
-			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
+		protected DoorController createController(UUIDSupplier supplier, LittleAxisDoor door, int completeDuration, int interpolation) {
+			return new DoorController(supplier, new AnimationState().set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
 		}
 		
 		@Override
@@ -663,11 +644,6 @@ public class LittleAxisDoor extends LittleDoorBase {
 		@Override
 		public void populateTimeline(AnimationTimeline timeline, int duration, int interpolation, AnimationKey key) {
 			timeline.values.add(key, ValueTimeline.create(interpolation).addPoint(0, 0D).addPoint(duration, degree));
-		}
-		
-		@Override
-		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
-			return new LittleTransformation[] { new LittleTransformation(door.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
 		}
 		
 	}

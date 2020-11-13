@@ -27,7 +27,6 @@ import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
-import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -39,15 +38,9 @@ import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocati
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierAbsolute;
-import com.creativemd.littletiles.common.util.place.Placement;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
-import com.creativemd.littletiles.common.util.place.PlacementResult;
 import com.creativemd.littletiles.common.util.vec.LittleRayTraceResult;
-import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Predicate;
 
@@ -351,8 +344,7 @@ public class EntityAnimation extends Entity {
 				OrientatedBoundingBox pushingBox = null;
 				EnumFacing facing = null;
 				
-				checking_all_boxes:
-				for (int i = 0; i < surroundingBoxes.size(); i++) {
+				checking_all_boxes: for (int i = 0; i < surroundingBoxes.size(); i++) {
 					if (surroundingBoxes.get(i).intersects(entityBB)) {
 						// Check for earliest hit
 						OrientatedBoundingBox box = worldCollisionBoxes.get(i);
@@ -804,49 +796,6 @@ public class EntityAnimation extends Entity {
 	}
 	
 	// ================Saving & Loading================
-	
-	public void transformWorld(LittleTransformation transformation) {
-		try {
-			structure.load();
-			
-			LittleAbsolutePreviews previews = structure.getAbsolutePreviewsSameWorldOnly(transformation.center);
-			transformation.transform(previews);
-			
-			List<BlockPos> positions = new ArrayList<>();
-			for (TileEntity te : fakeWorld.loadedTileEntityList) {
-				if (te instanceof TileEntityLittleTiles) {
-					((TileEntityLittleTiles) te).updateTilesSecretly((x) -> x.clearEverything());
-					positions.add(te.getPos());
-				}
-			}
-			
-			for (BlockPos pos : positions) {
-				fakeWorld.setBlockToAir(pos);
-				fakeWorld.removeTileEntity(pos);
-			}
-			
-			if (world.isRemote)
-				getRenderChunkSuppilier().unloadRenderCache();
-			
-			Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
-			PlacementResult result = placement.tryPlace();
-			
-			int childId = this.structure.getParent().getChildId();
-			LittleStructure parentStructure = this.structure.getParent().getStructure();
-			this.structure = result.parentStructure;
-			((IAnimatedStructure) this.structure).setAnimation(this);
-			parentStructure.updateChildConnection(childId, this.structure);
-			this.structure.updateParentConnection(childId, parentStructure);
-			
-			this.structure.transformAnimation(transformation);
-			this.controller.transform(transformation);
-			absolutePreviewPos = transformation.transform(absolutePreviewPos);
-			
-			updateWorldCollision();
-			updateBoundingBox();
-			updateTickState();
-		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
-	}
 	
 	@Deprecated
 	private LittleStructure searchForParent() {

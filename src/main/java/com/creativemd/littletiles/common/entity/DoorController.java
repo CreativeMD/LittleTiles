@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.place.Placement;
@@ -54,7 +53,6 @@ public class DoorController extends EntityAnimationController {
 	public int completeDuration;
 	public int interpolation;
 	public EntityPlayer activator;
-	public DoorOpeningResult result;
 	public UUIDSupplier supplier;
 	
 	public boolean noClip;
@@ -65,8 +63,7 @@ public class DoorController extends EntityAnimationController {
 		
 	}
 	
-	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
-		this.result = result;
+	public DoorController(UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
 		this.supplier = supplier;
 		
 		this.turnBack = turnBack;
@@ -84,8 +81,7 @@ public class DoorController extends EntityAnimationController {
 		stretchTransitions();
 	}
 	
-	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close, int interpolation) {
-		this.result = result;
+	public DoorController(UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close, int interpolation) {
 		this.supplier = supplier;
 		
 		this.turnBack = turnBack;
@@ -114,8 +110,8 @@ public class DoorController extends EntityAnimationController {
 		return super.addTransition(from, to, animation);
 	}
 	
-	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
-		this(result, supplier, new AnimationState(), opened, turnBack, duration, completeDuration, interpolation);
+	public DoorController(UUIDSupplier supplier, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
+		this(supplier, new AnimationState(), opened, turnBack, duration, completeDuration, interpolation);
 	}
 	
 	protected void stretchTransitions() {
@@ -275,8 +271,6 @@ public class DoorController extends EntityAnimationController {
 		nbt.setTag("closed", getState(closedState).state.writeToNBT(new NBTTagCompound()));
 		nbt.setTag("opened", getState(openedState).state.writeToNBT(new NBTTagCompound()));
 		
-		if (!result.isEmpty())
-			nbt.setTag("result", result.nbt);
 		nbt.setString("originaluuid", supplier.original().toString());
 		nbt.setString("uuid", supplier.uuid.toString());
 		
@@ -309,10 +303,6 @@ public class DoorController extends EntityAnimationController {
 		addState(closedState, new AnimationState(nbt.getCompoundTag("closed")));
 		addState(openedState, new AnimationState(nbt.getCompoundTag("opened")));
 		
-		if (nbt.hasKey("result"))
-			result = new DoorOpeningResult(nbt.getCompoundTag("result"));
-		else
-			result = LittleDoor.EMPTY_OPENING_RESULT;
 		supplier = new UUIDSupplier(UUID.fromString(nbt.getString("originaluuid")), UUID.fromString(nbt.getString("uuid")));
 		
 		duration = nbt.getInteger("duration");

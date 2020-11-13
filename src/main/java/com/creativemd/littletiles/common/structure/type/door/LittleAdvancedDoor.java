@@ -44,16 +44,13 @@ import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.Placement;
-import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
@@ -233,18 +230,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public LittleTransformation[] getDoorTransformations(EntityPlayer player) {
-		return new LittleTransformation[] { new LittleTransformation(getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
-	}
-	
-	@Override
-	public void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation) {
+	public void transformDoorPreview(LittleAbsolutePreviews previews) {
 		StructureRelative axisCenter = (StructureRelative) previews.getStructureType().loadDirectional(previews, "axisCenter");
 		axisCenter.forceContext(previews);
 	}
 	
 	@Override
-	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration) {
+	public DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration) {
 		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) placement.origin.getStructure();
 		int duration = newDoor.duration;
 		
@@ -296,7 +288,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			close.add(AnimationKey.rotZ, rotZ.invert(duration));
 		}
 		
-		return new DoorController(result, supplier, closed, opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close), interpolation);
+		return new DoorController(supplier, closed, opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close), interpolation);
 	}
 	
 	@Override
