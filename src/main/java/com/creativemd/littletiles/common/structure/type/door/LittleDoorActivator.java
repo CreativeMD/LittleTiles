@@ -161,6 +161,7 @@ public class LittleDoorActivator extends LittleDoor {
 		@Override
 		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 50, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
+			parent.controls.add(new GuiCheckBox("useInternalOutput", CoreControl.translate("gui.door.useInternalOutput"), 50, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).useInternalOutput : false));
 			
 			GuiScrollBox box = new GuiScrollBox("content", 0, 0, 100, 115);
 			parent.controls.add(box);
@@ -204,6 +205,8 @@ public class LittleDoorActivator extends LittleDoor {
 			
 			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
 			activator.disableRightClick = !rightclick.value;
+			GuiCheckBox useInternalOutput = (GuiCheckBox) parent.get("useInternalOutput");
+			activator.useInternalOutput = !useInternalOutput.value;
 			
 			GuiScrollBox box = (GuiScrollBox) parent.get("content");
 			List<Integer> toActivate = new ArrayList<>();

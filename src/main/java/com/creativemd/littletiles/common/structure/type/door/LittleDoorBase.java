@@ -356,7 +356,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
 			boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
 			boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
-			parent.controls.add(new GuiDoorSettingsButton("settings", 108, 93, stayAnimated, disableRightClick, noClip));
+			boolean useInternalOutput = structure instanceof LittleDoor ? ((LittleDoor) structure).useInternalOutput : false;
+			parent.controls.add(new GuiDoorSettingsButton("settings", 108, 93, stayAnimated, disableRightClick, useInternalOutput, noClip));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
 			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));

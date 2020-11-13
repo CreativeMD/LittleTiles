@@ -19,6 +19,7 @@ import com.creativemd.littletiles.server.world.LittleAnimationHandlerServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
@@ -146,7 +147,7 @@ public class WorldAnimationHandler {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void rightClick(PlayerInteractEvent event) {
-		if (event.getWorld().isRemote && client != null)
+		if (event.getWorld().isRemote && client != null && event.getHand() == EnumHand.MAIN_HAND)
 			((LittleAnimationHandlerClient) client).rightClick(event);
 	}
 	

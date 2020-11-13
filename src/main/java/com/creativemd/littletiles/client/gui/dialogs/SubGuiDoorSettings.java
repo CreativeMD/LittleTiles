@@ -23,7 +23,8 @@ public class SubGuiDoorSettings extends SubGui {
 	public void createControls() {
 		controls.add((GuiControl) new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 0, button.stayAnimated).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")).setEnabled(button.stayAnimatedPossible));
 		controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 15, button.disableRightClick));
-		controls.add(new GuiCheckBox("noClip", CoreControl.translate("gui.door.noClip"), 0, 30, button.noClip));
+		controls.add(new GuiCheckBox("useInternalOutput", CoreControl.translate("gui.door.useInternalOutput"), 0, 30, button.useInternalOutput));
+		controls.add(new GuiCheckBox("noClip", CoreControl.translate("gui.door.noClip"), 0, 45, button.noClip));
 		
 		controls.add(new GuiButton("Close", 0, 143) {
 			
@@ -40,8 +41,10 @@ public class SubGuiDoorSettings extends SubGui {
 		GuiCheckBox stayAnimated = (GuiCheckBox) get("stayAnimated");
 		GuiCheckBox rightclick = (GuiCheckBox) get("rightclick");
 		GuiCheckBox noClip = (GuiCheckBox) get("noClip");
+		GuiCheckBox useInternalOutput = (GuiCheckBox) get("useInternalOutput");
 		button.stayAnimated = stayAnimated.value;
 		button.disableRightClick = rightclick.value;
+		button.useInternalOutput = useInternalOutput.value;
 		button.noClip = noClip.value;
 	}
 	
@@ -50,14 +53,16 @@ public class SubGuiDoorSettings extends SubGui {
 		public SubGuiDoorSettings gui;
 		public boolean stayAnimated;
 		public boolean disableRightClick;
+		public boolean useInternalOutput;
 		public boolean noClip;
 		
 		public boolean stayAnimatedPossible = true;
 		
-		public GuiDoorSettingsButton(String name, int x, int y, boolean stayAnimated, boolean disableRightClick, boolean noClip) {
+		public GuiDoorSettingsButton(String name, int x, int y, boolean stayAnimated, boolean disableRightClick, boolean useInternalOutput, boolean noClip) {
 			super(name, translate("gui.door.settings"), x, y, 40, 7);
 			this.stayAnimated = stayAnimated;
 			this.disableRightClick = disableRightClick;
+			this.useInternalOutput = useInternalOutput;
 			this.noClip = noClip;
 		}
 		

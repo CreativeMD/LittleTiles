@@ -163,6 +163,7 @@ gui.door.children=Children
 gui.door.events=Events
 gui.door.settings=Settings
 gui.door.noClip=No-Clip
+gui.door.useInternalOutput=Listen to signal
 gui.door.rightclick=Allow right click
 gui.door.pick-sound=Pick Sound
 gui.door.open=Opening
@@ -181,6 +182,8 @@ animation.event.sound-event.name=Play Sound Event
 signal.mode.equal=EQUAL
 signal.mode.toggle=TOGGLE
 signal.mode.pulse=PULSE
+signal.mode.threshold=THRESHOLD
+signal.mode.stabilizer=STABILIZER
 
 config.littletiles.building.invertStickToGrid.comment=Whether tiles should stick to the vanilla grid when second mode is enabled or disabled.
 config.littletiles.building.maxSavedActions.comment=Number of actions which can be reverted.

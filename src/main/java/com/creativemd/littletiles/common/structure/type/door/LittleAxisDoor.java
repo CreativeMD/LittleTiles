@@ -545,7 +545,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		@Override
 		protected DoorController createController(UUIDSupplier supplier, LittleAxisDoor door, int completeDuration, int interpolation) {
 			Rotation rotation = getRotation(null, door);
-			return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration, completeDuration, interpolation);
+			return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
 		}
 		
 		@Override
