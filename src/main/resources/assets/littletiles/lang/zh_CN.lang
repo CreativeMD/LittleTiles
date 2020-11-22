@@ -163,6 +163,7 @@ gui.door.children=子级
 gui.door.events=事件
 gui.door.settings=设置
 gui.door.noClip=穿透
+gui.door.useInternalOutput=监听信号
 gui.door.rightclick=允许右键单击
 gui.door.pick-sound=拾取声音
 gui.door.open=开启中...
@@ -171,9 +172,18 @@ gui.sound.volume=音量
 gui.sound.pitch=音阶
 gui.structure.hierarchy=层级结构
 gui.color.rightclick=右键单击提取
+gui.signal.events=信号
+gui.door.axis.clockwise=向右转
+gui.door.axis.counterclockwise=向左转
 
 animation.event.child.name=激活子级
 animation.event.sound-event.name=播放声音事件
+
+signal.mode.equal=匹配
+signal.mode.toggle=切换
+signal.mode.pulse=脉冲
+signal.mode.threshold=阈值
+signal.mode.stabilizer=稳定器
 
 config.littletiles.building.invertStickToGrid.comment=启用或禁用第二种模式时，结构是否粘贴到mc网格
 config.littletiles.building.maxSavedActions.comment=最大可还原步数
