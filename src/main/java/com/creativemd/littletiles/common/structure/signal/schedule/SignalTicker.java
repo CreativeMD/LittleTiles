@@ -37,6 +37,10 @@ public class SignalTicker {
 		return ticker;
 	}
 	
+	public static void schedule(World world, ISignalSchedulable schedulable) {
+		get(world).schedule(schedulable);
+	}
+	
 	public static ISignalScheduleTicket schedule(LittleStructure structure, SignalOutputCondition condition, boolean[] result, int tick) {
 		return get(structure).openTicket(structure, condition, result, tick);
 	}
@@ -48,6 +52,7 @@ public class SignalTicker {
 	
 	public final World world;
 	private int queueIndex;
+	private List<ISignalSchedulable> scheduled = new ArrayList<>();
 	private List<SignalScheduleTicket>[] queue;
 	
 	private List<SignalScheduleTicket> longQueue = new ArrayList<>();
@@ -62,6 +67,10 @@ public class SignalTicker {
 	@SubscribeEvent
 	public synchronized void tick(WorldTickEvent event) {
 		if (event.phase == Phase.END && world == event.world) {
+			for (int i = 0; i < scheduled.size(); i++)
+				scheduled.get(i).updateSignaling();
+			scheduled.clear();
+			
 			// Process queue
 			List<SignalScheduleTicket> tickets = queue[queueIndex];
 			for (int i = 0; i < tickets.size(); i++)
@@ -103,6 +112,10 @@ public class SignalTicker {
 			if (ticket.is(condition))
 				tickets.add(ticket);
 		return tickets;
+	}
+	
+	public synchronized void schedule(ISignalSchedulable schedulable) {
+		scheduled.add(schedulable);
 	}
 	
 	public synchronized ISignalScheduleTicket openTicket(LittleStructure structure, SignalOutputCondition condition, boolean[] result, int tick) {

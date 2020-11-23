@@ -37,6 +37,7 @@ import com.creativemd.littletiles.common.structure.signal.component.SignalCompon
 import com.creativemd.littletiles.common.structure.signal.event.SignalEvent;
 import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
+import com.creativemd.littletiles.common.structure.signal.schedule.ISignalSchedulable;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
@@ -76,7 +77,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class LittleStructure {
+public abstract class LittleStructure implements ISignalSchedulable {
 	
 	private static final Iterator<LittleTile> EMPTY_ITERATOR = new Iterator<LittleTile>() {
 		
@@ -107,6 +108,8 @@ public abstract class LittleStructure {
 	private final InternalSignalInput[] inputs;
 	private final InternalSignalOutput[] outputs;
 	
+	private boolean signalChanged = false;
+	
 	public LittleStructure(LittleStructureType type, IStructureTileList mainBlock) {
 		this.type = type;
 		this.mainBlock = mainBlock;
@@ -116,6 +119,7 @@ public abstract class LittleStructure {
 	
 	// ================Basics================
 	
+	@Override
 	public World getWorld() {
 		return mainBlock.getWorld();
 	}
@@ -669,10 +673,30 @@ public abstract class LittleStructure {
 		};
 	}
 	
-	public void changed(ISignalComponent changed) {
+	@Override
+	public void notifyChange() {
 		if (hasSignalEvents())
 			for (SignalEvent event : signalEvents)
 				event.update(this);
+	}
+	
+	@Override
+	public boolean hasChanged() {
+		return signalChanged;
+	}
+	
+	@Override
+	public void markChanged() {
+		signalChanged = true;
+	}
+	
+	@Override
+	public void markUnchanged() {
+		signalChanged = false;
+	}
+	
+	public void changed(ISignalComponent changed) {
+		schedule();
 	}
 	
 	public InternalSignalInput getInput(int id) {

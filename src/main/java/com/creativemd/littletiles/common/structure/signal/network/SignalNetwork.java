@@ -8,11 +8,15 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import com.creativemd.littletiles.common.structure.signal.schedule.ISignalSchedulable;
 
-public class SignalNetwork {
+import net.minecraft.world.World;
+
+public class SignalNetwork implements ISignalSchedulable {
 	
 	public final int bandwidth;
 	private final boolean[] state;
+	private boolean changed = false;
 	private List<ISignalStructureTransmitter> transmitters = new ArrayList<>();
 	/** are outputs of the network's perspective as they are inputs of machines (receive signals) */
 	private List<ISignalStructureComponent> inputs = new ArrayList<>();
@@ -24,7 +28,8 @@ public class SignalNetwork {
 		this.state = new boolean[bandwidth];
 	}
 	
-	public void update() {
+	@Override
+	public void notifyChange() {
 		boolean[] oldState = Arrays.copyOf(state, bandwidth);
 		BooleanUtils.reset(state);
 		
@@ -34,6 +39,34 @@ public class SignalNetwork {
 		if (!BooleanUtils.equals(state, oldState) && !inputs.isEmpty())
 			for (int i = 0; i < inputs.size(); i++)
 				inputs.get(i).updateState(state);
+	}
+	
+	@Override
+	public boolean hasChanged() {
+		return changed;
+	}
+	
+	@Override
+	public void markChanged() {
+		changed = true;
+	}
+	
+	@Override
+	public void markUnchanged() {
+		changed = false;
+	}
+	
+	public void update() {
+		schedule();
+	}
+	
+	@Override
+	public World getWorld() {
+		if (!inputs.isEmpty())
+			return inputs.get(0).getWorld();
+		if (!outputs.isEmpty())
+			return outputs.get(0).getWorld();
+		return transmitters.get(0).getWorld();
 	}
 	
 	public void merge(SignalNetwork network) {

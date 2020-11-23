@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
 public interface ISignalStructureBase {
 	
@@ -14,6 +15,8 @@ public interface ISignalStructureBase {
 			return false;
 		return getBandwidth() == other.getBandwidth();
 	}
+	
+	public World getWorld();
 	
 	public int getBandwidth();
 	
