@@ -122,7 +122,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		GlStateManager.pushMatrix();
 		
 		model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
-		ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
+		ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
 		
 		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
 		
