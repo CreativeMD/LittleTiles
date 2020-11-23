@@ -23,7 +23,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.logic.event.SignalEvent;
+import com.creativemd.littletiles.common.structure.signal.event.SignalEvent;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -133,7 +133,7 @@ public class SubGuiSignalEvents extends SubGui {
 					if (control instanceof GuiPanel) {
 						GuiTextfield textfield = (GuiTextfield) ((GuiPanel) control).get("pattern");
 						try {
-							SubGuiSignalEvents.this.button.events.add(new SignalEvent(textfield.text));
+							SubGuiSignalEvents.this.button.events.add(new SignalEvent(null, textfield.text));
 						} catch (ParseException e) {}
 					}
 				}

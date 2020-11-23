@@ -34,8 +34,8 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
+import com.creativemd.littletiles.common.structure.signal.event.SignalEvent;
 import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
-import com.creativemd.littletiles.common.structure.signal.logic.event.SignalEvent;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
@@ -427,7 +427,7 @@ public abstract class LittleStructure {
 			signalEvents = new ArrayList<>();
 			for (int i = 0; i < list.tagCount(); i++)
 				try {
-					signalEvents.add(new SignalEvent(list.getStringTagAt(i)));
+					signalEvents.add(new SignalEvent(this, list.getStringTagAt(i)));
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
