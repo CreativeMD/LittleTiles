@@ -53,14 +53,16 @@ public class SubGuiColorTube extends SubGuiConfigure {
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		SelectShape shape = box.caption.equals("tile") || box.caption.equals("") ? null : SelectShape.getShape(box.caption);
 		
-		NBTTagCompound nbt = new NBTTagCompound();
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null) {
+			nbt = new NBTTagCompound();
+			stack.setTagCompound(nbt);
+		}
 		nbt.setString("shape", shape == null ? "tile" : shape.key);
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
 		nbt.setInteger("color", ColorUtils.RGBAToInt(picker.color));
 		if (shape != null)
 			shape.saveCustomSettings(scroll, nbt, getContext());
-		
-		stack.setTagCompound(nbt);
 	}
 	
 	@CustomEventSubscribe

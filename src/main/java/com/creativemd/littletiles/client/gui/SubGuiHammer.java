@@ -31,10 +31,13 @@ public class SubGuiHammer extends SubGuiConfigure {
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		SelectShape shape = SelectShape.getShape(box.caption);
 		
-		NBTTagCompound nbt = new NBTTagCompound();
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null) {
+			nbt = new NBTTagCompound();
+			stack.setTagCompound(nbt);
+		}
 		nbt.setString("shape", shape.key);
 		shape.saveCustomSettings(scroll, nbt, getContext());
-		stack.setTagCompound(nbt);
 	}
 	
 	@Override
