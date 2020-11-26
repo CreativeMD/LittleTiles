@@ -39,6 +39,7 @@ public class TileList extends ParentTileList {
 			StructureTileList child = new StructureTileList(this, list.getCompoundTagAt(i));
 			structures.put(child.getIndex(), child);
 		}
+		reloadAttributes();
 	}
 	
 	@Override
