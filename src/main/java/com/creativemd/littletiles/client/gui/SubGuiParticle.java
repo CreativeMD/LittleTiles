@@ -22,7 +22,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTran
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.common.particle.LittleParticlePreset;
 import com.creativemd.littletiles.common.particle.LittleParticleTexture;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
@@ -44,10 +43,6 @@ public class SubGuiParticle extends SubGui {
 	
 	@Override
 	public void createControls() {
-		ArrayList<String> presets = new ArrayList<>();
-		for (int i = 0; i < LittleParticlePreset.values().length; i++)
-			presets.add(LittleParticlePreset.values()[i].translatedName());
-		
 		ArrayList<String> textures = new ArrayList<>();
 		for (int i = 0; i < LittleParticleTexture.values().length; i++)
 			textures.add(LittleParticleTexture.values()[i].translatedName());
@@ -64,8 +59,6 @@ public class SubGuiParticle extends SubGui {
 		controls.add(new GuiPanel("spreadpanel", 0, 40, 194, 40));
 		loadSpread();
 		
-		controls.add(new GuiLabel("presetLabel", translate("gui.particle.preset"), 0, 91));
-		controls.add(new GuiComboBox("preset", 78, 89, 116, presets));
 		controls.add(new GuiLabel("textureLabel", translate("gui.particle.texture"), 0, 112));
 		controls.add(new GuiComboBox("textures", 78, 110, 116, textures));
 		controls.add(new GuiLabel("sizeLabel", translate("gui.particle.size"), 0, 134));
@@ -136,10 +129,7 @@ public class SubGuiParticle extends SubGui {
 	
 	@CustomEventSubscribe
 	public void onParticleChange(GuiControlChangedEvent event) {
-		if (event.source.is("list")) {
-			GuiComboBox box = (GuiComboBox) event.source;
-			loadParticleSettings(LittleParticlePreset.values()[box.index].settings);
-		} else if (event.source.is("spread"))
+		if (event.source.is("spread"))
 			loadSpread();
 	}
 	
