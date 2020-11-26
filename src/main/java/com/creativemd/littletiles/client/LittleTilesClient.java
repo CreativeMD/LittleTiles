@@ -32,7 +32,6 @@ import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
 import com.creativemd.littletiles.common.item.ItemRecipe;
 import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
-import com.creativemd.littletiles.common.particle.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
@@ -216,8 +215,6 @@ public class LittleTilesClient extends LittleTilesServer {
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTickingRendered);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTickingRendered);
-		
-		LittleParticleType.initClient();
 		
 		ClientCommandHandler.instance.registerCommand(new DebugCommand());
 		

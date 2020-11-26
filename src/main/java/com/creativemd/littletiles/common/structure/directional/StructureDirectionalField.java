@@ -94,6 +94,6 @@ public class StructureDirectionalField {
 	}
 	
 	public Object getDefault() {
-		return type.getDefault();
+		return defaultValue != null ? defaultValue : type.getDefault();
 	}
 }

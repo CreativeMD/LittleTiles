@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.LittleStructureTypeParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable.LittleStructureTypeCable;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalInput;
@@ -36,6 +37,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -133,6 +135,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType("workbench", LittleTiles.modid, LittleWorkbench.class);
 		registerPremadeStructureType("importer", LittleTiles.modid, LittleImporter.class);
 		registerPremadeStructureType("exporter", LittleTiles.modid, LittleExporter.class);
+		registerPremadeStructureType(new LittleStructureTypeParticleEmitter("particle_emitter", "premade", LittleParticleEmitter.class, LittleStructureAttribute.TICKING, LittleTiles.modid)).addOutput("active", 1).setFieldDefault("facing", EnumFacing.UP);
 		
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable4", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));

@@ -126,6 +126,8 @@ item.LTPremade.single_cable1.name=Single Cable (1-bit)
 item.LTPremade.single_cable4.name=Single Cable (4-bit)
 item.LTPremade.single_cable16.name=Single Cable (16-bit)
 
+item.LTPremade.particle_emitter.name=Particle Emitter
+
 selection.clear=clear
 selection.dialog.clear=Do you really want to clear all content?
 selection.structure.name=structure name
@@ -156,6 +158,8 @@ structure.doorActivator.name=Door Activator
 structure.category.simple=Simple
 structure.category.door=Doors
 
+gui.save=Save
+
 gui.door.duration=Duration
 gui.door.stayAnimated=Stay Animated
 gui.door.stayAnimatedTooltip=Only use if necessary, it will affect your FPS
@@ -175,6 +179,21 @@ gui.color.rightclick=right click to drain
 gui.signal.events=Signals
 gui.door.axis.clockwise=right-turning
 gui.door.axis.counterclockwise=left-turning
+
+gui.particle.delay=Tick Delay
+gui.particle.size=Size
+gui.particle.preset=Presets
+gui.particle.texture=Textures
+gui.particle.gravity=Gravity
+gui.particle.growrate=Growrate
+gui.particle.randomcolor=Random Color
+gui.particle.age=Age
+gui.particle.spread.speedx=X
+gui.particle.spread.speedy=Y
+gui.particle.spread.speedz=Z
+gui.particle.spread.radius=Radius
+gui.particle.spread.spread=Deviation
+gui.particle.spread.steps=Steps
 
 animation.event.child.name=Activate Child
 animation.event.sound-event.name=Play Sound Event

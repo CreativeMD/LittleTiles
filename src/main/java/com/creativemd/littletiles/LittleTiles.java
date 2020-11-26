@@ -13,6 +13,7 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.client.gui.SubGuiDiagnose;
 import com.creativemd.littletiles.client.gui.SubGuiExport;
 import com.creativemd.littletiles.client.gui.SubGuiImport;
+import com.creativemd.littletiles.client.gui.SubGuiParticle;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.client.gui.SubGuiStorage;
@@ -59,6 +60,7 @@ import com.creativemd.littletiles.common.command.ToVanillaCommand;
 import com.creativemd.littletiles.common.container.SubContainerDiagnose;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
+import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
@@ -106,6 +108,7 @@ import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
+import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
@@ -413,6 +416,20 @@ public class LittleTiles {
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerWorkbench(player);
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("particle", new LittleStructureGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubGuiParticle((LittleParticleEmitter) structure);
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubContainerParticle(player, (LittleParticleEmitter) structure);
 			}
 		});
 		

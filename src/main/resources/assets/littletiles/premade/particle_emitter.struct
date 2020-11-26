@@ -1,0 +1,1 @@
+{tiles:[{bBox:[I;0,0,0,1,1,1],tile:{color:-13619152,block:"littletiles:ltcoloredblock"}}],min:[I;0,0,0],size:[I;1,1,1],grid:16,count:1,structure:{ticker:3,speedZ:0.0f,color:-1,speedY:0.1f,speedX:0.0f,texture:"smoke",lifetime:20,facing:4,tickDelay:10,spread:0.0f,size:0.4f,gravity:0b,growrate:1.0f,id:"particle_emitter",state:0}}
