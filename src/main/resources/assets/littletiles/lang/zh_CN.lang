@@ -126,6 +126,8 @@ item.LTPremade.single_cable1.name=单芯电缆 (1-bit)
 item.LTPremade.single_cable4.name=单芯电缆 (4-bit)
 item.LTPremade.single_cable16.name=单芯电缆 (16-bit)
 
+item.LTPremade.particle_emitter.name=粒子发射器
+
 selection.clear=清除
 selection.dialog.clear=是否确实要清除所有内容？
 selection.structure.name=结构名称
@@ -156,6 +158,8 @@ structure.doorActivator.name=门（触发器）
 structure.category.simple=简易
 structure.category.door=门
 
+gui.save=保存
+
 gui.door.duration=持续时间
 gui.door.stayAnimated=保持动画
 gui.door.stayAnimatedTooltip=仅在必要时使用，它会影响你的FPS
@@ -175,6 +179,21 @@ gui.color.rightclick=右键单击提取
 gui.signal.events=信号
 gui.door.axis.clockwise=向右转
 gui.door.axis.counterclockwise=向左转
+
+ui.particle.delay=Tick 延迟
+gui.particle.size=尺寸
+gui.particle.preset=预设
+gui.particle.texture=纹理材质
+gui.particle.gravity=重力
+gui.particle.growrate=增长
+gui.particle.randomcolor=随机颜色
+gui.particle.age=年龄
+gui.particle.spread.speedx=X
+gui.particle.spread.speedy=Y
+gui.particle.spread.speedz=Z
+gui.particle.spread.radius=半径
+gui.particle.spread.spread=偏移
+gui.particle.spread.steps=等级
 
 animation.event.child.name=激活子级
 animation.event.sound-event.name=播放声音事件
