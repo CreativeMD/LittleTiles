@@ -35,10 +35,12 @@ public class LittleBoxFace {
 	private List<VectorFan> toCut = null;
 	private List<VectorFan> cachedFans = null;
 	private List<VectorFan> faceFans = null;
+	private Iterable<VectorFan> tiltedFans = null;
 	
-	public LittleBoxFace(LittleBox box, List<VectorFan> faceFans, LittleGridContext context, EnumFacing facing, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
+	public LittleBoxFace(LittleBox box, List<VectorFan> faceFans, Iterable<VectorFan> tiltedFans, LittleGridContext context, EnumFacing facing, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
 		this.box = box;
 		this.faceFans = faceFans;
+		this.tiltedFans = tiltedFans;
 		this.context = context;
 		this.facing = facing;
 		this.one = RotationUtils.getOne(facing.getAxis());
@@ -73,6 +75,15 @@ public class LittleBoxFace {
 				fan = fan.copy();
 				fan.scale(ratio);
 				newFans.add(fan);
+			}
+			if (tiltedFans != null) {
+				List<VectorFan> tiledFansNew = new ArrayList<>();
+				for (VectorFan fan : tiltedFans) {
+					fan = fan.copy();
+					fan.scale(ratio);
+					tiledFansNew.add(fan);
+				}
+				this.tiltedFans = tiledFansNew;
 			}
 			faceFans = newFans;
 		}
@@ -164,12 +175,19 @@ public class LittleBoxFace {
 			fans = newFans;
 		}
 		
-		if (toCut == null)
+		if (toCut == null) {
+			if (tiltedFans != null)
+				for (VectorFan fan : tiltedFans)
+					fans.add(fan);
 			return fans;
+		}
 		
 		List<VectorFan> result = new ArrayList<>();
 		for (VectorFan fan : fans)
 			result.addAll(fan.cut2d(toCut, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE, false));
+		if (tiltedFans != null)
+			for (VectorFan fan : tiltedFans)
+				result.add(fan);
 		cachedFans = result;
 		return result;
 	}

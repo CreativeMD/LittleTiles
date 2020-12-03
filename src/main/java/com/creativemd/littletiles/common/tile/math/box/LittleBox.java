@@ -1039,7 +1039,7 @@ public class LittleBox {
 		Axis one = RotationUtils.getOne(facing.getAxis());
 		Axis two = RotationUtils.getTwo(facing.getAxis());
 		
-		return new LittleBoxFace(this, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+		return new LittleBoxFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
 	
 	public boolean intersectsWith(LittleBoxFace face) {

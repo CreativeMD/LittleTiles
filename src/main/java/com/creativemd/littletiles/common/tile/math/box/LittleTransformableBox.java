@@ -1099,7 +1099,7 @@ public class LittleTransformableBox extends LittleBox {
 			return null;
 		Axis one = RotationUtils.getOne(facing.getAxis());
 		Axis two = RotationUtils.getTwo(facing.getAxis());
-		return new LittleBoxFace(this, faceCache.axisStrips, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+		return new LittleBoxFace(this, faceCache.axisStrips, faceCache.tilted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
 	
 	class TransformableVec {
