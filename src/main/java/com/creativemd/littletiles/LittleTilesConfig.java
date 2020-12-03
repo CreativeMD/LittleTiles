@@ -5,7 +5,7 @@ import com.creativemd.creativecore.common.config.api.ICreativeConfig;
 import com.creativemd.creativecore.common.config.sync.ConfigSynchronization;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.item.ItemBag;
+import com.creativemd.littletiles.common.item.ItemLittleBag;
 import com.creativemd.littletiles.common.item.ItemMultiTiles;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -175,7 +175,7 @@ public class LittleTilesConfig {
 		public void configured() {
 			LittleGridContext.loadGrid(minSize, defaultSize, scale, exponent);
 			ItemMultiTiles.currentContext = LittleGridContext.get();
-			ItemBag.maxStackSizeOfTiles = ItemBag.maxStackSize * LittleGridContext.get().maxTilesPerBlock;
+			ItemLittleBag.maxStackSizeOfTiles = ItemLittleBag.maxStackSize * LittleGridContext.get().maxTilesPerBlock;
 			LittleStructurePremade.reloadPremadeStructures();
 		}
 	}

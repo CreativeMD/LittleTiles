@@ -38,7 +38,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemHammer extends Item implements IBoxSelector {
+public class ItemLittleHammer extends Item implements IBoxSelector {
 	
 	private static boolean activeFilter = false;
 	private static TileSelector currentFilter = null;
@@ -56,7 +56,7 @@ public class ItemHammer extends Item implements IBoxSelector {
 		return currentFilter;
 	}
 	
-	public ItemHammer() {
+	public ItemLittleHammer() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);

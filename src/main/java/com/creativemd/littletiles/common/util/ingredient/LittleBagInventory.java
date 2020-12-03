@@ -1,12 +1,12 @@
 package com.creativemd.littletiles.common.util.ingredient;
 
-import com.creativemd.littletiles.common.item.ItemBag;
+import com.creativemd.littletiles.common.item.ItemLittleBag;
 
 public class LittleBagInventory extends LittleIngredients {
 	
 	public LittleBagInventory() {
-		content[LittleIngredient.indexOf(BlockIngredient.class)] = new BlockIngredient().setLimits(ItemBag.inventorySize, ItemBag.maxStackSize);
-		content[LittleIngredient.indexOf(ColorIngredient.class)] = new ColorIngredient().setLimit(ItemBag.colorUnitMaximum);
+		content[LittleIngredient.indexOf(BlockIngredient.class)] = new BlockIngredient().setLimits(ItemLittleBag.inventorySize, ItemLittleBag.maxStackSize);
+		content[LittleIngredient.indexOf(ColorIngredient.class)] = new ColorIngredient().setLimit(ItemLittleBag.colorUnitMaximum);
 	}
 	
 	@Override

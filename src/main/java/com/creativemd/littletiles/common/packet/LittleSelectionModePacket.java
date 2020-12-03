@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,11 +42,11 @@ public class LittleSelectionModePacket extends CreativeCorePacket {
 	@Override
 	public void executeServer(EntityPlayer player) {
 		ItemStack stack = player.getHeldItemMainhand();
-		if (stack.getItem() instanceof ItemRecipeAdvanced)
+		if (stack.getItem() instanceof ItemLittleRecipeAdvanced)
 			if (rightClick)
-				ItemRecipeAdvanced.getSelectionMode(stack).onRightClick(player, stack, pos);
+				ItemLittleRecipeAdvanced.getSelectionMode(stack).onRightClick(player, stack, pos);
 			else
-				ItemRecipeAdvanced.getSelectionMode(stack).onLeftClick(player, stack, pos);
+				ItemLittleRecipeAdvanced.getSelectionMode(stack).onLeftClick(player, stack, pos);
 	}
 	
 }

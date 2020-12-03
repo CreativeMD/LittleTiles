@@ -49,9 +49,9 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRendered {
+public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICreativeRendered {
 	
-	public ItemRecipeAdvanced() {
+	public ItemLittleRecipeAdvanced() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 	}
@@ -86,7 +86,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		if (!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
+		if (!((ItemLittleRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
 			return new SubGuiRecipeAdvancedSelection(stack);
 		return new SubGuiRecipe(stack);
 	}

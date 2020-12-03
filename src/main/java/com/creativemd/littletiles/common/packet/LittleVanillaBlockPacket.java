@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.item.ItemColorTube;
+import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber.GrabberMode;
@@ -46,7 +46,7 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 				if (flatColoredBlocks && state.getBlock() instanceof BlockFlatColored)
 					color = ((BlockFlatColored) state.getBlock()).colorFromState(state);
 				
-				ItemColorTube.setColor(player.getHeldItemMainhand(), color);
+				ItemLittlePaintBrush.setColor(player.getHeldItemMainhand(), color);
 			}
 		},
 		CHISEL {

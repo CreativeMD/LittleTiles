@@ -21,10 +21,10 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.item.ItemBlockTiles;
-import com.creativemd.littletiles.common.item.ItemColorTube;
+import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.item.ItemLittleSaw;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
-import com.creativemd.littletiles.common.item.ItemRubberMallet;
+import com.creativemd.littletiles.common.item.ItemLittleRubberMallet;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -133,7 +133,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	public static boolean selectEntireBlock(EntityPlayer player, boolean secondMode) {
-		return secondMode && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemColorTube);
+		return secondMode && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemLittlePaintBrush);
 	}
 	
 	public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
@@ -420,7 +420,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		ItemStack heldItem = playerIn.getHeldItem(hand);
-		if (heldItem != null && heldItem.getItem() instanceof ItemRubberMallet)
+		if (heldItem != null && heldItem.getItem() instanceof ItemLittleRubberMallet)
 			return false;
 		if (worldIn.isRemote)
 			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, facing, hitX, hitY, hitZ);

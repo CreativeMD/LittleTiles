@@ -7,7 +7,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.api.IBoxSelector;
-import com.creativemd.littletiles.common.item.ItemHammer;
+import com.creativemd.littletiles.common.item.ItemLittleHammer;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.shape.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -43,7 +43,7 @@ public class SubGuiHammer extends SubGuiConfigure {
 	@Override
 	public void createControls() {
 		GuiComboBox box = new GuiComboBox("shape", 0, 0, 134, new ArrayList<>(SelectShape.keys()));
-		box.select(ItemHammer.getShape(stack).key);
+		box.select(ItemLittleHammer.getShape(stack).key);
 		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 23, 134, 120);
 		controls.add(box);
 		controls.add(scroll);

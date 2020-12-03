@@ -36,7 +36,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemBag extends Item implements IGuiCreator, ILittleIngredientInventory {
+public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredientInventory {
 	
 	public static int colorUnitMaximum = 10000000;
 	public static int inventoryWidth = 6;
@@ -45,7 +45,7 @@ public class ItemBag extends Item implements IGuiCreator, ILittleIngredientInven
 	public static int maxStackSize = 64;
 	public static int maxStackSizeOfTiles;
 	
-	public ItemBag() {
+	public ItemLittleBag() {
 		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}

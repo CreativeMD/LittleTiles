@@ -9,8 +9,8 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemListBox
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
-import com.creativemd.littletiles.common.item.ItemRecipe;
-import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.item.ItemLittleRecipe;
+import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
@@ -48,7 +48,7 @@ public class SubGuiWorkbench extends SubGui {
 				listBox.clear();
 				
 				if (!stack1.isEmpty()) {
-					if (stack1.getItem() instanceof ItemRecipe || stack1.getItem() instanceof ItemRecipeAdvanced) {
+					if (stack1.getItem() instanceof ItemLittleRecipe || stack1.getItem() instanceof ItemLittleRecipeAdvanced) {
 						LittlePreviews previews = LittlePreview.getPreview(stack1);
 						
 						EntityPlayer player = getPlayer();

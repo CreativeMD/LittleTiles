@@ -7,7 +7,7 @@ import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.item.ItemRecipe;
+import com.creativemd.littletiles.common.item.ItemLittleRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -33,10 +33,10 @@ public class StructureStringUtils {
 	
 	@SideOnly(Side.CLIENT)
 	public static String exportModel(ItemStack stack) {
-		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemLittleRecipe)) {
 			JsonObject object = new JsonObject();
 			NBTTagCompound nbt = new NBTTagCompound();
-			if (!(stack.getItem() instanceof ItemRecipe) && !PlacementHelper.isLittleBlock(stack))
+			if (!(stack.getItem() instanceof ItemLittleRecipe) && !PlacementHelper.isLittleBlock(stack))
 				return "";
 			
 			List<String> texturenames = new ArrayList<>();
@@ -122,11 +122,11 @@ public class StructureStringUtils {
 	
 	public static String exportStructure(ItemStack stack) {
 		String text = "";
-		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemLittleRecipe)) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			LittlePreviews previews = null;
 			LittleStructure structure = null;
-			if (stack.getItem() instanceof ItemRecipe) {
+			if (stack.getItem() instanceof ItemLittleRecipe) {
 				previews = LittlePreview.getPreview(stack);
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack);

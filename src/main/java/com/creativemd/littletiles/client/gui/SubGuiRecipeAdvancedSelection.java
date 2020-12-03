@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode.SelectionResult;
@@ -34,7 +34,7 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
 	
 	@Override
 	public void createControls() {
-		SelectionMode mode = ItemRecipeAdvanced.getSelectionMode(stack);
+		SelectionMode mode = ItemLittleRecipeAdvanced.getSelectionMode(stack);
 		GuiComboBox box = new GuiComboBox("selection_mode", 0, 0, 100, translate(SelectionMode.names()));
 		box.select(mode.name);
 		controls.add(box);

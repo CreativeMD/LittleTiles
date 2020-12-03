@@ -51,9 +51,9 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
+public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	
-	public ItemRecipe() {
+	public ItemLittleRecipe() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 	}

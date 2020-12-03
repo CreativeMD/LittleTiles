@@ -9,7 +9,7 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.SlotControlBlockIngredient;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.item.ItemBag;
+import com.creativemd.littletiles.common.item.ItemLittleBag;
 import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.item.ItemColorIngredient;
 import com.creativemd.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
@@ -49,10 +49,10 @@ public class SubContainerBag extends SubContainerHeldItem {
 			if (event.source instanceof SlotControlBlockIngredient) {
 				SlotControlBlockIngredient slot = (SlotControlBlockIngredient) event.source;
 				
-				BlockIngredient blocks = new BlockIngredient().setLimits(ItemBag.inventorySize, ItemBag.maxStackSize);
-				for (int y = 0; y < ItemBag.inventoryHeight; y++) {
-					for (int x = 0; x < ItemBag.inventoryWidth; x++) {
-						int index = x + y * ItemBag.inventoryWidth;
+				BlockIngredient blocks = new BlockIngredient().setLimits(ItemLittleBag.inventorySize, ItemLittleBag.maxStackSize);
+				for (int y = 0; y < ItemLittleBag.inventoryHeight; y++) {
+					for (int x = 0; x < ItemLittleBag.inventoryWidth; x++) {
+						int index = x + y * ItemLittleBag.inventoryWidth;
 						BlockIngredientEntry ingredient = ((SlotControlBlockIngredient) get("item" + index)).getIngredient();
 						if (ingredient != null)
 							blocks.add(ingredient);
@@ -60,7 +60,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 				}
 				
 				bag.set(blocks.getClass(), blocks);
-				((ItemBag) stack.getItem()).setInventory(stack, bag, null);
+				((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
 				
 				reloadControls();
 			} else if (event.source.name.startsWith("input")) {
@@ -75,7 +75,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 					boolean containsColor = ingredients.contains(ColorIngredient.class);
 					
 					LittleIngredients remaining = bag.add(ingredients);
-					((ItemBag) stack.getItem()).setInventory(stack, bag, null);
+					((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
 					
 					if (remaining == null)
 						remaining = new LittleIngredients();
@@ -104,7 +104,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 						if (bag.add(ingredients) == null) {
 							
 							input.setCount(0);
-							((ItemBag) stack.getItem()).setInventory(stack, bag, null);
+							((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
 							
 							if (containsBlocks) {
 								updateSlots();
@@ -117,7 +117,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 							}
 							
 						} else
-							bag = ((ItemBag) stack.getItem()).getInventory(stack);
+							bag = ((ItemLittleBag) stack.getItem()).getInventory(stack);
 						
 					}
 				}
@@ -139,9 +139,9 @@ public class SubContainerBag extends SubContainerHeldItem {
 	
 	public void updateSlots() {
 		List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
-		for (int y = 0; y < ItemBag.inventoryHeight; y++) {
-			for (int x = 0; x < ItemBag.inventoryWidth; x++) {
-				int index = x + y * ItemBag.inventoryWidth;
+		for (int y = 0; y < ItemLittleBag.inventoryHeight; y++) {
+			for (int x = 0; x < ItemLittleBag.inventoryWidth; x++) {
+				int index = x + y * ItemLittleBag.inventoryWidth;
 				
 				ItemStack stack;
 				if (index < inventory.size()) {
@@ -158,18 +158,18 @@ public class SubContainerBag extends SubContainerHeldItem {
 	
 	@Override
 	public void createControls() {
-		bag = ((ItemBag) stack.getItem()).getInventory(stack);
+		bag = ((ItemLittleBag) stack.getItem()).getInventory(stack);
 		List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
 		
-		bagInventory = new InventoryBasic("item", false, ItemBag.inventorySize) {
+		bagInventory = new InventoryBasic("item", false, ItemLittleBag.inventorySize) {
 			@Override
 			public int getInventoryStackLimit() {
-				return ItemBag.maxStackSizeOfTiles;
+				return ItemLittleBag.maxStackSizeOfTiles;
 			}
 		};
-		for (int y = 0; y < ItemBag.inventoryHeight; y++) {
-			for (int x = 0; x < ItemBag.inventoryWidth; x++) {
-				int index = x + y * ItemBag.inventoryWidth;
+		for (int y = 0; y < ItemLittleBag.inventoryHeight; y++) {
+			for (int x = 0; x < ItemLittleBag.inventoryWidth; x++) {
+				int index = x + y * ItemLittleBag.inventoryWidth;
 				
 				ItemStack stack;
 				if (index < inventory.size()) {
@@ -216,7 +216,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 					if (!inventory.addStack(colorStack))
 						WorldUtils.dropItem(player, colorStack);
 					
-					((ItemBag) stack.getItem()).setInventory(stack, bag, null);
+					((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
 					onTick();
 					reloadControls();
 				}

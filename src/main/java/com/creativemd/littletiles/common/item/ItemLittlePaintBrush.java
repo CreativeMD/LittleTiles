@@ -46,9 +46,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemColorTube extends Item implements IBoxSelector {
+public class ItemLittlePaintBrush extends Item implements IBoxSelector {
 	
-	public ItemColorTube() {
+	public ItemLittlePaintBrush() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
@@ -153,8 +153,8 @@ public class ItemColorTube extends Item implements IBoxSelector {
 			else
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
 		} else if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))) {
-			if (ItemHammer.isFiltered())
-				new LittleActionColorBoxesFiltered(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, ItemHammer.getFilter()).execute();
+			if (ItemLittleHammer.isFiltered())
+				new LittleActionColorBoxesFiltered(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, ItemLittleHammer.getFilter()).execute();
 			else
 				new LittleActionColorBoxes(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false).execute();
 		}
@@ -183,11 +183,11 @@ public class ItemColorTube extends Item implements IBoxSelector {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
-		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, ItemHammer.isFiltered(), ItemHammer.getFilter()) {
+		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
 			
 			@Override
 			public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
-				ItemHammer.setFilter(activeFilter, selector);
+				ItemLittleHammer.setFilter(activeFilter, selector);
 				ItemMultiTiles.currentContext = context;
 			}
 		};

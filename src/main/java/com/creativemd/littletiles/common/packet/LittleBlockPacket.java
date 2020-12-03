@@ -9,7 +9,7 @@ import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.item.ItemColorTube;
+import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -50,7 +50,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 					int color = ColorUtils.WHITE;
 					if (tile instanceof LittleTileColored)
 						color = ((LittleTileColored) tile).color;
-					ItemColorTube.setColor(player.getHeldItemMainhand(), color);
+					ItemLittlePaintBrush.setColor(player.getHeldItemMainhand(), color);
 				}
 			}
 		},

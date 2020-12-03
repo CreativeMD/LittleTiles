@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
@@ -19,7 +19,7 @@ public class SubContainerRecipeAdvanced extends SubContainerRecipe {
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		if (nbt.getBoolean("save_selection")) {
-			SelectionMode mode = ItemRecipeAdvanced.getSelectionMode(stack);
+			SelectionMode mode = ItemLittleRecipeAdvanced.getSelectionMode(stack);
 			LittlePreviews previews = mode.getPreviews(player.world, stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
 			
 			if (nbt.hasKey("grid")) {
@@ -35,7 +35,7 @@ public class SubContainerRecipeAdvanced extends SubContainerRecipe {
 			
 			previews.removeOffset();
 			
-			((ItemRecipeAdvanced) stack.getItem()).saveLittlePreview(stack, previews);
+			((ItemLittleRecipeAdvanced) stack.getItem()).saveLittlePreview(stack, previews);
 			mode.clearSelection(stack);
 			
 			sendNBTToGui(stack.getTagCompound());

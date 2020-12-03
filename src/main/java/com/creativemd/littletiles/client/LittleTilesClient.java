@@ -27,11 +27,11 @@ import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.item.ItemColorTube;
+import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
-import com.creativemd.littletiles.common.item.ItemRecipe;
-import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.item.ItemLittleRecipe;
+import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
@@ -134,7 +134,7 @@ public class LittleTilesClient extends LittleTilesServer {
 			public int colorMultiplier(ItemStack stack, int color) {
 				if (color == 0)
 					return ColorUtils.WHITE;
-				return ItemColorTube.getColor(stack);
+				return ItemLittlePaintBrush.getColor(stack);
 			}
 			
 		}, LittleTiles.colorTube);
@@ -230,8 +230,8 @@ public class LittleTilesClient extends LittleTilesServer {
 				LittleChunkDispatcher.currentRenderState++;
 				ItemLittleChisel.model = null;
 				ItemLittleGrabber.model = null;
-				ItemRecipe.model = null;
-				ItemRecipeAdvanced.model = null;
+				ItemLittleRecipe.model = null;
+				ItemLittleRecipeAdvanced.model = null;
 			}
 		});
 	}

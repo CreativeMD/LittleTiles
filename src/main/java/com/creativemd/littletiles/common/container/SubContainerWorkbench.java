@@ -5,8 +5,8 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.item.ItemRecipe;
-import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.item.ItemLittleRecipe;
+import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -49,10 +49,10 @@ public class SubContainerWorkbench extends SubContainer {
 		ItemStack stack1 = basic.getStackInSlot(0);
 		ItemStack stack2 = basic.getStackInSlot(1);
 		if (!stack1.isEmpty()) {
-			if (stack1.getItem() instanceof ItemRecipe || stack1.getItem() instanceof ItemRecipeAdvanced) {
+			if (stack1.getItem() instanceof ItemLittleRecipe || stack1.getItem() instanceof ItemLittleRecipeAdvanced) {
 				if (stack1.hasTagCompound() && !stack1.getTagCompound().hasKey("x")) {
 					
-					if (stack2.getItem() instanceof ItemRecipe || stack2.getItem() instanceof ItemRecipeAdvanced) {
+					if (stack2.getItem() instanceof ItemLittleRecipe || stack2.getItem() instanceof ItemLittleRecipeAdvanced) {
 						if (stack2.hasTagCompound() && !stack2.getTagCompound().hasKey("x") && stack1.getTagCompound().hasKey("structure"))
 							stack2.getTagCompound().setTag("structure", stack1.getTagCompound().getTag("structure"));
 					} else {
@@ -81,7 +81,7 @@ public class SubContainerWorkbench extends SubContainer {
 				}
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
-				if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemRecipe || stack2.getItem() instanceof ItemRecipeAdvanced))
+				if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemLittleRecipe || stack2.getItem() instanceof ItemLittleRecipeAdvanced))
 					stack2.setTagCompound(stack1.getTagCompound().copy());
 			}
 		}

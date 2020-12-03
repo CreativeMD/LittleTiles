@@ -13,7 +13,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.container.SubContainerExport;
-import com.creativemd.littletiles.common.item.ItemRecipe;
+import com.creativemd.littletiles.common.item.ItemLittleRecipe;
 import com.creativemd.littletiles.common.util.converation.StructureStringUtils;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -48,7 +48,7 @@ public class SubGuiExport extends SubGui {
 	
 	public void updateTextfield() {
 		ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
-		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemLittleRecipe)) {
 			GuiComboBox box = (GuiComboBox) get("type");
 			if (box.index == 0)
 				textfield.text = StructureStringUtils.exportStructure(stack);

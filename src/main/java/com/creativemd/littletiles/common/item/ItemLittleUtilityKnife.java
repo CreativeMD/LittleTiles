@@ -7,9 +7,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
-public class ItemRubberMallet extends Item {
+public class ItemLittleUtilityKnife extends Item {
 	
-	public ItemRubberMallet() {
+	public ItemLittleUtilityKnife() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
