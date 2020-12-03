@@ -60,6 +60,8 @@ public class SignalTicker {
 	protected SignalTicker(World world) {
 		this.world = world;
 		queue = new List[queueLength];
+		for (int i = 0; i < queue.length; i++)
+			queue[i] = new ArrayList<>();
 		queueIndex = 0;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
