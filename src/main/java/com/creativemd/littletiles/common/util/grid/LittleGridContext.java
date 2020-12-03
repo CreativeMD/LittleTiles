@@ -174,7 +174,8 @@ public class LittleGridContext {
 	}
 	
 	public boolean isAtEdge(double pos) {
-		return pos % pixelSize == 0;
+		double result = pos % pixelSize;
+		return LittleUtils.equals(result, 0) || LittleUtils.equals(result, pixelSize);
 	}
 	
 	public int toGrid(int pos) {
