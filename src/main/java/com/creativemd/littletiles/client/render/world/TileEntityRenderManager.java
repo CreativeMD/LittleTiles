@@ -82,7 +82,7 @@ public class TileEntityRenderManager {
 	
 	public double getMaxRenderDistanceSquared() {
 		if (cachedRenderDistance == 0) {
-			double renderDistance = 262144; // 512 blocks
+			double renderDistance = 5 * 5; // 512 blocks
 			for (LittleStructure structure : te.rendering())
 				renderDistance = Math.max(renderDistance, structure.getMaxRenderDistanceSquared());
 			cachedRenderDistance = renderDistance;
