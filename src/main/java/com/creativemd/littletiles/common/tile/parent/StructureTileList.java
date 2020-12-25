@@ -102,7 +102,13 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
 	}
 	
 	public LittleStructure setStructureNBT(NBTTagCompound nbt) {
-		this.cache = create(nbt, this);
+		if (this.cache instanceof LittleStructure && ((LittleStructure) this.cache).type.id.equals(nbt.getString("id")))
+			((LittleStructure) this.cache).loadFromNBT(nbt);
+		else {
+			if (this.cache instanceof LittleStructure)
+				((LittleStructure) this.cache).unload();
+			this.cache = create(nbt, this);
+		}
 		return (LittleStructure) cache;
 	}
 	
@@ -162,6 +168,13 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
 	
 	public void remove() {
 		parent.removeStructure(structureIndex);
+	}
+	
+	@Override
+	public void unload() {
+		super.unload();
+		if (isMain())
+			((LittleStructure) cache).unload();
 	}
 	
 	@Deprecated

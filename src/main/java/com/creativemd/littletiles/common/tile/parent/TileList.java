@@ -172,7 +172,7 @@ public class TileList extends ParentTileList {
 									try {
 										next = structure.getStructure();
 									} catch (CorruptedConnectionException | NotYetConnectedException e) {
-									
+										
 									}
 									return;
 								}
@@ -370,6 +370,13 @@ public class TileList extends ParentTileList {
 	
 	public boolean isCompletelyEmpty() {
 		return super.isEmpty() && structures.isEmpty();
+	}
+	
+	@Override
+	public void unload() {
+		super.unload();
+		for (StructureTileList child : structures.values())
+			child.unload();
 	}
 	
 }

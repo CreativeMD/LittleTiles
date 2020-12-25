@@ -690,8 +690,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	@Override
+	public void invalidate() {
+		super.invalidate();
+		tiles.unload();
+	}
+	
+	@Override
 	public void onChunkUnload() {
 		super.onChunkUnload();
+		tiles.unload();
 		if (world.isRemote) {
 			tiles = null;
 			sideCache = null;

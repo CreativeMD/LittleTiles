@@ -538,6 +538,8 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
 	
+	public void unload() {}
+	
 	// ====================Destroy====================
 	
 	public void onLittleTileDestroy() throws CorruptedConnectionException, NotYetConnectedException {
@@ -578,7 +580,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	
 	/** Is called before the structure is removed */
 	public void onStructureDestroyed() {
-		
+		unload();
 	}
 	
 	// ================Signal================
