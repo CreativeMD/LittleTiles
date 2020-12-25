@@ -3,6 +3,8 @@ package com.creativemd.littletiles.common.structure.directional;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import javax.vecmath.Vector3f;
+
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
@@ -159,6 +161,45 @@ public abstract class StructureDirectionalType<T> {
 				return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGridContext.get());
 			}
 			
+		});
+		registerType(Vector3f.class, new StructureDirectionalType<Vector3f>() {
+			
+			@Override
+			public Vector3f read(NBTBase nbt) {
+				if (nbt instanceof NBTTagIntArray) {
+					int[] array = ((NBTTagIntArray) nbt).getIntArray();
+					if (array.length == 3)
+						return new Vector3f(Float.intBitsToFloat(array[0]), Float.intBitsToFloat(array[1]), Float.intBitsToFloat(array[2]));
+				}
+				return null;
+			}
+			
+			@Override
+			public NBTBase write(Vector3f value) {
+				return new NBTTagIntArray(new int[] { Float.floatToIntBits(value.x), Float.floatToIntBits(value.y), Float.floatToIntBits(value.z) });
+			}
+			
+			@Override
+			public Vector3f move(Vector3f value, LittleGridContext context, LittleVec offset) {
+				return value;
+			}
+			
+			@Override
+			public Vector3f flip(Vector3f value, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+				RotationUtils.flip(value, axis);
+				return value;
+			}
+			
+			@Override
+			public Vector3f rotate(Vector3f value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+				RotationUtils.rotate(value, rotation);
+				return value;
+			}
+			
+			@Override
+			public Vector3f getDefault() {
+				return new Vector3f();
+			}
 		});
 	}
 	
