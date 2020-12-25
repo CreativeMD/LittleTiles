@@ -9,14 +9,17 @@ import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
+import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
@@ -45,7 +48,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		
 		COLOR_TUBE(true) {
 			@Override
-			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+			public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				if ((tile.getClass() == LittleTile.class || tile instanceof LittleTileColored)) {
 					int color = ColorUtils.WHITE;
 					if (tile instanceof LittleTileColored)
@@ -56,7 +59,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		},
 		CHISEL(false) {
 			@Override
-			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+			public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				LittlePreview preview = tile.getPreviewTile();
 				preview.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 				ItemLittleChisel.setPreview(stack, preview);
@@ -64,20 +67,38 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		},
 		GRABBER(false) {
 			@Override
-			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+			public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				ItemLittleGrabber.getMode(stack).littleBlockAction(world, te, tile, stack, pos, nbt);
 			}
 		},
 		WRENCH(true) {
 			
 			@Override
-			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+			public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				player.sendStatusMessage(new TextComponentString("grid:" + te.getContext()), true);
 				te.combineTiles();
 				te.convertBlockToVanilla();
 				te.updateTiles();
 			}
 			
+		},
+		RECIPE(false) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				LittlePreviews previews = new LittlePreviews(te.getContext());
+				if (nbt.getBoolean("secondMode"))
+					for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+						previews.addWithoutCheckingPreview(pair.value.getPreviewTile());
+				else if (parent.isStructure())
+					try {
+						previews = parent.getStructure().getPreviews(parent.getStructure().getPos());
+					} catch (CorruptedConnectionException | NotYetConnectedException e) {
+						return;
+					}
+				else
+					previews.addWithoutCheckingPreview(tile.getPreviewTile());
+				LittlePreview.savePreview(previews, stack);
+			}
 		};
 		
 		public final boolean rightClick;
@@ -86,7 +107,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 			this.rightClick = rightClick;
 		}
 		
-		public abstract void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt);
+		public abstract void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt);
 	}
 	
 	public BlockPos blockPos;
@@ -183,7 +204,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 			if (pair != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				RayTraceResult moving = te.rayTrace(pos, look);
-				action.action(world, te, pair.value, stack, player, moving, blockPos, nbt);
+				action.action(world, te, pair.key, pair.value, stack, player, moving, blockPos, nbt);
 				
 				if (!player.world.isRemote) {
 					EntityPlayerMP playerMP = (EntityPlayerMP) player;

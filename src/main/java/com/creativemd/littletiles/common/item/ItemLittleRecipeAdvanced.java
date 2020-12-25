@@ -14,9 +14,13 @@ import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -110,6 +114,19 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
 		return false;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+		IBlockState state = world.getBlockState(result.getBlockPos());
+		if (state.getBlock() instanceof BlockTile) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
+			PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.RECIPE, nbt));
+			return true;
+		}
+		return true;
 	}
 	
 	@Override
