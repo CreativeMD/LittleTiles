@@ -335,7 +335,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			boolean useInternalOutput = structure instanceof LittleDoor ? ((LittleDoor) structure).useInternalOutput : false;
 			parent.controls.add(new GuiDoorSettingsButton("settings", 0, 110, stayAnimated, disableRightClick, useInternalOutput, noClip));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
-			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 121, 40, 8).setNumbersOnly());
+			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 10, 149, 121, 40, 8).setNumbersOnly());
 			parent.controls.add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
 			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
 			updateTimeline();
