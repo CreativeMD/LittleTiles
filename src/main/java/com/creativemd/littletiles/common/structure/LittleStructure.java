@@ -136,7 +136,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 		return type.attribute;
 	}
 	
-	public StructureLocation getStructureLoaction() {
+	public StructureLocation getStructureLocation() {
 		return new StructureLocation(this);
 	}
 	
@@ -348,8 +348,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	
 	/** takes name of stack and connects the structure to its children (does so recursively)
 	 * 
-	 * @param stack
-	 */
+	 * @param stack */
 	public void placedStructure(@Nullable ItemStack stack) {
 		NBTTagCompound nbt;
 		if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
@@ -870,7 +869,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	public void updateStructure() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeToNBT(nbt);
-		PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLoaction(), nbt), getWorld(), getPos(), null);
+		PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(), getPos(), null);
 	}
 	
 	// ====================Extra====================

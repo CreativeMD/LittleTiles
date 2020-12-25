@@ -239,4 +239,8 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
 		
 		stack.getTagCompound().setString("selmode", mode.name);
 	}
+	
+	public static boolean isRecipe(Item item) {
+		return item instanceof ItemLittleRecipe || item instanceof ItemLittleRecipeAdvanced;
+	}
 }

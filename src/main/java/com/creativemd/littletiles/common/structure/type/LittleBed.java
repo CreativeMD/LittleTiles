@@ -271,8 +271,8 @@ public class LittleBed extends LittleStructure {
 			SleepResult enumstatus = trySleep(player, vec);
 			if (enumstatus == SleepResult.OK) {
 				player.addStat(StatList.SLEEP_IN_BED);
-				PacketHandler.sendPacketToPlayer(new LittleBedPacket(getStructureLoaction()), (EntityPlayerMP) player);
-				PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(getStructureLoaction(), player), (EntityPlayerMP) player);
+				PacketHandler.sendPacketToPlayer(new LittleBedPacket(getStructureLocation()), (EntityPlayerMP) player);
+				PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(getStructureLocation(), player), (EntityPlayerMP) player);
 				return true;
 			} else {
 				if (enumstatus == SleepResult.NOT_POSSIBLE_NOW) {

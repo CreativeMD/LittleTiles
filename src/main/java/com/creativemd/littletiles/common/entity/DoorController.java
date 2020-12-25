@@ -237,7 +237,7 @@ public class DoorController extends EntityAnimationController {
 			
 			if (!world.isRemote) {
 				WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
-				PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLoaction(), parent.getUniqueID()), parent.getAbsoluteParent(), serverWorld, null);
+				PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLocation(), parent.getUniqueID()), parent.getAbsoluteParent(), serverWorld, null);
 			} else {
 				boolean subWorld = world instanceof IOrientatedWorld;
 				HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
