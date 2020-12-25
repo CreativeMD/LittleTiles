@@ -126,6 +126,14 @@ item.LTPremade.single_cable1.name=Single Cable (1-bit)
 item.LTPremade.single_cable4.name=Single Cable (4-bit)
 item.LTPremade.single_cable16.name=Single Cable (16-bit)
 
+item.LTPremade.single_input1.name=Single Input (1-bit)
+item.LTPremade.single_input4.name=Single Input (4-bit)
+item.LTPremade.single_input16.name=Single Input (16-bit)
+
+item.LTPremade.single_output1.name=Single Output (1-bit)
+item.LTPremade.single_output4.name=Single Output (4-bit)
+item.LTPremade.single_output16.name=Single Output (16-bit)
+
 item.LTPremade.particle_emitter.name=Particle Emitter
 
 selection.clear=clear

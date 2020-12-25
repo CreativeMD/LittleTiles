@@ -373,6 +373,13 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 		}
 	}
 	
+	@Override
+	public void unload() {
+		super.unload();
+		if (network != null)
+			network.remove(this);
+	}
+	
 	public class LittleConnectionFace {
 		
 		public ISignalStructureBase connection;
