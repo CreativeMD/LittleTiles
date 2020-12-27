@@ -126,6 +126,14 @@ item.LTPremade.single_cable1.name=单芯电缆 (1-bit)
 item.LTPremade.single_cable4.name=单芯电缆 (4-bit)
 item.LTPremade.single_cable16.name=单芯电缆 (16-bit)
 
+item.LTPremade.single_input1.name=单向输入 (1-bit)
+item.LTPremade.single_input4.name=单向输入t (4-bit)
+item.LTPremade.single_input16.name=单向输入 (16-bit)
+
+item.LTPremade.single_output1.name=单向输出 (1-bit)
+item.LTPremade.single_output4.name=单向输出 (4-bit)
+item.LTPremade.single_output16.name=单向输出 (16-bit)
+
 item.LTPremade.particle_emitter.name=粒子发射器
 
 selection.clear=清除
