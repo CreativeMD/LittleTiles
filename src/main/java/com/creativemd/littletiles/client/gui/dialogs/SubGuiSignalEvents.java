@@ -18,6 +18,7 @@ import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
+import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
@@ -94,7 +95,7 @@ public class SubGuiSignalEvents extends SubGui {
 		if (button.type.inputs != null)
 			for (int i = 0; i < button.type.inputs.size(); i++) {
 				InternalComponent component = button.type.inputs.get(i);
-				values.add(ChatFormatting.BOLD + "a" + i + " " + component.identifier + ChatFormatting.RESET + component.bandwidth + "-bit");
+				values.add(ChatFormatting.BOLD + "a" + i + " " + component.identifier + " " + ChatFormatting.RESET + component.bandwidth + "-bit");
 			}
 		
 		values.addAll(getComponents(button.previews, SignalComponentType.INPUT));
@@ -104,7 +105,7 @@ public class SubGuiSignalEvents extends SubGui {
 		if (button.type.outputs != null)
 			for (int i = 0; i < button.type.outputs.size(); i++) {
 				InternalComponent component = button.type.outputs.get(i);
-				values.add(ChatFormatting.BOLD + "b" + i + " " + component.identifier + ChatFormatting.RESET + component.bandwidth + "-bit");
+				values.add(ChatFormatting.BOLD + "b" + i + " " + component.identifier + " " + ChatFormatting.RESET + component.bandwidth + "-bit");
 			}
 		
 		values.addAll(getComponents(button.previews, SignalComponentType.OUTPUT));
@@ -118,7 +119,15 @@ public class SubGuiSignalEvents extends SubGui {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				addEntry(null);
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setBoolean("dialog", true);
+				SubGuiDialogSignal dialog = new SubGuiDialogSignal(null, SubGuiSignalEvents.this.button.previews, SubGuiSignalEvents.this.button.type);
+				dialog.gui = SubGuiSignalEvents.this.gui;
+				PacketHandler.sendPacketToServer(new GuiLayerPacket(nbt, dialog.gui.getLayers().size() - 1, false));
+				dialog.container = new SubContainerEmpty(getPlayer());
+				dialog.gui.addLayer(dialog);
+				dialog.onOpened();
+				//addEntry(null);
 			}
 		});
 		for (SignalEvent event : button.events)

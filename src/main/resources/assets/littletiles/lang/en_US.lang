@@ -82,6 +82,9 @@ exception.door.notloaded=Cannot interact with door (not all tiles are loaded)
 exception.door.brokenparent=Cannot interact with door (broken connection to parent)
 exception.door.brokenchild=Cannot interact with door (broken connection to child)
 exception.door.notenoughspace=Something is in the way
+exception.pattern.empty=empty
+exception.pattern.circular=circular reference
+exception.pattern.novalidchildren=broken children
 
 color.unit.black=black
 color.unit.cyan=cyan
@@ -202,6 +205,11 @@ gui.particle.spread.speedz=Z
 gui.particle.spread.radius=Radius
 gui.particle.spread.spread=Deviation
 gui.particle.spread.steps=Steps
+
+gui.signal.configuration.result=result:
+gui.signal.configuration.save=save
+gui.signal.configuration.addop=+
+gui.signal.configuration.add=+
 
 animation.event.child.name=Activate Child
 animation.event.sound-event.name=Play Sound Event

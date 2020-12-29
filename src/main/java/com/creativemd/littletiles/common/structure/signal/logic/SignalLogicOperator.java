@@ -8,7 +8,7 @@ import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondi
 
 public enum SignalLogicOperator {
 	
-	AND('\n', false) {
+	AND('\n', false, "and") {
 		@Override
 		public SignalLogicOperator lower() {
 			return null;
@@ -40,7 +40,7 @@ public enum SignalLogicOperator {
 			};
 		}
 	},
-	OR('+', false) {
+	OR('+', false, "or") {
 		
 		@Override
 		public SignalLogicOperator lower() {
@@ -74,7 +74,7 @@ public enum SignalLogicOperator {
 		}
 		
 	},
-	XOR('V', false) {
+	XOR('V', false, "xor") {
 		
 		@Override
 		public SignalLogicOperator lower() {
@@ -107,7 +107,7 @@ public enum SignalLogicOperator {
 			};
 		}
 	},
-	BITWISE_AND('&', true) {
+	BITWISE_AND('&', true, "b-and") {
 		
 		@Override
 		public SignalLogicOperator lower() {
@@ -136,7 +136,7 @@ public enum SignalLogicOperator {
 		}
 		
 	},
-	BITWISE_OR('|', true) {
+	BITWISE_OR('|', true, "b-or") {
 		
 		@Override
 		public SignalLogicOperator lower() {
@@ -165,7 +165,7 @@ public enum SignalLogicOperator {
 		}
 		
 	},
-	BITWISE_XOR('^', true) {
+	BITWISE_XOR('^', true, "b-xor") {
 		
 		@Override
 		public SignalLogicOperator lower() {
@@ -224,10 +224,12 @@ public enum SignalLogicOperator {
 	
 	public final char operator;
 	public final boolean bitwise;
+	public final String display;
 	
-	private SignalLogicOperator(char operator, boolean bitwise) {
+	private SignalLogicOperator(char operator, boolean bitwise, String display) {
 		this.operator = operator;
 		this.bitwise = bitwise;
+		this.display = display;
 	}
 	
 	public abstract SignalLogicOperator lower();
