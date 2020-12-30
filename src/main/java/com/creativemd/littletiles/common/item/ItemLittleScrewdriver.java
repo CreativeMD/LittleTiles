@@ -4,13 +4,15 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.gui.container.SubContainer;
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiScrewdriver;
-import com.creativemd.littletiles.common.container.SubContainerScrewdriver;
+import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.container.SubContainerConfigure;
+import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -18,22 +20,69 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleScrewdriver extends Item implements IGuiCreator {
+public class ItemLittleScrewdriver extends Item implements ILittleTile {
 	
 	public ItemLittleScrewdriver() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
+	}
+	
+	public void onClick(EntityPlayer player, boolean rightClick, BlockPos pos, ItemStack stack) {
+		if (rightClick) {
+			stack.getTagCompound().setIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+			if (!player.world.isRemote)
+				player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
+		} else {
+			stack.getTagCompound().setIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+			if (!player.world.isRemote)
+				player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
+		}
+	}
+	
+	@Override
+	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+		onClick(player, true, result.getBlockPos(), stack);
+		PacketHandler.sendPacketToServer(new LittleScrewdriverSelectionPacket(result.getBlockPos(), true));
+		return true;
+	}
+	
+	@Override
+	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+		onClick(player, false, result.getBlockPos(), stack);
+		PacketHandler.sendPacketToServer(new LittleScrewdriverSelectionPacket(result.getBlockPos(), false));
+		return true;
+	}
+	
+	@Override
+	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
+		return false;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiScrewdriver(stack);
+	}
+	
+	@Override
+	public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+		return new SubContainerConfigure(player, stack);
+	}
+	
+	@Override
+	public float getDestroySpeed(ItemStack stack, IBlockState state) {
+		return 0F;
 	}
 	
 	@Override
@@ -42,31 +91,21 @@ public class ItemLittleScrewdriver extends Item implements IGuiCreator {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
-		if (stack.getTagCompound().hasKey("x1"))
-			tooltip.add("1: x=" + stack.getTagCompound().getInteger("x1") + ",y=" + stack.getTagCompound().getInteger("y1") + ",z=" + stack.getTagCompound().getInteger("z1"));
-		else
-			tooltip.add("1: undefinded");
+		if (stack.getTagCompound().hasKey("pos1")) {
+			int[] array = stack.getTagCompound().getIntArray("pos1");
+			if (array.length == 3)
+				tooltip.add("1: " + array[0] + " " + array[1] + " " + array[2]);
+		} else
+			tooltip.add("1: left-click");
 		
-		if (stack.getTagCompound().hasKey("x2"))
-			tooltip.add("2: x=" + stack.getTagCompound().getInteger("x2") + ",y=" + stack.getTagCompound().getInteger("y2") + ",z=" + stack.getTagCompound().getInteger("z2"));
-		else
-			tooltip.add("2: undefinded");
+		if (stack.getTagCompound().hasKey("pos2")) {
+			int[] array = stack.getTagCompound().getIntArray("pos2");
+			if (array.length == 3)
+				tooltip.add("2: " + array[0] + " " + array[1] + " " + array[2]);
+		} else
+			tooltip.add("2: right-click");
 		
 		tooltip.add("creative mode only");
-	}
-	
-	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		ItemStack stack = player.getHeldItem(hand);
-		if (hand == EnumHand.OFF_HAND)
-			return new ActionResult(EnumActionResult.PASS, stack);
-		if (!world.isRemote && !player.isSneaking() && stack.hasTagCompound()) {
-			if (stack.getTagCompound().hasKey("x1") && stack.getTagCompound().hasKey("x2"))
-				GuiHandler.openGuiItem(player, world);
-			else
-				player.sendMessage(new TextComponentTranslation("You have to select two positions first"));
-		}
-		return new ActionResult(EnumActionResult.SUCCESS, stack);
 	}
 	
 	@Override
@@ -92,13 +131,22 @@ public class ItemLittleScrewdriver extends Item implements IGuiCreator {
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubGuiScrewdriver(stack);
+	public boolean hasLittlePreview(ItemStack stack) {
+		return false;
 	}
 	
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerScrewdriver(player);
+	public LittlePreviews getLittlePreview(ItemStack stack) {
+		return null;
+	}
+	
+	@Override
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
+		
+	}
+	
+	@Override
+	public boolean containsIngredients(ItemStack stack) {
+		return false;
 	}
 }

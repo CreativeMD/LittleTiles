@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.lwjgl.util.Color;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
@@ -16,6 +15,7 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
@@ -43,13 +43,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 
-public class SubGuiScrewdriver extends SubGui {
-	
-	public ItemStack stack;
+public class SubGuiScrewdriver extends SubGuiConfigure {
 	
 	public SubGuiScrewdriver(ItemStack stack) {
-		super(200, 205);
-		this.stack = stack;
+		super(200, 205, stack);
 	}
 	
 	@Override
@@ -192,6 +189,11 @@ public class SubGuiScrewdriver extends SubGui {
 			openButtonDialogDialog("You have to select a task!", "ok");
 		
 		return null;
+	}
+	
+	@Override
+	public void saveConfiguration() {
+		
 	}
 	
 }
