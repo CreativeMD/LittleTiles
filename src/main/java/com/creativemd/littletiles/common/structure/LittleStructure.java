@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.structure;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,9 +35,9 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.event.SignalEvent;
 import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
+import com.creativemd.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import com.creativemd.littletiles.common.structure.signal.schedule.ISignalSchedulable;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
@@ -62,7 +63,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -104,7 +104,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	private StructureChildConnection parent;
 	private List<StructureChildConnection> children;
 	
-	private List<SignalEvent> signalEvents;
+	private HashMap<Integer, SignalExternalOutputHandler> externalHandler;
 	private final InternalSignalInput[] inputs;
 	private final InternalSignalOutput[] outputs;
 	
@@ -426,14 +426,16 @@ public abstract class LittleStructure implements ISignalSchedulable {
 		}
 		
 		if (nbt.hasKey("signal")) {
-			NBTTagList list = nbt.getTagList("signal", 8);
-			signalEvents = new ArrayList<>();
-			for (int i = 0; i < list.tagCount(); i++)
+			NBTTagList list = nbt.getTagList("signal", 10);
+			externalHandler = new HashMap<>();
+			for (int i = 0; i < list.tagCount(); i++) {
 				try {
-					signalEvents.add(new SignalEvent(this, list.getStringTagAt(i)));
+					SignalExternalOutputHandler handler = new SignalExternalOutputHandler(this, list.getCompoundTagAt(i));
+					externalHandler.put(handler.index, handler);
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
+			}
 		}
 		loadFromNBTExtra(nbt);
 		if (inputs != null)
@@ -441,7 +443,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 				inputs[i].load(nbt);
 		if (outputs != null)
 			for (int i = 0; i < outputs.length; i++)
-				outputs[i].load(nbt);
+				outputs[i].load(nbt.getCompoundTag(outputs[i].name));
 	}
 	
 	protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
@@ -451,12 +453,6 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
 	
 	public NBTTagCompound writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
-		nbt.setString("id", type.id);
-		if (name != null)
-			nbt.setString("name", name);
-		else
-			nbt.removeTag("name");
-		
 		LittleVecContext vec = new LittleVecContext(new LittleVec(mainBlock.getContext(), getPos().subtract(newCenter)), mainBlock.getContext());
 		
 		LittleVec inverted = vec.getVec().copy();
@@ -469,29 +465,11 @@ public abstract class LittleStructure implements ISignalSchedulable {
 			field.move(value, vec.getContext(), inverted);
 		}
 		
-		if (hasSignalEvents()) {
-			NBTTagList list = new NBTTagList();
-			for (SignalEvent event : signalEvents)
-				list.appendTag(new NBTTagString(event.write()));
-			nbt.setTag("signal", list);
-		}
-		if (inputs != null)
-			for (int i = 0; i < inputs.length; i++)
-				inputs[i].write(nbt);
-		if (outputs != null)
-			for (int i = 0; i < outputs.length; i++)
-				outputs[i].write(nbt);
-			
-		writeToNBTExtra(nbt);
+		writeToNBTExtraInternal(nbt);
 		return nbt;
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt) {
-		nbt.setString("id", type.id);
-		if (name != null)
-			nbt.setString("name", name);
-		else
-			nbt.removeTag("name");
 		
 		// Save family (parent and children)
 		if (parent != null)
@@ -520,10 +498,20 @@ public abstract class LittleStructure implements ISignalSchedulable {
 			field.save(nbt, value);
 		}
 		
-		if (hasSignalEvents()) {
+		writeToNBTExtraInternal(nbt);
+	}
+	
+	protected void writeToNBTExtraInternal(NBTTagCompound nbt) {
+		nbt.setString("id", type.id);
+		if (name != null)
+			nbt.setString("name", name);
+		else
+			nbt.removeTag("name");
+		
+		if (externalHandler != null && !externalHandler.isEmpty()) {
 			NBTTagList list = new NBTTagList();
-			for (SignalEvent event : signalEvents)
-				list.appendTag(new NBTTagString(event.write()));
+			for (SignalExternalOutputHandler handler : externalHandler.values())
+				list.appendTag(handler.write());
 			nbt.setTag("signal", list);
 		}
 		if (inputs != null)
@@ -531,7 +519,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 				inputs[i].write(nbt);
 		if (outputs != null)
 			for (int i = 0; i < outputs.length; i++)
-				outputs[i].write(nbt);
+				nbt.setTag(outputs[i].name, outputs[i].write(new NBTTagCompound()));
 			
 		writeToNBTExtra(nbt);
 	}
@@ -584,21 +572,6 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	}
 	
 	// ================Signal================
-	
-	public boolean hasSignalEvents() {
-		return signalEvents != null && !signalEvents.isEmpty();
-	}
-	
-	public List<SignalEvent> getSignalEvents() {
-		return signalEvents;
-	}
-	
-	public void setSignalEvents(List<SignalEvent> events) {
-		if (events.isEmpty())
-			this.signalEvents = null;
-		else
-			this.signalEvents = events;
-	}
 	
 	public Iterable<ISignalStructureComponent> inputs() {
 		return new Iterable<ISignalStructureComponent>() {
@@ -676,9 +649,12 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	
 	@Override
 	public void notifyChange() {
-		if (hasSignalEvents())
-			for (SignalEvent event : signalEvents)
-				event.update(this);
+		if (externalHandler != null && !externalHandler.isEmpty())
+			for (SignalExternalOutputHandler handler : externalHandler.values())
+				handler.update();
+		if (outputs != null)
+			for (int i = 0; i < outputs.length; i++)
+				outputs[i].update();
 	}
 	
 	@Override
@@ -714,6 +690,10 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	
 	public void performInternalOutputChange(InternalSignalOutput output) {
 		
+	}
+	
+	public void setExternalHandler(HashMap<Integer, SignalExternalOutputHandler> handlers) {
+		this.externalHandler = handlers;
 	}
 	
 	// ====================Previews====================

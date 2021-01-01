@@ -4,16 +4,23 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.output.SignalOutputCondition;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
+import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 import com.creativemd.littletiles.common.structure.signal.schedule.ISignalScheduleTicket;
 import com.creativemd.littletiles.common.structure.signal.schedule.SignalTicker;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public enum SignalMode {
 	
 	EQUAL("signal.mode.equal", "=") {
 		@Override
-		public SignalOutputCondition create(LittleStructure structure, List<Integer> numbers, SignalTarget target) {
-			SignalOutputCondition condition = new SignalOutputCondition(numbers.get(0), target) {
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+			SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
 				
 				@Override
 				public SignalMode getMode() {
@@ -21,49 +28,45 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void schedule(LittleStructure structure, boolean[] state) {
-					SignalTicker.schedule(structure, this, state, delay);
+				public void schedule(boolean[] state) {
+					SignalTicker.schedule(this, state, delay);
 				}
 				
 				@Override
-				public int[] getExtraData() {
-					List<ISignalScheduleTicket> tickets = SignalTicker.get(structure).findTickets(this);
-					int[] extraData = new int[1 + tickets.size() * 2];
-					extraData[0] = delay;
+				public void write(NBTTagCompound nbt) {
+					List<ISignalScheduleTicket> tickets = SignalTicker.get(component).findTickets(this);
+					NBTTagList list = new NBTTagList();
 					for (int i = 0; i < tickets.size(); i++) {
 						ISignalScheduleTicket ticket = tickets.get(i);
-						extraData[1 + i * 2] = ticket.getDelay();
-						extraData[2 + i * 2] = BooleanUtils.boolToInt(ticket.getState());
+						list.appendTag(new NBTTagIntArray(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
 					}
-					return extraData;
+					nbt.setTag("tickets", list);
 				}
 				
 			};
-			if (structure != null)
-				for (int i = 1; i < numbers.size(); i += 2) {
-					if (i + 1 < numbers.size()) {
-						int delay = numbers.get(i);
-						boolean[] state = new boolean[target.getBandwidth(structure)];
-						BooleanUtils.intToBool(numbers.get(i + 1), state);
-						SignalTicker.schedule(structure, condition, state, delay);
-					}
+			NBTTagList list = nbt.getTagList("tickets", 11);
+			for (int i = 0; i < list.tagCount(); i++) {
+				int[] array = list.getIntArrayAt(i);
+				if (array.length == 2) {
+					boolean[] state = new boolean[component.getBandwidth()];
+					BooleanUtils.intToBool(array[1], state);
+					SignalTicker.schedule(handler, state, array[0]);
 				}
-			return condition;
+			}
+			return handler;
 		}
 	},
 	TOGGLE("signal.mode.toggle", "|=") {
 		
 		@Override
-		public SignalOutputCondition create(LittleStructure structure, List<Integer> numbers, SignalTarget target) {
-			int bandwidth = target.getBandwidth(structure);
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+			int bandwidth = component.getBandwidth();
 			boolean[] before = new boolean[bandwidth];
 			boolean[] result = new boolean[bandwidth];
-			if (numbers.size() > 1)
-				BooleanUtils.intToBool(numbers.get(1), before);
-			if (numbers.size() > 2)
-				BooleanUtils.intToBool(numbers.get(2), result);
+			BooleanUtils.intToBool(nbt.getInteger("before"), before);
+			BooleanUtils.intToBool(nbt.getInteger("result"), result);
 			
-			SignalOutputCondition condition = new SignalOutputCondition(numbers.get(0), target) {
+			SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
 				
 				public boolean[] stateBefore = before;
 				public boolean[] result;
@@ -74,7 +77,7 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void schedule(LittleStructure structure, boolean[] state) {
+				public void schedule(boolean[] state) {
 					boolean toggled = false;
 					for (int i = 0; i < state.length; i++) {
 						if (!stateBefore[i] && state[i]) {
@@ -84,78 +87,66 @@ public enum SignalMode {
 						}
 						stateBefore[i] = state[i];
 					}
-					SignalTicker.schedule(structure, this, result, delay);
+					SignalTicker.schedule(this, result, delay);
 				}
 				
 				@Override
-				public int[] getExtraData() {
-					List<ISignalScheduleTicket> tickets = SignalTicker.get(structure).findTickets(this);
-					int[] extraData = new int[3 + tickets.size() * 2];
-					extraData[0] = delay;
-					extraData[1] = BooleanUtils.boolToInt(stateBefore);
-					extraData[2] = BooleanUtils.boolToInt(result);
+				public void write(NBTTagCompound nbt) {
+					nbt.setInteger("before", BooleanUtils.boolToInt(stateBefore));
+					nbt.setInteger("result", BooleanUtils.boolToInt(result));
+					List<ISignalScheduleTicket> tickets = SignalTicker.get(component).findTickets(this);
+					NBTTagList list = new NBTTagList();
 					for (int i = 0; i < tickets.size(); i++) {
 						ISignalScheduleTicket ticket = tickets.get(i);
-						extraData[3 + i * 2] = ticket.getDelay();
-						extraData[4 + i * 2] = BooleanUtils.boolToInt(ticket.getState());
+						list.appendTag(new NBTTagIntArray(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
 					}
-					return extraData;
+					nbt.setTag("tickets", list);
 				}
 				
 			};
-			if (structure != null)
-				for (int i = 1; i < numbers.size(); i += 2) {
-					if (i + 1 < numbers.size()) {
-						int delay = numbers.get(i);
-						boolean[] state = new boolean[target.getBandwidth(structure)];
-						BooleanUtils.intToBool(numbers.get(i + 1), state);
-						SignalTicker.schedule(structure, condition, state, delay);
-					}
+			NBTTagList list = nbt.getTagList("tickets", 11);
+			for (int i = 0; i < list.tagCount(); i++) {
+				int[] array = list.getIntArrayAt(i);
+				if (array.length == 2) {
+					boolean[] state = new boolean[component.getBandwidth()];
+					BooleanUtils.intToBool(array[1], state);
+					SignalTicker.schedule(handler, state, array[0]);
 				}
-			return condition;
+			}
+			return handler;
 		}
 	},
 	PULSE("signal.mode.pulse", "~=") {
 		
 		@Override
-		public SignalOutputCondition create(LittleStructure structure, List<Integer> numbers, SignalTarget target) {
-			int bandwidth = target.getBandwidth(structure);
-			int pulseLength = 10;
-			if (numbers.size() > 1)
-				pulseLength = numbers.get(1);
-			boolean before = false;
-			if (numbers.size() > 2)
-				before = numbers.get(2) == 1;
-			
-			SignalOutputCondition condition = new SignalOutputConditionPulse(numbers.get(0), target, pulseLength, before);
-			if (structure != null)
-				if (numbers.size() == 4) {
-					SignalTicker.schedule(structure, condition, BooleanUtils.asArray(false), numbers.get(3));
-				} else if (numbers.size() == 5) {
-					SignalTicker.schedule(structure, condition, BooleanUtils.asArray(true), numbers.get(3));
-					SignalTicker.schedule(structure, condition, BooleanUtils.asArray(false), numbers.get(4));
-				}
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+			SignalOutputHandler condition = new SignalOutputHandlerPulse(component, delay, nbt);
+			if (nbt.hasKey("start")) {
+				SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
+				SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+			} else if (nbt.hasKey("end"))
+				SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
 			return condition;
 		}
 	},
 	THRESHOLD("signal.mode.threshold", "==") {
 		
 		@Override
-		public SignalOutputCondition create(LittleStructure structure, List<Integer> numbers, SignalTarget target) {
-			SignalOutputConditionStoreOne condition = new SignalOutputConditionStoreOne(numbers.get(0), target) {
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+			SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
 				
 				@Override
-				public void schedule(LittleStructure structure, boolean[] state) {
+				public void schedule(boolean[] state) {
 					if (ticket != null)
 						ticket.overwriteState(state);
 					else
-						ticket = SignalTicker.schedule(structure, this, state, delay);
+						ticket = SignalTicker.schedule(this, state, delay);
 				}
 				
 				@Override
-				public void performStateChange(LittleStructure structure, boolean[] state) {
+				public void performStateChange(boolean[] state) {
 					ticket = null;
-					super.performStateChange(structure, state);
+					super.performStateChange(state);
 				}
 				
 				@Override
@@ -164,40 +155,40 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public int[] getExtraData() {
+				public void write(NBTTagCompound nbt) {
 					if (ticket != null)
-						return new int[] { delay, ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) };
-					return new int[] { delay };
+						nbt.setIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
 				}
 			};
 			
-			if (structure != null)
-				if (numbers.size() >= 3) {
-					int delay = numbers.get(1);
-					boolean[] state = new boolean[target.getBandwidth(structure)];
-					BooleanUtils.intToBool(numbers.get(2), state);
-					condition.ticket = SignalTicker.schedule(structure, condition, state, delay);
+			if (nbt.hasKey("ticket")) {
+				int[] array = nbt.getIntArray("ticket");
+				if (array.length == 2) {
+					boolean[] state = new boolean[component.getBandwidth()];
+					BooleanUtils.intToBool(array[1], state);
+					handler.ticket = SignalTicker.schedule(handler, state, array[0]);
 				}
-			return condition;
+			}
+			return handler;
 		}
 	},
 	STABILIZER("signal.mode.stabilizer", "~~") {
 		
 		@Override
-		public SignalOutputCondition create(LittleStructure structure, List<Integer> numbers, SignalTarget target) {
-			SignalOutputConditionStoreOne condition = new SignalOutputConditionStoreOne(numbers.get(0), target) {
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+			SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
 				
 				@Override
-				public void schedule(LittleStructure structure, boolean[] state) {
+				public void schedule(boolean[] state) {
 					if (ticket != null)
 						ticket.markObsolete();
-					ticket = SignalTicker.schedule(structure, this, state, delay);
+					ticket = SignalTicker.schedule(this, state, delay);
 				}
 				
 				@Override
-				public void performStateChange(LittleStructure structure, boolean[] state) {
+				public void performStateChange(boolean[] state) {
 					ticket = null;
-					super.performStateChange(structure, state);
+					super.performStateChange(state);
 				}
 				
 				@Override
@@ -206,21 +197,21 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public int[] getExtraData() {
+				public void write(NBTTagCompound nbt) {
 					if (ticket != null)
-						return new int[] { delay, ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) };
-					return new int[] { delay };
+						nbt.setIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
 				}
 			};
 			
-			if (structure != null)
-				if (numbers.size() >= 3) {
-					int delay = numbers.get(1);
-					boolean[] state = new boolean[target.getBandwidth(structure)];
-					BooleanUtils.intToBool(numbers.get(2), state);
-					condition.ticket = SignalTicker.schedule(structure, condition, state, delay);
+			if (nbt.hasKey("ticket")) {
+				int[] array = nbt.getIntArray("ticket");
+				if (array.length == 2) {
+					boolean[] state = new boolean[component.getBandwidth()];
+					BooleanUtils.intToBool(array[1], state);
+					handler.ticket = SignalTicker.schedule(handler, state, array[0]);
 				}
-			return condition;
+			}
+			return handler;
 		}
 	};
 	
@@ -232,33 +223,33 @@ public enum SignalMode {
 		this.splitter = splitter;
 	}
 	
-	public abstract SignalOutputCondition create(LittleStructure structure, List<Integer> numbers, SignalTarget target);
+	public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt);
 	
-	public static abstract class SignalOutputConditionStoreOne extends SignalOutputCondition {
+	public static abstract class SignalOutputHandlerStoreOne extends SignalOutputHandler {
 		
 		ISignalScheduleTicket ticket;
 		
-		public SignalOutputConditionStoreOne(int delay, SignalTarget target) {
-			super(delay, target);
+		public SignalOutputHandlerStoreOne(ISignalComponent component, int delay, NBTTagCompound nbt) {
+			super(component, delay, nbt);
 		}
 		
 	}
 	
-	public static class SignalOutputConditionPulse extends SignalOutputCondition {
+	public static class SignalOutputHandlerPulse extends SignalOutputHandler {
 		
 		public final int pulseLength;
 		public boolean stateBefore;
 		public ISignalScheduleTicket pulseStart;
 		public ISignalScheduleTicket pulseEnd;
 		
-		public SignalOutputConditionPulse(int delay, SignalTarget target, int length, boolean stateBefore) {
-			super(delay, target);
-			this.pulseLength = length;
-			this.stateBefore = stateBefore;
+		public SignalOutputHandlerPulse(ISignalComponent component, int delay, NBTTagCompound nbt) {
+			super(component, delay, nbt);
+			this.pulseLength = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+			this.stateBefore = nbt.getBoolean("before");
 		}
 		
 		@Override
-		public int getBandwidth(LittleStructure structure) {
+		public int getBandwidth() {
 			return 1;
 		}
 		
@@ -268,8 +259,8 @@ public enum SignalMode {
 		}
 		
 		@Override
-		public void performStateChange(LittleStructure structure, boolean[] state) {
-			super.performStateChange(structure, state);
+		public void performStateChange(boolean[] state) {
+			super.performStateChange(state);
 			if (BooleanUtils.any(state))
 				pulseStart = null;
 			else {
@@ -279,32 +270,42 @@ public enum SignalMode {
 		}
 		
 		@Override
-		public void schedule(LittleStructure structure, boolean[] state) {
+		public void schedule(boolean[] state) {
 			if (pulseEnd != null)
 				return;
 			boolean current = BooleanUtils.any(state);
 			if (!stateBefore && current) {
-				pulseStart = SignalTicker.schedule(structure, this, BooleanUtils.asArray(true), delay);
-				pulseEnd = SignalTicker.schedule(structure, this, BooleanUtils.asArray(false), delay + pulseLength);
+				pulseStart = SignalTicker.schedule(this, BooleanUtils.asArray(true), delay);
+				pulseEnd = SignalTicker.schedule(this, BooleanUtils.asArray(false), delay + pulseLength);
 			}
 			stateBefore = current;
 		}
 		
 		@Override
-		public int[] getExtraData() {
-			int[] extraData = new int[3 + (pulseStart != null ? 2 : (pulseEnd != null ? 1 : 0))];
-			extraData[0] = delay;
-			extraData[1] = pulseLength;
-			extraData[2] = stateBefore ? 1 : 0;
-			if (pulseStart != null) {
-				extraData[3] = pulseStart.getDelay();
-				extraData[4] = pulseEnd.getDelay();
-			} else if (pulseEnd != null) {
-				extraData[3] = pulseEnd.getDelay();
-			}
-			
-			return extraData;
+		public void write(NBTTagCompound nbt) {
+			nbt.setInteger("length", pulseLength);
+			nbt.setBoolean("before", stateBefore);
+			if (pulseStart != null)
+				nbt.setInteger("start", pulseStart.getDelay());
+			if (pulseEnd != null)
+				nbt.setInteger("end", pulseEnd.getDelay());
 		}
 	}
 	
+	public static GuiSignalModeConfiguration getConfigDefault() {
+		
+	}
+	
+	public static GuiSignalModeConfiguration getConfig(NBTTagCompound nbt) {
+		
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static abstract class GuiSignalModeConfiguration {
+		
+		public abstract GuiSignalModeConfiguration copy();
+		
+		public abstract SignalOutputHandler getHandler(LittleStructure structure);
+		
+	}
 }

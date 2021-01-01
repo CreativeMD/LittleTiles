@@ -12,6 +12,8 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
@@ -147,6 +149,15 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 	@Override
 	public int getId() {
 		return getParent().childId;
+	}
+	
+	@Override
+	public LittleStructure getStructure() {
+		try {
+			return getParent().getStructure();
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public static class LittleStructureTypeOutput extends LittleStructureTypeNetwork {

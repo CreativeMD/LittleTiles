@@ -1,6 +1,9 @@
 package com.creativemd.littletiles.common.structure.signal.component;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+
+import net.minecraft.world.World;
 
 public interface ISignalComponent {
 	
@@ -32,5 +35,9 @@ public interface ISignalComponent {
 	public boolean[] getState();
 	
 	public SignalComponentType getType();
+	
+	public LittleStructure getStructure();
+	
+	public World getWorld();
 	
 }

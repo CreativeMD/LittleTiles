@@ -313,17 +313,11 @@ public class GuiSignalController extends GuiParent {
 			for (NodeConnection connectTo : to)
 				if (connectTo.to == node)
 					return false;
-			for (NodeConnection connectFrom : from)
-				if (connectFrom.from == node)
-					return false;
 			return true;
 		}
 		
 		@Override
 		public boolean canConnectFrom(GuiSignalNode node) {
-			for (NodeConnection connectTo : to)
-				if (connectTo.to == node)
-					return false;
 			for (NodeConnection connectFrom : from)
 				if (connectFrom.from == node)
 					return false;
@@ -400,7 +394,7 @@ public class GuiSignalController extends GuiParent {
 		
 		public final boolean bitwise;
 		private NodeConnection from;
-		private NodeConnection to;
+		private List<NodeConnection> to = new ArrayList<>();
 		
 		public GuiSignalNodeNotOperator(boolean bitwise) {
 			super(bitwise ? "b-not" : "not");
@@ -409,12 +403,15 @@ public class GuiSignalController extends GuiParent {
 		
 		@Override
 		public boolean canConnectTo(GuiSignalNode node) {
-			return to == null && (from == null || from.from != node);
+			for (NodeConnection connectTo : to)
+				if (connectTo.to == node)
+					return false;
+			return true;
 		}
 		
 		@Override
 		public boolean canConnectFrom(GuiSignalNode node) {
-			return from == null && (to == null || to.to != node);
+			return from == null;
 		}
 		
 		@Override
@@ -427,7 +424,7 @@ public class GuiSignalController extends GuiParent {
 			if (connection.to == this)
 				from = null;
 			else
-				to = null;
+				to.remove(connection);
 		}
 		
 		@Override
@@ -435,13 +432,14 @@ public class GuiSignalController extends GuiParent {
 			return new Iterator<GuiSignalController.NodeConnection>() {
 				
 				public int index = 0;
+				public Iterator<NodeConnection> iterator = to.iterator();
 				
 				@Override
 				public boolean hasNext() {
 					if (index == 0)
-						return from != null || to != null;
+						return from != null || iterator.hasNext();
 					else if (index == 1)
-						return to != null;
+						return iterator.hasNext();
 					return false;
 				}
 				
@@ -453,12 +451,11 @@ public class GuiSignalController extends GuiParent {
 							return from;
 						else {
 							index++;
-							return to;
+							return iterator.next();
 						}
-					} else if (index == 1) {
-						index++;
-						return to;
-					}
+					} else if (index == 1)
+						return iterator.next();
+					
 					throw new UnsupportedOperationException();
 				}
 			};
@@ -469,20 +466,22 @@ public class GuiSignalController extends GuiParent {
 			if (connection.to == this)
 				from = connection;
 			else
-				to = connection;
+				to.add(connection);
 		}
 		
 		@Override
 		public void remove() {
 			if (from != null)
 				from.remove();
-			if (to != null)
-				to.remove();
+			for (NodeConnection connection : to)
+				connection.remove();
 		}
 		
 		@Override
 		public int indexOf(NodeConnection connection) {
-			return 0;
+			if (connection.to == this)
+				return 0;
+			return to.indexOf(connection);
 		}
 		
 		@Override

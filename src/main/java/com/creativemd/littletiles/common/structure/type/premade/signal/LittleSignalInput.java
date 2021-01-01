@@ -261,6 +261,15 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
 		return getParent().childId;
 	}
 	
+	@Override
+	public LittleStructure getStructure() {
+		try {
+			return getParent().getStructure();
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public static class LittleStructureTypeInput extends LittleStructureTypeNetwork {
 		
 		@SideOnly(Side.CLIENT)

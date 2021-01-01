@@ -9,29 +9,25 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTranslated;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
+import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents;
+import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents.GuiSignalEvent;
 import com.creativemd.littletiles.client.gui.signal.GuiSignalController.GeneratePatternException;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.event.SignalEvent;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 public class SubGuiDialogSignal extends SubGui {
 	
-	protected final LittlePreviews previews;
-	protected final LittleStructureType type;
-	protected final List<GuiSignalComponent> inputs = new ArrayList<>();
-	protected final List<GuiSignalComponent> outputs = new ArrayList<>();
+	public SubGuiSignalEvents dialog;
+	protected final GuiSignalEvent event;
 	
-	public SubGuiDialogSignal(SignalEvent event, LittlePreviews previews, LittleStructureType type) {
+	public SubGuiDialogSignal(SubGuiSignalEvents dialog, GuiSignalEvent event) {
 		super(300, 200);
-		this.previews = previews;
-		this.type = type;
-		gatherInputs(previews, type, "", "");
-		gatherOutputs(previews, type, "", "");
+		this.dialog = dialog;
+		this.event = event;
 	}
 	
 	@Override
@@ -43,12 +39,10 @@ public class SubGuiDialogSignal extends SubGui {
 	}
 	
 	protected void loadBasic() {
-		if (outputs.isEmpty())
-			return;
-		GuiSignalController controller = new GuiSignalController("controller", 0, 22, 294, 150, outputs.get(0));
+		GuiSignalController controller = new GuiSignalController("controller", 0, 22, 294, 150, event.component);
 		controls.add(controller);
 		List<String> inputLines = new ArrayList<>();
-		for (GuiSignalComponent entry : inputs)
+		for (GuiSignalComponent entry : dialog.button.inputs)
 			inputLines.add(entry.info());
 		controls.add(new GuiComboBox("inputs", 0, 180, 80, inputLines));
 		controls.add(new GuiButton("add", translate("gui.signal.configuration.add"), 88, 180) {
@@ -56,7 +50,7 @@ public class SubGuiDialogSignal extends SubGui {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				GuiComboBox inputsBox = (GuiComboBox) SubGuiDialogSignal.this.get("inputs");
-				controller.addInput(inputs.get(inputsBox.index));
+				controller.addInput(dialog.button.inputs.get(inputsBox.index));
 			}
 		});
 		
@@ -87,17 +81,15 @@ public class SubGuiDialogSignal extends SubGui {
 			}
 		});
 		
-		List<String> outputLines = new ArrayList<>();
-		for (GuiSignalComponent entry : outputs)
-			outputLines.add(entry.info());
-		controls.add(new GuiComboBox("outputs", 164, 180, 60, outputLines));
-		
 		controls.add(new GuiButton("save", translate("gui.signal.configuration.save"), 270, 180) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				// TODO Auto-generated method stub
-				
+				try {
+					event.condition = controller.generatePattern();
+					event.updatePanel();
+					closeGui();
+				} catch (GeneratePatternException e) {}
 			}
 		});
 	}
@@ -108,10 +100,7 @@ public class SubGuiDialogSignal extends SubGui {
 	
 	@CustomEventSubscribe
 	public void changed(GuiControlChangedEvent event) {
-		if (event.source.is("outputs")) {
-			GuiSignalController controller = (GuiSignalController) get("controller");
-			controller.setOutput(outputs.get(((GuiComboBox) event.source).index));
-		} else if (event.source.is("controller")) {
+		if (event.source.is("controller")) {
 			GuiLabel label = (GuiLabel) get("result");
 			try {
 				label.caption = translate("gui.signal.configuration.result") + " " + ((GuiSignalController) event.source).generatePattern().toString();
@@ -121,38 +110,6 @@ public class SubGuiDialogSignal extends SubGui {
 			label.width = font.getStringWidth(label.caption) + label.getContentOffset() * 2;
 		}
 		
-	}
-	
-	protected void gatherInputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix) {
-		if (type != null && type.inputs != null)
-			for (int i = 0; i < type.inputs.size(); i++)
-				inputs.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
-			
-		for (int i = 0; i < previews.getChildren().size(); i++) {
-			LittlePreviews child = previews.getChildren().get(i);
-			LittleStructureType structure = child.getStructureType();
-			String name = child.getStructureName();
-			if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.INPUT)
-				inputs.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), (ISignalComponent) structure, true, i));
-			
-			gatherInputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."));
-		}
-	}
-	
-	protected void gatherOutputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix) {
-		if (type != null && type.outputs != null)
-			for (int i = 0; i < type.outputs.size(); i++)
-				outputs.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
-			
-		for (int i = 0; i < previews.getChildren().size(); i++) {
-			LittlePreviews child = previews.getChildren().get(i);
-			LittleStructureType structure = child.getStructureType();
-			String name = child.getStructureName();
-			if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.OUTPUT)
-				outputs.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), (ISignalComponent) structure, true, i));
-			
-			gatherOutputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."));
-		}
 	}
 	
 	public static class GuiSignalComponent {
@@ -189,6 +146,10 @@ public class SubGuiDialogSignal extends SubGui {
 			this.input = input;
 			this.external = external;
 			this.index = index;
+		}
+		
+		public String display() {
+			return ChatFormatting.BOLD + name + " " + totalName + " " + ChatFormatting.RESET + bandwidth + "-bit";
 		}
 		
 		public String info() {

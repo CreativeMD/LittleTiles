@@ -37,6 +37,11 @@ public enum SignalLogicOperator {
 				public boolean needsBrackets() {
 					return false;
 				}
+				
+				@Override
+				public float getModifier() {
+					return SignalInputCondition.AND_DURATION;
+				}
 			};
 		}
 	},
@@ -69,6 +74,11 @@ public enum SignalLogicOperator {
 				@Override
 				public boolean needsBrackets() {
 					return true;
+				}
+				
+				@Override
+				public float getModifier() {
+					return SignalInputCondition.OR_DURATION;
 				}
 			};
 		}
@@ -104,6 +114,11 @@ public enum SignalLogicOperator {
 				public boolean needsBrackets() {
 					return true;
 				}
+				
+				@Override
+				public float getModifier() {
+					return SignalInputCondition.XOR_DURATION;
+				}
 			};
 		}
 	},
@@ -131,6 +146,11 @@ public enum SignalLogicOperator {
 				@Override
 				public String operator() {
 					return operator + "";
+				}
+				
+				@Override
+				public float getModifier() {
+					return SignalInputCondition.BAND_DURATION;
 				}
 			};
 		}
@@ -161,6 +181,11 @@ public enum SignalLogicOperator {
 				public String operator() {
 					return operator + "";
 				}
+				
+				@Override
+				public float getModifier() {
+					return SignalInputCondition.BOR_DURATION;
+				}
 			};
 		}
 		
@@ -189,6 +214,11 @@ public enum SignalLogicOperator {
 				@Override
 				public String operator() {
 					return operator + "";
+				}
+				
+				@Override
+				public float getModifier() {
+					return SignalInputCondition.BXOR_DURATION;
 				}
 			};
 		}
@@ -325,6 +355,15 @@ public enum SignalLogicOperator {
 			return result;
 		}
 		
+		@Override
+		public float calculateDelay() {
+			float delay = conditions.length * getModifier();
+			for (SignalInputCondition condition : conditions)
+				delay += condition.calculateDelay();
+			return delay;
+		}
+		
+		public abstract float getModifier();
 	}
 	
 	public static abstract class SignalInputConditionOperatorStackableBitwise extends SignalInputConditionOperatorStackable {

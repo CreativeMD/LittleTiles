@@ -1,9 +1,9 @@
 package com.creativemd.littletiles.common.structure.signal.component;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 public abstract class InternalSignal implements ISignalComponent {
 	
@@ -17,22 +17,28 @@ public abstract class InternalSignal implements ISignalComponent {
 		this.state = new boolean[bandwidth];
 	}
 	
-	public void load(NBTTagCompound nbt) {
-		BooleanUtils.intToBool(nbt.getInteger(name), state);
-	}
+	public abstract void load(NBTTagCompound nbt);
 	
 	@Override
 	public boolean[] getState() {
 		return state;
 	}
 	
-	public void write(NBTTagCompound nbt) {
-		nbt.setInteger("state", BooleanUtils.boolToInt(state));
-	}
+	public abstract NBTTagCompound write(NBTTagCompound nbt);
 	
 	@Override
 	public int getBandwidth() {
 		return state.length;
+	}
+	
+	@Override
+	public LittleStructure getStructure() {
+		return parent;
+	}
+	
+	@Override
+	public World getWorld() {
+		return parent.getWorld();
 	}
 	
 }

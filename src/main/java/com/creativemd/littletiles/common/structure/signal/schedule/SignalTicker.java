@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.output.SignalOutputCondition;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
+import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,8 +20,8 @@ public class SignalTicker {
 	private static HashMap<World, SignalTicker> tickers = new HashMap<>();
 	public static final int queueLength = 20;
 	
-	public static synchronized SignalTicker get(LittleStructure structure) {
-		return get(structure.getWorld());
+	public static synchronized SignalTicker get(ISignalComponent component) {
+		return get(component.getWorld());
 	}
 	
 	public static synchronized SignalTicker get(World world) {
@@ -41,8 +41,8 @@ public class SignalTicker {
 		get(world).schedule(schedulable);
 	}
 	
-	public static ISignalScheduleTicket schedule(LittleStructure structure, SignalOutputCondition condition, boolean[] result, int tick) {
-		return get(structure).openTicket(structure, condition, result, tick);
+	public static ISignalScheduleTicket schedule(SignalOutputHandler handler, boolean[] result, int tick) {
+		return get(handler.component).openTicket(handler, result, tick);
 	}
 	
 	private static synchronized void unload(SignalTicker ticker) {
@@ -104,7 +104,7 @@ public class SignalTicker {
 		return queueLength - index + queueIndex;
 	}
 	
-	public synchronized List<ISignalScheduleTicket> findTickets(SignalOutputCondition condition) {
+	public synchronized List<ISignalScheduleTicket> findTickets(SignalOutputHandler condition) {
 		List<ISignalScheduleTicket> tickets = new ArrayList<>();
 		for (int i = 0; i < queue.length; i++)
 			for (SignalScheduleTicket ticket : queue[i])
@@ -120,7 +120,7 @@ public class SignalTicker {
 		scheduled.add(schedulable);
 	}
 	
-	public synchronized ISignalScheduleTicket openTicket(LittleStructure structure, SignalOutputCondition condition, boolean[] result, int tick) {
+	public synchronized ISignalScheduleTicket openTicket(SignalOutputHandler handler, boolean[] result, int tick) {
 		int delay;
 		if (tick <= queueLength) {
 			delay = queueIndex + tick - 1;
@@ -128,7 +128,7 @@ public class SignalTicker {
 				delay -= queueLength;
 		} else
 			delay = tick;
-		SignalScheduleTicket ticket = new SignalScheduleTicket(condition, structure, result, delay);
+		SignalScheduleTicket ticket = new SignalScheduleTicket(handler, result, delay);
 		if (delay <= queueLength)
 			longQueue.add(ticket);
 		else

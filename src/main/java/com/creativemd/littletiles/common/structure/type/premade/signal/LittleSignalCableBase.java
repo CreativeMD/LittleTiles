@@ -529,6 +529,16 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 			
 			return null;
 		}
+		
+		@Override
+		public World getWorld() {
+			return null;
+		}
+		
+		@Override
+		public LittleStructure getStructure() {
+			return null;
+		}
 	}
 	
 }

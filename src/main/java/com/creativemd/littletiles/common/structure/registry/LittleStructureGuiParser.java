@@ -35,7 +35,7 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
 	public LittleStructure parse(LittlePreviews previews) {
 		LittleStructure structure = parseStructure(previews);
 		GuiSignalEventsButton button = (GuiSignalEventsButton) parent.get("signal");
-		structure.setSignalEvents(button.events);
+		button.setEventsInStructure(structure);
 		return structure;
 	}
 	

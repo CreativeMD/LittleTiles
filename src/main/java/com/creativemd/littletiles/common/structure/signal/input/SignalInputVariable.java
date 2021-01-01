@@ -140,6 +140,11 @@ public class SignalInputVariable extends SignalInputCondition {
 		return target.write();
 	}
 	
+	@Override
+	public float calculateDelay() {
+		return VARIABLE_DURATION;
+	}
+	
 	public static class SignalInputVariableOperator extends SignalInputVariable {
 		
 		public final SignalLogicOperator operator;
@@ -165,7 +170,6 @@ public class SignalInputVariable extends SignalInputCondition {
 		public String write() {
 			return super.write() + "{" + operator.operator + "}";
 		}
-		
 	}
 	
 	public static class SignalInputVariablePattern extends SignalInputVariable {
@@ -213,6 +217,11 @@ public class SignalInputVariable extends SignalInputCondition {
 		@Override
 		public String write() {
 			return super.write() + "{" + condition.write() + "}";
+		}
+		
+		@Override
+		public float calculateDelay() {
+			return super.calculateDelay() + condition.calculateDelay();
 		}
 		
 	}

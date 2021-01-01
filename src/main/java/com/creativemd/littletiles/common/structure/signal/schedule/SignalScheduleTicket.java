@@ -3,19 +3,16 @@ package com.creativemd.littletiles.common.structure.signal.schedule;
 import java.lang.ref.WeakReference;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.output.SignalOutputCondition;
+import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 
 public class SignalScheduleTicket implements ISignalScheduleTicket {
 	
 	private int delay;
-	private final WeakReference<SignalOutputCondition> outputCondition;
-	private final WeakReference<LittleStructure> structure;
+	private final WeakReference<SignalOutputHandler> outputCondition;
 	private final boolean[] result;
 	
-	public SignalScheduleTicket(SignalOutputCondition outputCondition, LittleStructure structure, boolean[] result, int delay) {
-		this.outputCondition = new WeakReference<SignalOutputCondition>(outputCondition);
-		this.structure = new WeakReference<LittleStructure>(structure);
+	public SignalScheduleTicket(SignalOutputHandler outputCondition, boolean[] result, int delay) {
+		this.outputCondition = new WeakReference<SignalOutputHandler>(outputCondition);
 		this.result = result;
 		this.delay = delay;
 	}
@@ -26,23 +23,22 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
 	}
 	
 	public void run() {
-		SignalOutputCondition condition = outputCondition.get();
-		LittleStructure cached = structure.get();
-		if (condition != null && cached != null)
-			condition.performStateChange(cached, result);
+		SignalOutputHandler handler = outputCondition.get();
+		if (handler != null)
+			handler.performStateChange(result);
 	}
 	
 	@Override
 	public int getDelay() {
 		if (inShortQueue()) {
-			LittleStructure cached = structure.get();
-			if (cached != null)
-				return SignalTicker.get(cached).getDelayOfQueue(delay);
+			SignalOutputHandler handler = outputCondition.get();
+			if (handler != null)
+				return SignalTicker.get(handler.component).getDelayOfQueue(delay);
 		}
 		return delay;
 	}
 	
-	public boolean is(SignalOutputCondition output) {
+	public boolean is(SignalOutputHandler output) {
 		return outputCondition.get() == output;
 	}
 	
@@ -67,7 +63,6 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
 	@Override
 	public void markObsolete() {
 		outputCondition.clear();
-		structure.clear();
 	}
 	
 }

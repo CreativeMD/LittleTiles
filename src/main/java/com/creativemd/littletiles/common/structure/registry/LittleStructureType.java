@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -34,7 +35,7 @@ public class LittleStructureType {
 	public final int attribute;
 	public final List<StructureDirectionalField> directional;
 	public final List<InternalComponent> inputs = new ArrayList<>();
-	public final List<InternalComponent> outputs = new ArrayList<>();
+	public final List<InternalComponentOutput> outputs = new ArrayList<>();
 	
 	public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
 		this.id = id;
@@ -64,8 +65,8 @@ public class LittleStructureType {
 			return null;
 		InternalSignalOutput[] result = new InternalSignalOutput[outputs.size()];
 		for (int i = 0; i < result.length; i++) {
-			InternalComponent component = outputs.get(i);
-			result[i] = new InternalSignalOutput(structure, component.identifier, component.bandwidth);
+			InternalComponentOutput component = outputs.get(i);
+			result[i] = new InternalSignalOutput(structure, component.identifier, component.bandwidth, component.defaultMode);
 		}
 		return result;
 	}
@@ -75,8 +76,8 @@ public class LittleStructureType {
 		return this;
 	}
 	
-	public LittleStructureType addOutput(String name, int bandwidth) {
-		outputs.add(new InternalComponent(name, bandwidth));
+	public LittleStructureType addOutput(String name, int bandwidth, SignalMode defaultMode) {
+		outputs.add(new InternalComponentOutput(name, bandwidth, defaultMode));
 		return this;
 	}
 	
@@ -215,6 +216,17 @@ public class LittleStructureType {
 		
 		public boolean is(String name) {
 			return identifier.equals(name);
+		}
+		
+	}
+	
+	public static class InternalComponentOutput extends InternalComponent {
+		
+		public final SignalMode defaultMode;
+		
+		public InternalComponentOutput(String identifier, int bandwidth, SignalMode defaultMode) {
+			super(identifier, bandwidth);
+			this.defaultMode = defaultMode;
 		}
 		
 	}
