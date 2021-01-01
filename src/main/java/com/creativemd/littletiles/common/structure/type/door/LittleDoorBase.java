@@ -320,19 +320,18 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		@Override
 		public void finializePreview(LittlePreviews previews) {
-			List<LittlePreviews> previewChildren = previews.getChildren();
-			
-			if (!previewChildren.isEmpty()) {
-				BitSet set = new BitSet(previewChildren.size());
+			if (previews.hasChildren()) {
+				BitSet set = new BitSet(previews.childrenCount());
 				
 				setBit(previews, set);
-				for (int i = 0; i < previewChildren.size(); i++) {
-					if (!previewChildren.get(i).hasStructure())
+				for (int i = 0; i < previews.childrenCount(); i++) {
+					LittlePreviews child = previews.getChild(i);
+					if (!child.hasStructure())
 						continue;
 					if (set.get(i))
-						previewChildren.get(i).structureNBT.setBoolean("activateParent", true);
+						child.structureNBT.setBoolean("activateParent", true);
 					else
-						previewChildren.get(i).structureNBT.removeTag("activateParent");
+						child.structureNBT.removeTag("activateParent");
 				}
 			}
 		}

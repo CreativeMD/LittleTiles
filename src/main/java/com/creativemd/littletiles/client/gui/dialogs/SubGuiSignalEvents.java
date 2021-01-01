@@ -90,8 +90,8 @@ public class SubGuiSignalEvents extends SubGui {
 	
 	public List<String> getComponents(LittlePreviews previews, SignalComponentType type) {
 		List<String> values = new ArrayList<>();
-		for (int i = 0; i < previews.getChildren().size(); i++) {
-			LittlePreviews child = previews.getChildren().get(i);
+		for (int i = 0; i < previews.childrenCount(); i++) {
+			LittlePreviews child = previews.getChild(i);
 			LittleStructureType structure = child.getStructureType();
 			if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == type) {
 				String name = child.getStructureName();
@@ -191,8 +191,8 @@ public class SubGuiSignalEvents extends SubGui {
 				for (int i = 0; i < type.inputs.size(); i++)
 					inputs.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
 				
-			for (int i = 0; i < previews.getChildren().size(); i++) {
-				LittlePreviews child = previews.getChildren().get(i);
+			for (int i = 0; i < previews.childrenCount(); i++) {
+				LittlePreviews child = previews.getChild(i);
 				LittleStructureType structure = child.getStructureType();
 				String name = child.getStructureName();
 				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.INPUT)
@@ -207,8 +207,8 @@ public class SubGuiSignalEvents extends SubGui {
 				for (int i = 0; i < type.outputs.size(); i++)
 					outputs.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
 				
-			for (int i = 0; i < previews.getChildren().size(); i++) {
-				LittlePreviews child = previews.getChildren().get(i);
+			for (int i = 0; i < previews.childrenCount(); i++) {
+				LittlePreviews child = previews.getChild(i);
 				LittleStructureType structure = child.getStructureType();
 				String name = child.getStructureName();
 				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.OUTPUT)

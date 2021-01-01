@@ -32,6 +32,7 @@ import net.minecraft.util.math.BlockPos;
 public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	protected LittleGridContext context;
+	protected LittlePreviews parent;
 	protected final List<LittlePreviews> children;
 	protected final List<LittlePreview> previews;
 	
@@ -144,21 +145,39 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		return placePreviews;
 	}
 	
+	public boolean hasParent() {
+		return parent != null;
+	}
+	
+	public LittlePreviews getParent() {
+		return parent;
+	}
+	
 	public boolean hasChildren() {
 		return !children.isEmpty();
 	}
 	
-	public List<LittlePreviews> getChildren() {
+	public Iterable<LittlePreviews> getChildren() {
 		return children;
 	}
 	
+	public int childrenCount() {
+		return children.size();
+	}
+	
+	public LittlePreviews getChild(int index) {
+		return children.get(index);
+	}
+	
 	public void updateChild(int index, LittlePreviews child) {
-		children.set(index, child);
+		child.parent = this;
+		children.set(index, child).parent = null;
 	}
 	
 	public void addChild(LittlePreviews child) {
 		if (child.isAbsolute())
 			throw new RuntimeException("Absolute previews cannot be added as a child!");
+		child.parent = this;
 		children.add(child);
 		if (context.size < child.getSmallestContext().size)
 			convertToSmallest();
