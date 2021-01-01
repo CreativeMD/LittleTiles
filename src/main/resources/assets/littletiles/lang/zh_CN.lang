@@ -82,6 +82,9 @@ exception.door.notloaded=无法与门互动（并非所有方块都已加载）
 exception.door.brokenparent=无法与门互动（已断开与父级的连接）
 exception.door.brokenchild=无法与门互动（已断开与子级的连接）
 exception.door.notenoughspace=有其他方块挡住了
+exception.pattern.empty=空
+exception.pattern.circular=循环引用 
+exception.pattern.novalidchildren=断开子级
 
 color.unit.black=黑色
 color.unit.cyan=青色
@@ -195,13 +198,18 @@ gui.particle.texture=纹理材质
 gui.particle.gravity=重力
 gui.particle.growrate=增长
 gui.particle.randomcolor=随机颜色
-gui.particle.age=年龄
+gui.particle.age=持续时长
 gui.particle.spread.speedx=X
 gui.particle.spread.speedy=Y
 gui.particle.spread.speedz=Z
 gui.particle.spread.radius=半径
 gui.particle.spread.spread=偏移
 gui.particle.spread.steps=等级
+
+gui.signal.configuration.result=结果:
+gui.signal.configuration.save=保存
+gui.signal.configuration.addop=+
+gui.signal.configuration.add=+
 
 animation.event.child.name=激活子级
 animation.event.sound-event.name=播放声音事件
