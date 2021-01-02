@@ -22,8 +22,6 @@ public abstract class SignalTarget {
 			boolean input = begin == 'a' || begin == 'i';
 			if (onlyOutputs && input)
 				throw parser.exception("Input cannot be defined in output condition");
-			else if (!onlyOutputs && !input)
-				throw parser.exception("Output cannot be defined in input condition");
 			
 			int child = parser.parseNumber();
 			
@@ -55,6 +53,11 @@ public abstract class SignalTarget {
 			int child = parser.parseNumber();
 			if (parser.next(false) == '.')
 				return new SignalTargetNested(child, parseTarget(parser, onlyOutputs, insideVariable));
+			else
+				throw parser.exception("Missing dot after child input");
+		} else if (begin == 'p') {
+			if (parser.next(false) == '.')
+				return new SignalTargetParent(parseTarget(parser, onlyOutputs, insideVariable));
 			else
 				throw parser.exception("Missing dot after child input");
 		} else if (begin == 'd') {
@@ -126,6 +129,42 @@ public abstract class SignalTarget {
 		@Override
 		public String write() {
 			return "c" + child + "." + subTarget.write();
+		}
+		
+		@Override
+		public boolean isIndexVariable() {
+			return subTarget.isIndexVariable();
+		}
+		
+	}
+	
+	public static class SignalTargetParent extends SignalTarget {
+		
+		public final SignalTarget subTarget;
+		
+		public SignalTargetParent(SignalTarget subTarget) {
+			super(-1);
+			this.subTarget = subTarget;
+		}
+		
+		@Override
+		public boolean[] getState(LittleStructure structure) {
+			return subTarget.getState(structure);
+		}
+		
+		@Override
+		public ISignalComponent getTarget(LittleStructure structure) {
+			if (structure.getParent() != null)
+				try {
+					
+					return subTarget.getTarget(structure.getParent().getStructure());
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+			return null;
+		}
+		
+		@Override
+		public String write() {
+			return "p." + subTarget.write();
 		}
 		
 		@Override
@@ -336,7 +375,7 @@ public abstract class SignalTarget {
 		
 	}
 	
-	private static abstract class SignalCustomIndex {
+	public static abstract class SignalCustomIndex {
 		
 		public abstract String write();
 		
@@ -346,7 +385,7 @@ public abstract class SignalTarget {
 		
 	}
 	
-	private static class SignalCustomIndexSingle extends SignalCustomIndex {
+	public static class SignalCustomIndexSingle extends SignalCustomIndex {
 		
 		public final int index;
 		
@@ -373,7 +412,7 @@ public abstract class SignalTarget {
 		}
 	}
 	
-	private static class SignalCustomIndexRange extends SignalCustomIndex {
+	public static class SignalCustomIndexRange extends SignalCustomIndex {
 		
 		public final int index;
 		public final int length;

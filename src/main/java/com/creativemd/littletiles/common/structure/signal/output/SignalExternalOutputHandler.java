@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.structure.signal.output;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.function.Function;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -25,11 +26,11 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 	public SignalInputCondition condition;
 	public SignalOutputHandler handler;
 	
-	public SignalExternalOutputHandler(LittleStructure structure, int index, SignalInputCondition condition, SignalOutputHandler handler) {
+	public SignalExternalOutputHandler(LittleStructure structure, int index, SignalInputCondition condition, Function<ISignalComponent, SignalOutputHandler> function) {
 		this.structure = structure;
 		this.index = index;
 		this.condition = condition;
-		this.handler = handler;
+		this.handler = function.apply(this);
 	}
 	
 	public SignalExternalOutputHandler(LittleStructure structure, NBTTagCompound nbt) throws ParseException {
@@ -84,7 +85,8 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 	public NBTTagCompound write() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setInteger("index", index);
-		nbt.setInteger("state", BooleanUtils.boolToInt(getState()));
+		if (structure != null)
+			nbt.setInteger("state", BooleanUtils.boolToInt(getState()));
 		if (condition != null)
 			nbt.setString("con", condition.write());
 		nbt.setString("mode", handler == null ? SignalMode.EQUAL.name() : handler.getMode().name());
@@ -122,6 +124,8 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 	
 	@Override
 	public World getWorld() {
+		if (structure == null)
+			return null;
 		return structure.getWorld();
 	}
 }

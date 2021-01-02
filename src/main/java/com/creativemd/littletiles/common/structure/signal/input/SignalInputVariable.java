@@ -15,67 +15,24 @@ public class SignalInputVariable extends SignalInputCondition {
 	
 	private static int[] parseInputExact(SignalPatternParser parser) throws ParseException {
 		List<Integer> indexes = new ArrayList<>();
-		int index = -1;
-		boolean first = true;
 		while (parser.hasNext()) {
 			char next = parser.lookForNext(true);
 			if (next == '}') {
 				parser.next(true);
 				break;
-			} else if (Character.isDigit(next) || ((first || index != -1) && next == '*')) {
+			} else if (Character.isDigit(next) || next == '*') {
 				if (next == '*') {
-					if (first)
-						first = false;
-					else if (index == -1)
-						throw parser.exception("* is not allowed when index prefix are used");
-					index++;
+					indexes.add(2);
 					next = parser.next(true);
-					if (next == ',')
-						continue;
-					else if (next == '}')
+					if (next == '}')
 						break;
-					else
-						throw parser.exception("Invalid input index=" + index);
+					continue;
 				} else {
-					int number = parser.parseNumber();
+					indexes.add(parser.parseNumber());
 					next = parser.next(true);
-					if (next == ',') {
-						if (number != '0' && number != '1')
-							throw parser.exception("Invalid bit value " + number);
-						
-						if (first)
-							first = false;
-						else if (index == -1)
-							throw parser.exception("All entries have to have an index prefix");
-						index++;
-						indexes.add(number == '0' ? -index : index);
-						
-						next = parser.next(true);
-						if (next == ',')
-							continue;
-						else if (next == '}')
-							break;
-						else
-							throw parser.exception("Invalid input index=" + index);
-					} else if (next == ':') {
-						int value = parser.parseNumber();
-						if (value != '0' && value != '1')
-							throw parser.exception("Invalid bit value " + value);
-						if (first)
-							first = false;
-						else if (index != -1)
-							throw parser.exception("No index prefix allowed when they are missing before");
-						indexes.add(number == '0' ? -number : number);
-						
-						next = parser.next(true);
-						if (next == ',')
-							continue;
-						else if (next == '}')
-							break;
-						else
-							throw parser.exception("Invalid input index=" + index);
-					} else
-						throw parser.exception("Invalid input index=" + index);
+					if (next == '}')
+						break;
+					continue;
 				}
 			} else
 				throw parser.invalidChar(next);
@@ -191,9 +148,7 @@ public class SignalInputVariable extends SignalInputCondition {
 			String result = super.write() + "{";
 			for (int i = 0; i < indexes.length; i++) {
 				int index = indexes[i];
-				if (index < 0)
-					result += ",";
-				result += (char) index;
+				result += "" + (index >= 2 ? "*" : index);
 			}
 			return result + "}";
 		}

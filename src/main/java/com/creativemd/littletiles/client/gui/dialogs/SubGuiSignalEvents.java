@@ -48,9 +48,10 @@ public class SubGuiSignalEvents extends SubGui {
 	
 	public void addEntry(GuiSignalEvent event) {
 		GuiScrollBox box = (GuiScrollBox) get("content");
-		GuiPanel panel = new GuiPanel("event", 2, 2, 158, 16);
+		GuiPanel panel = new GuiPanel("event", 2, 2, 158, 30);
 		panel.addControl(new GuiLabel("label", 0, 0));
-		panel.addControl(new GuiButton("edit", 100, 0, 30, 10) {
+		panel.addControl(new GuiLabel("mode", 0, 16));
+		panel.addControl(new GuiButton("edit", 84, 14, 30, 10) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -65,7 +66,7 @@ public class SubGuiSignalEvents extends SubGui {
 			}
 		});
 		
-		panel.addControl(new GuiButton("reset", 145, 0, 6, 6) {
+		panel.addControl(new GuiButton("reset", 122, 14, 30, 10) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -107,23 +108,17 @@ public class SubGuiSignalEvents extends SubGui {
 		GuiScrollBox box = new GuiScrollBox("content", 0, 0, 170, 172);
 		
 		List<String> values = new ArrayList<>();
-		values.add("Inputs:");
+		values.add("Components:");
 		
 		for (GuiSignalComponent component : button.inputs)
 			values.add(component.display());
 		
-		values.add("Outputs:");
-		
-		if (button.events == null) {
-			button.events = new ArrayList<>();
-			
-		}
 		GuiListBox components = new GuiListBox("components", 180, 0, 120, 180, values);
 		
 		controls.add(components);
 		controls.add(box);
 		
-		for (GuiSignalEvent event : button.events)
+		for (GuiSignalEvent event : events)
 			addEntry(event);
 		
 		controls.add(new GuiButton("save", 146, 180) {
@@ -131,6 +126,7 @@ public class SubGuiSignalEvents extends SubGui {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				SubGuiSignalEvents.this.button.events = events;
+				closeGui();
 			}
 		});
 		controls.add(new GuiButton("cancel", 0, 180) {
@@ -158,8 +154,9 @@ public class SubGuiSignalEvents extends SubGui {
 			this.activator = structure;
 			this.type = type;
 			this.events = null;
-			gatherInputs(previews, type, "", "");
-			gatherOutputs(previews, type, "", "");
+			gatherInputs(previews, type, "", "", inputs, true);
+			gatherOutputs(previews, type, "", "", inputs, true, true);
+			gatherOutputs(previews, type, "", "", outputs, false, false);
 			
 			events = new ArrayList<>();
 			for (GuiSignalComponent output : outputs) {
@@ -186,35 +183,46 @@ public class SubGuiSignalEvents extends SubGui {
 			}
 		}
 		
-		protected void gatherInputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix) {
+		protected static void gatherInputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean searchForParent) {
+			if (searchForParent && previews.hasParent()) {
+				gatherInputs(previews.getParent(), previews.getParent().getStructureType(), "p." + prefix, "p." + totalNamePrefix, list, true);
+				return;
+			}
+			
 			if (type != null && type.inputs != null)
 				for (int i = 0; i < type.inputs.size(); i++)
-					inputs.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
+					list.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
 				
 			for (int i = 0; i < previews.childrenCount(); i++) {
 				LittlePreviews child = previews.getChild(i);
 				LittleStructureType structure = child.getStructureType();
 				String name = child.getStructureName();
 				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.INPUT)
-					inputs.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), (ISignalComponent) structure, true, i));
+					list.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), (ISignalComponent) structure, true, i));
 				
-				gatherInputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."));
+				gatherInputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, false);
 			}
 		}
 		
-		protected void gatherOutputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix) {
+		protected static void gatherOutputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
+			if (searchForParent && previews.hasParent() && includeRelations) {
+				gatherOutputs(previews.getParent(), previews.getParent().getStructureType(), "p." + prefix, "p." + totalNamePrefix, list, includeRelations, searchForParent);
+				return;
+			}
+			
 			if (type != null && type.outputs != null)
 				for (int i = 0; i < type.outputs.size(); i++)
-					outputs.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
+					list.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
 				
 			for (int i = 0; i < previews.childrenCount(); i++) {
 				LittlePreviews child = previews.getChild(i);
 				LittleStructureType structure = child.getStructureType();
 				String name = child.getStructureName();
 				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.OUTPUT)
-					outputs.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), (ISignalComponent) structure, true, i));
+					list.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), (ISignalComponent) structure, true, i));
 				
-				gatherOutputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."));
+				if (includeRelations)
+					gatherOutputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
 			}
 		}
 		
@@ -223,25 +231,19 @@ public class SubGuiSignalEvents extends SubGui {
 			for (GuiSignalEvent event : events) {
 				if (event.component.external) {
 					if (event.condition != null)
-						map.put(event.component.index, new SignalExternalOutputHandler(structure, event.component.index, event.condition, event.getHandler(structure)));
+						map.put(event.component.index, new SignalExternalOutputHandler(null, event.component.index, event.condition, (x) -> event.getHandler(x, structure)));
 				} else {
 					InternalSignalOutput output = structure.getOutput(event.component.index);
 					output.condition = event.condition;
-					output.handler = event.getHandler(structure);
+					output.handler = event.getHandler(output, structure);
 				}
 			}
+			structure.setExternalHandler(map);
 		}
 		
 		@Override
 		public void onClicked(int x, int y, int button) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setBoolean("dialog", true);
-			SubGuiSignalEvents dialog = new SubGuiSignalEvents(this);
-			dialog.gui = getParent().getOrigin().gui;
-			PacketHandler.sendPacketToServer(new GuiLayerPacket(nbt, dialog.gui.getLayers().size() - 1, false));
-			dialog.container = new SubContainerEmpty(getPlayer());
-			dialog.gui.addLayer(dialog);
-			dialog.onOpened();
+			openClientLayer(new SubGuiSignalEvents(this));
 		}
 	}
 	
@@ -262,7 +264,7 @@ public class SubGuiSignalEvents extends SubGui {
 			} catch (ParseException e) {
 				condition = null;
 			}
-			this.modeConfig = SignalMode.getConfig(nbt);
+			this.modeConfig = SignalMode.getConfig(nbt, component.defaultMode);
 		}
 		
 		private GuiSignalEvent(GuiSignalComponent component, SignalInputCondition condition, GuiSignalModeConfiguration modeConfig) {
@@ -281,11 +283,17 @@ public class SubGuiSignalEvents extends SubGui {
 			GuiLabel label = (GuiLabel) panel.get("label");
 			label.caption = component.name + ": " + condition;
 			label.width = font.getStringWidth(label.caption) + label.getContentOffset() * 2;
+			GuiLabel mode = (GuiLabel) panel.get("mode");
+			int delay = modeConfig.delay;
+			if (condition != null)
+				delay = Math.max(delay, (int) Math.ceil(condition.calculateDelay()));
+			mode.caption = translate(modeConfig.getMode().translateKey) + " delay: " + delay;
+			mode.width = font.getStringWidth(mode.caption) + label.getContentOffset() * 2;
 		}
 		
-		public SignalOutputHandler getHandler(LittleStructure structure) {
+		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
 			if (condition != null)
-				return modeConfig.getHandler(structure);
+				return modeConfig.getHandler(component, structure);
 			return null;
 		}
 		

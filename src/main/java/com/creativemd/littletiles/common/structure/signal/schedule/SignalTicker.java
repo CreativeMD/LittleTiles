@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure.signal.schedule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,6 +20,13 @@ public class SignalTicker {
 	
 	private static HashMap<World, SignalTicker> tickers = new HashMap<>();
 	public static final int queueLength = 20;
+	
+	public static synchronized List<ISignalScheduleTicket> findTickets(ISignalComponent component, SignalOutputHandler condition) {
+		World world = component.getWorld();
+		if (world != null && !world.isRemote)
+			return get(world).findTickets(condition);
+		return Collections.EMPTY_LIST;
+	}
 	
 	public static synchronized SignalTicker get(ISignalComponent component) {
 		return get(component.getWorld());

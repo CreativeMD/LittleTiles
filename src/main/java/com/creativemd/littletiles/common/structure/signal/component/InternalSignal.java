@@ -38,7 +38,9 @@ public abstract class InternalSignal implements ISignalComponent {
 	
 	@Override
 	public World getWorld() {
-		return parent.getWorld();
+		if (parent.mainBlock != null)
+			return parent.getWorld();
+		return null;
 	}
 	
 }

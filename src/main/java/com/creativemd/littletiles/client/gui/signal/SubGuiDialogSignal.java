@@ -14,9 +14,11 @@ import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents.GuiSignalEvent;
 import com.creativemd.littletiles.client.gui.signal.GuiSignalController.GeneratePatternException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 public class SubGuiDialogSignal extends SubGui {
@@ -81,6 +83,9 @@ public class SubGuiDialogSignal extends SubGui {
 			}
 		});
 		
+		if (event.condition != null)
+			controller.setCondition(event.condition);
+		
 		controls.add(new GuiButton("save", translate("gui.signal.configuration.save"), 270, 180) {
 			
 			@Override
@@ -120,6 +125,7 @@ public class SubGuiDialogSignal extends SubGui {
 		public final int index;
 		public final int bandwidth;
 		public final String totalName;
+		public final SignalMode defaultMode;
 		
 		public GuiSignalComponent(String name, String prefix, InternalComponent component, boolean input, boolean external, int index) {
 			this.name = name;
@@ -128,6 +134,10 @@ public class SubGuiDialogSignal extends SubGui {
 			this.input = input;
 			this.external = external;
 			this.index = index;
+			if (component instanceof InternalComponentOutput)
+				this.defaultMode = ((InternalComponentOutput) component).defaultMode;
+			else
+				this.defaultMode = SignalMode.EQUAL;
 		}
 		
 		public GuiSignalComponent(String name, String totalName, ISignalComponent component, boolean external, int index) {
@@ -137,18 +147,12 @@ public class SubGuiDialogSignal extends SubGui {
 			this.input = component.getType() == SignalComponentType.INPUT;
 			this.external = external;
 			this.index = index;
-		}
-		
-		public GuiSignalComponent(String name, int bandwidth, String totalName, boolean input, boolean external, int index) {
-			this.name = name;
-			this.bandwidth = bandwidth;
-			this.totalName = totalName;
-			this.input = input;
-			this.external = external;
-			this.index = index;
+			this.defaultMode = SignalMode.EQUAL;
 		}
 		
 		public String display() {
+			if (name.equals(totalName))
+				return ChatFormatting.BOLD + name + " " + ChatFormatting.RESET + bandwidth + "-bit";
 			return ChatFormatting.BOLD + name + " " + totalName + " " + ChatFormatting.RESET + bandwidth + "-bit";
 		}
 		

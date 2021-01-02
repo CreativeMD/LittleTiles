@@ -1,8 +1,11 @@
 package com.creativemd.littletiles.client.gui.signal;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.lwjgl.input.Mouse;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
@@ -16,8 +19,15 @@ import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondi
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable;
+import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableEquation;
+import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableOperator;
+import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariablePattern;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalPatternParser;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
+
+import net.minecraft.init.SoundEvents;
 
 public class GuiSignalController extends GuiParent {
 	
@@ -37,6 +47,11 @@ public class GuiSignalController extends GuiParent {
 	public GuiSignalController(String name, int x, int y, int width, int height, GuiSignalComponent output) {
 		super(name, x, y, width, height);
 		setOutput(output);
+	}
+	
+	@Override
+	public float getScaleFactor() {
+		return 1F;
 	}
 	
 	public SignalInputCondition generatePattern() throws GeneratePatternException {
@@ -88,6 +103,10 @@ public class GuiSignalController extends GuiParent {
 		
 	}
 	
+	public void setCondition(SignalInputCondition condition) {
+		//sas
+	}
+	
 	public GuiSignalNodeInput addInput(GuiSignalComponent input) {
 		GuiSignalNodeInput node = new GuiSignalNodeInput(input);
 		setToFreeCell(0, node);
@@ -121,13 +140,18 @@ public class GuiSignalController extends GuiParent {
 		raiseEvent(new GuiControlChangedEvent(this));
 	}
 	
+	public void select(GuiSignalNode node) {
+		if (selected != null)
+			selected.color = ColorUtils.WHITE;
+		selected = node;
+		if (selected != null)
+			selected.color = ColorUtils.YELLOW;
+	}
+	
 	@Override
 	public boolean mousePressed(int x, int y, int button) {
-		if (!super.mousePressed(x, y, button)) {
-			if (selected != null)
-				selected.color = ColorUtils.WHITE;
-			selected = null;
-		}
+		if (!super.mousePressed(x, y, button))
+			select(null);
 		return true;
 	}
 	
@@ -143,14 +167,10 @@ public class GuiSignalController extends GuiParent {
 	@Override
 	public void mouseReleased(int x, int y, int button) {
 		super.mouseReleased(x, y, button);
-		if (!startedDragging) {
-			if (selected != null)
-				selected.color = ColorUtils.WHITE;
-			selected = dragged;
-			if (selected != null)
-				selected.color = ColorUtils.YELLOW;
-		} else
-			selected = null;
+		//if (!startedDragging)
+		//select(dragged);
+		//else
+		//select(null);
 		
 		startedDragging = false;
 		dragged = null;
@@ -185,6 +205,7 @@ public class GuiSignalController extends GuiParent {
 			node2.connect(connection);
 			raiseEvent(new GuiControlChangedEvent(this));
 		}
+		select(null);
 	}
 	
 	public class GuiGridLine {
@@ -256,6 +277,14 @@ public class GuiSignalController extends GuiParent {
 			color = ColorUtils.RED;
 		}
 		
+		public int getCol() {
+			return col;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
 		public void updatePosition(int col, int row) {
 			this.col = col;
 			this.row = row;
@@ -267,6 +296,42 @@ public class GuiSignalController extends GuiParent {
 				connection.rebuild();
 		}
 		
+		private static final long DOUBLE_CLICK_WAITING_TIME = 200;
+		private long doubleClickTime = -1;
+		private int button;
+		private int mouseX;
+		private int mouseY;
+		
+		@Override
+		public boolean mousePressed(int x, int y, int button) {
+			if (doubleClickTime == -1 || button != this.button) {
+				doubleClickTime = System.currentTimeMillis();
+				this.button = button;
+				this.mouseX = x;
+				this.mouseY = y;
+			} else {
+				doubleClickTime = -1;
+				onDoubleClicked(x, y, button);
+				playSound(SoundEvents.UI_TOAST_IN);
+				playSound(SoundEvents.UI_BUTTON_CLICK);
+			}
+			return true;
+		}
+		
+		@Override
+		protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
+			if (doubleClickTime != -1 && System.currentTimeMillis() > doubleClickTime + DOUBLE_CLICK_WAITING_TIME) {
+				playSound(SoundEvents.UI_BUTTON_CLICK);
+				onClicked(mouseX, mouseY, button);
+				doubleClickTime = -1;
+			}
+			super.renderContent(helper, style, width, height);
+		}
+		
+		public void onDoubleClicked(int x, int y, int button) {
+			
+		}
+		
 		@Override
 		public void onClicked(int x, int y, int button) {
 			if (button == 1 && !(this instanceof GuiSignalNodeOutput)) {
@@ -275,8 +340,10 @@ public class GuiSignalController extends GuiParent {
 			}
 			if (GuiSignalController.this.selected != null)
 				tryConnect(GuiSignalController.this.selected, this);
-			else
+			else if (Mouse.isButtonDown(this.button))
 				GuiSignalController.this.dragged = this;
+			else
+				GuiSignalController.this.select(this);
 		}
 		
 		public abstract SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException;
@@ -518,9 +585,54 @@ public class GuiSignalController extends GuiParent {
 	public class GuiSignalNodeInput extends GuiSignalNodeComponent {
 		
 		public List<NodeConnection> tos = new ArrayList<>();
+		public SignalCustomIndex[] indexes;
+		public int operator = 0; // 0 none, 1 logic operator, 2 pattern, 3 equation
+		public SignalLogicOperator logic;
+		public int[] pattern;
+		public SignalInputCondition equation;
 		
 		public GuiSignalNodeInput(GuiSignalComponent component) {
 			super(component);
+		}
+		
+		public void updateLabel() {
+			caption = component.name;
+			if (indexes != null)
+				caption += "[" + getRange() + "]";
+			switch (operator) {
+			case 1:
+				caption += "{" + (logic == SignalLogicOperator.AND ? "&" : logic.operator) + "}";
+				break;
+			case 2:
+				caption += "{";
+				for (int i = 0; i < pattern.length; i++)
+					caption += "" + (pattern[i] >= 2 ? "*" : pattern[i]);
+				caption += "}";
+				break;
+			case 3:
+				if (equation != null)
+					caption += "{" + equation.write() + "}";
+				break;
+			}
+			width = font.getStringWidth(caption) + getContentOffset() * 2;
+			posX = getCol() * cellWidth + cellWidth / 2 - width / 2;
+		}
+		
+		public String getRange() {
+			if (indexes == null)
+				return "";
+			String result = "";
+			for (int i = 0; i < indexes.length; i++) {
+				if (i > 0)
+					result += ",";
+				result += indexes[i].write();
+			}
+			return result;
+		}
+		
+		@Override
+		public void onDoubleClicked(int x, int y, int button) {
+			openClientLayer(new SuiGuiDialogSignalInput(this));
 		}
 		
 		@Override
@@ -567,7 +679,24 @@ public class GuiSignalController extends GuiParent {
 		@Override
 		public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
 			reset();
-			return new SignalInputVariable(new SignalTarget.SignalTargetChild(component.input, component.index, component.external));
+			try {
+				SignalTarget target = SignalTarget.parseTarget(new SignalPatternParser(caption), false, false);
+				switch (operator) {
+				case 1:
+					return new SignalInputVariableOperator(target, logic);
+				case 2:
+					return new SignalInputVariablePattern(target, pattern);
+				case 3:
+					if (equation != null)
+						return new SignalInputVariableEquation(target, equation);
+				default:
+					return new SignalInputVariable(target);
+				}
+				
+			} catch (ParseException e) {
+				throw new GeneratePatternException(this, "Invalid target");
+			}
+			
 		}
 	}
 	
@@ -779,6 +908,8 @@ public class GuiSignalController extends GuiParent {
 				removeControl(part);
 			for (NodeConnectionLine line : lines)
 				line.remove();
+			
+			raiseEvent(new GuiControlChangedEvent(GuiSignalController.this));
 		}
 	}
 	

@@ -31,7 +31,9 @@ public abstract class SignalInputCondition {
 			
 			if (next == '(') {
 				parser.next(true);
-				return parseExpression(parser, ')', SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
+				SignalInputCondition condition = parseExpression(parser, ')', SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
+				parser.next(true);
+				return condition;
 			} else if (next == '!') {
 				parser.next(true);
 				return new SignalInputConditionNot(parseNextCondition(parser, includeBitwise, insideVariable));

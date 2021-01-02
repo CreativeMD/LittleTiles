@@ -70,9 +70,13 @@ public class SignalUtils {
 	}
 	
 	public static boolean is(boolean[] state, int[] indexes) {
-		for (int i = 0; i < indexes.length; i++) {
-			int index = indexes[i];
-			if (index > 0 != (Math.abs(index) < state.length && state[Math.abs(index)]))
+		for (int i = 0; i < state.length; i++) {
+			if (i >= indexes.length)
+				continue;
+			int indexState = indexes[i];
+			if (indexState == 2)
+				continue;
+			if (indexState != (state[i] ? 1 : 0))
 				return false;
 		}
 		return true;

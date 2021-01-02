@@ -34,7 +34,7 @@ public enum SignalMode {
 				
 				@Override
 				public void write(NBTTagCompound nbt) {
-					List<ISignalScheduleTicket> tickets = SignalTicker.get(component).findTickets(this);
+					List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
 					NBTTagList list = new NBTTagList();
 					for (int i = 0; i < tickets.size(); i++) {
 						ISignalScheduleTicket ticket = tickets.get(i);
@@ -54,6 +54,14 @@ public enum SignalMode {
 				}
 			}
 			return handler;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+			if (nbt == null)
+				return new GuiSignalModeConfigurationEqual(1);
+			return new GuiSignalModeConfigurationEqual(nbt);
 		}
 	},
 	TOGGLE("signal.mode.toggle", "|=") {
@@ -94,7 +102,7 @@ public enum SignalMode {
 				public void write(NBTTagCompound nbt) {
 					nbt.setInteger("before", BooleanUtils.boolToInt(stateBefore));
 					nbt.setInteger("result", BooleanUtils.boolToInt(result));
-					List<ISignalScheduleTicket> tickets = SignalTicker.get(component).findTickets(this);
+					List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
 					NBTTagList list = new NBTTagList();
 					for (int i = 0; i < tickets.size(); i++) {
 						ISignalScheduleTicket ticket = tickets.get(i);
@@ -114,6 +122,12 @@ public enum SignalMode {
 				}
 			}
 			return handler;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+			return new GuiSignalModeConfigurationEqual(nbt);
 		}
 	},
 	PULSE("signal.mode.pulse", "~=") {
@@ -225,6 +239,8 @@ public enum SignalMode {
 	
 	public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt);
 	
+	public abstract GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt);
+	
 	public static abstract class SignalOutputHandlerStoreOne extends SignalOutputHandler {
 		
 		ISignalScheduleTicket ticket;
@@ -293,19 +309,76 @@ public enum SignalMode {
 	}
 	
 	public static GuiSignalModeConfiguration getConfigDefault() {
-		
+		return EQUAL.createConfiguration(null);
 	}
 	
-	public static GuiSignalModeConfiguration getConfig(NBTTagCompound nbt) {
-		
+	public static GuiSignalModeConfiguration getConfig(NBTTagCompound nbt, SignalMode defaultMode) {
+		return get(nbt.getString("mode"), defaultMode).createConfiguration(nbt);
+	}
+	
+	public static SignalMode get(String test) {
+		try {
+			return SignalMode.valueOf(test);
+		} catch (IllegalArgumentException e) {
+			return EQUAL;
+		}
+	}
+	
+	public static SignalMode get(String test, SignalMode defaultMode) {
+		try {
+			return SignalMode.valueOf(test);
+		} catch (IllegalArgumentException e) {
+			return defaultMode;
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public static abstract class GuiSignalModeConfiguration {
 		
+		public int delay;
+		
+		public GuiSignalModeConfiguration(NBTTagCompound nbt) {
+			this(nbt.getInteger("delay"));
+		}
+		
+		public GuiSignalModeConfiguration(int delay) {
+			this.delay = delay;
+		}
+		
+		public abstract SignalMode getMode();
+		
 		public abstract GuiSignalModeConfiguration copy();
 		
-		public abstract SignalOutputHandler getHandler(LittleStructure structure);
+		public abstract SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure);
+		
+	}
+	
+	private static class GuiSignalModeConfigurationEqual extends GuiSignalModeConfiguration {
+		
+		public GuiSignalModeConfigurationEqual(int delay) {
+			super(delay);
+		}
+		
+		public GuiSignalModeConfigurationEqual(NBTTagCompound nbt) {
+			super(nbt);
+		}
+		
+		@Override
+		public SignalMode getMode() {
+			return EQUAL;
+		}
+		
+		@Override
+		public GuiSignalModeConfiguration copy() {
+			return new GuiSignalModeConfigurationEqual(delay);
+		}
+		
+		@Override
+		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("delay", delay);
+			return EQUAL.create(component, delay, nbt);
+		}
 		
 	}
 }
