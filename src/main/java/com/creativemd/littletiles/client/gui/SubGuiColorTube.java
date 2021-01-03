@@ -51,7 +51,7 @@ public class SubGuiColorTube extends SubGuiConfigure {
 	public void saveConfiguration() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-		SelectShape shape = box.caption.equals("tile") || box.caption.equals("") ? null : SelectShape.getShape(box.caption);
+		SelectShape shape = box.getCaption().equals("tile") || box.getCaption().equals("") ? null : SelectShape.getShape(box.getCaption());
 		
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt == null) {
@@ -76,7 +76,7 @@ public class SubGuiColorTube extends SubGuiConfigure {
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		
 		scroll.controls.clear();
-		SelectShape shape = box.caption.equals("tile") || box.caption.equals("") ? null : SelectShape.getShape(box.caption);
+		SelectShape shape = box.getCaption().equals("tile") || box.getCaption().equals("") ? null : SelectShape.getShape(box.getCaption());
 		if (shape != null) {
 			scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 			scroll.refreshControls();

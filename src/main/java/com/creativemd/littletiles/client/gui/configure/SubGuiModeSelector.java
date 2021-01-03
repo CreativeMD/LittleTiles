@@ -63,7 +63,7 @@ public abstract class SubGuiModeSelector extends SubGuiConfigure {
 		mode = getMode();
 		GuiComboBox contextBox = (GuiComboBox) get("grid");
 		try {
-			context = LittleGridContext.get(Integer.parseInt(contextBox.caption));
+			context = LittleGridContext.get(Integer.parseInt(contextBox.getCaption()));
 		} catch (NumberFormatException e) {
 			context = LittleGridContext.get();
 		}

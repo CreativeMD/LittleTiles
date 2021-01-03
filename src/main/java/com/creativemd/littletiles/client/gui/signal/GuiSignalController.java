@@ -737,7 +737,7 @@ public class GuiSignalController extends GuiParent {
 		
 		@Override
 		public void onDoubleClicked(int x, int y, int button) {
-			openClientLayer(new SuiGuiDialogSignalInput(this));
+			openClientLayer(new SubGuiDialogSignalInput(this));
 		}
 		
 		@Override

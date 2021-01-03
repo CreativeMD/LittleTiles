@@ -1,14 +1,16 @@
 package com.creativemd.littletiles.client.gui.signal;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTranslated;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents;
@@ -18,6 +20,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType.
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
+import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
@@ -44,12 +47,7 @@ public class SubGuiDialogSignal extends SubGui {
 	@Override
 	public void createControls() {
 		controls.add(new GuiLabel("result", translate("gui.signal.configuration.result"), 0, 0));
-		controls.add(new GuiTabStateButtonTranslated("type", 0, "gui.signal.configuration.type", 215, 0, 14, "basic", "advanced"));
 		
-		loadBasic();
-	}
-	
-	protected void loadBasic() {
 		GuiSignalController controller = new GuiSignalController("controller", 0, 22, 294, 150, event.component);
 		controls.add(controller);
 		List<String> inputLines = new ArrayList<>();
@@ -95,7 +93,17 @@ public class SubGuiDialogSignal extends SubGui {
 		if (event.condition != null)
 			controller.setCondition(event.condition, this);
 		
+		controls.add(new GuiLabel("delay", 210, 182));
+		
 		changed(new GuiControlChangedEvent(controller));
+		
+		controls.add(new GuiButton("mode", 250, 0) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				openClientLayer(new SubGuiDialogSignalMode(SubGuiDialogSignal.this, event));
+			}
+		});
 		
 		controls.add(new GuiButton("save", translate("gui.signal.configuration.save"), 270, 180) {
 			
@@ -108,22 +116,30 @@ public class SubGuiDialogSignal extends SubGui {
 				} catch (GeneratePatternException e) {}
 			}
 		});
+		modeChanged();
 	}
 	
-	protected void loadAdvanced() {
-		
+	public void modeChanged() {
+		GuiButton button = (GuiButton) get("mode");
+		button.setCaption(translate(event.modeConfig.getMode().translateKey));
+		button.posX = 300 - button.width;
 	}
 	
 	@CustomEventSubscribe
 	public void changed(GuiControlChangedEvent event) {
 		if (event.source.is("controller")) {
 			GuiLabel label = (GuiLabel) get("result");
+			GuiLabel delay = (GuiLabel) get("delay");
 			try {
-				label.caption = translate("gui.signal.configuration.result") + " " + ((GuiSignalController) event.source).generatePattern().toString();
+				SignalInputCondition condition = ((GuiSignalController) event.source).generatePattern();
+				label.setCaption(translate("gui.signal.configuration.result") + " " + condition.toString());
+				DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+				df.setMaximumFractionDigits(5);
+				delay.setCaption(df.format(condition.calculateDelay()) + " ticks");
 			} catch (GeneratePatternException e) {
-				label.caption = translate("gui.signal.configuration.result") + " " + translate(e.getMessage());
+				label.setCaption(translate("gui.signal.configuration.result") + " " + translate(e.getMessage()));
+				delay.setCaption(0 + " ticks");
 			}
-			label.width = font.getStringWidth(label.caption) + label.getContentOffset() * 2;
 		}
 		
 	}

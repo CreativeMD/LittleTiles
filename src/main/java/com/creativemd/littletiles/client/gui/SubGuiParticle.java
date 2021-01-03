@@ -86,7 +86,7 @@ public class SubGuiParticle extends SubGui {
 				
 				ParticleSettings newSettings = new ParticleSettings();
 				GuiComboBox textures = (GuiComboBox) get("textures");
-				newSettings.texture = LittleParticleTexture.get(textures.caption);
+				newSettings.texture = LittleParticleTexture.get(textures.getCaption());
 				GuiSteppedSlider age = (GuiSteppedSlider) get("age");
 				newSettings.lifetime = (int) age.value;
 				GuiColorPicker color = (GuiColorPicker) get("color");

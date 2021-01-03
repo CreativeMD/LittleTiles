@@ -75,7 +75,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		
-		DragShape shape = DragShape.getShape(box.caption);
+		DragShape shape = DragShape.getShape(box.getCaption());
 		scroll.controls.clear();
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 		scroll.refreshControls();
@@ -105,7 +105,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 	public void saveConfiguration() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-		DragShape shape = DragShape.getShape(box.caption);
+		DragShape shape = DragShape.getShape(box.getCaption());
 		
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
 		LittlePreview preview = ItemLittleChisel.getPreview(stack);

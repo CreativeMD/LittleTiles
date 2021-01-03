@@ -29,7 +29,7 @@ public class SubGuiHammer extends SubGuiConfigure {
 	public void saveConfiguration() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-		SelectShape shape = SelectShape.getShape(box.caption);
+		SelectShape shape = SelectShape.getShape(box.getCaption());
 		
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt == null) {
@@ -60,7 +60,7 @@ public class SubGuiHammer extends SubGuiConfigure {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		
-		SelectShape shape = SelectShape.getShape(box.caption);
+		SelectShape shape = SelectShape.getShape(box.getCaption());
 		scroll.controls.clear();
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 		scroll.refreshControls();

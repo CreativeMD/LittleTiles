@@ -8,9 +8,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.littletiles.client.gui.controls.SubGuiSoundSelector.GuiPickSoundButton;
@@ -127,7 +125,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 			public ChildActivateEvent parse(GuiParent parent, ChildActivateEvent event) {
 				GuiComboBox child = (GuiComboBox) parent.get("child");
 				try {
-					event.childId = Integer.parseInt(child.caption.split(":")[0]);
+					event.childId = Integer.parseInt(child.getCaption().split(":")[0]);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

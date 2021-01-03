@@ -311,14 +311,12 @@ public class SubGuiSignalEvents extends SubGui {
 		
 		public void updatePanel() {
 			GuiLabel label = (GuiLabel) panel.get("label");
-			label.caption = component.name + ": " + condition;
-			label.width = font.getStringWidth(label.caption) + label.getContentOffset() * 2;
+			label.setCaption(component.name + ": " + condition);
 			GuiLabel mode = (GuiLabel) panel.get("mode");
 			int delay = modeConfig.delay;
 			if (condition != null)
 				delay = Math.max(delay, (int) Math.ceil(condition.calculateDelay()));
-			mode.caption = translate(modeConfig.getMode().translateKey) + " delay: " + delay;
-			mode.width = font.getStringWidth(mode.caption) + label.getContentOffset() * 2;
+			mode.setCaption(translate(modeConfig.getMode().translateKey) + " delay: " + delay);
 		}
 		
 		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {

@@ -88,7 +88,7 @@ public class SubGuiSoundSelector extends SubGui {
 		
 		if (event.source != null) {
 			if (event.source.is("sounds"))
-				selected = sounds.caption;
+				selected = sounds.getCaption();
 			else if (event.source.is("search")) {
 				List<String> foundLines = new ArrayList<>();
 				if (search.text.isEmpty())
@@ -99,7 +99,7 @@ public class SubGuiSoundSelector extends SubGui {
 							foundLines.add(possibleLines.get(i));
 				sounds.lines = foundLines;
 				sounds.index = foundLines.indexOf(selected);
-				sounds.caption = selected;
+				sounds.setCaption(selected);
 			}
 		}
 		

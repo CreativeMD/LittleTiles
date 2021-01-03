@@ -495,7 +495,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		@SideOnly(Side.CLIENT)
 		public void toolTip(GuiToolTipEvent event) {
 			if (event.source.is("timeline")) {
-				((GuiLabel) parent.get("tick")).caption = event.tooltip.get(0);
+				((GuiLabel) parent.get("tick")).setCaption(event.tooltip.get(0));
 				event.CancelEvent();
 			}
 		}

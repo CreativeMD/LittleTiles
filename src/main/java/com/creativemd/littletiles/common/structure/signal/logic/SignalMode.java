@@ -2,6 +2,9 @@ package com.creativemd.littletiles.common.structure.signal.logic;
 
 import java.util.List;
 
+import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
@@ -63,6 +66,19 @@ public enum SignalMode {
 				return new GuiSignalModeConfigurationEqual(1);
 			return new GuiSignalModeConfigurationEqual(nbt);
 		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
+			
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
+			return new GuiSignalModeConfigurationEqual(delay);
+		}
+		
 	},
 	TOGGLE("signal.mode.toggle", "|=") {
 		
@@ -127,8 +143,21 @@ public enum SignalMode {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
-			return new GuiSignalModeConfigurationEqual(nbt);
+			return new GuiSignalModeConfigurationToggle(nbt);
 		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
+			
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
+			return new GuiSignalModeConfigurationToggle(delay);
+		}
+		
 	},
 	PULSE("signal.mode.pulse", "~=") {
 		
@@ -141,6 +170,26 @@ public enum SignalMode {
 			} else if (nbt.hasKey("end"))
 				SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
 			return condition;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+			return new GuiSignalModeConfigurationPulse(nbt);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
+			parent.addControl(new GuiLabel("length:", 0, 43));
+			parent.addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationPulse ? ((GuiSignalModeConfigurationPulse) configuration).length : 10), 40, 41, 50, 12).setNumbersOnly());
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
+			GuiTextfield length = (GuiTextfield) parent.get("length");
+			return new GuiSignalModeConfigurationPulse(delay, Math.max(1, length.parseInteger()));
 		}
 	},
 	THRESHOLD("signal.mode.threshold", "==") {
@@ -185,6 +234,24 @@ public enum SignalMode {
 			}
 			return handler;
 		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+			return new GuiSignalModeConfigurationThreshold(nbt);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
+			
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
+			return new GuiSignalModeConfigurationThreshold(delay);
+		}
 	},
 	STABILIZER("signal.mode.stabilizer", "~~") {
 		
@@ -227,6 +294,24 @@ public enum SignalMode {
 			}
 			return handler;
 		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+			return new GuiSignalModeConfigurationStabilizer(nbt);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
+			
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
+			return new GuiSignalModeConfigurationStabilizer(delay);
+		}
 	};
 	
 	public final String translateKey;
@@ -240,6 +325,12 @@ public enum SignalMode {
 	public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt);
 	
 	public abstract GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt);
+	
+	@SideOnly(Side.CLIENT)
+	public abstract void createControls(GuiParent parent, GuiSignalModeConfiguration configuration);
+	
+	@SideOnly(Side.CLIENT)
+	public abstract GuiSignalModeConfiguration parseControls(GuiParent parent, int delay);
 	
 	public static abstract class SignalOutputHandlerStoreOne extends SignalOutputHandler {
 		
@@ -377,7 +468,128 @@ public enum SignalMode {
 		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("delay", delay);
-			return EQUAL.create(component, delay, nbt);
+			return getMode().create(component, delay, nbt);
+		}
+		
+	}
+	
+	private static class GuiSignalModeConfigurationToggle extends GuiSignalModeConfiguration {
+		
+		public GuiSignalModeConfigurationToggle(int delay) {
+			super(delay);
+		}
+		
+		public GuiSignalModeConfigurationToggle(NBTTagCompound nbt) {
+			super(nbt);
+		}
+		
+		@Override
+		public SignalMode getMode() {
+			return TOGGLE;
+		}
+		
+		@Override
+		public GuiSignalModeConfiguration copy() {
+			return new GuiSignalModeConfigurationToggle(delay);
+		}
+		
+		@Override
+		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("delay", delay);
+			return getMode().create(component, delay, nbt);
+		}
+		
+	}
+	
+	private static class GuiSignalModeConfigurationPulse extends GuiSignalModeConfiguration {
+		
+		public int length;
+		
+		public GuiSignalModeConfigurationPulse(int delay, int length) {
+			super(delay);
+			this.length = length;
+		}
+		
+		public GuiSignalModeConfigurationPulse(NBTTagCompound nbt) {
+			super(nbt);
+			this.length = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+		}
+		
+		@Override
+		public SignalMode getMode() {
+			return PULSE;
+		}
+		
+		@Override
+		public GuiSignalModeConfiguration copy() {
+			return new GuiSignalModeConfigurationPulse(delay, length);
+		}
+		
+		@Override
+		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("delay", delay);
+			nbt.setInteger("length", length);
+			return getMode().create(component, delay, nbt);
+		}
+		
+	}
+	
+	private static class GuiSignalModeConfigurationThreshold extends GuiSignalModeConfiguration {
+		
+		public GuiSignalModeConfigurationThreshold(int delay) {
+			super(delay);
+		}
+		
+		public GuiSignalModeConfigurationThreshold(NBTTagCompound nbt) {
+			super(nbt);
+		}
+		
+		@Override
+		public SignalMode getMode() {
+			return THRESHOLD;
+		}
+		
+		@Override
+		public GuiSignalModeConfiguration copy() {
+			return new GuiSignalModeConfigurationThreshold(delay);
+		}
+		
+		@Override
+		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("delay", delay);
+			return getMode().create(component, delay, nbt);
+		}
+		
+	}
+	
+	private static class GuiSignalModeConfigurationStabilizer extends GuiSignalModeConfiguration {
+		
+		public GuiSignalModeConfigurationStabilizer(int delay) {
+			super(delay);
+		}
+		
+		public GuiSignalModeConfigurationStabilizer(NBTTagCompound nbt) {
+			super(nbt);
+		}
+		
+		@Override
+		public SignalMode getMode() {
+			return STABILIZER;
+		}
+		
+		@Override
+		public GuiSignalModeConfiguration copy() {
+			return new GuiSignalModeConfigurationStabilizer(delay);
+		}
+		
+		@Override
+		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("delay", delay);
+			return getMode().create(component, delay, nbt);
 		}
 		
 	}

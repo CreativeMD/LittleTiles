@@ -20,13 +20,13 @@ import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-public class SuiGuiDialogSignalInput extends SubGui {
+public class SubGuiDialogSignalInput extends SubGui {
 	
 	public final GuiSignalNodeInput input;
 	
 	public int bandwidth;
 	
-	public SuiGuiDialogSignalInput(GuiSignalNodeInput input) {
+	public SubGuiDialogSignalInput(GuiSignalNodeInput input) {
 		this.input = input;
 	}
 	
@@ -139,8 +139,7 @@ public class SuiGuiDialogSignalInput extends SubGui {
 			bandwidth = input.component.bandwidth;
 		}
 		GuiLabel result = (GuiLabel) get("result");
-		result.caption = "] " + input.component.bandwidth + " -> " + bandwidth;
-		result.width = font.getStringWidth(result.caption) + result.getContentOffset() * 2;
+		result.setCaption("] " + input.component.bandwidth + " -> " + bandwidth);
 		raiseEvent(new GuiControlChangedEvent(get("type")));
 	}
 	

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxCategory;
@@ -230,8 +229,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		
 		int size = previews.totalSize();
 		GuiLabel label = ((GuiLabel) get("tilescount"));
-		label.caption = size + " " + translate(size == 1 ? "selection.structure.tile" : "selection.structure.tiles");
-		label.width = GuiRenderHelper.instance.getStringWidth(label.caption) + label.getContentOffset() * 2;
+		label.setCaption(size + " " + translate(size == 1 ? "selection.structure.tile" : "selection.structure.tiles"));
 		if (loadingThread != null && loadingThread.isAlive())
 			loadingThread.stop();
 		loadingThread = new LoadingThread(previews);

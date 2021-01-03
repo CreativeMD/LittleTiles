@@ -44,7 +44,7 @@ public class SubGuiWorkbench extends SubGui {
 				
 				GuiItemListBox listBox = (GuiItemListBox) get("missing");
 				GuiLabel label = (GuiLabel) get("label");
-				label.caption = "";
+				label.setCaption("");
 				listBox.clear();
 				
 				if (!stack1.isEmpty()) {

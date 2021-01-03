@@ -148,7 +148,7 @@ public class SubGuiDialogAxis extends SubGui {
 			GuiStateButton contextBox = (GuiStateButton) event.source;
 			LittleGridContext context;
 			try {
-				context = LittleGridContext.get(Integer.parseInt(contextBox.caption));
+				context = LittleGridContext.get(Integer.parseInt(contextBox.getCaption()));
 			} catch (NumberFormatException e) {
 				context = LittleGridContext.get();
 			}

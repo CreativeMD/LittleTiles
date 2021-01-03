@@ -69,7 +69,7 @@ public class GuiLTDistance extends GuiParent {
 	public LittleGridContext getDistanceContext() {
 		GuiStateButton contextBox = (GuiStateButton) get("grid");
 		try {
-			return LittleGridContext.get(Integer.parseInt(contextBox.caption));
+			return LittleGridContext.get(Integer.parseInt(contextBox.getCaption()));
 		} catch (NumberFormatException e) {
 			return LittleGridContext.get();
 		}
