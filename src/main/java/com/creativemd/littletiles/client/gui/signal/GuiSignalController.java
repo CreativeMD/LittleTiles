@@ -18,14 +18,21 @@ import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignal
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
+import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableEquation;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableOperator;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariablePattern;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator.SignalInputConditionOperatorStackable;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalPatternParser;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndexRange;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndexSingle;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildCustomIndex;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildIndex;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildIndexRange;
 
 import net.minecraft.init.SoundEvents;
 
@@ -46,7 +53,7 @@ public class GuiSignalController extends GuiParent {
 	
 	public GuiSignalController(String name, int x, int y, int width, int height, GuiSignalComponent output) {
 		super(name, x, y, width, height);
-		setOutput(output);
+		setOutput(4, output);
 	}
 	
 	@Override
@@ -103,8 +110,71 @@ public class GuiSignalController extends GuiParent {
 		
 	}
 	
-	public void setCondition(SignalInputCondition condition) {
-		//sas
+	public void reset() {
+		controls.clear();
+		grid.clear();
+		cols.clear();
+		rows.clear();
+		dragged = null;
+		selected = null;
+		startedDragging = false;
+	}
+	
+	public void setCondition(SignalInputCondition condition, SubGuiDialogSignal signal) {
+		reset();
+		try {
+			List<List<GuiSignalNode>> parsed = new ArrayList<>();
+			GuiSignalNode node = fill(condition, signal, parsed, 0);
+			for (int i = parsed.size() - 1; i >= 0; i--) {
+				List<GuiSignalNode> rows = parsed.get(i);
+				for (int j = rows.size() - 1; j >= 0; j--) {
+					set(rows.get(j), parsed.size() - i - 1, rows.size() - j - 1);
+					for (NodeConnection con : rows.get(j).toConnections())
+						con.build();
+				}
+			}
+			setOutput(parsed.size(), output.component);
+			
+			NodeConnection connection = new NodeConnection(node, output);
+			node.connect(connection);
+			output.connect(connection);
+			connection.build();
+			return;
+		} catch (ParseException e) {
+			reset();
+		}
+		setOutput(4, output.component);
+	}
+	
+	private GuiSignalNode fill(SignalInputCondition condition, SubGuiDialogSignal signal, List<List<GuiSignalNode>> parsed, int level) throws ParseException {
+		GuiSignalNode node;
+		if (condition instanceof SignalInputConditionNot || condition instanceof SignalInputConditionNotBitwise) {
+			boolean bitwise = condition instanceof SignalInputConditionNotBitwise;
+			node = new GuiSignalNodeNotOperator(bitwise);
+			GuiSignalNode child = fill(bitwise ? ((SignalInputConditionNotBitwise) condition).condition : ((SignalInputConditionNot) condition).condition, signal, parsed, level + 1);
+			NodeConnection connection = new NodeConnection(child, node);
+			node.connect(connection);
+			child.connect(connection);
+			
+		} else if (condition instanceof SignalInputConditionOperatorStackable) {
+			node = new GuiSignalNodeOperator(((SignalInputConditionOperatorStackable) condition).operator());
+			for (SignalInputCondition subCondition : ((SignalInputConditionOperatorStackable) condition).conditions) {
+				GuiSignalNode child = fill(subCondition, signal, parsed, level + 1);
+				NodeConnection connection = new NodeConnection(child, node);
+				node.connect(connection);
+				child.connect(connection);
+			}
+		} else if (condition instanceof SignalInputVariable)
+			node = new GuiSignalNodeInput((SignalInputVariable) condition, signal);
+		else if (condition instanceof SignalInputVirtualVariable)
+			throw new UnsupportedOperationException();
+		else
+			throw new ParseException("Invalid condition type", 0);
+		while (parsed.size() <= level)
+			parsed.add(new ArrayList<>());
+		parsed.get(level).add(node);
+		addControl(node);
+		return node;
 	}
 	
 	public GuiSignalNodeInput addInput(GuiSignalComponent input) {
@@ -176,11 +246,11 @@ public class GuiSignalController extends GuiParent {
 		dragged = null;
 	}
 	
-	public void setOutput(GuiSignalComponent output) {
+	public void setOutput(int cell, GuiSignalComponent output) {
 		if (this.output != null)
 			removeNode(this.output);
 		this.output = new GuiSignalNodeOutput(output);
-		setToFreeCell(4, this.output);
+		setToFreeCell(cell, this.output);
 		addControl(this.output);
 		raiseEvent(new GuiControlChangedEvent(this));
 	}
@@ -362,6 +432,8 @@ public class GuiSignalController extends GuiParent {
 		
 		public abstract int indexOf(NodeConnection connection);
 		
+		public abstract Iterable<NodeConnection> toConnections();
+		
 	}
 	
 	public class GuiSignalNodeOperator extends GuiSignalNode {
@@ -407,6 +479,11 @@ public class GuiSignalController extends GuiParent {
 		@Override
 		public Iterator<NodeConnection> iterator() {
 			return new IteratorIterator(from.iterator(), to.iterator());
+		}
+		
+		@Override
+		public Iterable<NodeConnection> toConnections() {
+			return to;
 		}
 		
 		@Override
@@ -529,6 +606,11 @@ public class GuiSignalController extends GuiParent {
 		}
 		
 		@Override
+		public Iterable<NodeConnection> toConnections() {
+			return to;
+		}
+		
+		@Override
 		public void connect(NodeConnection connection) {
 			if (connection.to == this)
 				from = connection;
@@ -595,6 +677,28 @@ public class GuiSignalController extends GuiParent {
 			super(component);
 		}
 		
+		public GuiSignalNodeInput(SignalInputVariable variable, SubGuiDialogSignal signal) throws ParseException {
+			super(signal.getInput(variable.target));
+			if (variable.target instanceof SignalTargetChildCustomIndex)
+				indexes = ((SignalTargetChildCustomIndex) variable.target).indexes;
+			else if (variable.target instanceof SignalTargetChildIndex)
+				indexes = new SignalCustomIndex[] { new SignalCustomIndexSingle(((SignalTargetChildIndex) variable.target).index) };
+			else if (variable.target instanceof SignalTargetChildIndexRange)
+				indexes = new SignalCustomIndex[] { new SignalCustomIndexRange(((SignalTargetChildIndexRange) variable.target).index, ((SignalTargetChildIndexRange) variable.target).index + ((SignalTargetChildIndexRange) variable.target).length - 1) };
+			if (variable instanceof SignalInputVariableOperator) {
+				operator = 1;
+				logic = ((SignalInputVariableOperator) variable).operator;
+			} else if (variable instanceof SignalInputVariablePattern) {
+				operator = 2;
+				pattern = ((SignalInputVariablePattern) variable).indexes;
+			} else if (variable instanceof SignalInputVariableEquation) {
+				operator = 3;
+				equation = ((SignalInputVariableEquation) variable).condition;
+			} else
+				operator = 0;
+			updateLabel();
+		}
+		
 		public void updateLabel() {
 			caption = component.name;
 			if (indexes != null)
@@ -616,6 +720,7 @@ public class GuiSignalController extends GuiParent {
 			}
 			width = font.getStringWidth(caption) + getContentOffset() * 2;
 			posX = getCol() * cellWidth + cellWidth / 2 - width / 2;
+			raiseEvent(new GuiControlChangedEvent(GuiSignalController.this));
 		}
 		
 		public String getRange() {
@@ -663,6 +768,11 @@ public class GuiSignalController extends GuiParent {
 		@Override
 		public Iterator<NodeConnection> iterator() {
 			return tos.iterator();
+		}
+		
+		@Override
+		public Iterable<NodeConnection> toConnections() {
+			return tos;
 		}
 		
 		@Override
@@ -738,6 +848,29 @@ public class GuiSignalController extends GuiParent {
 				public NodeConnection next() {
 					has = false;
 					return from;
+				}
+			};
+		}
+		
+		@Override
+		public Iterable<NodeConnection> toConnections() {
+			return new Iterable<GuiSignalController.NodeConnection>() {
+				
+				@Override
+				public Iterator<NodeConnection> iterator() {
+					return new Iterator<GuiSignalController.NodeConnection>() {
+						
+						@Override
+						public boolean hasNext() {
+							return false;
+						}
+						
+						@Override
+						public NodeConnection next() {
+							return null;
+						}
+						
+					};
 				}
 			};
 		}

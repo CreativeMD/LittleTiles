@@ -30,23 +30,24 @@ public abstract class SignalTarget {
 				if (parser.lookForNext(true) == ']')
 					return new SignalTargetChild(input, child, external);
 				SignalCustomIndex first = parseIndex(parser);
-				char current = parser.next(true);
+				char next = parser.lookForNext(true);
 				
-				if (current == ']')
+				if (next == ']') {
+					parser.next(true);
 					if (first instanceof SignalCustomIndexSingle)
 						return new SignalTargetChildIndex(input, child, external, ((SignalCustomIndexSingle) first).index);
 					else
 						return new SignalTargetChildIndexRange(input, child, external, ((SignalCustomIndexRange) first).index, ((SignalCustomIndexRange) first).length);
-				else if (current == ',') {
+				} else if (next == ',') {
 					List<SignalCustomIndex> indexes = new ArrayList<>();
 					indexes.add(first);
-					while ((current = parser.next(true)) == ',')
+					while ((next = parser.next(true)) == ',')
 						indexes.add(parseIndex(parser));
-					if (current == ']')
+					if (next == ']')
 						return new SignalTargetChildCustomIndex(input, child, external, indexes.toArray(new SignalCustomIndex[indexes.size()]));
-					throw parser.invalidChar(current);
+					throw parser.invalidChar(next);
 				} else
-					throw parser.invalidChar(current);
+					throw parser.invalidChar(next);
 			} else
 				return new SignalTargetChild(input, child, external);
 		} else if (begin == 'c') {
@@ -72,6 +73,7 @@ public abstract class SignalTarget {
 		int start = parser.parseNumber();
 		if (parser.lookForNext(true) != '-')
 			return new SignalCustomIndexSingle(start);
+		parser.next(true);
 		int end = parser.parseNumber();
 		if (end <= start)
 			throw parser.exception("Invalid second index " + start + " < " + end);
@@ -85,6 +87,8 @@ public abstract class SignalTarget {
 	}
 	
 	public abstract ISignalComponent getTarget(LittleStructure structure);
+	
+	public abstract String writeBase();
 	
 	public abstract String write();
 	
@@ -127,6 +131,11 @@ public abstract class SignalTarget {
 		}
 		
 		@Override
+		public String writeBase() {
+			return "c" + child + "." + subTarget.writeBase();
+		}
+		
+		@Override
 		public String write() {
 			return "c" + child + "." + subTarget.write();
 		}
@@ -163,6 +172,11 @@ public abstract class SignalTarget {
 		}
 		
 		@Override
+		public String writeBase() {
+			return "p." + subTarget.writeBase();
+		}
+		
+		@Override
 		public String write() {
 			return "p." + subTarget.write();
 		}
@@ -183,6 +197,11 @@ public abstract class SignalTarget {
 		@Override
 		public ISignalComponent getTarget(LittleStructure structure) {
 			return null;
+		}
+		
+		@Override
+		public String writeBase() {
+			return "d" + child;
 		}
 		
 		@Override
@@ -225,6 +244,13 @@ public abstract class SignalTarget {
 		@Override
 		public ISignalComponent getTarget(LittleStructure structure) {
 			return input ? SignalUtils.getInput(structure, child, external) : SignalUtils.getOutput(structure, child, external);
+		}
+		
+		@Override
+		public String writeBase() {
+			if (external)
+				return (input ? "i" : "o") + child;
+			return (input ? "a" : "b") + child;
 		}
 		
 		@Override
@@ -419,7 +445,7 @@ public abstract class SignalTarget {
 		
 		public SignalCustomIndexRange(int index, int length) {
 			this.index = index;
-			this.length = length;
+			this.length = length - index + 1;
 		}
 		
 		@Override
@@ -436,7 +462,7 @@ public abstract class SignalTarget {
 		
 		@Override
 		public String write() {
-			return index + "-" + (index + length);
+			return index + "-" + (index + length - 1);
 		}
 		
 		@Override

@@ -4,6 +4,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalPatternParser;
@@ -21,7 +24,7 @@ public abstract class SignalInputCondition {
 	public static final float VARIABLE_DURATION = 0.05F;
 	
 	public static SignalInputCondition parseInput(String pattern) throws ParseException {
-		return parseExpression(new SignalPatternParser(pattern), '\n', true, false);
+		return parseExpression(new SignalPatternParser(pattern), new char[0], true, false);
 	}
 	
 	public static SignalInputCondition parseNextCondition(SignalPatternParser parser, boolean includeBitwise, boolean insideVariable) throws ParseException {
@@ -31,7 +34,7 @@ public abstract class SignalInputCondition {
 			
 			if (next == '(') {
 				parser.next(true);
-				SignalInputCondition condition = parseExpression(parser, ')', SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
+				SignalInputCondition condition = parseExpression(parser, new char[] { ')' }, SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
 				parser.next(true);
 				return condition;
 			} else if (next == '!') {
@@ -44,27 +47,39 @@ public abstract class SignalInputCondition {
 				return SignalInputVariable.parseInput(parser, insideVariable);
 			else if (type == Character.UPPERCASE_LETTER)
 				return SignalInputVariable.parseInput(parser, insideVariable);
-			else
+			else if (next == '[') {
+				List<SignalInputCondition> array = new ArrayList<>();
+				while (true) {
+					array.add(parseExpression(parser, new char[] { ',', ']' }, includeBitwise, insideVariable));
+					char current = parser.next(true);
+					if (current == ',')
+						continue;
+					else if (current == ']')
+						break;
+					else
+						throw parser.exception("Invalid signal pattern");
+				}
+			} else
 				throw parser.exception("Invalid signal pattern");
 		}
 		
 		throw parser.exception("Invalid signal pattern");
 	}
 	
-	private static SignalInputCondition parseLowerExpression(SignalPatternParser parser, char until, SignalLogicOperator operator, boolean includeBitwise, boolean insideVariable) throws ParseException {
+	private static SignalInputCondition parseLowerExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise, boolean insideVariable) throws ParseException {
 		if (operator.lower() != null)
 			return parseExpression(parser, until, operator.lower(), includeBitwise, insideVariable);
 		return parseNextCondition(parser, includeBitwise, insideVariable);
 	}
 	
-	public static SignalInputCondition parseExpression(SignalPatternParser parser, char until, boolean includeBitwise, boolean insideVariable) throws ParseException {
+	public static SignalInputCondition parseExpression(SignalPatternParser parser, char[] until, boolean includeBitwise, boolean insideVariable) throws ParseException {
 		return parseExpression(parser, until, SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
 	}
 	
-	public static SignalInputCondition parseExpression(SignalPatternParser parser, char until, SignalLogicOperator operator, boolean includeBitwise, boolean insideVariable) throws ParseException {
+	public static SignalInputCondition parseExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise, boolean insideVariable) throws ParseException {
 		SignalInputCondition first = parseLowerExpression(parser, until, operator, includeBitwise, insideVariable);
 		
-		if (!parser.hasNext() || parser.lookForNext(true) == until)
+		if (!parser.hasNext() || ArrayUtils.contains(until, parser.lookForNext(true)))
 			return first;
 		
 		if (operator.goOn(parser)) {
@@ -164,6 +179,50 @@ public abstract class SignalInputCondition {
 		@Override
 		public float calculateDelay() {
 			return NOT_DURATION + condition.calculateDelay();
+		}
+		
+	}
+	
+	public static class SignalInputVirtualVariable extends SignalInputCondition {
+		
+		public SignalInputCondition[] conditions;
+		
+		public SignalInputVirtualVariable(SignalInputCondition[] conditions) {
+			this.conditions = conditions;
+		}
+		
+		@Override
+		public boolean[] test(LittleStructure structure, boolean forceBitwise) {
+			boolean[] state = new boolean[conditions.length];
+			for (int i = 0; i < state.length; i++)
+				state[i] = BooleanUtils.any(conditions[i].test(structure, false));
+			if (forceBitwise)
+				return state;
+			return BooleanUtils.asArray(BooleanUtils.any(state));
+		}
+		
+		@Override
+		public boolean testIndex(boolean[] state) {
+			return false;
+		}
+		
+		@Override
+		public String write() {
+			String result = "[";
+			for (int i = 0; i < conditions.length; i++) {
+				if (i > 0)
+					result += ",";
+				result += conditions[i].write();
+			}
+			return result;
+		}
+		
+		@Override
+		public float calculateDelay() {
+			float delay = AND_DURATION * conditions.length;
+			for (int i = 0; i < conditions.length; i++)
+				delay += conditions[i].calculateDelay();
+			return delay;
 		}
 		
 	}

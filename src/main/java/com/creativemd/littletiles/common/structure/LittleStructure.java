@@ -655,6 +655,10 @@ public abstract class LittleStructure implements ISignalSchedulable {
 		if (outputs != null)
 			for (int i = 0; i < outputs.length; i++)
 				outputs[i].update();
+		for (StructureChildConnection child : children)
+			try {
+				child.getStructure().notifyChange();
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 	}
 	
 	@Override

@@ -8,7 +8,7 @@ import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondi
 
 public enum SignalLogicOperator {
 	
-	AND('\n', false, "and") {
+	AND('\n', false, "and", "") {
 		@Override
 		public SignalLogicOperator lower() {
 			return null;
@@ -29,8 +29,8 @@ public enum SignalLogicOperator {
 				}
 				
 				@Override
-				public String operator() {
-					return "";
+				public SignalLogicOperator operator() {
+					return AND;
 				}
 				
 				@Override
@@ -67,8 +67,8 @@ public enum SignalLogicOperator {
 				}
 				
 				@Override
-				public String operator() {
-					return operator + "";
+				public SignalLogicOperator operator() {
+					return OR;
 				}
 				
 				@Override
@@ -106,8 +106,8 @@ public enum SignalLogicOperator {
 				}
 				
 				@Override
-				public String operator() {
-					return operator + "";
+				public SignalLogicOperator operator() {
+					return XOR;
 				}
 				
 				@Override
@@ -144,8 +144,8 @@ public enum SignalLogicOperator {
 				}
 				
 				@Override
-				public String operator() {
-					return operator + "";
+				public SignalLogicOperator operator() {
+					return BITWISE_AND;
 				}
 				
 				@Override
@@ -178,8 +178,8 @@ public enum SignalLogicOperator {
 				}
 				
 				@Override
-				public String operator() {
-					return operator + "";
+				public SignalLogicOperator operator() {
+					return BITWISE_OR;
 				}
 				
 				@Override
@@ -212,8 +212,8 @@ public enum SignalLogicOperator {
 				}
 				
 				@Override
-				public String operator() {
-					return operator + "";
+				public SignalLogicOperator operator() {
+					return BITWISE_XOR;
 				}
 				
 				@Override
@@ -255,11 +255,17 @@ public enum SignalLogicOperator {
 	public final char operator;
 	public final boolean bitwise;
 	public final String display;
+	public final String seperator;
 	
 	private SignalLogicOperator(char operator, boolean bitwise, String display) {
+		this(operator, bitwise, display, "" + operator);
+	}
+	
+	private SignalLogicOperator(char operator, boolean bitwise, String display, String seperator) {
 		this.operator = operator;
 		this.bitwise = bitwise;
 		this.display = display;
+		this.seperator = seperator;
 	}
 	
 	public abstract SignalLogicOperator lower();
@@ -333,7 +339,7 @@ public enum SignalLogicOperator {
 		
 		public abstract boolean needsBrackets();
 		
-		public abstract String operator();
+		public abstract SignalLogicOperator operator();
 		
 		@Override
 		public String write() {
@@ -341,7 +347,7 @@ public enum SignalLogicOperator {
 				String result = "(";
 				for (int i = 0; i < conditions.length; i++) {
 					if (i > 0)
-						result += operator();
+						result += operator().seperator;
 					result += conditions[i].write();
 				}
 				return result + ")";
@@ -349,7 +355,7 @@ public enum SignalLogicOperator {
 			String result = "";
 			for (int i = 0; i < conditions.length; i++) {
 				if (i > 0)
-					result += operator();
+					result += operator().seperator;
 				result += conditions[i].write();
 			}
 			return result;

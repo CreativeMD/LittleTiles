@@ -65,7 +65,7 @@ public class SignalInputVariable extends SignalInputCondition {
 					throw parser.invalidChar(parser.current());
 			}
 			
-			return new SignalInputVariableEquation(target, SignalInputCondition.parseExpression(parser, '}', false, true));
+			return new SignalInputVariableEquation(target, SignalInputCondition.parseExpression(parser, new char[] { '}' }, false, true));
 		} else
 			return new SignalInputVariable(target);
 	}
@@ -125,7 +125,7 @@ public class SignalInputVariable extends SignalInputCondition {
 		
 		@Override
 		public String write() {
-			return super.write() + "{" + operator.operator + "}";
+			return super.write() + "{" + (operator == SignalLogicOperator.AND ? "&" : operator.operator) + "}";
 		}
 	}
 	

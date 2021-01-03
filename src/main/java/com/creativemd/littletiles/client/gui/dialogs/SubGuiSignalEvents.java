@@ -12,9 +12,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiListBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
-import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
@@ -55,14 +52,7 @@ public class SubGuiSignalEvents extends SubGui {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setBoolean("dialog", true);
-				SubGuiDialogSignal dialog = new SubGuiDialogSignal(SubGuiSignalEvents.this, event);
-				dialog.gui = SubGuiSignalEvents.this.gui;
-				PacketHandler.sendPacketToServer(new GuiLayerPacket(nbt, dialog.gui.getLayers().size() - 1, false));
-				dialog.container = new SubContainerEmpty(getPlayer());
-				dialog.gui.addLayer(dialog);
-				dialog.onOpened();
+				openClientLayer(new SubGuiDialogSignal(SubGuiSignalEvents.this, event));
 			}
 		});
 		
@@ -144,8 +134,8 @@ public class SubGuiSignalEvents extends SubGui {
 		public LittlePreviews previews;
 		public LittleStructureType type;
 		public LittleStructure activator;
-		public final List<GuiSignalComponent> inputs = new ArrayList<>();
-		public final List<GuiSignalComponent> outputs = new ArrayList<>();
+		public final List<GuiSignalComponent> inputs;
+		public final List<GuiSignalComponent> outputs;
 		public List<GuiSignalEvent> events;
 		
 		public GuiSignalEventsButton(String name, int x, int y, LittlePreviews previews, LittleStructure structure, LittleStructureType type) {
@@ -154,9 +144,9 @@ public class SubGuiSignalEvents extends SubGui {
 			this.activator = structure;
 			this.type = type;
 			this.events = null;
-			gatherInputs(previews, type, "", "", inputs, true);
-			gatherOutputs(previews, type, "", "", inputs, true, true);
-			gatherOutputs(previews, type, "", "", outputs, false, false);
+			ComponentSearch search = new ComponentSearch(previews, type);
+			inputs = search.search(true, true, true);
+			outputs = search.search(false, true, false);
 			
 			events = new ArrayList<>();
 			for (GuiSignalComponent output : outputs) {
@@ -183,49 +173,6 @@ public class SubGuiSignalEvents extends SubGui {
 			}
 		}
 		
-		protected static void gatherInputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean searchForParent) {
-			if (searchForParent && previews.hasParent()) {
-				gatherInputs(previews.getParent(), previews.getParent().getStructureType(), "p." + prefix, "p." + totalNamePrefix, list, true);
-				return;
-			}
-			
-			if (type != null && type.inputs != null)
-				for (int i = 0; i < type.inputs.size(); i++)
-					list.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
-				
-			for (int i = 0; i < previews.childrenCount(); i++) {
-				LittlePreviews child = previews.getChild(i);
-				LittleStructureType structure = child.getStructureType();
-				String name = child.getStructureName();
-				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.INPUT)
-					list.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), (ISignalComponent) structure, true, i));
-				
-				gatherInputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, false);
-			}
-		}
-		
-		protected static void gatherOutputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
-			if (searchForParent && previews.hasParent() && includeRelations) {
-				gatherOutputs(previews.getParent(), previews.getParent().getStructureType(), "p." + prefix, "p." + totalNamePrefix, list, includeRelations, searchForParent);
-				return;
-			}
-			
-			if (type != null && type.outputs != null)
-				for (int i = 0; i < type.outputs.size(); i++)
-					list.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
-				
-			for (int i = 0; i < previews.childrenCount(); i++) {
-				LittlePreviews child = previews.getChild(i);
-				LittleStructureType structure = child.getStructureType();
-				String name = child.getStructureName();
-				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.OUTPUT)
-					list.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), (ISignalComponent) structure, true, i));
-				
-				if (includeRelations)
-					gatherOutputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
-			}
-		}
-		
 		public void setEventsInStructure(LittleStructure structure) {
 			HashMap<Integer, SignalExternalOutputHandler> map = new HashMap<>();
 			for (GuiSignalEvent event : events) {
@@ -244,6 +191,89 @@ public class SubGuiSignalEvents extends SubGui {
 		@Override
 		public void onClicked(int x, int y, int button) {
 			openClientLayer(new SubGuiSignalEvents(this));
+		}
+	}
+	
+	private static class ComponentSearch {
+		
+		public LittlePreviews previews;
+		public LittleStructureType type;
+		
+		public ComponentSearch(LittlePreviews previews, LittleStructureType type) {
+			this.previews = previews;
+			this.type = type;
+		}
+		
+		public List<GuiSignalComponent> search(boolean input, boolean output, boolean includeRelations) {
+			List<GuiSignalComponent> list = new ArrayList<>();
+			if (input)
+				gatherInputs(previews, type, "", "", list, includeRelations, true);
+			if (output)
+				gatherOutputs(previews, type, "", "", list, includeRelations, true);
+			return list;
+		}
+		
+		protected void addInput(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
+			if (type != null && type.inputs != null)
+				for (int i = 0; i < type.inputs.size(); i++)
+					list.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
+				
+			for (int i = 0; i < previews.childrenCount(); i++) {
+				LittlePreviews child = previews.getChild(i);
+				if (child == this.previews)
+					continue;
+				LittleStructureType structure = child.getStructureType();
+				String name = child.getStructureName();
+				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.INPUT)
+					list.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), (ISignalComponent) structure, true, i));
+				else if (includeRelations)
+					gatherInputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+			}
+		}
+		
+		protected void gatherInputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
+			if (previews == this.previews)
+				addInput(previews, type, "", "", list, includeRelations);
+			
+			if (searchForParent && previews.hasParent() && includeRelations) {
+				gatherInputs(previews.getParent(), previews.getParent().getStructureType(), "p." + prefix, "p." + totalNamePrefix, list, includeRelations, true);
+				return;
+			}
+			
+			if (previews != this.previews)
+				addInput(previews, type, prefix, totalNamePrefix, list, includeRelations);
+		}
+		
+		protected void addOutput(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
+			if (type != null && type.outputs != null)
+				for (int i = 0; i < type.outputs.size(); i++)
+					list.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
+				
+			for (int i = 0; i < previews.childrenCount(); i++) {
+				LittlePreviews child = previews.getChild(i);
+				if (child == this.previews)
+					continue;
+				LittleStructureType structure = child.getStructureType();
+				String name = child.getStructureName();
+				if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.OUTPUT)
+					list.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), (ISignalComponent) structure, true, i));
+				else if (includeRelations)
+					gatherOutputs(child, child.getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+			}
+		}
+		
+		protected void gatherOutputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
+			if (previews == this.previews)
+				addOutput(previews, type, "", "", list, includeRelations);
+			
+			if (searchForParent && previews.hasParent() && includeRelations) {
+				gatherOutputs(previews.getParent(), previews.getParent().getStructureType(), "p." + prefix, "p." + totalNamePrefix, list, includeRelations, searchForParent);
+				return;
+			}
+			
+			if (previews != this.previews)
+				addOutput(previews, type, prefix, totalNamePrefix, list, includeRelations);
+			
 		}
 	}
 	

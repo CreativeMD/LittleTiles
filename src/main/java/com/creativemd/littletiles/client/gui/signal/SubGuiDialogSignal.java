@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.client.gui.signal;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import com.creativemd.littletiles.common.structure.signal.component.ISignalCompo
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 public class SubGuiDialogSignal extends SubGui {
@@ -30,6 +32,13 @@ public class SubGuiDialogSignal extends SubGui {
 		super(300, 200);
 		this.dialog = dialog;
 		this.event = event;
+	}
+	
+	public GuiSignalComponent getInput(SignalTarget target) throws ParseException {
+		for (GuiSignalComponent component : dialog.button.inputs)
+			if (component.name.equals(target.writeBase()))
+				return component;
+		throw new ParseException("input not found", 0);
 	}
 	
 	@Override
@@ -84,7 +93,9 @@ public class SubGuiDialogSignal extends SubGui {
 		});
 		
 		if (event.condition != null)
-			controller.setCondition(event.condition);
+			controller.setCondition(event.condition, this);
+		
+		changed(new GuiControlChangedEvent(controller));
 		
 		controls.add(new GuiButton("save", translate("gui.signal.configuration.save"), 270, 180) {
 			
