@@ -13,6 +13,7 @@ import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -35,6 +36,7 @@ import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.Sig
 import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildIndexRange;
 
 import net.minecraft.init.SoundEvents;
+import net.minecraft.util.math.MathHelper;
 
 public class GuiSignalController extends GuiParent {
 	
@@ -44,6 +46,15 @@ public class GuiSignalController extends GuiParent {
 	protected int cellHeight = 40;
 	
 	public final List<GuiSignalComponent> inputs;
+	
+	public SmoothValue scrolledX = new SmoothValue(200);
+	public SmoothValue scrolledY = new SmoothValue(200);
+	public SmoothValue zoom = new SmoothValue(200, 1);
+	public double startScrollX;
+	public double startScrollY;
+	public int dragX;
+	public int dragY;
+	public boolean scrolling;
 	
 	private List<List<GuiSignalNode>> grid = new ArrayList<>();
 	private List<GuiGridLine> cols = new ArrayList<>();
@@ -61,11 +72,32 @@ public class GuiSignalController extends GuiParent {
 	
 	@Override
 	public float getScaleFactor() {
-		return 1F;
+		return (float) zoom.current();
+	}
+	
+	@Override
+	public double getOffsetX() {
+		return -scrolledX.current();
+	}
+	
+	@Override
+	public double getOffsetY() {
+		return -scrolledY.current();
 	}
 	
 	public SignalInputCondition generatePattern() throws GeneratePatternException {
 		return output.generateCondition(new ArrayList<>());
+	}
+	
+	public int sizeX() {
+		return grid.size();
+	}
+	
+	public int sizeY() {
+		int rows = 0;
+		for (int i = 0; i < grid.size(); i++)
+			rows = Math.max(rows, grid.get(i).size());
+		return rows;
 	}
 	
 	public void setToFreeCell(int startCol, GuiSignalNode node) {
@@ -229,10 +261,46 @@ public class GuiSignalController extends GuiParent {
 	}
 	
 	@Override
-	public boolean mousePressed(int x, int y, int button) {
-		if (!super.mousePressed(x, y, button))
-			select(null);
+	public boolean mouseScrolled(int x, int y, int scrolled) {
+		if (!super.mouseScrolled(x, y, scrolled))
+			zoom.set(MathHelper.clamp(zoom.aimed() + scrolled * 0.2, 0.1, 2));
 		return true;
+	}
+	
+	@Override
+	public boolean mousePressed(int x, int y, int button) {
+		if (button == 2) {
+			zoom.set(1);
+			scrolledX.set(0);
+			scrolledY.set(0);
+			return true;
+		}
+		if (!super.mousePressed(x, y, button)) {
+			select(null);
+			scrolling = true;
+			dragX = x;
+			dragY = y;
+			startScrollX = scrolledX.current();
+			startScrollY = scrolledY.current();
+		}
+		return true;
+	}
+	
+	@Override
+	public void mouseMove(int x, int y, int button) {
+		if (scrolling) {
+			scrolledX.set(MathHelper.clamp(dragX - x + startScrollX, -40, sizeX() * cellWidth));
+			scrolledY.set(MathHelper.clamp(dragY - y + startScrollY, -40, sizeY() * cellHeight));
+		}
+		super.mouseMove(x, y, button);
+	}
+	
+	@Override
+	protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
+		scrolledX.tick();
+		scrolledY.tick();
+		zoom.tick();
+		super.renderContent(helper, style, width, height);
 	}
 	
 	@Override
@@ -240,7 +308,7 @@ public class GuiSignalController extends GuiParent {
 		super.mouseDragged(x, y, button, time);
 		if (time > 200 && dragged != null) {
 			startedDragging = true;
-			set(dragged, Math.max(0, (x - posX) / cellWidth), Math.max(0, (y - posY) / cellHeight));
+			set(dragged, (int) Math.max(0, ((x - posX) * 1 / getScaleFactor() + scrolledX.current()) / cellWidth), (int) Math.max(0, ((y - posY) * 1 / getScaleFactor() + scrolledY.current()) / cellHeight));
 		}
 	}
 	
@@ -252,6 +320,7 @@ public class GuiSignalController extends GuiParent {
 		//else
 		//select(null);
 		
+		scrolling = false;
 		startedDragging = false;
 		dragged = null;
 	}
