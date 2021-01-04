@@ -768,23 +768,35 @@ public class GuiSignalController extends GuiParent {
 		
 		public void updateLabel() {
 			caption = component.name;
-			if (indexes != null)
-				caption += "[" + getRange() + "]";
+			int length = 0;
+			
+			if (indexes != null) {
+				String rangeText = getRange();
+				if (rangeText.length() > 6) {
+					rangeText = "...";
+					length += 3;
+				} else
+					length += rangeText.length();
+				caption += "[" + rangeText + "]";
+			}
+			String operatorText = "";
 			switch (operator) {
 			case 1:
-				caption += "{" + (logic == SignalLogicOperator.AND ? "&" : logic.operator) + "}";
+				operatorText = (logic == SignalLogicOperator.AND ? "&" : logic.operator) + "";
 				break;
 			case 2:
-				caption += "{";
 				for (int i = 0; i < pattern.length; i++)
-					caption += "" + (pattern[i] >= 2 ? "*" : pattern[i]);
-				caption += "}";
+					operatorText += "" + (pattern[i] >= 2 ? "*" : pattern[i]);
 				break;
 			case 3:
 				if (equation != null)
-					caption += "{" + equation.write() + "}";
+					operatorText = equation.write();
 				break;
 			}
+			if (operatorText.length() + length > 10)
+				operatorText = "...";
+			if (!operatorText.isEmpty())
+				caption += "{" + operatorText + "}";
 			width = font.getStringWidth(caption) + getContentOffset() * 2;
 			posX = getCol() * cellWidth + cellWidth / 2 - width / 2;
 			raiseEvent(new GuiControlChangedEvent(GuiSignalController.this));
@@ -855,7 +867,7 @@ public class GuiSignalController extends GuiParent {
 		public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
 			reset();
 			try {
-				SignalTarget target = SignalTarget.parseTarget(new SignalPatternParser(caption), false, false);
+				SignalTarget target = SignalTarget.parseTarget(new SignalPatternParser(component.name + (indexes != null ? "[" + getRange() + "]" : "")), false, false);
 				switch (operator) {
 				case 1:
 					return new SignalInputVariableOperator(target, logic);
@@ -881,24 +893,26 @@ public class GuiSignalController extends GuiParent {
 		public SignalInputCondition[] conditions;
 		
 		public GuiSignalNodeVirtualInput() {
-			super("[]");
+			super("v[]");
 			this.conditions = new SignalInputCondition[0];
 		}
 		
 		public GuiSignalNodeVirtualInput(SignalInputVirtualVariable variable, SubGuiDialogSignal signal) throws ParseException {
-			super("[]");
+			super("v[]");
 			this.conditions = variable.conditions;
 			updateLabel();
 		}
 		
 		public void updateLabel() {
-			caption = "[";
+			String conditionsText = "";
 			for (int i = 0; i < conditions.length; i++) {
 				if (i > 0)
-					caption += ",";
-				caption += conditions[i].write();
+					conditionsText += ",";
+				conditionsText += conditions[i].write();
 			}
-			caption += "]";
+			if (conditionsText.length() > 10)
+				conditionsText = "...";
+			caption = "v[" + conditionsText + "]";
 			width = font.getStringWidth(caption) + getContentOffset() * 2;
 			posX = getCol() * cellWidth + cellWidth / 2 - width / 2;
 			raiseEvent(new GuiControlChangedEvent(GuiSignalController.this));
