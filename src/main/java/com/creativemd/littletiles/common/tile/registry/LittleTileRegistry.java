@@ -110,6 +110,8 @@ public class LittleTileRegistry {
 		
 		if (nbt.hasKey("type")) {
 			LittlePreviewType type = previewTypes.get(nbt.getString("type"));
+			if (type == null)
+				type = defaultPreviewType;
 			
 			if (type != null) {
 				LittlePreview preview = null;
