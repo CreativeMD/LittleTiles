@@ -417,13 +417,18 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static void sendBlockResetToClient(World world, EntityPlayerMP player, BlockPos pos) {
-		if (world instanceof CreativeWorld)
-			PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, pos, null), player);
-		else
-			player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
+		TileEntity te = world.getTileEntity(pos);
+		if (te != null)
+			sendBlockResetToClient(world, player, te);
+		else {
+			if (world instanceof CreativeWorld)
+				PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, pos, null), player);
+			else
+				player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
+		}
 	}
 	
-	public static void sendBlockResetToClient(World world, EntityPlayerMP player, TileEntityLittleTiles te) {
+	public static void sendBlockResetToClient(World world, EntityPlayerMP player, TileEntity te) {
 		if (world instanceof CreativeWorld)
 			PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, te.getPos(), te), player);
 		else {

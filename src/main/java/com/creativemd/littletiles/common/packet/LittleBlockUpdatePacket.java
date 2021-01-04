@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -60,9 +61,8 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
 	public void readBytes(ByteBuf buf) {
 		pos = readPos(buf);
 		state = readState(buf);
-		if (buf.readBoolean()) {
+		if (buf.readBoolean())
 			packet = (SPacketUpdateTileEntity) readPacket(buf);
-		}
 		
 		if (buf.readBoolean())
 			uuid = UUID.fromString(readString(buf));
@@ -86,6 +86,8 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
 			((WorldClient) world).invalidateRegionAndSetBlock(pos, state);
 		else
 			world.setBlockState(pos, state, 3);
+		if (packet != null)
+			packet.processPacket(((EntityPlayerSP) player).connection);
 	}
 	
 	@Override
