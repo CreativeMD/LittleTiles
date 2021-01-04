@@ -43,4 +43,9 @@ public abstract class InternalSignal implements ISignalComponent {
 		return null;
 	}
 	
+	@Override
+	public String toString() {
+		return name;
+	}
+	
 }

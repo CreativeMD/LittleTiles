@@ -66,7 +66,7 @@ public abstract class SignalTarget {
 				throw parser.exception("Invalid usage of index variable");
 			return new SignalTargetIndex(parser.parseNumber());
 		} else
-			throw parser.exception("Invalid char " + begin);
+			throw parser.invalidChar(begin);
 	}
 	
 	public static SignalCustomIndex parseIndex(SignalPatternParser parser) throws ParseException {
@@ -99,10 +99,6 @@ public abstract class SignalTarget {
 		if (component != null)
 			return component.getBandwidth();
 		return 1;
-	}
-	
-	public void setState(ISignalComponent component, boolean[] state) {
-		component.updateState(state);
 	}
 	
 	public abstract boolean[] getState(LittleStructure structure);
@@ -298,11 +294,6 @@ public abstract class SignalTarget {
 			return 1;
 		}
 		
-		@Override
-		public void setState(ISignalComponent component, boolean[] state) {
-			component.updateState(index, state);
-		}
-		
 	}
 	
 	public static class SignalTargetChildIndexRange extends SignalTargetChild {
@@ -339,11 +330,6 @@ public abstract class SignalTarget {
 		@Override
 		public int getBandwidth(LittleStructure structure) {
 			return length;
-		}
-		
-		@Override
-		public void setState(ISignalComponent component, boolean[] state) {
-			component.updateState(index, state);
 		}
 		
 	}
@@ -388,15 +374,6 @@ public abstract class SignalTarget {
 			for (int i = 0; i < indexes.length; i++)
 				length += indexes[i].length();
 			return length;
-		}
-		
-		@Override
-		public void setState(ISignalComponent component, boolean[] state) {
-			boolean[] outputState = component.getState().clone();
-			int index = 0;
-			for (int i = 0; i < indexes.length; i++)
-				index += indexes[i].set(outputState, index, state);
-			component.updateState(outputState);
 		}
 		
 	}

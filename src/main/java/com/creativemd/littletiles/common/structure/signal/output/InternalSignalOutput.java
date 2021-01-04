@@ -73,7 +73,7 @@ public class InternalSignalOutput extends InternalSignal {
 			boolean[] outputState = new boolean[bandwidth];
 			boolean[] result = condition.test(getStructure(), false);
 			if (result.length == 1)
-				Arrays.fill(result, result[0]);
+				Arrays.fill(outputState, result[0]);
 			else
 				for (int i = 0; i < result.length; i++)
 					if (i < outputState.length)

@@ -43,14 +43,15 @@ public abstract class SignalInputCondition {
 			} else if (next == '~') {
 				parser.next(true);
 				return new SignalInputConditionNotBitwise(parseNextCondition(parser, includeBitwise, insideVariable));
-			} else if (type == Character.LOWERCASE_LETTER)
-				return SignalInputVariable.parseInput(parser, insideVariable);
-			else if (type == Character.UPPERCASE_LETTER)
-				return SignalInputVariable.parseInput(parser, insideVariable);
-			else if (next == '[') {
+			} else if (next == 'v') {
+				parser.next(true);
+				next = parser.next(true);
+				if (next != '[')
+					throw parser.invalidChar(next);
 				List<SignalInputCondition> array = new ArrayList<>();
 				while (true) {
-					array.add(parseExpression(parser, new char[] { ',', ']' }, includeBitwise, insideVariable));
+					if (parser.lookForNext(true) != ']')
+						array.add(parseExpression(parser, new char[] { ',', ']' }, includeBitwise, insideVariable));
 					char current = parser.next(true);
 					if (current == ',')
 						continue;
@@ -59,6 +60,14 @@ public abstract class SignalInputCondition {
 					else
 						throw parser.exception("Invalid signal pattern");
 				}
+				return new SignalInputVirtualVariable(array.toArray(new SignalInputCondition[array.size()]));
+			} else if (type == Character.LOWERCASE_LETTER)
+				return SignalInputVariable.parseInput(parser, insideVariable);
+			else if (type == Character.UPPERCASE_LETTER)
+				return SignalInputVariable.parseInput(parser, insideVariable);
+			else if (next == '0' || next == '1') {
+				parser.next(true);
+				return new SignalInputBit(next == '1');
 			} else
 				throw parser.exception("Invalid signal pattern");
 		}
@@ -183,6 +192,36 @@ public abstract class SignalInputCondition {
 		
 	}
 	
+	public static class SignalInputBit extends SignalInputCondition {
+		
+		public boolean bit;
+		
+		public SignalInputBit(boolean bit) {
+			this.bit = bit;
+		}
+		
+		@Override
+		public boolean[] test(LittleStructure structure, boolean forceBitwise) {
+			return BooleanUtils.asArray(bit);
+		}
+		
+		@Override
+		public boolean testIndex(boolean[] state) {
+			return false;
+		}
+		
+		@Override
+		public String write() {
+			return bit ? "1" : "0";
+		}
+		
+		@Override
+		public float calculateDelay() {
+			return 0;
+		}
+		
+	}
+	
 	public static class SignalInputVirtualVariable extends SignalInputCondition {
 		
 		public SignalInputCondition[] conditions;
@@ -208,13 +247,13 @@ public abstract class SignalInputCondition {
 		
 		@Override
 		public String write() {
-			String result = "[";
+			String result = "v[";
 			for (int i = 0; i < conditions.length; i++) {
 				if (i > 0)
 					result += ",";
 				result += conditions[i].write();
 			}
-			return result;
+			return result + "]";
 		}
 		
 		@Override

@@ -43,6 +43,8 @@ public class GuiSignalController extends GuiParent {
 	protected int cellWidth = 60;
 	protected int cellHeight = 40;
 	
+	public final List<GuiSignalComponent> inputs;
+	
 	private List<List<GuiSignalNode>> grid = new ArrayList<>();
 	private List<GuiGridLine> cols = new ArrayList<>();
 	private List<GuiGridLine> rows = new ArrayList<>();
@@ -51,8 +53,9 @@ public class GuiSignalController extends GuiParent {
 	public boolean startedDragging = false;
 	public GuiSignalNode selected;
 	
-	public GuiSignalController(String name, int x, int y, int width, int height, GuiSignalComponent output) {
+	public GuiSignalController(String name, int x, int y, int width, int height, GuiSignalComponent output, List<GuiSignalComponent> inputs) {
 		super(name, x, y, width, height);
+		this.inputs = inputs;
 		setOutput(4, output);
 	}
 	
@@ -167,12 +170,19 @@ public class GuiSignalController extends GuiParent {
 		} else if (condition instanceof SignalInputVariable)
 			node = new GuiSignalNodeInput((SignalInputVariable) condition, signal);
 		else if (condition instanceof SignalInputVirtualVariable)
-			throw new UnsupportedOperationException();
+			node = new GuiSignalNodeVirtualInput((SignalInputVirtualVariable) condition, signal);
 		else
 			throw new ParseException("Invalid condition type", 0);
 		while (parsed.size() <= level)
 			parsed.add(new ArrayList<>());
 		parsed.get(level).add(node);
+		addControl(node);
+		return node;
+	}
+	
+	public GuiSignalNodeVirtualInput addVirtualInput() {
+		GuiSignalNodeVirtualInput node = new GuiSignalNodeVirtualInput();
+		setToFreeCell(0, node);
 		addControl(node);
 		return node;
 	}
@@ -424,8 +434,6 @@ public class GuiSignalController extends GuiParent {
 		
 		public abstract boolean canConnectFrom(GuiSignalNode node);
 		
-		public abstract boolean canMove();
-		
 		public abstract void connect(NodeConnection connection);
 		
 		public abstract void remove();
@@ -460,11 +468,6 @@ public class GuiSignalController extends GuiParent {
 			for (NodeConnection connectFrom : from)
 				if (connectFrom.from == node)
 					return false;
-			return true;
-		}
-		
-		@Override
-		public boolean canMove() {
 			return true;
 		}
 		
@@ -556,11 +559,6 @@ public class GuiSignalController extends GuiParent {
 		@Override
 		public boolean canConnectFrom(GuiSignalNode node) {
 			return from == null;
-		}
-		
-		@Override
-		public boolean canMove() {
-			return true;
 		}
 		
 		@Override
@@ -742,16 +740,14 @@ public class GuiSignalController extends GuiParent {
 		
 		@Override
 		public boolean canConnectTo(GuiSignalNode node) {
-			return !(node instanceof GuiSignalNodeInput);
+			for (NodeConnection connectTo : tos)
+				if (connectTo.to == node)
+					return false;
+			return true;
 		}
 		
 		@Override
 		public boolean canConnectFrom(GuiSignalNode node) {
-			return false;
-		}
-		
-		@Override
-		public boolean canMove() {
 			return false;
 		}
 		
@@ -810,6 +806,91 @@ public class GuiSignalController extends GuiParent {
 		}
 	}
 	
+	public class GuiSignalNodeVirtualInput extends GuiSignalNode {
+		
+		public List<NodeConnection> tos = new ArrayList<>();
+		public SignalInputCondition[] conditions;
+		
+		public GuiSignalNodeVirtualInput() {
+			super("[]");
+			this.conditions = new SignalInputCondition[0];
+		}
+		
+		public GuiSignalNodeVirtualInput(SignalInputVirtualVariable variable, SubGuiDialogSignal signal) throws ParseException {
+			super("[]");
+			this.conditions = variable.conditions;
+			updateLabel();
+		}
+		
+		public void updateLabel() {
+			caption = "[";
+			for (int i = 0; i < conditions.length; i++) {
+				if (i > 0)
+					caption += ",";
+				caption += conditions[i].write();
+			}
+			caption += "]";
+			width = font.getStringWidth(caption) + getContentOffset() * 2;
+			posX = getCol() * cellWidth + cellWidth / 2 - width / 2;
+			raiseEvent(new GuiControlChangedEvent(GuiSignalController.this));
+		}
+		
+		@Override
+		public void onDoubleClicked(int x, int y, int button) {
+			openClientLayer(new SubGuiDialogSignalVirtualInput(inputs, this));
+		}
+		
+		@Override
+		public boolean canConnectTo(GuiSignalNode node) {
+			for (NodeConnection connectTo : tos)
+				if (connectTo.to == node)
+					return false;
+			return true;
+		}
+		
+		@Override
+		public boolean canConnectFrom(GuiSignalNode node) {
+			return false;
+		}
+		
+		@Override
+		public void removeConnection(NodeConnection connection) {
+			tos.remove(connection);
+		}
+		
+		@Override
+		public void connect(NodeConnection connection) {
+			tos.add(connection);
+		}
+		
+		@Override
+		public Iterator<NodeConnection> iterator() {
+			return tos.iterator();
+		}
+		
+		@Override
+		public Iterable<NodeConnection> toConnections() {
+			return tos;
+		}
+		
+		@Override
+		public void remove() {
+			for (NodeConnection connection : new ArrayList<>(tos))
+				connection.remove();
+		}
+		
+		@Override
+		public int indexOf(NodeConnection connection) {
+			return tos.indexOf(connection);
+		}
+		
+		@Override
+		public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
+			reset();
+			return new SignalInputVirtualVariable(conditions);
+		}
+	}
+	
 	public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
 		
 		public NodeConnection from;
@@ -826,11 +907,6 @@ public class GuiSignalController extends GuiParent {
 		@Override
 		public boolean canConnectFrom(GuiSignalNode node) {
 			return from == null;
-		}
-		
-		@Override
-		public boolean canMove() {
-			return false;
 		}
 		
 		@Override

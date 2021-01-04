@@ -13,8 +13,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
-import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents;
-import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents.GuiSignalEvent;
 import com.creativemd.littletiles.client.gui.signal.GuiSignalController.GeneratePatternException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
@@ -23,22 +21,23 @@ import com.creativemd.littletiles.common.structure.signal.component.SignalCompon
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 public class SubGuiDialogSignal extends SubGui {
 	
-	public SubGuiSignalEvents dialog;
-	protected final GuiSignalEvent event;
+	public final List<GuiSignalComponent> inputs;
+	protected final IConditionConfiguration event;
 	
-	public SubGuiDialogSignal(SubGuiSignalEvents dialog, GuiSignalEvent event) {
+	public SubGuiDialogSignal(List<GuiSignalComponent> inputs, IConditionConfiguration event) {
 		super(300, 200);
-		this.dialog = dialog;
+		this.inputs = inputs;
 		this.event = event;
 	}
 	
 	public GuiSignalComponent getInput(SignalTarget target) throws ParseException {
-		for (GuiSignalComponent component : dialog.button.inputs)
+		for (GuiSignalComponent component : inputs)
 			if (component.name.equals(target.writeBase()))
 				return component;
 		throw new ParseException("input not found", 0);
@@ -48,18 +47,22 @@ public class SubGuiDialogSignal extends SubGui {
 	public void createControls() {
 		controls.add(new GuiLabel("result", translate("gui.signal.configuration.result"), 0, 0));
 		
-		GuiSignalController controller = new GuiSignalController("controller", 0, 22, 294, 150, event.component);
+		GuiSignalController controller = new GuiSignalController("controller", 0, 22, 294, 150, event.getOutput(), inputs);
 		controls.add(controller);
 		List<String> inputLines = new ArrayList<>();
-		for (GuiSignalComponent entry : dialog.button.inputs)
+		for (GuiSignalComponent entry : inputs)
 			inputLines.add(entry.info());
+		inputLines.add("[]");
 		controls.add(new GuiComboBox("inputs", 0, 180, 80, inputLines));
 		controls.add(new GuiButton("add", translate("gui.signal.configuration.add"), 88, 180) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				GuiComboBox inputsBox = (GuiComboBox) SubGuiDialogSignal.this.get("inputs");
-				controller.addInput(dialog.button.inputs.get(inputsBox.index));
+				if (inputsBox.index < inputs.size())
+					controller.addInput(inputs.get(inputsBox.index));
+				else
+					controller.addVirtualInput();
 			}
 		});
 		
@@ -90,28 +93,29 @@ public class SubGuiDialogSignal extends SubGui {
 			}
 		});
 		
-		if (event.condition != null)
-			controller.setCondition(event.condition, this);
+		if (event.getCondition() != null)
+			controller.setCondition(event.getCondition(), this);
 		
 		controls.add(new GuiLabel("delay", 210, 182));
 		
 		changed(new GuiControlChangedEvent(controller));
 		
-		controls.add(new GuiButton("mode", 250, 0) {
-			
-			@Override
-			public void onClicked(int x, int y, int button) {
-				openClientLayer(new SubGuiDialogSignalMode(SubGuiDialogSignal.this, event));
-			}
-		});
+		if (event.hasModeConfiguration())
+			controls.add(new GuiButton("mode", 250, 0) {
+				
+				@Override
+				public void onClicked(int x, int y, int button) {
+					openClientLayer(new SubGuiDialogSignalMode(SubGuiDialogSignal.this, event));
+				}
+			});
 		
 		controls.add(new GuiButton("save", translate("gui.signal.configuration.save"), 270, 180) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				try {
-					event.condition = controller.generatePattern();
-					event.updatePanel();
+					event.setCondition(controller.generatePattern());
+					event.update();
 					closeGui();
 				} catch (GeneratePatternException e) {}
 			}
@@ -120,9 +124,11 @@ public class SubGuiDialogSignal extends SubGui {
 	}
 	
 	public void modeChanged() {
-		GuiButton button = (GuiButton) get("mode");
-		button.setCaption(translate(event.modeConfig.getMode().translateKey));
-		button.posX = 300 - button.width;
+		if (event.hasModeConfiguration()) {
+			GuiButton button = (GuiButton) get("mode");
+			button.setCaption(translate(event.getModeConfiguration().getMode().translateKey));
+			button.posX = 300 - button.width;
+		}
 	}
 	
 	@CustomEventSubscribe
@@ -177,6 +183,16 @@ public class SubGuiDialogSignal extends SubGui {
 			this.defaultMode = SignalMode.EQUAL;
 		}
 		
+		public GuiSignalComponent(String name, String totalName, int bandwidth, SignalComponentType type, boolean external, int index) {
+			this.name = name;
+			this.bandwidth = bandwidth;
+			this.totalName = totalName;
+			this.input = type == SignalComponentType.INPUT;
+			this.external = external;
+			this.index = index;
+			this.defaultMode = SignalMode.EQUAL;
+		}
+		
 		public String display() {
 			if (name.equals(totalName))
 				return ChatFormatting.BOLD + name + " " + ChatFormatting.RESET + bandwidth + "-bit";
@@ -188,4 +204,21 @@ public class SubGuiDialogSignal extends SubGui {
 		}
 	}
 	
+	public static interface IConditionConfiguration {
+		
+		public GuiSignalComponent getOutput();
+		
+		public SignalInputCondition getCondition();
+		
+		public void setCondition(SignalInputCondition condition);
+		
+		public boolean hasModeConfiguration();
+		
+		public GuiSignalModeConfiguration getModeConfiguration();
+		
+		public void setModeConfiguration(GuiSignalModeConfiguration config);
+		
+		public void update();
+		
+	}
 }

@@ -73,7 +73,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 			boolean[] outputState = new boolean[bandwidth];
 			boolean[] result = condition.test(structure, false);
 			if (result.length == 1)
-				Arrays.fill(result, result[0]);
+				Arrays.fill(outputState, result[0]);
 			else
 				for (int i = 0; i < result.length; i++)
 					if (i < outputState.length)
@@ -104,7 +104,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 	
 	@Override
 	public void changed() {
-		structure.changed(this);
+		getOutput().changed();
 	}
 	
 	@Override
@@ -127,5 +127,10 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 		if (structure == null)
 			return null;
 		return structure.getWorld();
+	}
+	
+	@Override
+	public String toString() {
+		return "o" + index;
 	}
 }

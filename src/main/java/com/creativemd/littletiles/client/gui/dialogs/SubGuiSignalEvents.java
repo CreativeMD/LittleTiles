@@ -15,6 +15,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
+import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.IConditionConfiguration;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
@@ -52,7 +53,7 @@ public class SubGuiSignalEvents extends SubGui {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				openClientLayer(new SubGuiDialogSignal(SubGuiSignalEvents.this, event));
+				openClientLayer(new SubGuiDialogSignal(SubGuiSignalEvents.this.button.inputs, event));
 			}
 		});
 		
@@ -66,7 +67,7 @@ public class SubGuiSignalEvents extends SubGui {
 		
 		box.addControl(panel);
 		event.panel = panel;
-		event.updatePanel();
+		event.update();
 		reloadListBox();
 	}
 	
@@ -277,7 +278,7 @@ public class SubGuiSignalEvents extends SubGui {
 		}
 	}
 	
-	public static class GuiSignalEvent {
+	public static class GuiSignalEvent implements IConditionConfiguration {
 		
 		public final GuiSignalComponent component;
 		public SignalInputCondition condition;
@@ -306,10 +307,11 @@ public class SubGuiSignalEvents extends SubGui {
 		public void reset() {
 			modeConfig = SignalMode.getConfigDefault();
 			condition = null;
-			updatePanel();
+			update();
 		}
 		
-		public void updatePanel() {
+		@Override
+		public void update() {
 			GuiLabel label = (GuiLabel) panel.get("label");
 			label.setCaption(component.name + ": " + condition);
 			GuiLabel mode = (GuiLabel) panel.get("mode");
@@ -327,6 +329,36 @@ public class SubGuiSignalEvents extends SubGui {
 		
 		public GuiSignalEvent copy() {
 			return new GuiSignalEvent(component, condition, modeConfig.copy());
+		}
+		
+		@Override
+		public GuiSignalComponent getOutput() {
+			return component;
+		}
+		
+		@Override
+		public SignalInputCondition getCondition() {
+			return condition;
+		}
+		
+		@Override
+		public void setCondition(SignalInputCondition condition) {
+			this.condition = condition;
+		}
+		
+		@Override
+		public boolean hasModeConfiguration() {
+			return true;
+		}
+		
+		@Override
+		public GuiSignalModeConfiguration getModeConfiguration() {
+			return modeConfig;
+		}
+		
+		@Override
+		public void setModeConfiguration(GuiSignalModeConfiguration config) {
+			this.modeConfig = config;
 		}
 		
 	}

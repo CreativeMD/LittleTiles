@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.structure.signal.output;
 
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 
@@ -9,6 +10,7 @@ public abstract class SignalOutputHandler {
 	
 	public final ISignalComponent component;
 	public final int delay;
+	public boolean[] lastReacted;
 	
 	public SignalOutputHandler(ISignalComponent component, int delay, NBTTagCompound nbt) {
 		this.component = component;
@@ -17,7 +19,16 @@ public abstract class SignalOutputHandler {
 	
 	public abstract SignalMode getMode();
 	
-	public abstract void schedule(boolean[] state);
+	public void schedule(boolean[] state) {
+		if (lastReacted != null && BooleanUtils.equals(state, lastReacted))
+			return;
+		queue(state);
+		if (lastReacted == null)
+			lastReacted = new boolean[state.length];
+		BooleanUtils.set(lastReacted, state);
+	}
+	
+	public abstract void queue(boolean[] state);
 	
 	public void performStateChange(boolean[] state) {
 		component.updateState(state);
@@ -31,6 +42,11 @@ public abstract class SignalOutputHandler {
 	
 	public static SignalOutputHandler create(ISignalComponent component, SignalMode mode, int delay, NBTTagCompound nbt) {
 		return mode.create(component, delay, nbt);
+	}
+	
+	@Override
+	public String toString() {
+		return component.toString();
 	}
 	
 }

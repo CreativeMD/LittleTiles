@@ -31,7 +31,7 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void schedule(boolean[] state) {
+				public void queue(boolean[] state) {
 					SignalTicker.schedule(this, state, delay);
 				}
 				
@@ -101,7 +101,7 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void schedule(boolean[] state) {
+				public void queue(boolean[] state) {
 					boolean toggled = false;
 					for (int i = 0; i < state.length; i++) {
 						if (!stateBefore[i] && state[i]) {
@@ -199,7 +199,7 @@ public enum SignalMode {
 			SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
 				
 				@Override
-				public void schedule(boolean[] state) {
+				public void queue(boolean[] state) {
 					if (ticket != null)
 						ticket.overwriteState(state);
 					else
@@ -260,7 +260,7 @@ public enum SignalMode {
 			SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
 				
 				@Override
-				public void schedule(boolean[] state) {
+				public void queue(boolean[] state) {
 					if (ticket != null)
 						ticket.markObsolete();
 					ticket = SignalTicker.schedule(this, state, delay);
@@ -377,7 +377,7 @@ public enum SignalMode {
 		}
 		
 		@Override
-		public void schedule(boolean[] state) {
+		public void queue(boolean[] state) {
 			if (pulseEnd != null)
 				return;
 			boolean current = BooleanUtils.any(state);

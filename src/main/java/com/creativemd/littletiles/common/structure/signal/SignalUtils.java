@@ -41,12 +41,6 @@ public class SignalUtils {
 		return null;
 	}
 	
-	public static void setOutputState(LittleStructure structure, int id, boolean external, boolean[] state) {
-		ISignalComponent component = getOutput(structure, id, external);
-		if (component != null)
-			component.updateState(state);
-	}
-	
 	public static ISignalComponent getOutput(LittleStructure structure, int id, boolean external) {
 		if (external)
 			return getExternalOutput(structure, id);
