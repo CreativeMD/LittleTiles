@@ -412,37 +412,47 @@ public abstract class LittleAction extends CreativeCorePacket {
 	private static Method WorldEditEvent = loadWorldEditEvent();
 	private static Object worldEditInstance = null;
 	
-	public static void sendEntityResetToClient(EntityPlayerMP player, EntityAnimation animation) {
-		PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), player);
+	public static void sendEntityResetToClient(EntityPlayer player, EntityAnimation animation) {
+		if (!(player instanceof EntityPlayerMP))
+			return;
+		PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
 	}
 	
-	public static void sendBlockResetToClient(World world, EntityPlayerMP player, BlockPos pos) {
+	public static void sendBlockResetToClient(World world, EntityPlayer player, BlockPos pos) {
+		if (!(player instanceof EntityPlayerMP))
+			return;
 		TileEntity te = world.getTileEntity(pos);
 		if (te != null)
 			sendBlockResetToClient(world, player, te);
 		else {
 			if (world instanceof CreativeWorld)
-				PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, pos, null), player);
+				PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, pos, null), (EntityPlayerMP) player);
 			else
-				player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
+				((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(player.world, pos));
 		}
 	}
 	
-	public static void sendBlockResetToClient(World world, EntityPlayerMP player, TileEntity te) {
+	public static void sendBlockResetToClient(World world, EntityPlayer player, TileEntity te) {
+		if (!(player instanceof EntityPlayerMP))
+			return;
 		if (world instanceof CreativeWorld)
-			PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, te.getPos(), te), player);
+			PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, te.getPos(), te), (EntityPlayerMP) player);
 		else {
-			player.connection.sendPacket(new SPacketBlockChange(player.world, te.getPos()));
+			((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(player.world, te.getPos()));
 			if (te != null)
-				player.connection.sendPacket(te.getUpdatePacket());
+				((EntityPlayerMP) player).connection.sendPacket(te.getUpdatePacket());
 		}
 	}
 	
-	public static void sendBlockResetToClient(World world, EntityPlayerMP player, Iterable<TileEntityLittleTiles> tileEntities) {
-		PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(world, tileEntities), player);
+	public static void sendBlockResetToClient(World world, EntityPlayer player, Iterable<TileEntityLittleTiles> tileEntities) {
+		if (!(player instanceof EntityPlayerMP))
+			return;
+		PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(world, tileEntities), (EntityPlayerMP) player);
 	}
 	
-	public static void sendBlockResetToClient(World world, EntityPlayerMP player, LittleStructure structure) {
+	public static void sendBlockResetToClient(World world, EntityPlayer player, LittleStructure structure) {
+		if (!(player instanceof EntityPlayerMP))
+			return;
 		try {
 			sendBlockResetToClient(world, player, structure.blocks());
 		} catch (CorruptedConnectionException | NotYetConnectedException e) {
