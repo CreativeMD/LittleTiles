@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class LayeredRenderBufferCache {
 	
-	private BufferBuilderWrapper queue[] = new BufferBuilderWrapper[BlockRenderLayer.values().length];
+	private IRenderDataCache queue[] = new BufferBuilderWrapper[BlockRenderLayer.values().length];
 	private BufferLink uploaded[] = new BufferLink[BlockRenderLayer.values().length];
 	
 	public LayeredRenderBufferCache() {
@@ -49,41 +49,29 @@ public class LayeredRenderBufferCache {
 		}
 	}
 	
-	/*public void remove(int layer) {
-		if (buffers[layer] != null)
-			buffers[layer].onRemoved();
-		buffers[layer] = null;
+	public synchronized void combine(LayeredRenderBufferCache cache) {
+		for (int i = 0; i < queue.length; i++)
+			queue[i] = combine(i, get(i), cache.get(i));
 	}
 	
-	public BufferHolder get(BlockRenderLayer layer) {
-		return buffers[layer.ordinal()];
-	}
-	
-	public void combine(LayeredRenderBufferCache cache) {
-		synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
-			for (int i = 0; i < buffers.length; i++)
-				buffers[i] = combine(i, buffers[i], cache.buffers[i]);
-		}
-	}
-	
-	private BufferHolder combine(int layer, BufferHolder first, BufferHolder second) {
+	private IRenderDataCache combine(int layer, IRenderDataCache first, IRenderDataCache second) {
 		int vertexCount = 0;
 		int length = 0;
 		ByteBuffer firstBuffer = null;
-		if (first != null && !first.isRemoved()) {
-			firstBuffer = first.hasBufferInRAM() ? first.getBufferRAM() : first.tryGetBufferVRAM();
+		if (first != null) {
+			firstBuffer = first.byteBuffer();
 			if (firstBuffer != null) {
-				vertexCount += first.vertexCount;
-				length += first.length;
+				vertexCount += first.vertexCount();
+				length += first.length();
 			}
 		}
 		
 		ByteBuffer secondBuffer = null;
-		if (second != null && !second.isRemoved()) {
-			secondBuffer = second.hasBufferInRAM() ? second.getBufferRAM() : second.tryGetBufferVRAM();
+		if (second != null) {
+			secondBuffer = second.byteBuffer();
 			if (secondBuffer != null) {
-				vertexCount += second.vertexCount;
-				length += second.length;
+				vertexCount += second.vertexCount();
+				length += second.length();
 			}
 		}
 		
@@ -93,25 +81,50 @@ public class LayeredRenderBufferCache {
 		
 		if (firstBuffer != null) {
 			firstBuffer.position(0);
-			firstBuffer.limit(first.length);
+			firstBuffer.limit(first.length());
 			byteBuffer.put(firstBuffer);
 		}
 		
 		if (secondBuffer != null) {
 			secondBuffer.position(0);
-			secondBuffer.limit(second.length);
+			secondBuffer.limit(second.length());
 			byteBuffer.put(secondBuffer);
 		}
-		if (first != null)
-			first.onRemoved();
-		return new BufferHolder(this, layer, byteBuffer, length, vertexCount);
-	}*/
+		return new ByteBufferWrapper(byteBuffer, length, vertexCount);
+	}
 	
 	public static BufferBuilder createVertexBuffer(VertexFormat format, List<? extends RenderBox> cubes) {
 		int size = 1;
 		for (RenderBox cube : cubes)
 			size += cube.countQuads();
 		return new BufferBuilder(format.getNextOffset() * size);
+	}
+	
+	public static class ByteBufferWrapper implements IRenderDataCache {
+		
+		public ByteBuffer buffer;
+		public int length;
+		public int vertexCount;
+		
+		public ByteBufferWrapper(ByteBuffer buffer, int length, int vertexCount) {
+			this.buffer = buffer;
+		}
+		
+		@Override
+		public ByteBuffer byteBuffer() {
+			return buffer;
+		}
+		
+		@Override
+		public int length() {
+			return length;
+		}
+		
+		@Override
+		public int vertexCount() {
+			return vertexCount;
+		}
+		
 	}
 	
 	public static class BufferBuilderWrapper implements IRenderDataCache {
