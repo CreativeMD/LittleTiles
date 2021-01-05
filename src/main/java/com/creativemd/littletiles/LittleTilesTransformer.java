@@ -125,7 +125,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			public void transform(ClassNode node) {
 				
 				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "littleTilesAdded", "Z", null, Boolean.FALSE));
-				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;", null, null));
+				//node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;", null, null));
 				
 				MethodNode m = findMethod(node, "reset", "()V");
 				
@@ -552,14 +552,14 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				AbstractInsnNode before = findNode(m.instructions, new InsnNode(Opcodes.RETURN));
 				LabelNode after = new LabelNode();
 				m.instructions.insertBefore(before, new LabelNode());
-				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
-				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/BufferBuilder", "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;"));
-				m.instructions.insertBefore(before, new JumpInsnNode(Opcodes.IFNULL, after));
-				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
-				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/BufferBuilder", "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;"));
 				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
 				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/VertexBufferUploader", map("vertexBuffer", "field_178179_a"), "Lnet/minecraft/client/renderer/vertex/VertexBuffer;"));
-				m.instructions.insertBefore(before, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "com/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager", "bindBuffer", patchDESC("(Lnet/minecraft/client/renderer/vertex/VertexBuffer;)V"), false));
+				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/vertex/VertexBuffer", "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;"));
+				m.instructions.insertBefore(before, new JumpInsnNode(Opcodes.IFNULL, after));
+				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/VertexBufferUploader", map("vertexBuffer", "field_178179_a"), "Lnet/minecraft/client/renderer/vertex/VertexBuffer;"));
+				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/vertex/VertexBuffer", "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;"));
+				m.instructions.insertBefore(before, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "com/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager", "bindBuffer", patchDESC("()V"), false));
 				
 				m.instructions.insertBefore(before, after);
 			}

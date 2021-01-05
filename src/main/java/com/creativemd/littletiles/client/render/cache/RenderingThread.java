@@ -305,9 +305,9 @@ public class RenderingThread extends Thread {
 									
 									buffer.finishDrawing();
 									
-									layerBuffer.set(layer, buffer);
+									layerBuffer.set(layer.ordinal(), buffer);
 								} else
-									layerBuffer.set(layer, null);
+									layerBuffer.set(layer.ordinal(), null);
 							}
 							
 							net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);

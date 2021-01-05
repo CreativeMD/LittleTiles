@@ -133,7 +133,7 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public boolean shouldAddDoor() {
-		return !(world instanceof FakeWorld) && !(world instanceof SubWorld && ((SubWorld) world).getRealWorld() instanceof FakeWorld);
+		return !isDead && !(world instanceof FakeWorld) && !(world instanceof SubWorld && ((SubWorld) world).getRealWorld() instanceof FakeWorld);
 	}
 	
 	public World getRealWorld() {
@@ -820,7 +820,7 @@ public class EntityAnimation extends Entity {
 	@Override
 	public void onRemovedFromWorld() {
 		super.onRemovedFromWorld();
-		markRemoved();
+		isDead = true;
 	}
 	
 	@Override

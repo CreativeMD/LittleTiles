@@ -1,18 +1,14 @@
 package com.creativemd.littletiles.common.entity;
 
-import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.littletiles.client.render.world.RenderUploader;
-import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationController;
@@ -22,18 +18,15 @@ import com.creativemd.littletiles.common.structure.exception.CorruptedConnection
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementResult;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
-import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -239,7 +232,7 @@ public class DoorController extends EntityAnimationController {
 				WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
 				PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLocation(), parent.getUniqueID()), parent.getAbsoluteParent(), serverWorld, null);
 			} else {
-				boolean subWorld = world instanceof IOrientatedWorld;
+				/*boolean subWorld = world instanceof IOrientatedWorld;
 				HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
 				for (TileEntityLittleTiles te : result.tileEntities) {
 					synchronized (te.render) {
@@ -258,7 +251,7 @@ public class DoorController extends EntityAnimationController {
 				
 				if (!subWorld)
 					for (Entry<RenderChunk, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
-						RenderUploader.uploadRenderData(entry.getKey(), entry.getValue());
+						RenderUploader.uploadRenderData(entry.getKey(), entry.getValue());*/
 				placed = true;
 			}
 		} catch (CorruptedConnectionException | NotYetConnectedException e) {

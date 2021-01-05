@@ -2,19 +2,15 @@ package com.creativemd.littletiles.client.render.cache;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUploader.NotSupportedException;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -23,51 +19,42 @@ public class ChunkBlockLayerManager {
 	
 	public static final Field blockLayerManager = ReflectionHelper.findField(VertexBuffer.class, "blockLayerManager");
 	
-	private BufferBuilder builder;
-	private VertexBuffer buffer;
-	private BlockRenderLayer layer;
-	private int totalSize;
-	private List<BufferHolder> holders = new ArrayList<>();
+	private final RenderChunk chunk;
+	private final BlockRenderLayer layer;
+	private final VertexBuffer buffer;
 	
-	public ChunkBlockLayerManager(BufferBuilder builder, BlockRenderLayer layer) {
-		this.builder = builder;
+	private ChunkBlockLayerCache cache;
+	private ChunkBlockLayerCache uploaded;
+	
+	public ChunkBlockLayerManager(RenderChunk chunk, BlockRenderLayer layer) {
+		this.chunk = chunk;
 		this.layer = layer;
+		this.buffer = chunk.getVertexBufferByLayer(layer.ordinal());
+		try {
+			blockLayerManager.set(buffer, this);
+		} catch (IllegalArgumentException | IllegalAccessException e) {}
 	}
 	
-	public void add(TileEntityLittleTiles te) {
-		LayeredRenderBufferCache bufferCache = te.render.getBufferCache();
-		BufferHolder holder = bufferCache.get(layer);
-		if (holder != null && holder.hasBufferInRAM())
-			add(holder);
-	}
-	
-	public void add(BufferHolder holder) {
-		holder.add(builder);
-		holders.add(holder);
-	}
-	
-	public BufferBuilder getBuilder() {
-		return builder;
-	}
-	
-	public void readyUp() {
-		this.totalSize = BufferBuilderUtils.getBufferSizeByte(builder);
-	}
-	
-	public void bindBuffer(VertexBuffer buffer) {
-		synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
-			try {
-				this.buffer = buffer;
-				LittleChunkDispatcher.blockLayerManager.set(builder, null);
-				blockLayerManager.set(buffer, this);
-				this.builder = null;
-				for (BufferHolder holder : holders)
-					holder.useVRAM(this);
-			} catch (IllegalArgumentException | IllegalAccessException e) {}
+	public void set(BufferBuilder builder, ChunkBlockLayerCache cache) {
+		if (this.cache != null)
+			this.cache.discard();
+		else if (this.uploaded != null) {
+			this.uploaded.discard();
+			this.uploaded = null;
 		}
+		this.cache = cache;
 	}
 	
-	public ByteBuffer getTempBuffer(BufferHolder holder) {
+	public void bindBuffer() {
+		if (uploaded != null)
+			uploaded.discard();
+		uploaded = cache;
+		cache = null;
+		if (uploaded != null)
+			uploaded.uploaded();
+	}
+	
+	/*public ByteBuffer getTempBuffer(BufferHolder holder) {
 		Callable<ByteBuffer> run = () -> {
 			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
 				if (Minecraft.getMinecraft().world == null || buffer == null || RenderUploader.getBufferId(buffer) == -1)
@@ -108,60 +95,31 @@ public class ChunkBlockLayerManager {
 			e1.printStackTrace();
 			return null;
 		}
-	}
+	}*/
 	
 	public void backToRAM() {
-		if (buffer == null)
+		if (uploaded == null)
 			return;
 		Callable<Boolean> run = () -> {
-			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
-				if (Minecraft.getMinecraft().world == null || buffer == null || RenderUploader.getBufferId(buffer) == -1) {
-					for (BufferHolder holder : holders)
-						holder.remove();
-					holders.clear();
-					if (buffer != null)
-						blockLayerManager.set(buffer, null);
-					buffer = null;
-					return false;
-				}
-				buffer.bindBuffer();
-				try {
-					ByteBuffer uploadedData = RenderUploader.glMapBufferRange(totalSize);
-					if (uploadedData != null) {
-						for (BufferHolder holder : holders) {
-							if (holder.isRemoved())
-								continue;
-							try {
-								if (uploadedData.capacity() >= holder.getIndex() + holder.length) {
-									ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length);
-									uploadedData.position(holder.getIndex());
-									int end = holder.getIndex() + holder.length;
-									while (uploadedData.position() < end)
-										newBuffer.put(uploadedData.get());
-									holder.useRAM(newBuffer);
-								} else
-									holder.remove();
-							} catch (IllegalArgumentException e) {
-								System.out.println("Invalid Buffer");
-								holder.remove();
-							}
-							
-						}
-					} else {
-						System.out.println("Buffer is lost!");
-						for (BufferHolder holder : holders)
-							holder.remove();
-					}
-					holders.clear();
-					if (blockLayerManager.get(buffer) == this)
-						blockLayerManager.set(buffer, null);
-				} catch (NotSupportedException | IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-				buffer.unbindBuffer();
-				buffer = null;
-				return true;
+			if (Minecraft.getMinecraft().world == null || uploaded == null || RenderUploader.getBufferId(buffer) == -1) {
+				if (uploaded != null)
+					uploaded.discard();
+				uploaded = null;
+				return false;
 			}
+			buffer.bindBuffer();
+			try {
+				ByteBuffer uploadedData = RenderUploader.glMapBufferRange(uploaded.totalSize());
+				if (uploadedData != null)
+					uploaded.download(uploadedData);
+				else
+					uploaded.discard();
+				uploaded = null;
+			} catch (NotSupportedException e) {
+				e.printStackTrace();
+			}
+			buffer.unbindBuffer();
+			return true;
 		};
 		try {
 			if (Minecraft.getMinecraft().isCallingFromMinecraftThread())
