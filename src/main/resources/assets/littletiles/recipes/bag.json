@@ -1,21 +1,24 @@
 {
   "result": {
-    "item": "littletiles:utilityknife",
+    "item": "littletiles:container",
     "data": 0
   },
   "pattern": [
-    "X  ",
-    " X ",
-    "  L"
+    " S ",
+    "LIL",
+    " L "
   ],
   "type": "minecraft:crafting_shaped",
   "key": {
-    "X": {
-      "item": "minecraft:iron_ingot"
-    },
     "L": {
+      "item": "minecraft:leather"
+    },
+    "I": {
       "item": "minecraft:dye",
       "data": 4
+    },
+    "S": {
+      "item": "minecraft:string"
     }
   }
 }

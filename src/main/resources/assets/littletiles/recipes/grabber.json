@@ -4,17 +4,16 @@
     "data": 0
   },
   "pattern": [
-    "LLL",
-    "WWW",
-    "LLL"
+    " L ",
+    "LIL",
+    " L "
   ],
   "type": "minecraft:crafting_shaped",
   "key": {
-    "W": {
-      "item": "minecraft:wool",
-      "data": 11
-    },
     "L": {
+      "item": "minecraft:leather"
+    },
+    "I": {
       "item": "minecraft:dye",
       "data": 4
     }

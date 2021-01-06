@@ -4,9 +4,9 @@
     "data": 0
   },
   "pattern": [
-    "X",
-    "X",
-    "L"
+    "LX",
+    "LX",
+    "L "
   ],
   "type": "minecraft:crafting_shaped",
   "key": {

@@ -2,7 +2,7 @@
   "result": {
     "item": "littletiles:premade",
     "data": 0,
-    "structure": "workbench"
+    "structure": "whitener"
   },
   "pattern": [
     "XWX",
@@ -16,10 +16,10 @@
       "data": 0
     },
     "W": {
-      "item": "minecraft:crafting_table"
+      "item": "minecraft:iron_ingot"
     },
     "L": {
-      "item": "littletiles:wrench",
+      "item": "littletiles:colortube",
       "data": 0
     }
   }

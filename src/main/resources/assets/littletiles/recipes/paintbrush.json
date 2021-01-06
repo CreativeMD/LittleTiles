@@ -5,17 +5,18 @@
   },
   "pattern": [
     "XXX",
-    "XLX",
-    "XXX"
+    " L ",
+    " L "
   ],
   "type": "minecraft:crafting_shaped",
   "key": {
     "X": {
-      "item": "minecraft:dye",
+      "item": "minecraft:wool",
       "data": 0
     },
     "L": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:dye",
+      "data": 4
     }
   }
 }

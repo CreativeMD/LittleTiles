@@ -1,19 +1,20 @@
 {
   "result": {
-    "item": "littletiles:chisel",
-    "data": 0
+    "item": "littletiles:recipeadvanced",
+    "data": 0,
+    "count": 4
   },
   "pattern": [
-    "X  ",
-    " L ",
-    "  L"
+    "XXX",
+    "XLX",
+    "XXX"
   ],
   "type": "minecraft:crafting_shaped",
   "key": {
     "X": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:paper"
     },
-    "L": {
+	"L": {
       "item": "minecraft:dye",
       "data": 4
     }
