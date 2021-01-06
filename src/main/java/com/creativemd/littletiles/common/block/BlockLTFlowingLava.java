@@ -5,7 +5,7 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
-import com.creativemd.littletiles.common.block.BlockLTColored.EnumType;
+import com.creativemd.littletiles.common.block.BlockLittleDyeable.LittleDyeableType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -40,9 +40,9 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 	
 	public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
 	
-	public final BlockLTColored.EnumType still;
+	public final BlockLittleDyeable.LittleDyeableType still;
 	
-	public BlockLTFlowingLava(BlockLTColored.EnumType still) {
+	public BlockLTFlowingLava(BlockLittleDyeable.LittleDyeableType still) {
 		super(Material.LAVA);
 		this.still = still;
 		setCreativeTab(LittleTiles.littleTab);
@@ -156,7 +156,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingLava) {
 			int meta = tile.getMeta() + 1;
 			if (meta > EnumFacing.VALUES.length)
-				tile.setBlock(LittleTiles.coloredBlock, still.ordinal());
+				tile.setBlock(LittleTiles.dyeableBlock, still.ordinal());
 			else
 				tile.setMeta(meta);
 			parent.getTe().updateTiles();
@@ -175,7 +175,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
 		if (tile.getBlock() == this)
 			return true;
-		if (tile.getBlock() == LittleTiles.coloredBlock && EnumType.values()[tile.getMeta()].isLava())
+		if (tile.getBlock() == LittleTiles.dyeableBlock && LittleDyeableType.values()[tile.getMeta()].isLava())
 			return true;
 		return false;
 	}

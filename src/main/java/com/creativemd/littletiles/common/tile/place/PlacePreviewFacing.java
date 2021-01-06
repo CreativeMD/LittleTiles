@@ -47,7 +47,7 @@ public class PlacePreviewFacing extends PlacePreview {
 	@Override
 	public List<LittleRenderBox> getPreviews(LittleGridContext context) {
 		List<LittleRenderBox> cubes = new ArrayList<>();
-		LittleRenderBox cube = new LittleRenderBox(box.getCube(context), box, LittleTiles.coloredBlock, 0);
+		LittleRenderBox cube = new LittleRenderBox(box.getCube(context), box, LittleTiles.dyeableBlock, 0);
 		cube.setColor(color);
 		float thickness = 1 / 32F;
 		Axis axis = facing.getAxis();

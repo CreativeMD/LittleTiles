@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.block.BlockLTTransparentColored;
+import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
@@ -59,7 +59,7 @@ public class ChiselsAndBitsInteractor {
 				for (int z = 0; z < ChiselsAndBitsManager.convertingFrom; z++) {
 					IBlockState state = ModUtil.getStateById(blob.get(x, y, z));
 					if (state.getBlock() == Blocks.WATER)
-						state = LittleTiles.transparentColoredBlock.getDefaultState().withProperty(BlockLTTransparentColored.VARIANT, BlockLTTransparentColored.EnumType.water);
+						state = LittleTiles.dyeableBlockTransparent.getDefaultState().withProperty(BlockLittleDyeableTransparent.VARIANT, BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER);
 					if (state.getBlock() != Blocks.AIR) {
 						LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
 						tile.setBox(new LittleBox(new LittleVec(x, y, z)));

@@ -7,8 +7,8 @@ import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelec
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorProperty;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.block.BlockLTColored;
-import com.creativemd.littletiles.common.block.BlockLTTransparentColored;
+import com.creativemd.littletiles.common.block.BlockLittleDyeable;
+import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
 import com.creativemd.littletiles.common.util.ingredient.rules.BlockIngredientRule.BlockIngredientRuleFixedBlock;
 import com.creativemd.littletiles.common.util.ingredient.rules.BlockIngredientRule.BlockIngredientRuleFixedMeta;
 import com.creativemd.littletiles.common.util.ingredient.rules.BlockIngredientRule.BlockIngredientRuleMappedState;
@@ -33,10 +33,10 @@ public class IngredientRules {
 	}
 	
 	public static void loadRules() {
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.transparentColoredBlock, BlockLTTransparentColored.EnumType.water.ordinal()));
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.transparentColoredBlock, BlockLTTransparentColored.EnumType.white_water.ordinal()));
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.coloredBlock, BlockLTColored.EnumType.lava.ordinal()));
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.coloredBlock, BlockLTColored.EnumType.white_lava.ordinal()));
+		registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlockTransparent, BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER.ordinal()));
+		registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlockTransparent, BlockLittleDyeableTransparent.LittleDyeableTransparent.WHITE_WATER.ordinal()));
+		registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlock, BlockLittleDyeable.LittleDyeableType.LAVA.ordinal()));
+		registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlock, BlockLittleDyeable.LittleDyeableType.WHITE_LAVA.ordinal()));
 		
 		registerBlockRule(new BlockSelectorBlock(Blocks.LOG), new BlockIngredientRuleMappedState() {
 			

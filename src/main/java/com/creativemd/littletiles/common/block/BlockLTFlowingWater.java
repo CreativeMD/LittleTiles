@@ -5,7 +5,7 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
-import com.creativemd.littletiles.common.block.BlockLTTransparentColored.EnumType;
+import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent.LittleDyeableTransparent;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -40,9 +40,9 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	
 	public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
 	
-	public final BlockLTTransparentColored.EnumType still;
+	public final BlockLittleDyeableTransparent.LittleDyeableTransparent still;
 	
-	public BlockLTFlowingWater(BlockLTTransparentColored.EnumType still) {
+	public BlockLTFlowingWater(BlockLittleDyeableTransparent.LittleDyeableTransparent still) {
 		super(Material.WATER);
 		this.still = still;
 		setCreativeTab(LittleTiles.littleTab);
@@ -152,7 +152,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingWater) {
 			int meta = tile.getMeta() + 1;
 			if (meta > EnumFacing.VALUES.length)
-				tile.setBlock(LittleTiles.transparentColoredBlock, still.ordinal());
+				tile.setBlock(LittleTiles.dyeableBlockTransparent, still.ordinal());
 			else
 				tile.setMeta(meta);
 			parent.getTe().updateTiles();
@@ -166,7 +166,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
 		if (tile.getBlock() == this)
 			return true;
-		if (tile.getBlock() == LittleTiles.transparentColoredBlock && EnumType.values()[tile.getMeta()].isWater())
+		if (tile.getBlock() == LittleTiles.dyeableBlockTransparent && LittleDyeableTransparent.values()[tile.getMeta()].isWater())
 			return true;
 		return false;
 	}

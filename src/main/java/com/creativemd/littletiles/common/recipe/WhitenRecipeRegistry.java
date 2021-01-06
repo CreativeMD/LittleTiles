@@ -13,8 +13,8 @@ import com.creativemd.creativecore.common.utils.stack.InfoItemStack;
 import com.creativemd.creativecore.common.utils.stack.InfoOre;
 import com.creativemd.creativecore.common.utils.stack.InfoStack;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.block.BlockLTColored.EnumType;
-import com.creativemd.littletiles.common.block.BlockLTColored2.ColoredEnumType2;
+import com.creativemd.littletiles.common.block.BlockLittleDyeable.LittleDyeableType;
+import com.creativemd.littletiles.common.block.BlockLittleDyeable2.LittleDyeableType2;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
@@ -70,17 +70,17 @@ public class WhitenRecipeRegistry {
 		
 		registerWhitener(new InfoItem(Items.SUGAR), 1);
 		
-		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.COBBLESTONE), 1, LittleTiles.coloredBlock.get(EnumType.grainy), LittleTiles.coloredBlock.get(EnumType.grainy_big)));
-		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.COBBLESTONE), 2, LittleTiles.coloredBlock.get(EnumType.grainy_low)));
+		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.COBBLESTONE), 1, LittleTiles.dyeableBlock.get(LittleDyeableType.GRAINY), LittleTiles.dyeableBlock.get(LittleDyeableType.GRAINY_BIG)));
+		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.COBBLESTONE), 2, LittleTiles.dyeableBlock.get(LittleDyeableType.GRAINY_LOW)));
 		
-		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.STONE), 1, LittleTiles.coloredBlock2.get(ColoredEnumType2.gravel), LittleTiles.coloredBlock2.get(ColoredEnumType2.sand), LittleTiles.coloredBlock2.get(ColoredEnumType2.stone), LittleTiles.coloredBlock.get(EnumType.clay)));
-		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.STONE), 2, LittleTiles.coloredBlock2.get(ColoredEnumType2.wood)));
+		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.STONE), 1, LittleTiles.dyeableBlock2.get(LittleDyeableType2.GRAVEL), LittleTiles.dyeableBlock2.get(LittleDyeableType2.SAND), LittleTiles.dyeableBlock2.get(LittleDyeableType2.STONE), LittleTiles.dyeableBlock.get(LittleDyeableType.CLAY)));
+		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorBlock(Blocks.STONE), 2, LittleTiles.dyeableBlock2.get(LittleDyeableType2.CORK)));
 		
 		BlockSelectorBlocks selector = new BlockSelectorBlocks(Blocks.STONEBRICK, Blocks.BRICK_BLOCK);
-		registerWhitenRecipe(new WhitenRecipe(selector, 1, LittleTiles.coloredBlock.get(EnumType.brick), LittleTiles.coloredBlock.get(EnumType.brick_big), LittleTiles.coloredBlock.get(EnumType.broken_brick_big), LittleTiles.coloredBlock.get(EnumType.structured), LittleTiles.coloredBlock.get(EnumType.plank)));
-		registerWhitenRecipe(new WhitenRecipe(selector, 2, LittleTiles.coloredBlock.get(EnumType.bordered), LittleTiles.coloredBlock.get(EnumType.floor)));
+		registerWhitenRecipe(new WhitenRecipe(selector, 1, LittleTiles.dyeableBlock.get(LittleDyeableType.BRICK), LittleTiles.dyeableBlock.get(LittleDyeableType.BRICK_BIG), LittleTiles.dyeableBlock.get(LittleDyeableType.BROKEN_BRICK_BIG), LittleTiles.dyeableBlock.get(LittleDyeableType.CHISELED), LittleTiles.dyeableBlock.get(LittleDyeableType.STRIPS)));
+		registerWhitenRecipe(new WhitenRecipe(selector, 2, LittleTiles.dyeableBlock.get(LittleDyeableType.BORDERED), LittleTiles.dyeableBlock.get(LittleDyeableType.FLOOR)));
 		
-		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorMaterial(Material.ROCK), 4, LittleTiles.coloredBlock.get(EnumType.clean)));
+		registerWhitenRecipe(new WhitenRecipe(new BlockSelectorMaterial(Material.ROCK), 4, LittleTiles.dyeableBlock.get(LittleDyeableType.CLEAN)));
 	}
 	
 	public static class WhitenVolume {

@@ -8,12 +8,12 @@
         "variant=brick": { "model": "littletiles:colored_block_brick" },
         "variant=bordered": { "model": "littletiles:colored_block_bordered" },
         "variant=brick_big": { "model": "littletiles:colored_block_brick_big" },
-        "variant=structured": { "model": "littletiles:colored_block_structured" },
+        "variant=chiseled": { "model": "littletiles:colored_block_chiseled" },
         "variant=broken_brick_big": { "model": "littletiles:colored_block_broken_brick_big" },
         "variant=clay": { "model": "littletiles:colored_block_clay" },
         "variant=light_clean": { "model": "littletiles:colored_block_clean" },
         "variant=lava": { "model": "littletiles:colored_block_lava" },
-        "variant=plank": { "model": "littletiles:colored_block_plank" },
+        "variant=strips": { "model": "littletiles:colored_block_strips" },
         "variant=white_lava": { "model": "littletiles:colored_block_white_lava" }
     }
 }

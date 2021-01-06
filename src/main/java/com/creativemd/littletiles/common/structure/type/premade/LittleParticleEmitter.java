@@ -331,7 +331,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
 			if (cubes == null) {
 				//float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
 				cubes = new ArrayList<>();
-				cubes.add(new RenderBox(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F, LittleTiles.coloredBlock).setColor(-13619152));
+				cubes.add(new RenderBox(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F, LittleTiles.dyeableBlock).setColor(-13619152));
 			}
 			return cubes;
 		}

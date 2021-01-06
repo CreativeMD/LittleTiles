@@ -29,14 +29,14 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockLTTransparentColored extends Block implements ISpecialBlockHandler, IFakeRenderingBlock {
+public class BlockLittleDyeableTransparent extends Block implements ISpecialBlockHandler, IFakeRenderingBlock {
 	
-	public static final PropertyEnum<BlockLTTransparentColored.EnumType> VARIANT = PropertyEnum.<BlockLTTransparentColored.EnumType>create("variant", BlockLTTransparentColored.EnumType.class);
+	public static final PropertyEnum<LittleDyeableTransparent> VARIANT = PropertyEnum.<LittleDyeableTransparent>create("variant", LittleDyeableTransparent.class);
 	
-	public BlockLTTransparentColored() {
+	public BlockLittleDyeableTransparent() {
 		super(Material.ROCK);
 		setCreativeTab(LittleTiles.littleTab);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTTransparentColored.EnumType.clean));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LittleDyeableTransparent.CLEAN));
 	}
 	
 	@Override
@@ -68,9 +68,9 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-		for (int i = 0; i < EnumType.values().length; i++) {
-			items.add(new ItemStack(this, 1, i));
-		}
+		for (int i = 0; i < LittleDyeableTransparent.values().length; i++)
+			if (LittleDyeableTransparent.values()[i].shouldBeShown())
+				items.add(new ItemStack(this, 1, i));
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return this.getDefaultState().withProperty(VARIANT, BlockLTTransparentColored.EnumType.byMetadata(meta));
+		return this.getDefaultState().withProperty(VARIANT, BlockLittleDyeableTransparent.LittleDyeableTransparent.byMetadata(meta));
 	}
 	
 	@Override
@@ -93,32 +93,60 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 		return new BlockStateContainer(this, new IProperty[] { VARIANT });
 	}
 	
-	public static enum EnumType implements IStringSerializable {
+	public static enum LittleDyeableTransparent implements IStringSerializable {
 		
-		clean,
-		thick,
-		thin,
-		thinner,
-		thinnest,
-		
-		water {
+		CLEAN {
+			@Override
+			public boolean shouldBeShown() {
+				return false;
+			}
+		},
+		THICK {
+			@Override
+			public boolean shouldBeShown() {
+				return false;
+			}
+		},
+		THIN {
+			@Override
+			public boolean shouldBeShown() {
+				return false;
+			}
+		},
+		THINNER {
+			@Override
+			public boolean shouldBeShown() {
+				return false;
+			}
+		},
+		THINNEST {
+			@Override
+			public boolean shouldBeShown() {
+				return false;
+			}
+		},
+		WATER {
 			@Override
 			public boolean isWater() {
 				return true;
 			}
 		},
-		white_water {
+		WHITE_WATER {
 			@Override
 			public boolean isWater() {
 				return true;
 			}
 		};
 		
+		public boolean shouldBeShown() {
+			return true;
+		}
+		
 		public boolean isWater() {
 			return false;
 		}
 		
-		public static EnumType byMetadata(int meta) {
+		public static LittleDyeableTransparent byMetadata(int meta) {
 			return values()[meta];
 		}
 		
@@ -128,7 +156,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 		
 		@Override
 		public String getName() {
-			return name();
+			return name().toLowerCase();
 		}
 	}
 	
@@ -167,7 +195,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		IBlockState state = tile.getBlockState();
 		if (state.getValue(VARIANT).isWater() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket) {
-			if (state.getValue(VARIANT) == EnumType.water)
+			if (state.getValue(VARIANT) == LittleDyeableTransparent.WATER)
 				tile.setBlock(LittleTiles.flowingWater, 0);
 			else
 				tile.setBlock(LittleTiles.whiteFlowingWater, 0);
@@ -197,7 +225,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
-		if (EnumType.values()[thisTile.getMeta()].isWater())
+		if (LittleDyeableTransparent.values()[thisTile.getMeta()].isWater())
 			return tile.getBlock() == LittleTiles.flowingWater;
 		return false;
 	}

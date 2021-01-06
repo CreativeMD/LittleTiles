@@ -26,22 +26,22 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockLTColored extends Block implements ISpecialBlockHandler {
+public class BlockLittleDyeable extends Block implements ISpecialBlockHandler {
 	
-	public static final PropertyEnum<BlockLTColored.EnumType> VARIANT = PropertyEnum.<BlockLTColored.EnumType>create("variant", BlockLTColored.EnumType.class);
+	public static final PropertyEnum<LittleDyeableType> VARIANT = PropertyEnum.<LittleDyeableType>create("variant", LittleDyeableType.class);
 	
-	public BlockLTColored() {
+	public BlockLittleDyeable() {
 		super(Material.ROCK);
 		setCreativeTab(LittleTiles.littleTab);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTColored.EnumType.clean));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LittleDyeableType.CLEAN));
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-		for (int i = 0; i < EnumType.values().length; i++) {
-			items.add(new ItemStack(this, 1, i));
-		}
+		for (int i = 0; i < LittleDyeableType.values().length; i++)
+			if (LittleDyeableType.values()[i].shouldBeShown())
+				items.add(new ItemStack(this, 1, i));
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return this.getDefaultState().withProperty(VARIANT, BlockLTColored.EnumType.byMetadata(meta));
+		return this.getDefaultState().withProperty(VARIANT, LittleDyeableType.byMetadata(meta));
 	}
 	
 	@Override
@@ -66,55 +66,64 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	public int getLightValue(IBlockState state) {
-		if (state.getValue(VARIANT) == EnumType.light_clean)
+		if (state.getValue(VARIANT) == LittleDyeableType.LIGHT_CLEAN)
 			return 15;
 		return 0;
 	}
 	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-		if (state.getValue(VARIANT) == EnumType.light_clean)
+		if (state.getValue(VARIANT) == LittleDyeableType.LIGHT_CLEAN)
 			return 15;
 		return 0;
 	}
 	
-	public IBlockState get(EnumType type) {
+	public IBlockState get(LittleDyeableType type) {
 		return getDefaultState().withProperty(VARIANT, type);
 	}
 	
-	public enum EnumType implements IStringSerializable {
+	public enum LittleDyeableType implements IStringSerializable {
 		
-		clean,
-		floor,
-		grainy_big,
-		grainy,
-		grainy_low,
-		brick,
-		bordered,
-		brick_big,
-		structured,
-		broken_brick_big,
-		clay,
-		light_clean,
-		lava {
+		CLEAN,
+		FLOOR,
+		GRAINY_BIG,
+		GRAINY,
+		GRAINY_LOW,
+		BRICK,
+		BORDERED,
+		BRICK_BIG,
+		CHISELED,
+		BROKEN_BRICK_BIG,
+		CLAY,
+		LIGHT_CLEAN {
+			@Override
+			public boolean shouldBeShown() {
+				return false;
+			}
+		},
+		LAVA {
 			@Override
 			public boolean isLava() {
 				return true;
 			}
 		},
-		plank,
-		white_lava {
+		STRIPS,
+		WHITE_LAVA {
 			@Override
 			public boolean isLava() {
 				return true;
 			}
 		};
 		
+		public boolean shouldBeShown() {
+			return true;
+		}
+		
 		public boolean isLava() {
 			return false;
 		}
 		
-		public static EnumType byMetadata(int meta) {
+		public static LittleDyeableType byMetadata(int meta) {
 			return values()[meta];
 		}
 		
@@ -124,7 +133,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 		
 		@Override
 		public String getName() {
-			return name();
+			return name().toLowerCase();
 		}
 	}
 	
@@ -156,7 +165,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	public boolean onBlockActivated(IParentTileList list, LittleTile tile, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		IBlockState state = tile.getBlockState();
 		if (state.getValue(VARIANT).isLava() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket) {
-			if (state.getValue(VARIANT) == EnumType.lava)
+			if (state.getValue(VARIANT) == LittleDyeableType.LAVA)
 				tile.setBlock(LittleTiles.flowingLava, 0);
 			else
 				tile.setBlock(LittleTiles.whiteFlowingLava, 0);
@@ -176,7 +185,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
-		if (EnumType.values()[thisTile.getMeta()].isLava())
+		if (LittleDyeableType.values()[thisTile.getMeta()].isLava())
 			return tile.getBlock() == LittleTiles.flowingLava;
 		return false;
 	}

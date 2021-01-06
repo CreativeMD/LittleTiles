@@ -20,9 +20,9 @@ import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.TileEntityTilesRenderer;
 import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
-import com.creativemd.littletiles.common.block.BlockLTColored;
-import com.creativemd.littletiles.common.block.BlockLTColored2;
-import com.creativemd.littletiles.common.block.BlockLTTransparentColored;
+import com.creativemd.littletiles.common.block.BlockLittleDyeable;
+import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
+import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -249,9 +249,9 @@ public class LittleTilesClient extends LittleTilesServer {
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
 		
-		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock, LittleTiles.modid, "colored_block_", BlockLTColored.EnumType.values());
-		CreativeCoreClient.registerBlockModels(LittleTiles.transparentColoredBlock, LittleTiles.modid, "colored_transparent_block_", BlockLTTransparentColored.EnumType.values());
-		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock2, LittleTiles.modid, "colored_block_", BlockLTColored2.ColoredEnumType2.values());
+		CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlock, LittleTiles.modid, "colored_block_", BlockLittleDyeable.LittleDyeableType.values());
+		CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlockTransparent, LittleTiles.modid, "colored_transparent_block_", BlockLittleDyeableTransparent.LittleDyeableTransparent.values());
+		CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlock2, LittleTiles.modid, "colored_block_", BlockLittleDyeable2.LittleDyeableType2.values());
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.flowingWater);
 		CreativeCoreClient.registerBlockItem(LittleTiles.whiteFlowingWater);

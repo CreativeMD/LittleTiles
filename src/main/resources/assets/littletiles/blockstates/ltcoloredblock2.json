@@ -3,7 +3,7 @@
         "variant=gravel": { "model": "littletiles:colored_block_gravel" },
         "variant=sand": { "model": "littletiles:colored_block_sand" },
         "variant=stone": { "model": "littletiles:colored_block_stone" },
-        "variant=wood": { "model": "littletiles:colored_block_wood" },
+        "variant=cork": { "model": "littletiles:colored_block_cork" },
         "variant=white_opaque_water": { "model": "littletiles:colored_block_white_opaque_water" }
     }
 }

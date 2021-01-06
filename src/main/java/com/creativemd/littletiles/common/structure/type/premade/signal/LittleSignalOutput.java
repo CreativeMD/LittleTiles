@@ -107,7 +107,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 	public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes, int color) {
 		super.render(box, overallBox, cubes, color);
 		
-		LittleRenderBox cube = new LittleRenderBox(new AlignedBox(overallBox.getBox(box.getContext())), null, LittleTiles.coloredBlock, 0);
+		LittleRenderBox cube = new LittleRenderBox(new AlignedBox(overallBox.getBox(box.getContext())), null, LittleTiles.dyeableBlock, 0);
 		cube.setColor(ColorUtils.ORANGE);
 		
 		Axis axis = facing.getAxis();
@@ -184,8 +184,8 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 			if (cubes == null) {
 				float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
 				cubes = new ArrayList<>();
-				cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
-				cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(ColorUtils.ORANGE));
+				cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(-13619152));
+				cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(ColorUtils.ORANGE));
 				//cubes.add(new RenderCubeObject(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable).setColor(-13619152).setKeepUV(true));
 				//cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 			}

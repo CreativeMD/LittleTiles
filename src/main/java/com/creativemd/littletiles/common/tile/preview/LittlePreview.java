@@ -468,7 +468,7 @@ public class LittlePreview implements ICombinable {
 			NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
 				int[] array = list.getIntArrayAt(i);
-				cubes.add(new RenderBox(array[0], array[1], array[2], array[0] + 1, array[1] + 1, array[2] + 1, LittleTiles.coloredBlock));
+				cubes.add(new RenderBox(array[0], array[1], array[2], array[0] + 1, array[1] + 1, array[2] + 1, LittleTiles.dyeableBlock));
 			}
 		} else {
 			LittlePreviews previews = getPreview(stack);

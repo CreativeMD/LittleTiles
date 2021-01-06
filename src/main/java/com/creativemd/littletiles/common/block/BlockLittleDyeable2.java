@@ -18,22 +18,21 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
+public class BlockLittleDyeable2 extends Block implements ISpecialBlockHandler {
 	
-	public static final PropertyEnum<BlockLTColored2.ColoredEnumType2> VARIANT = PropertyEnum.<BlockLTColored2.ColoredEnumType2>create("variant", BlockLTColored2.ColoredEnumType2.class);
+	public static final PropertyEnum<LittleDyeableType2> VARIANT = PropertyEnum.<LittleDyeableType2>create("variant", LittleDyeableType2.class);
 	
-	public BlockLTColored2() {
+	public BlockLittleDyeable2() {
 		super(Material.ROCK);
 		setCreativeTab(LittleTiles.littleTab);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTColored2.ColoredEnumType2.gravel));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LittleDyeableType2.GRAVEL));
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-		for (int i = 0; i < ColoredEnumType2.values().length; i++) {
+		for (int i = 0; i < LittleDyeableType2.values().length; i++)
 			items.add(new ItemStack(this, 1, i));
-		}
 	}
 	
 	@Override
@@ -43,7 +42,7 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return this.getDefaultState().withProperty(VARIANT, BlockLTColored2.ColoredEnumType2.byMetadata(meta));
+		return this.getDefaultState().withProperty(VARIANT, LittleDyeableType2.byMetadata(meta));
 	}
 	
 	@Override
@@ -56,13 +55,13 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 		return new BlockStateContainer(this, new IProperty[] { VARIANT });
 	}
 	
-	public IBlockState get(ColoredEnumType2 type) {
+	public IBlockState get(LittleDyeableType2 type) {
 		return getDefaultState().withProperty(VARIANT, type);
 	}
 	
-	public enum ColoredEnumType2 implements IStringSerializable {
+	public enum LittleDyeableType2 implements IStringSerializable {
 		
-		gravel, sand, stone, wood, white_opaque_water {
+		GRAVEL, SAND, STONE, CORK, WHITE_OPAQUE_WATER {
 			@Override
 			public boolean isWater() {
 				return true;
@@ -73,7 +72,7 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 			return false;
 		}
 		
-		public static ColoredEnumType2 byMetadata(int meta) {
+		public static LittleDyeableType2 byMetadata(int meta) {
 			return values()[meta];
 		}
 		
@@ -83,7 +82,7 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 		
 		@Override
 		public String getName() {
-			return name();
+			return name().toLowerCase();
 		}
 	}
 	

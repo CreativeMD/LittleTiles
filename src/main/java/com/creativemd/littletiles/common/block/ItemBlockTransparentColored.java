@@ -16,8 +16,8 @@ public class ItemBlockTransparentColored extends ItemBlock {
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
 		String name = "default";
-		if (stack.getMetadata() < BlockLTTransparentColored.EnumType.values().length)
-			name = BlockLTTransparentColored.EnumType.values()[stack.getMetadata()].getName();
+		if (stack.getMetadata() < BlockLittleDyeableTransparent.LittleDyeableTransparent.values().length)
+			name = BlockLittleDyeableTransparent.LittleDyeableTransparent.values()[stack.getMetadata()].getName();
 		return getUnlocalizedName() + "." + name;
 	}
 	

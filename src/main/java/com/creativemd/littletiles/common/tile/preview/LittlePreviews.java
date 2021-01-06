@@ -400,7 +400,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 			if (allowLowResolution && stack.getTagCompound().hasKey("pos")) {
 				LittlePreviews previews = new LittlePreviews(context);
 				NBTTagCompound tileData = new NBTTagCompound();
-				LittleTile tile = new LittleTile(LittleTiles.coloredBlock, 0);
+				LittleTile tile = new LittleTile(LittleTiles.dyeableBlock, 0);
 				tile.saveTileExtra(tileData);
 				
 				NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
