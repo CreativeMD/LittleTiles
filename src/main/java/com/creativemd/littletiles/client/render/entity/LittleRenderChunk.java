@@ -175,6 +175,8 @@ public class LittleRenderChunk {
 		synchronized (tileEntities) {
 			for (int j = 0; j < vertexBuffers.length; j++)
 				if (j != BlockRenderLayer.TRANSLUCENT.ordinal() && !cachedBuffers[j].isEmpty()) {
+					if (vertexBuffers[j] == null)
+						continue;
 					vertexBuffers[j].bindBuffer();
 					try {
 						ByteBuffer uploadedData = RenderUploader.glMapBufferRange(cachedBuffers[j].totalSize());

@@ -20,18 +20,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 	
-	public static final PropertyEnum<BlockLTColored2.EnumType> VARIANT = PropertyEnum.<BlockLTColored2.EnumType>create("variant", BlockLTColored2.EnumType.class);
+	public static final PropertyEnum<BlockLTColored2.ColoredEnumType2> VARIANT = PropertyEnum.<BlockLTColored2.ColoredEnumType2>create("variant", BlockLTColored2.ColoredEnumType2.class);
 	
 	public BlockLTColored2() {
 		super(Material.ROCK);
 		setCreativeTab(LittleTiles.littleTab);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTColored2.EnumType.gravel));
+		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTColored2.ColoredEnumType2.gravel));
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-		for (int i = 0; i < EnumType.values().length; i++) {
+		for (int i = 0; i < ColoredEnumType2.values().length; i++) {
 			items.add(new ItemStack(this, 1, i));
 		}
 	}
@@ -43,7 +43,7 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
-		return this.getDefaultState().withProperty(VARIANT, BlockLTColored2.EnumType.byMetadata(meta));
+		return this.getDefaultState().withProperty(VARIANT, BlockLTColored2.ColoredEnumType2.byMetadata(meta));
 	}
 	
 	@Override
@@ -56,7 +56,11 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 		return new BlockStateContainer(this, new IProperty[] { VARIANT });
 	}
 	
-	public enum EnumType implements IStringSerializable {
+	public IBlockState get(ColoredEnumType2 type) {
+		return getDefaultState().withProperty(VARIANT, type);
+	}
+	
+	public enum ColoredEnumType2 implements IStringSerializable {
 		
 		gravel, sand, stone, wood, white_opaque_water {
 			@Override
@@ -69,7 +73,7 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 			return false;
 		}
 		
-		public static EnumType byMetadata(int meta) {
+		public static ColoredEnumType2 byMetadata(int meta) {
 			return values()[meta];
 		}
 		

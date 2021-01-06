@@ -49,11 +49,13 @@ public class ItemLittleWrench extends Item {
 			
 			if (world.isRemote) {
 				TEResult result = BlockTile.loadTeAndTile(world, pos, player);
-				
-				if (result.isComplete() && result.parent.isStructure())
-					LittleTileGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.parent, result.tile);
-				else
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH));
+				if (player.isSneaking()) {
+					if (result.isComplete() && result.parent.isStructure())
+						LittleTileGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.parent, result.tile);
+					else
+						PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH));
+				} else
+					PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH_INFO));
 			}
 			return EnumActionResult.SUCCESS;
 		}

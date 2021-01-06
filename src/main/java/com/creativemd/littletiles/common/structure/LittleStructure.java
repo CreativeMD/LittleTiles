@@ -9,6 +9,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
@@ -348,7 +349,8 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	
 	/** takes name of stack and connects the structure to its children (does so recursively)
 	 * 
-	 * @param stack */
+	 * @param stack
+	 */
 	public void placedStructure(@Nullable ItemStack stack) {
 		NBTTagCompound nbt;
 		if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
@@ -1029,6 +1031,21 @@ public abstract class LittleStructure implements ISignalSchedulable {
 			getTileEntity().updateTiles((x) -> x.removeStructure(getIndex()));
 		}
 		
+	}
+	
+	public String info() {
+		List<String> infos = new ArrayList<>();
+		if (inputs != null)
+			for (int i = 0; i < inputs.length; i++)
+				infos.add("a" + i + ":" + BooleanUtils.print(inputs[i].getState()));
+		for (ISignalStructureComponent component : inputs())
+			infos.add("i" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+		if (outputs != null)
+			for (int i = 0; i < outputs.length; i++)
+				infos.add("b" + i + ":" + BooleanUtils.print(outputs[i].getState()));
+		for (ISignalStructureComponent component : outputs())
+			infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+		return String.join(",", infos);
 	}
 	
 }

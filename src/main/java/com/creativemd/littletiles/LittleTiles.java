@@ -18,6 +18,7 @@ import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.client.gui.SubGuiStorage;
 import com.creativemd.littletiles.client.gui.SubGuiStructureOverview;
+import com.creativemd.littletiles.client.gui.SubGuiWhitener;
 import com.creativemd.littletiles.client.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
@@ -64,6 +65,7 @@ import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
+import com.creativemd.littletiles.common.container.SubContainerWhitener;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
@@ -110,6 +112,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
+import com.creativemd.littletiles.common.structure.type.premade.LittleWhitener;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
@@ -177,8 +180,8 @@ public class LittleTiles {
 	public static Block blockTileNoTickingRendered;
 	public static Block blockTileTickingRendered;
 	
-	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
-	public static Block coloredBlock2 = new BlockLTColored2().setRegistryName("LTColoredBlock2").setUnlocalizedName("LTColoredBlock2").setHardness(1.5F);
+	public static BlockLTColored coloredBlock = (BlockLTColored) new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
+	public static BlockLTColored2 coloredBlock2 = (BlockLTColored2) new BlockLTColored2().setRegistryName("LTColoredBlock2").setUnlocalizedName("LTColoredBlock2").setHardness(1.5F);
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
 	
@@ -308,6 +311,20 @@ public class LittleTiles {
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
 				return new SubContainerStorage(player, (LittleStorage) structure);
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("whitener", new LittleStructureGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubGuiWhitener((LittleWhitener) structure);
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubContainerWhitener(player, (LittleWhitener) structure);
 			}
 		});
 		

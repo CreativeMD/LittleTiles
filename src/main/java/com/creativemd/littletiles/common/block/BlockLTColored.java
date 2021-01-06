@@ -78,9 +78,25 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 		return 0;
 	}
 	
+	public IBlockState get(EnumType type) {
+		return getDefaultState().withProperty(VARIANT, type);
+	}
+	
 	public enum EnumType implements IStringSerializable {
 		
-		clean, floor, grainy_big, grainy, grainy_low, brick, bordered, brick_big, structured, broken_brick_big, clay, light_clean, lava {
+		clean,
+		floor,
+		grainy_big,
+		grainy,
+		grainy_low,
+		brick,
+		bordered,
+		brick_big,
+		structured,
+		broken_brick_big,
+		clay,
+		light_clean,
+		lava {
 			@Override
 			public boolean isLava() {
 				return true;

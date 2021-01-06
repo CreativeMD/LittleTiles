@@ -82,6 +82,19 @@ public class LittleBlockPacket extends CreativeCorePacket {
 			}
 			
 		},
+		WRENCH_INFO(true) {
+			
+			@Override
+			public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				if (parent.isStructure())
+					try {
+						String info = parent.getStructure().info();
+						if (!info.isEmpty())
+							player.sendMessage(new TextComponentString(info));
+					} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+			}
+			
+		},
 		RECIPE(false) {
 			@Override
 			public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
@@ -182,7 +195,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 				return;
 			
 			if (!LittleAction.isAllowedToInteract(player, animation, action.rightClick)) {
-				LittleAction.sendEntityResetToClient((EntityPlayerMP) player, animation);
+				LittleAction.sendEntityResetToClient(player, animation);
 				return;
 			}
 			
@@ -197,7 +210,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 			Pair<IParentTileList, LittleTile> pair = te.getFocusedTile(pos, look);
 			
 			if (!LittleAction.isAllowedToInteract(world, player, blockPos, action.rightClick, EnumFacing.EAST)) {
-				LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, te);
+				LittleAction.sendBlockResetToClient(world, player, te);
 				return;
 			}
 			

@@ -68,6 +68,8 @@ public class InternalSignalOutput extends InternalSignal {
 	}
 	
 	public void update() {
+		if (condition == null)
+			return;
 		int bandwidth = getBandwidth();
 		if (bandwidth > 0) {
 			boolean[] outputState = new boolean[bandwidth];

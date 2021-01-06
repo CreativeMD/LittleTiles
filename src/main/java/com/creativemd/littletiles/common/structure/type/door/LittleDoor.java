@@ -45,14 +45,12 @@ public abstract class LittleDoor extends LittleStructure {
 	public boolean activateParent = false;
 	public boolean waitingForApproval = false;
 	public boolean disableRightClick = false;
-	public boolean useInternalOutput = false;
 	public boolean opened = false;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		activateParent = nbt.getBoolean("activateParent");
 		disableRightClick = nbt.getBoolean("disableRightClick");
-		useInternalOutput = nbt.getBoolean("useInternalOutput");
 		opened = nbt.getBoolean("opened");
 	}
 	
@@ -60,7 +58,6 @@ public abstract class LittleDoor extends LittleStructure {
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setBoolean("activateParent", activateParent);
 		nbt.setBoolean("disableRightClick", disableRightClick);
-		nbt.setBoolean("useInternalOutput", useInternalOutput);
 		nbt.setBoolean("opened", opened);
 	}
 	
@@ -181,7 +178,7 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	@Override
 	public void performInternalOutputChange(InternalSignalOutput output) {
-		if (useInternalOutput && output.name.equals("state"))
+		if (output.name.equals("state"))
 			if (opened != output.getState()[0] && !isInMotion())
 				try {
 					activate(null, null, true);

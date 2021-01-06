@@ -68,6 +68,8 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 	}
 	
 	public void update() {
+		if (condition == null)
+			return;
 		int bandwidth = handler.getBandwidth();
 		if (bandwidth > 0) {
 			boolean[] outputState = new boolean[bandwidth];

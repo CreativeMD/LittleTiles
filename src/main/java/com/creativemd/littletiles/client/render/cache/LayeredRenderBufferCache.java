@@ -15,8 +15,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class LayeredRenderBufferCache {
 	
-	private IRenderDataCache queue[] = new BufferBuilderWrapper[BlockRenderLayer.values().length];
-	private BufferLink uploaded[] = new BufferLink[BlockRenderLayer.values().length];
+	private IRenderDataCache[] queue = new IRenderDataCache[BlockRenderLayer.values().length];
+	private BufferLink[] uploaded = new BufferLink[BlockRenderLayer.values().length];
 	
 	public LayeredRenderBufferCache() {
 		
