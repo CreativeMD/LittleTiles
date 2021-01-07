@@ -6,6 +6,7 @@ import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
 
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.util.BlockRenderLayer;
 
 public class BlockRenderCache {
 	
@@ -21,8 +22,10 @@ public class BlockRenderCache {
 		this.length = cache.length();
 		this.vertexCount = cache.vertexCount();
 		this.buffer = buffer;
-		this.link = new BufferLink(buffer, length, vertexCount);
-		manager.getBufferCache().setUploaded(link, layer);
+		if (layer != BlockRenderLayer.TRANSLUCENT.ordinal()) {
+			this.link = new BufferLink(buffer, length, vertexCount);
+			manager.getBufferCache().setUploaded(link, layer);
+		}
 	}
 	
 	public void set(BufferBuilder builder) {
@@ -30,14 +33,16 @@ public class BlockRenderCache {
 			return;
 		int index = BufferBuilderUtils.getBufferSizeByte(builder);
 		BufferBuilderUtils.addBuffer(builder, buffer, length, vertexCount);
-		this.link.merged(index);
+		if (link != null)
+			this.link.merged(index);
 		buffer = null;
 	}
 	
 	public void set(ByteBuffer toUpload) {
 		buffer.position(0);
 		buffer.limit(length);
-		this.link.merged(toUpload.position());
+		if (link != null)
+			this.link.merged(toUpload.position());
 		toUpload.put(buffer);
 		buffer = null;
 	}
