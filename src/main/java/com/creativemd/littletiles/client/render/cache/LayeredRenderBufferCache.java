@@ -51,10 +51,13 @@ public class LayeredRenderBufferCache {
 	
 	public synchronized void combine(LayeredRenderBufferCache cache) {
 		for (int i = 0; i < queue.length; i++)
-			queue[i] = combine(i, get(i), cache.get(i));
+			if (i == BlockRenderLayer.TRANSLUCENT.ordinal())
+				queue[i] = combine(i, get(i), cache.get(i));
+			else
+				uploaded[i] = combine(i, get(i), cache.get(i));
 	}
 	
-	private IRenderDataCache combine(int layer, IRenderDataCache first, IRenderDataCache second) {
+	private BufferLink combine(int layer, IRenderDataCache first, IRenderDataCache second) {
 		int vertexCount = 0;
 		int length = 0;
 		ByteBuffer firstBuffer = null;
@@ -90,7 +93,7 @@ public class LayeredRenderBufferCache {
 			secondBuffer.limit(second.length());
 			byteBuffer.put(secondBuffer);
 		}
-		return new ByteBufferWrapper(byteBuffer, length, vertexCount);
+		return new BufferLink(byteBuffer, length, vertexCount);
 	}
 	
 	public static BufferBuilder createVertexBuffer(VertexFormat format, List<? extends RenderBox> cubes) {

@@ -1,6 +1,8 @@
 package com.creativemd.littletiles.client.render.world;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL15;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
+import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -37,6 +40,7 @@ public class RenderUploader {
 	private static Field vertexCountField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "count", "field_177364_c" });
 	private static Field bufferIdField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "glBufferId", "field_177365_a" });
 	private static Field formatField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "vertexFormat", "field_177363_b" });
+	private static Method setLayerUsed = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
 	
 	public static int getBufferId(VertexBuffer buffer) {
 		try {
@@ -60,7 +64,6 @@ public class RenderUploader {
 				
 				try {
 					ByteBuffer toUpload;
-					
 					if (cache.expanded() > 0) {
 						CompiledChunk compiled = chunk.getCompiledChunk();
 						VertexBuffer uploadBuffer = chunk.getVertexBufferByLayer(i);
@@ -69,7 +72,6 @@ public class RenderUploader {
 							return;
 						
 						if (layer == BlockRenderLayer.TRANSLUCENT) {
-							
 							boolean empty = compiled.getState() == null || compiled.isLayerEmpty(BlockRenderLayer.TRANSLUCENT);
 							BufferBuilder builder = new BufferBuilder((empty ? 0 : compiled.getState().getRawBuffer().length * 4) + cache.expanded() + DefaultVertexFormats.BLOCK.getNextOffset());
 							
@@ -79,6 +81,7 @@ public class RenderUploader {
 							if (!empty)
 								builder.setVertexState(compiled.getState());
 							
+							BufferBuilderUtils.growBufferSmall(builder, cache.expanded());
 							cache.setBuilder(builder);
 							
 							Entity entity = mc.getRenderViewEntity();
@@ -101,8 +104,8 @@ public class RenderUploader {
 							uploadBuffer.unbindBuffer();
 							
 							toUpload = ByteBuffer.allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + cache.expanded() + DefaultVertexFormats.BLOCK.getNextOffset());
-							if (vanillaBuffer != null)
-								toUpload.put(vanillaBuffer);
+							//if (vanillaBuffer != null)
+							//toUpload.put(vanillaBuffer);
 							
 							cache.setByteBuffer(toUpload);
 						}
@@ -111,8 +114,9 @@ public class RenderUploader {
 						bufferIdField.setInt(uploadBuffer, OpenGlHelper.glGenBuffers());
 						toUpload.position(0);
 						uploadBuffer.bufferData(toUpload);
+						setLayerUsed.invoke(compiled, layer);
 					}
-				} catch (IllegalArgumentException | IllegalAccessException e) {
+				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 					e.printStackTrace();
 				}
 			}

@@ -11,6 +11,8 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
+import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
+import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
@@ -34,6 +36,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -240,28 +243,41 @@ public class DoorController extends EntityAnimationController {
 				PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLocation(), parent.getUniqueID()), parent.getAbsoluteParent(), serverWorld, null);
 			} else {
 				boolean subWorld = world instanceof IOrientatedWorld;
-				HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
-				for (TileEntityLittleTiles te : result.tileEntities) {
-					synchronized (te.render) {
-						TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
-						if (oldTE instanceof TileEntityLittleTiles) {
-							if (te.render.isInQueue())
-								te.render.getBufferCache().combine(((TileEntityLittleTiles) oldTE).render.getBufferCache());
-							
-							if (subWorld)
-								RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);
-							else
-								chunks.add(RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos()), te);
+				HashMapList<Object, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
+				if (subWorld)
+					for (TileEntityLittleTiles te : result.tileEntities)
+						chunks.add(RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()), te);
+				else
+					for (TileEntityLittleTiles te : result.tileEntities)
+						chunks.add(RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos()), te);
+					
+				if (subWorld)
+					for (Object chunk : chunks.keySet())
+						((LittleRenderChunk) chunk).backToRAM();
+				else
+					for (Object chunk : chunks.keySet()) {
+						for (int i = 0; i < BlockRenderLayer.values().length; i++) {
+							ChunkBlockLayerManager manager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(((RenderChunk) chunk).getVertexBufferByLayer(i));
+							if (manager != null)
+								manager.backToRAM();
 						}
+						
+					}
+				
+				for (Entry<Object, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet()) {
+					for (TileEntityLittleTiles te : entry.getValue()) {
+						TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
+						if (oldTE instanceof TileEntityLittleTiles)
+							te.render.getBufferCache().combine(((TileEntityLittleTiles) oldTE).render.getBufferCache());
 					}
 				}
 				
 				if (!subWorld)
-					for (Entry<RenderChunk, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
-						RenderUploader.uploadRenderData(entry.getKey(), entry.getValue());
+					for (Entry<Object, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
+						RenderUploader.uploadRenderData((RenderChunk) entry.getKey(), entry.getValue());
 				placed = true;
 			}
-		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+		} catch (CorruptedConnectionException | NotYetConnectedException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 	}
