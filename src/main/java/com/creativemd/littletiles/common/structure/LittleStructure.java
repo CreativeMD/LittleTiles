@@ -220,6 +220,12 @@ public abstract class LittleStructure implements ISignalSchedulable {
 		return parent;
 	}
 	
+	public LittleStructure findTopStructure() throws CorruptedConnectionException, NotYetConnectedException {
+		if (parent != null)
+			return parent.getStructure().findTopStructure();
+		return this;
+	}
+	
 	public List<StructureChildConnection> getChildren() {
 		return children;
 	}

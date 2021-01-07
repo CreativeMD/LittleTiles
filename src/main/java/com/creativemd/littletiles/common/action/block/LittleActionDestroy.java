@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.SoundCategory;
@@ -64,7 +63,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.isCanceled()) {
-				sendBlockResetToClient(world, (EntityPlayerMP) player, te);
+				sendBlockResetToClient(world, player, te);
 				return false;
 			}
 		}
@@ -138,6 +137,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		public LittleStructure structure;
 		
 		public StructurePreview(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
+			structure = structure.findTopStructure();
 			structure.load();
 			previews = structure.getAbsolutePreviews(structure.getPos());
 			requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
