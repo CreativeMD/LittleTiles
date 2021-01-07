@@ -125,8 +125,14 @@ public class SubGuiScrewdriver extends SubGuiConfigure {
 	}
 	
 	public LittleAction getDesiredAction() {
-		BlockPos pos = new BlockPos(stack.getTagCompound().getInteger("x1"), stack.getTagCompound().getInteger("y1"), stack.getTagCompound().getInteger("z1"));
-		BlockPos pos2 = new BlockPos(stack.getTagCompound().getInteger("x2"), stack.getTagCompound().getInteger("y2"), stack.getTagCompound().getInteger("z2"));
+		int[] array = stack.getTagCompound().getIntArray("pos1");
+		if (array.length != 3)
+			return null;
+		BlockPos pos = new BlockPos(array[0], array[1], array[2]);
+		array = stack.getTagCompound().getIntArray("pos2");
+		if (array.length != 3)
+			return null;
+		BlockPos pos2 = new BlockPos(array[0], array[1], array[2]);
 		
 		TileSelector selector;
 		if (((GuiCheckBox) get("any")).value)
