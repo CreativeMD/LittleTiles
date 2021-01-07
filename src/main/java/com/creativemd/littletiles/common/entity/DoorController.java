@@ -32,6 +32,7 @@ import com.creativemd.littletiles.common.util.place.PlacementResult;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -257,7 +258,10 @@ public class DoorController extends EntityAnimationController {
 				else
 					for (Object chunk : chunks.keySet()) {
 						for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-							ChunkBlockLayerManager manager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(((RenderChunk) chunk).getVertexBufferByLayer(i));
+							VertexBuffer buffer = ((RenderChunk) chunk).getVertexBufferByLayer(i);
+							if (buffer == null)
+								continue;
+							ChunkBlockLayerManager manager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(buffer);
 							if (manager != null)
 								manager.backToRAM();
 						}
