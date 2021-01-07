@@ -53,6 +53,8 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 			return Collections.EMPTY_LIST;
 		
 		LittleStructureTypePremade premade = (LittleStructureTypePremade) LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
+		if (premade == null)
+			return Collections.EMPTY_LIST;
 		LittlePreviews previews = getLittlePreview(stack);
 		List<RenderBox> cubes = premade.getRenderingCubes(previews);
 		if (cubes == null) {
@@ -113,7 +115,8 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	
 	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
-		return true;
+		String id = getPremadeId(stack);
+		return LittleStructurePremade.getStructurePremadeEntry(id) != null;
 	}
 	
 	public void removeUnnecessaryData(ItemStack stack) {
