@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.StillInMotionException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
@@ -25,10 +26,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LittleActivateDoorPacket extends CreativeCorePacket {
 	
 	public StructureLocation location;
+	public DoorActivator activator;
 	public UUID uuid;
 	
-	public LittleActivateDoorPacket(StructureLocation location, UUID uuid) {
+	public LittleActivateDoorPacket(DoorActivator activator, StructureLocation location, UUID uuid) {
 		this.location = location;
+		this.activator = activator;
 		this.uuid = uuid;
 	}
 	
@@ -40,12 +43,14 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 	public void writeBytes(ByteBuf buf) {
 		LittleAction.writeStructureLocation(location, buf);
 		writeString(buf, uuid.toString());
+		buf.writeInt(activator.ordinal());
 	}
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		location = LittleAction.readStructureLocation(buf);
 		uuid = UUID.fromString(readString(buf));
+		activator = DoorActivator.values()[buf.readInt()];
 	}
 	
 	@Override
@@ -55,7 +60,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 			LittleStructure structure = location.find(player.world);
 			if (structure instanceof LittleDoor) {
 				LittleDoor door = (LittleDoor) structure;
-				door.activate(null, uuid, false);
+				door.activate(activator, null, uuid, false);
 			}
 			
 		} catch (StillInMotionException e) {
@@ -79,7 +84,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 				if (world instanceof SubWorld)
 					animation = (EntityAnimation) ((SubWorld) world).parent;
 				
-				door.activate(player, uuid, true);
+				door.activate(activator, player, uuid, true);
 			}
 		} catch (LittleActionException e) {
 			if (animation != null)

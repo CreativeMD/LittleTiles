@@ -655,6 +655,15 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	
 	@Override
 	public void notifyChange() {
+		if (parent != null)
+			try {
+				parent.getStructure().processSignalChanges();
+				return;
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+		processSignalChanges();
+	}
+	
+	protected void processSignalChanges() {
 		if (externalHandler != null && !externalHandler.isEmpty())
 			for (SignalExternalOutputHandler handler : externalHandler.values())
 				handler.update();
@@ -663,7 +672,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 				outputs[i].update();
 		for (StructureChildConnection child : children)
 			try {
-				child.getStructure().notifyChange();
+				child.getStructure().processSignalChanges();
 			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 	}
 	

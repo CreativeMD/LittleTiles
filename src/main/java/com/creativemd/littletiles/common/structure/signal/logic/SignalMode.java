@@ -88,72 +88,19 @@ public enum SignalMode {
 		@Override
 		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
 			boolean[] before;
-			boolean[] resultBefore;
-			if (hasWorld) {
-				int bandwidth = 0;
-				try {
-					bandwidth = component.getBandwidth();
-				} catch (Exception e) {}
-				if (bandwidth > 0) {
-					before = new boolean[bandwidth];
-					resultBefore = new boolean[bandwidth];
-					BooleanUtils.intToBool(nbt.getInteger("before"), before);
-					BooleanUtils.intToBool(nbt.getInteger("result"), resultBefore);
-				} else {
-					before = null;
-					resultBefore = null;
-				}
+			boolean[] result;
+			int bandwidth = nbt.getInteger("bandwidth");
+			if (bandwidth > 0) {
+				before = new boolean[bandwidth];
+				result = new boolean[bandwidth];
+				BooleanUtils.intToBool(nbt.getInteger("before"), before);
+				BooleanUtils.intToBool(nbt.getInteger("result"), result);
 			} else {
 				before = null;
-				resultBefore = null;
+				result = null;
 			}
 			
-			SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
-				
-				public boolean[] stateBefore = before;
-				public boolean[] result = resultBefore;
-				
-				@Override
-				public SignalMode getMode() {
-					return SignalMode.TOGGLE;
-				}
-				
-				@Override
-				public void queue(boolean[] state) {
-					if (stateBefore == null) {
-						stateBefore = new boolean[state.length];
-						result = new boolean[state.length];
-					}
-					boolean toggled = false;
-					for (int i = 0; i < state.length; i++) {
-						if (!stateBefore[i] && state[i]) {
-							//Toggle
-							result[i] = !result[i];
-							toggled = true;
-						}
-						stateBefore[i] = state[i];
-					}
-					SignalTicker.schedule(this, result, delay);
-				}
-				
-				@Override
-				public void write(boolean preview, NBTTagCompound nbt) {
-					if (preview)
-						return;
-					if (stateBefore != null) {
-						nbt.setInteger("before", BooleanUtils.boolToInt(stateBefore));
-						nbt.setInteger("result", BooleanUtils.boolToInt(result));
-					}
-					List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
-					NBTTagList list = new NBTTagList();
-					for (int i = 0; i < tickets.size(); i++) {
-						ISignalScheduleTicket ticket = tickets.get(i);
-						list.appendTag(new NBTTagIntArray(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
-					}
-					nbt.setTag("tickets", list);
-				}
-				
-			};
+			SignalOutputHandler handler = new SignalOutputHandlerToggle(component, delay, nbt, before, result);
 			NBTTagList list = nbt.getTagList("tickets", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
 				int[] array = list.getIntArrayAt(i);
@@ -370,6 +317,71 @@ public enum SignalMode {
 		
 	}
 	
+	public static class SignalOutputHandlerToggle extends SignalOutputHandler {
+		
+		public boolean[] stateBefore;
+		public boolean[] result;
+		
+		public SignalOutputHandlerToggle(ISignalComponent component, int delay, NBTTagCompound nbt, boolean[] stateBefore, boolean[] result) {
+			super(component, delay, nbt);
+			this.stateBefore = stateBefore;
+			this.result = result;
+		}
+		
+		@Override
+		public SignalMode getMode() {
+			return SignalMode.TOGGLE;
+		}
+		
+		public void triggerToggle() {
+			if (result == null) {
+				int bandwidth = component.getBandwidth();
+				result = new boolean[bandwidth];
+				BooleanUtils.set(result, component.getState());
+			}
+			
+			for (int i = 0; i < result.length; i++)
+				result[i] = !result[i];
+			performStateChange(result);
+		}
+		
+		@Override
+		public void queue(boolean[] state) {
+			if (stateBefore == null || stateBefore.length != state.length) {
+				stateBefore = new boolean[state.length];
+				result = new boolean[state.length];
+			}
+			boolean toggled = false;
+			for (int i = 0; i < state.length; i++) {
+				if (!stateBefore[i] && state[i]) {
+					//Toggle
+					result[i] = !result[i];
+					toggled = true;
+				}
+				stateBefore[i] = state[i];
+			}
+			SignalTicker.schedule(this, result, delay);
+		}
+		
+		@Override
+		public void write(boolean preview, NBTTagCompound nbt) {
+			if (stateBefore != null) {
+				nbt.setInteger("bandwidth", stateBefore.length);
+				nbt.setInteger("before", BooleanUtils.boolToInt(stateBefore));
+				nbt.setInteger("result", BooleanUtils.boolToInt(result));
+			}
+			if (preview)
+				return;
+			List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
+			NBTTagList list = new NBTTagList();
+			for (int i = 0; i < tickets.size(); i++) {
+				ISignalScheduleTicket ticket = tickets.get(i);
+				list.appendTag(new NBTTagIntArray(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
+			}
+			nbt.setTag("tickets", list);
+		}
+	}
+	
 	public static class SignalOutputHandlerPulse extends SignalOutputHandler {
 		
 		public final int pulseLength;
@@ -428,6 +440,7 @@ public enum SignalMode {
 			if (pulseEnd != null)
 				nbt.setInteger("end", pulseEnd.getDelay());
 		}
+		
 	}
 	
 	public static GuiSignalModeConfiguration getConfigDefault() {

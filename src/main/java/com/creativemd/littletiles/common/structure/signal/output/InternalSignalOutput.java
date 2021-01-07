@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.structure.signal.component.InternalSign
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.SignalOutputHandlerToggle;
 
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -64,6 +65,11 @@ public class InternalSignalOutput extends InternalSignal {
 			handler.write(preview, nbt);
 		}
 		return nbt;
+	}
+	
+	public void toggle() {
+		if (handler instanceof SignalOutputHandlerToggle)
+			((SignalOutputHandlerToggle) handler).triggerToggle();
 	}
 	
 	public void update() {

@@ -61,6 +61,8 @@ public class SignalTicker {
 	}
 	
 	public static void schedule(World world, ISignalSchedulable schedulable) {
+		if (world == null)
+			return;
 		get(world).schedule(schedulable);
 	}
 	

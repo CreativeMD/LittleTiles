@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -84,7 +85,7 @@ public class OpenCommand extends CommandBase {
 		
 		for (LittleDoor door : doors) {
 			try {
-				door.activate(null, null, true);
+				door.activate(DoorActivator.COMMAND, null, null, true);
 			} catch (LittleActionException e) {}
 		}
 		
