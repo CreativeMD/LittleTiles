@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
-import com.creativemd.littletiles.common.recipe.WhitenRecipeRegistry;
-import com.creativemd.littletiles.common.recipe.WhitenRecipeRegistry.WhitenRecipe;
-import com.creativemd.littletiles.common.structure.type.premade.LittleWhitener;
+import com.creativemd.littletiles.common.recipe.BlankOMaticRecipeRegistry;
+import com.creativemd.littletiles.common.recipe.BlankOMaticRecipeRegistry.BleachRecipe;
+import com.creativemd.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
@@ -17,12 +17,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubContainerWhitener extends SubContainer {
+public class SubContainerBlankOMatic extends SubContainer {
 	
-	public LittleWhitener whitener;
+	public LittleBlankOMatic whitener;
 	public InventoryBasic whiteInput = new InventoryBasic("whiteInput", false, 1);
 	
-	public SubContainerWhitener(EntityPlayer player, LittleWhitener whitener) {
+	public SubContainerBlankOMatic(EntityPlayer player, LittleBlankOMatic whitener) {
 		super(player);
 		this.whitener = whitener;
 		updateVolume();
@@ -33,13 +33,13 @@ public class SubContainerWhitener extends SubContainer {
 		addSlotToContainer(new Slot(whitener.inventory, 0, 8, 10) {
 			@Override
 			public boolean isItemValid(ItemStack stack) {
-				return !WhitenRecipeRegistry.getRecipe(stack).isEmpty();
+				return !BlankOMaticRecipeRegistry.getRecipe(stack).isEmpty();
 			}
 		});
 		addSlotToContainer(new Slot(whiteInput, 0, 8, 40) {
 			@Override
 			public boolean isItemValid(ItemStack stack) {
-				return WhitenRecipeRegistry.getVolume(stack) > 0;
+				return BlankOMaticRecipeRegistry.getVolume(stack) > 0;
 			}
 		});
 		addPlayerSlotsToContainer(player);
@@ -47,11 +47,11 @@ public class SubContainerWhitener extends SubContainer {
 	
 	@CustomEventSubscribe
 	public void slotChanged(SlotChangeEvent event) {
-		int volume = WhitenRecipeRegistry.getVolume(whiteInput.getStackInSlot(0));
+		int volume = BlankOMaticRecipeRegistry.getVolume(whiteInput.getStackInSlot(0));
 		if (volume > 0) {
 			ItemStack stack = whiteInput.getStackInSlot(0);
 			boolean added = false;
-			while (!stack.isEmpty() && volume + whitener.whiteColor <= WhitenRecipeRegistry.whitenerTotalVolume) {
+			while (!stack.isEmpty() && volume + whitener.whiteColor <= BlankOMaticRecipeRegistry.bleachTotalVolume) {
 				stack.shrink(1);
 				whitener.whiteColor += volume;
 				added = true;
@@ -76,13 +76,13 @@ public class SubContainerWhitener extends SubContainer {
 			int stackSize = 1;
 			if (amount > 1)
 				stackSize = stack.getCount();
-			List<WhitenRecipe> recipes = WhitenRecipeRegistry.getRecipe(stack);
+			List<BleachRecipe> recipes = BlankOMaticRecipeRegistry.getRecipe(stack);
 			if (!recipes.isEmpty()) {
 				int index = 0;
 				int variant = nbt.getInteger("variant");
-				WhitenRecipe selected = null;
+				BleachRecipe selected = null;
 				IBlockState state = null;
-				for (WhitenRecipe recipe : recipes) {
+				for (BleachRecipe recipe : recipes) {
 					if (variant >= index + recipe.results.length)
 						index += recipe.results.length;
 					else {

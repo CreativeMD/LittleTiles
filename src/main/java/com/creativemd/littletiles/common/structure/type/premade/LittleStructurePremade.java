@@ -137,7 +137,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType("importer", LittleTiles.modid, LittleImporter.class);
 		registerPremadeStructureType("exporter", LittleTiles.modid, LittleExporter.class);
 		registerPremadeStructureType(new LittleStructureTypeParticleEmitter("particle_emitter", "premade", LittleParticleEmitter.class, LittleStructureAttribute.TICKING, LittleTiles.modid)).addOutput("active", 1, SignalMode.TOGGLE).setFieldDefault("facing", EnumFacing.UP);
-		registerPremadeStructureType("whitener", LittleTiles.modid, LittleWhitener.class);
+		registerPremadeStructureType("blankomatic", LittleTiles.modid, LittleBlankOMatic.class);
 		
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable4", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));

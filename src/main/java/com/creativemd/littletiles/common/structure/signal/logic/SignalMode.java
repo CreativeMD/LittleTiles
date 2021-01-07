@@ -70,8 +70,8 @@ public enum SignalMode {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-			
-		}
+		
+	}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -86,14 +86,14 @@ public enum SignalMode {
 		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
 			int bandwidth = component.getBandwidth();
 			boolean[] before = new boolean[bandwidth];
-			boolean[] result = new boolean[bandwidth];
+			boolean[] resultBefore = new boolean[bandwidth];
 			BooleanUtils.intToBool(nbt.getInteger("before"), before);
-			BooleanUtils.intToBool(nbt.getInteger("result"), result);
+			BooleanUtils.intToBool(nbt.getInteger("result"), resultBefore);
 			
 			SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
 				
 				public boolean[] stateBefore = before;
-				public boolean[] result;
+				public boolean[] result = resultBefore;
 				
 				@Override
 				public SignalMode getMode() {
@@ -149,8 +149,8 @@ public enum SignalMode {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-			
-		}
+		
+	}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -244,8 +244,8 @@ public enum SignalMode {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-			
-		}
+		
+	}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
@@ -304,8 +304,8 @@ public enum SignalMode {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-			
-		}
+		
+	}
 		
 		@Override
 		@SideOnly(Side.CLIENT)

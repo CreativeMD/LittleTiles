@@ -44,14 +44,13 @@ public class InternalSignalOutput extends InternalSignal {
 		} catch (ParseException e) {
 			condition = null;
 		}
-		if (condition != null) {
-			SignalMode mode = defaultMode;
-			if (nbt.hasKey("mode"))
-				mode = SignalMode.valueOf(nbt.getString("mode"));
-			int delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInteger("delay"));
-			handler = SignalOutputHandler.create(this, mode, delay, nbt);
-		} else
-			handler = null;
+		SignalMode mode = defaultMode;
+		if (nbt.hasKey("mode"))
+			mode = SignalMode.valueOf(nbt.getString("mode"));
+		int delay = nbt.getInteger("delay");
+		if (condition != null)
+			delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInteger("delay"));
+		handler = SignalOutputHandler.create(this, mode, delay, nbt);
 	}
 	
 	@Override

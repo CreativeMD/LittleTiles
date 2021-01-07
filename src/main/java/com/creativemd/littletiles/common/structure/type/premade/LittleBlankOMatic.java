@@ -17,12 +17,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class LittleWhitener extends LittleStructurePremade {
+public class LittleBlankOMatic extends LittleStructurePremade {
 	
 	public InventoryBasic inventory;
 	public int whiteColor;
 	
-	public LittleWhitener(LittleStructureType type, IStructureTileList mainBlock) {
+	public LittleBlankOMatic(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 	}
 	
@@ -40,7 +40,7 @@ public class LittleWhitener extends LittleStructurePremade {
 	
 	@Override
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-		LittleStructureGuiHandler.openGui("whitener", new NBTTagCompound(), playerIn, this);
+		LittleStructureGuiHandler.openGui("blankomatic", new NBTTagCompound(), playerIn, this);
 		return true;
 	}
 	

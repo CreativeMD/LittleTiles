@@ -124,7 +124,7 @@ commands.open.tovanilla=Convert all loaded tileentites to vanilla blocks if poss
 item.LTPremade.workbench.name=Little Workbench
 item.LTPremade.importer.name=Little Importer
 item.LTPremade.exporter.name=Little Exporter
-item.LTPremade.whitener.name=Little Whitener
+item.LTPremade.blankomatic.name=Blank-o-matic
 
 item.LTPremade.single_cable1.name=Single Cable (1-bit)
 item.LTPremade.single_cable4.name=Single Cable (4-bit)

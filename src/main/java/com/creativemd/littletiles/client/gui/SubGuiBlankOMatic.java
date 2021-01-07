@@ -18,9 +18,9 @@ import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.common.recipe.WhitenRecipeRegistry;
-import com.creativemd.littletiles.common.recipe.WhitenRecipeRegistry.WhitenRecipe;
-import com.creativemd.littletiles.common.structure.type.premade.LittleWhitener;
+import com.creativemd.littletiles.common.recipe.BlankOMaticRecipeRegistry;
+import com.creativemd.littletiles.common.recipe.BlankOMaticRecipeRegistry.BleachRecipe;
+import com.creativemd.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
@@ -31,12 +31,12 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubGuiWhitener extends SubGui {
+public class SubGuiBlankOMatic extends SubGui {
 	
 	private static final DisplayStyle SELECTED_DISPLAY = new ColoredDisplayStyle(ColorUtils.YELLOW);
-	public LittleWhitener whitener;
+	public LittleBlankOMatic whitener;
 	
-	public SubGuiWhitener(LittleWhitener whitener) {
+	public SubGuiBlankOMatic(LittleBlankOMatic whitener) {
 		this.whitener = whitener;
 	}
 	
@@ -68,7 +68,7 @@ public class SubGuiWhitener extends SubGui {
 				sendPacketToServer(nbt);
 			}
 		});
-		controls.add(new GuiProgressBar("volume", 8, 60, 80, 6, WhitenRecipeRegistry.whitenerTotalVolume, whitener.whiteColor));
+		controls.add(new GuiProgressBar("volume", 8, 60, 80, 6, BlankOMaticRecipeRegistry.bleachTotalVolume, whitener.whiteColor));
 		updateVariants();
 	}
 	
@@ -95,7 +95,7 @@ public class SubGuiWhitener extends SubGui {
 		GuiAvatarLabel label = (GuiAvatarLabel) get("avatar");
 		label.avatar = new AvatarItemStack(stack);
 		GuiLabel cost = (GuiLabel) get("cost");
-		WhitenRecipe recipe = selector.getSelectedRecipe();
+		BleachRecipe recipe = selector.getSelectedRecipe();
 		cost.setCaption(recipe != null ? "cost: " + recipe.needed : "");
 	}
 	
@@ -106,13 +106,13 @@ public class SubGuiWhitener extends SubGui {
 	
 	public void updateVariants() {
 		GuiVariantSelector selector = (GuiVariantSelector) get("variant");
-		selector.setRecipes(WhitenRecipeRegistry.getRecipe(whitener.inventory.getStackInSlot(0)));
+		selector.setRecipes(BlankOMaticRecipeRegistry.getRecipe(whitener.inventory.getStackInSlot(0)));
 		updateLabel();
 	}
 	
 	public static class GuiVariantSelector extends GuiParent {
 		
-		public List<Pair<WhitenRecipe, IBlockState>> states;
+		public List<Pair<BleachRecipe, IBlockState>> states;
 		private int selected = 0;
 		
 		public GuiVariantSelector(String name, int x, int y, int width, int height) {
@@ -129,7 +129,7 @@ public class SubGuiWhitener extends SubGui {
 			return false;
 		}
 		
-		public WhitenRecipe getSelectedRecipe() {
+		public BleachRecipe getSelectedRecipe() {
 			if (selected >= 0 && selected < states.size())
 				return states.get(selected).key;
 			return null;
@@ -150,10 +150,10 @@ public class SubGuiWhitener extends SubGui {
 			raiseEvent(new GuiControlChangedEvent(this));
 		}
 		
-		public void setRecipes(List<WhitenRecipe> recipes) {
-			List<Pair<WhitenRecipe, IBlockState>> states = new ArrayList<>();
+		public void setRecipes(List<BleachRecipe> recipes) {
+			List<Pair<BleachRecipe, IBlockState>> states = new ArrayList<>();
 			for (int i = 0; i < recipes.size(); i++) {
-				WhitenRecipe recipe = recipes.get(i);
+				BleachRecipe recipe = recipes.get(i);
 				for (int j = 0; j < recipe.results.length; j++)
 					states.add(new Pair<>(recipe, recipe.results[j]));
 			}
