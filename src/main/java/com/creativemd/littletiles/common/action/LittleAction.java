@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToConvertBlockException;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
@@ -316,12 +319,10 @@ public abstract class LittleAction extends CreativeCorePacket {
 			Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 	}
 	
-	public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state) {
-		if (player.isCreative())
-			return true;
-		if (LittleTiles.CONFIG.survival.strictMining)
-			return false;
-		if (!LittleTiles.CONFIG.survival.editUnbreakable)
+	public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state, int affected) throws LittleActionException {
+		if (LittleTiles.CONFIG.getConfig(player).limitAffectedBlocks && LittleTiles.CONFIG.getConfig(player).maxAffectedBlocks < affected)
+			throw new NotAllowedToConvertBlockException(player);
+		if (!LittleTiles.CONFIG.getConfig(player).editUnbreakable)
 			return state.getBlock().getBlockHardness(state, world, pos) > 0;
 		return LittleTiles.CONFIG.canEditBlock(player, state, pos);
 	}
@@ -356,7 +357,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return false;
 	}
 	
-	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, boolean shouldConvert) {
+	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, MutableInt affected, boolean shouldConvert) throws LittleActionException {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		
 		if (!(tileEntity instanceof TileEntityLittleTiles)) {
@@ -367,7 +368,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 				tiles.addAll(chiselTiles);
 			else if (tileEntity == null && shouldConvert) {
 				IBlockState state = world.getBlockState(pos);
-				if (isBlockValid(state) && canConvertBlock(player, world, pos, state)) {
+				if (isBlockValid(state) && canConvertBlock(player, world, pos, state, affected == null ? 0 : affected.incrementAndGet())) {
 					
 					context = LittleGridContext.get(LittleGridContext.minSize);
 					
@@ -495,7 +496,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			return true;
 		
 		if (preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < LittleTiles.CONFIG.getMinimumTransparency(player))
-			throw new NotAllowedToPlaceColorException();
+			throw new NotAllowedToPlaceColorException(player);
 		
 		return true;
 	}

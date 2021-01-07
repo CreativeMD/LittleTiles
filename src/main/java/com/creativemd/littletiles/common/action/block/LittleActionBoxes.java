@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToEditException;
@@ -18,7 +20,6 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -38,7 +39,7 @@ public abstract class LittleActionBoxes extends LittleAction {
 		
 	}
 	
-	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException;
+	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context, MutableInt affectedBlocks) throws LittleActionException;
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -49,11 +50,12 @@ public abstract class LittleActionBoxes extends LittleAction {
 		World world = player.world;
 		
 		if (LittleTiles.CONFIG.isEditLimited(player)) {
-			if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.survival.maxEditBlocks)
-				throw new NotAllowedToEditException();
+			if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.getConfig(player).maxEditBlocks)
+				throw new NotAllowedToEditException(player);
 		}
 		
 		HashMapList<BlockPos, LittleBox> boxesMap = boxes.split();
+		MutableInt affectedBlocks = new MutableInt();
 		
 		for (Iterator<Entry<BlockPos, ArrayList<LittleBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
 			Entry<BlockPos, ArrayList<LittleBox>> entry = iterator.next();
@@ -61,13 +63,13 @@ public abstract class LittleActionBoxes extends LittleAction {
 			IBlockState state = world.getBlockState(pos);
 			if (!isAllowedToInteract(world, player, pos, false, EnumFacing.EAST)) {
 				if (!world.isRemote)
-					sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
+					sendBlockResetToClient(world, player, pos);
 				continue;
 			}
 			
 			placed = true;
 			
-			action(world, player, pos, state, entry.getValue(), boxes.context);
+			action(world, player, pos, state, entry.getValue(), boxes.context, affectedBlocks);
 		}
 		
 		world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);

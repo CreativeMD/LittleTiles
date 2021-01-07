@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiPredicate;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceException;
@@ -33,7 +35,6 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -63,6 +64,7 @@ public class Placement {
 	public final LittleAbsolutePreviews unplaceableTiles;
 	public final List<SoundType> soundsToBePlayed = new ArrayList<>();
 	
+	protected MutableInt affectedBlocks = new MutableInt();
 	protected ItemStack stack;
 	protected boolean ignoreWorldBoundaries = true;
 	protected BiPredicate<IParentTileList, LittleTile> predicate;
@@ -100,10 +102,12 @@ public class Placement {
 		return this;
 	}
 	
-	public boolean canPlace() {
+	public boolean canPlace() throws LittleActionException {
+		affectedBlocks.setValue(0);
+		
 		for (BlockPos pos : blocks.keySet()) {
 			if (!LittleAction.isAllowedToInteract(world, player, pos, true, EnumFacing.EAST)) {
-				LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
+				LittleAction.sendBlockResetToClient(world, player, pos);
 				return false;
 			}
 		}
@@ -126,10 +130,10 @@ public class Placement {
 	public PlacementResult place() throws LittleActionException {
 		if (player != null && !world.isRemote) {
 			if (player != null) {
-				if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.survival.maxPlaceBlocks) {
+				if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.getConfig(player).maxPlaceBlocks) {
 					for (BlockPos pos : blocks.keySet())
-						LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
-					throw new NotAllowedToPlaceException();
+						LittleAction.sendBlockResetToClient(world, player, pos);
+					throw new NotAllowedToPlaceException(player);
 				}
 				
 				if (LittleTiles.CONFIG.isTransparencyRestricted(player))
@@ -138,11 +142,13 @@ public class Placement {
 							LittleAction.isAllowedToPlacePreview(player, preview);
 						} catch (LittleActionException e) {
 							for (BlockPos pos : blocks.keySet())
-								LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
+								LittleAction.sendBlockResetToClient(world, player, pos);
 							throw e;
 						}
 					}
 			}
+			
+			affectedBlocks.setValue(0);
 			
 			List<BlockSnapshot> snaps = new ArrayList<>();
 			for (BlockPos snapPos : blocks.keySet())
@@ -152,7 +158,7 @@ public class Placement {
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.isCanceled()) {
 				for (BlockPos snapPos : blocks.keySet())
-					LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
+					LittleAction.sendBlockResetToClient(world, player, pos);
 				return null;
 			}
 		}
@@ -343,14 +349,14 @@ public class Placement {
 			return false;
 		}
 		
-		public boolean canPlace() {
+		public boolean canPlace() throws LittleActionException {
 			if (!needsCollisionTest())
 				return true;
 			
 			if (!ignoreWorldBoundaries && (pos.getY() < 0 || pos.getY() >= 256))
 				return false;
 			
-			TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, false);
+			TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, null, false);
 			if (te != null) {
 				LittleGridContext contextBefore = te.getContext();
 				te.forceContext(this);
@@ -378,7 +384,7 @@ public class Placement {
 			IBlockState state = world.getBlockState(pos);
 			if (state.getMaterial().isReplaceable())
 				return true;
-			else if (mode.checkAll() || !(LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, world, pos, state)))
+			else if (mode.checkAll() || !(LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, world, pos, state, affectedBlocks.incrementAndGet())))
 				return false;
 			
 			return true;
@@ -407,7 +413,7 @@ public class Placement {
 			return false;
 		}
 		
-		public void place(PlacementResult result) {
+		public void place(PlacementResult result) throws LittleActionException {
 			boolean hascollideBlock = false;
 			for (int i = 0; i < previews.length; i++)
 				if (previews[i] != null)
@@ -431,7 +437,7 @@ public class Placement {
 						world.setBlockState(pos, BlockTile.getState(false, false));
 					}
 					
-					cached = LittleAction.loadTe(player, world, pos, mode.shouldConvertBlock());
+					cached = LittleAction.loadTe(player, world, pos, affectedBlocks, mode.shouldConvertBlock());
 				}
 				
 				if (cached != null) {

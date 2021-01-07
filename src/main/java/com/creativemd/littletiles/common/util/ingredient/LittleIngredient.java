@@ -225,7 +225,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 					
 					try {
 						ColorIngredient color = ColorIngredient.getColors(dyeColor.getInt(optional.get()));
-						color.scale(LittleTiles.CONFIG.survival.dyeVolume);
+						color.scale(LittleTiles.CONFIG.general.dyeVolume);
 						return color;
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 					

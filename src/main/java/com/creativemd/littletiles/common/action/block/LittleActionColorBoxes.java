@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
@@ -30,7 +32,6 @@ import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
@@ -187,18 +188,18 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	}
 	
 	@Override
-	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
+	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context, MutableInt affectedBlocks) throws LittleActionException {
 		if (ColorUtils.getAlpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
-			throw new NotAllowedToPlaceColorException();
+			throw new NotAllowedToPlaceColorException(player);
 		
-		TileEntity tileEntity = loadTe(player, world, pos, true);
+		TileEntity tileEntity = loadTe(player, world, pos, affectedBlocks, true);
 		
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			if (!world.isRemote) {
 				BreakEvent event = new BreakEvent(world, tileEntity.getPos(), ((TileEntityLittleTiles) tileEntity).getBlockTileState(), player);
 				MinecraftForge.EVENT_BUS.post(event);
 				if (event.isCanceled()) {
-					sendBlockResetToClient(world, (EntityPlayerMP) player, (TileEntityLittleTiles) tileEntity);
+					sendBlockResetToClient(world, player, tileEntity);
 					return;
 				}
 			}
