@@ -65,8 +65,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	@Override
 	public DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration) {
-		((LittleSlidingDoor) placement.origin.getStructure()).direction = direction.getOpposite();
-		return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), direction.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration, interpolation);
+		//((LittleSlidingDoor) placement.origin.getStructure()).direction = direction.getOpposite();
+		return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), direction.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), stayAnimated ? null : false, duration, completeDuration, interpolation);
 	}
 	
 	@Override
