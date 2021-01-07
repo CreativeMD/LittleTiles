@@ -4,14 +4,16 @@ import com.creativemd.creativecore.common.config.api.CreativeConfig;
 
 public class LittleGamemodeConfig {
 	
-	public boolean survival;
-	
 	public LittleGamemodeConfig(boolean survival) {
-		this.survival = survival;
+		limitAffectedBlocks = survival;
+		editUnbreakable = !survival;
+		minimumTransparency = survival ? 255 : 0;
+		limitEditBlocks = survival;
+		limitPlaceBlocks = survival;
 	}
 	
 	@CreativeConfig
-	public boolean limitAffectedBlocks = survival;
+	public boolean limitAffectedBlocks;
 	
 	@CreativeConfig
 	public int maxAffectedBlocks = 2;
@@ -20,19 +22,19 @@ public class LittleGamemodeConfig {
 	public int harvestLevelBlock = 1;
 	
 	@CreativeConfig
-	public boolean editUnbreakable = !survival;
+	public boolean editUnbreakable;
 	
 	@CreativeConfig
 	@CreativeConfig.IntRange(min = 0, max = 255)
-	public int minimumTransparency = survival ? 255 : 0;
+	public int minimumTransparency;
 	
 	@CreativeConfig
-	public boolean limitEditBlocks = survival;
+	public boolean limitEditBlocks;
 	@CreativeConfig
 	public int maxEditBlocks = 10;
 	
 	@CreativeConfig
-	public boolean limitPlaceBlocks = survival;
+	public boolean limitPlaceBlocks;
 	@CreativeConfig
 	public int maxPlaceBlocks = 10;
 	
