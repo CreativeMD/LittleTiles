@@ -17,6 +17,7 @@ public class SignalNetwork implements ISignalSchedulable {
 	public final int bandwidth;
 	private final boolean[] state;
 	private boolean changed = false;
+	private boolean forceUpdate = false;
 	private List<ISignalStructureTransmitter> transmitters = new ArrayList<>();
 	/** are outputs of the network's perspective as they are inputs of machines (receive signals) */
 	private List<ISignalStructureComponent> inputs = new ArrayList<>();
@@ -30,15 +31,21 @@ public class SignalNetwork implements ISignalSchedulable {
 	
 	@Override
 	public void notifyChange() {
-		boolean[] oldState = Arrays.copyOf(state, bandwidth);
-		BooleanUtils.reset(state);
-		
-		for (int i = 0; i < outputs.size(); i++)
-			BooleanUtils.or(state, outputs.get(i).getState());
-		
-		if (!BooleanUtils.equals(state, oldState) && !inputs.isEmpty())
-			for (int i = 0; i < inputs.size(); i++)
-				inputs.get(i).updateState(state);
+		if (!forceUpdate) {
+			boolean[] oldState = Arrays.copyOf(state, bandwidth);
+			BooleanUtils.reset(state);
+			
+			for (int i = 0; i < outputs.size(); i++)
+				BooleanUtils.or(state, outputs.get(i).getState());
+			
+			if (BooleanUtils.equals(state, oldState) && !inputs.isEmpty())
+				return;
+		} else
+			for (int i = 0; i < outputs.size(); i++)
+				BooleanUtils.or(state, outputs.get(i).getState());
+		forceUpdate = false;
+		for (int i = 0; i < inputs.size(); i++)
+			inputs.get(i).updateState(state);
 	}
 	
 	@Override
@@ -70,34 +77,21 @@ public class SignalNetwork implements ISignalSchedulable {
 	}
 	
 	public void merge(SignalNetwork network) {
-		boolean[] oldState = Arrays.copyOf(state, bandwidth);
-		boolean[] oldState2 = Arrays.copyOf(network.state, bandwidth);
-		
 		int sizeBefore = outputs.size();
 		for (int i = 0; i < network.outputs.size(); i++) {
 			ISignalStructureComponent output = network.outputs.get(i);
 			if (!containsUntil(outputs, output, sizeBefore)) {
-				BooleanUtils.or(state, output.getState());
 				output.setNetwork(this);
 				outputs.add(output);
 			}
 		}
 		
-		boolean changed = !BooleanUtils.equals(state, oldState);
-		boolean changed2 = !BooleanUtils.equals(state, oldState2);
-		
-		if (changed && !inputs.isEmpty())
-			for (int i = 0; i < inputs.size(); i++)
-				inputs.get(i).updateState(state);
-			
 		sizeBefore = inputs.size();
 		if (!network.inputs.isEmpty())
 			for (int i = 0; i < network.inputs.size(); i++) {
 				ISignalStructureComponent input = network.inputs.get(i);
 				if (!containsUntil(inputs, input, sizeBefore)) {
 					input.setNetwork(this);
-					if (changed2)
-						input.updateState(state);
 					inputs.add(input);
 				}
 			}
@@ -111,6 +105,9 @@ public class SignalNetwork implements ISignalSchedulable {
 					transmitters.add(transmitter);
 				}
 			}
+		
+		forceUpdate = true;
+		schedule();
 	}
 	
 	/** @param list
@@ -145,9 +142,13 @@ public class SignalNetwork implements ISignalSchedulable {
 		switch (base.getType()) {
 		case INPUT:
 			inputs.add((ISignalStructureComponent) base);
+			forceUpdate = true;
+			schedule();
 			break;
 		case OUTPUT:
 			outputs.add((ISignalStructureComponent) base);
+			forceUpdate = true;
+			schedule();
 			break;
 		case TRANSMITTER:
 			transmitters.add((ISignalStructureTransmitter) base);
@@ -168,19 +169,26 @@ public class SignalNetwork implements ISignalSchedulable {
 		transmitters.clear();
 	}
 	
-	public void remove(ISignalStructureBase base) {
+	public void unload(ISignalStructureBase base) {
+		deleteNetwork();
+	}
+	
+	public boolean remove(ISignalStructureBase base) {
 		base.setNetwork(null);
 		
 		switch (base.getType()) {
 		case INPUT:
 			inputs.remove(base);
-			break;
+			schedule();
+			return false;
 		case OUTPUT:
 			outputs.remove(base);
-			break;
+			schedule();
+			return false;
 		case TRANSMITTER:
 			deleteNetwork();
-			break;
+			return true;
 		}
+		return false;
 	}
 }

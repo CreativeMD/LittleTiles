@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.structure.signal.schedule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
@@ -19,7 +20,21 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 public class SignalTicker {
 	
 	private static HashMap<World, SignalTicker> tickers = new HashMap<>();
+	private static List<SignalScheduleTicket> unsortedTickets = new ArrayList<>();
 	public static final int queueLength = 20;
+	
+	public static synchronized void serverTick() {
+		if (unsortedTickets.isEmpty())
+			return;
+		for (Iterator<SignalScheduleTicket> iterator = unsortedTickets.iterator(); iterator.hasNext();) {
+			SignalScheduleTicket ticket = iterator.next();
+			World world = ticket.getWorld();
+			if (world != null) {
+				get(world).openTicket(ticket);
+				iterator.remove();
+			}
+		}
+	}
 	
 	public static synchronized List<ISignalScheduleTicket> findTickets(ISignalComponent component, SignalOutputHandler condition) {
 		World world = component.getWorld();
@@ -50,7 +65,13 @@ public class SignalTicker {
 	}
 	
 	public static ISignalScheduleTicket schedule(SignalOutputHandler handler, boolean[] result, int tick) {
-		return get(handler.component).openTicket(handler, result, tick);
+		World world = handler.component.getWorld();
+		if (world == null) {
+			SignalScheduleTicket ticket = new SignalScheduleTicket(handler, result, tick);
+			unsortedTickets.add(ticket);
+			return ticket;
+		} else
+			return get(handler.component).openTicket(handler, result, tick);
 	}
 	
 	private static synchronized void unload(SignalTicker ticker) {
@@ -77,6 +98,7 @@ public class SignalTicker {
 	@SubscribeEvent
 	public synchronized void tick(WorldTickEvent event) {
 		if (event.phase == Phase.END && world == event.world) {
+			
 			for (int i = 0; i < scheduled.size(); i++)
 				scheduled.get(i).updateSignaling();
 			scheduled.clear();
@@ -126,6 +148,23 @@ public class SignalTicker {
 	
 	public synchronized void schedule(ISignalSchedulable schedulable) {
 		scheduled.add(schedulable);
+	}
+	
+	public synchronized ISignalScheduleTicket openTicket(SignalScheduleTicket ticket) {
+		int delay;
+		int tick = ticket.getExactDelayValue();
+		if (tick <= queueLength) {
+			delay = queueIndex + tick - 1;
+			if (delay >= queueLength)
+				delay -= queueLength;
+		} else
+			delay = tick;
+		if (tick <= queueLength) {
+			ticket.enterShortQueue(delay);
+			queue[delay].add(ticket);
+		} else
+			longQueue.add(ticket);
+		return ticket;
 	}
 	
 	public synchronized ISignalScheduleTicket openTicket(SignalOutputHandler handler, boolean[] result, int tick) {

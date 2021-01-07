@@ -30,6 +30,7 @@ import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+import com.creativemd.littletiles.common.structure.signal.schedule.SignalTicker;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
@@ -94,6 +95,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -592,6 +594,11 @@ public class LittleEventHandler {
 			if (!queuedRenderChunksUpdate.contains(chunk))
 				queuedRenderChunksUpdate.add(chunk);
 		}
+	}
+	
+	@SubscribeEvent
+	public void serverTick(ServerTickEvent event) {
+		SignalTicker.serverTick();
 	}
 	
 	@SubscribeEvent

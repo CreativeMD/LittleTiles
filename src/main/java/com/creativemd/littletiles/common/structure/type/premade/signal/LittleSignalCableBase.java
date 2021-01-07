@@ -113,16 +113,16 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	}
 	
 	@Override
-	public void connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance) {
+	public boolean connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance) {
 		int index = getIndex(facing);
 		if (faces[index] != null) {
 			if (faces[index].getConnection() == base)
-				return;
+				return false;
 			faces[index].disconnect(facing);
 		} else
 			faces[index] = new LittleConnectionFace();
 		faces[index].connect(base, context, distance);
-		
+		return true;
 	}
 	
 	@Override
@@ -143,19 +143,25 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 				return;
 			
 			LittleAbsoluteBox box = getSurroundingBox().getAbsoluteBox();
+			boolean changed = false;
 			for (int i = 0; i < faces.length; i++) {
 				EnumFacing facing = getFacing(i);
 				
 				LittleConnectResult result = checkConnection(facing, box);
 				if (result != null) {
-					this.connect(facing, result.base, result.context, result.distance);
-					result.base.connect(facing.getOpposite(), this, result.context, result.distance);
+					changed |= this.connect(facing, result.base, result.context, result.distance);
+					changed |= result.base.connect(facing.getOpposite(), this, result.context, result.distance);
 				} else {
-					if (faces[i] != null)
+					if (faces[i] != null) {
 						faces[i].disconnect(facing);
+						changed = true;
+					}
 					faces[i] = null;
 				}
 			}
+			
+			if (changed)
+				findNetwork();
 		} catch (CorruptedConnectionException | NotYetConnectedException e) {
 			
 		}
@@ -374,10 +380,24 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	}
 	
 	@Override
+	public void onStructureDestroyed() {
+		if (network != null)
+			if (network.remove(this)) {
+				for (int i = 0; i < faces.length; i++) {
+					if (faces[i] != null) {
+						ISignalStructureBase connection = faces[i].connection;
+						faces[i].disconnect(getFacing(i));
+						connection.findNetwork();
+					}
+				}
+			}
+	}
+	
+	@Override
 	public void unload() {
 		super.unload();
 		if (network != null)
-			network.remove(this);
+			network.unload(this);
 	}
 	
 	public class LittleConnectionFace {

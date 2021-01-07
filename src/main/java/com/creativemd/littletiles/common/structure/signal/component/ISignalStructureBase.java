@@ -28,7 +28,7 @@ public interface ISignalStructureBase {
 	
 	public boolean canConnect(EnumFacing facing);
 	
-	public void connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance);
+	public boolean connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance);
 	
 	public void disconnect(EnumFacing facing, ISignalStructureBase base);
 	

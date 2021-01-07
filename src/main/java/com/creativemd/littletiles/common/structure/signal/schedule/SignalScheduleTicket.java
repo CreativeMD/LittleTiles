@@ -5,6 +5,8 @@ import java.lang.ref.WeakReference;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 
+import net.minecraft.world.World;
+
 public class SignalScheduleTicket implements ISignalScheduleTicket {
 	
 	private int delay;
@@ -41,6 +43,10 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
 		return delay;
 	}
 	
+	public int getExactDelayValue() {
+		return delay;
+	}
+	
 	public boolean is(SignalOutputHandler output) {
 		return outputCondition.get() == output;
 	}
@@ -66,6 +72,13 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
 	@Override
 	public void markObsolete() {
 		outputCondition.clear();
+	}
+	
+	public World getWorld() {
+		SignalOutputHandler handler = outputCondition.get();
+		if (handler != null)
+			return handler.component.getWorld();
+		return null;
 	}
 	
 }
