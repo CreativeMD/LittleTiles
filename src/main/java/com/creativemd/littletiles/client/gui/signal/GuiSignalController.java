@@ -689,7 +689,7 @@ public class GuiSignalController extends GuiParent {
 		public void remove() {
 			if (from != null)
 				from.remove();
-			for (NodeConnection connection : to)
+			for (NodeConnection connection : new ArrayList<>(to))
 				connection.remove();
 		}
 		
