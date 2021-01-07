@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.structure.signal.logic;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
@@ -22,7 +23,7 @@ public enum SignalMode {
 	
 	EQUAL("signal.mode.equal", "=") {
 		@Override
-		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
 			SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
 				
 				@Override
@@ -36,7 +37,9 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void write(NBTTagCompound nbt) {
+				public void write(boolean preview, NBTTagCompound nbt) {
+					if (preview)
+						return;
 					List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
 					NBTTagList list = new NBTTagList();
 					for (int i = 0; i < tickets.size(); i++) {
@@ -83,12 +86,27 @@ public enum SignalMode {
 	TOGGLE("signal.mode.toggle", "|=") {
 		
 		@Override
-		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
-			int bandwidth = component.getBandwidth();
-			boolean[] before = new boolean[bandwidth];
-			boolean[] resultBefore = new boolean[bandwidth];
-			BooleanUtils.intToBool(nbt.getInteger("before"), before);
-			BooleanUtils.intToBool(nbt.getInteger("result"), resultBefore);
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+			boolean[] before;
+			boolean[] resultBefore;
+			if (hasWorld) {
+				int bandwidth = 0;
+				try {
+					bandwidth = component.getBandwidth();
+				} catch (Exception e) {}
+				if (bandwidth > 0) {
+					before = new boolean[bandwidth];
+					resultBefore = new boolean[bandwidth];
+					BooleanUtils.intToBool(nbt.getInteger("before"), before);
+					BooleanUtils.intToBool(nbt.getInteger("result"), resultBefore);
+				} else {
+					before = null;
+					resultBefore = null;
+				}
+			} else {
+				before = null;
+				resultBefore = null;
+			}
 			
 			SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
 				
@@ -102,6 +120,10 @@ public enum SignalMode {
 				
 				@Override
 				public void queue(boolean[] state) {
+					if (stateBefore == null) {
+						stateBefore = new boolean[state.length];
+						result = new boolean[state.length];
+					}
 					boolean toggled = false;
 					for (int i = 0; i < state.length; i++) {
 						if (!stateBefore[i] && state[i]) {
@@ -115,9 +137,13 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void write(NBTTagCompound nbt) {
-					nbt.setInteger("before", BooleanUtils.boolToInt(stateBefore));
-					nbt.setInteger("result", BooleanUtils.boolToInt(result));
+				public void write(boolean preview, NBTTagCompound nbt) {
+					if (preview)
+						return;
+					if (stateBefore != null) {
+						nbt.setInteger("before", BooleanUtils.boolToInt(stateBefore));
+						nbt.setInteger("result", BooleanUtils.boolToInt(result));
+					}
 					List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
 					NBTTagList list = new NBTTagList();
 					for (int i = 0; i < tickets.size(); i++) {
@@ -162,7 +188,7 @@ public enum SignalMode {
 	PULSE("signal.mode.pulse", "~=") {
 		
 		@Override
-		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
 			SignalOutputHandler condition = new SignalOutputHandlerPulse(component, delay, nbt);
 			if (nbt.hasKey("start")) {
 				SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
@@ -195,7 +221,7 @@ public enum SignalMode {
 	THRESHOLD("signal.mode.threshold", "==") {
 		
 		@Override
-		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
 			SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
 				
 				@Override
@@ -218,8 +244,8 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void write(NBTTagCompound nbt) {
-					if (ticket != null)
+				public void write(boolean preview, NBTTagCompound nbt) {
+					if (!preview && ticket != null)
 						nbt.setIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
 				}
 			};
@@ -256,7 +282,7 @@ public enum SignalMode {
 	STABILIZER("signal.mode.stabilizer", "~~") {
 		
 		@Override
-		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt) {
+		public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
 			SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
 				
 				@Override
@@ -278,7 +304,9 @@ public enum SignalMode {
 				}
 				
 				@Override
-				public void write(NBTTagCompound nbt) {
+				public void write(boolean preview, NBTTagCompound nbt) {
+					if (preview)
+						return;
 					if (ticket != null)
 						nbt.setIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
 				}
@@ -322,7 +350,7 @@ public enum SignalMode {
 		this.splitter = splitter;
 	}
 	
-	public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt);
+	public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld);
 	
 	public abstract GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt);
 	
@@ -357,7 +385,7 @@ public enum SignalMode {
 		
 		@Override
 		public int getBandwidth() {
-			return 1;
+			return super.getBandwidth();
 		}
 		
 		@Override
@@ -378,20 +406,23 @@ public enum SignalMode {
 		
 		@Override
 		public void queue(boolean[] state) {
-			if (pulseEnd != null)
-				return;
 			boolean current = BooleanUtils.any(state);
-			if (!stateBefore && current) {
-				pulseStart = SignalTicker.schedule(this, BooleanUtils.asArray(true), delay);
-				pulseEnd = SignalTicker.schedule(this, BooleanUtils.asArray(false), delay + pulseLength);
+			if (pulseEnd == null && !stateBefore && current) {
+				boolean[] startState = new boolean[state.length];
+				Arrays.fill(startState, true);
+				boolean[] endState = new boolean[state.length];
+				pulseStart = SignalTicker.schedule(this, startState, delay);
+				pulseEnd = SignalTicker.schedule(this, endState, delay + pulseLength);
 			}
 			stateBefore = current;
 		}
 		
 		@Override
-		public void write(NBTTagCompound nbt) {
+		public void write(boolean preview, NBTTagCompound nbt) {
 			nbt.setInteger("length", pulseLength);
 			nbt.setBoolean("before", stateBefore);
+			if (preview)
+				return;
 			if (pulseStart != null)
 				nbt.setInteger("start", pulseStart.getDelay());
 			if (pulseEnd != null)
@@ -468,7 +499,7 @@ public enum SignalMode {
 		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("delay", delay);
-			return getMode().create(component, delay, nbt);
+			return getMode().create(component, delay, nbt, false);
 		}
 		
 	}
@@ -497,7 +528,7 @@ public enum SignalMode {
 		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("delay", delay);
-			return getMode().create(component, delay, nbt);
+			return getMode().create(component, delay, nbt, false);
 		}
 		
 	}
@@ -531,7 +562,7 @@ public enum SignalMode {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("delay", delay);
 			nbt.setInteger("length", length);
-			return getMode().create(component, delay, nbt);
+			return getMode().create(component, delay, nbt, false);
 		}
 		
 	}
@@ -560,7 +591,7 @@ public enum SignalMode {
 		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("delay", delay);
-			return getMode().create(component, delay, nbt);
+			return getMode().create(component, delay, nbt, false);
 		}
 		
 	}
@@ -589,7 +620,7 @@ public enum SignalMode {
 		public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("delay", delay);
-			return getMode().create(component, delay, nbt);
+			return getMode().create(component, delay, nbt, false);
 		}
 		
 	}

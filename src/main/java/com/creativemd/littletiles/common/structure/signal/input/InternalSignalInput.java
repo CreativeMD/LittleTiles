@@ -29,7 +29,7 @@ public class InternalSignalInput extends InternalSignal {
 	}
 	
 	@Override
-	public NBTTagCompound write(NBTTagCompound nbt) {
+	public NBTTagCompound write(boolean preview, NBTTagCompound nbt) {
 		nbt.setInteger(name, BooleanUtils.boolToInt(getState()));
 		return nbt;
 	}

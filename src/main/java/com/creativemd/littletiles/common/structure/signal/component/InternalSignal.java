@@ -24,7 +24,7 @@ public abstract class InternalSignal implements ISignalComponent {
 		return state;
 	}
 	
-	public abstract NBTTagCompound write(NBTTagCompound nbt);
+	public abstract NBTTagCompound write(boolean preview, NBTTagCompound nbt);
 	
 	@Override
 	public int getBandwidth() {

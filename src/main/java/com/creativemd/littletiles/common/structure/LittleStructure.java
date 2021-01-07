@@ -125,6 +125,10 @@ public abstract class LittleStructure implements ISignalSchedulable {
 		return mainBlock.getWorld();
 	}
 	
+	public boolean hasWorld() {
+		return mainBlock != null;
+	}
+	
 	public BlockPos getPos() {
 		return mainBlock.getPos();
 	}
@@ -467,7 +471,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 			field.move(value, vec.getContext(), inverted);
 		}
 		
-		writeToNBTExtraInternal(nbt);
+		writeToNBTExtraInternal(nbt, true);
 		return nbt;
 	}
 	
@@ -500,10 +504,10 @@ public abstract class LittleStructure implements ISignalSchedulable {
 			field.save(nbt, value);
 		}
 		
-		writeToNBTExtraInternal(nbt);
+		writeToNBTExtraInternal(nbt, false);
 	}
 	
-	protected void writeToNBTExtraInternal(NBTTagCompound nbt) {
+	protected void writeToNBTExtraInternal(NBTTagCompound nbt, boolean preview) {
 		nbt.setString("id", type.id);
 		if (name != null)
 			nbt.setString("name", name);
@@ -513,15 +517,15 @@ public abstract class LittleStructure implements ISignalSchedulable {
 		if (externalHandler != null && !externalHandler.isEmpty()) {
 			NBTTagList list = new NBTTagList();
 			for (SignalExternalOutputHandler handler : externalHandler.values())
-				list.appendTag(handler.write());
+				list.appendTag(handler.write(preview));
 			nbt.setTag("signal", list);
 		}
 		if (inputs != null)
 			for (int i = 0; i < inputs.length; i++)
-				inputs[i].write(nbt);
+				inputs[i].write(preview, nbt);
 		if (outputs != null)
 			for (int i = 0; i < outputs.length; i++)
-				nbt.setTag(outputs[i].name, outputs[i].write(new NBTTagCompound()));
+				nbt.setTag(outputs[i].name, outputs[i].write(preview, new NBTTagCompound()));
 			
 		writeToNBTExtra(nbt);
 	}

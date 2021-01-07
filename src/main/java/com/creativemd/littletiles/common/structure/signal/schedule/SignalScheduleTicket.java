@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.structure.signal.schedule;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
@@ -28,8 +27,8 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
 		if (handler != null)
 			try {
 				handler.performStateChange(result);
-				System.out.println("process ticket " + Arrays.toString(result) + " " + handler);
 			} catch (Exception e) {}
+		markObsolete();
 	}
 	
 	@Override

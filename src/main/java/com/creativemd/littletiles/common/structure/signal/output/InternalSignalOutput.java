@@ -50,18 +50,18 @@ public class InternalSignalOutput extends InternalSignal {
 		int delay = nbt.getInteger("delay");
 		if (condition != null)
 			delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInteger("delay"));
-		handler = SignalOutputHandler.create(this, mode, delay, nbt);
+		handler = SignalOutputHandler.create(this, mode, delay, nbt, parent);
 	}
 	
 	@Override
-	public NBTTagCompound write(NBTTagCompound nbt) {
+	public NBTTagCompound write(boolean preview, NBTTagCompound nbt) {
 		nbt.setInteger("state", BooleanUtils.boolToInt(getState()));
 		if (condition != null)
 			nbt.setString("con", condition.write());
 		nbt.setString("mode", handler == null ? defaultMode.name() : handler.getMode().name());
 		if (handler != null) {
 			nbt.setInteger("delay", handler.delay);
-			handler.write(nbt);
+			handler.write(preview, nbt);
 		}
 		return nbt;
 	}

@@ -44,14 +44,13 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 		} catch (ParseException e) {
 			condition = null;
 		}
-		if (condition != null) {
-			SignalMode mode = SignalMode.EQUAL;
-			if (nbt.hasKey("mode"))
-				mode = SignalMode.valueOf(nbt.getString("mode"));
-			int delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInteger("delay"));
-			handler = SignalOutputHandler.create(this, mode, delay, nbt);
-		} else
-			handler = null;
+		SignalMode mode = SignalMode.EQUAL;
+		if (nbt.hasKey("mode"))
+			mode = SignalMode.valueOf(nbt.getString("mode"));
+		int delay = nbt.getInteger("delay");
+		if (condition != null)
+			delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInteger("delay"));
+		handler = SignalOutputHandler.create(this, mode, delay, nbt, structure);
 	}
 	
 	public ISignalStructureComponent getOutput() {
@@ -84,7 +83,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 		}
 	}
 	
-	public NBTTagCompound write() {
+	public NBTTagCompound write(boolean preview) {
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setInteger("index", index);
 		if (structure != null)
@@ -94,7 +93,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
 		nbt.setString("mode", handler == null ? SignalMode.EQUAL.name() : handler.getMode().name());
 		if (handler != null) {
 			nbt.setInteger("delay", handler.delay);
-			handler.write(nbt);
+			handler.write(preview, nbt);
 		}
 		return nbt;
 	}

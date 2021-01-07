@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure.signal.output;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 
@@ -38,10 +39,10 @@ public abstract class SignalOutputHandler {
 		return component.getBandwidth();
 	}
 	
-	public abstract void write(NBTTagCompound nbt);
+	public abstract void write(boolean preview, NBTTagCompound nbt);
 	
-	public static SignalOutputHandler create(ISignalComponent component, SignalMode mode, int delay, NBTTagCompound nbt) {
-		return mode.create(component, delay, nbt);
+	public static SignalOutputHandler create(ISignalComponent component, SignalMode mode, int delay, NBTTagCompound nbt, LittleStructure structure) {
+		return mode.create(component, delay, nbt, structure != null && structure.hasWorld());
 	}
 	
 	@Override

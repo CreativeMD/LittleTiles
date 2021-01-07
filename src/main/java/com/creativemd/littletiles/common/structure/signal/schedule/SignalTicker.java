@@ -137,10 +137,10 @@ public class SignalTicker {
 		} else
 			delay = tick;
 		SignalScheduleTicket ticket = new SignalScheduleTicket(handler, result, delay);
-		if (delay <= queueLength)
-			longQueue.add(ticket);
-		else
+		if (tick <= queueLength)
 			queue[delay].add(ticket);
+		else
+			longQueue.add(ticket);
 		return ticket;
 	}
 	

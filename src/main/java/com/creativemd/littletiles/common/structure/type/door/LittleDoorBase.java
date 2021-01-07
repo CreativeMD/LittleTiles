@@ -13,7 +13,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
@@ -203,10 +202,6 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		DoorController controller = createController(supplier, placement, getCompleteDuration());
 		controller.noClip = noClip;
 		
-		if (!world.isRemote) {
-			getOutput(0).handler.schedule(BooleanUtils.asArray(true));
-			getOutput(0).handler.schedule(BooleanUtils.asArray(false));
-		}
 		controller.activator = player;
 		
 		if (world.isRemote)
