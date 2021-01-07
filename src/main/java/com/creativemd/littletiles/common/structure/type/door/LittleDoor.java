@@ -209,7 +209,7 @@ public abstract class LittleDoor extends LittleStructure {
 		
 	}
 	
-	public static class StillInMotionException extends LittleActionException {
+	public static class StillInMotionException extends LittleActionExceptionHidden {
 		
 		public StillInMotionException() {
 			super("Structure is still in motion");
