@@ -60,7 +60,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		
 		for (LittleStructureTypePremade type : premadeStructures) {
 			try {
-				ItemStack stack = new ItemStack(LittleTiles.premade);
+				ItemStack stack = type.createItemStackEmpty();
 				NBTTagCompound structureNBT = new NBTTagCompound();
 				structureNBT.setString("id", type.id);
 				NBTTagCompound nbt = JsonToNBT.getTagFromJson(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
@@ -97,7 +97,10 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	}
 	
 	public static LittlePreviews getPreviews(String id) {
-		return getStructurePremadeEntry(id).previews;
+		LittleStructurePremadeEntry type = getStructurePremadeEntry(id);
+		if (type != null)
+			return type.previews;
+		return null;
 	}
 	
 	public static LittleStructurePremadeEntry getStructurePremadeEntry(String id) {
@@ -136,7 +139,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType("workbench", LittleTiles.modid, LittleWorkbench.class);
 		registerPremadeStructureType("importer", LittleTiles.modid, LittleImporter.class);
 		registerPremadeStructureType("exporter", LittleTiles.modid, LittleExporter.class);
-		registerPremadeStructureType(new LittleStructureTypeParticleEmitter("particle_emitter", "premade", LittleParticleEmitter.class, LittleStructureAttribute.TICKING, LittleTiles.modid)).addOutput("active", 1, SignalMode.TOGGLE).setFieldDefault("facing", EnumFacing.UP);
+		registerPremadeStructureType(new LittleStructureTypeParticleEmitter("particle_emitter", "premade", LittleParticleEmitter.class, LittleStructureAttribute.TICKING, LittleTiles.modid)).addOutput("disabled", 1, SignalMode.TOGGLE, true).setFieldDefault("facing", EnumFacing.UP);
 		registerPremadeStructureType("blankomatic", LittleTiles.modid, LittleBlankOMatic.class);
 		
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
@@ -203,8 +206,12 @@ public abstract class LittleStructurePremade extends LittleStructure {
 			this.modid = modid;
 		}
 		
+		public ItemStack createItemStackEmpty() {
+			return new ItemStack(LittleTiles.premade);
+		}
+		
 		public ItemStack createItemStack() {
-			ItemStack stack = new ItemStack(LittleTiles.premade);
+			ItemStack stack = createItemStackEmpty();
 			NBTTagCompound structureNBT = new NBTTagCompound();
 			structureNBT.setString("id", id);
 			NBTTagCompound stackNBT = new NBTTagCompound();
