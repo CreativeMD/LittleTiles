@@ -3,8 +3,11 @@ package com.creativemd.littletiles.common.structure.signal.output;
 import java.text.ParseException;
 import java.util.Arrays;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.littletiles.common.packet.LittleUpdateOutputPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
 import com.creativemd.littletiles.common.structure.signal.component.InternalSignal;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -13,20 +16,24 @@ import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.Signa
 
 import net.minecraft.nbt.NBTTagCompound;
 
-public class InternalSignalOutput extends InternalSignal {
+public class InternalSignalOutput extends InternalSignal<InternalComponentOutput> {
 	
 	public final SignalMode defaultMode;
+	public final boolean syncToClient;
 	public SignalInputCondition condition;
 	public SignalOutputHandler handler;
 	
-	public InternalSignalOutput(LittleStructure parent, String name, int bandwidth, SignalMode defaultMode) {
-		super(parent, name, bandwidth);
-		this.defaultMode = defaultMode;
+	public InternalSignalOutput(LittleStructure parent, InternalComponentOutput component) {
+		super(parent, component);
+		this.defaultMode = component.defaultMode;
+		this.syncToClient = component.syncToClient;
 	}
 	
 	@Override
 	public void changed() {
 		parent.performInternalOutputChange(this);
+		if (syncToClient)
+			PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateOutputPacket(parent.getStructureLocation(), component.index, getState()), getWorld(), parent.getPos(), null);
 	}
 	
 	@Override

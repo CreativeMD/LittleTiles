@@ -56,6 +56,8 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 		if (premade == null)
 			return Collections.EMPTY_LIST;
 		LittlePreviews previews = getLittlePreview(stack);
+		if (previews == null)
+			return Collections.EMPTY_LIST;
 		List<RenderBox> cubes = premade.getRenderingCubes(previews);
 		if (cubes == null) {
 			cubes = new ArrayList<>();
@@ -138,7 +140,10 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 		String id = getPremadeId(stack);
 		if (cachedPreviews.containsKey(id))
 			return cachedPreviews.get(id).copy();
-		return LittleStructurePremade.getPreviews(id).copy();
+		LittlePreviews previews = LittleStructurePremade.getPreviews(id);
+		if (previews != null)
+			return previews.copy();
+		return null;
 	}
 	
 	@Override

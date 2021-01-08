@@ -62,6 +62,8 @@ public class LittleParticleEmitter extends LittleStructurePremade {
 	
 	@Override
 	public void tick() {
+		if (getOutput(0).getState()[0])
+			return;
 		if (ticker >= tickDelay) {
 			if (getWorld().isRemote)
 				spawnParticle(getWorld());

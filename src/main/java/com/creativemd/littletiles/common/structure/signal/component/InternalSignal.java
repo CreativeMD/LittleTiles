@@ -1,20 +1,21 @@
 package com.creativemd.littletiles.common.structure.signal.component;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-public abstract class InternalSignal implements ISignalComponent {
+public abstract class InternalSignal<T extends InternalComponent> implements ISignalComponent {
 	
 	public final LittleStructure parent;
-	public final String name;
+	public final T component;
 	private final boolean[] state;
 	
-	public InternalSignal(LittleStructure parent, String name, int bandwidth) {
+	public InternalSignal(LittleStructure parent, T component) {
 		this.parent = parent;
-		this.name = name;
-		this.state = new boolean[bandwidth];
+		this.component = component;
+		this.state = new boolean[component.bandwidth];
 	}
 	
 	public abstract void load(NBTTagCompound nbt);
@@ -45,7 +46,7 @@ public abstract class InternalSignal implements ISignalComponent {
 	
 	@Override
 	public String toString() {
-		return name;
+		return component.identifier;
 	}
 	
 }

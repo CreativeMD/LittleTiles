@@ -184,7 +184,7 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	@Override
 	public void performInternalOutputChange(InternalSignalOutput output) {
-		if (output.name.equals("state"))
+		if (output.component.identifier.equals("state"))
 			if (opened != output.getState()[0] && !isInMotion())
 				try {
 					activate(DoorActivator.SIGNAL, null, null, true);

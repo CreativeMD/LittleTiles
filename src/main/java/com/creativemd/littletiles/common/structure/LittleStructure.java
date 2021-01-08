@@ -455,7 +455,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 				inputs[i].load(nbt);
 		if (outputs != null)
 			for (int i = 0; i < outputs.length; i++)
-				outputs[i].load(nbt.getCompoundTag(outputs[i].name));
+				outputs[i].load(nbt.getCompoundTag(outputs[i].component.identifier));
 	}
 	
 	protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
@@ -531,7 +531,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
 				inputs[i].write(preview, nbt);
 		if (outputs != null)
 			for (int i = 0; i < outputs.length; i++)
-				nbt.setTag(outputs[i].name, outputs[i].write(preview, new NBTTagCompound()));
+				nbt.setTag(outputs[i].component.identifier, outputs[i].write(preview, new NBTTagCompound()));
 			
 		writeToNBTExtra(nbt);
 	}

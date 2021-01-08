@@ -55,7 +55,7 @@ public class LittleStructureType {
 		InternalSignalInput[] result = new InternalSignalInput[inputs.size()];
 		for (int i = 0; i < result.length; i++) {
 			InternalComponent component = inputs.get(i);
-			result[i] = new InternalSignalInput(structure, component.identifier, component.bandwidth);
+			result[i] = new InternalSignalInput(structure, component);
 		}
 		return result;
 	}
@@ -66,19 +66,23 @@ public class LittleStructureType {
 		InternalSignalOutput[] result = new InternalSignalOutput[outputs.size()];
 		for (int i = 0; i < result.length; i++) {
 			InternalComponentOutput component = outputs.get(i);
-			result[i] = new InternalSignalOutput(structure, component.identifier, component.bandwidth, component.defaultMode);
+			result[i] = new InternalSignalOutput(structure, component);
 		}
 		return result;
 	}
 	
 	public LittleStructureType addInput(String name, int bandwidth) {
-		inputs.add(new InternalComponent(name, bandwidth));
+		inputs.add(new InternalComponent(name, bandwidth, inputs.size()));
+		return this;
+	}
+	
+	public LittleStructureType addOutput(String name, int bandwidth, SignalMode defaultMode, boolean sync) {
+		outputs.add(new InternalComponentOutput(name, bandwidth, inputs.size(), defaultMode, sync));
 		return this;
 	}
 	
 	public LittleStructureType addOutput(String name, int bandwidth, SignalMode defaultMode) {
-		outputs.add(new InternalComponentOutput(name, bandwidth, defaultMode));
-		return this;
+		return addOutput(name, bandwidth, defaultMode, false);
 	}
 	
 	public LittleStructure createStructure(StructureTileList mainBlock) {
@@ -208,10 +212,12 @@ public class LittleStructureType {
 		
 		public final String identifier;
 		public final int bandwidth;
+		public final int index;
 		
-		public InternalComponent(String identifier, int bandwidth) {
+		public InternalComponent(String identifier, int bandwidth, int index) {
 			this.identifier = identifier;
 			this.bandwidth = bandwidth;
+			this.index = index;
 		}
 		
 		public boolean is(String name) {
@@ -223,10 +229,12 @@ public class LittleStructureType {
 	public static class InternalComponentOutput extends InternalComponent {
 		
 		public final SignalMode defaultMode;
+		public final boolean syncToClient;
 		
-		public InternalComponentOutput(String identifier, int bandwidth, SignalMode defaultMode) {
-			super(identifier, bandwidth);
+		public InternalComponentOutput(String identifier, int bandwidth, int index, SignalMode defaultMode, boolean syncToClient) {
+			super(identifier, bandwidth, index);
 			this.defaultMode = defaultMode;
+			this.syncToClient = syncToClient;
 		}
 		
 	}
