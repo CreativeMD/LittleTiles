@@ -23,6 +23,9 @@ public class LittleStructureAttribute {
 	public static final int COLLISION_LISTENER = 0b00000000_00000010_00000000_00000000;
 	public static final int LIGHT_EMITTER = 0b00000000_00000100_00000000_00000000;
 	
+	public static final int ACTIVE_MASK = 0b00000000_00000000_11111111_00000000;
+	public static final int LISTENER_MASK = 0b00000000_11111111_00000000_00000000;
+	
 	public static boolean ladder(int attribute) {
 		return (attribute & LADDER) != 0;
 	}
@@ -64,11 +67,11 @@ public class LittleStructureAttribute {
 	}
 	
 	public static boolean active(int attribute) {
-		return (attribute & 0b00000000_00000000_11111111_00000000) != 0;
+		return (attribute & ACTIVE_MASK) != 0;
 	}
 	
 	public static boolean listener(int attribute) {
-		return (attribute & 0b00000000_11111111_00000000_00000000) != 0;
+		return (attribute & LISTENER_MASK) != 0;
 	}
 	
 	public static int loadOld(int ordinal) {

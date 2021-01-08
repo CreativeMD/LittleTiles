@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureConnection;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
@@ -93,7 +94,9 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
 	
 	@Override
 	public int getAttribute() {
-		return attribute;
+		if (isMain())
+			return attribute;
+		return attribute & LittleStructureAttribute.LISTENER_MASK;
 	}
 	
 	@Override

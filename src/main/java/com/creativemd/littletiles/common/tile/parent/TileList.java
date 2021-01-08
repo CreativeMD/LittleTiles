@@ -155,7 +155,6 @@ public class TileList extends ParentTileList {
 			@Override
 			public Iterator<LittleStructure> iterator() {
 				if (LittleStructureAttribute.listener(attribute) || LittleStructureAttribute.active(attribute)) {
-					boolean active = LittleStructureAttribute.active(attribute);
 					return new Iterator<LittleStructure>() {
 						
 						public Iterator<StructureTileList> iterator = structures.values().iterator();
@@ -168,7 +167,7 @@ public class TileList extends ParentTileList {
 						public void findNext() {
 							while (iterator.hasNext()) {
 								StructureTileList structure = iterator.next();
-								if ((!active || structure.isMain()) && (structure.getAttribute() & attribute) != 0) {
+								if ((structure.getAttribute() & attribute) != 0) {
 									try {
 										next = structure.getStructure();
 									} catch (CorruptedConnectionException | NotYetConnectedException e) {
