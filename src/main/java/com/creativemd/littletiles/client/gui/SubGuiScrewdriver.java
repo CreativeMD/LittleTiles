@@ -10,8 +10,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.SearchSelector;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
@@ -34,7 +32,6 @@ import com.creativemd.littletiles.common.util.selection.selector.NoStructureSele
 import com.creativemd.littletiles.common.util.selection.selector.StateSelector;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelectorBlock;
-import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.SoundEvents;
@@ -44,6 +41,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 
 public class SubGuiScrewdriver extends SubGuiConfigure {
+	
+	public static ItemStack lastSelectedSearchStack;
+	public static ItemStack lastSelectedReplaceStack;
 	
 	public SubGuiScrewdriver(ItemStack stack) {
 		super(200, 205, stack);
@@ -55,15 +55,20 @@ public class SubGuiScrewdriver extends SubGuiConfigure {
 			stack.setTagCompound(new NBTTagCompound());
 		
 		controls.add(new GuiCheckBox("any", "any", 5, 8, false));
-		controls.add(new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
-		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
+		GuiStackSelectorAll selector = new GuiStackSelectorAll("filter", 40, 5, 130, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+		if (lastSelectedSearchStack != null)
+			selector.setSelectedForce(lastSelectedSearchStack);
+		controls.add(selector);
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 48, true));
 		
 		controls.add(new GuiCheckBox("remove", "Remove", 5, 60, false));
 		
 		controls.add(new GuiCheckBox("replace", "Replace with", 5, 73, false));
 		
-		controls.add(new GuiStackSelectorAll("replacement", 40, 87, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
+		selector = new GuiStackSelectorAll("replacement", 40, 87, 130, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+		if (lastSelectedReplaceStack != null)
+			selector.setSelectedForce(lastSelectedReplaceStack);
+		controls.add(selector);
 		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 133, true));
 		
@@ -106,22 +111,6 @@ public class SubGuiScrewdriver extends SubGuiConfigure {
 						playSound(SoundEvents.BLOCK_LEVER_CLICK);
 			}
 		});
-	}
-	
-	@CustomEventSubscribe
-	public void onChanged(GuiControlChangedEvent event) {
-		if (event.source.is("search")) {
-			GuiStackSelectorAll inv = (GuiStackSelectorAll) get("filter");
-			((SearchSelector) inv.collector.selector).search = ((GuiTextfield) event.source).text.toLowerCase();
-			inv.updateCollectedStacks();
-			inv.closeBox();
-		}
-		if (event.source.is("search2")) {
-			GuiStackSelectorAll inv = (GuiStackSelectorAll) get("replacement");
-			((SearchSelector) inv.collector.selector).search = ((GuiTextfield) event.source).text.toLowerCase();
-			inv.updateCollectedStacks();
-			inv.closeBox();
-		}
 	}
 	
 	public LittleAction getDesiredAction() {
@@ -195,6 +184,13 @@ public class SubGuiScrewdriver extends SubGuiConfigure {
 			openButtonDialogDialog("You have to select a task!", "ok");
 		
 		return null;
+	}
+	
+	@Override
+	public void closeGui() {
+		super.closeGui();
+		lastSelectedSearchStack = ((GuiStackSelectorAll) get("filter")).getSelected();
+		lastSelectedReplaceStack = ((GuiStackSelectorAll) get("replacement")).getSelected();
 	}
 	
 	@Override
