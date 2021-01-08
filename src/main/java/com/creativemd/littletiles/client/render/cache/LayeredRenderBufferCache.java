@@ -39,6 +39,8 @@ public class LayeredRenderBufferCache {
 	}
 	
 	public synchronized void set(int layer, BufferBuilder buffer) {
+		if (buffer == null)
+			uploaded[layer] = null;
 		queue[layer] = buffer != null ? new BufferBuilderWrapper(buffer) : null;
 	}
 	
