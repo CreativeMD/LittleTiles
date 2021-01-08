@@ -154,7 +154,7 @@ public abstract class SignalTarget {
 		
 		@Override
 		public boolean[] getState(LittleStructure structure) {
-			return subTarget.getState(structure);
+			return getTarget(structure).getState();
 		}
 		
 		@Override
