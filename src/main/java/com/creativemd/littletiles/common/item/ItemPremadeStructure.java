@@ -7,6 +7,8 @@ import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.mc.NBTUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
@@ -30,6 +32,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -135,15 +138,42 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 		cachedPreviews.clear();
 	}
 	
-	@Override
-	public LittlePreviews getLittlePreview(ItemStack stack) {
-		String id = getPremadeId(stack);
+	private LittlePreviews getPreviews(String id) {
 		if (cachedPreviews.containsKey(id))
 			return cachedPreviews.get(id).copy();
 		LittlePreviews previews = LittleStructurePremade.getPreviews(id);
 		if (previews != null)
 			return previews.copy();
 		return null;
+	}
+	
+	@Override
+	public LittlePreviews getLittlePreview(ItemStack stack) {
+		String id = getPremadeId(stack);
+		LittlePreviews previews = getPreviews(id);
+		if (previews != null && previews.structureNBT != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("structure"))
+			NBTUtils.mergeNotOverwrite(previews.structureNBT, stack.getTagCompound().getCompoundTag("structure"));
+		return previews;
+	}
+	
+	@Override
+	public void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
+		String id = getPremadeId(stack);
+		LittlePreviews previews = getPreviews(id);
+		if (previews.isEmpty())
+			return;
+		previews.rotatePreviews(rotation, previews.getContext().rotationCenter);
+		saveLittlePreview(stack, previews);
+	}
+	
+	@Override
+	public void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
+		String id = getPremadeId(stack);
+		LittlePreviews previews = getPreviews(id);
+		if (previews.isEmpty())
+			return;
+		previews.flipPreviews(axis, previews.getContext().rotationCenter);
+		saveLittlePreview(stack, previews);
 	}
 	
 	@Override

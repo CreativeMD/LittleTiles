@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import org.apache.commons.io.IOUtils;
 
 import com.creativemd.creativecore.client.rendering.RenderBox;
@@ -17,6 +15,8 @@ import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
@@ -39,6 +39,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -131,8 +133,25 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	}
 	
 	@Override
-	public ItemStack getStructureDrop() {
-		return getPremadeStack(type.id).copy();
+	public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
+		ItemStack stack = getPremadeStack(type.id).copy();
+		
+		load();
+		BlockPos pos = getMinPos(new MutableBlockPos(getPos()));
+		
+		NBTTagCompound structureNBT = new NBTTagCompound();
+		this.writeToNBTPreview(structureNBT, pos);
+		
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		stack.getTagCompound().setTag("structure", structureNBT);
+		
+		if (name != null) {
+			NBTTagCompound display = new NBTTagCompound();
+			display.setString("Name", name);
+			stack.getTagCompound().setTag("display", display);
+		}
+		return stack;
 	}
 	
 	public static void initPremadeStructures() {
@@ -157,39 +176,29 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		LittleStructureRegistry.registerGuiParserNotFoundHandler(new LittleStructureGuiParserNotFoundHandler() {
 			
 			@Override
+			@SideOnly(Side.CLIENT)
 			public LittleStructureGuiParser create(LittleStructure structure, GuiParent parent, AnimationGuiHandler handler) {
 				if (structure instanceof LittleStructurePremade)
 					return new LittleStructureGuiParser(parent, handler) {
 						
 						@Override
 						@SideOnly(Side.CLIENT)
-						public void create(LittlePreviews previews, @Nullable LittleStructure structure) {
-						
-						}
-						
-						@Override
-						@SideOnly(Side.CLIENT)
-						public LittleStructure parse(LittlePreviews previews) {
-							return structure;
-						}
-						
-						@Override
-						@SideOnly(Side.CLIENT)
-						protected LittleStructure parseStructure(LittlePreviews previews) {
-							return structure;
-						}
-						
-						@Override
-						@SideOnly(Side.CLIENT)
-						protected LittleStructureType getStructureType() {
-							return null;
-						}
-						
-						@Override
-						@SideOnly(Side.CLIENT)
 						protected void createControls(LittlePreviews previews, LittleStructure structure) {
-							
+						
 						}
+						
+						@Override
+						protected LittleStructure parseStructure(LittlePreviews previews) {
+							LittleStructure parsedStructure = createStructure(structure.getClass(), null);
+							parsedStructure.loadFromNBT(previews.structureNBT);
+							return parsedStructure;
+						}
+						
+						@Override
+						protected LittleStructureType getStructureType() {
+							return structure.type;
+						}
+						
 					};
 				return null;
 			}

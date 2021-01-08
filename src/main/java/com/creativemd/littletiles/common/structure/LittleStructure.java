@@ -874,6 +874,8 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	// ====================Packets====================
 	
 	public void updateStructure() {
+		if (getWorld() == null)
+			return;
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeToNBT(nbt);
 		PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(), getPos(), null);
@@ -882,9 +884,8 @@ public abstract class LittleStructure implements ISignalSchedulable {
 	// ====================Extra====================
 	
 	public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
-		if (parent != null) {
+		if (parent != null)
 			return parent.getStructure().getStructureDrop();
-		}
 		
 		load();
 		BlockPos pos = getMinPos(new MutableBlockPos(getPos()));
