@@ -10,6 +10,7 @@ public class LittleGamemodeConfig {
 		minimumTransparency = survival ? 255 : 0;
 		limitEditBlocks = survival;
 		limitPlaceBlocks = survival;
+		harvestLevelBlock = survival ? 1 : 4;
 	}
 	
 	@CreativeConfig
@@ -19,7 +20,7 @@ public class LittleGamemodeConfig {
 	public int maxAffectedBlocks = 2;
 	
 	@CreativeConfig
-	public int harvestLevelBlock = 1;
+	public int harvestLevelBlock;
 	
 	@CreativeConfig
 	public boolean editUnbreakable;
