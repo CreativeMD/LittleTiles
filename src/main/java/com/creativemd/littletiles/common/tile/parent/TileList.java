@@ -18,7 +18,7 @@ import net.minecraft.nbt.NBTTagList;
 
 public class TileList extends ParentTileList {
 	
-	public final TileEntityLittleTiles te;
+	public TileEntityLittleTiles te;
 	
 	private final ConcurrentHashMap<Integer, StructureTileList> structures = new ConcurrentHashMap<>();
 	private int attributes = LittleStructureAttribute.NONE;
@@ -172,7 +172,7 @@ public class TileList extends ParentTileList {
 									try {
 										next = structure.getStructure();
 									} catch (CorruptedConnectionException | NotYetConnectedException e) {
-										
+									
 									}
 									return;
 								}

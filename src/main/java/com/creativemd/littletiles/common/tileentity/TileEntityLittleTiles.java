@@ -193,6 +193,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				newTe = new TileEntityLittleTiles();
 			
 			newTe.assign(this);
+			newTe.tiles.te = newTe;
 			
 			world.setBlockState(pos, BlockTile.getState(ticking, rendered), 2);
 			world.setTileEntity(pos, newTe);
