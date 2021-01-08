@@ -245,7 +245,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		SubWorld fakeWorld = SubWorld.createFakeWorld(world);
 		if (world.isRemote)
 			fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
-		Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
+		Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all)).setIgnoreWorldBoundaries(false);
 		StructureAbsolute absolute = getAbsoluteAxis();
 		
 		HashMapList<BlockPos, IStructureTileList> blocks = collectAllBlocksList();
