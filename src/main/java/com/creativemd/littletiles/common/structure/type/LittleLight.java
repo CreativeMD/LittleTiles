@@ -52,18 +52,9 @@ public class LittleLight extends LittleStructure {
     
     @Override
     public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-        if (!world.isRemote) {
+        if (!world.isRemote)
             getOutput(0).toggle();
-            
-        }
         return true;
-    }
-    
-    @Override
-    public void receiveInternalOutputChange(InternalSignalOutput output) {
-        // if (output.component.is("enabled"))
-        //getWorld().setLightFor(EnumSkyBlock.BLOCK, getPos(), getLightValue(getPos()));
-        //getWorld().notifyLightSet(getPos());
     }
     
     @Override

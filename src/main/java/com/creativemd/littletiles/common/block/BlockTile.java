@@ -473,7 +473,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
             for (IParentTileList list : te.groups()) {
                 if (list.isStructure() && LittleStructureAttribute.lightEmitter(list.getAttribute()))
                     try {
-                        return list.getStructure().getLightValue(pos);
+                        light = Math.max(light, list.getStructure().getLightValue(pos));
+                        continue;
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
                 for (LittleTile tile : list) {
