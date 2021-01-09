@@ -116,7 +116,8 @@ public class RenderUploader {
                         bufferIdField.setInt(uploadBuffer, OpenGlHelper.glGenBuffers());
                         toUpload.position(0);
                         uploadBuffer.bufferData(toUpload);
-                        setLayerUsed.invoke(compiled, layer);
+                        if (compiled != CompiledChunk.DUMMY)
+                            setLayerUsed.invoke(compiled, layer);
                     }
                 } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
