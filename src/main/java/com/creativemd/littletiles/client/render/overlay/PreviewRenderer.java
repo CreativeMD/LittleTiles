@@ -38,220 +38,228 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class PreviewRenderer {
-	
-	public static final ResourceLocation WHITE_TEXTURE = new ResourceLocation(LittleTiles.modid, "textures/preview.png");
-	
-	public static Minecraft mc = Minecraft.getMinecraft();
-	
-	public static MarkMode marked = null;
-	
-	public static boolean isCentered(EntityPlayer player, ILittleTile iTile) {
-		if (iTile.snapToGridByDefault())
-			return LittleAction.isUsingSecondMode(player) && marked == null;
-		return LittleTiles.CONFIG.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
-	}
-	
-	public static boolean isFixed(EntityPlayer player, ILittleTile iTile) {
-		if (iTile.snapToGridByDefault())
-			return !LittleAction.isUsingSecondMode(player) && marked == null;
-		return LittleTiles.CONFIG.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
-	}
-	
-	public static void handleUndoAndRedo(EntityPlayer player) {
-		while (LittleTilesClient.undo.isPressed()) {
-			try {
-				if (LittleAction.canUseUndoOrRedo(player))
-					LittleAction.undo();
-			} catch (LittleActionException e) {
-				LittleAction.handleExceptionClient(e);
-			}
-		}
-		
-		while (LittleTilesClient.redo.isPressed()) {
-			try {
-				if (LittleAction.canUseUndoOrRedo(player))
-					LittleAction.redo();
-			} catch (LittleActionException e) {
-				LittleAction.handleExceptionClient(e);
-			}
-		}
-	}
-	
-	@SubscribeEvent
-	public void tick(RenderWorldLastEvent event) {
-		if (mc.player != null && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
-			World world = mc.world;
-			EntityPlayer player = mc.player;
-			ItemStack stack = mc.player.getHeldItemMainhand();
-			
-			if (!LittleAction.canPlace(player))
-				return;
-			
-			handleUndoAndRedo(player);
-			
-			if (PlacementHelper.isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null))) {
-				if (marked != null)
-					marked.renderWorld(event.getPartialTicks());
-				
-				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-				
-				PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
-				
-				processRotateKeys(stack, position.getContext());
-				iTile.tickPreview(player, stack, position, mc.objectMouseOver);
-				
-				PlacementMode mode = iTile.getPlacementMode(stack);
-				
-				if (mode.getPreviewMode() == PreviewMode.PREVIEWS) {
-					GlStateManager.enableBlend();
-					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-					GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
-					GlStateManager.enableTexture2D();
-					mc.renderEngine.bindTexture(WHITE_TEXTURE);
-					GlStateManager.depthMask(false);
-					
-					boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-					PlacementPreview result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
-					
-					if (result != null) {
-						processMarkKey(player, iTile, stack, result);
-						double x = position.getPos().getX() - TileEntityRendererDispatcher.staticPlayerX;
-						double y = position.getPos().getY() - TileEntityRendererDispatcher.staticPlayerY;
-						double z = position.getPos().getZ() - TileEntityRendererDispatcher.staticPlayerZ;
-						
-						List<PlacePreview> placePreviews = result.getPreviews();
-						
-						float alpha = (float) (Math.sin(System.nanoTime() / 200000000F) * 0.2F + 0.5F);
-						
-						for (int i = 0; i < placePreviews.size(); i++) {
-							PlacePreview preview = placePreviews.get(i);
-							List<LittleRenderBox> cubes = preview.getPreviews(result.context);
-							for (LittleRenderBox cube : cubes)
-								cube.renderPreview(x, y, z, (int) (alpha * iTile.getPreviewAlphaFactor() * 255));
-						}
-						
-						if (position.positingCubes != null)
-							for (LittleRenderBox cube : position.positingCubes)
-								cube.renderPreview(x, y, z, (int) (alpha * iTile.getPreviewAlphaFactor() * 255));
-					}
-					
-					GlStateManager.depthMask(true);
-					GlStateManager.enableTexture2D();
-					GlStateManager.disableBlend();
-				}
-			} else
-				marked = null;
-		}
-	}
-	
-	public void processMarkKey(EntityPlayer player, ILittleTile iTile, ItemStack stack, PlacementPreview preview) {
-		while (LittleTilesClient.mark.isPressed()) {
-			if (marked == null)
-				marked = iTile.onMark(player, stack);
-			
-			if (marked != null && marked.processPosition(player, PlacementHelper.getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack), preview))
-				marked = null;
-		}
-	}
-	
-	public void processRotateKeys(ItemStack stack, LittleGridContext context) {
-		while (LittleTilesClient.flip.isPressed())
-			LittleEventHandler.processFlipKey(mc.player, stack);
-		
-		boolean repeated = marked != null;
-		
-		// Rotate Block
-		while (LittleTilesClient.up.isPressed(repeated)) {
-			if (marked != null)
-				marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.UP : EnumFacing.EAST);
-			else
-				LittleEventHandler.processRotateKey(mc.player, Rotation.Z_CLOCKWISE, stack);
-		}
-		
-		while (LittleTilesClient.down.isPressed(repeated)) {
-			if (marked != null)
-				marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.DOWN : EnumFacing.WEST);
-			else
-				LittleEventHandler.processRotateKey(mc.player, Rotation.Z_COUNTER_CLOCKWISE, stack);
-		}
-		
-		while (LittleTilesClient.right.isPressed(repeated)) {
-			if (marked != null)
-				marked.move(context, EnumFacing.SOUTH);
-			else
-				LittleEventHandler.processRotateKey(mc.player, Rotation.Y_COUNTER_CLOCKWISE, stack);
-		}
-		
-		while (LittleTilesClient.left.isPressed(repeated)) {
-			if (marked != null)
-				marked.move(context, EnumFacing.NORTH);
-			else
-				LittleEventHandler.processRotateKey(mc.player, Rotation.Y_CLOCKWISE, stack);
-		}
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void drawHighlight(DrawBlockHighlightEvent event) {
-		EntityPlayer player = event.getPlayer();
-		World world = player.world;
-		ItemStack stack = player.getHeldItemMainhand();
-		
-		if (!LittleAction.canPlace(player))
-			return;
-		
-		if ((event.getTarget().typeOfHit == Type.BLOCK || marked != null) && PlacementHelper.isLittleBlock(stack)) {
-			if (marked != null)
-				marked.renderBlockHighlight(player, event.getPartialTicks());
-			
-			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-			PlacementMode mode = iTile.getPlacementMode(stack);
-			if (mode.getPreviewMode() == PreviewMode.LINES) {
-				BlockPos pos = event.getTarget().getBlockPos();
-				IBlockState state = world.getBlockState(pos);
-				
-				PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
-				
-				boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-				
-				PlacementPreview result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
-				
-				if (result != null) {
-					processMarkKey(player, iTile, stack, result);
-					
-					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
-					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
-					double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
-					
-					GlStateManager.enableBlend();
-					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-					GlStateManager.glLineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
-					GlStateManager.enableTexture2D();
-					mc.renderEngine.bindTexture(WHITE_TEXTURE);
-					GlStateManager.depthMask(false);
-					
-					double x = position.getPos().getX();
-					double y = position.getPos().getY();
-					double z = position.getPos().getZ();
-					
-					d0 -= x;
-					d1 -= y;
-					d2 -= z;
-					
-					List<PlacePreview> placePreviews = result.getPreviews();
-					for (int i = 0; i < placePreviews.size(); i++)
-						for (LittleRenderBox cube : placePreviews.get(i).getPreviews(result.context))
-							cube.renderLines(-d0, -d1, -d2, 102);
-						
-					if (position.positingCubes != null)
-						for (LittleRenderBox cube : position.positingCubes)
-							cube.renderLines(-d0, -d1, -d2, 102);
-						
-					GlStateManager.depthMask(true);
-					GlStateManager.enableTexture2D();
-					GlStateManager.disableBlend();
-				}
-			}
-		}
-	}
+    
+    public static final ResourceLocation WHITE_TEXTURE = new ResourceLocation(LittleTiles.modid, "textures/preview.png");
+    
+    public static Minecraft mc = Minecraft.getMinecraft();
+    
+    public static MarkMode marked = null;
+    
+    public static boolean isCentered(EntityPlayer player, ILittleTile iTile) {
+        if (iTile.snapToGridByDefault())
+            return LittleAction.isUsingSecondMode(player) && marked == null;
+        return LittleTiles.CONFIG.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
+    }
+    
+    public static boolean isFixed(EntityPlayer player, ILittleTile iTile) {
+        if (iTile.snapToGridByDefault())
+            return !LittleAction.isUsingSecondMode(player) && marked == null;
+        return LittleTiles.CONFIG.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
+    }
+    
+    public static void handleUndoAndRedo(EntityPlayer player) {
+        while (LittleTilesClient.undo.isPressed()) {
+            try {
+                if (LittleAction.canUseUndoOrRedo(player))
+                    LittleAction.undo();
+            } catch (LittleActionException e) {
+                LittleAction.handleExceptionClient(e);
+            }
+        }
+        
+        while (LittleTilesClient.redo.isPressed()) {
+            try {
+                if (LittleAction.canUseUndoOrRedo(player))
+                    LittleAction.redo();
+            } catch (LittleActionException e) {
+                LittleAction.handleExceptionClient(e);
+            }
+        }
+    }
+    
+    @SubscribeEvent
+    public void tick(RenderWorldLastEvent event) {
+        if (mc.player != null && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
+            World world = mc.world;
+            EntityPlayer player = mc.player;
+            ItemStack stack = mc.player.getHeldItemMainhand();
+            
+            if (!LittleAction.canPlace(player))
+                return;
+            
+            handleUndoAndRedo(player);
+            
+            if (PlacementHelper
+                .isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null))) {
+                if (marked != null)
+                    marked.renderWorld(event.getPartialTicks());
+                
+                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+                
+                PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper
+                    .getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
+                
+                processRotateKeys(stack, position.getContext());
+                iTile.tickPreview(player, stack, position, mc.objectMouseOver);
+                
+                PlacementMode mode = iTile.getPlacementMode(stack);
+                
+                if (mode.getPreviewMode() == PreviewMode.PREVIEWS) {
+                    GlStateManager.enableBlend();
+                    GlStateManager
+                        .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                    GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
+                    GlStateManager.enableTexture2D();
+                    mc.renderEngine.bindTexture(WHITE_TEXTURE);
+                    GlStateManager.depthMask(false);
+                    
+                    boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
+                    PlacementPreview result = PlacementHelper
+                        .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
+                    
+                    if (result != null) {
+                        processMarkKey(player, iTile, stack, result);
+                        double x = position.getPos().getX() - TileEntityRendererDispatcher.staticPlayerX;
+                        double y = position.getPos().getY() - TileEntityRendererDispatcher.staticPlayerY;
+                        double z = position.getPos().getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+                        
+                        List<PlacePreview> placePreviews = result.getPreviews();
+                        
+                        float alpha = (float) (Math.sin(System.nanoTime() / 200000000F) * 0.2F + 0.5F);
+                        
+                        for (int i = 0; i < placePreviews.size(); i++) {
+                            PlacePreview preview = placePreviews.get(i);
+                            List<LittleRenderBox> cubes = preview.getPreviews(result.context);
+                            for (LittleRenderBox cube : cubes)
+                                cube.renderPreview(x, y, z, (int) (alpha * iTile.getPreviewAlphaFactor() * 255));
+                        }
+                        
+                        if (position.positingCubes != null)
+                            for (LittleRenderBox cube : position.positingCubes)
+                                cube.renderPreview(x, y, z, (int) (alpha * iTile.getPreviewAlphaFactor() * 255));
+                    }
+                    
+                    GlStateManager.depthMask(true);
+                    GlStateManager.enableTexture2D();
+                    GlStateManager.disableBlend();
+                }
+            } else
+                marked = null;
+        }
+    }
+    
+    public void processMarkKey(EntityPlayer player, ILittleTile iTile, ItemStack stack, PlacementPreview preview) {
+        while (LittleTilesClient.mark.isPressed()) {
+            if (marked == null)
+                marked = iTile.onMark(player, stack);
+            
+            if (marked != null && marked
+                .processPosition(player, PlacementHelper.getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack), preview))
+                marked = null;
+        }
+    }
+    
+    public void processRotateKeys(ItemStack stack, LittleGridContext context) {
+        while (LittleTilesClient.flip.isPressed())
+            LittleEventHandler.processFlipKey(mc.player, stack);
+        
+        boolean repeated = marked != null;
+        
+        // Rotate Block
+        while (LittleTilesClient.up.isPressed(repeated)) {
+            if (marked != null)
+                marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.UP : EnumFacing.EAST);
+            else
+                LittleEventHandler.processRotateKey(mc.player, Rotation.Z_CLOCKWISE, stack);
+        }
+        
+        while (LittleTilesClient.down.isPressed(repeated)) {
+            if (marked != null)
+                marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.DOWN : EnumFacing.WEST);
+            else
+                LittleEventHandler.processRotateKey(mc.player, Rotation.Z_COUNTER_CLOCKWISE, stack);
+        }
+        
+        while (LittleTilesClient.right.isPressed(repeated)) {
+            if (marked != null)
+                marked.move(context, EnumFacing.SOUTH);
+            else
+                LittleEventHandler.processRotateKey(mc.player, Rotation.Y_COUNTER_CLOCKWISE, stack);
+        }
+        
+        while (LittleTilesClient.left.isPressed(repeated)) {
+            if (marked != null)
+                marked.move(context, EnumFacing.NORTH);
+            else
+                LittleEventHandler.processRotateKey(mc.player, Rotation.Y_CLOCKWISE, stack);
+        }
+    }
+    
+    @SubscribeEvent
+    @SideOnly(Side.CLIENT)
+    public void drawHighlight(DrawBlockHighlightEvent event) {
+        EntityPlayer player = event.getPlayer();
+        World world = player.world;
+        ItemStack stack = player.getHeldItemMainhand();
+        
+        if (!LittleAction.canPlace(player))
+            return;
+        
+        if ((event.getTarget().typeOfHit == Type.BLOCK || marked != null) && PlacementHelper.isLittleBlock(stack)) {
+            if (marked != null)
+                marked.renderBlockHighlight(player, event.getPartialTicks());
+            
+            ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+            PlacementMode mode = iTile.getPlacementMode(stack);
+            if (mode.getPreviewMode() == PreviewMode.LINES) {
+                BlockPos pos = event.getTarget().getBlockPos();
+                IBlockState state = world.getBlockState(pos);
+                
+                PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper
+                    .getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
+                
+                boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
+                
+                PlacementPreview result = PlacementHelper
+                    .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
+                
+                if (result != null) {
+                    processMarkKey(player, iTile, stack, result);
+                    
+                    double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
+                    double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
+                    double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
+                    
+                    GlStateManager.enableBlend();
+                    GlStateManager
+                        .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                    GlStateManager.glLineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
+                    GlStateManager.enableTexture2D();
+                    mc.renderEngine.bindTexture(WHITE_TEXTURE);
+                    GlStateManager.depthMask(false);
+                    
+                    double x = position.getPos().getX();
+                    double y = position.getPos().getY();
+                    double z = position.getPos().getZ();
+                    
+                    d0 -= x;
+                    d1 -= y;
+                    d2 -= z;
+                    
+                    List<PlacePreview> placePreviews = result.getPreviews();
+                    for (int i = 0; i < placePreviews.size(); i++)
+                        for (LittleRenderBox cube : placePreviews.get(i).getPreviews(result.context))
+                            cube.renderLines(-d0, -d1, -d2, 102);
+                        
+                    if (position.positingCubes != null)
+                        for (LittleRenderBox cube : position.positingCubes)
+                            cube.renderLines(-d0, -d1, -d2, 102);
+                        
+                    GlStateManager.depthMask(true);
+                    GlStateManager.enableTexture2D();
+                    GlStateManager.disableBlend();
+                }
+            }
+        }
+    }
 }

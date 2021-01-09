@@ -38,153 +38,154 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionReplace extends LittleActionInteract {
-	
-	public LittlePreview toReplace;
-	
-	public LittleActionReplace(World world, BlockPos blockPos, EntityPlayer player, LittlePreview toReplace) {
-		super(world, blockPos, player);
-		this.toReplace = toReplace;
-	}
-	
-	public LittleActionReplace() {
-		
-	}
-	
-	@Override
-	public void writeBytes(ByteBuf buf) {
-		super.writeBytes(buf);
-		NBTTagCompound nbt = new NBTTagCompound();
-		toReplace.writeToNBT(nbt);
-		writeNBT(buf, nbt);
-	}
-	
-	@Override
-	public void readBytes(ByteBuf buf) {
-		super.readBytes(buf);
-		toReplace = LittleTileRegistry.loadPreview(readNBT(buf));
-	}
-	
-	@Override
-	protected boolean isRightClick() {
-		return false;
-	}
-	
-	public LittleAbsolutePreviews replacedTiles;
-	public LittleBoxes boxes;
-	
-	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-		
-		if (!world.isRemote) {
-			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
-			MinecraftForge.EVENT_BUS.post(event);
-			if (event.isCanceled()) {
-				sendBlockResetToClient(world, (EntityPlayerMP) player, te);
-				return false;
-			}
-		}
-		
-		replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
-		boxes = new LittleBoxes(pos, te.getContext());
-		
-		if (LittleTiles.CONFIG.isTransparencyRestricted(player))
-			isAllowedToPlacePreview(player, toReplace);
-		
-		if (BlockTile.selectEntireBlock(player, secondMode)) {
-			List<LittleTile> toRemove = new ArrayList<>();
-			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
-			LittlePreviews previews = new LittlePreviews(te.getContext());
-			
-			parent = te.noneStructureTiles();
-			for (LittleTile toDestroy : parent) {
-				if (tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
-					replacedTiles.addTile(parent, toDestroy);
-					boxes.addBox(parent, toDestroy);
-					
-					toBePlaced.addTile(parent, toDestroy);
-					LittlePreview preview = toReplace.copy();
-					preview.box = toDestroy.getBox();
-					previews.addWithoutCheckingPreview(preview);
-					
-					toRemove.add(toDestroy);
-				}
-			}
-			
-			if (toRemove.isEmpty())
-				return false;
-			
-			LittleInventory inventory = new LittleInventory(player);
-			
-			try {
-				inventory.startSimulation();
-				take(player, inventory, getIngredients(toBePlaced));
-				give(player, inventory, getIngredients(replacedTiles));
-			} finally {
-				inventory.stopSimulation();
-			}
-			
-			te.updateTilesSecretly(x -> x.noneStructureTiles().removeAll(toRemove));
-			
-			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
-			placement.place();
-			checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
-		} else {
-			if (parent.isStructure())
-				return false;
-			
-			LittleInventory inventory = new LittleInventory(player);
-			
-			replacedTiles.addTile(parent, tile);
-			boxes.addBox(parent, tile);
-			
-			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
-			toReplace.box = tile.getBox().copy();
-			toBePlaced.addPreview(null, toReplace, te.getContext());
-			
-			try {
-				inventory.startSimulation();
-				take(player, inventory, getIngredients(toBePlaced));
-				give(player, inventory, getIngredients(replacedTiles));
-			} finally {
-				inventory.stopSimulation();
-			}
-			
-			te.updateTilesSecretly((x) -> x.noneStructureTiles().remove(tile));
-			
-			LittlePreviews previews = new LittlePreviews(te.getContext());
-			previews.addWithoutCheckingPreview(toReplace);
-			
-			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
-			placement.place();
-			checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
-		}
-		
-		world.playSound((EntityPlayer) null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
-		
-		return true;
-	}
-	
-	@Override
-	public boolean canBeReverted() {
-		return true;
-	}
-	
-	@Override
-	public LittleAction revert(EntityPlayer player) throws LittleActionException {
-		return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, PlacementMode.normal));
-	}
-	
-	@Override
-	public LittleAction flip(Axis axis, LittleAbsoluteBox absoluteBox) {
-		LittleBoxes boxes = this.boxes.copy();
-		boxes.flip(axis, absoluteBox);
-		
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(boxes.pos, boxes.context);
-		for (LittleBox box : boxes) {
-			LittlePreview preview = toReplace.copy();
-			preview.box = box;
-			previews.addWithoutCheckingPreview(preview);
-		}
-		return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(previews, PlacementMode.normal));
-	}
+    
+    public LittlePreview toReplace;
+    
+    public LittleActionReplace(World world, BlockPos blockPos, EntityPlayer player, LittlePreview toReplace) {
+        super(world, blockPos, player);
+        this.toReplace = toReplace;
+    }
+    
+    public LittleActionReplace() {
+        
+    }
+    
+    @Override
+    public void writeBytes(ByteBuf buf) {
+        super.writeBytes(buf);
+        NBTTagCompound nbt = new NBTTagCompound();
+        toReplace.writeToNBT(nbt);
+        writeNBT(buf, nbt);
+    }
+    
+    @Override
+    public void readBytes(ByteBuf buf) {
+        super.readBytes(buf);
+        toReplace = LittleTileRegistry.loadPreview(readNBT(buf));
+    }
+    
+    @Override
+    protected boolean isRightClick() {
+        return false;
+    }
+    
+    public LittleAbsolutePreviews replacedTiles;
+    public LittleBoxes boxes;
+    
+    @Override
+    protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+        
+        if (!world.isRemote) {
+            BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.isCanceled()) {
+                sendBlockResetToClient(world, (EntityPlayerMP) player, te);
+                return false;
+            }
+        }
+        
+        replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
+        boxes = new LittleBoxes(pos, te.getContext());
+        
+        if (LittleTiles.CONFIG.isTransparencyRestricted(player))
+            isAllowedToPlacePreview(player, toReplace);
+        
+        if (BlockTile.selectEntireBlock(player, secondMode)) {
+            List<LittleTile> toRemove = new ArrayList<>();
+            LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
+            LittlePreviews previews = new LittlePreviews(te.getContext());
+            
+            parent = te.noneStructureTiles();
+            for (LittleTile toDestroy : parent) {
+                if (tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
+                    replacedTiles.addTile(parent, toDestroy);
+                    boxes.addBox(parent, toDestroy);
+                    
+                    toBePlaced.addTile(parent, toDestroy);
+                    LittlePreview preview = toReplace.copy();
+                    preview.box = toDestroy.getBox();
+                    previews.addWithoutCheckingPreview(preview);
+                    
+                    toRemove.add(toDestroy);
+                }
+            }
+            
+            if (toRemove.isEmpty())
+                return false;
+            
+            LittleInventory inventory = new LittleInventory(player);
+            
+            try {
+                inventory.startSimulation();
+                take(player, inventory, getIngredients(toBePlaced));
+                give(player, inventory, getIngredients(replacedTiles));
+            } finally {
+                inventory.stopSimulation();
+            }
+            
+            te.updateTilesSecretly(x -> x.noneStructureTiles().removeAll(toRemove));
+            
+            Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
+            placement.place();
+            checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+        } else {
+            if (parent.isStructure())
+                return false;
+            
+            LittleInventory inventory = new LittleInventory(player);
+            
+            replacedTiles.addTile(parent, tile);
+            boxes.addBox(parent, tile);
+            
+            LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
+            toReplace.box = tile.getBox().copy();
+            toBePlaced.addPreview(null, toReplace, te.getContext());
+            
+            try {
+                inventory.startSimulation();
+                take(player, inventory, getIngredients(toBePlaced));
+                give(player, inventory, getIngredients(replacedTiles));
+            } finally {
+                inventory.stopSimulation();
+            }
+            
+            te.updateTilesSecretly((x) -> x.noneStructureTiles().remove(tile));
+            
+            LittlePreviews previews = new LittlePreviews(te.getContext());
+            previews.addWithoutCheckingPreview(toReplace);
+            
+            Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
+            placement.place();
+            checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+        }
+        
+        world.playSound((EntityPlayer) null, pos, tile.getSound()
+            .getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
+        
+        return true;
+    }
+    
+    @Override
+    public boolean canBeReverted() {
+        return true;
+    }
+    
+    @Override
+    public LittleAction revert(EntityPlayer player) throws LittleActionException {
+        return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, PlacementMode.normal));
+    }
+    
+    @Override
+    public LittleAction flip(Axis axis, LittleAbsoluteBox absoluteBox) {
+        LittleBoxes boxes = this.boxes.copy();
+        boxes.flip(axis, absoluteBox);
+        
+        LittleAbsolutePreviews previews = new LittleAbsolutePreviews(boxes.pos, boxes.context);
+        for (LittleBox box : boxes) {
+            LittlePreview preview = toReplace.copy();
+            preview.box = box;
+            previews.addWithoutCheckingPreview(preview);
+        }
+        return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(previews, PlacementMode.normal));
+    }
 }

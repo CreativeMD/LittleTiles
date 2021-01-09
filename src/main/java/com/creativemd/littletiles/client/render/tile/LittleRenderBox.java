@@ -7,12 +7,12 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import net.minecraft.block.Block;
 
 public class LittleRenderBox extends RenderBox {
-	
-	public LittleBox box;
-	
-	public LittleRenderBox(AlignedBox cube, LittleBox box, Block block, int meta) {
-		super(cube, block, meta);
-		this.box = box;
-	}
-	
+    
+    public LittleBox box;
+    
+    public LittleRenderBox(AlignedBox cube, LittleBox box, Block block, int meta) {
+        super(cube, block, meta);
+        this.box = box;
+    }
+    
 }

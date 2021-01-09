@@ -9,17 +9,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class AnimationEventGuiParser<T extends AnimationEvent> {
-	
-	@SideOnly(Side.CLIENT)
-	public abstract void createControls(GuiParent parent, @Nullable T event, LittlePreviews previews);
-	
-	@Nullable
-	@SideOnly(Side.CLIENT)
-	public abstract T parse(GuiParent parent, T event);
-	
-	@SideOnly(Side.CLIENT)
-	public int getHeight() {
-		return 30;
-	}
-	
+    
+    @SideOnly(Side.CLIENT)
+    public abstract void createControls(GuiParent parent, @Nullable T event, LittlePreviews previews);
+    
+    @Nullable
+    @SideOnly(Side.CLIENT)
+    public abstract T parse(GuiParent parent, T event);
+    
+    @SideOnly(Side.CLIENT)
+    public int getHeight() {
+        return 30;
+    }
+    
 }

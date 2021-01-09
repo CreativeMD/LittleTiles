@@ -14,32 +14,32 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 
 public class BlockArrow extends Block {
-	
-	public static final PropertyEnum<EnumFacing> FACING = PropertyEnum.<EnumFacing>create("facing", EnumFacing.class);
-	
-	public BlockArrow() {
-		super(Material.CIRCUITS);
-		setCreativeTab(LittleTiles.littleTab);
-	}
-	
-	@Override
-	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-		
-	}
-	
-	@Override
-	public int getMetaFromState(IBlockState state) {
-		return state.getValue(FACING).ordinal();
-	}
-	
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(FACING, EnumFacing.VALUES[meta]);
-	}
-	
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { FACING });
-	}
-	
+    
+    public static final PropertyEnum<EnumFacing> FACING = PropertyEnum.<EnumFacing>create("facing", EnumFacing.class);
+    
+    public BlockArrow() {
+        super(Material.CIRCUITS);
+        setCreativeTab(LittleTiles.littleTab);
+    }
+    
+    @Override
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+        
+    }
+    
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(FACING).ordinal();
+    }
+    
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return getDefaultState().withProperty(FACING, EnumFacing.VALUES[meta]);
+    }
+    
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, new IProperty[] { FACING });
+    }
+    
 }

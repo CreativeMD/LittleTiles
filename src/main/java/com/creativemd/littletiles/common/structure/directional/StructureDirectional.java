@@ -11,9 +11,9 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface StructureDirectional {
-	
-	String saveKey() default "";
-	
-	int color() default ColorUtils.WHITE;
-	
+    
+    String saveKey() default "";
+    
+    int color() default ColorUtils.WHITE;
+    
 }

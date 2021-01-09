@@ -39,140 +39,140 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile {
-	
-	public static PlacementMode currentMode = PlacementMode.getDefault();
-	public static LittleGridContext currentContext;
-	
-	public ItemMultiTiles() {
-		hasSubtypes = true;
-		setCreativeTab(LittleTiles.littleTab);
-	}
-	
-	@Override
-	public String getItemStackDisplayName(ItemStack stack) {
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure") && stack.getTagCompound().getCompoundTag("structure").hasKey("name"))
-			return stack.getTagCompound().getCompoundTag("structure").getString("name");
-		return super.getItemStackDisplayName(stack);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		if (stack.hasTagCompound()) {
-			String id = "none";
-			if (stack.getTagCompound().hasKey("structure"))
-				id = stack.getTagCompound().getCompoundTag("structure").getString("id");
-			tooltip.add("structure: " + id);
-			tooltip.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
-		}
-	}
-	
-	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		/* ItemStack stack = player.getHeldItem(hand); if(stack.hasTagCompound()) return
-		 * Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos,
-		 * hand, facing, hitX, hitY, hitZ); */
-		return EnumActionResult.PASS;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-		
-	}
-	
-	@Override
-	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittlePreview.savePreview(previews, stack);
-	}
-	
-	@Override
-	public boolean hasLittlePreview(ItemStack stack) {
-		return true;
-	}
-	
-	@Override
-	public LittlePreviews getLittlePreview(ItemStack stack) {
-		return LittlePreview.getPreview(stack);
-	}
-	
-	@Override
-	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
-		return LittlePreview.getPreview(stack, allowLowResolution);
-	}
-	
-	@Override
-	public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		return LittlePreview.getCubes(stack);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
-		if (stack.hasTagCompound()) {
-			LittleVec size = LittlePreview.getSize(stack);
-			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
-			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
-			GlStateManager.scale(scaler, scaler, scaler);
-		}
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
-		if (stack != null)
-			ItemModelCache.cacheModel(stack, facing, cachedQuads);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
-		if (stack == null)
-			return null;
-		return ItemModelCache.requestCache(stack, facing);
-	}
-	
-	@Override
-	public PlacementMode getPlacementMode(ItemStack stack) {
-		if (!currentMode.canPlaceStructures() && stack.hasTagCompound() && stack.getTagCompound().hasKey("structure"))
-			return PlacementMode.getStructureDefault();
-		return currentMode;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
-		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
-			
-			@Override
-			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
-				ItemMultiTiles.currentContext = context;
-				ItemMultiTiles.currentMode = mode;
-			}
-			
-		};
-	}
-	
-	@Override
-	public boolean containsIngredients(ItemStack stack) {
-		return true;
-	}
-	
-	@Override
-	public LittleGridContext getPositionContext(ItemStack stack) {
-		return currentContext;
-	}
-	
-	@Override
-	public LittleVec getCachedSize(ItemStack stack) {
-		if (stack.getTagCompound().hasKey("size"))
-			return LittlePreview.getSize(stack);
-		return null;
-	}
-	
-	@Override
-	public LittleVec getCachedOffset(ItemStack stack) {
-		return LittlePreview.getOffset(stack);
-	}
-	
+    
+    public static PlacementMode currentMode = PlacementMode.getDefault();
+    public static LittleGridContext currentContext;
+    
+    public ItemMultiTiles() {
+        hasSubtypes = true;
+        setCreativeTab(LittleTiles.littleTab);
+    }
+    
+    @Override
+    public String getItemStackDisplayName(ItemStack stack) {
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure") && stack.getTagCompound().getCompoundTag("structure").hasKey("name"))
+            return stack.getTagCompound().getCompoundTag("structure").getString("name");
+        return super.getItemStackDisplayName(stack);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        if (stack.hasTagCompound()) {
+            String id = "none";
+            if (stack.getTagCompound().hasKey("structure"))
+                id = stack.getTagCompound().getCompoundTag("structure").getString("id");
+            tooltip.add("structure: " + id);
+            tooltip.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
+        }
+    }
+    
+    @Override
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        /* ItemStack stack = player.getHeldItem(hand); if(stack.hasTagCompound()) return
+         * Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos,
+         * hand, facing, hitX, hitY, hitZ); */
+        return EnumActionResult.PASS;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
+        
+    }
+    
+    @Override
+    public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
+        LittlePreview.savePreview(previews, stack);
+    }
+    
+    @Override
+    public boolean hasLittlePreview(ItemStack stack) {
+        return true;
+    }
+    
+    @Override
+    public LittlePreviews getLittlePreview(ItemStack stack) {
+        return LittlePreview.getPreview(stack);
+    }
+    
+    @Override
+    public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
+        return LittlePreview.getPreview(stack, allowLowResolution);
+    }
+    
+    @Override
+    public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+        return LittlePreview.getCubes(stack);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
+        if (stack.hasTagCompound()) {
+            LittleVec size = LittlePreview.getSize(stack);
+            LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
+            double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
+            GlStateManager.scale(scaler, scaler, scaler);
+        }
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+        if (stack != null)
+            ItemModelCache.cacheModel(stack, facing, cachedQuads);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+        if (stack == null)
+            return null;
+        return ItemModelCache.requestCache(stack, facing);
+    }
+    
+    @Override
+    public PlacementMode getPlacementMode(ItemStack stack) {
+        if (!currentMode.canPlaceStructures() && stack.hasTagCompound() && stack.getTagCompound().hasKey("structure"))
+            return PlacementMode.getStructureDefault();
+        return currentMode;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+            
+            @Override
+            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+                ItemMultiTiles.currentContext = context;
+                ItemMultiTiles.currentMode = mode;
+            }
+            
+        };
+    }
+    
+    @Override
+    public boolean containsIngredients(ItemStack stack) {
+        return true;
+    }
+    
+    @Override
+    public LittleGridContext getPositionContext(ItemStack stack) {
+        return currentContext;
+    }
+    
+    @Override
+    public LittleVec getCachedSize(ItemStack stack) {
+        if (stack.getTagCompound().hasKey("size"))
+            return LittlePreview.getSize(stack);
+        return null;
+    }
+    
+    @Override
+    public LittleVec getCachedOffset(ItemStack stack) {
+        return LittlePreview.getOffset(stack);
+    }
+    
 }

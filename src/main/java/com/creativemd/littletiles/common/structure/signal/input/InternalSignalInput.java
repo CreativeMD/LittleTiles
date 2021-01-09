@@ -9,29 +9,29 @@ import com.creativemd.littletiles.common.structure.signal.component.SignalCompon
 import net.minecraft.nbt.NBTTagCompound;
 
 public class InternalSignalInput extends InternalSignal<InternalComponent> {
-	
-	public InternalSignalInput(LittleStructure parent, InternalComponent component) {
-		super(parent, component);
-	}
-	
-	@Override
-	public void changed() {
-		parent.changed(this);
-	}
-	
-	@Override
-	public SignalComponentType getType() {
-		return SignalComponentType.INPUT;
-	}
-	
-	@Override
-	public void load(NBTTagCompound nbt) {
-		BooleanUtils.intToBool(nbt.getInteger(component.identifier), getState());
-	}
-	
-	@Override
-	public NBTTagCompound write(boolean preview, NBTTagCompound nbt) {
-		nbt.setInteger(component.identifier, BooleanUtils.boolToInt(getState()));
-		return nbt;
-	}
+    
+    public InternalSignalInput(LittleStructure parent, InternalComponent component) {
+        super(parent, component);
+    }
+    
+    @Override
+    public void changed() {
+        parent.changed(this);
+    }
+    
+    @Override
+    public SignalComponentType getType() {
+        return SignalComponentType.INPUT;
+    }
+    
+    @Override
+    public void load(NBTTagCompound nbt) {
+        BooleanUtils.intToBool(nbt.getInteger(component.identifier), getState());
+    }
+    
+    @Override
+    public NBTTagCompound write(boolean preview, NBTTagCompound nbt) {
+        nbt.setInteger(component.identifier, BooleanUtils.boolToInt(getState()));
+        return nbt;
+    }
 }

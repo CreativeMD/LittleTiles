@@ -22,126 +22,126 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 public class StructureChildConnection implements IStructureConnection {
-	
-	public final LittleStructure parent;
-	public final boolean isChild;
-	public final int childId;
-	
-	private final int structureIndex;
-	private final int attribute;
-	private final BlockPos relativePos;
-	private TileEntityLittleTiles cachedTe;
-	
-	public StructureChildConnection(LittleStructure parent, boolean isChild, int childId, BlockPos relative, int index, int attribute) {
-		this.parent = parent;
-		this.isChild = isChild;
-		this.childId = childId;
-		this.structureIndex = index;
-		this.attribute = attribute;
-		this.relativePos = relative;
-	}
-	
-	public StructureChildConnection(LittleStructure parent, boolean isChild, NBTTagCompound nbt) {
-		this.parent = parent;
-		this.isChild = isChild;
-		this.childId = nbt.getInteger("child");
-		this.attribute = nbt.getInteger("type");
-		this.structureIndex = nbt.getInteger("index");
-		int[] array = nbt.getIntArray("coord");
-		if (array.length == 3)
-			relativePos = new BlockPos(array[0], array[1], array[2]);
-		else
-			throw new InvalidParameterException("No valid coord given " + nbt);
-	}
-	
-	public boolean isChild() {
-		return isChild;
-	}
-	
-	public int getChildId() {
-		return childId;
-	}
-	
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		nbt.setInteger("child", childId);
-		nbt.setIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
-		nbt.setInteger("type", attribute);
-		nbt.setInteger("index", structureIndex);
-		return nbt;
-	}
-	
-	public void destroyStructure() throws CorruptedConnectionException, NotYetConnectedException {
-		if (!isChild())
-			getStructure().removeStructure();
-	}
-	
-	public EntityAnimation getAnimation() {
-		return null;
-	}
-	
-	@Override
-	public BlockPos getStructurePosition() {
-		return relativePos.add(parent.getPos());
-	}
-	
-	@Override
-	public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {
-		TileEntityLittleTiles te = getTileEntity();
-		if (!te.hasLoaded())
-			throw new NotYetConnectedException();
-		IStructureTileList structure = te.getStructure(structureIndex);
-		if (structure != null)
-			return structure.getStructure();
-		throw new MissingStructureException(te.getPos());
-	}
-	
-	protected World getWorld() throws CorruptedConnectionException, NotYetConnectedException {
-		return parent.getWorld();
-	}
-	
-	protected TileEntityLittleTiles getTileEntity() throws CorruptedConnectionException, NotYetConnectedException {
-		if (cachedTe != null && !cachedTe.isInvalid())
-			return cachedTe;
-		
-		if (relativePos == null)
-			throw new CorruptedLinkException();
-		
-		World world = getWorld();
-		
-		if (world == null)
-			throw new MissingWorldException();
-		
-		BlockPos absoluteCoord = getStructurePosition();
-		Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
-		if (WorldUtils.checkIfChunkExists(chunk)) {
-			TileEntity te = world.getTileEntity(absoluteCoord);
-			if (te instanceof TileEntityLittleTiles)
-				return cachedTe = (TileEntityLittleTiles) te;
-			else
-				throw new MissingBlockException(absoluteCoord);
-		} else
-			throw new NotYetConnectedException();
-	}
-	
-	@Override
-	public int getIndex() {
-		return structureIndex;
-	}
-	
-	@Override
-	public int getAttribute() {
-		return attribute;
-	}
-	
-	public static StructureChildConnection loadFromNBT(LittleStructure structure, NBTTagCompound nbt, boolean isChild) {
-		if (nbt.hasKey("childID")) // Old
-			return StructureLink.loadFromNBTOld(structure, nbt, isChild);
-		
-		if (nbt.hasKey("entity"))
-			return new StructureChildToSubWorldConnection(structure, nbt);
-		else if (nbt.getBoolean("subWorld"))
-			return new StructureChildFromSubWorldConnection(structure, nbt);
-		return new StructureChildConnection(structure, isChild, nbt);
-	}
-	
+    
+    public final LittleStructure parent;
+    public final boolean isChild;
+    public final int childId;
+    
+    private final int structureIndex;
+    private final int attribute;
+    private final BlockPos relativePos;
+    private TileEntityLittleTiles cachedTe;
+    
+    public StructureChildConnection(LittleStructure parent, boolean isChild, int childId, BlockPos relative, int index, int attribute) {
+        this.parent = parent;
+        this.isChild = isChild;
+        this.childId = childId;
+        this.structureIndex = index;
+        this.attribute = attribute;
+        this.relativePos = relative;
+    }
+    
+    public StructureChildConnection(LittleStructure parent, boolean isChild, NBTTagCompound nbt) {
+        this.parent = parent;
+        this.isChild = isChild;
+        this.childId = nbt.getInteger("child");
+        this.attribute = nbt.getInteger("type");
+        this.structureIndex = nbt.getInteger("index");
+        int[] array = nbt.getIntArray("coord");
+        if (array.length == 3)
+            relativePos = new BlockPos(array[0], array[1], array[2]);
+        else
+            throw new InvalidParameterException("No valid coord given " + nbt);
+    }
+    
+    public boolean isChild() {
+        return isChild;
+    }
+    
+    public int getChildId() {
+        return childId;
+    }
+    
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+        nbt.setInteger("child", childId);
+        nbt.setIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
+        nbt.setInteger("type", attribute);
+        nbt.setInteger("index", structureIndex);
+        return nbt;
+    }
+    
+    public void destroyStructure() throws CorruptedConnectionException, NotYetConnectedException {
+        if (!isChild())
+            getStructure().removeStructure();
+    }
+    
+    public EntityAnimation getAnimation() {
+        return null;
+    }
+    
+    @Override
+    public BlockPos getStructurePosition() {
+        return relativePos.add(parent.getPos());
+    }
+    
+    @Override
+    public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {
+        TileEntityLittleTiles te = getTileEntity();
+        if (!te.hasLoaded())
+            throw new NotYetConnectedException();
+        IStructureTileList structure = te.getStructure(structureIndex);
+        if (structure != null)
+            return structure.getStructure();
+        throw new MissingStructureException(te.getPos());
+    }
+    
+    protected World getWorld() throws CorruptedConnectionException, NotYetConnectedException {
+        return parent.getWorld();
+    }
+    
+    protected TileEntityLittleTiles getTileEntity() throws CorruptedConnectionException, NotYetConnectedException {
+        if (cachedTe != null && !cachedTe.isInvalid())
+            return cachedTe;
+        
+        if (relativePos == null)
+            throw new CorruptedLinkException();
+        
+        World world = getWorld();
+        
+        if (world == null)
+            throw new MissingWorldException();
+        
+        BlockPos absoluteCoord = getStructurePosition();
+        Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
+        if (WorldUtils.checkIfChunkExists(chunk)) {
+            TileEntity te = world.getTileEntity(absoluteCoord);
+            if (te instanceof TileEntityLittleTiles)
+                return cachedTe = (TileEntityLittleTiles) te;
+            else
+                throw new MissingBlockException(absoluteCoord);
+        } else
+            throw new NotYetConnectedException();
+    }
+    
+    @Override
+    public int getIndex() {
+        return structureIndex;
+    }
+    
+    @Override
+    public int getAttribute() {
+        return attribute;
+    }
+    
+    public static StructureChildConnection loadFromNBT(LittleStructure structure, NBTTagCompound nbt, boolean isChild) {
+        if (nbt.hasKey("childID")) // Old
+            return StructureLink.loadFromNBTOld(structure, nbt, isChild);
+        
+        if (nbt.hasKey("entity"))
+            return new StructureChildToSubWorldConnection(structure, nbt);
+        else if (nbt.getBoolean("subWorld"))
+            return new StructureChildFromSubWorldConnection(structure, nbt);
+        return new StructureChildConnection(structure, isChild, nbt);
+    }
+    
 }

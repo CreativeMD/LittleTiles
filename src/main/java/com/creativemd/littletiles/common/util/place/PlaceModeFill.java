@@ -13,44 +13,44 @@ import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeFill extends PlacementMode {
-	
-	public PlaceModeFill(String name, PreviewMode mode) {
-		super(name, mode, false);
-	}
-	
-	@Override
-	public boolean checkAll() {
-		return false;
-	}
-	
-	@Override
-	public List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos) {
-		return null;
-	}
-	
-	@Override
-	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
-		List<LittleTile> tiles = new ArrayList<>();
-		if (!requiresCollisionTest) {
-			tiles.add(tile);
-			return tiles;
-		}
-		
-		List<LittleBox> cutout = new ArrayList<>();
-		List<LittleBox> boxes = block.getTe().cutOut(tile.getBox(), cutout);
-		
-		for (LittleBox box : boxes) {
-			LittleTile newTile = tile.copy();
-			newTile.setBox(box);
-			tiles.add(newTile);
-		}
-		
-		for (LittleBox box : cutout) {
-			LittleTile newTile = tile.copy();
-			newTile.setBox(box);
-			placement.unplaceableTiles.addTile(parent, newTile);
-		}
-		
-		return tiles;
-	}
+    
+    public PlaceModeFill(String name, PreviewMode mode) {
+        super(name, mode, false);
+    }
+    
+    @Override
+    public boolean checkAll() {
+        return false;
+    }
+    
+    @Override
+    public List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos) {
+        return null;
+    }
+    
+    @Override
+    public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
+        List<LittleTile> tiles = new ArrayList<>();
+        if (!requiresCollisionTest) {
+            tiles.add(tile);
+            return tiles;
+        }
+        
+        List<LittleBox> cutout = new ArrayList<>();
+        List<LittleBox> boxes = block.getTe().cutOut(tile.getBox(), cutout);
+        
+        for (LittleBox box : boxes) {
+            LittleTile newTile = tile.copy();
+            newTile.setBox(box);
+            tiles.add(newTile);
+        }
+        
+        for (LittleBox box : cutout) {
+            LittleTile newTile = tile.copy();
+            newTile.setBox(box);
+            placement.unplaceableTiles.addTile(parent, newTile);
+        }
+        
+        return tiles;
+    }
 }

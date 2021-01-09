@@ -11,43 +11,43 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class StructureChildFromSubWorldConnection extends StructureChildConnection {
-	
-	public StructureChildFromSubWorldConnection(LittleStructure parent, int childId, BlockPos relative, int index, int attribute) {
-		super(parent, true, childId, relative, index, attribute);
-	}
-	
-	public StructureChildFromSubWorldConnection(LittleStructure parent, NBTTagCompound nbt) {
-		super(parent, true, nbt);
-	}
-	
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		nbt = super.writeToNBT(nbt);
-		nbt.setBoolean("subWorld", true);
-		return nbt;
-	}
-	
-	@Override
-	protected World getWorld() throws CorruptedConnectionException, NotYetConnectedException {
-		return ((SubWorld) parent.getWorld()).parentWorld;
-	}
-	
-	@Override
-	public EntityAnimation getAnimation() {
-		SubWorld fakeWorld = (SubWorld) parent.getWorld();
-		return (EntityAnimation) fakeWorld.parent;
-	}
-	
-	@Override
-	public void destroyStructure() {
-		SubWorld fakeWorld = (SubWorld) parent.getWorld();
-		((EntityAnimation) fakeWorld.parent).markRemoved();
-		parent.onStructureDestroyed();
-	}
-	
-	@Override
-	public boolean isLinkToAnotherWorld() {
-		return true;
-	}
-	
+    
+    public StructureChildFromSubWorldConnection(LittleStructure parent, int childId, BlockPos relative, int index, int attribute) {
+        super(parent, true, childId, relative, index, attribute);
+    }
+    
+    public StructureChildFromSubWorldConnection(LittleStructure parent, NBTTagCompound nbt) {
+        super(parent, true, nbt);
+    }
+    
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+        nbt = super.writeToNBT(nbt);
+        nbt.setBoolean("subWorld", true);
+        return nbt;
+    }
+    
+    @Override
+    protected World getWorld() throws CorruptedConnectionException, NotYetConnectedException {
+        return ((SubWorld) parent.getWorld()).parentWorld;
+    }
+    
+    @Override
+    public EntityAnimation getAnimation() {
+        SubWorld fakeWorld = (SubWorld) parent.getWorld();
+        return (EntityAnimation) fakeWorld.parent;
+    }
+    
+    @Override
+    public void destroyStructure() {
+        SubWorld fakeWorld = (SubWorld) parent.getWorld();
+        ((EntityAnimation) fakeWorld.parent).markRemoved();
+        parent.onStructureDestroyed();
+    }
+    
+    @Override
+    public boolean isLinkToAnotherWorld() {
+        return true;
+    }
+    
 }

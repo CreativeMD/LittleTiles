@@ -11,25 +11,25 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.NonNullList;
 
 public class BlockCable extends BlockRotatedPillar {
-	
-	public BlockCable() {
-		super(Material.CIRCUITS);
-		setCreativeTab(LittleTiles.littleTab);
-	}
-	
-	@Override
-	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-		
-	}
-	
-	@Override
-	public int getMetaFromState(IBlockState state) {
-		return state.getValue(BlockRotatedPillar.AXIS).ordinal();
-	}
-	
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(BlockRotatedPillar.AXIS, Axis.values()[meta]);
-	}
-	
+    
+    public BlockCable() {
+        super(Material.CIRCUITS);
+        setCreativeTab(LittleTiles.littleTab);
+    }
+    
+    @Override
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+        
+    }
+    
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(BlockRotatedPillar.AXIS).ordinal();
+    }
+    
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return getDefaultState().withProperty(BlockRotatedPillar.AXIS, Axis.values()[meta]);
+    }
+    
 }

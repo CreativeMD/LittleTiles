@@ -18,30 +18,30 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleBlankOMatic extends LittleStructurePremade {
-	
-	public InventoryBasic inventory;
-	public int whiteColor;
-	
-	public LittleBlankOMatic(LittleStructureType type, IStructureTileList mainBlock) {
-		super(type, mainBlock);
-	}
-	
-	@Override
-	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		inventory = InventoryUtils.loadInventoryBasic(nbt, 1);
-		whiteColor = nbt.getInteger("white");
-	}
-	
-	@Override
-	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		InventoryUtils.saveInventoryBasic(inventory);
-		nbt.setInteger("white", whiteColor);
-	}
-	
-	@Override
-	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-		LittleStructureGuiHandler.openGui("blankomatic", new NBTTagCompound(), playerIn, this);
-		return true;
-	}
-	
+    
+    public InventoryBasic inventory;
+    public int whiteColor;
+    
+    public LittleBlankOMatic(LittleStructureType type, IStructureTileList mainBlock) {
+        super(type, mainBlock);
+    }
+    
+    @Override
+    protected void loadFromNBTExtra(NBTTagCompound nbt) {
+        inventory = InventoryUtils.loadInventoryBasic(nbt, 1);
+        whiteColor = nbt.getInteger("white");
+    }
+    
+    @Override
+    protected void writeToNBTExtra(NBTTagCompound nbt) {
+        InventoryUtils.saveInventoryBasic(inventory);
+        nbt.setInteger("white", whiteColor);
+    }
+    
+    @Override
+    public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
+        LittleStructureGuiHandler.openGui("blankomatic", new NBTTagCompound(), playerIn, this);
+        return true;
+    }
+    
 }

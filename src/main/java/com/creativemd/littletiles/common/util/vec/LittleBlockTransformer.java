@@ -12,51 +12,51 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import net.minecraft.util.EnumFacing.Axis;
 
 public class LittleBlockTransformer {
-	
-	public static void flipTE(TileEntityLittleTiles te, Axis axis) {
-		if (axis == null)
-			return;
-		
-		LittleGridContext context = te.getContext();
-		for (IParentTileList parent : te.groups()) {
-			if (parent.isStructure()) {
-				if (parent.isMain()) {
-					try {
-						parent.getStructure().flipForWarpDrive(context, axis);
-					} catch (CorruptedConnectionException | NotYetConnectedException e) {}
-				} else
-					((StructureTileList) parent).flipForWarpDrive(axis);
-			}
-			for (LittleTile tile : parent)
-				flipTile(context, tile, axis);
-		}
-	}
-	
-	public static void rotateTE(TileEntityLittleTiles te, Rotation rotation, int steps) {
-		if (rotation == null)
-			return;
-		
-		LittleGridContext context = te.getContext();
-		for (IParentTileList parent : te.groups()) {
-			if (parent.isStructure()) {
-				if (parent.isMain()) {
-					try {
-						parent.getStructure().rotateForWarpDrive(context, rotation, steps);
-					} catch (CorruptedConnectionException | NotYetConnectedException e) {}
-				} else
-					((StructureTileList) parent).rotateForWarpDrive(rotation, steps);
-			}
-			for (LittleTile tile : parent)
-				for (int rotationStep = 0; rotationStep < steps; rotationStep++)
-					rotateTile(context, tile, rotation);
-		}
-	}
-	
-	public static void flipTile(LittleGridContext context, LittleTile tile, Axis axis) {
-		tile.getBox().flipBox(axis, context.rotationCenter);
-	}
-	
-	public static void rotateTile(LittleGridContext context, LittleTile tile, Rotation rotation) {
-		tile.getBox().rotateBox(rotation, context.rotationCenter);
-	}
+    
+    public static void flipTE(TileEntityLittleTiles te, Axis axis) {
+        if (axis == null)
+            return;
+        
+        LittleGridContext context = te.getContext();
+        for (IParentTileList parent : te.groups()) {
+            if (parent.isStructure()) {
+                if (parent.isMain()) {
+                    try {
+                        parent.getStructure().flipForWarpDrive(context, axis);
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                } else
+                    ((StructureTileList) parent).flipForWarpDrive(axis);
+            }
+            for (LittleTile tile : parent)
+                flipTile(context, tile, axis);
+        }
+    }
+    
+    public static void rotateTE(TileEntityLittleTiles te, Rotation rotation, int steps) {
+        if (rotation == null)
+            return;
+        
+        LittleGridContext context = te.getContext();
+        for (IParentTileList parent : te.groups()) {
+            if (parent.isStructure()) {
+                if (parent.isMain()) {
+                    try {
+                        parent.getStructure().rotateForWarpDrive(context, rotation, steps);
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                } else
+                    ((StructureTileList) parent).rotateForWarpDrive(rotation, steps);
+            }
+            for (LittleTile tile : parent)
+                for (int rotationStep = 0; rotationStep < steps; rotationStep++)
+                    rotateTile(context, tile, rotation);
+        }
+    }
+    
+    public static void flipTile(LittleGridContext context, LittleTile tile, Axis axis) {
+        tile.getBox().flipBox(axis, context.rotationCenter);
+    }
+    
+    public static void rotateTile(LittleGridContext context, LittleTile tile, Rotation rotation) {
+        tile.getBox().rotateBox(rotation, context.rotationCenter);
+    }
 }

@@ -30,43 +30,43 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLittleWrench extends Item {
-	
-	public ItemLittleWrench() {
-		setCreativeTab(LittleTiles.littleTab);
-		setMaxStackSize(1);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		
-	}
-	
-	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if (tileEntity instanceof TileEntityLittleTiles) {
-			
-			if (world.isRemote) {
-				TEResult result = BlockTile.loadTeAndTile(world, pos, player);
-				if (player.isSneaking()) {
-					if (result.isComplete() && result.parent.isStructure())
-						LittleTileGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.parent, result.tile);
-					else
-						PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH));
-				} else
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH_INFO));
-			}
-			return EnumActionResult.SUCCESS;
-		}
-		return EnumActionResult.PASS;
-	}
-	
-	public static void rightClickAnimation(EntityAnimation animation, EntityPlayer player) {
-		if (player.world.isRemote) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setString("uuid", animation.getCachedUniqueIdString());
-			GuiHandler.openGui("diagnose", nbt, player);
-		}
-	}
+    
+    public ItemLittleWrench() {
+        setCreativeTab(LittleTiles.littleTab);
+        setMaxStackSize(1);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        
+    }
+    
+    @Override
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        TileEntity tileEntity = world.getTileEntity(pos);
+        if (tileEntity instanceof TileEntityLittleTiles) {
+            
+            if (world.isRemote) {
+                TEResult result = BlockTile.loadTeAndTile(world, pos, player);
+                if (player.isSneaking()) {
+                    if (result.isComplete() && result.parent.isStructure())
+                        LittleTileGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.parent, result.tile);
+                    else
+                        PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH));
+                } else
+                    PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH_INFO));
+            }
+            return EnumActionResult.SUCCESS;
+        }
+        return EnumActionResult.PASS;
+    }
+    
+    public static void rightClickAnimation(EntityAnimation animation, EntityPlayer player) {
+        if (player.world.isRemote) {
+            NBTTagCompound nbt = new NBTTagCompound();
+            nbt.setString("uuid", animation.getCachedUniqueIdString());
+            GuiHandler.openGui("diagnose", nbt, player);
+        }
+    }
 }

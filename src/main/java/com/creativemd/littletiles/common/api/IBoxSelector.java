@@ -17,42 +17,42 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IBoxSelector {
-	
-	public LittleGridContext getContext(ItemStack stack);
-	
-	public default boolean sendTransformationUpdate() {
-		return true;
-	}
-	
-	public void onDeselect(World world, ItemStack stack, EntityPlayer player);
-	
-	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit);
-	
-	/** @return a list of absolute LittleTileBoxes (not relative to the pos) */
-	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit);
-	
-	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit);
-	
-	public void rotateLittlePreview(ItemStack stack, Rotation rotation);
-	
-	public void flipLittlePreview(ItemStack stack, Axis axis);
-	
-	@SideOnly(Side.CLIENT)
-	public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		return null;
-	}
-	
-	public default SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
-		return new SubContainerConfigure(player, stack);
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public default SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
-		return null;
-	}
-	
-	public default SubContainerConfigure getConfigureContainerAdvanced(EntityPlayer player, ItemStack stack) {
-		return new SubContainerConfigure(player, stack);
-	}
+    
+    public LittleGridContext getContext(ItemStack stack);
+    
+    public default boolean sendTransformationUpdate() {
+        return true;
+    }
+    
+    public void onDeselect(World world, ItemStack stack, EntityPlayer player);
+    
+    public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit);
+    
+    /** @return a list of absolute LittleTileBoxes (not relative to the pos) */
+    public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit);
+    
+    @SideOnly(Side.CLIENT)
+    public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit);
+    
+    public void rotateLittlePreview(ItemStack stack, Rotation rotation);
+    
+    public void flipLittlePreview(ItemStack stack, Axis axis);
+    
+    @SideOnly(Side.CLIENT)
+    public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+        return null;
+    }
+    
+    public default SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+        return new SubContainerConfigure(player, stack);
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public default SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+        return null;
+    }
+    
+    public default SubContainerConfigure getConfigureContainerAdvanced(EntityPlayer player, ItemStack stack) {
+        return new SubContainerConfigure(player, stack);
+    }
 }

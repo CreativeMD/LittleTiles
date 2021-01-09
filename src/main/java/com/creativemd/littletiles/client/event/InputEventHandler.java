@@ -14,41 +14,41 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class InputEventHandler {
-	
-	private static Minecraft mc = Minecraft.getMinecraft();
-	
-	private static final Method sendClickBlockToControllerMethod = ReflectionHelper.findMethod(Minecraft.class, "sendClickBlockToController", "func_147115_a", boolean.class);
-	
-	@SideOnly(Side.CLIENT)
-	public static void onHoldClick(boolean leftClick) {
-		try {
-			HoldLeftClick event = new HoldLeftClick(mc.world, mc.player, leftClick);
-			MinecraftForge.EVENT_BUS.post(event);
-			sendClickBlockToControllerMethod.invoke(mc, event.getLeftClickResult());
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public static boolean onMouseClick(RayTraceResult result, EntityPlayer player, World world) {
-		LeftClick event = new LeftClick(world, player, result);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event.isCanceled();
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public static boolean onMouseWheelClick(EntityPlayer player, World world) {
-		WheelClick event = new WheelClick(world, player);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event.isCanceled();
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public static boolean onPickBlock(RayTraceResult result, EntityPlayer player, World world) {
-		PickBlockEvent event = new PickBlockEvent(world, player, result);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event.isCanceled();
-	}
-	
+    
+    private static Minecraft mc = Minecraft.getMinecraft();
+    
+    private static final Method sendClickBlockToControllerMethod = ReflectionHelper.findMethod(Minecraft.class, "sendClickBlockToController", "func_147115_a", boolean.class);
+    
+    @SideOnly(Side.CLIENT)
+    public static void onHoldClick(boolean leftClick) {
+        try {
+            HoldLeftClick event = new HoldLeftClick(mc.world, mc.player, leftClick);
+            MinecraftForge.EVENT_BUS.post(event);
+            sendClickBlockToControllerMethod.invoke(mc, event.getLeftClickResult());
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public static boolean onMouseClick(RayTraceResult result, EntityPlayer player, World world) {
+        LeftClick event = new LeftClick(world, player, result);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.isCanceled();
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public static boolean onMouseWheelClick(EntityPlayer player, World world) {
+        WheelClick event = new WheelClick(world, player);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.isCanceled();
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public static boolean onPickBlock(RayTraceResult result, EntityPlayer player, World world) {
+        PickBlockEvent event = new PickBlockEvent(world, player, result);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.isCanceled();
+    }
+    
 }

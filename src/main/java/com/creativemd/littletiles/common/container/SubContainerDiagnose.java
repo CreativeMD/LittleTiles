@@ -10,21 +10,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerDiagnose extends SubContainer {
-	
-	public SubContainerDiagnose(EntityPlayer player) {
-		super(player);
-	}
-	
-	@Override
-	public void createControls() {
-		
-	}
-	
-	@Override
-	public void onPacketReceive(NBTTagCompound nbt) {
-		EntityAnimation animation = WorldAnimationHandler.getHandler(player.world).findAnimation(UUID.fromString(nbt.getString("uuid")));
-		if (animation != null)
-			animation.destroyAnimation();
-	}
-	
+    
+    public SubContainerDiagnose(EntityPlayer player) {
+        super(player);
+    }
+    
+    @Override
+    public void createControls() {
+        
+    }
+    
+    @Override
+    public void onPacketReceive(NBTTagCompound nbt) {
+        EntityAnimation animation = WorldAnimationHandler.getHandler(player.world).findAnimation(UUID.fromString(nbt.getString("uuid")));
+        if (animation != null)
+            animation.destroyAnimation();
+    }
+    
 }

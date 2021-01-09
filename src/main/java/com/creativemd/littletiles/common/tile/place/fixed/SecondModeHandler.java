@@ -7,9 +7,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class SecondModeHandler {
-	
-	public LittleBox getBox(World world, BlockPos pos, LittleGridContext context, LittleBox suggested) {
-		return suggested;
-	}
-	
+    
+    public LittleBox getBox(World world, BlockPos pos, LittleGridContext context, LittleBox suggested) {
+        return suggested;
+    }
+    
 }

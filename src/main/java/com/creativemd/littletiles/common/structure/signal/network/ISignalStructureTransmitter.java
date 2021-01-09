@@ -4,9 +4,9 @@ import com.creativemd.littletiles.common.structure.signal.component.ISignalStruc
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 
 public interface ISignalStructureTransmitter extends ISignalStructureBase {
-	
-	@Override
-	public default SignalComponentType getType() {
-		return SignalComponentType.TRANSMITTER;
-	}
+    
+    @Override
+    public default SignalComponentType getType() {
+        return SignalComponentType.TRANSMITTER;
+    }
 }

@@ -14,25 +14,25 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import net.minecraft.util.math.BlockPos;
 
 public class PlacementResult {
-	
-	public final LittleAbsolutePreviews placedPreviews;
-	public final LittleBoxes placedBoxes;
-	private BlockPos lastPos = null;
-	public final List<TileEntityLittleTiles> tileEntities = new ArrayList<>();
-	public LittleStructure parentStructure;
-	
-	public PlacementResult(BlockPos pos) {
-		this.placedPreviews = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
-		this.placedBoxes = new LittleBoxes(pos, LittleGridContext.getMin());
-	}
-	
-	public void addPlacedTile(ParentTileList parent, LittleTile tile) {
-		if (lastPos == null || !lastPos.equals(parent.getPos())) {
-			lastPos = parent.getPos();
-			tileEntities.add(parent.getTe());
-		}
-		placedPreviews.addTile(parent, tile);
-		placedBoxes.addBox(parent, tile);
-	}
-	
+    
+    public final LittleAbsolutePreviews placedPreviews;
+    public final LittleBoxes placedBoxes;
+    private BlockPos lastPos = null;
+    public final List<TileEntityLittleTiles> tileEntities = new ArrayList<>();
+    public LittleStructure parentStructure;
+    
+    public PlacementResult(BlockPos pos) {
+        this.placedPreviews = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
+        this.placedBoxes = new LittleBoxes(pos, LittleGridContext.getMin());
+    }
+    
+    public void addPlacedTile(ParentTileList parent, LittleTile tile) {
+        if (lastPos == null || !lastPos.equals(parent.getPos())) {
+            lastPos = parent.getPos();
+            tileEntities.add(parent.getTe());
+        }
+        placedPreviews.addTile(parent, tile);
+        placedBoxes.addBox(parent, tile);
+    }
+    
 }

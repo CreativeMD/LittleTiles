@@ -12,43 +12,43 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class LittleParticle extends Particle {
-	
-	public ParticleSettings settings;
-	
-	public LittleParticle(World world, Vector3d pos, Vector3d speed, boolean randomColor, ParticleSettings settings) {
-		super(world, pos.x, pos.y, pos.z);
-		this.motionX = speed.x * (Math.random() * 0.1 + 0.95);
-		this.motionY = speed.y * (Math.random() * 0.1 + 0.95);
-		this.motionZ = speed.z * (Math.random() * 0.1 + 0.95);
-		this.particleScale = settings.size;
-		this.particleMaxAge = settings.lifetime;
-		this.particleGravity = settings.gravity;
-		this.particleAlpha = ColorUtils.getAlphaDecimal(settings.color);
-		this.particleRed = ColorUtils.getRedDecimal(settings.color);
-		this.particleGreen = ColorUtils.getGreenDecimal(settings.color);
-		this.particleBlue = ColorUtils.getBlueDecimal(settings.color);
-		if (randomColor) {
-			this.particleRed *= Math.random();
-			this.particleGreen *= Math.random();
-			this.particleBlue *= Math.random();
-		}
-		this.settings = settings;
-		settings.texture.setTextureInit(this);
-	}
-	
-	@Override
-	public void onUpdate() {
-		settings.texture.setTextureTick(this);
-		this.particleScale *= settings.growrate;
-		super.onUpdate();
-	}
-	
-	public int getAge() {
-		return particleAge;
-	}
-	
-	public int getMaxAge() {
-		return particleMaxAge;
-	}
-	
+    
+    public ParticleSettings settings;
+    
+    public LittleParticle(World world, Vector3d pos, Vector3d speed, boolean randomColor, ParticleSettings settings) {
+        super(world, pos.x, pos.y, pos.z);
+        this.motionX = speed.x * (Math.random() * 0.1 + 0.95);
+        this.motionY = speed.y * (Math.random() * 0.1 + 0.95);
+        this.motionZ = speed.z * (Math.random() * 0.1 + 0.95);
+        this.particleScale = settings.size;
+        this.particleMaxAge = settings.lifetime;
+        this.particleGravity = settings.gravity;
+        this.particleAlpha = ColorUtils.getAlphaDecimal(settings.color);
+        this.particleRed = ColorUtils.getRedDecimal(settings.color);
+        this.particleGreen = ColorUtils.getGreenDecimal(settings.color);
+        this.particleBlue = ColorUtils.getBlueDecimal(settings.color);
+        if (randomColor) {
+            this.particleRed *= Math.random();
+            this.particleGreen *= Math.random();
+            this.particleBlue *= Math.random();
+        }
+        this.settings = settings;
+        settings.texture.setTextureInit(this);
+    }
+    
+    @Override
+    public void onUpdate() {
+        settings.texture.setTextureTick(this);
+        this.particleScale *= settings.growrate;
+        super.onUpdate();
+    }
+    
+    public int getAge() {
+        return particleAge;
+    }
+    
+    public int getMaxAge() {
+        return particleMaxAge;
+    }
+    
 }

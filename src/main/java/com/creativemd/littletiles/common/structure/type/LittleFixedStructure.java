@@ -14,41 +14,41 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleFixedStructure extends LittleStructure {
-	
-	public LittleFixedStructure(LittleStructureType type, IStructureTileList mainBlock) {
-		super(type, mainBlock);
-	}
-	
-	@Override
-	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		
-	}
-	
-	@Override
-	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		
-	}
-	
-	public static class LittleFixedStructureParser extends LittleStructureGuiParser {
-		
-		public LittleFixedStructureParser(GuiParent parent, AnimationGuiHandler handler) {
-			super(parent, handler);
-		}
-		
-		@Override
-		public void createControls(LittlePreviews previews, LittleStructure structure) {
-			
-		}
-		
-		@Override
-		public LittleStructure parseStructure(LittlePreviews previews) {
-			return createStructure(LittleFixedStructure.class, null);
-		}
-		
-		@Override
-		@SideOnly(Side.CLIENT)
-		protected LittleStructureType getStructureType() {
-			return LittleStructureRegistry.getStructureType(LittleFixedStructure.class);
-		}
-	}
+    
+    public LittleFixedStructure(LittleStructureType type, IStructureTileList mainBlock) {
+        super(type, mainBlock);
+    }
+    
+    @Override
+    protected void loadFromNBTExtra(NBTTagCompound nbt) {
+        
+    }
+    
+    @Override
+    protected void writeToNBTExtra(NBTTagCompound nbt) {
+        
+    }
+    
+    public static class LittleFixedStructureParser extends LittleStructureGuiParser {
+        
+        public LittleFixedStructureParser(GuiParent parent, AnimationGuiHandler handler) {
+            super(parent, handler);
+        }
+        
+        @Override
+        public void createControls(LittlePreviews previews, LittleStructure structure) {
+            
+        }
+        
+        @Override
+        public LittleStructure parseStructure(LittlePreviews previews) {
+            return createStructure(LittleFixedStructure.class, null);
+        }
+        
+        @Override
+        @SideOnly(Side.CLIENT)
+        protected LittleStructureType getStructureType() {
+            return LittleStructureRegistry.getStructureType(LittleFixedStructure.class);
+        }
+    }
 }

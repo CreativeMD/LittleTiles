@@ -6,7 +6,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ILightProvider {
-	
-	@SideOnly(Side.CLIENT)
-	public abstract void gatherLights(GatherLightsEvent paramGatherLightsEvent, Entity paramEntity);
+    
+    @SideOnly(Side.CLIENT)
+    public abstract void gatherLights(GatherLightsEvent paramGatherLightsEvent, Entity paramEntity);
 }

@@ -12,17 +12,17 @@ import net.minecraft.nbt.NBTTagCompound;
 
 @Deprecated
 public class StructureLink {
-	
-	@Deprecated
-	public static StructureChildConnection loadFromNBTOld(LittleStructure structure, NBTTagCompound nbt, boolean isChild) {
-		int childID = nbt.getInteger("childID");
-		int attribute = nbt.getInteger("type");
-		LittleIdentifierRelative identifier = new LittleIdentifierRelative(nbt);
-		int index = identifier.generateIndex(structure.getPos());
-		if (nbt.hasKey("entity"))
-			return new StructureChildToSubWorldConnection(structure, childID, identifier.coord, index, attribute, UUID.fromString(nbt.getString("entity")));
-		else if (nbt.getBoolean("subWorld"))
-			return new StructureChildFromSubWorldConnection(structure, childID, identifier.coord, index, attribute);
-		return new StructureChildConnection(structure, isChild, childID, identifier.coord, index, attribute);
-	}
+    
+    @Deprecated
+    public static StructureChildConnection loadFromNBTOld(LittleStructure structure, NBTTagCompound nbt, boolean isChild) {
+        int childID = nbt.getInteger("childID");
+        int attribute = nbt.getInteger("type");
+        LittleIdentifierRelative identifier = new LittleIdentifierRelative(nbt);
+        int index = identifier.generateIndex(structure.getPos());
+        if (nbt.hasKey("entity"))
+            return new StructureChildToSubWorldConnection(structure, childID, identifier.coord, index, attribute, UUID.fromString(nbt.getString("entity")));
+        else if (nbt.getBoolean("subWorld"))
+            return new StructureChildFromSubWorldConnection(structure, childID, identifier.coord, index, attribute);
+        return new StructureChildConnection(structure, isChild, childID, identifier.coord, index, attribute);
+    }
 }

@@ -31,138 +31,139 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionDestroy extends LittleActionInteract {
-	
-	public LittleActionDestroy(World world, BlockPos blockPos, EntityPlayer player) {
-		super(world, blockPos, player);
-	}
-	
-	public LittleActionDestroy() {
-		
-	}
-	
-	@Override
-	public boolean canBeReverted() {
-		return destroyedTiles != null || structurePreview != null;
-	}
-	
-	public LittleAbsolutePreviews destroyedTiles;
-	public StructurePreview structurePreview;
-	
-	@Override
-	public LittleAction revert(EntityPlayer player) {
-		if (structurePreview != null)
-			return structurePreview.getPlaceAction();
-		destroyedTiles.convertToSmallest();
-		return new LittleActionPlaceAbsolute(destroyedTiles, PlacementMode.normal);
-	}
-	
-	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-		
-		if (!world.isRemote) {
-			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
-			MinecraftForge.EVENT_BUS.post(event);
-			if (event.isCanceled()) {
-				sendBlockResetToClient(world, player, te);
-				return false;
-			}
-		}
-		
-		if (parent.isStructure()) {
-			try {
-				LittleStructure structure = parent.getStructure();
-				structure.load();
-				structurePreview = new StructurePreview(structure);
-				if (needIngredients(player) && !player.world.isRemote)
-					WorldUtils.dropItem(world, structure.getStructureDrop(), pos);
-				structure.onLittleTileDestroy();
-			} catch (CorruptedConnectionException | NotYetConnectedException e) {
-				if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
-					((StructureTileList) parent).remove();
-					te.updateTiles();
-				} else
-					throw new LittleActionException.StructureNotLoadedException();
-			}
-		} else {
-			LittleInventory inventory = new LittleInventory(player);
-			destroyedTiles = new LittleAbsolutePreviews(pos, te.getContext());
-			if (BlockTile.selectEntireBlock(player, secondMode)) {
-				for (LittleTile toDestroy : parent) {
-					destroyedTiles.addTile(parent, toDestroy); // No need to use addPreivew as all previews are inside one block
-				}
-				
-				checkAndGive(player, inventory, getIngredients(destroyedTiles));
-				te.updateTiles(x -> x.noneStructureTiles().clear());
-			} else {
-				destroyedTiles.addTile(parent, tile); // No need to use addPreivew as all previews are inside one block
-				
-				checkAndGive(player, inventory, getIngredients(destroyedTiles));
-				
-				te.updateTiles((x) -> x.get(parent).remove(tile));
-			}
-		}
-		
-		world.playSound((EntityPlayer) null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
-		
-		return true;
-	}
-	
-	@Override
-	protected boolean isRightClick() {
-		return false;
-	}
-	
-	@Override
-	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
-		LittleBoxes boxes;
-		if (structurePreview != null) {
-			boxes = new LittleBoxes(structurePreview.previews.pos, structurePreview.previews.getContext());
-			boxes.add(structurePreview.previews.get(0).box);
-		} else if (destroyedTiles != null) {
-			destroyedTiles.convertToSmallest();
-			boxes = new LittleBoxes(blockPos, destroyedTiles.getContext());
-			for (LittlePreview preview : destroyedTiles)
-				boxes.add(preview.box);
-		} else
-			return null;
-		
-		boxes.flip(axis, box);
-		return new LittleActionDestroyBoxes(boxes);
-	}
-	
-	public static class StructurePreview {
-		
-		public LittleAbsolutePreviews previews;
-		public boolean requiresItemStack;
-		public LittleStructure structure;
-		
-		public StructurePreview(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
-			structure = structure.findTopStructure();
-			structure.load();
-			previews = structure.getAbsolutePreviews(structure.getPos());
-			requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
-			this.structure = structure;
-		}
-		
-		public LittleAction getPlaceAction() {
-			if (requiresItemStack)
-				return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, PlacementMode.all, false);
-			return new LittleActionPlaceAbsolute(previews, PlacementMode.all, false);
-		}
-		
-		@Override
-		public int hashCode() {
-			return previews.structureNBT.hashCode();
-		}
-		
-		@Override
-		public boolean equals(Object paramObject) {
-			if (paramObject instanceof StructurePreview)
-				return structure == ((StructurePreview) paramObject).structure;
-			if (paramObject instanceof LittleStructure)
-				return structure == paramObject;
-			return false;
-		}
-	}
-	
+    
+    public LittleActionDestroy(World world, BlockPos blockPos, EntityPlayer player) {
+        super(world, blockPos, player);
+    }
+    
+    public LittleActionDestroy() {
+        
+    }
+    
+    @Override
+    public boolean canBeReverted() {
+        return destroyedTiles != null || structurePreview != null;
+    }
+    
+    public LittleAbsolutePreviews destroyedTiles;
+    public StructurePreview structurePreview;
+    
+    @Override
+    public LittleAction revert(EntityPlayer player) {
+        if (structurePreview != null)
+            return structurePreview.getPlaceAction();
+        destroyedTiles.convertToSmallest();
+        return new LittleActionPlaceAbsolute(destroyedTiles, PlacementMode.normal);
+    }
+    
+    @Override
+    protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+        
+        if (!world.isRemote) {
+            BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.isCanceled()) {
+                sendBlockResetToClient(world, player, te);
+                return false;
+            }
+        }
+        
+        if (parent.isStructure()) {
+            try {
+                LittleStructure structure = parent.getStructure();
+                structure.load();
+                structurePreview = new StructurePreview(structure);
+                if (needIngredients(player) && !player.world.isRemote)
+                    WorldUtils.dropItem(world, structure.getStructureDrop(), pos);
+                structure.onLittleTileDestroy();
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
+                    ((StructureTileList) parent).remove();
+                    te.updateTiles();
+                } else
+                    throw new LittleActionException.StructureNotLoadedException();
+            }
+        } else {
+            LittleInventory inventory = new LittleInventory(player);
+            destroyedTiles = new LittleAbsolutePreviews(pos, te.getContext());
+            if (BlockTile.selectEntireBlock(player, secondMode)) {
+                for (LittleTile toDestroy : parent) {
+                    destroyedTiles.addTile(parent, toDestroy); // No need to use addPreivew as all previews are inside one block
+                }
+                
+                checkAndGive(player, inventory, getIngredients(destroyedTiles));
+                te.updateTiles(x -> x.noneStructureTiles().clear());
+            } else {
+                destroyedTiles.addTile(parent, tile); // No need to use addPreivew as all previews are inside one block
+                
+                checkAndGive(player, inventory, getIngredients(destroyedTiles));
+                
+                te.updateTiles((x) -> x.get(parent).remove(tile));
+            }
+        }
+        
+        world.playSound((EntityPlayer) null, pos, tile.getSound()
+            .getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
+        
+        return true;
+    }
+    
+    @Override
+    protected boolean isRightClick() {
+        return false;
+    }
+    
+    @Override
+    public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+        LittleBoxes boxes;
+        if (structurePreview != null) {
+            boxes = new LittleBoxes(structurePreview.previews.pos, structurePreview.previews.getContext());
+            boxes.add(structurePreview.previews.get(0).box);
+        } else if (destroyedTiles != null) {
+            destroyedTiles.convertToSmallest();
+            boxes = new LittleBoxes(blockPos, destroyedTiles.getContext());
+            for (LittlePreview preview : destroyedTiles)
+                boxes.add(preview.box);
+        } else
+            return null;
+        
+        boxes.flip(axis, box);
+        return new LittleActionDestroyBoxes(boxes);
+    }
+    
+    public static class StructurePreview {
+        
+        public LittleAbsolutePreviews previews;
+        public boolean requiresItemStack;
+        public LittleStructure structure;
+        
+        public StructurePreview(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
+            structure = structure.findTopStructure();
+            structure.load();
+            previews = structure.getAbsolutePreviews(structure.getPos());
+            requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
+            this.structure = structure;
+        }
+        
+        public LittleAction getPlaceAction() {
+            if (requiresItemStack)
+                return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, PlacementMode.all, false);
+            return new LittleActionPlaceAbsolute(previews, PlacementMode.all, false);
+        }
+        
+        @Override
+        public int hashCode() {
+            return previews.structureNBT.hashCode();
+        }
+        
+        @Override
+        public boolean equals(Object paramObject) {
+            if (paramObject instanceof StructurePreview)
+                return structure == ((StructurePreview) paramObject).structure;
+            if (paramObject instanceof LittleStructure)
+                return structure == paramObject;
+            return false;
+        }
+    }
+    
 }

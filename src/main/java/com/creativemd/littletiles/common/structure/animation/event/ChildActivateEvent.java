@@ -24,91 +24,92 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ChildActivateEvent extends AnimationEvent {
-	
-	public int childId;
-	
-	public ChildActivateEvent(int tick, int childId) {
-		super(tick);
-		this.childId = childId;
-	}
-	
-	public ChildActivateEvent(int tick) {
-		super(tick);
-	}
-	
-	@Override
-	protected void write(NBTTagCompound nbt) {
-		nbt.setInteger("childId", childId);
-	}
-	
-	@Override
-	protected void read(NBTTagCompound nbt) {
-		childId = nbt.getInteger("childId");
-	}
-	
-	@Override
-	protected boolean run(EntityAnimationController controller) {
-		LittleStructure structure = controller.parent.structure;
-		StructureChildConnection connector = structure.getChild(childId);
-		try {
-			if (!(connector.getStructure() instanceof LittleDoor))
-				return true;
-			LittleDoor door = (LittleDoor) connector.getStructure();
-			
-			if (!door.canOpenDoor(null))
-				return true;
-			
-			EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, true);
-			if (childAnimation != null)
-				childAnimation.controller.onServerApproves();
-			
-		} catch (LittleActionException e) {
-			e.printStackTrace();
-		}
-		return true;
-	}
-	
-	@Override
-	public int getEventDuration(LittleStructure structure) {
-		StructureChildConnection connector = structure.getChild(childId);
-		try {
-			LittleStructure childStructure = connector.getStructure();
-			if (childStructure instanceof LittleDoor) {
-				LittleDoor door = (LittleDoor) childStructure;
-				return door.getCompleteDuration();
-			}
-		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
-		
-		return 0;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
-		if (structure.getChildren().size() <= childId)
-			return;
-		try {
-			StructureChildConnection connector = structure.getChild(childId);
-			LittleStructure childStructure = connector.getStructure();
-			if (childStructure instanceof LittleDoor) {
-				LittleDoor child = (LittleDoor) childStructure;
-				EntityAnimation childAnimation;
-				if (!connector.isLinkToAnotherWorld())
-					childAnimation = child.openDoor(null, new UUIDSupplier(), false);
-				else if (child instanceof IAnimatedStructure)
-					childAnimation = ((IAnimatedStructure) child).getAnimation();
-				else
-					childAnimation = null;
-				
-				GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {
-				};
-				AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChild(childId), new AnimationGuiHandler(getTick(), handler), childAnimation == null ? child : childAnimation.structure, childAnimation);
-				LittleStructureGuiParser parser = LittleStructureRegistry.getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
-				parser.create(holder.previews, StructureTileList.create(holder.previews.structureNBT, null));
-				if (holder.handler.hasTimeline())
-					handler.subHolders.add(holder);
-			}
-		} catch (LittleActionException e) {}
-	}
-	
+    
+    public int childId;
+    
+    public ChildActivateEvent(int tick, int childId) {
+        super(tick);
+        this.childId = childId;
+    }
+    
+    public ChildActivateEvent(int tick) {
+        super(tick);
+    }
+    
+    @Override
+    protected void write(NBTTagCompound nbt) {
+        nbt.setInteger("childId", childId);
+    }
+    
+    @Override
+    protected void read(NBTTagCompound nbt) {
+        childId = nbt.getInteger("childId");
+    }
+    
+    @Override
+    protected boolean run(EntityAnimationController controller) {
+        LittleStructure structure = controller.parent.structure;
+        StructureChildConnection connector = structure.getChild(childId);
+        try {
+            if (!(connector.getStructure() instanceof LittleDoor))
+                return true;
+            LittleDoor door = (LittleDoor) connector.getStructure();
+            
+            if (!door.canOpenDoor(null))
+                return true;
+            
+            EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, true);
+            if (childAnimation != null)
+                childAnimation.controller.onServerApproves();
+            
+        } catch (LittleActionException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+    
+    @Override
+    public int getEventDuration(LittleStructure structure) {
+        StructureChildConnection connector = structure.getChild(childId);
+        try {
+            LittleStructure childStructure = connector.getStructure();
+            if (childStructure instanceof LittleDoor) {
+                LittleDoor door = (LittleDoor) childStructure;
+                return door.getCompleteDuration();
+            }
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        
+        return 0;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
+        if (structure.getChildren().size() <= childId)
+            return;
+        try {
+            StructureChildConnection connector = structure.getChild(childId);
+            LittleStructure childStructure = connector.getStructure();
+            if (childStructure instanceof LittleDoor) {
+                LittleDoor child = (LittleDoor) childStructure;
+                EntityAnimation childAnimation;
+                if (!connector.isLinkToAnotherWorld())
+                    childAnimation = child.openDoor(null, new UUIDSupplier(), false);
+                else if (child instanceof IAnimatedStructure)
+                    childAnimation = ((IAnimatedStructure) child).getAnimation();
+                else
+                    childAnimation = null;
+                
+                GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {};
+                AnimationGuiHolder holder = new AnimationGuiHolder(previews
+                    .getChild(childId), new AnimationGuiHandler(getTick(), handler), childAnimation == null ? child : childAnimation.structure, childAnimation);
+                LittleStructureGuiParser parser = LittleStructureRegistry
+                    .getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
+                parser.create(holder.previews, StructureTileList.create(holder.previews.structureNBT, null));
+                if (holder.handler.hasTimeline())
+                    handler.subHolders.add(holder);
+            }
+        } catch (LittleActionException e) {}
+    }
+    
 }

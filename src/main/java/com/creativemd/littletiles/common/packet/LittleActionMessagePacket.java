@@ -11,36 +11,36 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleActionMessagePacket extends CreativeCorePacket {
-	
-	public ActionMessage message;
-	
-	public LittleActionMessagePacket(ActionMessage message) {
-		this.message = message;
-	}
-	
-	public LittleActionMessagePacket() {
-		
-	}
-	
-	@Override
-	public void writeBytes(ByteBuf buf) {
-		LittleAction.writeActionMessage(message, buf);
-	}
-	
-	@Override
-	public void readBytes(ByteBuf buf) {
-		message = LittleAction.readActionMessage(buf);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void executeClient(EntityPlayer player) {
-		LittleTilesClient.displayActionMessage(message);
-	}
-	
-	@Override
-	public void executeServer(EntityPlayer player) {
-		
-	}
-	
+    
+    public ActionMessage message;
+    
+    public LittleActionMessagePacket(ActionMessage message) {
+        this.message = message;
+    }
+    
+    public LittleActionMessagePacket() {
+        
+    }
+    
+    @Override
+    public void writeBytes(ByteBuf buf) {
+        LittleAction.writeActionMessage(message, buf);
+    }
+    
+    @Override
+    public void readBytes(ByteBuf buf) {
+        message = LittleAction.readActionMessage(buf);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void executeClient(EntityPlayer player) {
+        LittleTilesClient.displayActionMessage(message);
+    }
+    
+    @Override
+    public void executeServer(EntityPlayer player) {
+        
+    }
+    
 }

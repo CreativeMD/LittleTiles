@@ -39,133 +39,133 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLittleHammer extends Item implements IBoxSelector {
-	
-	private static boolean activeFilter = false;
-	private static TileSelector currentFilter = null;
-	
-	public static boolean isFiltered() {
-		return activeFilter;
-	}
-	
-	public static void setFilter(boolean active, TileSelector filter) {
-		activeFilter = active;
-		currentFilter = filter;
-	}
-	
-	public static TileSelector getFilter() {
-		return currentFilter;
-	}
-	
-	public ItemLittleHammer() {
-		setCreativeTab(LittleTiles.littleTab);
-		hasSubtypes = true;
-		setMaxStackSize(1);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		tooltip.add("can be used to chisel blocks");
-		SelectShape shape = getShape(stack);
-		tooltip.add("mode: " + shape.key);
-		shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip, getContext(stack));
-	}
-	
-	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		if (hand == EnumHand.OFF_HAND)
-			return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
-		if (!world.isRemote)
-			GuiHandler.openGuiItem(player, world);
-		return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
-	}
-	
-	@Override
-	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-		SelectShape shape = getShape(stack);
-		
-		return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-		SelectShape shape = getShape(stack);
-		if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
-			if (isFiltered())
-				new LittleActionDestroyBoxesFiltered(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getFilter()).execute();
-			else
-				new LittleActionDestroyBoxes(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack))).execute();
-		return true;
-	}
-	
-	@Override
-	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
-		return false;
-	}
-	
-	@Override
-	public float getDestroySpeed(ItemStack stack, IBlockState state) {
-		return 0F;
-	}
-	
-	@Override
-	public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
-		getShape(stack).deselect(player, stack.getTagCompound(), getContext(stack));
-	}
-	
-	@Override
-	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-		return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		return new SubGuiHammer(stack);
-	}
-	
-	@Override
-	public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
-		return new SubContainerConfigure(player, stack);
-	}
-	
-	@Override
-	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
-		SelectShape shape = getShape(stack);
-		if (shape != null)
-			shape.rotate(rotation, stack.getTagCompound());
-	}
-	
-	@Override
-	public void flipLittlePreview(ItemStack stack, Axis axis) {
-		SelectShape shape = getShape(stack);
-		if (shape != null)
-			shape.flip(axis, stack.getTagCompound());
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
-		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
-			
-			@Override
-			public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
-				setFilter(activeFilter, selector);
-				ItemMultiTiles.currentContext = context;
-			}
-		};
-	}
-	
-	public static SelectShape getShape(ItemStack stack) {
-		if (!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		
-		return SelectShape.getShape(stack.getTagCompound().getString("shape"));
-	}
-	
-	@Override
-	public LittleGridContext getContext(ItemStack stack) {
-		return ItemMultiTiles.currentContext;
-	}
+    
+    private static boolean activeFilter = false;
+    private static TileSelector currentFilter = null;
+    
+    public static boolean isFiltered() {
+        return activeFilter;
+    }
+    
+    public static void setFilter(boolean active, TileSelector filter) {
+        activeFilter = active;
+        currentFilter = filter;
+    }
+    
+    public static TileSelector getFilter() {
+        return currentFilter;
+    }
+    
+    public ItemLittleHammer() {
+        setCreativeTab(LittleTiles.littleTab);
+        hasSubtypes = true;
+        setMaxStackSize(1);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        tooltip.add("can be used to chisel blocks");
+        SelectShape shape = getShape(stack);
+        tooltip.add("mode: " + shape.key);
+        shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip, getContext(stack));
+    }
+    
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+        if (hand == EnumHand.OFF_HAND)
+            return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
+        if (!world.isRemote)
+            GuiHandler.openGuiItem(player, world);
+        return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+    }
+    
+    @Override
+    public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
+        SelectShape shape = getShape(stack);
+        
+        return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
+        SelectShape shape = getShape(stack);
+        if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
+            if (isFiltered())
+                new LittleActionDestroyBoxesFiltered(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getFilter()).execute();
+            else
+                new LittleActionDestroyBoxes(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack))).execute();
+        return true;
+    }
+    
+    @Override
+    public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
+        return false;
+    }
+    
+    @Override
+    public float getDestroySpeed(ItemStack stack, IBlockState state) {
+        return 0F;
+    }
+    
+    @Override
+    public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
+        getShape(stack).deselect(player, stack.getTagCompound(), getContext(stack));
+    }
+    
+    @Override
+    public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
+        return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+        return new SubGuiHammer(stack);
+    }
+    
+    @Override
+    public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+        return new SubContainerConfigure(player, stack);
+    }
+    
+    @Override
+    public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
+        SelectShape shape = getShape(stack);
+        if (shape != null)
+            shape.rotate(rotation, stack.getTagCompound());
+    }
+    
+    @Override
+    public void flipLittlePreview(ItemStack stack, Axis axis) {
+        SelectShape shape = getShape(stack);
+        if (shape != null)
+            shape.flip(axis, stack.getTagCompound());
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+        return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
+            
+            @Override
+            public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
+                setFilter(activeFilter, selector);
+                ItemMultiTiles.currentContext = context;
+            }
+        };
+    }
+    
+    public static SelectShape getShape(ItemStack stack) {
+        if (!stack.hasTagCompound())
+            stack.setTagCompound(new NBTTagCompound());
+        
+        return SelectShape.getShape(stack.getTagCompound().getString("shape"));
+    }
+    
+    @Override
+    public LittleGridContext getContext(ItemStack stack) {
+        return ItemMultiTiles.currentContext;
+    }
 }

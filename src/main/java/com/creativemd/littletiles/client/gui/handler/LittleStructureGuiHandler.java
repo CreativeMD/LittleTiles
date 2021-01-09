@@ -14,36 +14,36 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleStructureGuiHandler extends CustomGuiHandler {
-	
-	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleStructure structure) {
-		nbt.setTag("location", new StructureLocation(structure).write());
-		GuiHandler.openGui(id, nbt, player);
-	}
-	
-	public abstract SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure);
-	
-	@Override
-	public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-		try {
-			return getContainer(player, nbt, new StructureLocation(nbt.getCompoundTag("location")).find(player.world));
-		} catch (LittleActionException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public abstract SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure);
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-		try {
-			return getGui(player, nbt, new StructureLocation(nbt.getCompoundTag("location")).find(player.world));
-		} catch (LittleActionException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
+    
+    public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleStructure structure) {
+        nbt.setTag("location", new StructureLocation(structure).write());
+        GuiHandler.openGui(id, nbt, player);
+    }
+    
+    public abstract SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure);
+    
+    @Override
+    public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+        try {
+            return getContainer(player, nbt, new StructureLocation(nbt.getCompoundTag("location")).find(player.world));
+        } catch (LittleActionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public abstract SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure);
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+        try {
+            return getGui(player, nbt, new StructureLocation(nbt.getCompoundTag("location")).find(player.world));
+        } catch (LittleActionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
 }

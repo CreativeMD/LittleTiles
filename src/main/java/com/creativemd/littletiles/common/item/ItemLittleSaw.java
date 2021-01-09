@@ -25,31 +25,31 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLittleSaw extends Item {
-	
-	public ItemLittleSaw() {
-		setCreativeTab(LittleTiles.littleTab);
-		setMaxStackSize(1);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-		tooltip.add("rightclick to increase and");
-		tooltip.add("shift+rightclick to decrease");
-		tooltip.add("the size of a placed tile");
-	}
-	
-	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if (tileEntity instanceof TileEntityLittleTiles) {
-			if (world.isRemote) {
-				new LittleActionSaw(world, pos, player, GuiScreen.isCtrlKeyDown(), LittleGridContext.get()).execute();
-			}
-			return EnumActionResult.SUCCESS;
-		}
-		return EnumActionResult.PASS;
-	}
-	
+    
+    public ItemLittleSaw() {
+        setCreativeTab(LittleTiles.littleTab);
+        setMaxStackSize(1);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        tooltip.add("rightclick to increase and");
+        tooltip.add("shift+rightclick to decrease");
+        tooltip.add("the size of a placed tile");
+    }
+    
+    @Override
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        
+        TileEntity tileEntity = world.getTileEntity(pos);
+        if (tileEntity instanceof TileEntityLittleTiles) {
+            if (world.isRemote) {
+                new LittleActionSaw(world, pos, player, GuiScreen.isCtrlKeyDown(), LittleGridContext.get()).execute();
+            }
+            return EnumActionResult.SUCCESS;
+        }
+        return EnumActionResult.PASS;
+    }
+    
 }

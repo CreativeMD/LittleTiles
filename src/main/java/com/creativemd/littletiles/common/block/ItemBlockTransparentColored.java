@@ -6,24 +6,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 public class ItemBlockTransparentColored extends ItemBlock {
-	
-	public ItemBlockTransparentColored(Block block, ResourceLocation location) {
-		super(block);
-		setUnlocalizedName(location.getResourcePath());
-		setHasSubtypes(true);
-	}
-	
-	@Override
-	public String getUnlocalizedName(ItemStack stack) {
-		String name = "default";
-		if (stack.getMetadata() < BlockLittleDyeableTransparent.LittleDyeableTransparent.values().length)
-			name = BlockLittleDyeableTransparent.LittleDyeableTransparent.values()[stack.getMetadata()].getName();
-		return getUnlocalizedName() + "." + name;
-	}
-	
-	@Override
-	public int getMetadata(int meta) {
-		return meta;
-	}
-	
+    
+    public ItemBlockTransparentColored(Block block, ResourceLocation location) {
+        super(block);
+        setUnlocalizedName(location.getResourcePath());
+        setHasSubtypes(true);
+    }
+    
+    @Override
+    public String getUnlocalizedName(ItemStack stack) {
+        String name = "default";
+        if (stack.getMetadata() < BlockLittleDyeableTransparent.LittleDyeableTransparent.values().length)
+            name = BlockLittleDyeableTransparent.LittleDyeableTransparent.values()[stack.getMetadata()].getName();
+        return getUnlocalizedName() + "." + name;
+    }
+    
+    @Override
+    public int getMetadata(int meta) {
+        return meta;
+    }
+    
 }

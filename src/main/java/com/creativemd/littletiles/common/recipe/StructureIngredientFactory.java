@@ -13,26 +13,26 @@ import net.minecraftforge.common.crafting.IIngredientFactory;
 import net.minecraftforge.common.crafting.JsonContext;
 
 public class StructureIngredientFactory implements IIngredientFactory {
-	
-	@Override
-	public Ingredient parse(JsonContext context, JsonObject json) {
-		if (json.has("structure")) {
-			
-			ItemStack stack = new ItemStack(LittleTiles.premade);
-			NBTTagCompound nbt = new NBTTagCompound();
-			NBTTagCompound structureNBT = new NBTTagCompound();
-			String id = json.get("structure").getAsString();
-			
-			if (!(LittleStructureRegistry.getStructureType(id) instanceof LittleStructureTypePremade))
-				throw new JsonSyntaxException("Unkown structure type '" + json.get("structure").getAsString() + "'!");
-			
-			structureNBT.setString("id", id);
-			nbt.setTag("structure", structureNBT);
-			stack.setTagCompound(nbt);
-			
-			return Ingredient.fromStacks(stack.copy());
-		}
-		throw new JsonSyntaxException("Missing 'structure' type!");
-	}
-	
+    
+    @Override
+    public Ingredient parse(JsonContext context, JsonObject json) {
+        if (json.has("structure")) {
+            
+            ItemStack stack = new ItemStack(LittleTiles.premade);
+            NBTTagCompound nbt = new NBTTagCompound();
+            NBTTagCompound structureNBT = new NBTTagCompound();
+            String id = json.get("structure").getAsString();
+            
+            if (!(LittleStructureRegistry.getStructureType(id) instanceof LittleStructureTypePremade))
+                throw new JsonSyntaxException("Unkown structure type '" + json.get("structure").getAsString() + "'!");
+            
+            structureNBT.setString("id", id);
+            nbt.setTag("structure", structureNBT);
+            stack.setTagCompound(nbt);
+            
+            return Ingredient.fromStacks(stack.copy());
+        }
+        throw new JsonSyntaxException("Missing 'structure' type!");
+    }
+    
 }

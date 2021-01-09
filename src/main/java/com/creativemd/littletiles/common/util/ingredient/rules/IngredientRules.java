@@ -21,37 +21,41 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 
 public class IngredientRules {
-	
-	private static PairList<BlockSelector, BlockIngredientRule> blockRules = new PairList<>();
-	
-	public static void registerBlockRule(BlockSelector selector, BlockIngredientRule rule) {
-		blockRules.add(selector, rule);
-	}
-	
-	public static PairList<BlockSelector, BlockIngredientRule> getBlockRules() {
-		return blockRules;
-	}
-	
-	public static void loadRules() {
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlockTransparent, BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER.ordinal()));
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlockTransparent, BlockLittleDyeableTransparent.LittleDyeableTransparent.WHITE_WATER.ordinal()));
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlock, BlockLittleDyeable.LittleDyeableType.LAVA.ordinal()));
-		registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlock, BlockLittleDyeable.LittleDyeableType.WHITE_LAVA.ordinal()));
-		
-		registerBlockRule(new BlockSelectorBlock(Blocks.LOG), new BlockIngredientRuleMappedState() {
-			
-			@Override
-			public int getMeta(IBlockState state, double value) {
-				return state.getValue(BlockOldLog.VARIANT).ordinal();
-			}
-		});
-		registerBlockRule(new BlockSelectorBlock(Blocks.LOG2), new BlockIngredientRuleMappedState() {
-			
-			@Override
-			public int getMeta(IBlockState state, double value) {
-				return state.getValue(BlockNewLog.VARIANT).ordinal();
-			}
-		});
-		registerBlockRule(new BlockSelectorAnd(new BlockSelectorClass(BlockHorizontal.class, BlockRotatedPillar.class), new BlockSelectorProperty(BlockHorizontal.FACING, BlockRotatedPillar.AXIS)), new BlockIngredientRuleFixedMeta(0));
-	}
+    
+    private static PairList<BlockSelector, BlockIngredientRule> blockRules = new PairList<>();
+    
+    public static void registerBlockRule(BlockSelector selector, BlockIngredientRule rule) {
+        blockRules.add(selector, rule);
+    }
+    
+    public static PairList<BlockSelector, BlockIngredientRule> getBlockRules() {
+        return blockRules;
+    }
+    
+    public static void loadRules() {
+        registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlockTransparent, BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER
+            .ordinal()));
+        registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingWater), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlockTransparent, BlockLittleDyeableTransparent.LittleDyeableTransparent.WHITE_WATER
+            .ordinal()));
+        registerBlockRule(new BlockSelectorBlock(LittleTiles.flowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlock, BlockLittleDyeable.LittleDyeableType.LAVA
+            .ordinal()));
+        registerBlockRule(new BlockSelectorBlock(LittleTiles.whiteFlowingLava), new BlockIngredientRuleFixedBlock(LittleTiles.dyeableBlock, BlockLittleDyeable.LittleDyeableType.WHITE_LAVA
+            .ordinal()));
+        
+        registerBlockRule(new BlockSelectorBlock(Blocks.LOG), new BlockIngredientRuleMappedState() {
+            
+            @Override
+            public int getMeta(IBlockState state, double value) {
+                return state.getValue(BlockOldLog.VARIANT).ordinal();
+            }
+        });
+        registerBlockRule(new BlockSelectorBlock(Blocks.LOG2), new BlockIngredientRuleMappedState() {
+            
+            @Override
+            public int getMeta(IBlockState state, double value) {
+                return state.getValue(BlockNewLog.VARIANT).ordinal();
+            }
+        });
+        registerBlockRule(new BlockSelectorAnd(new BlockSelectorClass(BlockHorizontal.class, BlockRotatedPillar.class), new BlockSelectorProperty(BlockHorizontal.FACING, BlockRotatedPillar.AXIS)), new BlockIngredientRuleFixedMeta(0));
+    }
 }

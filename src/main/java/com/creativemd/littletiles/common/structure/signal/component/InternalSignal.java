@@ -7,46 +7,46 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 public abstract class InternalSignal<T extends InternalComponent> implements ISignalComponent {
-	
-	public final LittleStructure parent;
-	public final T component;
-	private final boolean[] state;
-	
-	public InternalSignal(LittleStructure parent, T component) {
-		this.parent = parent;
-		this.component = component;
-		this.state = new boolean[component.bandwidth];
-	}
-	
-	public abstract void load(NBTTagCompound nbt);
-	
-	@Override
-	public boolean[] getState() {
-		return state;
-	}
-	
-	public abstract NBTTagCompound write(boolean preview, NBTTagCompound nbt);
-	
-	@Override
-	public int getBandwidth() {
-		return state.length;
-	}
-	
-	@Override
-	public LittleStructure getStructure() {
-		return parent;
-	}
-	
-	@Override
-	public World getWorld() {
-		if (parent.mainBlock != null)
-			return parent.getWorld();
-		return null;
-	}
-	
-	@Override
-	public String toString() {
-		return component.identifier;
-	}
-	
+    
+    public final LittleStructure parent;
+    public final T component;
+    private final boolean[] state;
+    
+    public InternalSignal(LittleStructure parent, T component) {
+        this.parent = parent;
+        this.component = component;
+        this.state = new boolean[component.bandwidth];
+    }
+    
+    public abstract void load(NBTTagCompound nbt);
+    
+    @Override
+    public boolean[] getState() {
+        return state;
+    }
+    
+    public abstract NBTTagCompound write(boolean preview, NBTTagCompound nbt);
+    
+    @Override
+    public int getBandwidth() {
+        return state.length;
+    }
+    
+    @Override
+    public LittleStructure getStructure() {
+        return parent;
+    }
+    
+    @Override
+    public World getWorld() {
+        if (parent.mainBlock != null)
+            return parent.getWorld();
+        return null;
+    }
+    
+    @Override
+    public String toString() {
+        return component.identifier;
+    }
+    
 }

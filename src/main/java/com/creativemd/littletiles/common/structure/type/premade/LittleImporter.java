@@ -15,26 +15,26 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleImporter extends LittleStructurePremade {
-	
-	public LittleImporter(LittleStructureType type, IStructureTileList mainBlock) {
-		super(type, mainBlock);
-	}
-	
-	@Override
-	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		
-	}
-	
-	@Override
-	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		
-	}
-	
-	@Override
-	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (!worldIn.isRemote)
-			LittleStructureGuiHandler.openGui("lt-import", new NBTTagCompound(), playerIn, this);
-		return true;
-	}
-	
+    
+    public LittleImporter(LittleStructureType type, IStructureTileList mainBlock) {
+        super(type, mainBlock);
+    }
+    
+    @Override
+    protected void loadFromNBTExtra(NBTTagCompound nbt) {
+        
+    }
+    
+    @Override
+    protected void writeToNBTExtra(NBTTagCompound nbt) {
+        
+    }
+    
+    @Override
+    public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+        if (!worldIn.isRemote)
+            LittleStructureGuiHandler.openGui("lt-import", new NBTTagCompound(), playerIn, this);
+        return true;
+    }
+    
 }

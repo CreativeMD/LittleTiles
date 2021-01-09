@@ -15,15 +15,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
 public class TheOneProbeInteractor implements IEntityDisplayOverride, IBlockDisplayOverride {
-	
-	@Override
-	public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
-		return blockState.getBlock() instanceof BlockTile;
-	}
-	
-	@Override
-	public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, Entity entity, IProbeHitEntityData data) {
-		return entity instanceof EntityAnimation;
-	}
-	
+    
+    @Override
+    public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+        return blockState.getBlock() instanceof BlockTile;
+    }
+    
+    @Override
+    public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, Entity entity, IProbeHitEntityData data) {
+        return entity instanceof EntityAnimation;
+    }
+    
 }

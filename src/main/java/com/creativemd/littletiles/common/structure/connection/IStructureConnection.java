@@ -7,21 +7,21 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import net.minecraft.util.math.BlockPos;
 
 public interface IStructureConnection {
-	
-	public BlockPos getStructurePosition();
-	
-	public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException;
-	
-	public default void checkConnection() throws CorruptedConnectionException, NotYetConnectedException {
-		getStructure();
-	}
-	
-	public int getIndex();
-	
-	public int getAttribute();
-	
-	public default boolean isLinkToAnotherWorld() {
-		return false;
-	}
-	
+    
+    public BlockPos getStructurePosition();
+    
+    public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException;
+    
+    public default void checkConnection() throws CorruptedConnectionException, NotYetConnectedException {
+        getStructure();
+    }
+    
+    public int getIndex();
+    
+    public int getAttribute();
+    
+    public default boolean isLinkToAnotherWorld() {
+        return false;
+    }
+    
 }

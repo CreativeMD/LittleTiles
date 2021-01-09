@@ -10,38 +10,38 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class LittleResetAnimationPacket extends CreativeCorePacket {
-	
-	public UUID animationUUID;
-	
-	public LittleResetAnimationPacket(UUID animationUUID) {
-		this.animationUUID = animationUUID;
-	}
-	
-	public LittleResetAnimationPacket() {
-		
-	}
-	
-	@Override
-	public void writeBytes(ByteBuf buf) {
-		writeString(buf, animationUUID.toString());
-	}
-	
-	@Override
-	public void readBytes(ByteBuf buf) {
-		animationUUID = UUID.fromString(readString(buf));
-	}
-	
-	@Override
-	public void executeClient(EntityPlayer player) {
-		EntityAnimation animation = WorldAnimationHandler.findAnimation(true, animationUUID);
-		if (animation == null)
-			return;
-		animation.isDead = true;
-	}
-	
-	@Override
-	public void executeServer(EntityPlayer player) {
-		
-	}
-	
+    
+    public UUID animationUUID;
+    
+    public LittleResetAnimationPacket(UUID animationUUID) {
+        this.animationUUID = animationUUID;
+    }
+    
+    public LittleResetAnimationPacket() {
+        
+    }
+    
+    @Override
+    public void writeBytes(ByteBuf buf) {
+        writeString(buf, animationUUID.toString());
+    }
+    
+    @Override
+    public void readBytes(ByteBuf buf) {
+        animationUUID = UUID.fromString(readString(buf));
+    }
+    
+    @Override
+    public void executeClient(EntityPlayer player) {
+        EntityAnimation animation = WorldAnimationHandler.findAnimation(true, animationUUID);
+        if (animation == null)
+            return;
+        animation.isDead = true;
+    }
+    
+    @Override
+    public void executeServer(EntityPlayer player) {
+        
+    }
+    
 }

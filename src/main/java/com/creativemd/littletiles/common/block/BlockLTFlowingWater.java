@@ -37,175 +37,176 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, IFakeRenderingBlock {
-	
-	public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
-	
-	public final BlockLittleDyeableTransparent.LittleDyeableTransparent still;
-	
-	public BlockLTFlowingWater(BlockLittleDyeableTransparent.LittleDyeableTransparent still) {
-		super(Material.WATER);
-		this.still = still;
-		setCreativeTab(LittleTiles.littleTab);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.EAST));
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-		IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
-		Block block = iblockstate.getBlock();
-		
-		if (block == this) {
-			return false;
-		}
-		
-		return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
-	}
-	
-	@Override
-	public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
-		return false;
-	}
-	
-	@Override
-	public boolean isOpaqueCube(IBlockState state) {
-		return false;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.TRANSLUCENT;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-		/*
-		 * for (int i = 0; i < DIRECTION.getAllowedValues().size(); i++) { items.add(new
-		 * ItemStack(this, 1, i)); }
-		 */
-	}
-	
-	@Override
-	public int damageDropped(IBlockState state) {
-		return state.getValue(DIRECTION).ordinal();
-	}
-	
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		return this.getDefaultState().withProperty(DIRECTION, EnumFacing.getFront(meta));
-	}
-	
-	@Override
-	public int getMetaFromState(IBlockState state) {
-		return state.getValue(DIRECTION).ordinal();
-	}
-	
-	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, DIRECTION);
-	}
-	
-	@Override
-	public boolean canWalkThrough(LittleTile tile) {
-		return true;
-	}
-	
-	@Override
-	public boolean isMaterial(LittleTile tile, Material material) {
-		return material == Material.WATER;
-	}
-	
-	@Override
-	public boolean isLiquid(LittleTile tile) {
-		return true;
-	}
-	
-	@Override
-	public Vec3d modifyAcceleration(IParentTileList parent, LittleTile tile, Entity entityIn, Vec3d motion) {
-		AxisAlignedBB box = entityIn.getEntityBoundingBox();
-		LittleVec center = new LittleVec(parent.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(parent.getPos())));
-		LittleBox testBox = new LittleBox(center, 1, 1, 1);
-		if (tile.intersectsWith(testBox)) {
-			double scale = 0.01;
-			Vec3d vec = new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
-			entityIn.motionX += vec.x * scale;
-			entityIn.motionY += vec.y * scale;
-			entityIn.motionZ += vec.z * scale;
-		}
-		return new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec());
-	}
-	
-	@Override
-	public boolean canBeConvertedToVanilla(LittleTile tile) {
-		return false;
-	}
-	
-	@Override
-	public IBlockState getFakeState(IBlockState state) {
-		return Blocks.FLOWING_WATER.getDefaultState();
-	}
-	
-	@Override
-	public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingWater) {
-			int meta = tile.getMeta() + 1;
-			if (meta > EnumFacing.VALUES.length)
-				tile.setBlock(LittleTiles.dyeableBlockTransparent, still.ordinal());
-			else
-				tile.setMeta(meta);
-			parent.getTe().updateTiles();
-			return true;
-		}
-		return ISpecialBlockHandler.super.onBlockActivated(parent, tile, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
-		if (tile.getBlock() == this)
-			return true;
-		if (tile.getBlock() == LittleTiles.dyeableBlockTransparent && LittleDyeableTransparent.values()[tile.getMeta()].isWater())
-			return true;
-		return false;
-	}
-	
-	@Override
-	public Vec3d getFogColor(IParentTileList parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
-		float f12 = 0.0F;
-		if (entity instanceof net.minecraft.entity.EntityLivingBase) {
-			net.minecraft.entity.EntityLivingBase ent = (net.minecraft.entity.EntityLivingBase) entity;
-			f12 = net.minecraft.enchantment.EnchantmentHelper.getRespirationModifier(ent) * 0.2F;
-			
-			if (ent.isPotionActive(net.minecraft.init.MobEffects.WATER_BREATHING))
-				f12 = f12 * 0.3F + 0.6F;
-		}
-		return new Vec3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
-	}
-	
-	@Override
-	public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
-		preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(preview.getMeta()), rotation).ordinal());
-	}
-	
-	@Override
-	public void flipPreview(Axis axis, LittlePreview preview, LittleVec doubledCenter) {
-		EnumFacing facing = EnumFacing.getFront(preview.getMeta());
-		if (facing.getAxis() == axis)
-			facing = facing.getOpposite();
-		preview.getTileData().setInteger("meta", facing.ordinal());
-	}
-	
-	public static class LittleFlowingWaterPreview extends LittlePreview {
-		
-		public LittleFlowingWaterPreview(NBTTagCompound nbt) {
-			super(nbt);
-		}
-		
-		public LittleFlowingWaterPreview(LittleBox box, NBTTagCompound tileData) {
-			super(box, tileData);
-		}
-	}
-	
+    
+    public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
+    
+    public final BlockLittleDyeableTransparent.LittleDyeableTransparent still;
+    
+    public BlockLTFlowingWater(BlockLittleDyeableTransparent.LittleDyeableTransparent still) {
+        super(Material.WATER);
+        this.still = still;
+        setCreativeTab(LittleTiles.littleTab);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.EAST));
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
+        Block block = iblockstate.getBlock();
+        
+        if (block == this) {
+            return false;
+        }
+        
+        return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+    }
+    
+    @Override
+    public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
+        return false;
+    }
+    
+    @Override
+    public boolean isOpaqueCube(IBlockState state) {
+        return false;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public BlockRenderLayer getBlockLayer() {
+        return BlockRenderLayer.TRANSLUCENT;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+        /*
+         * for (int i = 0; i < DIRECTION.getAllowedValues().size(); i++) { items.add(new
+         * ItemStack(this, 1, i)); }
+         */
+    }
+    
+    @Override
+    public int damageDropped(IBlockState state) {
+        return state.getValue(DIRECTION).ordinal();
+    }
+    
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return this.getDefaultState().withProperty(DIRECTION, EnumFacing.getFront(meta));
+    }
+    
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return state.getValue(DIRECTION).ordinal();
+    }
+    
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, DIRECTION);
+    }
+    
+    @Override
+    public boolean canWalkThrough(LittleTile tile) {
+        return true;
+    }
+    
+    @Override
+    public boolean isMaterial(LittleTile tile, Material material) {
+        return material == Material.WATER;
+    }
+    
+    @Override
+    public boolean isLiquid(LittleTile tile) {
+        return true;
+    }
+    
+    @Override
+    public Vec3d modifyAcceleration(IParentTileList parent, LittleTile tile, Entity entityIn, Vec3d motion) {
+        AxisAlignedBB box = entityIn.getEntityBoundingBox();
+        LittleVec center = new LittleVec(parent.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2)
+            .subtract(new Vec3d(parent.getPos())));
+        LittleBox testBox = new LittleBox(center, 1, 1, 1);
+        if (tile.intersectsWith(testBox)) {
+            double scale = 0.01;
+            Vec3d vec = new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
+            entityIn.motionX += vec.x * scale;
+            entityIn.motionY += vec.y * scale;
+            entityIn.motionZ += vec.z * scale;
+        }
+        return new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec());
+    }
+    
+    @Override
+    public boolean canBeConvertedToVanilla(LittleTile tile) {
+        return false;
+    }
+    
+    @Override
+    public IBlockState getFakeState(IBlockState state) {
+        return Blocks.FLOWING_WATER.getDefaultState();
+    }
+    
+    @Override
+    public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+        if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingWater) {
+            int meta = tile.getMeta() + 1;
+            if (meta > EnumFacing.VALUES.length)
+                tile.setBlock(LittleTiles.dyeableBlockTransparent, still.ordinal());
+            else
+                tile.setMeta(meta);
+            parent.getTe().updateTiles();
+            return true;
+        }
+        return ISpecialBlockHandler.super.onBlockActivated(parent, tile, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
+        if (tile.getBlock() == this)
+            return true;
+        if (tile.getBlock() == LittleTiles.dyeableBlockTransparent && LittleDyeableTransparent.values()[tile.getMeta()].isWater())
+            return true;
+        return false;
+    }
+    
+    @Override
+    public Vec3d getFogColor(IParentTileList parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
+        float f12 = 0.0F;
+        if (entity instanceof net.minecraft.entity.EntityLivingBase) {
+            net.minecraft.entity.EntityLivingBase ent = (net.minecraft.entity.EntityLivingBase) entity;
+            f12 = net.minecraft.enchantment.EnchantmentHelper.getRespirationModifier(ent) * 0.2F;
+            
+            if (ent.isPotionActive(net.minecraft.init.MobEffects.WATER_BREATHING))
+                f12 = f12 * 0.3F + 0.6F;
+        }
+        return new Vec3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
+    }
+    
+    @Override
+    public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
+        preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(preview.getMeta()), rotation).ordinal());
+    }
+    
+    @Override
+    public void flipPreview(Axis axis, LittlePreview preview, LittleVec doubledCenter) {
+        EnumFacing facing = EnumFacing.getFront(preview.getMeta());
+        if (facing.getAxis() == axis)
+            facing = facing.getOpposite();
+        preview.getTileData().setInteger("meta", facing.ordinal());
+    }
+    
+    public static class LittleFlowingWaterPreview extends LittlePreview {
+        
+        public LittleFlowingWaterPreview(NBTTagCompound nbt) {
+            super(nbt);
+        }
+        
+        public LittleFlowingWaterPreview(LittleBox box, NBTTagCompound tileData) {
+            super(box, tileData);
+        }
+    }
+    
 }

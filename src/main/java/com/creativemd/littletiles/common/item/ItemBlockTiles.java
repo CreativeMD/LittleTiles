@@ -35,141 +35,142 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeRendered {
-	
-	public ItemBlockTiles(Block block, ResourceLocation location) {
-		super(block);
-		setUnlocalizedName(location.getResourcePath());
-		hasSubtypes = true;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public String getItemStackDisplayName(ItemStack stack) {
-		String result = super.getItemStackDisplayName(stack);
-		if (stack.hasTagCompound()) {
-			LittleVec size = stack.getTagCompound().hasKey("size") ? LittleSize.loadSize("size", stack.getTagCompound()) : LittleBox.loadBox("bBox", stack.getTagCompound()).getSize();
-			result += " (x=" + size.x + ",y=" + size.y + ",z=" + size.z + ")";
-		}
-		return result;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public String getUnlocalizedName(ItemStack stack) {
-		if (stack.hasTagCompound()) {
-			Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
-			if (block != null && !(block instanceof BlockAir))
-				return new ItemStack(block, 1, stack.getTagCompound().getInteger("meta")).getUnlocalizedName();
-		}
-		return super.getUnlocalizedName(stack);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-		
-	}
-	
-	@Override
-	public boolean hasLittlePreview(ItemStack stack) {
-		return true;
-	}
-	
-	@Override
-	public LittlePreviews getLittlePreview(ItemStack stack) {
-		if (!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		LittlePreviews previews = new LittlePreviews(getPreviewsContext(stack));
-		previews.addWithoutCheckingPreview(LittleTileRegistry.loadPreview(stack.getTagCompound()));
-		return previews;
-	}
-	
-	@Override
-	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		if (previews.size() > 0) {
-			LittlePreview preview = previews.get(0);
-			NBTTagCompound nbt = preview.getTileData().copy();
-			previews.getContext().set(nbt);
-			LittleBox tempBox = preview.box;
-			preview.box = preview.box.copy();
-			preview.box.sub(preview.box.getMinVec());
-			preview.writeToNBT(nbt);
-			preview.box = tempBox;
-			stack.setTagCompound(nbt);
-		} else
-			stack.setTagCompound(new NBTTagCompound());
-	}
-	
-	public static ItemStack getStackFromPreview(LittleGridContext context, LittlePreview preview) {
-		ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
-		NBTTagCompound nbt = preview.getTileData().copy();
-		
-		// preview.size.writeToNBT("size", nbt);
-		preview.writeToNBT(nbt);
-		
-		// if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
-		// nbt.setString("type", preview.getTypeID());
-		context.set(nbt);
-		stack.setTagCompound(nbt);
-		return stack;
-	}
-	
-	public static List<LittleRenderBox> getItemRenderingCubes(ItemStack stack) {
-		ArrayList<LittleRenderBox> cubes = new ArrayList<LittleRenderBox>();
-		if (stack != null && stack.hasTagCompound()) {
-			if (stack.getTagCompound().hasKey("size")) {
-				Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
-				int meta = stack.getTagCompound().getInteger("meta");
-				LittleVec size = new LittleVec("size", stack.getTagCompound());
-				if (!(block instanceof BlockAir)) {
-					LittleRenderBox cube = new LittleBox(0, 0, 0, size.x, size.y, size.z).getRenderingCube(LittleGridContext.get(), block, meta);
-					if (stack.getTagCompound().hasKey("color"))
-						cube.color = stack.getTagCompound().getInteger("color");
-					cubes.add(cube);
-				}
-			} else {
-				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-				LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
-				cubes.add((LittleRenderBox) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
-			}
-		}
-		return cubes;
-	}
-	
-	@Override
-	public List<? extends RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		if (stack != null)
-			return getItemRenderingCubes(stack);
-		return new ArrayList<>();
-	}
-	
-	@Override
-	public PlacementMode getPlacementMode(ItemStack stack) {
-		return ItemMultiTiles.currentMode;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
-		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
-			
-			@Override
-			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
-				ItemMultiTiles.currentContext = context;
-				ItemMultiTiles.currentMode = mode;
-			}
-			
-		};
-	}
-	
-	@Override
-	public LittleGridContext getPositionContext(ItemStack stack) {
-		return ItemMultiTiles.currentContext;
-	}
-	
-	@Override
-	public boolean containsIngredients(ItemStack stack) {
-		return true;
-	}
-	
+    
+    public ItemBlockTiles(Block block, ResourceLocation location) {
+        super(block);
+        setUnlocalizedName(location.getResourcePath());
+        hasSubtypes = true;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public String getItemStackDisplayName(ItemStack stack) {
+        String result = super.getItemStackDisplayName(stack);
+        if (stack.hasTagCompound()) {
+            LittleVec size = stack.getTagCompound().hasKey("size") ? LittleSize.loadSize("size", stack.getTagCompound()) : LittleBox.loadBox("bBox", stack.getTagCompound())
+                .getSize();
+            result += " (x=" + size.x + ",y=" + size.y + ",z=" + size.z + ")";
+        }
+        return result;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public String getUnlocalizedName(ItemStack stack) {
+        if (stack.hasTagCompound()) {
+            Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
+            if (block != null && !(block instanceof BlockAir))
+                return new ItemStack(block, 1, stack.getTagCompound().getInteger("meta")).getUnlocalizedName();
+        }
+        return super.getUnlocalizedName(stack);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
+        
+    }
+    
+    @Override
+    public boolean hasLittlePreview(ItemStack stack) {
+        return true;
+    }
+    
+    @Override
+    public LittlePreviews getLittlePreview(ItemStack stack) {
+        if (!stack.hasTagCompound())
+            stack.setTagCompound(new NBTTagCompound());
+        LittlePreviews previews = new LittlePreviews(getPreviewsContext(stack));
+        previews.addWithoutCheckingPreview(LittleTileRegistry.loadPreview(stack.getTagCompound()));
+        return previews;
+    }
+    
+    @Override
+    public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
+        if (previews.size() > 0) {
+            LittlePreview preview = previews.get(0);
+            NBTTagCompound nbt = preview.getTileData().copy();
+            previews.getContext().set(nbt);
+            LittleBox tempBox = preview.box;
+            preview.box = preview.box.copy();
+            preview.box.sub(preview.box.getMinVec());
+            preview.writeToNBT(nbt);
+            preview.box = tempBox;
+            stack.setTagCompound(nbt);
+        } else
+            stack.setTagCompound(new NBTTagCompound());
+    }
+    
+    public static ItemStack getStackFromPreview(LittleGridContext context, LittlePreview preview) {
+        ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
+        NBTTagCompound nbt = preview.getTileData().copy();
+        
+        // preview.size.writeToNBT("size", nbt);
+        preview.writeToNBT(nbt);
+        
+        // if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
+        // nbt.setString("type", preview.getTypeID());
+        context.set(nbt);
+        stack.setTagCompound(nbt);
+        return stack;
+    }
+    
+    public static List<LittleRenderBox> getItemRenderingCubes(ItemStack stack) {
+        ArrayList<LittleRenderBox> cubes = new ArrayList<LittleRenderBox>();
+        if (stack != null && stack.hasTagCompound()) {
+            if (stack.getTagCompound().hasKey("size")) {
+                Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
+                int meta = stack.getTagCompound().getInteger("meta");
+                LittleVec size = new LittleVec("size", stack.getTagCompound());
+                if (!(block instanceof BlockAir)) {
+                    LittleRenderBox cube = new LittleBox(0, 0, 0, size.x, size.y, size.z).getRenderingCube(LittleGridContext.get(), block, meta);
+                    if (stack.getTagCompound().hasKey("color"))
+                        cube.color = stack.getTagCompound().getInteger("color");
+                    cubes.add(cube);
+                }
+            } else {
+                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+                LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
+                cubes.add((LittleRenderBox) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
+            }
+        }
+        return cubes;
+    }
+    
+    @Override
+    public List<? extends RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+        if (stack != null)
+            return getItemRenderingCubes(stack);
+        return new ArrayList<>();
+    }
+    
+    @Override
+    public PlacementMode getPlacementMode(ItemStack stack) {
+        return ItemMultiTiles.currentMode;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+            
+            @Override
+            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+                ItemMultiTiles.currentContext = context;
+                ItemMultiTiles.currentMode = mode;
+            }
+            
+        };
+    }
+    
+    @Override
+    public LittleGridContext getPositionContext(ItemStack stack) {
+        return ItemMultiTiles.currentContext;
+    }
+    
+    @Override
+    public boolean containsIngredients(ItemStack stack) {
+        return true;
+    }
+    
 }

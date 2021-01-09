@@ -28,68 +28,68 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class LittleActionBoxes extends LittleAction {
-	
-	public LittleBoxes boxes;
-	
-	public LittleActionBoxes(LittleBoxes boxes) {
-		this.boxes = boxes;
-	}
-	
-	public LittleActionBoxes() {
-		
-	}
-	
-	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context, MutableInt affectedBlocks) throws LittleActionException;
-	
-	@Override
-	protected boolean action(EntityPlayer player) throws LittleActionException {
-		if (boxes.isEmpty())
-			return false;
-		
-		boolean placed = false;
-		World world = player.world;
-		
-		if (LittleTiles.CONFIG.isEditLimited(player)) {
-			if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.getConfig(player).maxEditBlocks)
-				throw new NotAllowedToEditException(player);
-		}
-		
-		HashMapList<BlockPos, LittleBox> boxesMap = boxes.split();
-		MutableInt affectedBlocks = new MutableInt();
-		
-		for (Iterator<Entry<BlockPos, ArrayList<LittleBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
-			Entry<BlockPos, ArrayList<LittleBox>> entry = iterator.next();
-			BlockPos pos = entry.getKey();
-			IBlockState state = world.getBlockState(pos);
-			if (!isAllowedToInteract(world, player, pos, false, EnumFacing.EAST)) {
-				if (!world.isRemote)
-					sendBlockResetToClient(world, player, pos);
-				continue;
-			}
-			
-			placed = true;
-			
-			action(world, player, pos, state, entry.getValue(), boxes.context, affectedBlocks);
-		}
-		
-		world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
-		return placed;
-	}
-	
-	@Override
-	public void writeBytes(ByteBuf buf) {
-		writeBoxes(boxes, buf);
-	}
-	
-	@Override
-	public void readBytes(ByteBuf buf) {
-		boxes = readBoxes(buf);
-	}
-	
-	protected LittleActionBoxes assignFlip(LittleActionBoxes action, Axis axis, LittleAbsoluteBox box) {
-		action.boxes = this.boxes.copy();
-		action.boxes.flip(axis, box);
-		return action;
-	}
-	
+    
+    public LittleBoxes boxes;
+    
+    public LittleActionBoxes(LittleBoxes boxes) {
+        this.boxes = boxes;
+    }
+    
+    public LittleActionBoxes() {
+        
+    }
+    
+    public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context, MutableInt affectedBlocks) throws LittleActionException;
+    
+    @Override
+    protected boolean action(EntityPlayer player) throws LittleActionException {
+        if (boxes.isEmpty())
+            return false;
+        
+        boolean placed = false;
+        World world = player.world;
+        
+        if (LittleTiles.CONFIG.isEditLimited(player)) {
+            if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.getConfig(player).maxEditBlocks)
+                throw new NotAllowedToEditException(player);
+        }
+        
+        HashMapList<BlockPos, LittleBox> boxesMap = boxes.split();
+        MutableInt affectedBlocks = new MutableInt();
+        
+        for (Iterator<Entry<BlockPos, ArrayList<LittleBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
+            Entry<BlockPos, ArrayList<LittleBox>> entry = iterator.next();
+            BlockPos pos = entry.getKey();
+            IBlockState state = world.getBlockState(pos);
+            if (!isAllowedToInteract(world, player, pos, false, EnumFacing.EAST)) {
+                if (!world.isRemote)
+                    sendBlockResetToClient(world, player, pos);
+                continue;
+            }
+            
+            placed = true;
+            
+            action(world, player, pos, state, entry.getValue(), boxes.context, affectedBlocks);
+        }
+        
+        world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
+        return placed;
+    }
+    
+    @Override
+    public void writeBytes(ByteBuf buf) {
+        writeBoxes(boxes, buf);
+    }
+    
+    @Override
+    public void readBytes(ByteBuf buf) {
+        boxes = readBoxes(buf);
+    }
+    
+    protected LittleActionBoxes assignFlip(LittleActionBoxes action, Axis axis, LittleAbsoluteBox box) {
+        action.boxes = this.boxes.copy();
+        action.boxes.flip(axis, box);
+        return action;
+    }
+    
 }

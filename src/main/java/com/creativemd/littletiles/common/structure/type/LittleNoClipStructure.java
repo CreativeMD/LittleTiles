@@ -18,58 +18,58 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleNoClipStructure extends LittleStructure {
-	
-	public boolean web = true;
-	
-	public LittleNoClipStructure(LittleStructureType type, IStructureTileList mainBlock) {
-		super(type, mainBlock);
-	}
-	
-	@Override
-	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		web = nbt.getBoolean("web");
-	}
-	
-	@Override
-	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		nbt.setBoolean("web", web);
-	}
-	
-	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
-		if (web)
-			entityIn.setInWeb();
-	}
-	
-	public static class LittleNoClipStructureParser extends LittleStructureGuiParser {
-		
-		public LittleNoClipStructureParser(GuiParent parent, AnimationGuiHandler handler) {
-			super(parent, handler);
-		}
-		
-		@Override
-		@SideOnly(Side.CLIENT)
-		public void createControls(LittlePreviews previews, LittleStructure structure) {
-			boolean slowness = true;
-			if (structure instanceof LittleNoClipStructure)
-				slowness = ((LittleNoClipStructure) structure).web;
-			parent.controls.add(new GuiCheckBox("web", "slowness (cobwebs)", 3, 0, slowness));
-		}
-		
-		@Override
-		@SideOnly(Side.CLIENT)
-		public LittleNoClipStructure parseStructure(LittlePreviews previews) {
-			LittleNoClipStructure structure = createStructure(LittleNoClipStructure.class, null);
-			structure.web = ((GuiCheckBox) parent.get("web")).value;
-			
-			return structure;
-		}
-		
-		@Override
-		@SideOnly(Side.CLIENT)
-		protected LittleStructureType getStructureType() {
-			return LittleStructureRegistry.getStructureType(LittleNoClipStructure.class);
-		}
-	}
-	
+    
+    public boolean web = true;
+    
+    public LittleNoClipStructure(LittleStructureType type, IStructureTileList mainBlock) {
+        super(type, mainBlock);
+    }
+    
+    @Override
+    protected void loadFromNBTExtra(NBTTagCompound nbt) {
+        web = nbt.getBoolean("web");
+    }
+    
+    @Override
+    protected void writeToNBTExtra(NBTTagCompound nbt) {
+        nbt.setBoolean("web", web);
+    }
+    
+    @Override
+    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
+        if (web)
+            entityIn.setInWeb();
+    }
+    
+    public static class LittleNoClipStructureParser extends LittleStructureGuiParser {
+        
+        public LittleNoClipStructureParser(GuiParent parent, AnimationGuiHandler handler) {
+            super(parent, handler);
+        }
+        
+        @Override
+        @SideOnly(Side.CLIENT)
+        public void createControls(LittlePreviews previews, LittleStructure structure) {
+            boolean slowness = true;
+            if (structure instanceof LittleNoClipStructure)
+                slowness = ((LittleNoClipStructure) structure).web;
+            parent.controls.add(new GuiCheckBox("web", "slowness (cobwebs)", 3, 0, slowness));
+        }
+        
+        @Override
+        @SideOnly(Side.CLIENT)
+        public LittleNoClipStructure parseStructure(LittlePreviews previews) {
+            LittleNoClipStructure structure = createStructure(LittleNoClipStructure.class, null);
+            structure.web = ((GuiCheckBox) parent.get("web")).value;
+            
+            return structure;
+        }
+        
+        @Override
+        @SideOnly(Side.CLIENT)
+        protected LittleStructureType getStructureType() {
+            return LittleStructureRegistry.getStructureType(LittleNoClipStructure.class);
+        }
+    }
+    
 }

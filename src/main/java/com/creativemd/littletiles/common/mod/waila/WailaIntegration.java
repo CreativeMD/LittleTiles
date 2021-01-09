@@ -17,22 +17,22 @@ import net.minecraft.world.World;
 
 @WailaPlugin
 public class WailaIntegration implements IWailaPlugin {
-	
-	@Override
-	public void register(IWailaRegistrar registrar) {
-		registrar.registerStackProvider(new IWailaDataProvider() {
-			
-			@Override
-			public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
-				return ItemStack.EMPTY;
-			}
-			
-			@Override
-			public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
-				return new NBTTagCompound();
-			}
-			
-		}, BlockTile.class);
-	}
-	
+    
+    @Override
+    public void register(IWailaRegistrar registrar) {
+        registrar.registerStackProvider(new IWailaDataProvider() {
+            
+            @Override
+            public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
+                return ItemStack.EMPTY;
+            }
+            
+            @Override
+            public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
+                return new NBTTagCompound();
+            }
+            
+        }, BlockTile.class);
+    }
+    
 }

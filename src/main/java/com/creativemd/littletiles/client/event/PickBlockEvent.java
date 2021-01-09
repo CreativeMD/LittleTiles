@@ -8,15 +8,15 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class PickBlockEvent extends Event {
-	
-	public final World world;
-	public final EntityPlayer player;
-	public final RayTraceResult result;
-	
-	public PickBlockEvent(World world, EntityPlayer player, RayTraceResult result) {
-		this.world = world;
-		this.player = player;
-		this.result = result;
-	}
-	
+    
+    public final World world;
+    public final EntityPlayer player;
+    public final RayTraceResult result;
+    
+    public PickBlockEvent(World world, EntityPlayer player, RayTraceResult result) {
+        this.world = world;
+        this.player = player;
+        this.result = result;
+    }
+    
 }

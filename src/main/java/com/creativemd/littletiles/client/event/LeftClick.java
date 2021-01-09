@@ -10,17 +10,17 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class LeftClick extends Event {
-	
-	public final World world;
-	public final EntityPlayer player;
-	
-	@Nullable
-	public final RayTraceResult result;
-	
-	public LeftClick(World world, EntityPlayer player, RayTraceResult result) {
-		this.world = world;
-		this.player = player;
-		this.result = result;
-	}
-	
+    
+    public final World world;
+    public final EntityPlayer player;
+    
+    @Nullable
+    public final RayTraceResult result;
+    
+    public LeftClick(World world, EntityPlayer player, RayTraceResult result) {
+        this.world = world;
+        this.player = player;
+        this.result = result;
+    }
+    
 }

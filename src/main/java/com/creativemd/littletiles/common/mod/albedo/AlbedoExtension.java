@@ -26,57 +26,57 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class AlbedoExtension {
-	
-	@CapabilityInject(ILightProvider.class)
-	public static Capability<ILightProvider> LIGHT_PROVIDER_CAPABILITY;
-	
-	@SubscribeEvent
-	public static void tileEntityCapability(AttachCapabilitiesEvent<TileEntity> event) {
-		if (event.getObject() instanceof TileEntityLittleTiles) {
-			TileEntityLittleTiles te = (TileEntityLittleTiles) event.getObject();
-			event.addCapability(new ResourceLocation(LittleTiles.modid, "light"), new ICapabilityProvider() {
-				
-				@Override
-				public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-					return LIGHT_PROVIDER_CAPABILITY == capability;
-				}
-				
-				@Override
-				public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-					if (capability == LIGHT_PROVIDER_CAPABILITY)
-						return (T) new ILightProvider() {
-							
-							@Override
-							@SideOnly(Side.CLIENT)
-							public void gatherLights(GatherLightsEvent paramGatherLightsEvent, Entity paramEntity) {
-								if (ColoredLightsManager.isInstalled()) {
-									AxisAlignedBB box = null;
-									int color = -1;
-									for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
-										LittleTile tile = pair.value;
-										if (tile.getBlock() == ColoredLightsManager.getInvertedColorsBlock()) {
-											int tileColor = ColoredLightsManager.getColorFromBlock(tile.getBlockState());
-											if (tile instanceof LittleTileColored)
-												tileColor = ColorUtils.blend(tileColor, ((LittleTileColored) tile).color);
-											if (box == null) {
-												box = tile.getCompleteBox().getBox(te.getContext(), te.getPos());
-												color = tileColor;
-											} else {
-												box = box.union(tile.getCompleteBox().getBox(te.getContext(), te.getPos()));
-												color = ColorUtils.blend(color, tileColor);
-											}
-										}
-									}
-									
-									if (box != null)
-										paramGatherLightsEvent.add(new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build());
-								}
-							}
-						};
-					return null;
-				}
-			});
-		}
-	}
-	
+    
+    @CapabilityInject(ILightProvider.class)
+    public static Capability<ILightProvider> LIGHT_PROVIDER_CAPABILITY;
+    
+    @SubscribeEvent
+    public static void tileEntityCapability(AttachCapabilitiesEvent<TileEntity> event) {
+        if (event.getObject() instanceof TileEntityLittleTiles) {
+            TileEntityLittleTiles te = (TileEntityLittleTiles) event.getObject();
+            event.addCapability(new ResourceLocation(LittleTiles.modid, "light"), new ICapabilityProvider() {
+                
+                @Override
+                public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+                    return LIGHT_PROVIDER_CAPABILITY == capability;
+                }
+                
+                @Override
+                public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+                    if (capability == LIGHT_PROVIDER_CAPABILITY)
+                        return (T) new ILightProvider() {
+                            
+                            @Override
+                            @SideOnly(Side.CLIENT)
+                            public void gatherLights(GatherLightsEvent paramGatherLightsEvent, Entity paramEntity) {
+                                if (ColoredLightsManager.isInstalled()) {
+                                    AxisAlignedBB box = null;
+                                    int color = -1;
+                                    for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+                                        LittleTile tile = pair.value;
+                                        if (tile.getBlock() == ColoredLightsManager.getInvertedColorsBlock()) {
+                                            int tileColor = ColoredLightsManager.getColorFromBlock(tile.getBlockState());
+                                            if (tile instanceof LittleTileColored)
+                                                tileColor = ColorUtils.blend(tileColor, ((LittleTileColored) tile).color);
+                                            if (box == null) {
+                                                box = tile.getCompleteBox().getBox(te.getContext(), te.getPos());
+                                                color = tileColor;
+                                            } else {
+                                                box = box.union(tile.getCompleteBox().getBox(te.getContext(), te.getPos()));
+                                                color = ColorUtils.blend(color, tileColor);
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (box != null)
+                                        paramGatherLightsEvent.add(new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build());
+                                }
+                            }
+                        };
+                    return null;
+                }
+            });
+        }
+    }
+    
 }

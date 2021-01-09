@@ -9,13 +9,13 @@ import net.minecraft.item.ItemStack;
 
 /** must be implemented by an item * */
 public interface ILittleIngredientInventory {
-	
-	public default boolean shouldBeMerged() {
-		return false;
-	}
-	
-	public LittleIngredients getInventory(ItemStack stack);
-	
-	public void setInventory(ItemStack stack, LittleIngredients ingredients, @Nullable LittleInventory inventory);
-	
+    
+    public default boolean shouldBeMerged() {
+        return false;
+    }
+    
+    public LittleIngredients getInventory(ItemStack stack);
+    
+    public void setInventory(ItemStack stack, LittleIngredients ingredients, @Nullable LittleInventory inventory);
+    
 }

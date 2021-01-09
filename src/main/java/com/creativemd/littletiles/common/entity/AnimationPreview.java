@@ -27,57 +27,58 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
 public class AnimationPreview {
-	
-	public final EntityAnimation animation;
-	public final LittlePreviews previews;
-	public final LittleBox entireBox;
-	public final LittleGridContext context;
-	public final AxisAlignedBB box;
-	
-	public AnimationPreview(LittlePreviews previews) {
-		this.previews = previews;
-		BlockPos pos = new BlockPos(0, 75, 0);
-		FakeWorld fakeWorld = FakeWorld.createFakeWorld("animationViewer", true);
-		fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
-		
-		if (!previews.hasStructure()) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), null).writeToNBT(nbt);
-			previews = new LittlePreviews(nbt, previews);
-		}
-		
-		Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, pos, PlacementMode.all));
-		List<PlacePreview> placePreviews = new ArrayList<>();
-		PlacementResult result = null;
-		try {
-			result = placement.place();
-		} catch (LittleActionException e) {
-			e.printStackTrace();
-		}
-		
-		entireBox = previews.getSurroundingBox();
-		context = previews.getContext();
-		box = entireBox.getBox(context);
-		
-		animation = new EntityAnimation(fakeWorld, fakeWorld, (EntityAnimationController) new EntityAnimationController() {
-			
-			@Override
-			protected void writeToNBTExtra(NBTTagCompound nbt) {
-			
-			}
-			
-			@Override
-			protected void readFromNBT(NBTTagCompound nbt) {
-				
-			}
-			
-			@Override
-			public void transform(LittleTransformation transformation) {
-				
-			}
-			
-		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.getContext()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
-			
-	}
-	
+    
+    public final EntityAnimation animation;
+    public final LittlePreviews previews;
+    public final LittleBox entireBox;
+    public final LittleGridContext context;
+    public final AxisAlignedBB box;
+    
+    public AnimationPreview(LittlePreviews previews) {
+        this.previews = previews;
+        BlockPos pos = new BlockPos(0, 75, 0);
+        FakeWorld fakeWorld = FakeWorld.createFakeWorld("animationViewer", true);
+        fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+        
+        if (!previews.hasStructure()) {
+            NBTTagCompound nbt = new NBTTagCompound();
+            new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), null).writeToNBT(nbt);
+            previews = new LittlePreviews(nbt, previews);
+        }
+        
+        Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, pos, PlacementMode.all));
+        List<PlacePreview> placePreviews = new ArrayList<>();
+        PlacementResult result = null;
+        try {
+            result = placement.place();
+        } catch (LittleActionException e) {
+            e.printStackTrace();
+        }
+        
+        entireBox = previews.getSurroundingBox();
+        context = previews.getContext();
+        box = entireBox.getBox(context);
+        
+        animation = new EntityAnimation(fakeWorld, fakeWorld, (EntityAnimationController) new EntityAnimationController() {
+            
+            @Override
+            protected void writeToNBTExtra(NBTTagCompound nbt) {
+            
+            }
+            
+            @Override
+            protected void readFromNBT(NBTTagCompound nbt) {
+                
+            }
+            
+            @Override
+            public void transform(LittleTransformation transformation) {
+                
+            }
+            
+        }.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews
+            .getContext()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
+            
+    }
+    
 }

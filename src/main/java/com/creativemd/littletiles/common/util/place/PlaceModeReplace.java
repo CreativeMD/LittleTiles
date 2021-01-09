@@ -13,38 +13,38 @@ import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeReplace extends PlacementMode {
-	
-	public PlaceModeReplace(String name, PreviewMode mode) {
-		super(name, mode, true);
-	}
-	
-	@Override
-	public boolean shouldConvertBlock() {
-		return true;
-	}
-	
-	@Override
-	public boolean checkAll() {
-		return false;
-	}
-	
-	@Override
-	public List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos) {
-		return null;
-	}
-	
-	@Override
-	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
-		if (!requiresCollisionTest)
-			return new ArrayList<>();
-		List<LittleTile> tiles = new ArrayList<>();
-		for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false)) {
-			LittleTile newTile = tile.copy();
-			newTile.setBox(lt.getBox());
-			tiles.add(newTile);
-			placement.removedTiles.addTile(parent, lt);
-		}
-		return tiles;
-	}
-	
+    
+    public PlaceModeReplace(String name, PreviewMode mode) {
+        super(name, mode, true);
+    }
+    
+    @Override
+    public boolean shouldConvertBlock() {
+        return true;
+    }
+    
+    @Override
+    public boolean checkAll() {
+        return false;
+    }
+    
+    @Override
+    public List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos) {
+        return null;
+    }
+    
+    @Override
+    public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
+        if (!requiresCollisionTest)
+            return new ArrayList<>();
+        List<LittleTile> tiles = new ArrayList<>();
+        for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false)) {
+            LittleTile newTile = tile.copy();
+            newTile.setBox(lt.getBox());
+            tiles.add(newTile);
+            placement.removedTiles.addTile(parent, lt);
+        }
+        return tiles;
+    }
+    
 }

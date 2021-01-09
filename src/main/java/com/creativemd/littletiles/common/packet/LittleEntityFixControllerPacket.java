@@ -17,64 +17,64 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class LittleEntityFixControllerPacket extends CreativeCorePacket {
-	
-	public UUID uuid;
-	public NBTTagCompound nbt;
-	
-	public LittleEntityFixControllerPacket(UUID uuid, NBTTagCompound nbt) {
-		this.uuid = uuid;
-		this.nbt = nbt;
-	}
-	
-	public LittleEntityFixControllerPacket() {
-		
-	}
-	
-	@Override
-	public void writeBytes(ByteBuf buf) {
-		writeString(buf, uuid.toString());
-		writeNBT(buf, nbt);
-	}
-	
-	@Override
-	public void readBytes(ByteBuf buf) {
-		uuid = UUID.fromString(readString(buf));
-		nbt = readNBT(buf);
-	}
-	
-	@Override
-	public void executeClient(EntityPlayer player) {
-		EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
-		if (animation != null) {
-			animation.controller = DoorController.parseController(animation, nbt);
-			animation.updateTickState();
-			return;
-		}
-		
-		for (Iterator<EntityAnimation> iterator = player.world.getEntities(EntityAnimation.class, new Predicate<EntityAnimation>() {
-			
-			@Override
-			public boolean apply(EntityAnimation input) {
-				return true;
-			}
-			
-		}).iterator();iterator.hasNext();) {
-			Entity entity = iterator.next();
-			if (entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid)) {
-				animation = (EntityAnimation) entity;
-				animation.controller = DoorController.parseController(animation, nbt);
-				animation.updateTickState();
-				return;
-			}
-		}
-		System.out.println("Entity not found!");
-	}
-	
-	@Override
-	public void executeServer(EntityPlayer player) {
-		EntityAnimation animation = WorldAnimationHandler.findAnimation(false, uuid);
-		if (animation != null)
-			PacketHandler.sendPacketToPlayer(new LittleEntityFixControllerPacket(uuid, animation.controller.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) player);
-	}
-	
+    
+    public UUID uuid;
+    public NBTTagCompound nbt;
+    
+    public LittleEntityFixControllerPacket(UUID uuid, NBTTagCompound nbt) {
+        this.uuid = uuid;
+        this.nbt = nbt;
+    }
+    
+    public LittleEntityFixControllerPacket() {
+        
+    }
+    
+    @Override
+    public void writeBytes(ByteBuf buf) {
+        writeString(buf, uuid.toString());
+        writeNBT(buf, nbt);
+    }
+    
+    @Override
+    public void readBytes(ByteBuf buf) {
+        uuid = UUID.fromString(readString(buf));
+        nbt = readNBT(buf);
+    }
+    
+    @Override
+    public void executeClient(EntityPlayer player) {
+        EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
+        if (animation != null) {
+            animation.controller = DoorController.parseController(animation, nbt);
+            animation.updateTickState();
+            return;
+        }
+        
+        for (Iterator<EntityAnimation> iterator = player.world.getEntities(EntityAnimation.class, new Predicate<EntityAnimation>() {
+            
+            @Override
+            public boolean apply(EntityAnimation input) {
+                return true;
+            }
+            
+        }).iterator();iterator.hasNext();) {
+            Entity entity = iterator.next();
+            if (entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid)) {
+                animation = (EntityAnimation) entity;
+                animation.controller = DoorController.parseController(animation, nbt);
+                animation.updateTickState();
+                return;
+            }
+        }
+        System.out.println("Entity not found!");
+    }
+    
+    @Override
+    public void executeServer(EntityPlayer player) {
+        EntityAnimation animation = WorldAnimationHandler.findAnimation(false, uuid);
+        if (animation != null)
+            PacketHandler.sendPacketToPlayer(new LittleEntityFixControllerPacket(uuid, animation.controller.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) player);
+    }
+    
 }

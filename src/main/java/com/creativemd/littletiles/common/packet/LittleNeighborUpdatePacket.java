@@ -17,72 +17,72 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleNeighborUpdatePacket extends CreativeCorePacket {
-	
-	public UUID uuid;
-	public List<BlockPos> positions;
-	
-	public LittleNeighborUpdatePacket(World world, List<BlockPos> positions) {
-		this.positions = positions;
-		if (world instanceof CreativeWorld)
-			uuid = ((CreativeWorld) world).parent.getUniqueID();
-	}
-	
-	public LittleNeighborUpdatePacket() {
-		
-	}
-	
-	@Override
-	public void writeBytes(ByteBuf buf) {
-		buf.writeInt(positions.size());
-		for (int i = 0; i < positions.size(); i++) {
-			writePos(buf, positions.get(i));
-		}
-		
-		if (uuid != null) {
-			buf.writeBoolean(true);
-			writeString(buf, uuid.toString());
-		} else
-			buf.writeBoolean(false);
-	}
-	
-	@Override
-	public void readBytes(ByteBuf buf) {
-		int size = buf.readInt();
-		positions = new ArrayList<>(size);
-		for (int i = 0; i < size; i++) {
-			positions.add(readPos(buf));
-		}
-		
-		if (buf.readBoolean())
-			uuid = UUID.fromString(readString(buf));
-		else
-			uuid = null;
-	}
-	
-	@Override
-	public void executeClient(EntityPlayer player) {
-		World world = player.world;
-		
-		if (uuid != null) {
-			EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
-			if (animation == null)
-				return;
-			
-			world = animation.fakeWorld;
-		}
-		
-		for (int i = 0; i < positions.size(); i++) {
-			BlockPos pos = positions.get(i);
-			IBlockState state = world.getBlockState(pos);
-			if (state.getBlock() instanceof BlockTile)
-				state.getBlock().neighborChanged(state, world, pos, state.getBlock(), null);
-		}
-		
-	}
-	
-	@Override
-	public void executeServer(EntityPlayer player) {
-		
-	}
-	
+    
+    public UUID uuid;
+    public List<BlockPos> positions;
+    
+    public LittleNeighborUpdatePacket(World world, List<BlockPos> positions) {
+        this.positions = positions;
+        if (world instanceof CreativeWorld)
+            uuid = ((CreativeWorld) world).parent.getUniqueID();
+    }
+    
+    public LittleNeighborUpdatePacket() {
+        
+    }
+    
+    @Override
+    public void writeBytes(ByteBuf buf) {
+        buf.writeInt(positions.size());
+        for (int i = 0; i < positions.size(); i++) {
+            writePos(buf, positions.get(i));
+        }
+        
+        if (uuid != null) {
+            buf.writeBoolean(true);
+            writeString(buf, uuid.toString());
+        } else
+            buf.writeBoolean(false);
+    }
+    
+    @Override
+    public void readBytes(ByteBuf buf) {
+        int size = buf.readInt();
+        positions = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            positions.add(readPos(buf));
+        }
+        
+        if (buf.readBoolean())
+            uuid = UUID.fromString(readString(buf));
+        else
+            uuid = null;
+    }
+    
+    @Override
+    public void executeClient(EntityPlayer player) {
+        World world = player.world;
+        
+        if (uuid != null) {
+            EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
+            if (animation == null)
+                return;
+            
+            world = animation.fakeWorld;
+        }
+        
+        for (int i = 0; i < positions.size(); i++) {
+            BlockPos pos = positions.get(i);
+            IBlockState state = world.getBlockState(pos);
+            if (state.getBlock() instanceof BlockTile)
+                state.getBlock().neighborChanged(state, world, pos, state.getBlock(), null);
+        }
+        
+    }
+    
+    @Override
+    public void executeServer(EntityPlayer player) {
+        
+    }
+    
 }
