@@ -106,8 +106,8 @@ public class RenderUploader {
                             
                             toUpload = ByteBuffer
                                 .allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + cache.expanded() + DefaultVertexFormats.BLOCK.getNextOffset());
-                            //if (vanillaBuffer != null)
-                            //toUpload.put(vanillaBuffer);
+                            if (vanillaBuffer != null)
+                                toUpload.put(vanillaBuffer);
                             
                             cache.setByteBuffer(toUpload);
                         }
