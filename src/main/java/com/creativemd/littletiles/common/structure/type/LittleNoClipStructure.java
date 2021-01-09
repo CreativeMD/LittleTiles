@@ -60,13 +60,12 @@ public class LittleNoClipStructure extends LittleStructure {
         
         if (intersected)
             entities.add(entityIn);
+        
+        queueForNextTick();
     }
     
     @Override
-    public void tick() {
-        if (getWorld().isRemote)
-            return;
-        
+    public void queueTick() {
         int players = 0;
         for (Entity entity : entities)
             if (entity instanceof EntityPlayer)

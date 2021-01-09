@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.event;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -300,7 +301,7 @@ public class LittleEventHandler {
     private static Field setTileEntitiesField;
     
     @SubscribeEvent
-    public void worldUnload(Unload event) {
+    public synchronized void worldUnload(Unload event) {
         if (event.getWorld().isRemote) {
             MissingBlockHandler.unload();
             ItemModelCache.unload();
@@ -326,7 +327,8 @@ public class LittleEventHandler {
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             }
-        }
+        } else
+            queuedStructures.clear();
     }
     
     @SideOnly(Side.CLIENT)
@@ -601,8 +603,21 @@ public class LittleEventHandler {
         }
     }
     
+    private static final HashSet<LittleStructure> queuedStructures = new HashSet<>();
+    
+    public static synchronized void queueStructureForNextTick(LittleStructure structure) {
+        if (structure.getWorld().isRemote)
+            return;
+        queuedStructures.add(structure);
+    }
+    
     @SubscribeEvent
-    public void serverTick(ServerTickEvent event) {
+    public synchronized void serverTick(ServerTickEvent event) {
+        if (!queuedStructures.isEmpty()) {
+            for (LittleStructure structure : queuedStructures)
+                structure.queueTick();
+            queuedStructures.clear();
+        }
         SignalTicker.serverTick();
     }
     

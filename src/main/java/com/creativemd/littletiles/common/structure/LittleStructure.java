@@ -21,6 +21,7 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
 import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
@@ -943,6 +944,16 @@ public abstract class LittleStructure implements ISignalSchedulable {
         
     }
     
+    /** only server side **/
+    public void queueForNextTick() {
+        LittleEventHandler.queueStructureForNextTick(this);
+    }
+    
+    /** only server side **/
+    public void queueTick() {
+        
+    }
+    
     @SideOnly(Side.CLIENT)
     public void renderTick(BlockPos pos, double x, double y, double z, float partialTickTime) {
         
@@ -1076,6 +1087,18 @@ public abstract class LittleStructure implements ISignalSchedulable {
         for (ISignalStructureComponent component : outputs())
             infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()));
         return String.join(",", infos);
+    }
+    
+    @Override
+    public int hashCode() {
+        return getPos().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LittleStructure)
+            return ((LittleStructure) obj).getPos().equals(getPos());
+        return super.equals(obj);
     }
     
 }
