@@ -96,7 +96,7 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     public int getAttribute() {
         if (isMain())
             return attribute;
-        return attribute & LittleStructureAttribute.LISTENER_MASK;
+        return attribute & LittleStructureAttribute.NON_ACTIVE_MASK;
     }
     
     @Override

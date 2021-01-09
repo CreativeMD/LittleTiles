@@ -47,6 +47,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.math.vec.RelativeBlockPos;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -722,6 +723,10 @@ public abstract class LittleStructure implements ISignalSchedulable {
         
     }
     
+    public void receiveInternalOutputChange(InternalSignalOutput output) {
+        
+    }
+    
     public void setExternalHandler(HashMap<Integer, SignalExternalOutputHandler> handlers) {
         this.externalHandler = handlers;
     }
@@ -916,7 +921,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return false;
     }
     
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
+    public void onEntityCollidedWithBlock(World worldIn, IParentTileList parent, BlockPos pos, Entity entityIn) {
         
     }
     

@@ -5,6 +5,7 @@ import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
 import io.netty.buffer.ByteBuf;
@@ -48,7 +49,9 @@ public class LittleUpdateOutputPacket extends CreativeCorePacket {
     public void executeClient(EntityPlayer player) {
         try {
             LittleStructure structure = location.find(player.world);
-            BooleanUtils.set(structure.getOutput(index).getState(), state);
+            InternalSignalOutput output = structure.getOutput(index);
+            BooleanUtils.set(output.getState(), state);
+            structure.receiveInternalOutputChange(output);
         } catch (LittleActionException e) {}
     }
     

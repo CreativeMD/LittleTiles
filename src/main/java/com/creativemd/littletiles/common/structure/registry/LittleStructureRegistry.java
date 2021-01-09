@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
@@ -20,6 +21,8 @@ import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure.LittleFixedStructureParser;
 import com.creativemd.littletiles.common.structure.type.LittleLadder;
 import com.creativemd.littletiles.common.structure.type.LittleLadder.LittleLadderParser;
+import com.creativemd.littletiles.common.structure.type.LittleLight;
+import com.creativemd.littletiles.common.structure.type.LittleLight.LittleLightStructureParser;
 import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure;
 import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.LittleNoClipStructureParser;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
@@ -143,7 +146,11 @@ public class LittleStructureRegistry {
         
         registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE).addInput("accessed", 1)
             .addInput("filled", 16), LittleStorageParser.class);
-        registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.NOCOLLISION, LittleNoClipStructureParser.class);
+        registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.NOCOLLISION | LittleStructureAttribute.COLLISION_LISTENER | LittleStructureAttribute.TICKING, LittleNoClipStructureParser.class)
+            .addInput("players", 4).addInput("entities", 4);
+        
+        registerStructureType("light", "simple", LittleLight.class, LittleStructureAttribute.LIGHT_EMITTER, LittleLightStructureParser.class)
+            .addOutput("enabled", 1, SignalMode.TOGGLE, true);
         
         LittleDoorBase.initDoors();
         

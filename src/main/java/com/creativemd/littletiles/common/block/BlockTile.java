@@ -22,9 +22,9 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
+import com.creativemd.littletiles.common.item.ItemLittleRubberMallet;
 import com.creativemd.littletiles.common.item.ItemLittleSaw;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
-import com.creativemd.littletiles.common.item.ItemLittleRubberMallet;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -796,7 +796,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
             for (IStructureTileList list : te.structures())
                 if (LittleStructureAttribute.collisionListener(list.getAttribute()))
                     try {
-                        list.getStructure().onEntityCollidedWithBlock(worldIn, pos, entityIn);
+                        list.getStructure().onEntityCollidedWithBlock(worldIn, list, pos, entityIn);
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
                 if (pair.value.shouldCheckForCollision())
