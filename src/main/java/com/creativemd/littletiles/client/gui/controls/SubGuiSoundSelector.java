@@ -41,16 +41,16 @@ public class SubGuiSoundSelector extends SubGui {
     
     @Override
     public void createControls() {
-        GuiTextfield search = new GuiTextfield("search", "", 0, 0, 165, 14);
+        GuiTextfield search = new GuiTextfield("search", "", 0, 0, 170, 14);
         controls.add(search);
-        controls.add(new GuiComboBox("sounds", 0, 22, 165, new ArrayList<>()));
+        controls.add(new GuiComboBox("sounds", 0, 22, 170, new ArrayList<>()));
         
         controls.add(new GuiLabel(translate("gui.sound.volume") + ":", 0, 44));
         controls.add(new GuiAnalogeSlider("volume", 60, 44, 60, 8, button.volume, 0F, 1F));
         controls.add(new GuiLabel(translate("gui.sound.pitch") + ":", 0, 64));
         controls.add(new GuiAnalogeSlider("pitch", 60, 64, 60, 8, button.pitch, 0.5F, 2F));
         
-        controls.add(new GuiButton("play", 144, 44) {
+        controls.add(new GuiButton("play", 140, 44) {
             
             @Override
             public void onClicked(int x, int y, int button) {
@@ -59,7 +59,7 @@ public class SubGuiSoundSelector extends SubGui {
                     playSound(event, getVolume(), getPitch());
             }
         });
-        controls.add(new GuiButton("save", 140, 143) {
+        controls.add(new GuiButton("save", 146, 146) {
             
             @Override
             public void onClicked(int x, int y, int button) {
@@ -70,7 +70,7 @@ public class SubGuiSoundSelector extends SubGui {
                 SubGuiSoundSelector.this.button.raiseEvent(new GuiControlChangedEvent(SubGuiSoundSelector.this.button));
             }
         });
-        controls.add(new GuiButton("cancel", 0, 143) {
+        controls.add(new GuiButton("cancel", 0, 146) {
             
             @Override
             public void onClicked(int x, int y, int button) {
@@ -98,8 +98,8 @@ public class SubGuiSoundSelector extends SubGui {
                         if (possibleLines.get(i).contains(search.text))
                             foundLines.add(possibleLines.get(i));
                 sounds.lines = foundLines;
-                sounds.index = foundLines.indexOf(selected);
-                sounds.setCaption(selected);
+                if (!sounds.select(selected))
+                    sounds.select(0);
             }
         }
         
