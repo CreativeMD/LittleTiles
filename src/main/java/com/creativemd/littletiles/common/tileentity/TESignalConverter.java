@@ -148,9 +148,12 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     }
     
     public void setPower(int level) {
-        BooleanUtils.set(inputRedstoneState, BooleanUtils.toBits(level, 4));
-        changed();
-        findNetwork().update();
+        boolean[] newLevel = BooleanUtils.toBits(level, 4);
+        if (!BooleanUtils.equals(inputRedstoneState, newLevel)) {
+            BooleanUtils.set(inputRedstoneState, newLevel);
+            changed();
+            findNetwork().update();
+        }
     }
     
     public class SignalConnection {

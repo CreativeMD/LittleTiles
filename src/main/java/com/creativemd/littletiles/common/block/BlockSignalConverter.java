@@ -86,7 +86,7 @@ public class BlockSignalConverter extends BlockContainer {
         TileEntity te = world.getTileEntity(pos);
         EnumFacing facing = world.getBlockState(pos).getValue(FACING);
         
-        if (te instanceof TESignalConverter)
+        if (te instanceof TESignalConverter && !((TESignalConverter) te).isClientSide())
             ((TESignalConverter) te).setPower(getPowerOnSide(world, pos.offset(facing.getOpposite()), facing));
     }
     
