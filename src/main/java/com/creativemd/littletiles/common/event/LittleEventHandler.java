@@ -464,7 +464,7 @@ public class LittleEventHandler {
     public void isSleepingLocationAllowed(SleepingLocationCheckEvent event) {
         try {
             LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.getEntityPlayer());
-            if (bed instanceof LittleBed && ((LittleBed) bed).sleepingPlayer == event.getEntityPlayer())
+            if (bed instanceof LittleBed && ((LittleBed) bed).getSleepingPlayer() == event.getEntityPlayer())
                 event.setResult(Result.ALLOW);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
@@ -476,7 +476,7 @@ public class LittleEventHandler {
         try {
             LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.player);
             if (bed instanceof LittleBed)
-                ((LittleBed) bed).sleepingPlayer = null;
+                ((LittleBed) bed).setSleepingPlayer(null);
             LittleBed.littleBed.set(event.player, null);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
@@ -490,7 +490,7 @@ public class LittleEventHandler {
         try {
             LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.getEntityPlayer());
             if (bed instanceof LittleBed)
-                ((LittleBed) bed).sleepingPlayer = null;
+                ((LittleBed) bed).setSleepingPlayer(null);
             LittleBed.littleBed.set(event.getEntityPlayer(), null);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();

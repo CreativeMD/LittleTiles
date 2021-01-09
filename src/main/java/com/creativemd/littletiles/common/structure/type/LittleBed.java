@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
@@ -62,7 +63,7 @@ public class LittleBed extends LittleStructure {
         super(type, mainBlock);
     }
     
-    public EntityLivingBase sleepingPlayer = null;
+    private EntityPlayer sleepingPlayer = null;
     @SideOnly(Side.CLIENT)
     public Vec3d playerPostion;
     @StructureDirectional
@@ -91,6 +92,16 @@ public class LittleBed extends LittleStructure {
     @Override
     public boolean isBed(EntityLivingBase player) {
         return true;
+    }
+    
+    public EntityPlayer getSleepingPlayer() {
+        return sleepingPlayer;
+    }
+    
+    public void setSleepingPlayer(EntityPlayer player) {
+        this.sleepingPlayer = player;
+        if (!getWorld().isRemote)
+            getInput(0).updateState(BooleanUtils.asArray(player != null));
     }
     
     @SideOnly(Side.CLIENT)
@@ -170,7 +181,7 @@ public class LittleBed extends LittleStructure {
         }
         if (player.world.isRemote)
             playerPostion = highest;
-        sleepingPlayer = player;
+        setSleepingPlayer(player);
         
         try {
             LittleBed.littleBed.set(player, this);

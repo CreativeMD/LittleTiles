@@ -1,8 +1,9 @@
 package com.creativemd.littletiles.common.structure.type;
 
-import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.entity.EntitySit;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -27,6 +28,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleChair extends LittleStructure {
     
+    private EntityPlayer player;
+    
     public LittleChair(LittleStructureType type, IStructureTileList mainBlock) {
         super(type, mainBlock);
     }
@@ -41,15 +44,24 @@ public class LittleChair extends LittleStructure {
         
     }
     
+    public void setPlayer(EntityPlayer player) {
+        this.player = player;
+        if (!getWorld().isRemote)
+            getInput(0).updateState(BooleanUtils.asArray(player != null));
+    }
+    
     @Override
     public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
         if (!world.isRemote) {
+            if (this.player != null)
+                return true;
             try {
                 LittleAbsoluteVec vec = getHighestCenterPoint();
                 if (vec != null) {
-                    EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
+                    EntitySit sit = new EntitySit(this, world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
                     player.startRiding(sit);
                     world.spawnEntity(sit);
+                    setPlayer(player);
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 e.printStackTrace();
