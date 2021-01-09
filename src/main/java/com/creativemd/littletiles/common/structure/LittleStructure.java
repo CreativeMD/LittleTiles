@@ -1089,16 +1089,4 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return String.join(",", infos);
     }
     
-    @Override
-    public int hashCode() {
-        return getPos().hashCode();
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof LittleStructure)
-            return ((LittleStructure) obj).getPos().equals(getPos());
-        return super.equals(obj);
-    }
-    
 }
