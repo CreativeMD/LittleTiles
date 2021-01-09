@@ -141,7 +141,7 @@ public class LittleStructureRegistry {
 		registerStructureType("bed", "simple", LittleBed.class, LittleStructureAttribute.NONE, LittleBedParser.class);
 		registerStructureType("chair", "simple", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class);
 		
-		registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE).addInput("accessed", 1), LittleStorageParser.class);
+		registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE).addInput("accessed", 1).addInput("filled", 16), LittleStorageParser.class);
 		registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.NOCOLLISION, LittleNoClipStructureParser.class);
 		
 		LittleDoorBase.initDoors();

@@ -71,7 +71,19 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		int[] result = nbt.getIntArray("faces");
-		if (result != null && result.length == getNumberOfConnections() * 2)
+		if (result != null && result.length == getNumberOfConnections() * 3) {
+			for (int i = 0; i < faces.length; i++) {
+				int distance = result[i * 3];
+				if (distance < 0)
+					faces[i] = null;
+				else {
+					faces[i] = new LittleConnectionFace();
+					faces[i].distance = distance;
+					faces[i].context = LittleGridContext.get(result[i * 3 + 1]);
+					faces[i].oneSidedRenderer = result[i * 3 + 2] == 1;
+				}
+			}
+		} else if (result != null && result.length == getNumberOfConnections() * 2)
 			for (int i = 0; i < faces.length; i++) {
 				int distance = result[i * 2];
 				if (distance < 0)
@@ -86,14 +98,16 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		int[] result = new int[getNumberOfConnections() * 2];
+		int[] result = new int[getNumberOfConnections() * 3];
 		for (int i = 0; i < faces.length; i++) {
 			if (faces[i] != null) {
-				result[i * 2] = faces[i].distance;
-				result[i * 2 + 1] = faces[i].context.size;
+				result[i * 3] = faces[i].distance;
+				result[i * 3 + 1] = faces[i].context.size;
+				result[i * 3 + 2] = faces[i].oneSidedRenderer ? 1 : 0;
 			} else {
-				result[i * 2] = -1;
-				result[i * 2 + 1] = 0;
+				result[i * 3] = -1;
+				result[i * 3 + 1] = 0;
+				result[i * 3 + 2] = 0;
 			}
 		}
 		nbt.setIntArray("faces", result);
@@ -113,7 +127,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	}
 	
 	@Override
-	public boolean connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance) {
+	public boolean connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance, boolean oneSidedRenderer) {
 		int index = getIndex(facing);
 		if (faces[index] != null) {
 			if (faces[index].getConnection() == base)
@@ -121,7 +135,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 			faces[index].disconnect(facing);
 		} else
 			faces[index] = new LittleConnectionFace();
-		faces[index].connect(base, context, distance);
+		faces[index].connect(base, context, distance, oneSidedRenderer);
 		return true;
 	}
 	
@@ -149,8 +163,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 				
 				LittleConnectResult result = checkConnection(facing, box);
 				if (result != null) {
-					changed |= this.connect(facing, result.base, result.context, result.distance);
-					changed |= result.base.connect(facing.getOpposite(), this, result.context, result.distance);
+					changed |= this.connect(facing, result.base, result.context, result.distance, result.oneSidedRenderer);
+					changed |= result.base.connect(facing.getOpposite(), this, result.context, result.distance, result.oneSidedRenderer);
 				} else {
 					if (faces[i] != null) {
 						faces[i].disconnect(facing);
@@ -162,9 +176,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 			
 			if (changed)
 				findNetwork();
-		} catch (CorruptedConnectionException | NotYetConnectedException e) {
-			
-		}
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		
 	}
 	
@@ -267,11 +279,44 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 						
 						ISignalStructureBase base = (ISignalStructureBase) structure;
 						if (base.canConnect(facing.getOpposite()))
-							return new LittleConnectResult(base, box.getContext(), minDistance);
+							return new LittleConnectResult(base, box.getContext(), minDistance, false);
 						throw new ConnectionException("Side is invalid");
 					} else if (closest != null)
 						throw new ConnectionException("Tile in the way");
 				}
+			} else if (tileEntity instanceof ISignalStructureBase && ((ISignalStructureBase) tileEntity).compatible(this)) {
+				Axis axis = facing.getAxis();
+				boolean positive = facing.getAxisDirection() == AxisDirection.POSITIVE;
+				LittleGridContext context = box.context;
+				int minDistance = positive ? 0 - context.toGrid(VectorUtils.get(axis, box.pos) - VectorUtils.get(axis, pos)) - box.box.getMax(axis) : box.box.getMin(
+				        axis) - (context.size - context.toGrid(VectorUtils.get(axis, box.pos) - VectorUtils.get(axis, pos)));
+				
+				box = box.createBoxFromFace(facing, minDistance);
+				
+				HashMapList<BlockPos, LittleBox> boxes = box.splitted();
+				for (Entry<BlockPos, ArrayList<LittleBox>> entry : boxes.entrySet()) {
+					TileEntity toSearchIn = world.getTileEntity(entry.getKey());
+					if (toSearchIn instanceof TileEntityLittleTiles) {
+						TileEntityLittleTiles parsedSearch = (TileEntityLittleTiles) toSearchIn;
+						LittleBox toCheck = entry.getValue().get(0);
+						try {
+							parsedSearch.convertToAtMinimum(box.getContext());
+							if (parsedSearch.getContext().size > box.getContext().size)
+								toCheck.convertTo(box.getContext(), parsedSearch.getContext());
+							
+							if (!parsedSearch.isSpaceForLittleTile(toCheck))
+								throw new ConnectionException("No space");
+						} finally {
+							parsedSearch.convertToSmallest();
+						}
+					} else if (!world.getBlockState(entry.getKey()).getMaterial().isReplaceable())
+						throw new ConnectionException("Block in the way");
+				}
+				
+				ISignalStructureBase base = (ISignalStructureBase) tileEntity;
+				if (base.canConnect(facing.getOpposite()))
+					return new LittleConnectResult(base, box.getContext(), minDistance, true);
+				throw new ConnectionException("Side is invalid");
 			}
 		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		
@@ -324,7 +369,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, List<LittleRenderBox> cubes) {
+	public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
 		if (positive) {
 			renderBox.setMin(axis, renderBox.getMax(axis));
 			renderBox.setMax(axis, renderBox.getMax(axis) + distance);
@@ -334,10 +379,12 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 		}
 		
 		LittleRenderBox cube = renderBox.getRenderingCube(context, LittleTiles.singleCable, axis.ordinal());
-		if (positive)
-			cube.setMax(axis, cube.getMin(axis) + cube.getSize(axis) / 2);
-		else
-			cube.setMin(axis, cube.getMax(axis) - cube.getSize(axis) / 2);
+		if (!oneSidedRenderer) {
+			if (positive)
+				cube.setMax(axis, cube.getMin(axis) + cube.getSize(axis) / 2);
+			else
+				cube.setMin(axis, cube.getMax(axis) - cube.getSize(axis) / 2);
+		}
 		
 		cube.color = color;
 		cube.keepVU = true;
@@ -375,7 +422,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 			} else if (context.size > box.getContext().size)
 				renderBox.convertTo(box.getContext(), context);
 			
-			renderFace(facing, context, renderBox, distance, axis, one, two, positive, color, cubes);
+			renderFace(facing, context, renderBox, distance, axis, one, two, positive, color, faces[i].oneSidedRenderer, cubes);
 		}
 	}
 	
@@ -405,6 +452,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 		public ISignalStructureBase connection;
 		public int distance;
 		public LittleGridContext context;
+		public boolean oneSidedRenderer;
 		
 		public LittleConnectionFace() {
 			
@@ -419,10 +467,11 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 			updateStructure();
 		}
 		
-		public void connect(ISignalStructureBase connection, LittleGridContext context, int distance) {
+		public void connect(ISignalStructureBase connection, LittleGridContext context, int distance, boolean oneSidedRenderer) {
 			if (this.connection != null)
 				throw new RuntimeException("Cannot connect until old connection is closed");
 			
+			this.oneSidedRenderer = oneSidedRenderer;
 			if (hasNetwork())
 				getNetwork().add(connection);
 			this.connection = connection;
@@ -455,11 +504,13 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 		public final ISignalStructureBase base;
 		public final LittleGridContext context;
 		public final int distance;
+		public final boolean oneSidedRenderer;
 		
-		public LittleConnectResult(ISignalStructureBase base, LittleGridContext context, int distance) {
+		public LittleConnectResult(ISignalStructureBase base, LittleGridContext context, int distance, boolean oneSidedRenderer) {
 			this.base = base;
 			this.context = context;
 			this.distance = distance;
+			this.oneSidedRenderer = oneSidedRenderer;
 		}
 	}
 	
@@ -494,8 +545,10 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 					TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
 					if (tileEntity instanceof TileEntityLittleTiles) {
 						for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).loadedStructures()) {
-							if (structure instanceof ISignalStructureBase && ((ISignalStructureBase) structure).getBandwidth() == bandwidth && ((ISignalStructureBase) structure).canConnect(facing.getOpposite())) {
-								LittleRenderBox cube = new LittleRenderBox(new AlignedBox(structure.getSurroundingBox().getAABB().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ())), null, Blocks.AIR, 0);
+							if (structure instanceof ISignalStructureBase && ((ISignalStructureBase) structure).getBandwidth() == bandwidth && ((ISignalStructureBase) structure).canConnect(
+							        facing.getOpposite())) {
+								LittleRenderBox cube = new LittleRenderBox(new AlignedBox(structure.getSurroundingBox().getAABB().offset(-tileEntity.getPos().getX(),
+								        -tileEntity.getPos().getY(), -tileEntity.getPos().getZ())), null, Blocks.AIR, 0);
 								cube.setMin(axis, 0);
 								cube.setMax(axis, 1);
 								cubes.add(cube);
@@ -509,7 +562,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 				if (tileEntity instanceof TileEntityLittleTiles) {
 					for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).loadedStructures()) {
 						if (structure instanceof ISignalStructureBase && ((ISignalStructureBase) structure).getBandwidth() == bandwidth) {
-							AxisAlignedBB box = structure.getSurroundingBox().getAABB().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ());
+							AxisAlignedBB box = structure.getSurroundingBox().getAABB().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(),
+							        -tileEntity.getPos().getZ());
 							LittleRenderBox cube;
 							
 							if (((ISignalStructureBase) structure).canConnect(EnumFacing.WEST) || ((ISignalStructureBase) structure).canConnect(EnumFacing.EAST)) {

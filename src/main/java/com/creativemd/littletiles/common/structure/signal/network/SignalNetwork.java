@@ -29,6 +29,10 @@ public class SignalNetwork implements ISignalSchedulable {
 		this.state = new boolean[bandwidth];
 	}
 	
+	public List<ISignalStructureComponent> getOutputs() {
+		return outputs;
+	}
+	
 	@Override
 	public void notifyChange() {
 		if (!forceUpdate) {
@@ -155,6 +159,12 @@ public class SignalNetwork implements ISignalSchedulable {
 		case TRANSMITTER:
 			transmitters.add((ISignalStructureTransmitter) base);
 			break;
+		case IOSPECIAL:
+			inputs.add((ISignalStructureComponent) base);
+			outputs.add((ISignalStructureComponent) base);
+			forceUpdate = true;
+			schedule();
+			break;
 		}
 	}
 	
@@ -190,6 +200,11 @@ public class SignalNetwork implements ISignalSchedulable {
 		case TRANSMITTER:
 			deleteNetwork();
 			return true;
+		case IOSPECIAL:
+			inputs.remove(base);
+			outputs.remove(base);
+			schedule();
+			return false;
 		}
 		return false;
 	}

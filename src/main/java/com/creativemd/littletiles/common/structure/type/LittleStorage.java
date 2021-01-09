@@ -10,6 +10,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
@@ -54,7 +55,7 @@ public class LittleStorage extends LittleStructure {
 	public int numberOfSlots = 0;
 	public int lastSlotStackSize = 0;
 	
-	public IInventory inventory = null;
+	public InventoryBasic inventory = null;
 	
 	public boolean invisibleStorageTiles = false;
 	
@@ -78,6 +79,8 @@ public class LittleStorage extends LittleStructure {
 			inventory = InventoryUtils.loadInventoryBasic(nbt.getCompoundTag("inventory"));
 		else
 			inventory = null;
+		if (inventory != null)
+			inventory.addInventoryChangeListener((x) -> onInventoryChanged());
 		
 		invisibleStorageTiles = nbt.getBoolean("invisibleStorage");
 	}
@@ -141,6 +144,24 @@ public class LittleStorage extends LittleStructure {
 	
 	protected void updateInput() {
 		getInput(0).updateState(new boolean[] { !openContainers.isEmpty() });
+	}
+	
+	public void onInventoryChanged() {
+		if (getWorld().isRemote)
+			return;
+		int used = 0;
+		boolean allSlotsFilled = true;
+		for (int i = 0; i < inventory.getSizeInventory(); i++) {
+			ItemStack stack = inventory.getStackInSlot(i);
+			if (stack.isEmpty())
+				allSlotsFilled = false;
+			else
+				used += stack.getCount();
+		}
+		if (allSlotsFilled)
+			used = inventorySize;
+		int filled = (int) (Math.ceil((double) used / inventorySize * 65535));
+		getInput(1).updateState(BooleanUtils.toBits(filled, 16));
 	}
 	
 	public void openContainer(SubContainerStorage container) {
