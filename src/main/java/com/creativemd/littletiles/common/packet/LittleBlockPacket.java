@@ -99,17 +99,27 @@ public class LittleBlockPacket extends CreativeCorePacket {
             @Override
             public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
                 LittlePreviews previews = new LittlePreviews(te.getContext());
-                if (nbt.getBoolean("secondMode"))
-                    for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
-                        previews.addWithoutCheckingPreview(pair.value.getPreviewTile());
-                else if (parent.isStructure())
-                    try {
-                        previews = parent.getStructure().getPreviews(parent.getStructure().getPos());
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                        return;
-                    }
-                else
-                    previews.addWithoutCheckingPreview(tile.getPreviewTile());
+                if (parent.isStructure()) {
+                    if (nbt.getBoolean("secondMode"))
+                        try {
+                            previews = parent.getStructure().getPreviews(parent.getStructure().getPos());
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                            return;
+                        }
+                    else
+                        try {
+                            previews = parent.getStructure().findTopStructure().getPreviews(parent.getStructure().getPos());
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                            return;
+                        }
+                } else {
+                    if (nbt.getBoolean("secondMode"))
+                        for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+                            previews.addWithoutCheckingPreview(pair.value.getPreviewTile());
+                    else
+                        previews.addWithoutCheckingPreview(tile.getPreviewTile());
+                }
+                
                 LittlePreview.savePreview(previews, stack);
             }
         };
