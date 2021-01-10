@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.io.IOUtils;
+
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
@@ -11,11 +13,13 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.google.common.base.Charsets;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -25,6 +29,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumActionResult;
@@ -76,7 +81,10 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
     @Override
     @SideOnly(Side.CLIENT)
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-        
+        if (isInCreativeTab(tab))
+            for (ExampleStructures example : ExampleStructures.values())
+                if (example.stack != null)
+                    list.add(example.stack);
     }
     
     @Override
@@ -164,6 +172,36 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
     @Override
     public LittleVec getCachedOffset(ItemStack stack) {
         return LittlePreview.getOffset(stack);
+    }
+    
+    public static void reloadExampleStructures() {
+        for (ExampleStructures example : ExampleStructures.values()) {
+            try {
+                example.stack = new ItemStack(LittleTiles.multiTiles);
+                example.stack.setTagCompound(JsonToNBT.getTagFromJson(IOUtils
+                    .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(example.getFileName()), Charsets.UTF_8)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Could not load '" + example.name() + " example structure!");
+            }
+        }
+    }
+    
+    private static enum ExampleStructures {
+        
+        BASIC_LEVER,
+        DOUBLE_DOOR,
+        LIGHT_SWITCH,
+        SIMPLE_LIGHT,
+        STONE_PLATE,
+        WOODEN_PLATE;
+        
+        public ItemStack stack;
+        
+        public String getFileName() {
+            return "assets/" + LittleTiles.modid + "/example/" + name().toLowerCase() + ".struct";
+        }
+        
     }
     
 }

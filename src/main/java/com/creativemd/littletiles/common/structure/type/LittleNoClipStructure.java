@@ -65,14 +65,16 @@ public class LittleNoClipStructure extends LittleStructure {
     }
     
     @Override
-    public void queueTick() {
+    public boolean queueTick() {
         int players = 0;
         for (Entity entity : entities)
             if (entity instanceof EntityPlayer)
                 players++;
         getInput(0).updateState(BooleanUtils.toBits(players, 4));
         getInput(1).updateState(BooleanUtils.toBits(entities.size(), 4));
+        boolean wasEmpty = entities.isEmpty();
         entities.clear();
+        return !wasEmpty;
     }
     
     public static class LittleNoClipStructureParser extends LittleStructureGuiParser {

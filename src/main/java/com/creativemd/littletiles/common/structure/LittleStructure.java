@@ -950,8 +950,8 @@ public abstract class LittleStructure implements ISignalSchedulable {
     }
     
     /** only server side **/
-    public void queueTick() {
-        
+    public boolean queueTick() {
+        return false;
     }
     
     @SideOnly(Side.CLIENT)

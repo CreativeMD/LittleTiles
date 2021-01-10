@@ -43,7 +43,8 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     @Override
     public void scale(float scale) {
         super.scale(scale);
-        this.scale /= scale;
+        cache.scale(scale);
+        //this.scale /= scale;
     }
     
     public VectorFanFaceCache getFaceCache(EnumFacing facing) {

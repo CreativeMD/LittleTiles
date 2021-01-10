@@ -613,10 +613,14 @@ public class LittleEventHandler {
     
     @SubscribeEvent
     public synchronized void serverTick(ServerTickEvent event) {
+        if (event.phase == Phase.START)
+            return;
         if (!queuedStructures.isEmpty()) {
-            for (LittleStructure structure : queuedStructures)
-                structure.queueTick();
-            queuedStructures.clear();
+            for (Iterator<LittleStructure> iterator = queuedStructures.iterator(); iterator.hasNext();) {
+                LittleStructure structure = iterator.next();
+                if (!structure.queueTick())
+                    iterator.remove();
+            }
         }
         SignalTicker.serverTick();
     }
