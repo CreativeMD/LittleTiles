@@ -131,9 +131,9 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
     
     @Override
     @SideOnly(Side.CLIENT)
-    public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+    public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
         if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0)
-            return LittlePreview.getCubes(stack);
+            return LittlePreview.getCubesForStackRendering(stack);
         return new ArrayList<RenderBox>();
     }
     
@@ -160,13 +160,6 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
                 GlStateManager.enableDepth();
         }
         GlStateManager.popMatrix();
-        
-        if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0) {
-            LittleVec size = LittlePreview.getSize(stack);
-            LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
-            double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
-            GlStateManager.scale(scaler, scaler, scaler);
-        }
         
     }
     

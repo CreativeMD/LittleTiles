@@ -18,15 +18,35 @@ import net.minecraft.util.EnumFacing;
 public class LittleRenderBoxTransformable extends LittleRenderBox {
     
     private float scale;
+    private float inverseScale;
+    public VectorFanCache cache;
     
     public LittleRenderBoxTransformable(AlignedBox cube, LittleGridContext context, LittleTransformableBox box, Block block, int meta) {
         super(cube, box, block, meta);
+        this.cache = box.requestCache();
         this.scale = (float) context.pixelSize;
-        
+        this.inverseScale = context.size;
+    }
+    
+    @Override
+    public void add(float x, float y, float z) {
+        super.add(x, y, z);
+        cache.add(x * inverseScale, y * inverseScale, z * inverseScale);
+    }
+    
+    @Override
+    public void sub(float x, float y, float z) {
+        super.sub(x, y, z);
+        cache.sub(x * inverseScale, y * inverseScale, z * inverseScale);
+    }
+    
+    @Override
+    public void scale(float scale) {
+        super.scale(scale);
+        this.scale /= scale;
     }
     
     public VectorFanFaceCache getFaceCache(EnumFacing facing) {
-        VectorFanCache cache = ((LittleTransformableBox) box).requestCache();
         if (cache != null)
             return cache.get(facing);
         return null;

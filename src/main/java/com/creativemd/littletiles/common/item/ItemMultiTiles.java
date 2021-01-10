@@ -1,6 +1,5 @@
 package com.creativemd.littletiles.common.item;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -19,7 +18,6 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.util.ITooltipFlag;
@@ -102,20 +100,13 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
     }
     
     @Override
-    public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-        return LittlePreview.getCubes(stack);
+    public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+        return LittlePreview.getCubesForStackRendering(stack);
     }
     
     @Override
     @SideOnly(Side.CLIENT)
-    public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
-        if (stack.hasTagCompound()) {
-            LittleVec size = LittlePreview.getSize(stack);
-            LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
-            double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
-            GlStateManager.scale(scaler, scaler, scaler);
-        }
-    }
+    public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {}
     
     @Override
     @SideOnly(Side.CLIENT)

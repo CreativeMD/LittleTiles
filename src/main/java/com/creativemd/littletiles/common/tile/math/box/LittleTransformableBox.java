@@ -1380,17 +1380,17 @@ public class LittleTransformableBox extends LittleBox {
             return faces[facing.ordinal()];
         }
         
-        protected void add(int x, int y, int z) {
+        public void add(float x, float y, float z) {
             for (int i = 0; i < faces.length; i++)
                 faces[i].add(x, y, z);
         }
         
-        protected void sub(int x, int y, int z) {
+        public void sub(float x, float y, float z) {
             for (int i = 0; i < faces.length; i++)
                 faces[i].sub(x, y, z);
         }
         
-        protected void scale(int ratio) {
+        public void scale(float ratio) {
             for (int i = 0; i < faces.length; i++)
                 faces[i].scale(ratio);
         }
@@ -1546,7 +1546,7 @@ public class LittleTransformableBox extends LittleBox {
             return axisStrips.get(0).equalsIgnoreOrder(cache.axisStrips.get(0), toIgnore);
         }
         
-        protected void add(int x, int y, int z) {
+        public void add(float x, float y, float z) {
             if (tiltedStrip1 != null)
                 tiltedStrip1.move(x, y, z);
             if (tiltedStrip2 != null)
@@ -1555,7 +1555,7 @@ public class LittleTransformableBox extends LittleBox {
                 axisStrips.get(i).move(x, y, z);
         }
         
-        protected void sub(int x, int y, int z) {
+        public void sub(float x, float y, float z) {
             if (tiltedStrip1 != null)
                 tiltedStrip1.move(-x, -y, -z);
             if (tiltedStrip2 != null)
@@ -1564,7 +1564,7 @@ public class LittleTransformableBox extends LittleBox {
                 axisStrips.get(i).move(-x, -y, -z);
         }
         
-        protected void scale(int ratio) {
+        public void scale(float ratio) {
             if (tiltedStrip1 != null)
                 tiltedStrip1.scale(ratio);
             if (tiltedStrip2 != null)
@@ -1573,7 +1573,7 @@ public class LittleTransformableBox extends LittleBox {
                 axisStrips.get(i).scale(ratio);
         }
         
-        protected void divide(int ratio) {
+        public void divide(float ratio) {
             if (tiltedStrip1 != null)
                 tiltedStrip1.divide(ratio);
             if (tiltedStrip2 != null)

@@ -445,9 +445,49 @@ public class LittlePreview implements ICombinable {
         return cubes;
     }
     
+    public static void shrinkCubesToOneBlock(List<RenderBox> cubes) {
+        float minX = Float.POSITIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        float minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        float maxZ = Float.NEGATIVE_INFINITY;
+        for (RenderBox box : cubes) {
+            minX = Math.min(minX, box.minX);
+            minY = Math.min(minY, box.minY);
+            minZ = Math.min(minZ, box.minZ);
+            maxX = Math.max(maxX, box.maxX);
+            maxY = Math.max(maxY, box.maxY);
+            maxZ = Math.max(maxZ, box.maxZ);
+        }
+        float scale = 1;
+        float sizeX = maxX - minX;
+        if (sizeX > 1)
+            scale = Math.min(scale, 1 / sizeX);
+        float sizeY = maxY - minY;
+        if (sizeY > 1)
+            scale = Math.min(scale, 1 / sizeY);
+        float sizeZ = maxZ - minZ;
+        if (sizeZ > 1)
+            scale = Math.min(scale, 1 / sizeZ);
+        float offsetX = -minX;
+        float offsetY = -minY;
+        float offsetZ = -minZ;
+        float offsetX2 = (1 - sizeX * scale) * 0.5F;
+        float offsetY2 = (1 - sizeY * scale) * 0.5F;
+        float offsetZ2 = (1 - sizeZ * scale) * 0.5F;
+        for (RenderBox box : cubes) {
+            box.add(offsetX, offsetY, offsetZ);
+            box.scale(scale);
+            box.add(offsetX2, offsetY2, offsetZ2);
+        }
+    }
+    
     @SideOnly(Side.CLIENT)
-    public static ArrayList<RenderBox> getCubes(ItemStack stack) {
-        return getCubes(stack, true);
+    public static List<RenderBox> getCubesForStackRendering(ItemStack stack) {
+        List<RenderBox> cubes = getCubes(stack, true);
+        shrinkCubesToOneBlock(cubes);
+        return cubes;
     }
     
     public static int getTotalCount(NBTTagCompound nbt) {
