@@ -153,7 +153,7 @@ public class LittlePreview implements ICombinable {
     }
     
     public boolean isInvisible() {
-        return tileData.getBoolean("invisible");
+        return tileData.getBoolean("invisible") || ColorUtils.isTransparent(getColor());
     }
     
     public void setInvisibile(boolean invisible) {
@@ -438,10 +438,11 @@ public class LittlePreview implements ICombinable {
     }
     
     @SideOnly(Side.CLIENT)
-    public static ArrayList<RenderBox> getCubes(LittlePreviews previews) {
-        ArrayList<RenderBox> cubes = new ArrayList<RenderBox>();
+    public static List<RenderBox> getCubes(LittlePreviews previews) {
+        List<RenderBox> cubes = new ArrayList<RenderBox>();
         for (LittlePreview preview : previews.allPreviews())
-            cubes.add(preview.getCubeBlock(previews.getContext()));
+            if (!preview.isInvisible())
+                cubes.add(preview.getCubeBlock(previews.getContext()));
         return cubes;
     }
     
@@ -513,7 +514,8 @@ public class LittlePreview implements ICombinable {
         } else {
             LittlePreviews previews = getPreview(stack);
             for (LittlePreview preview : previews.allPreviews())
-                cubes.add(preview.getCubeBlock(previews.getContext()));
+                if (!preview.isInvisible())
+                    cubes.add(preview.getCubeBlock(previews.getContext()));
         }
         return cubes;
     }
