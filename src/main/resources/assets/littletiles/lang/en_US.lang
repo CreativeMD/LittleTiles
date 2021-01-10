@@ -47,6 +47,7 @@ tile.LTTransparentColoredBlock.water.name=Water
 tile.LTTransparentColoredBlock.white_water.name=White Water
 
 tile.LTStorageBlockTile.name=Little Storage Block
+tile.signal_converter.name=Signal Converter
 
 key.categories.littletiles=LittleTiles Settings
 key.little.flip=Flip Preview
