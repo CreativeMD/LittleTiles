@@ -66,7 +66,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
         } catch (StillInMotionException e) {
             PacketHandler.sendPacketToServer(new LittleEntityFixControllerPacket(uuid, new NBTTagCompound()));
         } catch (LittleActionException e) {
-            e.printStackTrace();
+            PacketHandler.sendPacketToServer(new LittleUpdateStructurePacket(location, new NBTTagCompound()));
         }
         
     }

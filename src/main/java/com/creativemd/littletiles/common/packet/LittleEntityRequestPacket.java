@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Predicate;
@@ -11,6 +12,7 @@ import com.google.common.base.Predicate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class LittleEntityRequestPacket extends CreativeCorePacket {
@@ -81,7 +83,17 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
     
     @Override
     public void executeServer(EntityPlayer player) {
-        
+        EntityAnimation animation = WorldAnimationHandler.findAnimation(false, uuid);
+        if (animation != null) {
+            PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation
+                .writeToNBT(new NBTTagCompound()), animation.enteredAsChild), (EntityPlayerMP) player);
+            System.out.println("Sending back request packet");
+        } else {
+            System.out.println("Send back delete packet");
+            NBTTagCompound nbt = new NBTTagCompound();
+            nbt.setBoolean("animationHasBeenRemoved", true);
+            PacketHandler.sendPacketToPlayer(new LittleEntityFixControllerPacket(uuid, nbt), (EntityPlayerMP) player);
+        }
     }
     
 }

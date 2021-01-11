@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -8,6 +9,7 @@ import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class LittleUpdateStructurePacket extends CreativeCorePacket {
@@ -46,6 +48,12 @@ public class LittleUpdateStructurePacket extends CreativeCorePacket {
     
     @Override
     public void executeServer(EntityPlayer player) {
+        try {
+            LittleStructure structure = location.find(player.world);
+            NBTTagCompound nbt = new NBTTagCompound();
+            structure.writeToNBT(nbt);
+            PacketHandler.sendPacketToPlayer(new LittleUpdateStructurePacket(location, nbt), (EntityPlayerMP) player);
+        } catch (LittleActionException e) {}
         
     }
     

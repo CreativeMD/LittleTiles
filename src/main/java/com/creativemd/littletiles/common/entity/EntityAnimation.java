@@ -77,7 +77,6 @@ public class EntityAnimation extends Entity {
     
     public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LocalStructureLocation location) {
         this(world);
-        
         this.structureLocation = location;
         try {
             if (structureLocation == null)
