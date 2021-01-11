@@ -72,9 +72,7 @@ public enum SignalMode {
         
         @Override
         @SideOnly(Side.CLIENT)
-        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-        
-    }
+        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
         @SideOnly(Side.CLIENT)
@@ -121,9 +119,7 @@ public enum SignalMode {
         
         @Override
         @SideOnly(Side.CLIENT)
-        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-        
-    }
+        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
         @SideOnly(Side.CLIENT)
@@ -218,9 +214,7 @@ public enum SignalMode {
         
         @Override
         @SideOnly(Side.CLIENT)
-        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-        
-    }
+        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
         @SideOnly(Side.CLIENT)
@@ -280,9 +274,7 @@ public enum SignalMode {
         
         @Override
         @SideOnly(Side.CLIENT)
-        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-        
-    }
+        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
         @SideOnly(Side.CLIENT)
@@ -301,6 +293,7 @@ public enum SignalMode {
     
     public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld);
     
+    @SideOnly(Side.CLIENT)
     public abstract GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt);
     
     @SideOnly(Side.CLIENT)
@@ -445,10 +438,12 @@ public enum SignalMode {
         
     }
     
+    @SideOnly(Side.CLIENT)
     public static GuiSignalModeConfiguration getConfigDefault() {
         return EQUAL.createConfiguration(null);
     }
     
+    @SideOnly(Side.CLIENT)
     public static GuiSignalModeConfiguration getConfig(NBTTagCompound nbt, SignalMode defaultMode) {
         return get(nbt.getString("mode"), defaultMode).createConfiguration(nbt);
     }
@@ -490,6 +485,7 @@ public enum SignalMode {
         
     }
     
+    @SideOnly(Side.CLIENT)
     private static class GuiSignalModeConfigurationEqual extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationEqual(int delay) {
@@ -519,6 +515,7 @@ public enum SignalMode {
         
     }
     
+    @SideOnly(Side.CLIENT)
     private static class GuiSignalModeConfigurationToggle extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationToggle(int delay) {
@@ -548,6 +545,7 @@ public enum SignalMode {
         
     }
     
+    @SideOnly(Side.CLIENT)
     private static class GuiSignalModeConfigurationPulse extends GuiSignalModeConfiguration {
         
         public int length;
@@ -582,6 +580,7 @@ public enum SignalMode {
         
     }
     
+    @SideOnly(Side.CLIENT)
     private static class GuiSignalModeConfigurationThreshold extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationThreshold(int delay) {
@@ -611,6 +610,7 @@ public enum SignalMode {
         
     }
     
+    @SideOnly(Side.CLIENT)
     private static class GuiSignalModeConfigurationStabilizer extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationStabilizer(int delay) {
