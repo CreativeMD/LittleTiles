@@ -153,7 +153,7 @@ public class LittlePreview implements ICombinable {
     }
     
     public boolean isInvisible() {
-        return tileData.getBoolean("invisible") || ColorUtils.isTransparent(getColor());
+        return tileData.getBoolean("invisible") || ColorUtils.isInvisible(getColor());
     }
     
     public void setInvisibile(boolean invisible) {
