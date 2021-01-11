@@ -378,7 +378,7 @@ public class Placement {
                                             te.convertTo(contextBefore);
                                         return false;
                                     }
-                                } else if (!te.isSpaceForLittleTile(preview.box, (x, y) -> x.isStructure() && predicate.test(x, y))) {
+                                } else if (!te.isSpaceForLittleTile(preview.box, (x, y) -> x.isStructure() && (predicate == null || predicate.test(x, y)))) {
                                     if (te.getContext() != contextBefore)
                                         te.convertTo(contextBefore);
                                     return false;

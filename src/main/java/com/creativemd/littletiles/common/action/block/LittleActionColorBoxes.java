@@ -190,7 +190,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         if (ColorUtils.getAlpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
             throw new NotAllowedToPlaceColorException(player);
         
-        TileEntity tileEntity = loadTe(player, world, pos, affectedBlocks, true);
+        TileEntity tileEntity = loadTe(player, world, pos, null, true);
         
         if (tileEntity instanceof TileEntityLittleTiles) {
             if (!world.isRemote) {
