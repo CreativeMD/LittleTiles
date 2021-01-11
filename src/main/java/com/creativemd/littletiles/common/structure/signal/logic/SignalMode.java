@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public enum SignalMode {
     
-    EQUAL("signal.mode.equal", "=") {
+    EQUAL("signal.mode.equal") {
         @Override
         public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
             SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
@@ -81,7 +81,7 @@ public enum SignalMode {
         }
         
     },
-    TOGGLE("signal.mode.toggle", "|=") {
+    TOGGLE("signal.mode.toggle") {
         
         @Override
         public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
@@ -128,7 +128,7 @@ public enum SignalMode {
         }
         
     },
-    PULSE("signal.mode.pulse", "~=") {
+    PULSE("signal.mode.pulse") {
         
         @Override
         public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
@@ -163,7 +163,7 @@ public enum SignalMode {
             return new GuiSignalModeConfigurationPulse(delay, Math.max(1, length.parseInteger()));
         }
     },
-    THRESHOLD("signal.mode.threshold", "==") {
+    THRESHOLD("signal.mode.threshold") {
         
         @Override
         public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
@@ -222,7 +222,7 @@ public enum SignalMode {
             return new GuiSignalModeConfigurationThreshold(delay);
         }
     },
-    STABILIZER("signal.mode.stabilizer", "~~") {
+    STABILIZER("signal.mode.stabilizer") {
         
         @Override
         public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
@@ -281,14 +281,48 @@ public enum SignalMode {
         public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
             return new GuiSignalModeConfigurationStabilizer(delay);
         }
+    },
+    EXTENDER("signal.mode.extender") {
+        
+        @Override
+        public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+            SignalOutputHandler condition = new SignalOutputHandlerExtender(component, delay, nbt);
+            if (nbt.hasKey("start")) {
+                SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
+                SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+            } else if (nbt.hasKey("end"))
+                SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+            return condition;
+        }
+        
+        @Override
+        @SideOnly(Side.CLIENT)
+        public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+            return new GuiSignalModeConfigurationExtender(nbt);
+        }
+        
+        @Override
+        @SideOnly(Side.CLIENT)
+        public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
+            parent.addControl(new GuiLabel("length:", 0, 43));
+            parent
+                .addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10), 40, 41, 50, 12)
+                    .setNumbersOnly());
+        }
+        
+        @Override
+        @SideOnly(Side.CLIENT)
+        public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
+            GuiTextfield length = (GuiTextfield) parent.get("length");
+            return new GuiSignalModeConfigurationExtender(delay, Math.max(1, length.parseInteger()));
+        }
+        
     };
     
     public final String translateKey;
-    public final String splitter;
     
-    private SignalMode(String translateKey, String splitter) {
+    private SignalMode(String translateKey) {
         this.translateKey = translateKey;
-        this.splitter = splitter;
     }
     
     public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld);
@@ -438,6 +472,77 @@ public enum SignalMode {
         
     }
     
+    public static class SignalOutputHandlerExtender extends SignalOutputHandler {
+        
+        public final int pulseLength;
+        public boolean stateBefore;
+        public ISignalScheduleTicket pulseStart;
+        public ISignalScheduleTicket pulseEnd;
+        
+        public SignalOutputHandlerExtender(ISignalComponent component, int delay, NBTTagCompound nbt) {
+            super(component, delay, nbt);
+            this.pulseLength = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+            this.stateBefore = nbt.getBoolean("before");
+        }
+        
+        @Override
+        public int getBandwidth() {
+            return super.getBandwidth();
+        }
+        
+        @Override
+        public SignalMode getMode() {
+            return SignalMode.EXTENDER;
+        }
+        
+        @Override
+        public void performStateChange(boolean[] state) {
+            super.performStateChange(state);
+            if (BooleanUtils.any(state))
+                pulseStart = null;
+            else {
+                pulseStart = null;
+                pulseEnd = null;
+            }
+        }
+        
+        @Override
+        public void queue(boolean[] state) {
+            boolean current = BooleanUtils.any(state);
+            if (!stateBefore && current) { // switch from off to on
+                if (pulseEnd != null) {
+                    pulseEnd.markObsolete();
+                    pulseEnd = null;
+                } else if (pulseStart == null) {
+                    boolean[] startState = new boolean[state.length];
+                    Arrays.fill(startState, true);
+                    pulseStart = SignalTicker.schedule(this, startState, delay);
+                }
+            } else if (stateBefore && !current) { // switch from on to off
+                if (pulseEnd != null) {
+                    pulseEnd.markObsolete();
+                    pulseEnd = null;
+                }
+                
+                pulseEnd = SignalTicker.schedule(this, new boolean[state.length], delay + pulseLength);
+            }
+            stateBefore = current;
+        }
+        
+        @Override
+        public void write(boolean preview, NBTTagCompound nbt) {
+            nbt.setInteger("length", pulseLength);
+            nbt.setBoolean("before", stateBefore);
+            if (preview)
+                return;
+            if (pulseStart != null)
+                nbt.setInteger("start", pulseStart.getDelay());
+            if (pulseEnd != null)
+                nbt.setInteger("end", pulseEnd.getDelay());
+        }
+        
+    }
+    
     @SideOnly(Side.CLIENT)
     public static GuiSignalModeConfiguration getConfigDefault() {
         return EQUAL.createConfiguration(null);
@@ -568,6 +673,41 @@ public enum SignalMode {
         @Override
         public GuiSignalModeConfiguration copy() {
             return new GuiSignalModeConfigurationPulse(delay, length);
+        }
+        
+        @Override
+        public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
+            NBTTagCompound nbt = new NBTTagCompound();
+            nbt.setInteger("delay", delay);
+            nbt.setInteger("length", length);
+            return getMode().create(component, delay, nbt, false);
+        }
+        
+    }
+    
+    @SideOnly(Side.CLIENT)
+    private static class GuiSignalModeConfigurationExtender extends GuiSignalModeConfiguration {
+        
+        public int length;
+        
+        public GuiSignalModeConfigurationExtender(int delay, int length) {
+            super(delay);
+            this.length = length;
+        }
+        
+        public GuiSignalModeConfigurationExtender(NBTTagCompound nbt) {
+            super(nbt);
+            this.length = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+        }
+        
+        @Override
+        public SignalMode getMode() {
+            return EXTENDER;
+        }
+        
+        @Override
+        public GuiSignalModeConfiguration copy() {
+            return new GuiSignalModeConfigurationExtender(delay, length);
         }
         
         @Override

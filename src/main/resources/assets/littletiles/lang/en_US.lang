@@ -227,6 +227,7 @@ signal.mode.toggle=TOGGLE
 signal.mode.pulse=PULSE
 signal.mode.threshold=THRESHOLD
 signal.mode.stabilizer=STABILIZER
+signal.mode.extender=EXTENDER
 
 config.littletiles.building.invertStickToGrid.comment=Whether tiles should stick to the vanilla grid when second mode is enabled or disabled.
 config.littletiles.building.maxSavedActions.comment=Number of actions which can be reverted.
