@@ -162,8 +162,14 @@ public class Placement {
                 return null;
             }
         }
-        if (canPlace())
-            return placeTiles();
+        try {
+            if (canPlace())
+                return placeTiles();
+        } catch (LittleActionException e) {
+            for (BlockPos snapPos : blocks.keySet())
+                LittleAction.sendBlockResetToClient(world, player, pos);
+            throw e;
+        }
         return null;
     }
     

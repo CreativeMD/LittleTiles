@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
@@ -181,8 +179,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context, MutableInt affectedBlocks) throws LittleActionException {
-        TileEntity tileEntity = loadTe(player, world, pos, affectedBlocks, true);
+    public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
+        TileEntity tileEntity = loadTe(player, world, pos, null, true);
         
         if (tileEntity instanceof TileEntityLittleTiles) {
             if (!world.isRemote) {

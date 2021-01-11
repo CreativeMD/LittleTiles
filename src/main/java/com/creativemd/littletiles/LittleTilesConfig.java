@@ -102,7 +102,7 @@ public class LittleTilesConfig {
         
         @Override
         public String getLocalizedMessage() {
-            return I18n.translateToLocalFormatted(getMessage(), config.maxEditBlocks);
+            return I18n.translateToLocalFormatted(getMessage(), config.maxAffectedBlocks);
         }
     }
     

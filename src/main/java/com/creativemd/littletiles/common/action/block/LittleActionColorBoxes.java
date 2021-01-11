@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
@@ -188,7 +186,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context, MutableInt affectedBlocks) throws LittleActionException {
+    public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
         if (ColorUtils.getAlpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
             throw new NotAllowedToPlaceColorException(player);
         

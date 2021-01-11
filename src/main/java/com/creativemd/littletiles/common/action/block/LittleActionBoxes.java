@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
@@ -39,7 +40,7 @@ public abstract class LittleActionBoxes extends LittleAction {
         
     }
     
-    public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context, MutableInt affectedBlocks) throws LittleActionException;
+    public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException;
     
     @Override
     protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -57,6 +58,23 @@ public abstract class LittleActionBoxes extends LittleAction {
         HashMapList<BlockPos, LittleBox> boxesMap = boxes.split();
         MutableInt affectedBlocks = new MutableInt();
         
+        try {
+            for (BlockPos pos : boxesMap.keySet()) {
+                TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, null, false);
+                if (te != null)
+                    continue;
+                IBlockState state = world.getBlockState(pos);
+                if (state.getMaterial().isReplaceable())
+                    continue;
+                else if (LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, world, pos, state, affectedBlocks.incrementAndGet()))
+                    continue;
+            }
+        } catch (LittleActionException e) {
+            for (BlockPos pos : boxesMap.keySet())
+                sendBlockResetToClient(world, player, pos);
+            throw e;
+        }
+        
         for (Iterator<Entry<BlockPos, ArrayList<LittleBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
             Entry<BlockPos, ArrayList<LittleBox>> entry = iterator.next();
             BlockPos pos = entry.getKey();
@@ -69,7 +87,7 @@ public abstract class LittleActionBoxes extends LittleAction {
             
             placed = true;
             
-            action(world, player, pos, state, entry.getValue(), boxes.context, affectedBlocks);
+            action(world, player, pos, state, entry.getValue(), boxes.context);
         }
         
         world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
