@@ -53,7 +53,8 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     public ParticleSpread spread = new ParticleSpreadRandom();
     
     public boolean randomColor = false;
-    public int tickDelay = 10;
+    public int delay = 10;
+    public int count = 1;
     protected int ticker = 0;
     
     public LittleParticleEmitter(LittleStructureType type, IStructureTileList mainBlock) {
@@ -64,9 +65,11 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     public void tick() {
         if (getOutput(0).getState()[0])
             return;
-        if (ticker >= tickDelay) {
+        if (ticker >= delay) {
             if (getWorld().isRemote)
-                spawnParticle(getWorld());
+                for (int i = 0; i < count; i++)
+                    spawnParticle(getWorld());
+                
             ticker = 0;
         } else
             ticker++;
@@ -150,7 +153,8 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     
     public void setSettings(NBTTagCompound nbt) {
         if (nbt.hasKey("tickDelay")) {
-            tickDelay = nbt.getInteger("tickDelay");
+            delay = nbt.getInteger("tickDelay");
+            count = nbt.getInteger("tickCount");
             ticker = nbt.getInteger("ticker");
             randomColor = nbt.getBoolean("randomColor");
             spread = loadSpread(nbt);
@@ -165,7 +169,8 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     
     @Override
     protected void writeToNBTExtra(NBTTagCompound nbt) {
-        nbt.setInteger("tickDelay", tickDelay);
+        nbt.setInteger("tickDelay", delay);
+        nbt.setInteger("tickCount", count);
         nbt.setInteger("ticker", ticker);
         nbt.setBoolean("randomColor", randomColor);
         spread.write(nbt);
@@ -177,8 +182,9 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public float gravity = 0;
         public int color = ColorUtils.RGBAToInt(20, 20, 20, 255);
         public int lifetime = 40;
-        public float growrate = 1F;
-        public float size = 0.4F;
+        public float startSize = 0.4F;
+        public float endSize = 0.5F;
+        public float sizeDeviation = 0.04F;
         public LittleParticleTexture texture = LittleParticleTexture.dust_fade_out;
         
         public ParticleSettings() {
@@ -189,8 +195,14 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             gravity = nbt.getFloat("gravity");
             color = nbt.getInteger("color");
             lifetime = nbt.getInteger("lifetime");
-            growrate = nbt.getFloat("growrate");
-            size = nbt.getFloat("size");
+            if (nbt.hasKey("size")) {
+                startSize = endSize = nbt.getFloat("size");
+                sizeDeviation = 0;
+            } else {
+                startSize = nbt.getFloat("startSize");
+                endSize = nbt.getFloat("endSize");
+                sizeDeviation = nbt.getFloat("sizeDeviation");
+            }
             texture = LittleParticleTexture.get(nbt.getString("texture"));
         }
         
@@ -198,8 +210,9 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             nbt.setFloat("gravity", gravity);
             nbt.setInteger("color", color);
             nbt.setInteger("lifetime", lifetime);
-            nbt.setFloat("growrate", growrate);
-            nbt.setFloat("size", size);
+            nbt.setFloat("startSize", startSize);
+            nbt.setFloat("endSize", endSize);
+            nbt.setFloat("sizeDeviation", sizeDeviation);
             nbt.setString("texture", texture.name());
         }
     }
