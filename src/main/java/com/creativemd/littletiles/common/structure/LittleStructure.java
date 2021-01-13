@@ -1080,12 +1080,20 @@ public abstract class LittleStructure implements ISignalSchedulable {
             for (int i = 0; i < inputs.length; i++)
                 infos.add("a" + i + ":" + BooleanUtils.print(inputs[i].getState()));
         for (ISignalStructureComponent component : inputs())
-            infos.add("i" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+            try {
+                infos.add("i" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                infos.add("i" + component.getId() + ":broken");
+            }
         if (outputs != null)
             for (int i = 0; i < outputs.length; i++)
                 infos.add("b" + i + ":" + BooleanUtils.print(outputs[i].getState()));
         for (ISignalStructureComponent component : outputs())
-            infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+            try {
+                infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                infos.add("o" + component.getId() + ":broken");
+            }
         return String.join(",", infos);
     }
     

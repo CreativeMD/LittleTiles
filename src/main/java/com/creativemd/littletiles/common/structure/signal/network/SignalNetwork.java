@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import com.creativemd.littletiles.common.structure.signal.schedule.ISignalSchedulable;
@@ -40,13 +42,17 @@ public class SignalNetwork implements ISignalSchedulable {
             BooleanUtils.reset(state);
             
             for (int i = 0; i < outputs.size(); i++)
-                BooleanUtils.or(state, outputs.get(i).getState());
+                try {
+                    BooleanUtils.or(state, outputs.get(i).getState());
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             
             if (BooleanUtils.equals(state, oldState) && !inputs.isEmpty())
                 return;
         } else
             for (int i = 0; i < outputs.size(); i++)
-                BooleanUtils.or(state, outputs.get(i).getState());
+                try {
+                    BooleanUtils.or(state, outputs.get(i).getState());
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         forceUpdate = false;
         for (int i = 0; i < inputs.size(); i++)
             inputs.get(i).updateState(state);

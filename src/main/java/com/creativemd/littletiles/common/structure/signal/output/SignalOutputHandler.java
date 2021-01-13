@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.structure.signal.output;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 
@@ -35,7 +37,7 @@ public abstract class SignalOutputHandler {
         component.updateState(state);
     }
     
-    public int getBandwidth() {
+    public int getBandwidth() throws CorruptedConnectionException, NotYetConnectedException {
         return component.getBandwidth();
     }
     

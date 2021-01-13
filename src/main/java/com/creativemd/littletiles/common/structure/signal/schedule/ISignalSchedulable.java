@@ -1,5 +1,8 @@
 package com.creativemd.littletiles.common.structure.signal.schedule;
 
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+
 import net.minecraft.world.World;
 
 public interface ISignalSchedulable {
@@ -14,7 +17,7 @@ public interface ISignalSchedulable {
     
     public World getWorld();
     
-    public default void updateSignaling() {
+    public default void updateSignaling() throws CorruptedConnectionException, NotYetConnectedException {
         markUnchanged();
         notifyChange();
     }

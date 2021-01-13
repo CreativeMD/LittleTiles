@@ -21,6 +21,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class TESignalConverter extends TileEntityCreative implements ISignalStructureComponent {
     
@@ -33,6 +34,11 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     
     public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
         return state.canProvidePower() && side != null;
+    }
+    
+    @Override
+    public World getWorld() {
+        return super.getWorld();
     }
     
     @Override

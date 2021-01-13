@@ -11,13 +11,6 @@ import com.creativemd.littletiles.common.structure.signal.output.InternalSignalO
 
 public class SignalUtils {
     
-    public static boolean[] getInputState(LittleStructure structure, int id, boolean external) {
-        ISignalComponent component = getInput(structure, id, external);
-        if (component != null)
-            return component.getState();
-        return null;
-    }
-    
     public static ISignalComponent getInput(LittleStructure structure, int id, boolean external) {
         if (external)
             return getExternalInput(structure, id);

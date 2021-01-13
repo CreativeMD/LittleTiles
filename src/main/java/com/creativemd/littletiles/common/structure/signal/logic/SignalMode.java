@@ -8,6 +8,8 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 import com.creativemd.littletiles.common.structure.signal.schedule.ISignalScheduleTicket;
@@ -54,9 +56,12 @@ public enum SignalMode {
             for (int i = 0; i < list.tagCount(); i++) {
                 int[] array = list.getIntArrayAt(i);
                 if (array.length == 2) {
-                    boolean[] state = new boolean[component.getBandwidth()];
-                    BooleanUtils.intToBool(array[1], state);
-                    SignalTicker.schedule(handler, state, array[0]);
+                    try {
+                        boolean[] state = new boolean[component.getBandwidth()];
+                        BooleanUtils.intToBool(array[1], state);
+                        SignalTicker.schedule(handler, state, array[0]);
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                    
                 }
             }
             return handler;
@@ -103,9 +108,11 @@ public enum SignalMode {
             for (int i = 0; i < list.tagCount(); i++) {
                 int[] array = list.getIntArrayAt(i);
                 if (array.length == 2) {
-                    boolean[] state = new boolean[component.getBandwidth()];
-                    BooleanUtils.intToBool(array[1], state);
-                    SignalTicker.schedule(handler, state, array[0]);
+                    try {
+                        boolean[] state = new boolean[component.getBandwidth()];
+                        BooleanUtils.intToBool(array[1], state);
+                        SignalTicker.schedule(handler, state, array[0]);
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 }
             }
             return handler;
@@ -198,9 +205,11 @@ public enum SignalMode {
             if (nbt.hasKey("ticket")) {
                 int[] array = nbt.getIntArray("ticket");
                 if (array.length == 2) {
-                    boolean[] state = new boolean[component.getBandwidth()];
-                    BooleanUtils.intToBool(array[1], state);
-                    handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                    try {
+                        boolean[] state = new boolean[component.getBandwidth()];
+                        BooleanUtils.intToBool(array[1], state);
+                        handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 }
             }
             return handler;
@@ -258,9 +267,11 @@ public enum SignalMode {
             if (nbt.hasKey("ticket")) {
                 int[] array = nbt.getIntArray("ticket");
                 if (array.length == 2) {
-                    boolean[] state = new boolean[component.getBandwidth()];
-                    BooleanUtils.intToBool(array[1], state);
-                    handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                    try {
+                        boolean[] state = new boolean[component.getBandwidth()];
+                        BooleanUtils.intToBool(array[1], state);
+                        handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 }
             }
             return handler;
@@ -364,9 +375,11 @@ public enum SignalMode {
         
         public void triggerToggle() {
             if (result == null) {
-                int bandwidth = component.getBandwidth();
-                result = new boolean[bandwidth];
-                BooleanUtils.set(result, component.getState());
+                try {
+                    int bandwidth = component.getBandwidth();
+                    result = new boolean[bandwidth];
+                    BooleanUtils.set(result, component.getState());
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             }
             
             for (int i = 0; i < result.length; i++)
@@ -425,7 +438,7 @@ public enum SignalMode {
         }
         
         @Override
-        public int getBandwidth() {
+        public int getBandwidth() throws CorruptedConnectionException, NotYetConnectedException {
             return super.getBandwidth();
         }
         
@@ -486,7 +499,7 @@ public enum SignalMode {
         }
         
         @Override
-        public int getBandwidth() {
+        public int getBandwidth() throws CorruptedConnectionException, NotYetConnectedException {
             return super.getBandwidth();
         }
         

@@ -14,6 +14,8 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.littletiles.client.gui.signal.GuiSignalController.GeneratePatternException;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
@@ -175,7 +177,11 @@ public class SubGuiDialogSignal extends SubGui {
         
         public GuiSignalComponent(String name, String totalName, ISignalComponent component, boolean external, int index) {
             this.name = name;
-            this.bandwidth = component.getBandwidth();
+            try {
+                this.bandwidth = component.getBandwidth();
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                throw new RuntimeException(e);
+            }
             this.totalName = totalName;
             this.input = component.getType() == SignalComponentType.INPUT;
             this.external = external;

@@ -137,7 +137,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public boolean[] test(LittleStructure structure) {
-            boolean[] state = condition.test(structure, true);
+            boolean[] state = BooleanUtils.copy(condition.test(structure, true));
             for (int i = 0; i < state.length; i++)
                 state[i] = !state[i];
             return state;
@@ -169,7 +169,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public boolean[] test(LittleStructure structure) {
-            boolean[] state = condition.test(structure, false);
+            boolean[] state = BooleanUtils.copy(condition.test(structure, false));
             for (int i = 0; i < state.length; i++)
                 state[i] = !state[i];
             return state;

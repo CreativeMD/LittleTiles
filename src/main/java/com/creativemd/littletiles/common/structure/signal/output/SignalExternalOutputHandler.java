@@ -53,41 +53,41 @@ public class SignalExternalOutputHandler implements ISignalComponent {
         handler = SignalOutputHandler.create(this, mode, delay, nbt, structure);
     }
     
-    public ISignalStructureComponent getOutput() {
+    public ISignalStructureComponent getOutput() throws CorruptedConnectionException, NotYetConnectedException {
         StructureChildConnection connection = structure.getChild(index);
-        try {
-            LittleStructure output = connection.getStructure();
-            if (output instanceof LittleSignalOutput)
-                return (ISignalStructureComponent) output;
-            throw new RuntimeException("Invalid structure child expected output " + output);
-        } catch (CorruptedConnectionException | NotYetConnectedException e) {
-            throw new RuntimeException(e);
-        }
-        
+        LittleStructure output = connection.getStructure();
+        if (output instanceof LittleSignalOutput)
+            return (ISignalStructureComponent) output;
+        throw new RuntimeException("Invalid structure child expected output " + output);
     }
     
     public void update() {
         if (condition == null)
             return;
-        int bandwidth = handler.getBandwidth();
-        if (bandwidth > 0) {
-            boolean[] outputState = new boolean[bandwidth];
-            boolean[] result = condition.test(structure, false);
-            if (result.length == 1)
-                Arrays.fill(outputState, result[0]);
-            else
-                for (int i = 0; i < result.length; i++)
-                    if (i < outputState.length)
-                        outputState[i] = result[i];
-            handler.schedule(outputState);
-        }
+        try {
+            int bandwidth = handler.getBandwidth();
+            if (bandwidth > 0) {
+                boolean[] outputState = new boolean[bandwidth];
+                boolean[] result = condition.test(structure, false);
+                if (result.length == 1)
+                    Arrays.fill(outputState, result[0]);
+                else
+                    for (int i = 0; i < result.length; i++)
+                        if (i < outputState.length)
+                            outputState[i] = result[i];
+                handler.schedule(outputState);
+            }
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        
     }
     
     public NBTTagCompound write(boolean preview) {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setInteger("index", index);
         if (structure != null)
-            nbt.setInteger("state", BooleanUtils.boolToInt(getState()));
+            try {
+                nbt.setInteger("state", BooleanUtils.boolToInt(getState()));
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         if (condition != null)
             nbt.setString("con", condition.write());
         nbt.setString("mode", handler == null ? SignalMode.EQUAL.name() : handler.getMode().name());
@@ -99,17 +99,19 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     }
     
     @Override
-    public int getBandwidth() {
+    public int getBandwidth() throws CorruptedConnectionException, NotYetConnectedException {
         return getOutput().getBandwidth();
     }
     
     @Override
-    public void changed() {
+    public void changed() throws CorruptedConnectionException, NotYetConnectedException {
         getOutput().changed();
+        structure.schedule();
+        
     }
     
     @Override
-    public boolean[] getState() {
+    public boolean[] getState() throws CorruptedConnectionException, NotYetConnectedException {
         return getOutput().getState();
     }
     

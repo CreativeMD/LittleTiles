@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 
@@ -102,7 +104,9 @@ public class SignalTicker {
         if (event.phase == Phase.END && world == event.world) {
             
             for (int i = 0; i < scheduled.size(); i++)
-                scheduled.get(i).updateSignaling();
+                try {
+                    scheduled.get(i).updateSignaling();
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             scheduled.clear();
             
             // Process queue

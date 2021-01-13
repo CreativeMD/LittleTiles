@@ -17,6 +17,8 @@ import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.IConditionConfiguration;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
@@ -87,9 +89,11 @@ public class SubGuiSignalEvents extends SubGui {
             LittleStructureType structure = child.getStructureType();
             if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == type) {
                 String name = child.getStructureName();
-                values
-                    .add(ChatFormatting.BOLD + (type == SignalComponentType.INPUT ? "i" : "o") + i + " " + (name != null ? "(" + name + ") " : "") + "" + ChatFormatting.RESET + ((ISignalComponent) structure)
-                        .getBandwidth() + "-bit");
+                try {
+                    values
+                        .add(ChatFormatting.BOLD + (type == SignalComponentType.INPUT ? "i" : "o") + i + " " + (name != null ? "(" + name + ") " : "") + "" + ChatFormatting.RESET + ((ISignalComponent) structure)
+                            .getBandwidth() + "-bit");
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             }
         }
         return values;
