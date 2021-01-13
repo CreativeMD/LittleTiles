@@ -35,7 +35,7 @@ public enum LittleParticleTexture {
         
         @Override
         public void setTextureTick(LittleParticle particle) {
-            particle.setParticleTextureIndex(3 * particle.getAge() / particle.getMaxAge() + 5);
+            particle.setParticleTextureIndex(8 * particle.getAge() / particle.getMaxAge() - 1);
         }
         
     },
