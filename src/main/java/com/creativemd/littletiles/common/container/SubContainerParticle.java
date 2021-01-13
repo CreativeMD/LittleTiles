@@ -22,7 +22,7 @@ public class SubContainerParticle extends SubContainer {
     
     @Override
     public void onPacketReceive(NBTTagCompound nbt) {
-        particle.setSettings(nbt);
+        particle.loadSettings(nbt);
         particle.updateStructure();
     }
     

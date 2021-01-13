@@ -16,19 +16,19 @@ public class LittleParticle extends Particle {
     public ParticleSettings settings;
     private float scaleDeviation;
     
-    public LittleParticle(World world, Vector3d pos, Vector3d speed, boolean randomColor, ParticleSettings settings) {
+    public LittleParticle(World world, Vector3d pos, Vector3d speed, ParticleSettings settings) {
         super(world, pos.x, pos.y, pos.z);
         this.motionX = speed.x * (Math.random() * 0.1 + 0.95);
         this.motionY = speed.y * (Math.random() * 0.1 + 0.95);
         this.motionZ = speed.z * (Math.random() * 0.1 + 0.95);
         this.particleScale = settings.startSize;
-        this.particleMaxAge = settings.lifetime;
+        this.particleMaxAge = (int) (settings.lifetime + settings.lifetimeDeviation * Math.random());
         this.particleGravity = settings.gravity;
         this.particleAlpha = ColorUtils.getAlphaDecimal(settings.color);
         this.particleRed = ColorUtils.getRedDecimal(settings.color);
         this.particleGreen = ColorUtils.getGreenDecimal(settings.color);
         this.particleBlue = ColorUtils.getBlueDecimal(settings.color);
-        if (randomColor) {
+        if (settings.randomColor) {
             this.particleRed *= Math.random();
             this.particleGreen *= Math.random();
             this.particleBlue *= Math.random();

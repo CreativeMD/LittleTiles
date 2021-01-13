@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.particle.LittleParticle;
+import com.creativemd.littletiles.common.particle.LittleParticlePresets;
 import com.creativemd.littletiles.common.particle.LittleParticleTexture;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
@@ -51,8 +52,6 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     public EnumFacing facing = EnumFacing.UP;
     public ParticleSettings settings = new ParticleSettings();
     public ParticleSpread spread = new ParticleSpreadRandom();
-    
-    public boolean randomColor = false;
     public int delay = 10;
     public int count = 1;
     protected int ticker = 0;
@@ -145,26 +144,29 @@ public class LittleParticleEmitter extends LittleStructurePremade {
                 ((IOrientatedWorld) world).getOrigin().onlyRotateWithoutCenter(speed);
             }
             
-            mc.effectRenderer.addEffect(new LittleParticle(world, pos, speed, randomColor, settings));
+            mc.effectRenderer.addEffect(new LittleParticle(world, pos, speed, settings));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    public void setSettings(NBTTagCompound nbt) {
-        if (nbt.hasKey("tickDelay")) {
-            delay = nbt.getInteger("tickDelay");
+    public void loadSettings(NBTTagCompound nbt) {
+        spread = loadSpread(nbt);
+        delay = nbt.getInteger("tickDelay");
+        ticker = nbt.getInteger("ticker");
+        if (nbt.hasKey("tickCount"))
             count = nbt.getInteger("tickCount");
-            ticker = nbt.getInteger("ticker");
-            randomColor = nbt.getBoolean("randomColor");
-            spread = loadSpread(nbt);
-            settings = new ParticleSettings(nbt);
-        }
+        else
+            count = 1;
+        if (nbt.hasKey("settings"))
+            settings = new ParticleSettings(nbt.getCompoundTag("settings"));
+        else
+            settings = LittleParticlePresets.SMOKE.settings.copy();
     }
     
     @Override
     protected void loadFromNBTExtra(NBTTagCompound nbt) {
-        setSettings(nbt);
+        loadSettings(nbt);
     }
     
     @Override
@@ -172,9 +174,10 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         nbt.setInteger("tickDelay", delay);
         nbt.setInteger("tickCount", count);
         nbt.setInteger("ticker", ticker);
-        nbt.setBoolean("randomColor", randomColor);
         spread.write(nbt);
-        settings.write(nbt);
+        NBTTagCompound settingsData = new NBTTagCompound();
+        settings.write(settingsData);
+        nbt.setTag("settings", settingsData);
     }
     
     public static class ParticleSettings {
@@ -182,27 +185,38 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public float gravity = 0;
         public int color = ColorUtils.RGBAToInt(20, 20, 20, 255);
         public int lifetime = 40;
+        public int lifetimeDeviation = 5;
         public float startSize = 0.4F;
         public float endSize = 0.5F;
         public float sizeDeviation = 0.04F;
         public LittleParticleTexture texture = LittleParticleTexture.dust_fade_out;
+        public boolean randomColor = false;
         
         public ParticleSettings() {
             
+        }
+        
+        public ParticleSettings(float gravity, int color, int lifetime, int lifetimeDeviation, float startSize, float endSize, float sizeDeviation, LittleParticleTexture texture, boolean randomColor) {
+            this.gravity = gravity;
+            this.color = color;
+            this.lifetime = lifetime;
+            this.lifetimeDeviation = lifetimeDeviation;
+            this.startSize = startSize;
+            this.endSize = endSize;
+            this.sizeDeviation = sizeDeviation;
+            this.texture = texture;
+            this.randomColor = randomColor;
         }
         
         public ParticleSettings(NBTTagCompound nbt) {
             gravity = nbt.getFloat("gravity");
             color = nbt.getInteger("color");
             lifetime = nbt.getInteger("lifetime");
-            if (nbt.hasKey("size")) {
-                startSize = endSize = nbt.getFloat("size");
-                sizeDeviation = 0;
-            } else {
-                startSize = nbt.getFloat("startSize");
-                endSize = nbt.getFloat("endSize");
-                sizeDeviation = nbt.getFloat("sizeDeviation");
-            }
+            lifetimeDeviation = nbt.getInteger("lifetimeDeviation");
+            startSize = nbt.getFloat("startSize");
+            endSize = nbt.getFloat("endSize");
+            sizeDeviation = nbt.getFloat("sizeDeviation");
+            randomColor = nbt.getBoolean("randomColor");
             texture = LittleParticleTexture.get(nbt.getString("texture"));
         }
         
@@ -210,10 +224,16 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             nbt.setFloat("gravity", gravity);
             nbt.setInteger("color", color);
             nbt.setInteger("lifetime", lifetime);
+            nbt.setInteger("lifetimeDeviation", lifetimeDeviation);
             nbt.setFloat("startSize", startSize);
             nbt.setFloat("endSize", endSize);
             nbt.setFloat("sizeDeviation", sizeDeviation);
             nbt.setString("texture", texture.name());
+            nbt.setBoolean("randomColor", randomColor);
+        }
+        
+        public ParticleSettings copy() {
+            return new ParticleSettings(gravity, color, lifetime, lifetimeDeviation, startSize, endSize, sizeDeviation, texture, randomColor);
         }
     }
     
@@ -287,6 +307,17 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public float speedX = 0F;
         public float speedZ = 0F;
         
+        public ParticleSpreadRandom() {
+            
+        }
+        
+        public ParticleSpreadRandom(float power, float x, float z, float deviation) {
+            this.speedY = power;
+            this.speedX = x;
+            this.speedZ = z;
+            this.spread = deviation;
+        }
+        
         @Override
         protected void populate(Vector3d vec) {
             vec.x = speedX;
@@ -307,6 +338,18 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public float radius = 0.1F;
         public float angle = 0;
         public int steps = 30;
+        
+        public ParticleSpreadCircular() {
+            
+        }
+        
+        public ParticleSpreadCircular(float power, float radius, float angle, int steps, float deviation) {
+            this.speedY = power;
+            this.radius = radius;
+            this.angle = angle;
+            this.steps = steps;
+            this.spread = deviation;
+        }
         
         @Override
         protected void populate(Vector3d vec) {

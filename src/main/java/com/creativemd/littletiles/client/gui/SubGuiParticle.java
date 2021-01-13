@@ -1,9 +1,9 @@
 package com.creativemd.littletiles.client.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.util.Color;
@@ -23,6 +23,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTran
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.littletiles.common.particle.LittleParticlePresets;
 import com.creativemd.littletiles.common.particle.LittleParticleTexture;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
@@ -48,14 +49,20 @@ public class SubGuiParticle extends SubGui {
         for (int i = 0; i < LittleParticleTexture.values().length; i++)
             textures.add(LittleParticleTexture.values()[i].translatedName());
         
-        controls.add(new GuiComboBox("presets", 0, 0, 165, Arrays.asList("presets")).setEnabled(false));
-        controls.add(new GuiButton("load", 173, 0) {
+        List<String> presets = new ArrayList<>();
+        presets.add("");
+        for (LittleParticlePresets preset : LittleParticlePresets.values())
+            presets.add(translate("gui.particle.preset." + preset.name().toLowerCase()));
+        GuiComboBox box = new GuiComboBox("presets", 0, 0, 125, presets);
+        controls.add(box);
+        controls.add(new GuiButton(translate("gui.particle.load"), 135, 0) {
             
             @Override
             public void onClicked(int x, int y, int button) {
-            
+                if (box.index > 0)
+                    loadPreset(LittleParticlePresets.values()[box.index - 1]);
             }
-        }.setEnabled(false));
+        });
         controls.add(new GuiLabel("textureLabel", translate("gui.particle.texture"), 0, 27));
         controls.add(new GuiComboBox("textures", 78, 25, 116, textures));
         controls.add(new GuiLabel("sizeLabel", translate("gui.particle.size"), 0, 48));
@@ -65,16 +72,18 @@ public class SubGuiParticle extends SubGui {
         controls.add(new GuiLabel("sizeDeviationLabel", translate("gui.particle.sizedeviation"), 115, 48));
         controls.add(new GuiTextfield("sizedeviation", "0.02", 165, 46, 25, 12).setFloatOnly());
         controls.add(new GuiColorPicker("color", 0, 65, new Color(255, 255, 255), true, 1));
-        controls.add(new GuiCheckBox("randomColor", translate("gui.particle.randomcolor"), 110, 95, particle.randomColor));
+        controls.add(new GuiCheckBox("randomColor", translate("gui.particle.randomcolor"), 110, 95, particle.settings.randomColor));
         controls.add(new GuiLabel("ageLabel", translate("gui.particle.age"), 0, 111));
         controls.add(new GuiSteppedSlider("age", 30, 110, 50, 8, 20, 1, 100));
-        controls.add(new GuiLabel("gravityLabel", translate("gui.particle.gravity"), 96, 111));
-        controls.add(new GuiAnalogeSlider("gravity", 140, 110, 50, 8, 0, -1, 1));
+        controls.add(new GuiLabel("ageDeviationLabel", translate("gui.particle.agedeviation"), 86, 111));
+        controls.add(new GuiTextfield("agedeviation", "5", 140, 110, 30, 8).setNumbersOnly());
         controls.add(new GuiLabel("countLabel", translate("gui.particle.count"), 0, 132));
         controls.add(new GuiTextfield("count", "" + particle.count, 40, 130, 30, 12).setNumbersOnly());
         controls.add(new GuiLabel("perLabel", translate("gui.particle.per"), 80, 132));
         controls.add(new GuiTextfield("delay", "" + particle.delay, 110, 130, 30, 12).setNumbersOnly());
         controls.add(new GuiLabel("tickLabel", translate("gui.particle.tick"), 150, 132));
+        controls.add(new GuiLabel("gravityLabel", translate("gui.particle.gravity"), 96, 151));
+        controls.add(new GuiAnalogeSlider("gravity", 140, 150, 50, 8, 0, -1, 1));
         
         GuiTabStateButtonTranslated state = new GuiTabStateButtonTranslated("spread", 0, "gui.particle.spread", 0, 150, 12, spreadHandlerNames());
         state.selected = ArrayUtils.indexOf(state.states, getSpreadId(particle.spread.getClass()));
@@ -82,7 +91,7 @@ public class SubGuiParticle extends SubGui {
             state.selected = 0;
         controls.add(state);
         controls.add(new GuiPanel("spreadpanel", 0, 170, 194, 38));
-        loadSpread();
+        loadSpread(particle.spread);
         
         controls.add(new GuiButton("save", translate("gui.save"), 165, 216, 29, 8) {
             
@@ -94,17 +103,19 @@ public class SubGuiParticle extends SubGui {
                 nbt.setInteger("tickCount", count.parseInteger());
                 GuiTextfield delay = (GuiTextfield) get("delay");
                 nbt.setInteger("tickDelay", delay.parseInteger());
-                GuiCheckBox randomColor = (GuiCheckBox) get("randomColor");
-                nbt.setBoolean("randomColor", randomColor.value);
                 
                 ParticleSpread spread = parseSpread();
                 spread.write(nbt);
                 
                 ParticleSettings newSettings = new ParticleSettings();
+                GuiCheckBox randomColor = (GuiCheckBox) get("randomColor");
+                newSettings.randomColor = randomColor.value;
                 GuiComboBox textures = (GuiComboBox) get("textures");
                 newSettings.texture = LittleParticleTexture.get(textures.getCaption());
                 GuiSteppedSlider age = (GuiSteppedSlider) get("age");
                 newSettings.lifetime = (int) age.value;
+                GuiTextfield agedeviation = (GuiTextfield) get("agedeviation");
+                newSettings.lifetimeDeviation = agedeviation.parseInteger();
                 GuiColorPicker color = (GuiColorPicker) get("color");
                 newSettings.color = ColorUtils.RGBAToInt(color.color);
                 GuiAnalogeSlider gravity = (GuiAnalogeSlider) get("gravity");
@@ -115,8 +126,9 @@ public class SubGuiParticle extends SubGui {
                 newSettings.endSize = sizeend.parseFloat();
                 GuiTextfield sizedeviation = (GuiTextfield) get("sizedeviation");
                 newSettings.sizeDeviation = sizedeviation.parseFloat();
-                
-                newSettings.write(nbt);
+                NBTTagCompound data = new NBTTagCompound();
+                newSettings.write(data);
+                nbt.setTag("settings", data);
                 sendPacketToServer(nbt);
                 closeGui();
             }
@@ -124,14 +136,28 @@ public class SubGuiParticle extends SubGui {
         loadParticleSettings(particle.settings);
     }
     
-    public void loadSpread() {
+    public void loadPreset(LittleParticlePresets preset) {
+        loadParticleSettings(preset.settings);
+        GuiTextfield count = (GuiTextfield) get("count");
+        count.text = "" + preset.count;
+        GuiTextfield delay = (GuiTextfield) get("delay");
+        delay.text = "" + preset.delay;
+        GuiTabStateButton spread = (GuiTabStateButton) get("spread");
+        GuiTabStateButtonTranslated state = new GuiTabStateButtonTranslated("spread", 0, "gui.particle.spread", 0, 150, 12, spreadHandlerNames());
+        state.selected = ArrayUtils.indexOf(state.states, getSpreadId(particle.spread.getClass()));
+        if (state.selected == -1)
+            state.selected = 0;
+        loadSpread(preset.spread);
+    }
+    
+    public void loadSpread(ParticleSpread particleSpread) {
         GuiTabStateButton spread = (GuiTabStateButton) get("spread");
         ParticleSpreadGuiHandler handler = getSpreadHanlder(spread.getCaption());
         
         if (handler != null) {
             GuiPanel panel = (GuiPanel) get("spreadpanel");
             panel.controls.clear();
-            handler.createControls(panel, particle.spread);
+            handler.createControls(panel, particleSpread);
         }
     }
     
@@ -148,7 +174,7 @@ public class SubGuiParticle extends SubGui {
     @CustomEventSubscribe
     public void onParticleChange(GuiControlChangedEvent event) {
         if (event.source.is("spread"))
-            loadSpread();
+            loadSpread(particle.spread);
     }
     
     public void loadParticleSettings(ParticleSettings settings) {
@@ -156,6 +182,8 @@ public class SubGuiParticle extends SubGui {
         textures.select(settings.texture.translatedName());
         GuiSteppedSlider age = (GuiSteppedSlider) get("age");
         age.setValue(settings.lifetime);
+        GuiTextfield agedeviation = (GuiTextfield) get("agedeviation");
+        agedeviation.text = "" + settings.lifetimeDeviation;
         GuiColorPicker color = (GuiColorPicker) get("color");
         color.setColor(ColorUtils.IntToRGBA(settings.color));
         GuiAnalogeSlider gravity = (GuiAnalogeSlider) get("gravity");
