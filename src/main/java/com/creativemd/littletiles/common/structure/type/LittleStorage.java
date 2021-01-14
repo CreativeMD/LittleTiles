@@ -173,6 +173,7 @@ public class LittleStorage extends LittleStructure {
     public void closeContainer(SubContainerStorage container) {
         openContainers.remove(container);
         updateInput();
+        onInventoryChanged();
     }
     
     public static class LittleStorageParser extends LittleStructureGuiParser {
