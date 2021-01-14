@@ -39,6 +39,8 @@ public class LittleStructureRegistry {
     private static PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> craftables = new PairList<>();
     private static List<LittleStructureGuiParserNotFoundHandler> premadeParsers = new ArrayList<>();
     
+    private static LittleStructureType defaultType;
+    
     public static LittleStructureType registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, int attribute, Class<? extends LittleStructureGuiParser> parser) {
         return registerStructureType(new LittleStructureType(id, category, classStructure, attribute), parser);
     }
@@ -129,7 +131,7 @@ public class LittleStructureRegistry {
     }
     
     public static LittleStructureType getStructureType(String id) {
-        return structures.get(id);
+        return structures.getOrDefault(id, defaultType);
     }
     
     public static LittleStructureType getStructureType(Class<? extends LittleStructure> classStructure) {
@@ -137,7 +139,7 @@ public class LittleStructureRegistry {
     }
     
     public static void initStructures() {
-        registerStructureType("fixed", "simple", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
+        defaultType = registerStructureType("fixed", "simple", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
         
         registerStructureType("ladder", "simple", LittleLadder.class, LittleStructureAttribute.LADDER, LittleLadderParser.class);
         
