@@ -16,7 +16,6 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.outdated.LittleSize;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
@@ -45,22 +44,16 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
     @Override
     @SideOnly(Side.CLIENT)
     public String getItemStackDisplayName(ItemStack stack) {
-        String result = super.getItemStackDisplayName(stack);
-        if (stack.hasTagCompound()) {
-            LittleVec size = stack.getTagCompound().hasKey("size") ? LittleSize.loadSize("size", stack.getTagCompound()) : LittleBox.loadBox("bBox", stack.getTagCompound())
-                .getSize();
-            result += " (x=" + size.x + ",y=" + size.y + ",z=" + size.z + ")";
-        }
-        return result;
+        return super.getItemStackDisplayName(stack);
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public String getUnlocalizedName(ItemStack stack) {
         if (stack.hasTagCompound()) {
-            Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
-            if (block != null && !(block instanceof BlockAir))
-                return new ItemStack(block, 1, stack.getTagCompound().getInteger("meta")).getUnlocalizedName();
+            LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
+            if (preview.getBlock() != null)
+                return new ItemStack(preview.getBlock(), 1, preview.getMeta()).getUnlocalizedName();
         }
         return super.getUnlocalizedName(stack);
     }
