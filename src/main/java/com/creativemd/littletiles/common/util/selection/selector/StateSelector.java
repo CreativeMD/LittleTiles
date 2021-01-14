@@ -28,6 +28,7 @@ public class StateSelector extends TileSelectorBlock {
     
     @Override
     protected void loadNBT(NBTTagCompound nbt) {
+        super.loadNBT(nbt);
         meta = nbt.getInteger("meta");
     }
     
