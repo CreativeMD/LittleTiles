@@ -235,9 +235,7 @@ public abstract class SignalInputCondition {
             boolean[] state = new boolean[conditions.length];
             for (int i = 0; i < state.length; i++)
                 state[i] = BooleanUtils.any(conditions[i].test(structure, false));
-            if (forceBitwise)
-                return state;
-            return BooleanUtils.asArray(BooleanUtils.any(state));
+            return state;
         }
         
         @Override

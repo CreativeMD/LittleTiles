@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.utils.mc.NBTUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -25,6 +26,7 @@ import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.LittleStructureTypeParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable.LittleStructureTypeCable;
+import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalDisplay;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalInput;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalInput.LittleStructureTypeInput;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
@@ -67,7 +69,10 @@ public abstract class LittleStructurePremade extends LittleStructure {
                 structureNBT.setString("id", type.id);
                 NBTTagCompound nbt = JsonToNBT.getTagFromJson(IOUtils
                     .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
+                NBTTagCompound originalNBT = nbt.hasKey("structure") ? nbt.getCompoundTag("structure") : null;
                 nbt.setTag("structure", structureNBT);
+                if (originalNBT != null)
+                    NBTUtils.mergeNotOverwrite(structureNBT, originalNBT);
                 stack.setTagCompound(nbt);
                 LittlePreviews previews = LittlePreview.getPreview(stack);
                 
@@ -175,6 +180,9 @@ public abstract class LittleStructurePremade extends LittleStructure {
         registerPremadeStructureType(new LittleStructureTypeInput("single_input1", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
         registerPremadeStructureType(new LittleStructureTypeInput("single_input4", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));
         registerPremadeStructureType(new LittleStructureTypeInput("single_input16", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 16));
+        
+        registerPremadeStructureType("signal_display_16", LittleTiles.modid, LittleSignalDisplay.class, LittleStructureAttribute.TICK_RENDERING)
+            .addOutput("pixels", 16, SignalMode.EQUAL, true);
         
         LittleStructureRegistry.registerGuiParserNotFoundHandler(new LittleStructureGuiParserNotFoundHandler() {
             

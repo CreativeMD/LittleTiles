@@ -141,6 +141,7 @@ item.LTPremade.single_output4.name=Single Output (4-bit)
 item.LTPremade.single_output16.name=Single Output (16-bit)
 
 item.LTPremade.particle_emitter.name=Particle Emitter
+item.LTPremade.signal_display_16.name=Signal Display (16 bit)
 
 selection.clear=clear
 selection.dialog.clear=Do you really want to clear all content?

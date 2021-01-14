@@ -131,6 +131,10 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return mainBlock != null;
     }
     
+    public boolean isClient() {
+        return getWorld().isRemote;
+    }
+    
     public BlockPos getPos() {
         return mainBlock.getPos();
     }
