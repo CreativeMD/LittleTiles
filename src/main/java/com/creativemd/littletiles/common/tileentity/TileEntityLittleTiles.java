@@ -154,7 +154,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     }
     
     public boolean hasLoaded() {
-        return hasLoaded;
+        return hasLoaded && world != null && tiles != null;
     }
     
     public void setLoaded() {
