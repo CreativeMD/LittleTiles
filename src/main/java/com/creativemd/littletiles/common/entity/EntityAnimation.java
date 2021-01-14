@@ -771,18 +771,20 @@ public class EntityAnimation extends Entity {
     }
     
     public boolean onRightClick(@Nullable EntityPlayer player, Vec3d pos, Vec3d look) {
-        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
-            ItemLittleWrench.rightClickAnimation(this, player);
-            return true;
-        }
-        
         LittleRayTraceResult result = getRayTraceResult(pos, look);
         if (result == null)
             return false;
         
+        Vec3d hit = result.getHitVec();
+        if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
+            ((ItemLittleWrench) player.getHeldItemMainhand().getItem())
+                .onItemUse(player, fakeWorld, result.getBlockPos(), EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
+            return true;
+        }
+        
         TileEntity te = result.world.getTileEntity(result.getBlockPos());
         IBlockState state = result.world.getBlockState(result.getBlockPos());
-        Vec3d hit = result.getHitVec();
+        
         return state.getBlock()
             .onBlockActivated(fakeWorld, result.getBlockPos(), state, player, EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
     }
