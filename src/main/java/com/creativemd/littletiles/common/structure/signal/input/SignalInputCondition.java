@@ -150,7 +150,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public String write() {
-            return "~" + condition.write();
+            return "~(" + condition.write() + ")";
         }
         
         @Override
@@ -182,7 +182,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public String write() {
-            return "!" + condition.write();
+            return "!(" + condition.write() + ")";
         }
         
         @Override
