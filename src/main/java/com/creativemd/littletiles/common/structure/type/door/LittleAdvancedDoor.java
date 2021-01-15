@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
@@ -317,15 +316,15 @@ public class LittleAdvancedDoor extends LittleDoorBase {
             channels.add(new TimelineChannelInteger("off X").addKeys(door != null && door.offX != null ? door.offX.getRoundedPointsCopy() : null));
             channels.add(new TimelineChannelInteger("off Y").addKeys(door != null && door.offY != null ? door.offY.getRoundedPointsCopy() : null));
             channels.add(new TimelineChannelInteger("off Z").addKeys(door != null && door.offZ != null ? door.offZ.getRoundedPointsCopy() : null));
-            parent.controls.add(new GuiTimeline("timeline", 0, 0, 190, 67, door != null ? door.duration : 50, channels, handler).setSidebarWidth(30));
+            parent.controls.add(new GuiTimeline("timeline", 0, 0, 190, 67, door != null ? door.duration : 10, channels, handler).setSidebarWidth(30));
             parent.controls.add(new GuiLabel("tick", "0", 150, 75));
             
             context = door != null ? (door.offGrid != null ? door.offGrid : LittleGridContext.get()) : LittleGridContext.get();
-            parent.controls.add((GuiControl) new GuiTextfield("keyValue", "", 0, 75, 40, 10).setFloatOnly().setEnabled(false));
+            parent.controls.add(new GuiTextfield("keyValue", "", 0, 75, 40, 10).setFloatOnly().setEnabled(false));
             parent.controls.add(new GuiLTDistance("keyDistance", 0, 75, context, 0).setVisible(false));
             
             parent.controls.add(new GuiLabel("Position:", 90, 90));
-            parent.controls.add((GuiControl) new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
+            parent.controls.add(new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
             
             parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 93, 50, 10, previews
                 .getContext(), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
