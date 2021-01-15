@@ -284,7 +284,7 @@ public class Placement {
                 pp.split(current.previews.getContext(), splitted, pos);
             
             for (Entry<BlockPos, ArrayList<PlacePreview>> entry : splitted.entrySet())
-                getOrCreateBlock(entry.getKey()).addPlacePreviews(current.index, entry.getValue());
+                getOrCreateBlock(entry.getKey()).addPlacePreviews(current, current.index, entry.getValue());
         }
         
         for (PlacementStructurePreview child : current.children)
@@ -298,6 +298,7 @@ public class Placement {
         private LittleGridContext context;
         private final List<PlacePreview>[] previews;
         private final List<PlacePreview>[] latePreviews;
+        private int attribute = 0;
         
         public PlacementBlock(BlockPos pos, LittleGridContext context) {
             this.pos = pos;
@@ -317,12 +318,14 @@ public class Placement {
             return context;
         }
         
-        public void addPlacePreviews(int index, List<PlacePreview> previews) {
+        public void addPlacePreviews(PlacementStructurePreview structure, int index, List<PlacePreview> previews) {
             List<PlacePreview> list = this.previews[index];
             if (list == null)
                 this.previews[index] = previews;
             else
                 list.addAll(previews);
+            if (structure.isStructure())
+                attribute |= structure.getAttribute();
         }
         
         @Override
@@ -363,7 +366,7 @@ public class Placement {
             if (!ignoreWorldBoundaries && (pos.getY() < 0 || pos.getY() >= 256))
                 return false;
             
-            TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, null, false);
+            TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, null, false, attribute);
             if (te != null) {
                 LittleGridContext contextBefore = te.getContext();
                 te.forceContext(this);
@@ -441,11 +444,12 @@ public class Placement {
                 if (cached == null) {
                     if (!(world.getBlockState(pos).getBlock() instanceof BlockTile) && world.getBlockState(pos).getMaterial().isReplaceable()) {
                         requiresCollisionTest = false;
-                        world.setBlockState(pos, BlockTile.getState(false, false));
+                        world.setBlockState(pos, BlockTile.getStateByAttribute(attribute));
                     }
                     
-                    cached = LittleAction.loadTe(player, world, pos, affectedBlocks, mode.shouldConvertBlock());
-                }
+                    cached = LittleAction.loadTe(player, world, pos, affectedBlocks, mode.shouldConvertBlock(), attribute);
+                } else
+                    cached = cached.forceSupportAttribute(attribute);
                 
                 if (cached != null) {
                     

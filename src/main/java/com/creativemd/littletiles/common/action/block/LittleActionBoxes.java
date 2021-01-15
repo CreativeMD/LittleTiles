@@ -60,7 +60,7 @@ public abstract class LittleActionBoxes extends LittleAction {
         
         try {
             for (BlockPos pos : boxesMap.keySet()) {
-                TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, null, false);
+                TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, null, false, 0);
                 if (te != null)
                     continue;
                 IBlockState state = world.getBlockState(pos);

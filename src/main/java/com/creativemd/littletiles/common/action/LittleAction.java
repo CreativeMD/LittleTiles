@@ -357,7 +357,7 @@ public abstract class LittleAction extends CreativeCorePacket {
         return false;
     }
     
-    public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, MutableInt affected, boolean shouldConvert) throws LittleActionException {
+    public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, MutableInt affected, boolean shouldConvert, int attribute) throws LittleActionException {
         TileEntity tileEntity = world.getTileEntity(pos);
         
         if (!(tileEntity instanceof TileEntityLittleTiles)) {
@@ -378,14 +378,14 @@ public abstract class LittleAction extends CreativeCorePacket {
                     tile.setBox(box);
                     tiles.add(tile);
                 } else if (state.getMaterial().isReplaceable()) {
-                    if (!world.setBlockState(pos, BlockTile.getState(false, false)))
+                    if (!world.setBlockState(pos, BlockTile.getState(attribute)))
                         return null;
                     tileEntity = world.getTileEntity(pos);
                 }
             }
             
             if (tiles != null && !tiles.isEmpty()) {
-                world.setBlockState(pos, BlockTile.getState(false, false));
+                world.setBlockState(pos, BlockTile.getState(attribute));
                 TileEntityLittleTiles te = (TileEntityLittleTiles) world.getTileEntity(pos);
                 te.convertTo(context);
                 te.updateTiles((x) -> x.noneStructureTiles().addAll(tiles));

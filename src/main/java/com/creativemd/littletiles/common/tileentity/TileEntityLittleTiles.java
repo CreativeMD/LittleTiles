@@ -176,6 +176,33 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         world.checkLight(getPos());
     }
     
+    public TileEntityLittleTiles forceSupportAttribute(int attribute) {
+        boolean rendered = tiles.hasRendered() | LittleStructureAttribute.tickRendering(attribute);
+        boolean ticking = tiles.hasTicking() | LittleStructureAttribute.ticking(attribute);
+        if (ticking != isTicking() || rendered != isRendered()) {
+            TileEntityLittleTiles newTe;
+            if (rendered)
+                if (ticking)
+                    newTe = new TileEntityLittleTilesTickingRendered();
+                else
+                    newTe = new TileEntityLittleTilesRendered();
+            else if (ticking)
+                newTe = new TileEntityLittleTilesTicking();
+            else
+                newTe = new TileEntityLittleTiles();
+            
+            newTe.assign(this);
+            newTe.tiles.te = newTe;
+            
+            preventUnload = true;
+            world.setBlockState(pos, BlockTile.getState(ticking, rendered), 2);
+            world.setTileEntity(pos, newTe);
+            preventUnload = true;
+            return newTe;
+        }
+        return this;
+    }
+    
     protected void customTilesUpdate() {
         if (world.isRemote)
             return;

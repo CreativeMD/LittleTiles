@@ -19,8 +19,6 @@ import com.creativemd.littletiles.common.block.BlockStorageTile;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -95,14 +93,6 @@ public class LittleStorage extends LittleStructure {
             nbt.setTag("inventory", InventoryUtils.saveInventoryBasic(inventory));
         }
         nbt.setBoolean("invisibleStorage", invisibleStorageTiles);
-    }
-    
-    @Override
-    public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
-        ItemStack stack = super.getStructureDrop();
-        if (!stack.isEmpty())
-            writeToNBTExtra(stack.getTagCompound().getCompoundTag("structure"));
-        return stack;
     }
     
     @Override

@@ -92,7 +92,7 @@ public class LittleActionSaw extends LittleActionInteract {
                         return false;
                     
                     LittleGridContext context = LittleGridContext.get(box.getSmallestContext(te.getContext()));
-                    te = loadTe(player, world, newPos, null, false);
+                    te = loadTe(player, world, newPos, null, false, 0);
                     
                     if (te == null)
                         return false;

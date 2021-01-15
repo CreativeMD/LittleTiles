@@ -180,7 +180,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     
     @Override
     public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
-        TileEntity tileEntity = loadTe(player, world, pos, null, true);
+        TileEntity tileEntity = loadTe(player, world, pos, null, true, 0);
         
         if (tileEntity instanceof TileEntityLittleTiles) {
             if (!world.isRemote) {

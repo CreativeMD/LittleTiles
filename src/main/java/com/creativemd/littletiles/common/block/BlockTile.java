@@ -172,6 +172,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
         return null;
     }
     
+    public static IBlockState getStateByAttribute(int attribute) {
+        return getState(LittleStructureAttribute.ticking(attribute), LittleStructureAttribute.tickRendering(attribute));
+    }
+    
     public static IBlockState getState(boolean ticking, boolean rendered) {
         return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.getDefaultState() : LittleTiles.blockTileNoTickingRendered
             .getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
