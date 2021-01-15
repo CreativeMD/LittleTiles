@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class TileEntityRenderManager {
     
-    private final TileEntityLittleTiles te;
+    private TileEntityLittleTiles te;
     
     private int requestedIndex = -1;
     private int finishedIndex = -1;
@@ -33,6 +33,10 @@ public class TileEntityRenderManager {
     private LayeredRenderBoxCache boxCache = new LayeredRenderBoxCache();
     
     public TileEntityRenderManager(TileEntityLittleTiles te) {
+        this.te = te;
+    }
+    
+    public void setTe(TileEntityLittleTiles te) {
         this.te = te;
     }
     

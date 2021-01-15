@@ -70,19 +70,20 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     
     private boolean hasLoaded = false;
     
-    public SideSolidCache sideCache = new SideSolidCache();
+    public final SideSolidCache sideCache = new SideSolidCache();
     
     @SideOnly(Side.CLIENT)
     public TileEntityRenderManager render;
     
     protected void assign(TileEntityLittleTiles te) {
         try {
-            for (Field field : TileEntityLittleTiles.class.getDeclaredFields()) {
-                if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
+            for (Field field : TileEntityLittleTiles.class.getDeclaredFields())
+                if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
                     field.set(this, field.get(te));
-            }
-            te.setWorld(te.getWorld());
-            tiles.add(te.tiles);
+            setWorld(te.getWorld());
+            tiles.te = this;
+            if (isClientSide())
+                render.setTe(this);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -734,7 +735,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         tiles.unload();
         if (world.isRemote) {
             tiles = null;
-            sideCache = null;
             render.chunkUnload();
         }
     }
