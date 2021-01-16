@@ -372,6 +372,8 @@ public abstract class LittleStructure implements ISignalSchedulable {
         NBTTagCompound nbt;
         if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
             name = nbt.getString("Name");
+        if (!isClient())
+            schedule();
     }
     
     // ================Save and loading================

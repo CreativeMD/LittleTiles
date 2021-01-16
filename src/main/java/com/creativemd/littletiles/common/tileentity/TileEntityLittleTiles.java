@@ -196,7 +196,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             newTe.tiles.te = newTe;
             
             preventUnload = true;
-            world.setBlockState(pos, BlockTile.getState(ticking, rendered), 2);
+            world.setBlockState(pos, BlockTile.getState(ticking, rendered), 20);
             world.setTileEntity(pos, newTe);
             preventUnload = true;
             return newTe;
