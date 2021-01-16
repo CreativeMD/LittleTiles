@@ -200,7 +200,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
                         
                         @Override
                         protected LittleStructure parseStructure(LittlePreviews previews) {
-                            LittleStructure parsedStructure = createStructure(structure.getClass(), null);
+                            LittleStructure parsedStructure = structure.type.createStructure(null);
                             parsedStructure.loadFromNBT(previews.structureNBT);
                             return parsedStructure;
                         }
