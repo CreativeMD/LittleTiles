@@ -225,7 +225,7 @@ public class PlacementHelper {
             
             List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
             
-            boolean singleMode = tiles.size() == 1;
+            boolean singleMode = tiles.totalSize() == 1;
             
             if (singleMode) {
                 shifthandlers.add(new InsideFixedHandler());
