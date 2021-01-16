@@ -34,6 +34,11 @@ public interface IBoxSelector {
     @SideOnly(Side.CLIENT)
     public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit);
     
+    @SideOnly(Side.CLIENT)
+    public default boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+        return false;
+    }
+    
     public void rotateLittlePreview(ItemStack stack, Rotation rotation);
     
     public void flipLittlePreview(ItemStack stack, Axis axis);

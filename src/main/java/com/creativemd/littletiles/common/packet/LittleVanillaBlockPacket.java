@@ -3,10 +3,10 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber.GrabberMode;
+import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -31,9 +31,7 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
             public boolean isFlatColoredBlocksInstalled() {
                 try {
                     return Class.forName("mod.flatcoloredblocks.block.BlockFlatColored") != null;
-                } catch (ClassNotFoundException e) {
-            
-        }
+                } catch (ClassNotFoundException e) {}
                 return false;
             }
             

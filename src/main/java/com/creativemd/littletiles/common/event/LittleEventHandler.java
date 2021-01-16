@@ -116,6 +116,9 @@ public class LittleEventHandler {
             ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
             if (iTile != null && iTile.onMouseWheelClickBlock(event.world, event.player, stack, event.result))
                 event.setCanceled(true);
+            if (stack.getItem() instanceof IBoxSelector)
+                if (((IBoxSelector) stack.getItem()).onMouseWheelClickBlock(event.world, event.player, stack, event.result))
+                    event.setCanceled(true);
         }
     }
     

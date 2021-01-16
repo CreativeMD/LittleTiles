@@ -13,7 +13,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiColorTube;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import com.creativemd.littletiles.common.api.IBoxSelector;
@@ -144,15 +143,7 @@ public class ItemLittlePaintBrush extends Item implements IBoxSelector {
     @SideOnly(Side.CLIENT)
     public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
         SelectShape shape = getShape(stack);
-        if (LittleAction.isUsingSecondMode(player)) {
-            if (!world.isRemote)
-                return true;
-            TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
-            if (tileEntity instanceof TileEntityLittleTiles)
-                PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
-            else
-                PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
-        } else if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))) {
+        if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))) {
             if (ItemLittleHammer.isFiltered())
                 new LittleActionColorBoxesFiltered(shape
                     .getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, ItemLittleHammer.getFilter())
@@ -181,6 +172,17 @@ public class ItemLittlePaintBrush extends Item implements IBoxSelector {
     @Override
     public LittleGridContext getContext(ItemStack stack) {
         return ItemMultiTiles.currentContext;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+        TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
+        if (tileEntity instanceof TileEntityLittleTiles)
+            PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
+        else
+            PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
+        return true;
     }
     
     @Override
