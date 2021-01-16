@@ -199,6 +199,9 @@ public class LittleTilesConfig {
     public static class Rendering implements ICreativeConfig {
         
         @CreativeConfig
+        public boolean hideVBOWarning = false;
+        
+        @CreativeConfig
         public boolean useQuadCache = false;
         
         @CreativeConfig
