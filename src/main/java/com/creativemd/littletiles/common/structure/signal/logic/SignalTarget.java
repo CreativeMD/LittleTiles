@@ -113,6 +113,10 @@ public abstract class SignalTarget {
         return 1;
     }
     
+    public SignalTarget getNestedTarget() {
+        return this;
+    }
+    
     public static class SignalTargetNested extends SignalTarget {
         
         public final SignalTarget subTarget;
@@ -151,6 +155,10 @@ public abstract class SignalTarget {
             return subTarget.isIndexVariable();
         }
         
+        @Override
+        public SignalTarget getNestedTarget() {
+            return subTarget;
+        }
     }
     
     public static class SignalTargetParent extends SignalTarget {
@@ -192,6 +200,10 @@ public abstract class SignalTarget {
             return subTarget.isIndexVariable();
         }
         
+        @Override
+        public SignalTarget getNestedTarget() {
+            return subTarget;
+        }
     }
     
     public static class SignalTargetIndex extends SignalTarget {

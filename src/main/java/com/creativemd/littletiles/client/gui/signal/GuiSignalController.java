@@ -747,13 +747,14 @@ public class GuiSignalController extends GuiParent {
         
         public GuiSignalNodeInput(SignalInputVariable variable, SubGuiDialogSignal signal) throws ParseException {
             super(signal.getInput(variable.target));
-            if (variable.target instanceof SignalTargetChildCustomIndex)
-                indexes = ((SignalTargetChildCustomIndex) variable.target).indexes;
-            else if (variable.target instanceof SignalTargetChildIndex)
-                indexes = new SignalCustomIndex[] { new SignalCustomIndexSingle(((SignalTargetChildIndex) variable.target).index) };
-            else if (variable.target instanceof SignalTargetChildIndexRange)
+            SignalTarget target = variable.target.getNestedTarget();
+            if (target instanceof SignalTargetChildCustomIndex)
+                indexes = ((SignalTargetChildCustomIndex) target).indexes;
+            else if (target instanceof SignalTargetChildIndex)
+                indexes = new SignalCustomIndex[] { new SignalCustomIndexSingle(((SignalTargetChildIndex) target).index) };
+            else if (target instanceof SignalTargetChildIndexRange)
                 indexes = new SignalCustomIndex[] {
-                        new SignalCustomIndexRange(((SignalTargetChildIndexRange) variable.target).index, ((SignalTargetChildIndexRange) variable.target).index + ((SignalTargetChildIndexRange) variable.target).length - 1) };
+                        new SignalCustomIndexRange(((SignalTargetChildIndexRange) target).index, ((SignalTargetChildIndexRange) target).index + ((SignalTargetChildIndexRange) target).length - 1) };
             if (variable instanceof SignalInputVariableOperator) {
                 operator = 1;
                 logic = ((SignalInputVariableOperator) variable).operator;
