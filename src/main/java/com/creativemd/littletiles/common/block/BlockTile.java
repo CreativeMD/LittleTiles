@@ -22,7 +22,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
-import com.creativemd.littletiles.common.item.ItemLittleRubberMallet;
 import com.creativemd.littletiles.common.item.ItemLittleSaw;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
@@ -425,12 +424,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        ItemStack heldItem = playerIn.getHeldItem(hand);
-        if (heldItem != null && heldItem.getItem() instanceof ItemLittleRubberMallet)
-            return false;
         if (worldIn.isRemote)
-            return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, facing, hitX, hitY, hitZ);
-        return false;
+            return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, playerIn.getHeldItem(hand), facing, hitX, hitY, hitZ);
+        return true;
     }
     
     @SideOnly(Side.CLIENT)

@@ -16,6 +16,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -61,8 +62,11 @@ public class LittleActionActivated extends LittleActionInteract {
     
     @Override
     protected boolean action(EntityPlayer player) throws LittleActionException {
-        if (!player.world.isRemote && uuid == null) // Block server right click event
-            LittleEventHandler.addBlockTilePrevent(player);
+        if (!player.world.isRemote) {
+            RayTraceResult moving = player.world.rayTraceBlocks(pos, look); // Block server right click event
+            if (moving != null && moving.typeOfHit != Type.MISS)
+                LittleEventHandler.addBlockTilePrevent(player);
+        }
         if (preventInteraction)
             return true;
         return super.action(player);
