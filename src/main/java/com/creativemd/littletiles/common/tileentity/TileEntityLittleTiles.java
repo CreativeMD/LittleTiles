@@ -391,10 +391,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     public boolean shouldSideBeRendered(EnumFacing facing, LittleBoxFace face, LittleTile rendered) {
         face.ensureContext(context);
         
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
+        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
+            if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
+                continue;
             if (pair.value != rendered && (pair.value.doesProvideSolidFace(facing) || pair.value.canBeRenderCombined(rendered)))
                 pair.value.fillFace(face, context);
-            
+        }
+        
         return !face.isFilled(rendered.isTranslucent());
     }
     
