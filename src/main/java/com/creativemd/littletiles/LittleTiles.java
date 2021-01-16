@@ -34,8 +34,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
-import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
-import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.LittleActionGlowstoneRevert;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.IBoxSelector;
@@ -578,7 +576,6 @@ public class LittleTiles {
         LittleAction.registerLittleAction("plR", LittleActionPlaceStack.class);
         LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class, LittleActionPlaceAbsolutePremade.class);
         
-        LittleAction.registerLittleAction("glo", LittleActionGlowstone.class, LittleActionGlowstoneRevert.class);
         LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
         
         LittleAction.registerLittleAction("rep", LittleActionReplace.class);

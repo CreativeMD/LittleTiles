@@ -20,7 +20,6 @@ import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.api.ILittleTile;
@@ -61,7 +60,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -281,13 +279,6 @@ public class LittleEventHandler {
         }
         
         ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
-        if (event.getWorld().isRemote && event.getHand() == EnumHand.MAIN_HAND && stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking()) {
-            BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().world, event.getPos(), event.getEntityPlayer());
-            if (te.isComplete()) {
-                new LittleActionGlowstone(event.getWorld(), event.getPos(), event.getEntityPlayer()).execute();
-                event.setCanceled(true);
-            }
-        }
         
         ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
         
