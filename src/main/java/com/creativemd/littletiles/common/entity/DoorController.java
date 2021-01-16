@@ -245,7 +245,7 @@ public class DoorController extends EntityAnimationController {
                     .getAbsoluteParent(), serverWorld, null);
             } else {
                 boolean subWorld = world instanceof IOrientatedWorld;
-                HashMapList<Object, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
+                HashMapList<Object, TileEntityLittleTiles> chunks = new HashMapList<>();
                 if (subWorld)
                     for (TileEntityLittleTiles te : result.tileEntities)
                         chunks.add(RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()), te);
