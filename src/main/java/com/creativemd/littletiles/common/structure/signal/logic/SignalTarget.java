@@ -86,6 +86,18 @@ public abstract class SignalTarget {
         this.child = child;
     }
     
+    public final boolean[] getState(LittleStructure structure) {
+        try {
+            return getState(getTarget(structure));
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+            return BooleanUtils.asArray(false);
+        }
+    }
+    
+    protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+        return component.getState();
+    }
+    
     public abstract ISignalComponent getTarget(LittleStructure structure);
     
     public abstract String writeBase();
@@ -93,8 +105,6 @@ public abstract class SignalTarget {
     public abstract String write();
     
     public abstract boolean isIndexVariable();
-    
-    public abstract boolean[] getState(LittleStructure structure);
     
     public int getBandwidth(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
         ISignalComponent component = getTarget(structure);
@@ -113,12 +123,8 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public boolean[] getState(LittleStructure structure) {
-            try {
-                return getTarget(structure).getState();
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                return BooleanUtils.asArray(false);
-            }
+        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            return subTarget.getState(component);
         }
         
         @Override
@@ -157,15 +163,6 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public boolean[] getState(LittleStructure structure) {
-            try {
-                return getTarget(structure).getState();
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                return BooleanUtils.asArray(false);
-            }
-        }
-        
-        @Override
         public ISignalComponent getTarget(LittleStructure structure) {
             if (structure.getParent() != null)
                 try {
@@ -173,6 +170,11 @@ public abstract class SignalTarget {
                     return subTarget.getTarget(structure.getParent().getStructure());
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             return null;
+        }
+        
+        @Override
+        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            return subTarget.getState(component);
         }
         
         @Override
@@ -214,11 +216,6 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public boolean[] getState(LittleStructure structure) {
-            return null;
-        }
-        
-        @Override
         public boolean isIndexVariable() {
             return true;
         }
@@ -235,16 +232,6 @@ public abstract class SignalTarget {
             super(child);
             this.input = input;
             this.external = external;
-        }
-        
-        @Override
-        public boolean[] getState(LittleStructure structure) {
-            ISignalComponent component = getTarget(structure);
-            if (component != null)
-                try {
-                    return component.getState();
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            return BooleanUtils.SINGLE_FALSE;
         }
         
         @Override
@@ -283,19 +270,11 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public boolean[] getState(LittleStructure structure) {
-            ISignalComponent component = getTarget(structure);
-            if (component != null) {
-                try {
-                    boolean[] state = component.getState();
-                    if (state.length > index)
-                        return BooleanUtils.asArray(state[index]);
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                    return BooleanUtils.asArray(false);
-                }
-                return BooleanUtils.SINGLE_FALSE;
-            }
-            return BooleanUtils.SINGLE_FALSE;
+        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            boolean[] state = component.getState();
+            if (state.length > index)
+                return BooleanUtils.asArray(state[index]);
+            return BooleanUtils.asArray(false);
         }
         
         @Override
@@ -322,22 +301,13 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public boolean[] getState(LittleStructure structure) {
-            ISignalComponent component = getTarget(structure);
-            if (component != null) {
-                try {
-                    boolean[] state = component.getState();
-                    boolean[] newState = new boolean[length];
-                    for (int i = 0; i < newState.length; i++) {
-                        if (state.length > i + index)
-                            newState[i] = state[index + 1];
-                    }
-                    return newState;
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                    return BooleanUtils.asArray(false);
-                }
-            }
-            return BooleanUtils.SINGLE_FALSE;
+        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            boolean[] state = component.getState();
+            boolean[] newState = new boolean[length];
+            for (int i = 0; i < newState.length; i++)
+                if (state.length > i + index)
+                    newState[i] = state[index + 1];
+            return newState;
         }
         
         @Override
@@ -362,21 +332,13 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public boolean[] getState(LittleStructure structure) {
-            ISignalComponent component = getTarget(structure);
-            if (component != null) {
-                try {
-                    boolean[] state = component.getState();
-                    boolean[] newState = new boolean[getBandwidth(structure)];
-                    int index = 0;
-                    for (int i = 0; i < indexes.length; i++)
-                        index += indexes[i].set(newState, index, state);
-                    return newState;
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                    return BooleanUtils.asArray(false);
-                }
-            }
-            return BooleanUtils.SINGLE_FALSE;
+        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            boolean[] state = component.getState();
+            boolean[] newState = new boolean[component.getBandwidth()];
+            int index = 0;
+            for (int i = 0; i < indexes.length; i++)
+                index += indexes[i].set(newState, index, state);
+            return newState;
         }
         
         @Override
