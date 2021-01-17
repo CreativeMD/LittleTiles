@@ -112,9 +112,16 @@ placement.mode.fill.tooltip=Will try to fill in the tiles if they don't fit.
 placement.mode.all=All Mode
 placement.mode.all.tooltip=Can only be placed if there is space for all tiles.
 placement.mode.overwrite=Overwrite Mode
-placement.mode.overwrite.tooltip=Will place all tiles and remove the overlapping space.\nCannot removed structure tiles.
+placement.mode.overwrite.tooltip=Will place all tiles and remove the overlapping space.\nCannot remove structure tiles.
+placement.mode.overwriteall=Overwrite All Mode
+placement.mode.overwriteall.tooltip=Will place all tiles and remove the entire block.\nCannot remove structure tiles.
 placement.mode.replace=Replace Mode
 placement.mode.replace.tooltip=Will only place the tiles at the overlapping space.\nCannot removed structure tiles.
+placement.mode.stencil=Stencil Mode
+placement.mode.stencil.tooltip=Will remove all tiles at the overlapping space.\nDoes not place anything.
+placement.mode.colorize=Colorize Mode
+placement.mode.colorize.tooltip=Will color all tiles at the overlapping space.\nDoes not place anything.
+
 
 markmode.gui.allowlowresolution=Low resolution
 markmode.gui.switchpos=Switch Position

@@ -34,8 +34,17 @@ public abstract class PlacementMode {
     /** Places all tiles no matter what is in the way. **/
     public static final PlacementMode overwrite = new PlaceModeOverwrite("placement.mode.overwrite", PreviewMode.PREVIEWS);
     
+    /** Places all tiles no matter what is in the way. **/
+    public static final PlacementMode overwrite_all = new PlaceModeOverwriteAll("placement.mode.overwriteall", PreviewMode.PREVIEWS);
+    
     /** Similar to overwrite only that replace will not place any tiles in the air. **/
     public static final PlacementMode replace = new PlaceModeReplace("placement.mode.replace", PreviewMode.LINES);
+    
+    /** Will not place anything but just remove the shape, basically like replace without the placing part **/
+    public static final PlacementMode stencil = new PlacementModeStencil("placement.mode.stencil", PreviewMode.LINES);
+    
+    /** Will not place anything but just remove the shape, basically like replace without the placing part **/
+    public static final PlacementMode colorize = new PlacementModeColorize("placement.mode.colorize", PreviewMode.LINES);
     
     public static PlacementMode getDefault() {
         return normal;
@@ -105,6 +114,8 @@ public abstract class PlacementMode {
     public boolean shouldConvertBlock() {
         return false;
     }
+    
+    public void prepareBlock(Placement placement, PlacementBlock block, boolean requiresCollisionTest) {}
     
     public static enum PreviewMode {
         LINES,

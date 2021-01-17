@@ -473,6 +473,8 @@ public class Placement {
                                 parent = list;
                             }
                             
+                            mode.prepareBlock(Placement.this, this, collsionTest);
+                            
                             for (PlacePreview preview : previews[i]) {
                                 for (LittleTile LT : preview.placeTile(Placement.this, this, parent, structure.getStructure(), collsionTest)) {
                                     if (!soundsToBePlayed.contains(LT.getSound()))
