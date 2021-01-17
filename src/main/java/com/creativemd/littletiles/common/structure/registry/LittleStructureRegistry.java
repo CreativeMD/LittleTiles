@@ -28,6 +28,8 @@ import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.Li
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
 import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageType;
+import com.creativemd.littletiles.common.structure.type.LittleStructureMessage;
+import com.creativemd.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 
@@ -153,6 +155,8 @@ public class LittleStructureRegistry {
         
         registerStructureType("light", "simple", LittleLight.class, LittleStructureAttribute.LIGHT_EMITTER, LittleLightStructureParser.class)
             .addOutput("enabled", 1, SignalMode.TOGGLE, true);
+        
+        registerStructureType("message", "simple", LittleStructureMessage.class, 0, LittleMessageStructureParser.class).addOutput("message", 1, SignalMode.EQUAL);
         
         LittleDoorBase.initDoors();
         

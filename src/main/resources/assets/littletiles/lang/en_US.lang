@@ -177,6 +177,7 @@ structure.slidingDoor.name=Sliding Door
 structure.advancedDoor.name=Advanced Door
 structure.doorActivator.name=Door Activator
 structure.light.name=Light
+structure.message.name=Message
 
 structure.category.simple=Simple
 structure.category.door=Doors
