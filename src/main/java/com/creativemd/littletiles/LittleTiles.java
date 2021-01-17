@@ -97,6 +97,7 @@ import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleConsumeRightClickEvent;
 import com.creativemd.littletiles.common.packet.LittleEntityFixControllerPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
@@ -566,6 +567,7 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleEntityFixControllerPacket.class);
         CreativeCorePacket.registerPacket(LittleScrewdriverSelectionPacket.class);
         CreativeCorePacket.registerPacket(LittleUpdateOutputPacket.class);
+        CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
         
         LittleAction.registerLittleAction("com", LittleActionCombined.class);
         

@@ -8,7 +8,6 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
@@ -79,8 +78,6 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
         
         try {
             LittleStructure structure = location.find(player.world);
-            if (location.worldUUID == null)
-                LittleEventHandler.addBlockTilePrevent(player);
             if (structure instanceof LittleDoor) {
                 LittleDoor door = (LittleDoor) structure;
                 World world = door.getWorld();

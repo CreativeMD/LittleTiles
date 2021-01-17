@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.event.HoldLeftClick;
@@ -15,6 +16,7 @@ import com.creativemd.littletiles.client.event.WheelClick;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.packet.LittleConsumeRightClickEvent;
 import com.creativemd.littletiles.common.world.LittleAnimationHandler;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -172,6 +174,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
                 if (pointedEntity.onRightClick(player, pos, look))
                     if (event instanceof RightClickBlock)
                         event.setCanceled(true);
+                    else
+                        PacketHandler.sendPacketToServer(new LittleConsumeRightClickEvent());
             }
         }
     }
