@@ -112,7 +112,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
             return null;
         }
         loadingTileEntityFromWorld = false;
-        if (tileEntity instanceof TileEntityLittleTiles)
+        if (tileEntity instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) tileEntity).hasLoaded())
             return (TileEntityLittleTiles) tileEntity;
         return null;
     }
