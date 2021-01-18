@@ -891,8 +891,12 @@ public abstract class LittleStructure implements ISignalSchedulable {
     // ====================Packets====================
     
     public void updateStructure() {
-        if (getWorld() == null)
+        if (getWorld() == null && getWorld().isRemote)
             return;
+        LittleEventHandler.queueStructureForUpdatePacket(this);
+    }
+    
+    public void sendUpdatePacket() {
         NBTTagCompound nbt = new NBTTagCompound();
         writeToNBT(nbt);
         PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(), getPos(), null);

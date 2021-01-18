@@ -321,8 +321,10 @@ public class LittleEventHandler {
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             }
-        } else
+        } else {
+            queuedUpdateStructures.clear();
             queuedStructures.clear();
+        }
     }
     
     @SideOnly(Side.CLIENT)
@@ -597,7 +599,14 @@ public class LittleEventHandler {
         }
     }
     
+    private static final HashSet<LittleStructure> queuedUpdateStructures = new HashSet<>();
     private static final HashSet<LittleStructure> queuedStructures = new HashSet<>();
+    
+    public static synchronized void queueStructureForUpdatePacket(LittleStructure structure) {
+        if (structure.getWorld().isRemote)
+            return;
+        queuedUpdateStructures.add(structure);
+    }
     
     public static synchronized void queueStructureForNextTick(LittleStructure structure) {
         if (structure.getWorld().isRemote)
@@ -609,6 +618,11 @@ public class LittleEventHandler {
     public synchronized void serverTick(ServerTickEvent event) {
         if (event.phase == Phase.START)
             return;
+        if (!queuedUpdateStructures.isEmpty()) {
+            for (LittleStructure structure : queuedUpdateStructures)
+                structure.sendUpdatePacket();
+            queuedUpdateStructures.clear();
+        }
         if (!queuedStructures.isEmpty()) {
             for (Iterator<LittleStructure> iterator = queuedStructures.iterator(); iterator.hasNext();) {
                 LittleStructure structure = iterator.next();
