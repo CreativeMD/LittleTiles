@@ -102,24 +102,27 @@ public class LittleTilesProfilerOverlay {
     @SubscribeEvent
     public static void onRender(RenderTickEvent event) {
         if (event.phase == Phase.END && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
-            if (OptifineHelper.isActive() && OptifineHelper.isRenderRegions()) {
-                String text = ChatFormatting.RED + "Disable Render Regions";
-                int j = mc.fontRenderer.FONT_HEIGHT;
-                int k = mc.fontRenderer.getStringWidth(text);
-                int l = 2;
-                int i1 = 2 + j * 2;
-                Gui.drawRect(1, i1 - 1, 2 + k + 1, i1 + j - 1, -1873784752);
-                mc.fontRenderer.drawString(text, 2, i1, 14737632);
+            List<String> warnings = new ArrayList<>();
+            if (OptifineHelper.isActive() && OptifineHelper.isRenderRegions())
+                warnings.add(ChatFormatting.RED + "Disable Render Regions");
+            if (OptifineHelper.isActive() && OptifineHelper.isAnisotropicFiltering())
+                warnings.add(ChatFormatting.RED + "Disable Anisotropic Filtering");
+            if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.gameSettings.useVbo)
+                warnings.add(ChatFormatting.YELLOW + "please enable VBO and restart the world!");
+            if (mc.gameSettings.mipmapLevels == 0)
+                warnings.add(ChatFormatting.RED + "Enable mipmap levels (needs to be > 0)");
+            if (!warnings.isEmpty()) {
+                GlStateManager.pushMatrix();
+                for (int i = 0; i < warnings.size(); i++) {
+                    String warning = warnings.get(i);
+                    int k = mc.fontRenderer.getStringWidth(warning);
+                    int i1 = 2 + mc.fontRenderer.FONT_HEIGHT * i;
+                    Gui.drawRect(1, i1 - 1, 2 + k + 1, i1 + mc.fontRenderer.FONT_HEIGHT - 1, -1873784752);
+                    mc.fontRenderer.drawString(warning, 2, i1, 14737632);
+                }
+                GlStateManager.popMatrix();
             }
-            if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.gameSettings.useVbo) {
-                String text = ChatFormatting.YELLOW + "please enable VBO and restart the world!";
-                int j = mc.fontRenderer.FONT_HEIGHT;
-                int k = mc.fontRenderer.getStringWidth(text);
-                int l = 2;
-                int i1 = 2 + j * 3;
-                Gui.drawRect(1, i1 - 1, 2 + k + 1, i1 + j - 1, -1873784752);
-                mc.fontRenderer.drawString(text, 2, i1, 14737632);
-            }
+            
             if (showDebugInfo) {
                 GlStateManager.pushMatrix();
                 List<String> list = new ArrayList<>();
