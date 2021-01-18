@@ -97,21 +97,27 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
-        int[] result = new int[getNumberOfConnections() * 3];
-        for (int i = 0; i < faces.length; i++) {
-            if (faces[i] != null) {
-                result[i * 3] = faces[i].distance;
-                result[i * 3 + 1] = faces[i].context.size;
-                result[i * 3 + 2] = faces[i].oneSidedRenderer ? 1 : 0;
-            } else {
-                result[i * 3] = -1;
-                result[i * 3 + 1] = 0;
-                result[i * 3 + 2] = 0;
+    protected void writeToNBTExtraInternal(NBTTagCompound nbt, boolean preview) {
+        super.writeToNBTExtraInternal(nbt, preview);
+        if (!preview) {
+            int[] result = new int[getNumberOfConnections() * 3];
+            for (int i = 0; i < faces.length; i++) {
+                if (faces[i] != null) {
+                    result[i * 3] = faces[i].distance;
+                    result[i * 3 + 1] = faces[i].context.size;
+                    result[i * 3 + 2] = faces[i].oneSidedRenderer ? 1 : 0;
+                } else {
+                    result[i * 3] = -1;
+                    result[i * 3 + 1] = 0;
+                    result[i * 3 + 2] = 0;
+                }
             }
+            nbt.setIntArray("faces", result);
         }
-        nbt.setIntArray("faces", result);
     }
+    
+    @Override
+    protected void writeToNBTExtra(NBTTagCompound nbt) {}
     
     public abstract EnumFacing getFacing(int index);
     
