@@ -604,6 +604,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                 }
                 if (cubes.isEmpty())
                     return null;
+                for (LittleRenderBox cube : cubes)
+                    cube.color = ColorUtils.RGBAToInt(255, 255, 255, 90);
                 return cubes;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             

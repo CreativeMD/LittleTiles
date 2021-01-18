@@ -3,6 +3,7 @@ package com.creativemd.littletiles.client.render.overlay;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
@@ -136,7 +137,7 @@ public class PreviewRenderer {
                         
                         if (position.positingCubes != null)
                             for (LittleRenderBox cube : position.positingCubes)
-                                cube.renderPreview(x, y, z, (int) (alpha * iTile.getPreviewAlphaFactor() * 255));
+                                cube.renderPreview(x, y, z, (int) (alpha * ColorUtils.getAlphaDecimal(cube.color) * iTile.getPreviewAlphaFactor() * 255));
                     }
                     
                     GlStateManager.depthMask(true);
