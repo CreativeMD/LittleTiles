@@ -44,7 +44,7 @@ public abstract class SignalOutputHandler {
     public abstract void write(boolean preview, NBTTagCompound nbt);
     
     public static SignalOutputHandler create(ISignalComponent component, SignalMode mode, int delay, NBTTagCompound nbt, LittleStructure structure) {
-        return mode.create(component, delay, nbt, structure != null && structure.hasWorld());
+        return mode.create(component, delay, nbt, structure != null && structure.hasWorld() && !structure.getWorld().isRemote);
     }
     
     @Override

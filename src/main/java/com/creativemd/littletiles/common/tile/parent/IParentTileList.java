@@ -41,7 +41,10 @@ public interface IParentTileList extends Iterable<LittleTile> {
     public TileEntityLittleTiles getTe();
     
     public default World getWorld() {
-        return getTe().getWorld();
+        TileEntityLittleTiles te = getTe();
+        if (te.hasWorld())
+            return te.getWorld();
+        return te.getTempWorld();
     }
     
     public default BlockPos getPos() {

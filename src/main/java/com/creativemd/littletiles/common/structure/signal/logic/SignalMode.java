@@ -52,16 +52,18 @@ public enum SignalMode {
                 }
                 
             };
-            NBTTagList list = nbt.getTagList("tickets", 11);
-            for (int i = 0; i < list.tagCount(); i++) {
-                int[] array = list.getIntArrayAt(i);
-                if (array.length == 2) {
-                    try {
-                        boolean[] state = new boolean[component.getBandwidth()];
-                        BooleanUtils.intToBool(array[1], state);
-                        SignalTicker.schedule(handler, state, array[0]);
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-                    
+            if (hasWorld) {
+                NBTTagList list = nbt.getTagList("tickets", 11);
+                for (int i = 0; i < list.tagCount(); i++) {
+                    int[] array = list.getIntArrayAt(i);
+                    if (array.length == 2) {
+                        try {
+                            boolean[] state = new boolean[component.getBandwidth()];
+                            BooleanUtils.intToBool(array[1], state);
+                            SignalTicker.schedule(handler, state, array[0]);
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                        
+                    }
                 }
             }
             return handler;
@@ -104,15 +106,17 @@ public enum SignalMode {
             }
             
             SignalOutputHandler handler = new SignalOutputHandlerToggle(component, delay, nbt, before, result);
-            NBTTagList list = nbt.getTagList("tickets", 11);
-            for (int i = 0; i < list.tagCount(); i++) {
-                int[] array = list.getIntArrayAt(i);
-                if (array.length == 2) {
-                    try {
-                        boolean[] state = new boolean[component.getBandwidth()];
-                        BooleanUtils.intToBool(array[1], state);
-                        SignalTicker.schedule(handler, state, array[0]);
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            if (hasWorld) {
+                NBTTagList list = nbt.getTagList("tickets", 11);
+                for (int i = 0; i < list.tagCount(); i++) {
+                    int[] array = list.getIntArrayAt(i);
+                    if (array.length == 2) {
+                        try {
+                            boolean[] state = new boolean[component.getBandwidth()];
+                            BooleanUtils.intToBool(array[1], state);
+                            SignalTicker.schedule(handler, state, array[0]);
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                    }
                 }
             }
             return handler;
@@ -140,11 +144,13 @@ public enum SignalMode {
         @Override
         public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
             SignalOutputHandler condition = new SignalOutputHandlerPulse(component, delay, nbt);
-            if (nbt.hasKey("start")) {
-                SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
-                SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
-            } else if (nbt.hasKey("end"))
-                SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+            if (hasWorld) {
+                if (nbt.hasKey("start")) {
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+                } else if (nbt.hasKey("end"))
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+            }
             return condition;
         }
         
@@ -202,14 +208,16 @@ public enum SignalMode {
                 }
             };
             
-            if (nbt.hasKey("ticket")) {
-                int[] array = nbt.getIntArray("ticket");
-                if (array.length == 2) {
-                    try {
-                        boolean[] state = new boolean[component.getBandwidth()];
-                        BooleanUtils.intToBool(array[1], state);
-                        handler.ticket = SignalTicker.schedule(handler, state, array[0]);
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            if (hasWorld) {
+                if (nbt.hasKey("ticket")) {
+                    int[] array = nbt.getIntArray("ticket");
+                    if (array.length == 2) {
+                        try {
+                            boolean[] state = new boolean[component.getBandwidth()];
+                            BooleanUtils.intToBool(array[1], state);
+                            handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                    }
                 }
             }
             return handler;
@@ -264,14 +272,16 @@ public enum SignalMode {
                 }
             };
             
-            if (nbt.hasKey("ticket")) {
-                int[] array = nbt.getIntArray("ticket");
-                if (array.length == 2) {
-                    try {
-                        boolean[] state = new boolean[component.getBandwidth()];
-                        BooleanUtils.intToBool(array[1], state);
-                        handler.ticket = SignalTicker.schedule(handler, state, array[0]);
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            if (hasWorld) {
+                if (nbt.hasKey("ticket")) {
+                    int[] array = nbt.getIntArray("ticket");
+                    if (array.length == 2) {
+                        try {
+                            boolean[] state = new boolean[component.getBandwidth()];
+                            BooleanUtils.intToBool(array[1], state);
+                            handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                    }
                 }
             }
             return handler;
@@ -298,11 +308,13 @@ public enum SignalMode {
         @Override
         public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
             SignalOutputHandler condition = new SignalOutputHandlerExtender(component, delay, nbt);
-            if (nbt.hasKey("start")) {
-                SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
-                SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
-            } else if (nbt.hasKey("end"))
-                SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+            if (hasWorld) {
+                if (nbt.hasKey("start")) {
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+                } else if (nbt.hasKey("end"))
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+            }
             return condition;
         }
         

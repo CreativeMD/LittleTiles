@@ -10,11 +10,8 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 public abstract class ParentTileList extends CopyOnWriteArrayList<LittleTile> implements IParentTileList {
     
@@ -171,21 +168,6 @@ public abstract class ParentTileList extends CopyOnWriteArrayList<LittleTile> im
     
     @Override
     public abstract boolean isClient();
-    
-    @Override
-    public World getWorld() {
-        return getTe().getWorld();
-    }
-    
-    @Override
-    public BlockPos getPos() {
-        return getTe().getPos();
-    }
-    
-    @Override
-    public LittleGridContext getContext() {
-        return getTe().getContext();
-    }
     
     public void unload() {}
 }
