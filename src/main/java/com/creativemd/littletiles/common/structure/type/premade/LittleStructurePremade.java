@@ -184,6 +184,8 @@ public abstract class LittleStructurePremade extends LittleStructure {
         registerPremadeStructureType("signal_display_16", LittleTiles.modid, LittleSignalDisplay.class, LittleStructureAttribute.TICK_RENDERING)
             .addOutput("pixels", 16, SignalMode.EQUAL, true);
         
+        registerPremadeStructureType("item_holder", LittleTiles.modid, LittleItemHolder.class, LittleStructureAttribute.EXTRA_RENDERING).addInput("filled", 1);
+        
         LittleStructureRegistry.registerGuiParserNotFoundHandler(new LittleStructureGuiParserNotFoundHandler() {
             
             @Override

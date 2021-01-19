@@ -128,7 +128,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
     }
     
     public boolean hasWorld() {
-        return mainBlock != null;
+        return mainBlock != null && mainBlock.getWorld() != null;
     }
     
     public boolean isClient() {
@@ -932,13 +932,9 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return false;
     }
     
-    public void onEntityCollidedWithBlock(World worldIn, IParentTileList parent, BlockPos pos, Entity entityIn) {
-        
-    }
+    public void onEntityCollidedWithBlock(World worldIn, IParentTileList parent, BlockPos pos, Entity entityIn) {}
     
-    public void onUpdatePacketReceived() {
-        
-    }
+    public void onUpdatePacketReceived() {}
     
     public int getLightValue(BlockPos pos) {
         return 0;
@@ -950,9 +946,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
     
     // ====================Active====================
     
-    public void tick() {
-        
-    }
+    public void tick() {}
     
     /** only server side **/
     public void queueForNextTick() {
@@ -965,9 +959,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
     }
     
     @SideOnly(Side.CLIENT)
-    public void renderTick(BlockPos pos, double x, double y, double z, float partialTickTime) {
-        
-    }
+    public void renderTick(BlockPos pos, double x, double y, double z, float partialTickTime) {}
     
     @SideOnly(Side.CLIENT)
     public double getMaxRenderDistanceSquared() {
@@ -980,17 +972,11 @@ public abstract class LittleStructure implements ISignalSchedulable {
     }
     
     @SideOnly(Side.CLIENT)
-    public void getRenderingCubes(BlockPos pos, BlockRenderLayer layer, List<LittleRenderBox> cubes) {
-        
-    }
+    public void getRenderingCubes(BlockPos pos, BlockRenderLayer layer, List<LittleRenderBox> cubes) {}
     
-    public void addCollisionBoxes(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn) {
-        
-    }
+    public void addCollisionBoxes(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn) {}
     
-    public void neighbourChanged() {
-        
-    }
+    public void neighbourChanged() {}
     
     // ====================Mods====================
     
