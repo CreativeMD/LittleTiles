@@ -28,7 +28,7 @@ public class SignalInputVariable extends SignalInputCondition {
                         break;
                     continue;
                 } else {
-                    indexes.add(parser.parseNumber());
+                    indexes.add(Integer.parseInt("" + next));
                     next = parser.next(true);
                     if (next == '}')
                         break;
@@ -48,8 +48,9 @@ public class SignalInputVariable extends SignalInputCondition {
     public static SignalInputVariable parseInput(SignalPatternParser parser, boolean insideVariable) throws ParseException {
         SignalTarget target = SignalTarget.parseTarget(parser, false, insideVariable);
         if (!insideVariable && parser.lookForNext(false) == '{') {
+            parser.next(false);
             char next = parser.lookForNext(true);
-            if (Character.isDigit(next)) {
+            if (Character.isDigit(next) || next == '*') {
                 int[] indexes = parseInputExact(parser);
                 if (indexes != null)
                     return new SignalInputVariablePattern(target, indexes);
