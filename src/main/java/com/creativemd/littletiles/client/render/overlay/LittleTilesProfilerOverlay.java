@@ -109,7 +109,7 @@ public class LittleTilesProfilerOverlay {
                 warnings.add(ChatFormatting.RED + "Disable Anisotropic Filtering");
             if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.gameSettings.useVbo)
                 warnings.add(ChatFormatting.YELLOW + "please enable VBO and restart the world!");
-            if (mc.gameSettings.mipmapLevels == 0)
+            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.isActive() && mc.gameSettings.mipmapLevels == 0)
                 warnings.add(ChatFormatting.RED + "Enable mipmap levels (needs to be > 0)");
             if (!warnings.isEmpty()) {
                 GlStateManager.pushMatrix();

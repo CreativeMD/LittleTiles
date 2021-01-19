@@ -202,6 +202,9 @@ public class LittleTilesConfig {
         public boolean hideVBOWarning = false;
         
         @CreativeConfig
+        public boolean hideMipmapWarning = false;
+        
+        @CreativeConfig
         public boolean useQuadCache = false;
         
         @CreativeConfig
