@@ -326,11 +326,11 @@ public enum SignalLogicOperator {
         @Override
         public boolean testIndex(boolean[] state) {
             boolean result = false;
-            for (int i = 0; i < state.length; i++) {
+            for (int i = 0; i < conditions.length; i++) {
                 if (i == 0)
-                    result = state[i];
+                    result = conditions[i].testIndex(state);
                 else
-                    result = perform(result, state[i]);
+                    result = perform(result, conditions[i].testIndex(state));
             }
             return result;
         }
