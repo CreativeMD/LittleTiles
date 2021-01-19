@@ -1,0 +1,29 @@
+{
+  "result": {
+    "item": "littletiles:premade",
+    "data": 0,
+    "structure": "signal_display_16"
+  },
+  "pattern": [
+    "SSS",
+    "GRG",
+    "CCC"
+  ],
+  "type": "littletiles:crafting_shaped_premade",
+  "key": {
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "C": {
+      "item": "minecraft:concrete",
+      "data": 15
+    },
+    "G": {
+      "item": "minecraft:glowstone_dust"
+    },
+    "S": {
+      "item": "minecraft:stained_glass",
+      "data": 15
+    }
+  }
+}
