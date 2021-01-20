@@ -11,7 +11,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
-import com.creativemd.littletiles.common.structure.type.premade.LittleItemHolder;
+import com.creativemd.littletiles.common.structure.type.LittleItemHolder;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 
 import net.minecraft.block.state.IBlockState;
@@ -59,14 +59,15 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         boolean flipZ = false;
         switch (structure.facing) {
         case EAST:
-            flipX = true;
             rotation = Rotation.Y_COUNTER_CLOCKWISE;
+            flipX = true;
             break;
         case WEST:
-            flipX = true;
             rotation = Rotation.Y_CLOCKWISE;
+            flipX = true;
             break;
         case UP:
+            flipY = false;
             rotation = Rotation.X_COUNTER_CLOCKWISE;
             break;
         case DOWN:
@@ -74,12 +75,11 @@ public class LittleRenderBoxItem extends LittleRenderBox {
             break;
         case SOUTH:
             rotation = null;
-            flipZ = false;
             break;
         case NORTH:
             rotation = Rotation.Y_COUNTER_CLOCKWISE;
             rotationSteps = 2;
-            flipZ = false;
+            flipZ = true;
             break;
         default:
             rotation = null;
@@ -116,14 +116,17 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         float offsetY = (minY + maxY) * 0.5F - 0.5F;
         float offsetZ = (minZ + maxZ) * 0.5F - 0.5F;
         
+        boolean reverse = ((flipX ? 1 : 0) + (flipY ? 1 : 0) + (flipZ ? 1 : 0)) % 2 == 1;
+        
         List<BakedQuad> quads = new ArrayList<>();
         for (int i = 0; i < blockQuads.size(); i++) {
+            int[] originalData = blockQuads.get(i).getVertexData();
             CreativeBakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, defaultColor, overrideTint, null);
             
             for (int k = 0; k < 4; k++) {
                 int index = k * quad.getFormat().getIntegerSize();
-                Vector3f vec = new Vector3f(Float.intBitsToFloat(quad.getVertexData()[index]), Float.intBitsToFloat(quad.getVertexData()[index + 1]), Float
-                    .intBitsToFloat(quad.getVertexData()[index + 2]));
+                Vector3f vec = new Vector3f(Float.intBitsToFloat(originalData[index]), Float.intBitsToFloat(originalData[index + 1]), Float
+                    .intBitsToFloat(originalData[index + 2]));
                 
                 vec.sub(center);
                 
@@ -146,9 +149,15 @@ public class LittleRenderBoxItem extends LittleRenderBox {
                 
                 vec.add(center);
                 
-                quad.getVertexData()[index] = Float.floatToIntBits(vec.x + offset.getX());
-                quad.getVertexData()[index + 1] = Float.floatToIntBits(vec.y + offset.getY());
-                quad.getVertexData()[index + 2] = Float.floatToIntBits(vec.z + offset.getZ());
+                int newIndex = index;
+                if (reverse)
+                    newIndex = (3 - k) * quad.getFormat().getIntegerSize();
+                quad.getVertexData()[newIndex] = Float.floatToIntBits(vec.x + offset.getX());
+                quad.getVertexData()[newIndex + 1] = Float.floatToIntBits(vec.y + offset.getY());
+                quad.getVertexData()[newIndex + 2] = Float.floatToIntBits(vec.z + offset.getZ());
+                if (reverse)
+                    for (int j = 3; j < quad.getFormat().getIntegerSize(); j++)
+                        quad.getVertexData()[newIndex + j] = originalData[index + j];
             }
             quads.add(quad);
         }

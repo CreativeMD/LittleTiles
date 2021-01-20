@@ -14,7 +14,6 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
@@ -55,8 +54,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
         if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("structure"))
             return Collections.EMPTY_LIST;
         
-        LittleStructureTypePremade premade = (LittleStructureTypePremade) LittleStructureRegistry
-            .getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
+        LittleStructureTypePremade premade = LittleStructurePremade.getType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
         if (premade == null)
             return Collections.EMPTY_LIST;
         LittlePreviews previews = getLittlePreview(stack);

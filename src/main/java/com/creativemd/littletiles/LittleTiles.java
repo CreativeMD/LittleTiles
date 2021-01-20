@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.client.gui.SubGuiBlankOMatic;
+import com.creativemd.littletiles.client.gui.SubGuiBuilder;
 import com.creativemd.littletiles.client.gui.SubGuiDiagnose;
 import com.creativemd.littletiles.client.gui.SubGuiExport;
 import com.creativemd.littletiles.client.gui.SubGuiImport;
@@ -58,6 +59,7 @@ import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.command.ToVanillaCommand;
 import com.creativemd.littletiles.common.container.SubContainerBlankOMatic;
+import com.creativemd.littletiles.common.container.SubContainerBuilder;
 import com.creativemd.littletiles.common.container.SubContainerDiagnose;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
@@ -115,6 +117,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
@@ -546,6 +549,24 @@ public class LittleTiles {
             @Override
             public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
                 return new SubContainerRecipeAdvanced(player, player.getHeldItemMainhand());
+            }
+        });
+        
+        GuiHandler.registerGuiHandler("structure_builder", new LittleStructureGuiHandler() {
+            
+            @Override
+            @SideOnly(Side.CLIENT)
+            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+                if (structure instanceof LittleStructureBuilder)
+                    return new SubGuiBuilder((LittleStructureBuilder) structure);
+                return null;
+            }
+            
+            @Override
+            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+                if (structure instanceof LittleStructureBuilder)
+                    return new SubContainerBuilder(player, (LittleStructureBuilder) structure);
+                return null;
             }
         });
         

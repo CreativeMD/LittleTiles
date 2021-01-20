@@ -150,6 +150,7 @@ item.LTPremade.single_output16.name=Single Output (16-bit)
 item.LTPremade.particle_emitter.name=Particle Emitter
 item.LTPremade.signal_display_16.name=Signal Display (16 bit)
 item.LTPremade.item_holder.name=Item Holder
+item.LTPremade.structure_builder.name=Structure Builder
 
 selection.clear=clear
 selection.dialog.clear=Do you really want to clear all content?
@@ -179,6 +180,8 @@ structure.advancedDoor.name=Advanced Door
 structure.doorActivator.name=Door Activator
 structure.light.name=Light
 structure.message.name=Message
+structure.item_holder.name=Item Holder
+structure.little_frame.name=Little Frame
 
 structure.category.simple=Simple
 structure.category.door=Doors

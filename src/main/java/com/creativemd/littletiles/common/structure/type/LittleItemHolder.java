@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.type.premade;
+package com.creativemd.littletiles.common.structure.type;
 
 import java.util.List;
 
@@ -11,6 +11,7 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxItem;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
@@ -26,7 +27,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class LittleItemHolder extends LittleStructurePremade {
+public class LittleItemHolder extends LittleStructure {
     
     @StructureDirectional(color = ColorUtils.CYAN)
     public StructureRelative frame;

@@ -128,6 +128,13 @@ public abstract class LittleStructurePremade extends LittleStructure {
         return structurePreviews.keySet();
     }
     
+    public static LittleStructureTypePremade getType(String id) {
+        LittleStructureType type = LittleStructureRegistry.getStructureType(id);
+        if (type instanceof LittleStructureTypePremade)
+            return (LittleStructureTypePremade) type;
+        return null;
+    }
+    
     public static ItemStack tryGetPremadeStack(String id) {
         LittleStructurePremadeEntry entry = structurePreviews.get(id);
         if (entry != null)
@@ -184,7 +191,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         registerPremadeStructureType("signal_display_16", LittleTiles.modid, LittleSignalDisplay.class, LittleStructureAttribute.TICK_RENDERING)
             .addOutput("pixels", 16, SignalMode.EQUAL, true);
         
-        registerPremadeStructureType("item_holder", LittleTiles.modid, LittleItemHolder.class, LittleStructureAttribute.EXTRA_RENDERING).addInput("filled", 1);
+        registerPremadeStructureType("structure_builder", LittleTiles.modid, LittleStructureBuilder.class);
         
         LittleStructureRegistry.registerGuiParserNotFoundHandler(new LittleStructureGuiParserNotFoundHandler() {
             

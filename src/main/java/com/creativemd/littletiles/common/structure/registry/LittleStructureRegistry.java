@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.structure.type.LittleChair;
 import com.creativemd.littletiles.common.structure.type.LittleChair.LittleChairParser;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure.LittleFixedStructureParser;
+import com.creativemd.littletiles.common.structure.type.LittleItemHolder;
 import com.creativemd.littletiles.common.structure.type.LittleLadder;
 import com.creativemd.littletiles.common.structure.type.LittleLadder.LittleLadderParser;
 import com.creativemd.littletiles.common.structure.type.LittleLight;
@@ -31,6 +32,8 @@ import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStor
 import com.creativemd.littletiles.common.structure.type.LittleStructureMessage;
 import com.creativemd.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 public class LittleStructureRegistry {
@@ -157,6 +160,9 @@ public class LittleStructureRegistry {
             .addOutput("enabled", 1, SignalMode.TOGGLE, true);
         
         registerStructureType("message", "simple", LittleStructureMessage.class, 0, LittleMessageStructureParser.class).addOutput("message", 1, SignalMode.EQUAL);
+        
+        LittleStructureBuilder.register(new LittleStructureBuilderType(registerStructureType("item_holder", "simple", LittleItemHolder.class, LittleStructureAttribute.EXTRA_RENDERING, null)
+            .addInput("filled", 1), "frame"));
         
         LittleDoorBase.initDoors();
         
