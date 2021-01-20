@@ -117,7 +117,9 @@ public class LittleStructureType {
     }
     
     public void finializePreview(LittlePreviews previews) {
-        
+        LittleGridContext context = getMinContext(previews);
+        if (context.size > previews.getContext().size)
+            previews.convertTo(context);
     }
     
     public List<PlacePreview> getSpecialTiles(LittlePreviews previews) {
