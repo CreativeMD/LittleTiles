@@ -42,8 +42,11 @@ public class PlacementModeColorize extends PlacementMode {
             return Collections.EMPTY_LIST;
         List<LittleTile> tiles = new ArrayList<>();
         for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false)) {
-            placement.removedTiles.addTile(parent, lt);
-            tiles.add(LittleTileColored.setColor(lt, tile instanceof LittleTileColored ? ((LittleTileColored) tile).color : ColorUtils.WHITE));
+            LittleTile newTile = LittleTileColored.setColor(lt, tile instanceof LittleTileColored ? ((LittleTileColored) tile).color : ColorUtils.WHITE);
+            if (newTile != null) {
+                placement.removedTiles.addTile(parent, lt);
+                tiles.add(newTile);
+            }
         }
         return tiles;
     }
