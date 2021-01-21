@@ -67,8 +67,8 @@ public class LittleRenderBoxItem extends LittleRenderBox {
             flipX = true;
             break;
         case UP:
-            flipY = false;
-            rotation = Rotation.X_COUNTER_CLOCKWISE;
+            flipY = true;
+            rotation = Rotation.X_CLOCKWISE;
             break;
         case DOWN:
             rotation = Rotation.X_CLOCKWISE;

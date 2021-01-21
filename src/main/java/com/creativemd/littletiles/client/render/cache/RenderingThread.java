@@ -110,7 +110,9 @@ public class RenderingThread extends Thread {
         if (te.isEmpty()) {
             int index = te.render.startBuildingCache();
             te.render.getBoxCache().clear();
-            te.render.getBufferCache().setEmpty();
+            synchronized (te.render) {
+                te.render.getBufferCache().setEmpty();
+            }
             if (!te.render.finishBuildingCache(index, LittleChunkDispatcher.currentRenderState, true))
                 return addCoordToUpdate(te);
             return false;
@@ -307,9 +309,13 @@ public class RenderingThread extends Thread {
                                     
                                     buffer.finishDrawing();
                                     
-                                    layerBuffer.set(layer.ordinal(), buffer);
+                                    synchronized (data.te.render) {
+                                        layerBuffer.set(layer.ordinal(), buffer);
+                                    }
                                 } else
-                                    layerBuffer.set(layer.ordinal(), null);
+                                    synchronized (data.te.render) {
+                                        layerBuffer.set(layer.ordinal(), null);
+                                    }
                             }
                             
                             net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);

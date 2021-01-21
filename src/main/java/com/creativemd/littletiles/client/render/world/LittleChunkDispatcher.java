@@ -140,7 +140,7 @@ public class LittleChunkDispatcher {
                     }
                     
                     BufferBuilderUtils.growBufferSmall(buffer, cache.expanded() + buffer.getVertexFormat().getNextOffset());
-                    cache.setBuilder(buffer);
+                    cache.fillBuilder(buffer);
                     
                     if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null && mc.getRenderViewEntity() != null) {
                         Entity entity = mc.getRenderViewEntity();
@@ -165,7 +165,7 @@ public class LittleChunkDispatcher {
                         if (manager == null)
                             manager = new ChunkBlockLayerManager(chunk, layer);
                         
-                        manager.set(buffer, cache);
+                        manager.set(cache);
                     }
                     LittleTilesProfilerOverlay.uploaded++;
                 }

@@ -109,7 +109,7 @@ public class LittleRenderChunk {
                     builders[i] = tempBuffer;
                 } else
                     BufferBuilderUtils.ensureTotalSize(builders[i], builders[i].getVertexFormat().getNextOffset() + cachedBuffers[i].expanded());
-                cachedBuffers[i].setBuilder(builders[i]);
+                cachedBuffers[i].fillBuilder(builders[i]);
                 bufferChanged[i] = true;
             }
         }

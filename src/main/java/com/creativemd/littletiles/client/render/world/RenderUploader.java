@@ -83,7 +83,7 @@ public class RenderUploader {
                                 builder.setVertexState(compiled.getState());
                             
                             BufferBuilderUtils.growBufferSmall(builder, cache.expanded());
-                            cache.setBuilder(builder);
+                            cache.fillBuilder(builder);
                             
                             Entity entity = mc.getRenderViewEntity();
                             float x = (float) entity.posX;
@@ -109,7 +109,7 @@ public class RenderUploader {
                             if (vanillaBuffer != null)
                                 toUpload.put(vanillaBuffer);
                             
-                            cache.setByteBuffer(toUpload);
+                            cache.fillBuffer(toUpload);
                         }
                         
                         uploadBuffer.deleteGlBuffers();

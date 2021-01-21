@@ -30,35 +30,40 @@ public class ChunkBlockLayerCache {
         expanded = 0;
     }
     
-    public void setBuilder(BufferBuilder builder) {
+    public void fillBuilder(BufferBuilder builder) {
         for (BlockRenderCache cache : caches)
-            cache.set(builder);
+            cache.fill(builder);
         totalSize = BufferBuilderUtils.getBufferSizeByte(builder);
     }
     
-    public void setByteBuffer(ByteBuffer buffer) {
+    public void fillBuffer(ByteBuffer buffer) {
         for (BlockRenderCache cache : caches)
-            cache.set(buffer);
+            cache.fill(buffer);
         totalSize = buffer.position();
     }
     
-    public void add(TileEntityRenderManager te, IRenderDataCache data) {
-        if (data == null)
-            return;
-        ByteBuffer buffer = data.byteBuffer();
-        if (buffer == null)
-            return;
-        expanded += data.length();
-        caches.add(new BlockRenderCache(te, layer, data, buffer));
+    public void add(TileEntityRenderManager manager, IRenderDataCache data) {
+        synchronized (manager) {
+            if (data == null)
+                return;
+            ByteBuffer buffer = data.byteBuffer();
+            if (buffer == null)
+                return;
+            expanded += data.length();
+            caches.add(new BlockRenderCache(manager, layer, data, buffer));
+        }
     }
     
     public void discard() {
         for (BlockRenderCache cache : caches) {
-            if (cache.manager.getBufferCache() == null)
-                continue;
-            cache.manager.getBufferCache().setEmptyIfEqual(cache.link, layer);
+            synchronized (cache.manager) {
+                if (cache.manager.getBufferCache() == null)
+                    continue;
+                cache.manager.getBufferCache().setEmptyIfEqual(cache.link, layer);
+            }
         }
         reset();
+        
     }
     
     public int totalSize() {
@@ -67,26 +72,30 @@ public class ChunkBlockLayerCache {
     
     public void download(ByteBuffer buffer) {
         for (BlockRenderCache cache : caches) {
-            try {
-                BufferLink link = cache.link;
-                if (buffer.capacity() >= link.index + link.length) {
-                    ByteBuffer newBuffer = ByteBuffer.allocateDirect(link.length);
-                    buffer.position(link.index);
-                    int end = link.index + link.length;
-                    while (buffer.position() < end)
-                        newBuffer.put(buffer.get());
-                    link.downloaded(newBuffer);
-                }
-            } catch (IllegalArgumentException e) {}
+            synchronized (cache.manager) {
+                try {
+                    BufferLink link = cache.link;
+                    if (buffer.capacity() >= link.index + link.length) {
+                        ByteBuffer newBuffer = ByteBuffer.allocateDirect(link.length);
+                        buffer.position(link.index);
+                        int end = link.index + link.length;
+                        while (buffer.position() < end)
+                            newBuffer.put(buffer.get());
+                        link.downloaded(newBuffer);
+                    }
+                } catch (IllegalArgumentException e) {}
+            }
             
         }
     }
     
     public void uploaded() {
         for (BlockRenderCache cache : caches) {
-            if (cache.manager.getBufferCache() == null)
-                continue;
-            cache.link.uploaded();
+            synchronized (cache.manager) {
+                if (cache.manager.getBufferCache() == null)
+                    continue;
+                cache.link.uploaded();
+            }
         }
         expanded = 0;
     }

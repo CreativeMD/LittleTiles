@@ -28,7 +28,7 @@ public class BlockRenderCache {
         }
     }
     
-    public void set(BufferBuilder builder) {
+    public void fill(BufferBuilder builder) {
         if (buffer == null)
             return;
         int index = BufferBuilderUtils.getBufferSizeByte(builder);
@@ -38,7 +38,7 @@ public class BlockRenderCache {
         buffer = null;
     }
     
-    public void set(ByteBuffer toUpload) {
+    public void fill(ByteBuffer toUpload) {
         buffer.position(0);
         buffer.limit(length);
         if (link != null)

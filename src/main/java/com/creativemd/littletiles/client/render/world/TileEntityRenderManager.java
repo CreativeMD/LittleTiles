@@ -29,8 +29,8 @@ public class TileEntityRenderManager {
     private AxisAlignedBB cachedRenderBoundingBox = null;
     private boolean requireRenderingBoundingBoxUpdate = false;
     
-    private LayeredRenderBufferCache bufferCache = new LayeredRenderBufferCache();
-    private LayeredRenderBoxCache boxCache = new LayeredRenderBoxCache();
+    private final LayeredRenderBufferCache bufferCache = new LayeredRenderBufferCache();
+    private final LayeredRenderBoxCache boxCache = new LayeredRenderBoxCache();
     
     public TileEntityRenderManager(TileEntityLittleTiles te) {
         this.te = te;
@@ -158,9 +158,11 @@ public class TileEntityRenderManager {
     }
     
     public void chunkUnload() {
-        bufferCache = null;
-        boxCache = null;
-        cachedRenderBoundingBox = null;
+        synchronized (this) {
+            bufferCache.setEmpty();
+            boxCache.clear();
+            cachedRenderBoundingBox = null;
+        }
     }
     
     public LayeredRenderBoxCache getBoxCache() {
