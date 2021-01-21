@@ -508,9 +508,11 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
     }
     
     protected void advancedScale(int from, int to) {
-        for (LittlePreview preview : previews) {
+        for (LittlePreview preview : previews)
             preview.convertTo(from, to);
-        }
+        
+        if (hasStructure())
+            getStructureType().advancedScale(this, from, to);
         
         if (hasChildren())
             for (LittlePreviews child : children)
@@ -592,6 +594,8 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
     
     @Deprecated
     public static void setLittlePreviewsContextSecretly(LittlePreviews previews, LittleGridContext context) {
+        if (previews.hasStructure())
+            previews.getStructureType().advancedScale(previews, context.size, previews.context.size);
         previews.context = context;
         if (previews.hasChildren())
             for (LittlePreviews child : previews.getChildren())

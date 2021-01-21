@@ -152,6 +152,11 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
+            public void advancedScale(StructureRelative value, int from, int to) {
+                value.advancedScale(from, to);
+            }
+            
+            @Override
             public PlacePreview getPlacePreview(StructureRelative value, LittlePreviews previews, StructureDirectionalField field) {
                 return value.getPlacePreview(previews, field);
             }
@@ -220,6 +225,10 @@ public abstract class StructureDirectionalType<T> {
     }
     
     public void convertToSmallest(T value) {
+        
+    }
+    
+    public void advancedScale(T value, int from, int to) {
         
     }
     

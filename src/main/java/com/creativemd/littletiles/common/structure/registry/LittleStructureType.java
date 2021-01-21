@@ -210,6 +210,14 @@ public class LittleStructureType {
         }
     }
     
+    public void advancedScale(LittlePreviews previews, int from, int to) {
+        for (StructureDirectionalField field : directional) {
+            Object value = field.create(previews.structureNBT);
+            field.advancedScale(value, from, to);
+            field.save(previews.structureNBT, value);
+        }
+    }
+    
     public static class InternalComponent {
         
         public final String identifier;

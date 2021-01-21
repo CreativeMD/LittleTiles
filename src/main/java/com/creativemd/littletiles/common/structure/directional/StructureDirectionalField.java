@@ -89,6 +89,10 @@ public class StructureDirectionalField {
         type.convertToSmallest(value);
     }
     
+    public void advancedScale(Object value, int from, int to) {
+        type.advancedScale(value, from, to);
+    }
+    
     public PlacePreview getPlacePreview(Object value, LittlePreviews previews) {
         return type.getPlacePreview(value, previews, this);
     }

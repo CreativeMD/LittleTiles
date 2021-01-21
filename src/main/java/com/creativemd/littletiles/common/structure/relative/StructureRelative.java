@@ -157,4 +157,14 @@ public class StructureRelative implements IGridBased {
         convertToSmallest();
     }
     
+    public void advancedScale(int from, int to) {
+        int current = context.size;
+        if (from > to)
+            current *= from / to;
+        else
+            current /= to / from;
+        
+        context = LittleGridContext.get(current);
+    }
+    
 }
