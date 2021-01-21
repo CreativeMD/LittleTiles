@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.place.Placement;
@@ -211,7 +212,8 @@ public class DoorController extends EntityAnimationController {
             if (world.isRemote)
                 parent.getRenderChunkSuppilier().backToRAM(); //Just doesn't work you cannot get the render data after everything happened
                 
-            Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all));
+            Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all))
+                .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
             
             LittleDoor newDoor;
             PlacementResult result;

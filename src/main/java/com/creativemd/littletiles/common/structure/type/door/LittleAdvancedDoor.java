@@ -332,7 +332,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
             boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
             boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
             boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
-            parent.controls.add(new GuiDoorSettingsButton("settings", 0, 110, stayAnimated, disableRightClick, noClip));
+            boolean playPlaceSounds = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).playPlaceSounds : true;
+            parent.controls.add(new GuiDoorSettingsButton("settings", 0, 110, stayAnimated, disableRightClick, noClip, playPlaceSounds));
             parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
             parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 10, 149, 121, 40, 8)
                 .setNumbersOnly());
@@ -529,6 +530,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
                 door.stayAnimated = true;
             else
                 door.stayAnimated = settings.stayAnimated;
+            door.playPlaceSounds = settings.playPlaceSounds;
             door.offGrid = context;
             return door;
         }

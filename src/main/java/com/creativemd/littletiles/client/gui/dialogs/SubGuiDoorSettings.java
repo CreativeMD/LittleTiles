@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.client.gui.dialogs;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
@@ -21,10 +20,11 @@ public class SubGuiDoorSettings extends SubGui {
     
     @Override
     public void createControls() {
-        controls.add((GuiControl) new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 0, button.stayAnimated)
+        controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 0, button.stayAnimated)
             .setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")).setEnabled(button.stayAnimatedPossible));
         controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 15, button.disableRightClick));
         controls.add(new GuiCheckBox("noClip", CoreControl.translate("gui.door.noClip"), 0, 45, button.noClip));
+        controls.add(new GuiCheckBox("playPlaceSounds", CoreControl.translate("gui.door.playPlaceSounds"), 0, 65, button.playPlaceSounds));
         
         controls.add(new GuiButton("Close", 0, 143) {
             
@@ -41,10 +41,11 @@ public class SubGuiDoorSettings extends SubGui {
         GuiCheckBox stayAnimated = (GuiCheckBox) get("stayAnimated");
         GuiCheckBox rightclick = (GuiCheckBox) get("rightclick");
         GuiCheckBox noClip = (GuiCheckBox) get("noClip");
-        GuiCheckBox useInternalOutput = (GuiCheckBox) get("useInternalOutput");
+        GuiCheckBox playPlaceSounds = (GuiCheckBox) get("playPlaceSounds");
         button.stayAnimated = stayAnimated.value;
         button.disableRightClick = rightclick.value;
         button.noClip = noClip.value;
+        button.playPlaceSounds = playPlaceSounds.value;
     }
     
     public static class GuiDoorSettingsButton extends GuiButton {
@@ -53,14 +54,16 @@ public class SubGuiDoorSettings extends SubGui {
         public boolean stayAnimated;
         public boolean disableRightClick;
         public boolean noClip;
+        public boolean playPlaceSounds;
         
         public boolean stayAnimatedPossible = true;
         
-        public GuiDoorSettingsButton(String name, int x, int y, boolean stayAnimated, boolean disableRightClick, boolean noClip) {
+        public GuiDoorSettingsButton(String name, int x, int y, boolean stayAnimated, boolean disableRightClick, boolean noClip, boolean playPlaceSounds) {
             super(name, translate("gui.door.settings"), x, y, 40, 7);
             this.stayAnimated = stayAnimated;
             this.disableRightClick = disableRightClick;
             this.noClip = noClip;
+            this.playPlaceSounds = playPlaceSounds;
         }
         
         @Override

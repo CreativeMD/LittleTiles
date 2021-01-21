@@ -75,6 +75,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
     public int duration = 50;
     public boolean stayAnimated = false;
     public boolean noClip = false;
+    public boolean playPlaceSounds = true;
     public List<AnimationEvent> events = new ArrayList<>();
     
     @Override
@@ -90,7 +91,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         if (nbt.hasKey("duration"))
             duration = nbt.getInteger("duration");
         else
-            duration = 50;
+            duration = 10;
+        if (nbt.hasKey("sounds"))
+            playPlaceSounds = nbt.getBoolean("sounds");
+        else
+            playPlaceSounds = true;
         stayAnimated = nbt.getBoolean("stayAnimated");
         
         interpolation = nbt.getInteger("interpolation");
@@ -112,6 +117,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             nbt.setBoolean("noClip", noClip);
         else
             nbt.removeTag("noClip");
+        nbt.setBoolean("sounds", playPlaceSounds);
     }
     
     public abstract void transformDoorPreview(LittleAbsolutePreviews previews);
@@ -361,7 +367,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
             boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
             boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
-            parent.controls.add(new GuiDoorSettingsButton("settings", 108, 93, stayAnimated, disableRightClick, noClip));
+            boolean playPlaceSounds = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).playPlaceSounds : true;
+            parent.controls.add(new GuiDoorSettingsButton("settings", 108, 93, stayAnimated, disableRightClick, noClip, playPlaceSounds));
             parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
             parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 10, 1, 500));
             parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
@@ -385,6 +392,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             door.stayAnimated = settings.stayAnimated;
             door.disableRightClick = !settings.disableRightClick;
             door.noClip = settings.noClip;
+            door.playPlaceSounds = settings.playPlaceSounds;
             door.events = button.events;
             door.interpolation = interpolationButton.getState();
             

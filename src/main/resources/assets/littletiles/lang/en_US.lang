@@ -195,6 +195,7 @@ gui.door.children=Children
 gui.door.events=Events
 gui.door.settings=Settings
 gui.door.noClip=No-Clip
+gui.door.playPlaceSounds=Play Place Sounds
 gui.door.useInternalOutput=Listen to signal
 gui.door.rightclick=Allow right click
 gui.door.pick-sound=Pick Sound

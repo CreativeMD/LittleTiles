@@ -68,6 +68,7 @@ public class Placement {
     protected ItemStack stack;
     protected boolean ignoreWorldBoundaries = true;
     protected BiPredicate<IParentTileList, LittleTile> predicate;
+    protected boolean playSounds = true;
     
     public Placement(EntityPlayer player, PlacementPreview preview) {
         this.player = player;
@@ -85,6 +86,11 @@ public class Placement {
         
         for (PlacementBlock block : blocks.values())
             block.convertToSmallest();
+    }
+    
+    public Placement setPlaySounds(boolean sounds) {
+        this.playSounds = sounds;
+        return this;
     }
     
     public Placement setIgnoreWorldBoundaries(boolean value) {
@@ -230,10 +236,11 @@ public class Placement {
                 state.neighborChanged(world, pos, LittleTiles.blockTileNoTicking, this.pos);
         }
         
-        for (int i = 0; i < soundsToBePlayed.size(); i++)
-            world.playSound((EntityPlayer) null, pos, soundsToBePlayed.get(i)
-                .getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
-        
+        if (playSounds)
+            for (int i = 0; i < soundsToBePlayed.size(); i++)
+                world.playSound((EntityPlayer) null, pos, soundsToBePlayed.get(i)
+                    .getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
+            
         removedTiles.convertToSmallest();
         unplaceableTiles.convertToSmallest();
         return result;
@@ -477,9 +484,10 @@ public class Placement {
                             
                             for (PlacePreview preview : previews[i]) {
                                 for (LittleTile LT : preview.placeTile(Placement.this, this, parent, structure.getStructure(), collsionTest)) {
-                                    if (!soundsToBePlayed.contains(LT.getSound()))
-                                        soundsToBePlayed.add(LT.getSound());
-                                    
+                                    if (playSounds) {
+                                        if (!soundsToBePlayed.contains(LT.getSound()))
+                                            soundsToBePlayed.add(LT.getSound());
+                                    }
                                     parent.add(LT);
                                     result.addPlacedTile(parent, LT);
                                 }
