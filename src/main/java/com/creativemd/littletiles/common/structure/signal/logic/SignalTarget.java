@@ -95,6 +95,8 @@ public abstract class SignalTarget {
     }
     
     protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+        if (component == null)
+            throw new NotYetConnectedException();
         return component.getState();
     }
     
