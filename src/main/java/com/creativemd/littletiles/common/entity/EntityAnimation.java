@@ -663,6 +663,8 @@ public class EntityAnimation extends Entity {
         posX = center.baseOffset.getX() + origin.offX();
         posY = center.baseOffset.getY() + origin.offY();
         posZ = center.baseOffset.getZ() + origin.offZ();
+        
+        doBlockCollisions();
     }
     
     // ================Overridden================
