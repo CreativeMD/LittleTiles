@@ -13,15 +13,15 @@ import com.creativemd.littletiles.common.structure.signal.logic.SignalPatternPar
 
 public abstract class SignalInputCondition {
     
-    public static final float AND_DURATION = 0.4F;
-    public static final float OR_DURATION = 0.1F;
-    public static final float XOR_DURATION = 0.6F;
-    public static final float BAND_DURATION = 0.6F;
-    public static final float BOR_DURATION = 0.2F;
-    public static final float BXOR_DURATION = 0.7F;
-    public static final float NOT_DURATION = 0.05F;
-    public static final float BNOT_DURATION = 0.1F;
-    public static final float VARIABLE_DURATION = 0.05F;
+    public static final float AND_DURATION = 0.1F;
+    public static final float OR_DURATION = 0.01F;
+    public static final float XOR_DURATION = 0.2F;
+    public static final float BAND_DURATION = 0.2F;
+    public static final float BOR_DURATION = 0.02F;
+    public static final float BXOR_DURATION = 0.4F;
+    public static final float NOT_DURATION = 0.01F;
+    public static final float BNOT_DURATION = 0.02F;
+    public static final float VARIABLE_DURATION = 0.01F;
     
     public static SignalInputCondition parseInput(String pattern) throws ParseException {
         return parseExpression(new SignalPatternParser(pattern), new char[0], true, false);
