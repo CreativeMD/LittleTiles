@@ -153,6 +153,11 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
         return 0;
     }
     
+    @Override
+    public int getColor() {
+        return -1;
+    }
+    
     public void setPower(int level) {
         boolean[] newLevel = BooleanUtils.toBits(level, 4);
         if (!BooleanUtils.equals(inputRedstoneState, newLevel)) {

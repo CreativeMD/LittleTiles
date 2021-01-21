@@ -20,15 +20,16 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
@@ -49,13 +50,51 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleSignalCableBase extends LittleStructurePremade implements ISignalStructureBase {
     
+    public static final int DEFAULT_CABLE_COLOR = -13619152;
     private SignalNetwork network;
     
+    public int color;
     protected LittleConnectionFace[] faces;
     
     public LittleSignalCableBase(LittleStructureType type, IStructureTileList mainBlock) {
         super(type, mainBlock);
         this.faces = new LittleConnectionFace[getNumberOfConnections()];
+    }
+    
+    @Override
+    public boolean compatible(ISignalStructureBase other) {
+        if (ISignalStructureBase.super.compatible(other)) {
+            if (other.getType() == SignalComponentType.TRANSMITTER && this.getType() == SignalComponentType.TRANSMITTER)
+                return other.getColor() == DEFAULT_CABLE_COLOR || this.getColor() == DEFAULT_CABLE_COLOR || getColor() == other.getColor();
+            return true;
+        }
+        return false;
+        
+    }
+    
+    @Override
+    public boolean hasStructureColor() {
+        return true;
+    }
+    
+    @Override
+    public int getStructureColor() {
+        return color;
+    }
+    
+    @Override
+    public int getDefaultColor() {
+        return DEFAULT_CABLE_COLOR;
+    }
+    
+    @Override
+    public void paint(int color) {
+        this.color = color;
+    }
+    
+    @Override
+    public int getColor() {
+        return color;
     }
     
     @Override
@@ -94,6 +133,10 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                     faces[i].context = LittleGridContext.get(result[i * 2 + 1]);
                 }
             }
+        if (nbt.hasKey("color"))
+            color = nbt.getInteger("color");
+        else
+            color = DEFAULT_CABLE_COLOR;
     }
     
     @Override
@@ -114,6 +157,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             }
             nbt.setIntArray("faces", result);
         }
+        if (color != -1)
+            nbt.setInteger("color", color);
     }
     
     @Override
@@ -361,7 +406,6 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             return;
         
         try {
-            int color = mainBlock.first() instanceof LittleTileColored ? ((LittleTileColored) mainBlock.first()).color : ColorUtils.WHITE;
             SurroundingBox box = getSurroundingBox();
             LittleVec min = box.getMinPosOffset();
             LittleVec max = box.getSize();
@@ -370,12 +414,12 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             BlockPos difference = pos.subtract(box.getMinPos());
             overallBox.sub(box.getContext().toGrid(difference.getX()), box.getContext().toGrid(difference.getY()), box.getContext().toGrid(difference.getZ()));
             
-            render(box, overallBox, cubes, color);
+            render(box, overallBox, cubes);
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
     @SideOnly(Side.CLIENT)
-    public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
+    public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
         if (positive) {
             renderBox.setMin(axis, renderBox.getMax(axis));
             renderBox.setMax(axis, renderBox.getMax(axis) + distance);
@@ -406,7 +450,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @SideOnly(Side.CLIENT)
-    public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes, int color) {
+    public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
+        
         for (int i = 0; i < faces.length; i++) {
             if (faces[i] == null)
                 continue;
@@ -428,7 +473,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             } else if (context.size > box.getContext().size)
                 renderBox.convertTo(box.getContext(), context);
             
-            renderFace(facing, context, renderBox, distance, axis, one, two, positive, color, faces[i].oneSidedRenderer, cubes);
+            renderFace(facing, context, renderBox, distance, axis, one, two, positive, faces[i].oneSidedRenderer, cubes);
         }
     }
     
@@ -537,6 +582,12 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             super(id, category, structureClass, attribute | LittleStructureAttribute.NEIGHBOR_LISTENER, modid);
             this.bandwidth = bandwidth;
             this.numberOfConnections = numberOfConnections;
+        }
+        
+        public int getColor(LittlePreviews previews) {
+            if (previews.structureNBT.hasKey("color"))
+                return previews.structureNBT.getInteger("color");
+            return DEFAULT_CABLE_COLOR;
         }
         
         @Override

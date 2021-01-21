@@ -97,7 +97,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     @SideOnly(Side.CLIENT)
     public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
         if (stack != null)
-            ItemModelCache.cacheModel(getPremade(stack).stack, facing, cachedQuads);
+            ItemModelCache.cacheModel(stack, facing, cachedQuads);
     }
     
     @Override
@@ -105,10 +105,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
         if (stack == null)
             return null;
-        LittleStructurePremadeEntry entry = getPremade(stack);
-        if (entry == null)
-            return null;
-        return ItemModelCache.requestCache(entry.stack, facing);
+        return ItemModelCache.requestCache(stack, facing);
     }
     
     @Override

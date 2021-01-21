@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
 import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -49,6 +50,16 @@ public class LittleBlockPacket extends CreativeCorePacket {
         COLOR_TUBE(true) {
             @Override
             public void action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+                if (parent.isStructure()) {
+                    try {
+                        LittleStructure structure = parent.getStructure();
+                        if (structure.hasStructureColor()) {
+                            ItemLittlePaintBrush.setColor(player.getHeldItemMainhand(), structure.getStructureColor());
+                            return;
+                        }
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                    
+                }
                 if ((tile.getClass() == LittleTile.class || tile instanceof LittleTileColored)) {
                     int color = ColorUtils.WHITE;
                     if (tile instanceof LittleTileColored)

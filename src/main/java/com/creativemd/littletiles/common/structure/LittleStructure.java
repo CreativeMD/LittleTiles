@@ -880,6 +880,10 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return box;
     }
     
+    public double getPercentVolume() throws CorruptedConnectionException, NotYetConnectedException {
+        return getSurroundingBox().getPercentVolume();
+    }
+    
     public Vec3d getHighestCenterVec() throws CorruptedConnectionException, NotYetConnectedException {
         return getSurroundingBox().getHighestCenterVec();
     }
@@ -945,6 +949,22 @@ public abstract class LittleStructure implements ISignalSchedulable {
     }
     
     // ====================Active====================
+    
+    public boolean hasStructureColor() {
+        return false;
+    }
+    
+    public int getStructureColor() {
+        return -1;
+    }
+    
+    public int getDefaultColor() {
+        return -1;
+    }
+    
+    public void paint(int color) {
+        
+    }
     
     public void tick() {}
     

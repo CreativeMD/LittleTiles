@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -12,6 +13,9 @@ import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorExcept
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
@@ -89,7 +93,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         colorVolume = 0;
         
         Consumer<TileEntityInteractor> consumer = x -> {
-            for (IParentTileList parent : te.groups()) {
+            structure_loop: for (IParentTileList parent : te.groups()) {
                 
                 for (LittleTile tile : parent) {
                     
@@ -108,6 +112,24 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                     
                     if (!intersects || !(tile.getClass() == LittleTile.class || tile instanceof LittleTileColored))
                         continue;
+                    
+                    try {
+                        if (parent.isStructure() && parent.getStructure().hasStructureColor()) {
+                            LittleStructure structure = parent.getStructure();
+                            if (structure.getStructureColor() != color) {
+                                double volume = structure.getPercentVolume();
+                                colorVolume += volume;
+                                gained.add(ColorIngredient.getColors(color, structure.getDefaultColor(), volume));
+                                if (!simulate) {
+                                    addRevert(structure.getStructureColor(), te.getPos(), context, Arrays.asList(intersecting));
+                                    structure.paint(color);
+                                }
+                            }
+                            continue structure_loop;
+                        }
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                        continue structure_loop;
+                    }
                     
                     if (!LittleTileColored.needsToBeRecolored(tile, color))
                         continue;

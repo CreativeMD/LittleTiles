@@ -56,4 +56,5 @@ public interface ISignalStructureBase {
     
     public SignalComponentType getType();
     
+    public int getColor();
 }

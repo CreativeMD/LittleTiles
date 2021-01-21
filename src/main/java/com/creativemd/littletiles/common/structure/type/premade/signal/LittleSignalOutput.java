@@ -77,8 +77,8 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     
     @Override
     @SideOnly(Side.CLIENT)
-    public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
-        super.renderFace(facing, context, renderBox.copy(), distance, axis, one, two, positive, color, oneSidedRenderer, cubes);
+    public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
+        super.renderFace(facing, context, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
         LittleRenderBox cube = renderBox.getRenderingCube(context, LittleTiles.outputArrow, facing.ordinal());
         //cube.color = color;
@@ -104,10 +104,15 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     
     @Override
     @SideOnly(Side.CLIENT)
-    public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes, int color) {
-        super.render(box, overallBox, cubes, color);
+    public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
+        super.render(box, overallBox, cubes);
         
-        LittleRenderBox cube = new LittleRenderBox(new AlignedBox(overallBox.getBox(box.getContext())), null, LittleTiles.dyeableBlock, 0);
+        AlignedBox structureBox = new AlignedBox(overallBox.getBox(box.getContext()));
+        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(structureBox, null, LittleTiles.dyeableBlock, 0).setColor(color);
+        block.allowOverlap = true;
+        cubes.add(block);
+        
+        LittleRenderBox cube = new LittleRenderBox(structureBox, null, LittleTiles.dyeableBlock, 0);
         cube.setColor(ColorUtils.ORANGE);
         
         Axis axis = facing.getAxis();
@@ -167,9 +172,6 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     
     public static class LittleStructureTypeOutput extends LittleStructureTypeNetwork {
         
-        @SideOnly(Side.CLIENT)
-        public List<RenderBox> cubes;
-        
         public LittleStructureTypeOutput(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
             super(id, category, structureClass, attribute, modid, bandwidth, 1);
         }
@@ -186,14 +188,11 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
         @Override
         @SideOnly(Side.CLIENT)
         public List<RenderBox> getRenderingCubes(LittlePreviews previews) {
-            if (cubes == null) {
-                float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
-                cubes = new ArrayList<>();
-                cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(-13619152));
-                cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(ColorUtils.ORANGE));
-                //cubes.add(new RenderCubeObject(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable).setColor(-13619152).setKeepUV(true));
-                //cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
-            }
+            List<RenderBox> cubes = new ArrayList<>();
+            float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
+            cubes = new ArrayList<>();
+            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(getColor(previews)));
+            cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(ColorUtils.ORANGE));
             return cubes;
         }
         

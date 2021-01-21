@@ -258,6 +258,15 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
         return null;
     }
     
+    public static ColorIngredient getColors(int color, int defaultColor, double volume) {
+        if (color != defaultColor) {
+            ColorIngredient ingredient = getColors(color);
+            ingredient.scale(volume);
+            return ingredient;
+        }
+        return null;
+    }
+    
     public static ColorIngredient getColors(LittleGridContext context, LittlePreview preview) {
         return getColors(preview, preview.getPercentVolume(context));
     }

@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderBox;
+import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.network.ISignalStructureTransmitter;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,10 +41,18 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
         return EnumFacing.VALUES[index];
     }
     
-    public static class LittleStructureTypeCable extends LittleStructureTypeNetwork {
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
+        super.render(box, overallBox, cubes);
         
-        @SideOnly(Side.CLIENT)
-        public List<RenderBox> cubes;
+        AlignedBox structureBox = new AlignedBox(overallBox.getBox(box.getContext()));
+        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(structureBox, null, LittleTiles.dyeableBlock, 0).setColor(color);
+        block.allowOverlap = true;
+        cubes.add(block);
+    }
+    
+    public static class LittleStructureTypeCable extends LittleStructureTypeNetwork {
         
         public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
             super(id, category, structureClass, attribute, modid, bandwidth, 6);
@@ -49,14 +61,14 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
         @Override
         @SideOnly(Side.CLIENT)
         public List<RenderBox> getRenderingCubes(LittlePreviews previews) {
-            if (cubes == null) {
-                float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
-                cubes = new ArrayList<>();
-                cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(-13619152));
-                cubes.add(new RenderBox(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable)
-                    .setColor(-13619152).setKeepUV(true));
-                cubes.add(new RenderBox(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(-13619152));
-            }
+            List<RenderBox> cubes = new ArrayList<>();
+            int color = getColor(previews);
+            float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
+            cubes = new ArrayList<>();
+            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(color));
+            cubes.add(new RenderBox(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable)
+                .setColor(color).setKeepUV(true));
+            cubes.add(new RenderBox(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.dyeableBlock).setColor(color));
             return cubes;
         }
         

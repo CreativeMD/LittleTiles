@@ -139,6 +139,10 @@ public class SurroundingBox {
             .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
     }
     
+    public double getPercentVolume() {
+        return 0.125 * context.toVanillaGrid(minX + maxX) * context.toVanillaGrid(minY + maxY) * context.toVanillaGrid(minZ + maxZ);
+    }
+    
     public LittleAbsoluteVec getHighestCenterPoint() {
         int centerX = (int) Math.floor((minX + maxX) / (double) context.size / 2D);
         int centerY = (int) Math.floor((minY + maxY) / (double) context.size / 2D);
