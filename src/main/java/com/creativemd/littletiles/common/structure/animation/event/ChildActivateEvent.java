@@ -49,8 +49,9 @@ public class ChildActivateEvent extends AnimationEvent {
     @Override
     protected boolean run(EntityAnimationController controller) {
         LittleStructure structure = controller.parent.structure;
-        StructureChildConnection connector = structure.getChild(childId);
+        
         try {
+            StructureChildConnection connector = structure.getChild(childId);
             if (!(connector.getStructure() instanceof LittleDoor))
                 return true;
             LittleDoor door = (LittleDoor) connector.getStructure();
@@ -70,8 +71,9 @@ public class ChildActivateEvent extends AnimationEvent {
     
     @Override
     public int getEventDuration(LittleStructure structure) {
-        StructureChildConnection connector = structure.getChild(childId);
+        
         try {
+            StructureChildConnection connector = structure.getChild(childId);
             LittleStructure childStructure = connector.getStructure();
             if (childStructure instanceof LittleDoor) {
                 LittleDoor door = (LittleDoor) childStructure;

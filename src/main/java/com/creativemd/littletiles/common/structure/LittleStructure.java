@@ -237,7 +237,9 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return children;
     }
     
-    public StructureChildConnection getChild(int index) {
+    public StructureChildConnection getChild(int index) throws CorruptedConnectionException, NotYetConnectedException {
+        if (index >= children.size())
+            throw new MissingChildException(index);
         return children.get(index);
     }
     

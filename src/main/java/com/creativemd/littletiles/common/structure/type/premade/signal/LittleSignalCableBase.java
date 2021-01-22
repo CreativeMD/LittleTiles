@@ -108,6 +108,11 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
+    public World getStructureWorld() {
+        return getWorld();
+    }
+    
+    @Override
     protected void loadFromNBTExtra(NBTTagCompound nbt) {
         int[] result = nbt.getIntArray("faces");
         if (result != null && result.length == getNumberOfConnections() * 3) {

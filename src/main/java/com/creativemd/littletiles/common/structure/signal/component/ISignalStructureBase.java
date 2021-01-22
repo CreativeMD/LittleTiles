@@ -16,7 +16,7 @@ public interface ISignalStructureBase {
         return getBandwidth() == other.getBandwidth();
     }
     
-    public World getWorld();
+    public World getStructureWorld();
     
     public int getBandwidth();
     

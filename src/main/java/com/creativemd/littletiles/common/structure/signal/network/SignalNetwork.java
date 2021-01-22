@@ -84,7 +84,7 @@ public class SignalNetwork implements ISignalSchedulable {
         if (!outputs.isEmpty())
             return outputs.get(0).getWorld();
         if (!transmitters.isEmpty())
-            return transmitters.get(0).getWorld();
+            return transmitters.get(0).getStructureWorld();
         return null;
     }
     

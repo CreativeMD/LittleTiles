@@ -8,4 +8,8 @@ public class MissingChildException extends CorruptedConnectionException {
         super("Missing child " + connector.getChildId() + " at " + connector.getStructurePosition(), e);
     }
     
+    public MissingChildException(int index) {
+        super("There is no child at position " + index);
+    }
+    
 }

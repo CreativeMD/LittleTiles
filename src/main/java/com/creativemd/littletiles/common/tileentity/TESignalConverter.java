@@ -37,8 +37,8 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     }
     
     @Override
-    public World getWorld() {
-        return super.getWorld();
+    public World getStructureWorld() {
+        return getWorld();
     }
     
     @Override
