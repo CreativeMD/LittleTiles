@@ -38,7 +38,7 @@ public abstract class InternalSignal<T extends InternalComponent> implements ISi
     }
     
     @Override
-    public World getWorld() {
+    public World getStructureWorld() {
         if (parent.mainBlock != null)
             return parent.getWorld();
         return null;

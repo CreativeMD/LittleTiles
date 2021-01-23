@@ -28,6 +28,6 @@ public interface ISignalComponent {
     
     public LittleStructure getStructure();
     
-    public World getWorld();
+    public World getStructureWorld();
     
 }

@@ -126,7 +126,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     }
     
     @Override
-    public World getWorld() {
+    public World getStructureWorld() {
         if (structure == null)
             return null;
         return structure.getWorld();

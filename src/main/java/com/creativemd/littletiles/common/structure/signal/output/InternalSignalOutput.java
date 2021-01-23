@@ -34,7 +34,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
         parent.performInternalOutputChange(this);
         parent.schedule();
         if (syncToClient)
-            PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateOutputPacket(parent.getStructureLocation(), component.index, getState()), getWorld(), parent.getPos(), null);
+            PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateOutputPacket(parent.getStructureLocation(), component.index, getState()), getStructureWorld(), parent.getPos(), null);
     }
     
     @Override

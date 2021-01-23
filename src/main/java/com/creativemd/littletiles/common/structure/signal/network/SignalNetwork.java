@@ -80,9 +80,9 @@ public class SignalNetwork implements ISignalSchedulable {
     @Override
     public World getWorld() {
         if (!inputs.isEmpty())
-            return inputs.get(0).getWorld();
+            return inputs.get(0).getStructureWorld();
         if (!outputs.isEmpty())
-            return outputs.get(0).getWorld();
+            return outputs.get(0).getStructureWorld();
         if (!transmitters.isEmpty())
             return transmitters.get(0).getStructureWorld();
         return null;

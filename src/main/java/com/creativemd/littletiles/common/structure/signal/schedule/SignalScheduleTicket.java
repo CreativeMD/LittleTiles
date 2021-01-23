@@ -77,7 +77,7 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
     public World getWorld() {
         SignalOutputHandler handler = outputCondition.get();
         if (handler != null)
-            return handler.component.getWorld();
+            return handler.component.getStructureWorld();
         return null;
     }
     

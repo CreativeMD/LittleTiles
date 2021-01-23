@@ -669,7 +669,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         }
         
         @Override
-        public World getWorld() {
+        public World getStructureWorld() {
             return null;
         }
         

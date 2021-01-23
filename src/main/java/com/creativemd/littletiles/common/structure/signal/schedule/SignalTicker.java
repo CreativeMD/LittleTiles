@@ -39,14 +39,14 @@ public class SignalTicker {
     }
     
     public static synchronized List<ISignalScheduleTicket> findTickets(ISignalComponent component, SignalOutputHandler condition) {
-        World world = component.getWorld();
+        World world = component.getStructureWorld();
         if (world != null && !world.isRemote)
             return get(world).findTickets(condition);
         return Collections.EMPTY_LIST;
     }
     
     public static synchronized SignalTicker get(ISignalComponent component) {
-        return get(component.getWorld());
+        return get(component.getStructureWorld());
     }
     
     public static synchronized SignalTicker get(World world) {
@@ -69,7 +69,7 @@ public class SignalTicker {
     }
     
     public static ISignalScheduleTicket schedule(SignalOutputHandler handler, boolean[] result, int tick) {
-        World world = handler.component.getWorld();
+        World world = handler.component.getStructureWorld();
         if (world == null) {
             SignalScheduleTicket ticket = new SignalScheduleTicket(handler, result, tick);
             unsortedTickets.add(ticket);
