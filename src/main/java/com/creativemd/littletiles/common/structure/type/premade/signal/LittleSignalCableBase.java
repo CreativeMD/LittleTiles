@@ -147,7 +147,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     protected void writeToNBTExtraInternal(NBTTagCompound nbt, boolean preview) {
         super.writeToNBTExtraInternal(nbt, preview);
-        if (!preview) {
+        if (!preview && faces != null) {
             int[] result = new int[getNumberOfConnections() * 3];
             for (int i = 0; i < faces.length; i++) {
                 if (faces[i] != null) {
