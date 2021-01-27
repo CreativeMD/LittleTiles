@@ -211,9 +211,6 @@ public class LittleTilesConfig {
         public boolean useCubeCache = true;
         
         @CreativeConfig
-        public boolean hideParticleBlock = false;
-        
-        @CreativeConfig
         public int renderingThreadCount = 2;
         
         @CreativeConfig
