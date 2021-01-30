@@ -2,7 +2,7 @@
   "result": {
     "item": "littletiles:premade",
     "data": 0,
-    "structure": "frame_builder"
+    "structure": "structure_builder"
   },
   "pattern": [
     "CCC",
