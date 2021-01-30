@@ -364,6 +364,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     @Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
+        if (!hasLoaded())
+            return super.getRenderBoundingBox();
         return render.getRenderBoundingBox();
     }
     
