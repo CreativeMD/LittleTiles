@@ -226,9 +226,10 @@ public class DoorController extends EntityAnimationController {
                 newDoor.transferChildrenFromAnimation(parent);
                 
                 if (parent.structure.getParent() != null) {
+                    boolean dynamic = parent.structure.getParent().dynamic;
                     LittleStructure parentStructure = parent.structure.getParent().getStructure();
-                    newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure);
-                    parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor);
+                    newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure, dynamic);
+                    parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor, dynamic);
                 }
                 
                 newDoor.completeAnimation();

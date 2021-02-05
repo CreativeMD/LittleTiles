@@ -287,8 +287,8 @@ public class LittleEventHandler {
         
         if (iTile != null) {
             if (event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
-                onRightInteractClient(iTile, event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
-            event.setCanceled(true);
+                if (onRightInteractClient(iTile, event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace()))
+                    event.setCanceled(true);
         }
     }
     
@@ -333,7 +333,7 @@ public class LittleEventHandler {
     }
     
     @SideOnly(Side.CLIENT)
-    public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing) {
+    public boolean onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing) {
         PlacementPosition position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
         if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver) && iTile.hasLittlePreview(stack)) {
             if (!stack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, stack)) {
@@ -344,7 +344,9 @@ public class LittleEventHandler {
                 PreviewRenderer.marked = null;
             }
             iTile.onDeselect(player, stack);
+            return true;
         }
+        return false;
     }
     
     @SubscribeEvent

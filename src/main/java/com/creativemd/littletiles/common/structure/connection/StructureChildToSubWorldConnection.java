@@ -17,8 +17,8 @@ public class StructureChildToSubWorldConnection extends StructureChildConnection
     
     public final UUID entityUUID;
     
-    public StructureChildToSubWorldConnection(LittleStructure parent, int childId, BlockPos relative, int index, int attribute, UUID entityUUID) {
-        super(parent, false, childId, relative, index, attribute);
+    public StructureChildToSubWorldConnection(LittleStructure parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute, UUID entityUUID) {
+        super(parent, false, dynamic, childId, relative, index, attribute);
         this.entityUUID = entityUUID;
     }
     

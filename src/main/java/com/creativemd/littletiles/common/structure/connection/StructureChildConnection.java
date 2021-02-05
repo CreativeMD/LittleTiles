@@ -26,19 +26,21 @@ public class StructureChildConnection implements IStructureConnection {
     public final LittleStructure parent;
     public final boolean isChild;
     public final int childId;
+    public final boolean dynamic;
     
     private final int structureIndex;
     private final int attribute;
     private final BlockPos relativePos;
     private TileEntityLittleTiles cachedTe;
     
-    public StructureChildConnection(LittleStructure parent, boolean isChild, int childId, BlockPos relative, int index, int attribute) {
+    public StructureChildConnection(LittleStructure parent, boolean isChild, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
         this.parent = parent;
         this.isChild = isChild;
         this.childId = childId;
         this.structureIndex = index;
         this.attribute = attribute;
         this.relativePos = relative;
+        this.dynamic = dynamic;
     }
     
     public StructureChildConnection(LittleStructure parent, boolean isChild, NBTTagCompound nbt) {
@@ -47,6 +49,7 @@ public class StructureChildConnection implements IStructureConnection {
         this.childId = nbt.getInteger("child");
         this.attribute = nbt.getInteger("type");
         this.structureIndex = nbt.getInteger("index");
+        this.dynamic = nbt.getBoolean("dynamic");
         int[] array = nbt.getIntArray("coord");
         if (array.length == 3)
             relativePos = new BlockPos(array[0], array[1], array[2]);
@@ -67,6 +70,8 @@ public class StructureChildConnection implements IStructureConnection {
         nbt.setIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
         nbt.setInteger("type", attribute);
         nbt.setInteger("index", structureIndex);
+        if (dynamic)
+            nbt.setBoolean("dynamic", dynamic);
         return nbt;
     }
     

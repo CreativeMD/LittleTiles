@@ -87,7 +87,7 @@ public class ChildActivateEvent extends AnimationEvent {
     @Override
     @SideOnly(Side.CLIENT)
     public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
-        if (structure.getChildren().size() <= childId)
+        if (structure.countChildren() <= childId)
             return;
         try {
             StructureChildConnection connector = structure.getChild(childId);

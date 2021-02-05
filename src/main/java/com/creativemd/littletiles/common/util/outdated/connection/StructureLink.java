@@ -20,9 +20,9 @@ public class StructureLink {
         LittleIdentifierRelative identifier = new LittleIdentifierRelative(nbt);
         int index = identifier.generateIndex(structure.getPos());
         if (nbt.hasKey("entity"))
-            return new StructureChildToSubWorldConnection(structure, childID, identifier.coord, index, attribute, UUID.fromString(nbt.getString("entity")));
+            return new StructureChildToSubWorldConnection(structure, false, childID, identifier.coord, index, attribute, UUID.fromString(nbt.getString("entity")));
         else if (nbt.getBoolean("subWorld"))
-            return new StructureChildFromSubWorldConnection(structure, childID, identifier.coord, index, attribute);
-        return new StructureChildConnection(structure, isChild, childID, identifier.coord, index, attribute);
+            return new StructureChildFromSubWorldConnection(structure, false, childID, identifier.coord, index, attribute);
+        return new StructureChildConnection(structure, isChild, false, childID, identifier.coord, index, attribute);
     }
 }

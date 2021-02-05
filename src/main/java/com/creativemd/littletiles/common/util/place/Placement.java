@@ -258,8 +258,8 @@ public class Placement {
         for (int i = 0; i < preview.children.size(); i++) {
             PlacementStructurePreview child = preview.children.get(i);
             if (preview.getStructure() != null && child.getStructure() != null) {
-                preview.getStructure().updateChildConnection(i, child.getStructure());
-                child.getStructure().updateParentConnection(i, preview.getStructure());
+                preview.getStructure().updateChildConnection(i, child.getStructure(), false);
+                child.getStructure().updateParentConnection(i, preview.getStructure(), false);
             }
             
             updateRelations(child);

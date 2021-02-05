@@ -62,7 +62,7 @@ public class LittleDoorActivator extends LittleDoor {
     }
     
     public LittleDoor getChildrenDoor(int index) throws CorruptedConnectionException, NotYetConnectedException {
-        if (index >= 0 && index < getChildren().size()) {
+        if (index >= 0 && index < countChildren()) {
             LittleStructure structure = getChild(index).getStructure();
             if (structure instanceof LittleDoor)
                 return (LittleDoor) structure;

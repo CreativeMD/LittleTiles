@@ -64,7 +64,7 @@ public class SubGuiStructureOverview extends SubGui {
                     });
                 }
             }
-            controls.add(new GuiLabel(ChatFormatting.WHITE + "" + structure.getChildren().size() + " child" + (structure.getChildren().size() != 1 ? "ren" : ""), 0, 40));
+            controls.add(new GuiLabel(ChatFormatting.WHITE + "" + structure.countChildren() + " child" + (structure.countChildren() != 1 ? "ren" : ""), 0, 40));
             GuiScrollBox scrollBox = new GuiScrollBox(name, 3, 55, 290, 230);
             scrollBox.scaleFactor = 1F;
             int i = 0;

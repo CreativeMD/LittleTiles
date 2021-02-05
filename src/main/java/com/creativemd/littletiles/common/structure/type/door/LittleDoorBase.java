@@ -170,7 +170,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         if (children.isEmpty())
             return doors;
         for (Integer integer : children) {
-            if (this.getChildren().size() <= integer)
+            if (this.countChildren() <= integer)
                 continue;
             try {
                 LittleStructure child = getChild(integer).getStructure();
@@ -224,8 +224,9 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         
         if (getParent() != null) {
             LittleStructure parentStructure = getParent().getStructure();
-            parentStructure.updateChildConnection(getParent().getChildId(), newDoor);
-            newDoor.updateParentConnection(getParent().getChildId(), parentStructure);
+            boolean dynamic = getParent().dynamic;
+            parentStructure.updateChildConnection(getParent().getChildId(), newDoor, dynamic);
+            newDoor.updateParentConnection(getParent().getChildId(), parentStructure, dynamic);
         }
         
         animation.controller.startTransition(DoorController.openedState);

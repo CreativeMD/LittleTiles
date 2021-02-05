@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
+import com.creativemd.littletiles.common.structure.connection.ChildrenList;
 import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
 import com.creativemd.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
@@ -105,7 +106,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
     public String name;
     
     private StructureChildConnection parent;
-    private List<StructureChildConnection> children;
+    protected ChildrenList children;
     
     private HashMap<Integer, SignalExternalOutputHandler> externalHandler;
     private final InternalSignalInput[] inputs;
@@ -187,40 +188,45 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return false;
     }
     
-    public void updateChildConnection(int i, LittleStructure child) {
+    public void removeParent() {
+        if (!parent.dynamic)
+            throw new RuntimeException("Cannot remove non dynamic child");
+        parent = null;
+    }
+    
+    public void updateChildConnection(int i, LittleStructure child, boolean dynamic) {
         World world = getWorld();
         World childWorld = child.getWorld();
         
         StructureChildConnection connector;
         if (childWorld == world)
-            connector = new StructureChildConnection(this, false, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute());
+            connector = new StructureChildConnection(this, false, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute());
         else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
-            connector = new StructureChildToSubWorldConnection(this, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute(), ((SubWorld) childWorld).parent
+            connector = new StructureChildToSubWorldConnection(this, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute(), ((SubWorld) childWorld).parent
                 .getUniqueID());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         
-        if (children.size() > i)
-            children.set(i, connector);
-        else if (children.size() == i)
-            children.add(connector);
-        else
-            throw new RuntimeException("Invalid childId " + children.size() + ".");
+        children.set(connector);
     }
     
-    public void updateParentConnection(int i, LittleStructure parent) {
+    public void updateParentConnection(int i, LittleStructure parent, boolean dynamic) {
         World world = getWorld();
         World parentWorld = parent.getWorld();
         
         StructureChildConnection connector;
         if (parentWorld == world)
-            connector = new StructureChildConnection(this, true, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildConnection(this, true, dynamic, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
         else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
-            connector = new StructureChildFromSubWorldConnection(this, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildFromSubWorldConnection(this, dynamic, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         
         this.parent = connector;
+    }
+    
+    public void removeDynamicChild(int i) throws CorruptedConnectionException, NotYetConnectedException {
+        children.remove(i);
     }
     
     public StructureChildConnection getParent() {
@@ -233,13 +239,15 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return this;
     }
     
-    public List<StructureChildConnection> getChildren() {
+    public int countChildren() {
+        return children.size();
+    }
+    
+    public Iterable<StructureChildConnection> getChildren() {
         return children;
     }
     
     public StructureChildConnection getChild(int index) throws CorruptedConnectionException, NotYetConnectedException {
-        if (index >= children.size())
-            throw new MissingChildException(index);
         return children.get(index);
     }
     
@@ -430,9 +438,9 @@ public abstract class LittleStructure implements ISignalSchedulable {
         if (nbt.hasKey("children")) {
             
             NBTTagList list = nbt.getTagList("children", 10);
-            children = new ArrayList<>(list.tagCount());
+            children = new ChildrenList();
             for (int i = 0; i < list.tagCount(); i++)
-                children.add(StructureChildConnection.loadFromNBT(this, list.getCompoundTagAt(i), false));
+                children.set(StructureChildConnection.loadFromNBT(this, list.getCompoundTagAt(i), false));
             
             if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
                 for (StructureChildConnection child : children)
@@ -441,7 +449,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
                         throw new RuntimeException("Something went wrong during loading!");
                     
         } else
-            children = new ArrayList<>();
+            children = new ChildrenList();
         
         for (StructureDirectionalField field : type.directional) {
             if (nbt.hasKey(field.saveKey))

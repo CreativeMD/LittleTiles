@@ -12,8 +12,8 @@ import net.minecraft.world.World;
 
 public class StructureChildFromSubWorldConnection extends StructureChildConnection {
     
-    public StructureChildFromSubWorldConnection(LittleStructure parent, int childId, BlockPos relative, int index, int attribute) {
-        super(parent, true, childId, relative, index, attribute);
+    public StructureChildFromSubWorldConnection(LittleStructure parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
+        super(parent, true, dynamic, childId, relative, index, attribute);
     }
     
     public StructureChildFromSubWorldConnection(LittleStructure parent, NBTTagCompound nbt) {

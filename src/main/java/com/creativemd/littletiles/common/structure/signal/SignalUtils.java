@@ -25,7 +25,7 @@ public class SignalUtils {
     }
     
     public static ISignalStructureComponent getExternalInput(LittleStructure structure, int id) {
-        if (id >= 0 && id < structure.getChildren().size())
+        if (id >= 0 && id < structure.countChildren())
             try {
                 LittleStructure child = structure.getChild(id).getStructure();
                 if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getType() == SignalComponentType.INPUT)
@@ -47,7 +47,7 @@ public class SignalUtils {
     }
     
     public static ISignalStructureComponent getExternalOutput(LittleStructure structure, int id) {
-        if (id >= 0 && id < structure.getChildren().size())
+        if (id >= 0 && id < structure.countChildren())
             try {
                 LittleStructure child = structure.getChild(id).getStructure();
                 if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getType() == SignalComponentType.OUTPUT)
