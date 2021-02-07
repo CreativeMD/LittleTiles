@@ -104,13 +104,13 @@ public class LittleTilesProfilerOverlay {
         if (event.phase == Phase.END && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
             List<String> warnings = new ArrayList<>();
             if (OptifineHelper.isActive() && OptifineHelper.isRenderRegions())
-                warnings.add(ChatFormatting.RED + "Disable Render Regions");
+                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Render Regions");
             if (OptifineHelper.isActive() && OptifineHelper.isAnisotropicFiltering())
-                warnings.add(ChatFormatting.RED + "Disable Anisotropic Filtering");
+                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Anisotropic Filtering");
             if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.gameSettings.useVbo)
-                warnings.add(ChatFormatting.YELLOW + "please enable VBO and restart the world!");
+                warnings.add(ChatFormatting.YELLOW + "(LittleTiles) Please enable VBO and restart the world!");
             if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.isActive() && mc.gameSettings.mipmapLevels == 0)
-                warnings.add(ChatFormatting.RED + "Enable mipmap levels (needs to be > 0)");
+                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Enable mipmap levels (needs to be > 0)");
             if (!warnings.isEmpty()) {
                 GlStateManager.pushMatrix();
                 for (int i = 0; i < warnings.size(); i++) {
