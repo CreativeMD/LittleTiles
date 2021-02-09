@@ -277,6 +277,14 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         
     }
     
+    @Override
+    public NBTTagCompound writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
+        super.writeToNBTPreview(nbt, newCenter);
+        NBTTagCompound stateNBT = nbt.getCompoundTag("state");
+        stateNBT.setInteger("state", 0);
+        return nbt;
+    }
+    
     public abstract DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration);
     
     public abstract StructureAbsolute getAbsoluteAxis();
