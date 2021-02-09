@@ -422,6 +422,8 @@ public abstract class LittleAction extends CreativeCorePacket {
     public static void sendBlockResetToClient(World world, EntityPlayer player, BlockPos pos) {
         if (!(player instanceof EntityPlayerMP))
             return;
+        if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+            return;
         TileEntity te = world.getTileEntity(pos);
         if (te != null)
             sendBlockResetToClient(world, player, te);
@@ -436,6 +438,8 @@ public abstract class LittleAction extends CreativeCorePacket {
     public static void sendBlockResetToClient(World world, EntityPlayer player, TileEntity te) {
         if (!(player instanceof EntityPlayerMP))
             return;
+        if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+            return;
         if (world instanceof CreativeWorld)
             PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, te.getPos(), te), (EntityPlayerMP) player);
         else {
@@ -448,6 +452,8 @@ public abstract class LittleAction extends CreativeCorePacket {
     public static void sendBlockResetToClient(World world, EntityPlayer player, Iterable<TileEntityLittleTiles> tileEntities) {
         if (!(player instanceof EntityPlayerMP))
             return;
+        if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+            return;
         PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(world, tileEntities), (EntityPlayerMP) player);
     }
     
@@ -455,6 +461,8 @@ public abstract class LittleAction extends CreativeCorePacket {
         if (!(player instanceof EntityPlayerMP))
             return;
         try {
+            if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+                return;
             sendBlockResetToClient(world, player, structure.blocks());
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             e.printStackTrace();
