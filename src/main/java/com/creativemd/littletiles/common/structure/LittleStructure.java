@@ -759,7 +759,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
             previews.addTile(pair.key, pair.value);
         
         for (StructureChildConnection child : children)
-            previews.addChild(child.getStructure().getPreviews(pos));
+            previews.addChild(child.getStructure().getPreviews(pos), child.dynamic);
         
         previews.convertToSmallest();
         return previews;
@@ -776,7 +776,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
         }
         
         for (StructureChildConnection child : children)
-            previews.addChild(child.getStructure().getPreviews(pos));
+            previews.addChild(child.getStructure().getPreviews(pos), child.dynamic);
         
         previews.convertToSmallest();
         return previews;
@@ -792,9 +792,9 @@ public abstract class LittleStructure implements ISignalSchedulable {
         
         for (StructureChildConnection child : children)
             if (!child.isLinkToAnotherWorld())
-                previews.addChild(child.getStructure().getPreviewsSameWorldOnly(pos));
+                previews.addChild(child.getStructure().getPreviewsSameWorldOnly(pos), child.dynamic);
             else
-                previews.addChild(new LittlePreviewsStructureHolder(child.getStructure()));
+                previews.addChild(new LittlePreviewsStructureHolder(child.getStructure()), child.dynamic);
             
         previews.convertToSmallest();
         return previews;
@@ -812,9 +812,9 @@ public abstract class LittleStructure implements ISignalSchedulable {
         
         for (StructureChildConnection child : children)
             if (!child.isLinkToAnotherWorld())
-                previews.addChild(child.getStructure().getPreviews(pos));
+                previews.addChild(child.getStructure().getPreviews(pos), child.dynamic);
             else
-                previews.addChild(new LittlePreviewsStructureHolder(child.getStructure()));
+                previews.addChild(new LittlePreviewsStructureHolder(child.getStructure()), child.dynamic);
             
         previews.convertToSmallest();
         return previews;

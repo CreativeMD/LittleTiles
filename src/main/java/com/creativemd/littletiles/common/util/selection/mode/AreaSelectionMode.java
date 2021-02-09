@@ -138,7 +138,7 @@ public class AreaSelectionMode extends SelectionMode {
                                                 structure = structure.getParent().getStructure();
                                             structure.load();
                                             if (!structures.contains(structure)) {
-                                                previews.addChild(structure.getPreviews(center));
+                                                previews.addChild(structure.getPreviews(center), false);
                                                 structures.add(structure);
                                             }
                                         } catch (CorruptedConnectionException | NotYetConnectedException e) {

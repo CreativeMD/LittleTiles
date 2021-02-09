@@ -258,8 +258,8 @@ public class Placement {
         for (int i = 0; i < preview.children.size(); i++) {
             PlacementStructurePreview child = preview.children.get(i);
             if (preview.getStructure() != null && child.getStructure() != null) {
-                preview.getStructure().updateChildConnection(i, child.getStructure(), false);
-                child.getStructure().updateParentConnection(i, preview.getStructure(), false);
+                preview.getStructure().updateChildConnection(i, child.getStructure(), child.dynamic);
+                child.getStructure().updateParentConnection(i, preview.getStructure(), child.dynamic);
             }
             
             updateRelations(child);
@@ -520,12 +520,14 @@ public class Placement {
         public final LittlePreviews previews;
         public final PlacementStructurePreview parent;
         public final int index;
+        public final boolean dynamic;
         private int structureIndex = -1;
         
         public PlacementStructurePreview(PlacementStructurePreview parent, LittlePreviews previews) {
             this.index = structures.size();
             structures.add(this);
             
+            this.dynamic = previews.isDynamic();
             this.parent = parent;
             this.previews = previews;
             if (previews instanceof LittlePreviewsStructureHolder)

@@ -174,15 +174,21 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
         children.set(index, child).parent = null;
     }
     
-    public void addChild(LittlePreviews child) {
+    public void addChild(LittlePreviews child, boolean dynamic) {
         if (child.isAbsolute())
             throw new RuntimeException("Absolute previews cannot be added as a child!");
         child.parent = this;
+        if (child.structureNBT != null)
+            child.structureNBT.setBoolean("dynamic", true);
         children.add(child);
         if (context.size < child.getSmallestContext().size)
             convertToSmallest();
         else if (child.context != context)
             child.convertTo(context);
+    }
+    
+    public boolean isDynamic() {
+        return structureNBT != null && structureNBT.getBoolean("dynamic");
     }
     
     @Override
@@ -372,7 +378,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
             NBTTagList list = nbt.getTagList("children", 10);
             for (int i = 0; i < list.tagCount(); i++) {
                 NBTTagCompound child = list.getCompoundTagAt(i);
-                previews.addChild(getChild(context, child));
+                previews.addChild(getChild(context, child), child.getBoolean("dynamic"));
             }
         }
         return previews;
@@ -414,7 +420,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
                     list = stack.getTagCompound().getTagList("children", 10);
                     for (int i = 0; i < list.tagCount(); i++) {
                         NBTTagCompound child = list.getCompoundTagAt(i);
-                        previews.addChild(getChild(context, child));
+                        previews.addChild(getChild(context, child), child.getBoolean("dynamic"));
                     }
                 }
                 
@@ -428,7 +434,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
                 NBTTagList list = stack.getTagCompound().getTagList("children", 10);
                 for (int i = 0; i < list.tagCount(); i++) {
                     NBTTagCompound child = list.getCompoundTagAt(i);
-                    previews.addChild(getChild(context, child));
+                    previews.addChild(getChild(context, child), child.getBoolean("dynamic"));
                 }
             }
             

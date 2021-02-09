@@ -597,7 +597,7 @@ public abstract class LittleAction extends CreativeCorePacket {
         NBTTagList list = nbt.getTagList("children", 10);
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound child = list.getCompoundTagAt(i);
-            previews.addChild(LittlePreviews.getChild(previews.getContext(), child));
+            previews.addChild(LittlePreviews.getChild(previews.getContext(), child), child.getBoolean("dynamic"));
         }
         return previews;
     }
