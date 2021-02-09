@@ -245,22 +245,28 @@ public class LittleEventHandler {
     }
     
     static List<EntityPlayer> blockTilePrevent = new ArrayList<>();
+    static boolean recentlyConsumedRightClick = false;
     
     public static void addBlockTilePrevent(EntityPlayer player) {
         blockTilePrevent.add(player);
     }
     
-    public static boolean consumeBlockTilePrevent(EntityPlayer player) {
+    public static boolean consumeBlockTilePrevent(EntityPlayer player, EnumHand hand) {
+        if (hand == EnumHand.OFF_HAND && recentlyConsumedRightClick)
+            return true;
         int index = blockTilePrevent.indexOf(player);
-        if (index == -1)
+        if (index == -1) {
+            recentlyConsumedRightClick = false;
             return false;
+        }
         blockTilePrevent.remove(index);
+        recentlyConsumedRightClick = true;
         return true;
     }
     
     @SubscribeEvent
     public void onInteractAir(RightClickEmpty event) {
-        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer())) {
+        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
             event.setCanceled(true);
             return;
         }
@@ -268,7 +274,7 @@ public class LittleEventHandler {
     
     @SubscribeEvent
     public void onInteractEntity(EntityInteractSpecific event) {
-        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer())) {
+        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
             event.setCanceled(true);
             return;
         }
@@ -276,7 +282,7 @@ public class LittleEventHandler {
     
     @SubscribeEvent
     public void onInteract(RightClickBlock event) {
-        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer())) {
+        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
             event.setCanceled(true);
             return;
         }

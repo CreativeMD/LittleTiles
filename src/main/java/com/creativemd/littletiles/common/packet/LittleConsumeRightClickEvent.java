@@ -5,6 +5,7 @@ import com.creativemd.littletiles.common.event.LittleEventHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumHand;
 
 public class LittleConsumeRightClickEvent extends CreativeCorePacket {
     
@@ -25,7 +26,7 @@ public class LittleConsumeRightClickEvent extends CreativeCorePacket {
     
     @Override
     public void executeServer(EntityPlayer player) {
-        LittleEventHandler.consumeBlockTilePrevent(player);
+        LittleEventHandler.consumeBlockTilePrevent(player, EnumHand.MAIN_HAND);
     }
     
 }
