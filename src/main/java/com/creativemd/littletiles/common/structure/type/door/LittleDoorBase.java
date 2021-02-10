@@ -38,6 +38,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
+import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor.LittleAdvancedDoorParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor.LittleAdvancedDoorType;
 import com.creativemd.littletiles.common.structure.type.door.LittleAxisDoor.LittleAxisDoorParser;
@@ -125,6 +126,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
     public LittleAbsolutePreviews getDoorPreviews() throws CorruptedConnectionException, NotYetConnectedException {
         LittleAbsolutePreviews previews = getAbsolutePreviewsSameWorldOnly(getPos());
         transformDoorPreview(previews);
+        InternalSignalOutput output = getOutput(0);
+        previews.structureNBT.setTag(output.component.identifier, output.write(true, new NBTTagCompound()));
         return previews;
     }
     
@@ -275,14 +278,6 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         
         return animation;
         
-    }
-    
-    @Override
-    public NBTTagCompound writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
-        super.writeToNBTPreview(nbt, newCenter);
-        NBTTagCompound stateNBT = nbt.getCompoundTag("state");
-        stateNBT.setInteger("state", 0);
-        return nbt;
     }
     
     public abstract DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration);

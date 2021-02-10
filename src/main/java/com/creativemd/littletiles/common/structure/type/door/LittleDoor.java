@@ -192,6 +192,14 @@ public abstract class LittleDoor extends LittleStructure {
                 } catch (LittleActionException e) {}
     }
     
+    @Override
+    public NBTTagCompound writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
+        super.writeToNBTPreview(nbt, newCenter);
+        NBTTagCompound stateNBT = nbt.getCompoundTag("state");
+        stateNBT.setInteger("state", 0);
+        return nbt;
+    }
+    
     public static class LittleDoorType extends LittleDoorBaseType {
         
         public LittleDoorType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
