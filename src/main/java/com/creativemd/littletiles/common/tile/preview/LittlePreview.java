@@ -226,6 +226,7 @@ public class LittlePreview implements ICombinable {
     public LittlePreview copy() {
         NBTTagCompound nbt = new NBTTagCompound();
         this.writeToNBT(nbt);
+        nbt.setTag("tile", tileData.copy());
         return LittleTileRegistry.loadPreview(nbt);
     }
     
