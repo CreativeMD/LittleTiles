@@ -43,6 +43,8 @@ public abstract class DragShape {
     
     public static final DragShape slice = new DragShapeSliced();
     
+    public static final DragShape pyramid = new DragShapePyramid();
+    
     public static final DragShape defaultShape = box;
     
     public static DragShape getShape(String name) {
@@ -77,6 +79,7 @@ public abstract class DragShape {
         registerDragShape(wall);
         registerDragShape(line);
         registerDragShape(slice);
+        registerDragShape(pyramid);
     }
     
 }
