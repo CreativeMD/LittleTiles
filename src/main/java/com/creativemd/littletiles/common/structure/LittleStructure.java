@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
 import com.creativemd.littletiles.common.structure.connection.ChildrenList;
+import com.creativemd.littletiles.common.structure.connection.IWorldPositionProvider;
 import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
 import com.creativemd.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
@@ -81,7 +82,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class LittleStructure implements ISignalSchedulable {
+public abstract class LittleStructure implements ISignalSchedulable, IWorldPositionProvider {
     
     private static final Iterator<LittleTile> EMPTY_ITERATOR = new Iterator<LittleTile>() {
         
@@ -136,6 +137,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
         return getWorld().isRemote;
     }
     
+    @Override
     public BlockPos getPos() {
         return mainBlock.getPos();
     }
@@ -223,6 +225,21 @@ public abstract class LittleStructure implements ISignalSchedulable {
             throw new RuntimeException("Invalid connection between to structures!");
         
         this.parent = connector;
+    }
+    
+    public StructureChildConnection generateConnection(IWorldPositionProvider parent) {
+        World world = getWorld();
+        World parentWorld = parent.getWorld();
+        
+        StructureChildConnection connector;
+        if (parentWorld == world)
+            connector = new StructureChildConnection(parent, true, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this.getAttribute());
+        else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
+            connector = new StructureChildToSubWorldConnection(parent, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this
+                .getAttribute(), ((SubWorld) world).parent.getUniqueID());
+        else
+            throw new RuntimeException("Invalid connection between to structures!");
+        return connector;
     }
     
     public void removeDynamicChild(int i) throws CorruptedConnectionException, NotYetConnectedException {
@@ -385,6 +402,16 @@ public abstract class LittleStructure implements ISignalSchedulable {
         if (!isClient())
             schedule();
     }
+    
+    public void notifyAfterPlaced() {
+        afterPlaced();
+        for (StructureChildConnection child : children)
+            try {
+                child.getStructure().notifyAfterPlaced();
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+    }
+    
+    protected void afterPlaced() {}
     
     // ================Save and loading================
     
@@ -600,6 +627,7 @@ public abstract class LittleStructure implements ISignalSchedulable {
     }
     
     /** Is called before the structure is removed */
+    @Override
     public void onStructureDestroyed() {
         unload();
     }

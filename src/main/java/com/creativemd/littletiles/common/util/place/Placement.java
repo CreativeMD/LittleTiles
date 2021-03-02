@@ -216,6 +216,9 @@ public class Placement {
         
         constructStructureRelations();
         
+        if (origin.isStructure())
+            origin.getStructure().notifyAfterPlaced();
+        
         HashSet<BlockPos> blocksToNotify = new HashSet<>();
         for (BlockPos pos : blocksToUpdate) {
             for (int i = 0; i < 6; i++) {

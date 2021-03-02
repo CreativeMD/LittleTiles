@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.util.outdated.connection;
 
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.connection.IWorldPositionProvider;
 import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
 import com.creativemd.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
@@ -14,7 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 public class StructureLink {
     
     @Deprecated
-    public static StructureChildConnection loadFromNBTOld(LittleStructure structure, NBTTagCompound nbt, boolean isChild) {
+    public static StructureChildConnection loadFromNBTOld(IWorldPositionProvider structure, NBTTagCompound nbt, boolean isChild) {
         int childID = nbt.getInteger("childID");
         int attribute = nbt.getInteger("type");
         LittleIdentifierRelative identifier = new LittleIdentifierRelative(nbt);

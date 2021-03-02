@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.structure.connection;
 import java.util.UUID;
 
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.MissingAnimationException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
@@ -17,12 +16,12 @@ public class StructureChildToSubWorldConnection extends StructureChildConnection
     
     public final UUID entityUUID;
     
-    public StructureChildToSubWorldConnection(LittleStructure parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute, UUID entityUUID) {
+    public StructureChildToSubWorldConnection(IWorldPositionProvider parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute, UUID entityUUID) {
         super(parent, false, dynamic, childId, relative, index, attribute);
         this.entityUUID = entityUUID;
     }
     
-    public StructureChildToSubWorldConnection(LittleStructure parent, NBTTagCompound nbt) {
+    public StructureChildToSubWorldConnection(IWorldPositionProvider parent, NBTTagCompound nbt) {
         super(parent, false, nbt);
         this.entityUUID = UUID.fromString(nbt.getString("entity"));
     }

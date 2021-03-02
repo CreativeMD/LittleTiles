@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 
@@ -12,11 +11,11 @@ import net.minecraft.world.World;
 
 public class StructureChildFromSubWorldConnection extends StructureChildConnection {
     
-    public StructureChildFromSubWorldConnection(LittleStructure parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
+    public StructureChildFromSubWorldConnection(IWorldPositionProvider parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
         super(parent, true, dynamic, childId, relative, index, attribute);
     }
     
-    public StructureChildFromSubWorldConnection(LittleStructure parent, NBTTagCompound nbt) {
+    public StructureChildFromSubWorldConnection(IWorldPositionProvider parent, NBTTagCompound nbt) {
         super(parent, true, nbt);
     }
     

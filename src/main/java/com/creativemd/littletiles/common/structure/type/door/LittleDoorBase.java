@@ -232,6 +232,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             newDoor.updateParentConnection(getParent().getChildId(), parentStructure, dynamic);
         }
         
+        newDoor.notifyAfterPlaced();
+        
         animation.controller.startTransition(DoorController.openedState);
         
         world.spawnEntity(animation);

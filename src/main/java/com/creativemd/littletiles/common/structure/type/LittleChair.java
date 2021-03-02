@@ -1,11 +1,16 @@
 package com.creativemd.littletiles.common.structure.type;
 
+import java.util.UUID;
+
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.creativecore.common.world.CreativeWorld;
+import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntitySit;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -16,6 +21,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,6 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleChair extends LittleStructure {
     
+    private UUID sitUUID;
     private EntityPlayer player;
     
     public LittleChair(LittleStructureType type, IStructureTileList mainBlock) {
@@ -36,18 +43,46 @@ public class LittleChair extends LittleStructure {
     
     @Override
     protected void loadFromNBTExtra(NBTTagCompound nbt) {
-        
+        if (nbt.hasKey("sit"))
+            sitUUID = UUID.fromString(nbt.getString("sit"));
+        else
+            sitUUID = null;
     }
     
     @Override
     protected void writeToNBTExtra(NBTTagCompound nbt) {
-        
+        if (sitUUID != null)
+            nbt.setString("sit", sitUUID.toString());
+        else
+            nbt.removeTag("sit");
     }
     
     public void setPlayer(EntityPlayer player) {
         this.player = player;
         if (!getWorld().isRemote)
             getInput(0).updateState(BooleanUtils.asArray(player != null));
+        if (this.player == null)
+            sitUUID = null;
+    }
+    
+    @Override
+    protected void afterPlaced() {
+        super.afterPlaced();
+        if (sitUUID != null) {
+            World world = getWorld();
+            if (world instanceof IOrientatedWorld) {
+                if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+                    return;
+                world = ((IOrientatedWorld) world).getRealWorld();
+            }
+            for (Entity entity : world.loadedEntityList)
+                if (entity.getUniqueID().equals(sitUUID) && entity instanceof EntitySit) {
+                    EntitySit sit = (EntitySit) entity;
+                    StructureChildConnection temp = this.generateConnection(sit);
+                    sit.getDataManager().set(EntitySit.CONNECTION, temp.writeToNBT(new NBTTagCompound()));
+                    break;
+                }
+        }
     }
     
     @Override
@@ -58,7 +93,10 @@ public class LittleChair extends LittleStructure {
             try {
                 LittleAbsoluteVec vec = getHighestCenterPoint();
                 if (vec != null) {
+                    if (world instanceof IOrientatedWorld)
+                        world = ((IOrientatedWorld) world).getRealWorld();
                     EntitySit sit = new EntitySit(this, world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
+                    sitUUID = sit.getPersistentID();
                     player.startRiding(sit);
                     world.spawnEntity(sit);
                     setPlayer(player);
