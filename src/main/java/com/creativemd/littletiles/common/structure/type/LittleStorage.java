@@ -19,6 +19,8 @@ import com.creativemd.littletiles.common.block.BlockStorageTile;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -164,6 +166,24 @@ public class LittleStorage extends LittleStructure {
         openContainers.remove(container);
         updateInput();
         onInventoryChanged();
+    }
+    
+    @Override
+    protected void afterPlaced() {
+        super.afterPlaced();
+        double volume = 0;
+        try {
+            for (IStructureTileList list : blocksList())
+                for (LittleTile tile : list)
+                    if (tile.getBlock() instanceof BlockStorageTile)
+                        volume += tile.getPercentVolume(list.getContext());
+                    
+            volume *= LittleGridContext.get().maxTilesPerBlock * LittleTiles.CONFIG.general.storagePerPixel;
+            
+            inventorySize = (int) volume;
+            stackSizeLimit = maxSlotStackSize;
+            updateNumberOfSlots();
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
     public static class LittleStorageParser extends LittleStructureGuiParser {
