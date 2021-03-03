@@ -205,6 +205,14 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     }
     
     @Override
+    public void scaleAdvanced(double scale) {
+        this.black = (int) Math.ceil(this.black * scale);
+        this.cyan = (int) Math.ceil(this.cyan * scale);;
+        this.magenta = (int) Math.ceil(this.magenta * scale);;
+        this.yellow = (int) Math.ceil(this.yellow * scale);;
+    }
+    
+    @Override
     public int getMinimumCount(ColorIngredient other, int availableCount) {
         int count = -1;
         if (this.black > 0 && other.black > 0)

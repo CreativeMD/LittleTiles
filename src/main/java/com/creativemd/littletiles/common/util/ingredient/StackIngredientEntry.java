@@ -66,4 +66,8 @@ public class StackIngredientEntry {
         this.count *= count;
     }
     
+    public void scaleAdvanced(double scale) {
+        this.count = (int) Math.ceil(this.count * scale);
+    }
+    
 }

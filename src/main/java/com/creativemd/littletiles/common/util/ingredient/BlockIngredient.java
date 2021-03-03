@@ -135,6 +135,12 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
             entry.scale(count);
     }
     
+    @Override
+    public void scaleAdvanced(double scale) {
+        for (BlockIngredientEntry entry : content)
+            entry.scaleAdvanced(scale);
+    }
+    
     protected LinkedHashMapDouble<BlockIngredientEntry> getCombinedEntries() {
         LinkedHashMapDouble<BlockIngredientEntry> map = new LinkedHashMapDouble<>();
         for (BlockIngredientEntry entry : content)

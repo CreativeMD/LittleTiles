@@ -327,6 +327,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
     
     public abstract void scale(int count);
     
+    public abstract void scaleAdvanced(double scale);
+    
     public abstract int getMinimumCount(T other, int availableCount);
     
     @Override

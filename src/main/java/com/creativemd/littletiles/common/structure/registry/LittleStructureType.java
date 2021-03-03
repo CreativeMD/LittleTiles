@@ -9,6 +9,7 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
+import com.creativemd.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScaler;
 import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
@@ -18,6 +19,7 @@ import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 
 import net.minecraft.item.ItemStack;
@@ -36,6 +38,7 @@ public class LittleStructureType {
     public final List<StructureDirectionalField> directional;
     public final List<InternalComponent> inputs = new ArrayList<>();
     public final List<InternalComponentOutput> outputs = new ArrayList<>();
+    protected List<IStructureIngredientRule> ingredientRules = null;
     
     public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
         this.id = id;
@@ -85,6 +88,17 @@ public class LittleStructureType {
         return addOutput(name, bandwidth, defaultMode, false);
     }
     
+    public LittleStructureType addIngredient(StructureIngredientScaler scale, LittleIngredient ingredient) {
+        return addIngredient(new StructureIngredientRule(scale, ingredient));
+    }
+    
+    public LittleStructureType addIngredient(IStructureIngredientRule rule) {
+        if (ingredientRules == null)
+            ingredientRules = new ArrayList<>();
+        ingredientRules.add(rule);
+        return this;
+    }
+    
     public LittleStructure createStructure(StructureTileList mainBlock) {
         try {
             return clazz.getConstructor(LittleStructureType.class, IStructureTileList.class).newInstance(this, mainBlock);
@@ -113,7 +127,10 @@ public class LittleStructureType {
     }
     
     public void addIngredients(LittlePreviews previews, LittleIngredients ingredients) {
-        
+        if (ingredientRules != null)
+            for (IStructureIngredientRule rule : ingredientRules)
+                rule.add(previews, ingredients);
+            
     }
     
     public void finializePreview(LittlePreviews previews) {

@@ -87,6 +87,10 @@ public class BlockIngredientEntry {
         value *= count;
     }
     
+    public void scaleAdvanced(double scale) {
+        this.value = (int) Math.ceil(this.value * scale);
+    }
+    
     @Override
     public String toString() {
         return "[" + block.getRegistryName() + "," + meta + "," + value + "]";

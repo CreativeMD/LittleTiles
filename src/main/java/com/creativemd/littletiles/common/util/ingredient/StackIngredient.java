@@ -21,6 +21,11 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
         
     }
     
+    public StackIngredient(ItemStack... stacks) {
+        for (int i = 0; i < stacks.length; i++)
+            content.add(new StackIngredientEntry(stacks[i], stacks[i].getCount()));
+    }
+    
     public StackIngredient(List<ItemStack> stacks) {
         stacks.forEach((x) -> content.add(new StackIngredientEntry(x, x.getCount())));
     }
@@ -147,6 +152,12 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     public void scale(int count) {
         for (StackIngredientEntry entry : content)
             entry.scale(count);
+    }
+    
+    @Override
+    public void scaleAdvanced(double scale) {
+        for (StackIngredientEntry entry : content)
+            entry.scaleAdvanced(scale);
     }
     
     protected LinkedHashMapInteger<StackIngredientEntry> getCombinedEntries() {

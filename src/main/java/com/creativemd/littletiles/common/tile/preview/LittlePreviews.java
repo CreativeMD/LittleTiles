@@ -477,6 +477,13 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
         previews.add(preview);
     }
     
+    public double getVolume() {
+        double volume = 0;
+        for (LittlePreview preview : this)
+            volume += preview.getPercentVolume(context);
+        return volume;
+    }
+    
     public double getVolumeIncludingChildren() {
         double volume = 0;
         for (LittlePreview preview : allPreviews())
