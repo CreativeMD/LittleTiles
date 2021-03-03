@@ -296,6 +296,14 @@ public class TileList extends ParentTileList {
     }
     
     @Override
+    public int totalSize() {
+        int size = size();
+        for (StructureTileList list : structures.values())
+            size += list.totalSize();
+        return size;
+    }
+    
+    @Override
     public LittleTile last() {
         return isEmpty() ? null : super.get(size() - 1);
     }

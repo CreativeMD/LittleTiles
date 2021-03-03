@@ -180,6 +180,11 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
             ((LittleStructure) cache).unload();
     }
     
+    @Override
+    public int totalSize() {
+        return size();
+    }
+    
     @Deprecated
     public void flipForWarpDrive(Axis axis) {
         relativePos = RotationUtils.flip(relativePos, axis);

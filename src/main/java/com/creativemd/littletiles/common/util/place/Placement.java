@@ -13,6 +13,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceException;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
@@ -378,6 +379,15 @@ public class Placement {
             
             TileEntityLittleTiles te = LittleAction.loadTe(player, world, pos, null, false, attribute);
             if (te != null) {
+                
+                int size = te.tilesCount();
+                for (int i = 0; i < previews.length; i++)
+                    if (previews[i] != null)
+                        size += previews[i].size();
+                    
+                if (size > LittleTiles.CONFIG.general.maxAllowedDensity)
+                    throw new LittleTilesConfig.TooDenseException();
+                
                 LittleGridContext contextBefore = te.getContext();
                 te.forceContext(this);
                 
@@ -401,6 +411,14 @@ public class Placement {
                 return true;
             }
             
+            int size = 0;
+            for (int i = 0; i < previews.length; i++)
+                if (previews[i] != null)
+                    size += previews[i].size();
+                
+            if (size > LittleTiles.CONFIG.general.maxAllowedDensity)
+                throw new LittleTilesConfig.TooDenseException();
+            
             IBlockState state = world.getBlockState(pos);
             if (state.getMaterial().isReplaceable())
                 return true;
@@ -421,7 +439,7 @@ public class Placement {
             }
             
             cached.combineTilesSecretly();
-            if (cached.size() == 1 && cached.convertBlockToVanilla())
+            if (cached.tilesCount() == 1 && cached.convertBlockToVanilla())
                 return true;
             return false;
         }
@@ -462,6 +480,14 @@ public class Placement {
                     cached = cached.forceSupportAttribute(attribute);
                 
                 if (cached != null) {
+                    
+                    int size = cached.tilesCount();
+                    for (int i = 0; i < previews.length; i++)
+                        if (previews[i] != null)
+                            size += previews[i].size();
+                        
+                    if (size > LittleTiles.CONFIG.general.maxAllowedDensity)
+                        throw new LittleTilesConfig.TooDenseException();
                     
                     if (cached.isEmpty())
                         requiresCollisionTest = false;

@@ -18,6 +18,8 @@ public interface IParentTileList extends Iterable<LittleTile> {
     
     public int size();
     
+    public int totalSize();
+    
     public boolean isStructure();
     
     public default boolean isStructureChildSafe(LittleStructure structure) {

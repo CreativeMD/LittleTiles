@@ -150,7 +150,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         return tiles.contains(tile);
     }
     
-    public int size() {
+    public int tilesCount() {
         return tiles.size();
     }
     

@@ -89,6 +89,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public float dyeVolume = 2;
         
+        @CreativeConfig
+        public int maxAllowedDensity = 2048;
+        
     }
     
     public static class NotAllowedToConvertBlockException extends LittleActionException {
@@ -134,6 +137,19 @@ public class LittleTilesConfig {
         @Override
         public String getLocalizedMessage() {
             return I18n.translateToLocalFormatted(getMessage(), config.maxPlaceBlocks);
+        }
+        
+    }
+    
+    public static class TooDenseException extends LittleActionException {
+        
+        public TooDenseException() {
+            super("exception.permission.density");
+        }
+        
+        @Override
+        public String getLocalizedMessage() {
+            return I18n.translateToLocalFormatted(getMessage(), LittleTiles.CONFIG.general.maxAllowedDensity);
         }
         
     }
