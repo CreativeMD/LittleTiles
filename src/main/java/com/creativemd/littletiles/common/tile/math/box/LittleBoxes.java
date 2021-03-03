@@ -89,7 +89,7 @@ public class LittleBoxes extends ArrayList<LittleBox> implements IGridBased {
     public HashMapList<BlockPos, LittleBox> split() {
         HashMapList<BlockPos, LittleBox> map = new HashMapList<>();
         for (LittleBox box : this)
-            box.split(context, pos, map);
+            box.split(context, pos, map, null);
         return map;
     }
     

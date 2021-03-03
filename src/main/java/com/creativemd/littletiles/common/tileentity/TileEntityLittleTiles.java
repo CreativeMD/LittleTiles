@@ -31,6 +31,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -407,11 +408,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
      * @param cutout
      *            filled with all boxes which are cutout by tiles
      * @return all boxes which are not cutout by other tiles */
-    public List<LittleBox> cutOut(LittleBox box, List<LittleBox> cutout) {
+    public List<LittleBox> cutOut(LittleBox box, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> cutting = new ArrayList<>();
         for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
             pair.value.getIntersectingBox(box, cutting);
-        return box.cutOut(cutting, cutout);
+        return box.cutOut(cutting, cutout, volume);
     }
     
     public Pair<IParentTileList, LittleTile> intersectingTile(LittleBox box) {

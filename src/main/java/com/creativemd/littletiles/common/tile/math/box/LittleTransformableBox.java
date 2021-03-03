@@ -855,7 +855,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public LittleBox extractBox(int x, int y, int z) {
+    public LittleBox extractBox(int x, int y, int z, @Nullable LittleBoxReturnedVolume volume) {
         LittleTransformableBox box = this.copy();
         CornerCache cache = box.new CornerCache(false);
         
@@ -875,11 +875,13 @@ public class LittleTransformableBox extends LittleBox {
                 return new LittleBox(x, y, z, x + 1, y + 1, z + 1);
             else
                 return box;
+        if (volume != null)
+            volume.addPixel();
         return null;
     }
     
     @Override
-    public LittleBox extractBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public LittleBox extractBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, @Nullable LittleBoxReturnedVolume volume) {
         LittleTransformableBox box = this.copy();
         CornerCache cache = box.new CornerCache(false);
         
@@ -900,8 +902,12 @@ public class LittleTransformableBox extends LittleBox {
             else {
                 box.requestCache().setBounds(minX, minY, minZ, maxX, maxY, maxZ);
                 box.data = cache.getData();
+                if (volume != null)
+                    volume.addDifBox(box, minX, minY, minZ, maxX, maxY, maxZ);
                 return box;
             }
+        if (volume != null)
+            volume.addBox(minX, minY, minZ, maxX, maxY, maxZ);
         return null;
     }
     

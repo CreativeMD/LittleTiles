@@ -10,6 +10,7 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -61,14 +62,14 @@ public class PlacePreview {
         return tile;
     }
     
-    public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreview> tiles, BlockPos pos) {
+    public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreview> tiles, BlockPos pos, LittleBoxReturnedVolume volume) {
         if (!requiresSplit()) {
             tiles.add(pos, this);
             return true;
         }
         
         HashMapList<BlockPos, LittleBox> boxes = new HashMapList<>();
-        this.box.split(context, pos, boxes);
+        this.box.split(context, pos, boxes, volume);
         for (Entry<BlockPos, ArrayList<LittleBox>> entry : boxes.entrySet()) {
             for (LittleBox box : entry.getValue()) {
                 tiles.add(entry.getKey(), this.copyWithBox(box));

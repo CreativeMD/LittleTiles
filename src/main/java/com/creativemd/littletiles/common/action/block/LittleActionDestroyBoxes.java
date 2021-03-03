@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.ParentTileList;
@@ -123,7 +124,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                         LittlePreview preview = tile.getPreviewTile();
                         
                         List<LittleBox> cutout = new ArrayList<>();
-                        List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
+                        LittleBoxReturnedVolume returnedVolume = new LittleBoxReturnedVolume();
+                        List<LittleBox> newBoxes = tile.cutOut(boxes, cutout, returnedVolume);
                         
                         if (newBoxes != null) {
                             if (!simulate) {
@@ -134,6 +136,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                                 }
                                 
                                 destroyedTiles.add(tile);
+                                
                             }
                             
                             for (int l = 0; l < cutout.size(); l++) {
@@ -148,6 +151,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                         
                         if (volume > 0)
                             ingredients.add(getIngredients(preview, volume));
+                        if (returnedVolume.has())
+                            ingredients.add(getIngredients(preview, returnedVolume.getPercentVolume(context)));
                     } else {
                         ingredients.add(getIngredients(parent, tile));
                         
@@ -297,7 +302,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                     List<LittleBox> cutout = new ArrayList<>();
                     List<LittleBox> boxes = new ArrayList<>();
                     boxes.add(toCut);
-                    List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
+                    LittleBoxReturnedVolume returnedVolume = new LittleBoxReturnedVolume();
+                    List<LittleBox> newBoxes = tile.cutOut(boxes, cutout, returnedVolume);
                     
                     if (newBoxes != null) {
                         for (LittleBox box : newBoxes) {
@@ -311,6 +317,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                             copy.setBox(box);
                             removed.add(copy);
                         }
+                        
+                        if (returnedVolume.has())
+                            removed.add(returnedVolume.createFakeTile(tile));
                     }
                 } else
                     removed.add(tile);
@@ -363,7 +372,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                     LittlePreview preview = tile.getPreviewTile();
                     
                     List<LittleBox> cutout = new ArrayList<>();
-                    List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
+                    LittleBoxReturnedVolume returnedVolume = new LittleBoxReturnedVolume();
+                    List<LittleBox> newBoxes = tile.cutOut(boxes, cutout, returnedVolume);
                     
                     if (newBoxes != null) {
                         for (LittleBox box : newBoxes) {
@@ -377,6 +387,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                             copy.setBox(box);
                             removed.add(copy);
                         }
+                        
+                        if (returnedVolume.has())
+                            removed.add(returnedVolume.createFakeTile(tile));
                     }
                 } else
                     removed.add(tile);

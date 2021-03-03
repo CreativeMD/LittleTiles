@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -74,9 +75,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     
     public void addRevert(int color, BlockPos pos, LittleGridContext context, List<LittleBox> boxes) {
         LittleBoxes newBoxes = new LittleBoxes(pos, context);
-        for (LittleBox box : boxes) {
+        for (LittleBox box : boxes)
             newBoxes.add(box.copy());
-        }
         revertList.add(color, newBoxes);
     }
     
@@ -140,17 +140,22 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                         if (simulate) {
                             double volume = 0;
                             List<LittleBox> cutout = new ArrayList<>();
-                            tile.cutOut(boxes, cutout);
+                            LittleBoxReturnedVolume returnedVolume = new LittleBoxReturnedVolume();
+                            tile.cutOut(boxes, cutout, returnedVolume);
                             for (LittleBox box2 : cutout) {
                                 colorVolume += box2.getPercentVolume(context);
                                 volume += box2.getPercentVolume(context);
+                            }
+                            if (returnedVolume.has()) {
+                                colorVolume += returnedVolume.getPercentVolume(context);
+                                volume += returnedVolume.getPercentVolume(context);
                             }
                             
                             gained.add(ColorIngredient.getColors(tile.getPreviewTile(), volume));
                             
                         } else {
                             List<LittleBox> cutout = new ArrayList<>();
-                            List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
+                            List<LittleBox> newBoxes = tile.cutOut(boxes, cutout, null);
                             
                             if (newBoxes != null) {
                                 addRevert(LittleTileColored.getColor(tile), te.getPos(), context, cutout);

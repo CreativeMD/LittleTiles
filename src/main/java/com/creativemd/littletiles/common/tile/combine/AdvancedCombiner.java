@@ -1,11 +1,9 @@
 package com.creativemd.littletiles.common.tile.combine;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 
 public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
     
@@ -82,102 +80,6 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
         this.tiles = null;
         this.currentTile = null;
         return changed;
-    }
-    
-    public void addCuttedTile(T cutTile) {
-        tiles.add(cutTile);
-    }
-    
-    protected boolean canCutOut(T tile, T searching) {
-        return tile.canCombine(searching);
-    }
-    
-    public boolean cutOut(LittleBox searching, T toCombine) {
-        boolean intersects = false;
-        for (T tile : tiles) {
-            if (tile.getBox().containsBox(searching)) {
-                boolean canBeCombined = canCutOut(tile, toCombine);
-                
-                if (canBeCombined && searching.getClass() == tile.getBox().getClass()) {
-                    List<LittleBox> cutOut = tile.getBox().cutOut(searching);
-                    if (cutOut != null) {
-                        boxes.addAll(cutOut);
-                        for (LittleBox cutBox : cutOut) {
-                            T cutTile = (T) toCombine.copy();
-                            cutTile.setBox(cutBox);
-                            addCuttedTile(cutTile);
-                        }
-                    }
-                    removeBox(tile.getBox());
-                    return true;
-                }
-            } else if (LittleBox.intersectsWith(tile.getBox(), searching)) {
-                intersects = true;
-                break;
-            }
-        }
-        
-        if (intersects) {
-            LittleVec size = searching.getSize();
-            boolean[][][] filled = new boolean[size.x][size.y][size.z];
-            
-            for (Iterator<T> iterator = tiles.iterator(); iterator.hasNext();) {
-                T tile = iterator.next();
-                
-                if (LittleBox.intersectsWith(tile.getBox(), searching)) {
-                    boolean canBeCombined = tile.canCombine(toCombine);
-                    
-                    if (canBeCombined && searching.getClass() == tile.getBox().getClass()) {
-                        tile.fillInSpace(searching, filled);
-                    }
-                }
-            }
-            
-            for (int x = 0; x < filled.length; x++) {
-                for (int y = 0; y < filled[x].length; y++) {
-                    for (int z = 0; z < filled[x][y].length; z++) {
-                        if (!filled[x][y][z])
-                            return false;
-                    }
-                }
-            }
-            
-            int i = 0;
-            while (i < tiles.size()) {
-                T tile = tiles.get(i);
-                
-                if (LittleBox.intersectsWith(tile.getBox(), searching)) {
-                    boolean canBeCombined = canCutOut(tile, toCombine);
-                    
-                    if (canBeCombined && searching.getClass() == tile.getBox().getClass()) {
-                        List<LittleBox> cutOut = tile.getBox().cutOut(searching);
-                        if (cutOut != null) {
-                            boxes.addAll(cutOut);
-                            for (LittleBox cutBox : cutOut) {
-                                T cutTile = (T) toCombine.copy();
-                                cutTile.setBox(cutBox);
-                                addCuttedTile(cutTile);
-                            }
-                        }
-                        removeBox(tile.getBox());
-                        continue;
-                    }
-                }
-                i++;
-            }
-            
-            return true;
-        }
-        
-        return false;
-    }
-    
-    @Override
-    public boolean cutOut(LittleBox searching) {
-        if (currentTile != null)
-            return cutOut(searching, currentTile);
-        
-        return super.cutOut(searching);
     }
     
     @Override

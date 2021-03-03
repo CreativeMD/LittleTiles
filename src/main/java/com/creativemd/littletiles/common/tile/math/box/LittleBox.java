@@ -334,7 +334,7 @@ public class LittleBox {
         return minX >= 0 && maxX <= context.maxPos && minY >= 0 && maxY <= context.maxPos && minZ >= 0 && maxZ <= context.maxPos;
     }
     
-    public void split(LittleGridContext context, BlockPos offset, HashMapList<BlockPos, LittleBox> boxes) {
+    public void split(LittleGridContext context, BlockPos offset, HashMapList<BlockPos, LittleBox> boxes, @Nullable LittleBoxReturnedVolume volume) {
         int minOffX = context.toBlockOffset(minX);
         int minOffY = context.toBlockOffset(minY);
         int minOffZ = context.toBlockOffset(minZ);
@@ -360,7 +360,7 @@ public class LittleBox {
                         int offsetY = y * context.size;
                         int offsetZ = z * context.size;
                         
-                        LittleBox box = extractBox(minX, minY, minZ, maxX, maxY, maxZ);
+                        LittleBox box = extractBox(minX, minY, minZ, maxX, maxY, maxZ, volume);
                         if (box != null) {
                             
                             box.sub(offsetX, offsetY, offsetZ);
@@ -544,7 +544,7 @@ public class LittleBox {
     /** @param cutout
      *            a list of boxes which have been cut out.
      * @return all remaining boxes or null if the box remains as it is */
-    public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout) {
+    public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> newBoxes = new ArrayList<>();
         
         if (boxes.isEmpty()) {
@@ -555,7 +555,7 @@ public class LittleBox {
         SplitRangeBoxes ranges;
         if ((ranges = split(boxes)) != null) {
             for (SplitRangeBox range : ranges) {
-                LittleBox box = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max);
+                LittleBox box = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
                 
                 if (box != null) {
                     boolean cutted = false;
@@ -604,7 +604,7 @@ public class LittleBox {
             for (int x = 0; x < filled.length; x++) {
                 for (int y = 0; y < filled[x].length; y++) {
                     for (int z = 0; z < filled[x][y].length; z++) {
-                        LittleBox box = extractBox(x + minX, y + minY, z + minZ);
+                        LittleBox box = extractBox(x + minX, y + minY, z + minZ, volume);
                         if (box != null) {
                             if (filled[x][y][z])
                                 cutout.add(box);
@@ -623,7 +623,7 @@ public class LittleBox {
     }
     
     /** @return all remaining boxes or null if the box remains as it is */
-    public List<LittleBox> cutOut(LittleBox box) {
+    public List<LittleBox> cutOut(LittleBox box, LittleBoxReturnedVolume volume) {
         if (intersectsWith(box)) {
             List<LittleBox> boxes = new ArrayList<>();
             
@@ -632,7 +632,7 @@ public class LittleBox {
                 splitting.add(box);
                 
                 for (SplitRangeBox range : split(splitting)) {
-                    LittleBox tempBox = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max);
+                    LittleBox tempBox = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
                     
                     boolean cutted = false;
                     if (tempBox != null) {
@@ -655,7 +655,7 @@ public class LittleBox {
                         for (int z = minZ; z < maxZ; z++) {
                             testBox.set(x, y, z, x + 1, y + 1, z + 1);
                             if (!intersectsWith(testBox))
-                                boxes.add(extractBox(x, y, z));
+                                boxes.add(extractBox(x, y, z, volume));
                         }
                     }
                 }
@@ -719,7 +719,7 @@ public class LittleBox {
             for (int x = minX; x < maxX; x++) {
                 for (int y = minY; y < maxY; y++) {
                     for (int z = minZ; z < maxZ; z++) {
-                        LittleBox box = otherBox.extractBox(x, y, z);
+                        LittleBox box = otherBox.extractBox(x, y, z, null);
                         if (box != null && intersectsWith(box)) {
                             filled[x - otherBox.minX][y - otherBox.minY][z - otherBox.minZ] = true;
                             changed = true;
@@ -974,11 +974,11 @@ public class LittleBox {
     
     // ================Special methods================
     
-    public LittleBox extractBox(int x, int y, int z) {
+    public LittleBox extractBox(int x, int y, int z, @Nullable LittleBoxReturnedVolume volume) {
         return new LittleBox(x, y, z, x + 1, y + 1, z + 1);
     }
     
-    public LittleBox extractBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public LittleBox extractBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, @Nullable LittleBoxReturnedVolume volume) {
         return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
     }
     

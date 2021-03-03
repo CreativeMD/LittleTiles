@@ -7,6 +7,7 @@ import java.util.Set;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
@@ -37,7 +38,8 @@ public class PlaceModeFill extends PlacementMode {
         }
         
         List<LittleBox> cutout = new ArrayList<>();
-        List<LittleBox> boxes = block.getTe().cutOut(tile.getBox(), cutout);
+        LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
+        List<LittleBox> boxes = block.getTe().cutOut(tile.getBox(), cutout, volume);
         
         for (LittleBox box : boxes) {
             LittleTile newTile = tile.copy();
@@ -50,6 +52,9 @@ public class PlaceModeFill extends PlacementMode {
             newTile.setBox(box);
             placement.unplaceableTiles.addTile(parent, newTile);
         }
+        
+        if (volume.has())
+            placement.unplaceableTiles.addTile(parent, volume.createFakeTile(tile));
         
         return tiles;
     }

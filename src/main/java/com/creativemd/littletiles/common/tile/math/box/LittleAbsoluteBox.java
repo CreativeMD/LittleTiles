@@ -63,7 +63,7 @@ public class LittleAbsoluteBox implements IGridBased {
     
     public HashMapList<BlockPos, LittleBox> splitted() {
         HashMapList<BlockPos, LittleBox> boxes = new HashMapList<>();
-        box.split(context, pos, boxes);
+        box.split(context, pos, boxes, null);
         return boxes;
     }
     

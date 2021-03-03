@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.ParentTileList;
@@ -291,8 +292,12 @@ public class Placement {
     private void createPreviews(PlacementStructurePreview current, LittleVec inBlockOffset, BlockPos pos) {
         if (current.previews != null) {
             HashMapList<BlockPos, PlacePreview> splitted = new HashMapList<BlockPos, PlacePreview>();
-            for (PlacePreview pp : current.previews.getPlacePreviews(inBlockOffset))
-                pp.split(current.previews.getContext(), splitted, pos);
+            for (PlacePreview pp : current.previews.getPlacePreviews(inBlockOffset)) {
+                LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
+                pp.split(current.previews.getContext(), splitted, pos, volume);
+                if (volume.has())
+                    unplaceableTiles.addPreview(pos, volume.createFakePreview(pp.preview), current.previews.getContext());
+            }
             
             for (Entry<BlockPos, ArrayList<PlacePreview>> entry : splitted.entrySet())
                 getOrCreateBlock(entry.getKey()).addPlacePreviews(current, current.index, entry.getValue());

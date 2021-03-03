@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.api.block.SpecialBlockHandler;
 import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.tile.combine.ICombinable;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -244,12 +245,12 @@ public class LittleTile implements ICombinable {
         return LittleBox.intersectsWith(this.box, box);
     }
     
-    public List<LittleBox> cutOut(LittleBox box) {
-        return this.box.cutOut(box);
+    public List<LittleBox> cutOut(LittleBox box, @Nullable LittleBoxReturnedVolume volume) {
+        return this.box.cutOut(box, volume);
     }
     
-    public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout) {
-        return this.box.cutOut(boxes, cutout);
+    public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
+        return this.box.cutOut(boxes, cutout, volume);
     }
     
     public void getIntersectingBox(LittleBox box, List<LittleBox> boxes) {
