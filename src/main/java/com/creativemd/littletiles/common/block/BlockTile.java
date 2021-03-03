@@ -479,7 +479,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                 
                 for (LittleTile tile : list) {
                     lightLoopPreventer = false;
-                    int tempLight = tile.getLightValue(world, pos);
+                    int tempLight = (int) Math.ceil(tile.getLightValue(world, pos) * tile.getPercentVolume(te.getContext()));
                     lightLoopPreventer = true;
                     if (tempLight > light)
                         light = tempLight;
