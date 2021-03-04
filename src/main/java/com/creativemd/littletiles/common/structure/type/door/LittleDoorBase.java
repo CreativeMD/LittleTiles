@@ -260,7 +260,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all)).setIgnoreWorldBoundaries(false);
         StructureAbsolute absolute = getAbsoluteAxis();
         
-        HashMapList<BlockPos, IStructureTileList> blocks = collectAllBlocksList();
+        HashMapList<BlockPos, IStructureTileList> blocks = collectAllBlocksListSameWorld();
         
         EntityAnimation animation = place(getWorld(), fakeWorld, player, placement, uuid, absolute, tickOnce);
         

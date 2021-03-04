@@ -377,15 +377,16 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         };
     }
     
-    public HashMapList<BlockPos, IStructureTileList> collectAllBlocksList() throws CorruptedConnectionException, NotYetConnectedException {
-        return collectAllBlocksList(new HashMapList<>());
+    public HashMapList<BlockPos, IStructureTileList> collectAllBlocksListSameWorld() throws CorruptedConnectionException, NotYetConnectedException {
+        return collectAllBlocksListSameWorld(new HashMapList<>());
     }
     
-    protected HashMapList<BlockPos, IStructureTileList> collectAllBlocksList(HashMapList<BlockPos, IStructureTileList> map) throws CorruptedConnectionException, NotYetConnectedException {
+    protected HashMapList<BlockPos, IStructureTileList> collectAllBlocksListSameWorld(HashMapList<BlockPos, IStructureTileList> map) throws CorruptedConnectionException, NotYetConnectedException {
         for (IStructureTileList list : blocksList())
             map.add(list.getPos(), list);
         for (StructureChildConnection child : children)
-            child.getStructure().collectAllBlocksList(map);
+            if (!child.isLinkToAnotherWorld())
+                child.getStructure().collectAllBlocksListSameWorld(map);
         return map;
     }
     
@@ -880,6 +881,10 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                 subAnimation.setParentWorld(animation.fakeWorld);
                 animation.fakeWorld.spawnEntity(subAnimation);
                 subAnimation.updateTickState();
+                
+                childStructure.updateParentConnection(child.childId, this, child.dynamic);
+                this.updateChildConnection(child.childId, childStructure, child.dynamic);
+                
             } else
                 childStructure.transferChildrenToAnimation(animation);
         }

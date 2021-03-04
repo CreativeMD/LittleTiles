@@ -158,6 +158,13 @@ public class AnimationController {
         return currentState.state;
     }
     
+    @Override
+    public String toString() {
+        if (isChanging())
+            return "[" + currentState.name + "->" + tick + "->" + aimedState.name + "]";
+        return currentState.name;
+    }
+    
     public static class AnimationControllerState {
         
         public String name;
