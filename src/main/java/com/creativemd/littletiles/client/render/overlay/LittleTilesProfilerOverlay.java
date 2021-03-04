@@ -107,6 +107,8 @@ public class LittleTilesProfilerOverlay {
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Render Regions");
             if (OptifineHelper.isActive() && OptifineHelper.isAnisotropicFiltering())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Anisotropic Filtering");
+            if (OptifineHelper.isActive() && OptifineHelper.isAntialiasing())
+                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Antialiasing");
             if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.gameSettings.useVbo)
                 warnings.add(ChatFormatting.YELLOW + "(LittleTiles) Please enable VBO and restart the world!");
             if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.isActive() && mc.gameSettings.mipmapLevels == 0)
