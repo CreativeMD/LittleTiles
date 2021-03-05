@@ -79,6 +79,7 @@ exception.ingredient.space=Pas assez d'espace pour
 exception.permission.edit=Vous n'êtes pas autorisé à éditer plus de blocs %s
 exception.permission.place.color=Vous n'êtes pas autorisé à placer quelque chose avec un alpha inférieur à %s
 exception.permission.place=Vous n'êtes pas autorisé à placer plus de %s blocs
+exception.permission.density=Seules les tuiles %s sont autorisées en bloc
 exception.door.notloaded=Ne peut pas interagir avec la porte (toutes les tuiles ne sont pas chargées)
 exception.door.brokenparent=Ne peut pas interagir avec la porte (lien rompu avec le parent)
 exception.door.brokenchild=Ne peut pas interagir avec la porte (lien rompu avec l'enfant)
@@ -149,6 +150,8 @@ item.LTPremade.single_output16.name=Sortie unique (16-bit)
 
 item.LTPremade.particle_emitter.name=Émetteur de particules
 item.LTPremade.signal_display_16.name=Affichage du signal (16 bit)
+item.LTPremade.item_holder.name=Titulaire de l'article
+item.LTPremade.structure_builder.name=Constructeur de structures
 
 selection.clear=clair
 selection.dialog.clear=Souhaitez-vous vraiment clarifier tout le contenu ?
@@ -167,7 +170,7 @@ mode.selection.area=Zone
 
 structure.none.name=Aucun
 structure.fixed.name=Fixé
-structure.chair.name=Président
+structure.chair.name=Chaise
 structure.ladder.name=Échelle
 structure.bed.name=Lit
 structure.storage.name=Stockage
@@ -178,6 +181,8 @@ structure.advancedDoor.name=Porte avancée
 structure.doorActivator.name=Activateur de porte
 structure.light.name=Lumière
 structure.message.name=Méssage
+structure.item_holder.name=Titulaire de l'article
+structure.little_frame.name=Petit cadre
 
 structure.category.simple=Simple
 structure.category.door=Portes
@@ -191,6 +196,7 @@ gui.door.children=Enfants
 gui.door.events=Événements
 gui.door.settings=Paramètres
 gui.door.noClip=Pas de clip
+gui.door.playPlaceSounds=Jouer des sons de lieu
 gui.door.useInternalOutput=Écouter le signal
 gui.door.rightclick=Autoriser le clic droit
 gui.door.pick-sound=Choisir un son
