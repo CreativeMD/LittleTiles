@@ -92,6 +92,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public int maxAllowedDensity = 2048;
         
+        @CreativeConfig
+        public int maxDoorDistance = 512;
+        
     }
     
     public static class NotAllowedToConvertBlockException extends LittleActionException {

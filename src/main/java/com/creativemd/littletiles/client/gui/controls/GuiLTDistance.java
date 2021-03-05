@@ -6,7 +6,10 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.ControlEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+
+import net.minecraft.util.math.MathHelper;
 
 public class GuiLTDistance extends GuiParent {
     
@@ -42,6 +45,9 @@ public class GuiLTDistance extends GuiParent {
     }
     
     public void setDistance(LittleGridContext context, int distance) {
+        int max = LittleTiles.CONFIG.general.maxDoorDistance * context.size;
+        distance = MathHelper.clamp(distance, -max, max);
+        
         GuiStateButton contextBox = (GuiStateButton) get("grid");
         contextBox.setState(LittleGridContext.getNames().indexOf(context + ""));
         
@@ -61,7 +67,10 @@ public class GuiLTDistance extends GuiParent {
         LittleGridContext context = getDistanceContext();
         
         try {
-            return Integer.parseInt(blocksTF.text) * context.size + Integer.parseInt(ltdistanceTF.text);
+            int distance = Integer.parseInt(blocksTF.text) * context.size + Integer.parseInt(ltdistanceTF.text);
+            int max = LittleTiles.CONFIG.general.maxDoorDistance * context.size;
+            distance = MathHelper.clamp(distance, -max, max);
+            return distance;
         } catch (NumberFormatException e) {
             return 0;
         }
