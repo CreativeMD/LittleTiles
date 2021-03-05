@@ -34,9 +34,9 @@ public class SubGuiBuilder extends SubGui {
         controls.add(new GuiLabel(translate("gui.frame_builder.width"), 0, 1));
         controls.add(new GuiLabel(translate("gui.frame_builder.height"), 90, 1));
         controls.add(new GuiLabel(translate("gui.frame_builder.thickness"), 0, 21));
-        controls.add(new GuiCounter("width", 33, 0, 50, builder.lastSizeX, 1, Integer.MAX_VALUE));
-        controls.add(new GuiCounter("height", 120, 0, 50, builder.lastSizeY, 1, Integer.MAX_VALUE));
-        controls.add(new GuiCounter("thickness", 53, 20, 30, builder.lastThickness, 1, Integer.MAX_VALUE));
+        controls.add(new GuiCounter("width", 38, 0, 45, builder.lastSizeX, 1, Integer.MAX_VALUE));
+        controls.add(new GuiCounter("height", 125, 0, 45, builder.lastSizeY, 1, Integer.MAX_VALUE));
+        controls.add(new GuiCounter("thickness", 55, 20, 30, builder.lastThickness, 1, Integer.MAX_VALUE));
         
         List<String> names = new ArrayList<>(LittleStructureBuilder.getNames());
         List<String> translatedNames = new ArrayList<>();

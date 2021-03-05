@@ -56,18 +56,16 @@ public class SubGuiWorkbench extends SubGui {
                         LittleIngredients ingredients = LittleAction.getIngredients(previews);
                         
                         try {
-                            if (LittleAction.checkAndTake(player, inventory, ingredients)) {
+                            if (LittleAction.checkAndTake(player, inventory, ingredients))
                                 sendPacketToServer(new NBTTagCompound());
-                            }
                         } catch (NotEnoughIngredientsException e2) {
                             LittleIngredients missing = e2.getIngredients();
                             
                             BlockIngredient blocks = missing.get(BlockIngredient.class);
                             if (blocks != null)
-                                for (BlockIngredientEntry ingredient : blocks) {
+                                for (BlockIngredientEntry ingredient : blocks)
                                     listBox.add(BlockIngredient.printVolume(ingredient.value, true), ingredient.getItemStack());
-                                }
-                            
+                                
                             ColorIngredient color = missing.get(ColorIngredient.class);
                             if (color != null) {
                                 if (color.black > 0)
@@ -87,9 +85,8 @@ public class SubGuiWorkbench extends SubGui {
                                 
                         }
                         
-                    } else {
+                    } else
                         sendPacketToServer(new NBTTagCompound());
-                    }
                 }
                 
             }
