@@ -137,7 +137,7 @@ item.LTPremade.exporter.name=Petit Exportateur
 item.LTPremade.blankomatic.name=Blank-o-matic
 
 item.LTPremade.single_cable1.name=Câble unique (1-bit)
-item.LTPremade.single_cable4.name=Câble unique (4 bits)
+item.LTPremade.single_cable4.name=Câble unique (4-bits)
 item.LTPremade.single_cable16.name=Câble unique (16-bit)
 
 item.LTPremade.single_input1.name=Entrée unique (1-bit)
@@ -244,6 +244,12 @@ gui.signal.configuration.input.operation.type.none=aucun
 gui.signal.configuration.input.operation.type.operation=opération
 gui.signal.configuration.input.operation.type.pattern=schéma
 gui.signal.configuration.input.operation.type.equation=équation
+
+gui.frame_builder.width=Largeur:
+gui.frame_builder.height=Hauteur:
+gui.frame_builder.thickness=Thickness:
+gui.frame_builder.craft=Artisanat
+gui.frame_builder.failed=Échec
 
 animation.event.child.name=Activation de l'enfant
 animation.event.sound-event.name=Événement "Jouer le son"
