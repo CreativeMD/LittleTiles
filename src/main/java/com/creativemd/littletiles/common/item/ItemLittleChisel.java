@@ -44,7 +44,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.MarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
-import com.creativemd.littletiles.common.util.shape.DragShape;
+import com.creativemd.littletiles.common.util.shape.drag.DragShape;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

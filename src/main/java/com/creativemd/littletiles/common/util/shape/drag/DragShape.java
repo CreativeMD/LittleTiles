@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape;
+package com.creativemd.littletiles.common.util.shape.drag;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

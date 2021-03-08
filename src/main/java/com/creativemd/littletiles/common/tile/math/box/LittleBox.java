@@ -914,6 +914,53 @@ public class LittleBox {
         return result;
     }
     
+    public boolean doesTouch(LittleGridContext own, LittleGridContext other, LittleBox box) {
+        LittleGridContext context = LittleGridContext.max(own, other);
+        
+        LittleBox thisBox = this;
+        if (own != context) {
+            thisBox = this.copy();
+            thisBox.convertTo(own, context);
+        }
+        
+        if (other != context) {
+            box = box.copy();
+            box.convertTo(other, context);
+        }
+        
+        boolean x = box.maxX > thisBox.minX && box.minX < thisBox.maxX;
+        boolean y = box.maxY > thisBox.minY && box.minY < thisBox.maxY;
+        boolean z = box.maxZ > thisBox.minZ && box.minZ < thisBox.maxZ;
+        
+        if (x && y && (thisBox.minZ == box.maxZ || box.minZ == thisBox.maxZ))
+            return true;
+        
+        if (x && z && (thisBox.minY == box.maxY || box.minY == thisBox.maxY))
+            return true;
+        
+        if (y && z && (thisBox.minX == box.maxX || box.minX == thisBox.maxX))
+            return true;
+        
+        return false;
+    }
+    
+    public boolean doesTouch(LittleBox box) {
+        boolean x = box.maxX > this.minX && box.minX < this.maxX;
+        boolean y = box.maxY > this.minY && box.minY < this.maxY;
+        boolean z = box.maxZ > this.minZ && box.minZ < this.maxZ;
+        
+        if (x && y && (minZ == box.maxZ || box.minZ == maxZ))
+            return true;
+        
+        if (x && z && (minY == box.maxY || box.minY == maxY))
+            return true;
+        
+        if (y && z && (minX == box.maxX || box.minX == maxX))
+            return true;
+        
+        return false;
+    }
+    
     // ================Rotation & Flip================
     
     /** @param rotation
@@ -1178,4 +1225,5 @@ public class LittleBox {
             return box2.intersectsWith(box);
         return box.intersectsWith(box2);
     }
+    
 }

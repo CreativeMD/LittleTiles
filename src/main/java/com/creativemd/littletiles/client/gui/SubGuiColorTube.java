@@ -14,7 +14,7 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.shape.SelectShape;
+import com.creativemd.littletiles.common.util.shape.select.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;

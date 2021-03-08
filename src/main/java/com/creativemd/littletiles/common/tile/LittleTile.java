@@ -307,6 +307,10 @@ public class LittleTile implements ICombinable {
         return false;
     }
     
+    public boolean doesTouch(LittleTile tile) {
+        return box.doesTouch(tile.box);
+    }
+    
     // ================Save & Loading================
     
     public NBTTagCompound startNBTGrouping() {

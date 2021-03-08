@@ -21,7 +21,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.shape.DragShape;
+import com.creativemd.littletiles.common.util.shape.drag.DragShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemBlock;

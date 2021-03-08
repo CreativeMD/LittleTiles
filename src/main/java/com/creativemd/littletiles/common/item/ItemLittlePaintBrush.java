@@ -26,7 +26,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
-import com.creativemd.littletiles.common.util.shape.SelectShape;
+import com.creativemd.littletiles.common.util.shape.select.SelectShape;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;

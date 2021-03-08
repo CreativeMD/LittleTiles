@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape;
+package com.creativemd.littletiles.common.util.shape.select;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.shape.drag.DragShape;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -167,6 +168,8 @@ public abstract class SelectShape {
         }
     };
         
+    public static final SelectShape CONNECTED = new SelectShapeConnected();
+    
     public static final BasicSelectShape CUBE = new BasicSelectShape("cube") {
         
         @Override
@@ -450,6 +453,7 @@ public abstract class SelectShape {
             else
                 registerShape(new DragSelectShape(shape));
         registerShape(TYPE);
+        registerShape(CONNECTED);
         registerShape(CUBE);
         registerShape(BAR);
         registerShape(PLANE);
