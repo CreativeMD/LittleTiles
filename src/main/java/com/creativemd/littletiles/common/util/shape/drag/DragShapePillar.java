@@ -1,10 +1,11 @@
 package com.creativemd.littletiles.common.util.shape.drag;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
@@ -32,6 +33,8 @@ public class DragShapePillar extends DragShape {
     
     @Override
     public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
+        int thickness = Math.max(0, nbt.getInteger("thickness") - 1);
+        
         originalMin.convertTo(boxes.getContext());
         originalMax.convertTo(boxes.getContext());
         
@@ -59,6 +62,12 @@ public class DragShapePillar extends DragShape {
             minFacing = null;
         if (box.getSize(maxFacing.getAxis()) == 1)
             maxFacing = null;
+        
+        minBox.growCentered(thickness);
+        maxBox.growCentered(thickness);
+        
+        box.growToInclude(minBox);
+        box.growToInclude(maxBox);
         
         shrinkEdge(cache, axis, one, two, facingPositive, minFacing, minBox);
         shrinkEdge(cache, axis, one, two, !facingPositive, maxFacing, maxBox);
@@ -97,13 +106,16 @@ public class DragShapePillar extends DragShape {
     @Override
     @SideOnly(Side.CLIENT)
     public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
-        return Collections.EMPTY_LIST;
+        List<GuiControl> controls = new ArrayList<>();
+        controls.add(new GuiSteppedSlider("thickness", 5, 5, 100, 14, nbt.getInteger("thickness"), 1, context.size));
+        return controls;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
-        
+        GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
+        nbt.setInteger("thickness", (int) slider.value);
     }
     
     @Override
