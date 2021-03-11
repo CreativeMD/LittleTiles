@@ -71,6 +71,12 @@ public class LittleAbsoluteVec implements IGridBased {
         this.contextVec.convertTo(to);
     }
     
+    public LittleVec getRelative(BlockPos pos) {
+        LittleVec newVec = new LittleVec(getContext(), this.pos.subtract(pos));
+        newVec.add(this.contextVec.vec);
+        return newVec;
+    }
+    
     public LittleVecContext getRelative(LittleAbsoluteVec pos) {
         forceContext(pos);
         LittleVecContext newVec = new LittleVecContext(new LittleVec(getContext(), this.pos.subtract(pos.pos)), getContext());

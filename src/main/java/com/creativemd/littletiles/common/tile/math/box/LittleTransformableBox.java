@@ -217,6 +217,11 @@ public class LittleTransformableBox extends LittleBox {
         return IntegerUtils.bitIs(getIndicator(), flipStartIndex + facing.ordinal());
     }
     
+    public void setData(int[] data) {
+        this.data = data;
+        this.cache = null;
+    }
+    
     public void setData(int index, short value) {
         int realIndex = index / 2 + 1;
         if (index % 2 == 1)
@@ -421,10 +426,8 @@ public class LittleTransformableBox extends LittleBox {
                     NormalPlane cutPlane2 = null;
                     axisFaceCache.convex = true;
                     if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
-                        if (plane.cuts(faceCache.tiltedStrip1))
-                            cutPlane1 = tiltedPlanes[j * 2];
-                        if (plane.cuts(faceCache.tiltedStrip2))
-                            cutPlane2 = tiltedPlanes[j * 2 + 1];
+                        cutPlane1 = tiltedPlanes[j * 2];
+                        cutPlane2 = tiltedPlanes[j * 2 + 1];
                         
                         if (cutPlane1 != null && cutPlane2 != null)
                             if (BooleanUtils.isFalse(face.isFacingOutwards(true, inverted, tiltedPlanes[j * 2].normal)) && BooleanUtils
@@ -1252,7 +1255,7 @@ public class LittleTransformableBox extends LittleBox {
         
         public LittleVec[] corners = new LittleVec[BoxCorner.values().length];
         
-        protected LittleVec getOrCreate(BoxCorner corner) {
+        public LittleVec getOrCreate(BoxCorner corner) {
             LittleVec vec = corners[corner.ordinal()];
             if (vec == null) {
                 if (relative)

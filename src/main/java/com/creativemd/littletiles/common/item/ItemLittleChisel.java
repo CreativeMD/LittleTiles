@@ -214,7 +214,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
         return true;
     }
     
-    private static LittleAbsoluteVec cachedPos;
+    private static PlacementPosition cachedPos;
     private static LittleBoxes cachedShape;
     private static boolean cachedLow;
     private static NBTTagCompound cachedSettings;

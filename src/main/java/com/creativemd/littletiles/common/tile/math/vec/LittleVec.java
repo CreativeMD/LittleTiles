@@ -315,4 +315,16 @@ public class LittleVec implements IVecInt {
         return this;
     }
     
+    public Axis getLongestAxis() {
+        if (Math.abs(x) > Math.abs(y))
+            if (Math.abs(x) > Math.abs(z))
+                return Axis.X;
+            else
+                return Axis.Z;
+        else if (Math.abs(y) > Math.abs(z))
+            return Axis.Y;
+        return Axis.Z;
+        
+    }
+    
 }

@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.shape.drag.DragShape;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -367,9 +368,9 @@ public abstract class SelectShape {
             this.shape = shape;
         }
         
-        public LittleAbsoluteVec first;
+        public PlacementPosition first;
         
-        public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, LittleAbsoluteVec min, LittleAbsoluteVec max, boolean preview, LittleGridContext context) {
+        public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, PlacementPosition min, PlacementPosition max, boolean preview, LittleGridContext context) {
             min.forceContext(max);
             LittleAbsoluteVec offset = new LittleAbsoluteVec(min.getPos(), min.getContext());
             LittleBox box = new LittleBox(new LittleBox(min.getRelative(offset).getVec(context)), new LittleBox(max.getRelative(offset).getVec(context)));
@@ -378,7 +379,7 @@ public abstract class SelectShape {
         
         @Override
         public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-            LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
+            PlacementPosition vec = new PlacementPosition(result, context);
             if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
                 vec.getVec().sub(result.sideHit);
             if (first == null) {
@@ -398,7 +399,7 @@ public abstract class SelectShape {
         public boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
             if (first != null)
                 return true;
-            first = new LittleAbsoluteVec(result, context);
+            first = new PlacementPosition(result, context);
             if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
                 first.getVec().sub(result.sideHit);
             return false;
@@ -411,7 +412,7 @@ public abstract class SelectShape {
         
         @Override
         public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-            LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
+            PlacementPosition vec = new PlacementPosition(result, context);
             if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
                 vec.getVec().sub(result.sideHit);
             LittleBoxes boxes = getBoxes(player, nbt, first, vec, false, context);

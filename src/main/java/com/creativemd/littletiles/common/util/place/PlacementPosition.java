@@ -14,6 +14,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -32,6 +33,11 @@ public class PlacementPosition extends LittleAbsoluteVec {
     public PlacementPosition(BlockPos pos, LittleGridContext context, LittleVec vec, EnumFacing facing) {
         super(pos, context, vec);
         this.facing = facing;
+    }
+    
+    public PlacementPosition(RayTraceResult result, LittleGridContext context) {
+        super(result, context);
+        this.facing = result.sideHit;
     }
     
     public static PlacementPosition readFromBytes(ByteBuf buf) {

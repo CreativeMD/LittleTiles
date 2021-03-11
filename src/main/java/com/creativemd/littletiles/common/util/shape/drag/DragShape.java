@@ -9,9 +9,9 @@ import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -36,6 +36,7 @@ public abstract class DragShape {
     }
     
     public static final DragShape box = new DragShapeBox();
+    public static final DragShape pillar = new DragShapePillar();
     public static final DragShape sphere = new DragShapeSphere();
     public static final DragShape cylinder = new DragShapeCylinder();
     public static final DragShape wall = new DragShapeWall();
@@ -58,7 +59,7 @@ public abstract class DragShape {
         this.key = name;
     }
     
-    public abstract LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax);
+    public abstract LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax);
     
     public abstract void addExtraInformation(NBTTagCompound nbt, List<String> list);
     
@@ -74,6 +75,7 @@ public abstract class DragShape {
     
     static {
         registerDragShape(box);
+        registerDragShape(pillar);
         registerDragShape(sphere);
         registerDragShape(cylinder);
         registerDragShape(wall);
