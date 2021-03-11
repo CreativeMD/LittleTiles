@@ -5,11 +5,16 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.CornerCache;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -17,7 +22,9 @@ import com.creativemd.littletiles.common.util.place.PlacementPosition;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -27,16 +34,70 @@ public class DragShapeWall extends DragShape {
         super("wall");
     }
     
+    public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, LittleBox box) {
+        EnumFacing facing = EnumFacing.getFacingFromAxis(positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
+        BoxCorner[] corners = BoxCorner.faceCorners(facing);
+        for (int i = 0; i < corners.length; i++) {
+            BoxCorner corner = corners[i];
+            cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
+            cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
+        }
+    }
+    
     @Override
     public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
-        LittleBox box = new LittleBox(min, max);
-        
         int direction = nbt.getInteger("direction");
+        
+        if (nbt.getBoolean("smooth")) {
+            originalMin.convertTo(boxes.getContext());
+            originalMax.convertTo(boxes.getContext());
+            
+            int thickness = Math.max(0, nbt.getInteger("thickness") - 1);
+            
+            LittleTransformableBox box = new LittleTransformableBox(new LittleBox(min, max), new int[0]);
+            Axis toIgnore = direction == 0 ? Axis.Y : direction == 1 ? Axis.X : Axis.Z;
+            Axis oneIgnore = RotationUtils.getOne(toIgnore);
+            Axis twoIgnore = RotationUtils.getTwo(toIgnore);
+            Axis axis = box.getSize(oneIgnore) > box.getSize(twoIgnore) ? oneIgnore : twoIgnore;
+            
+            CornerCache cache = box.new CornerCache(false);
+            LittleVec originalMinVec = originalMin.getRelative(boxes.pos);
+            LittleVec originalMaxVec = originalMax.getRelative(boxes.pos);
+            
+            Axis one = RotationUtils.getOne(axis);
+            Axis two = RotationUtils.getTwo(axis);
+            
+            LittleBox minBox = new LittleBox(originalMinVec);
+            LittleBox maxBox = new LittleBox(originalMaxVec);
+            
+            minBox.growCentered(thickness);
+            maxBox.growCentered(thickness);
+            
+            minBox.setMin(toIgnore, box.getMin(toIgnore));
+            maxBox.setMin(toIgnore, box.getMin(toIgnore));
+            minBox.setMax(toIgnore, box.getMax(toIgnore));
+            maxBox.setMax(toIgnore, box.getMax(toIgnore));
+            
+            box.growToInclude(minBox);
+            box.growToInclude(maxBox);
+            
+            boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
+            
+            shrinkEdge(cache, axis, one, two, facingPositive, minBox);
+            shrinkEdge(cache, axis, one, two, !facingPositive, maxBox);
+            
+            box.setData(cache.getData());
+            boxes.add(box);
+            
+            return boxes;
+        }
         
         int thicknessXInv = 0;
         int thicknessX = 0;
         int thicknessYInv = nbt.getInteger("thickness") > 1 ? (int) Math.ceil((nbt.getInteger("thickness") - 1) / 2D) : 0;
         int thicknessY = nbt.getInteger("thickness") > 1 ? (int) Math.floor((nbt.getInteger("thickness") - 1) / 2D) : 0;
+        
+        LittleBox box = new LittleBox(min, max);
         
         LittleAbsoluteVec absolute = new LittleAbsoluteVec(boxes.pos, boxes.context);
         
@@ -150,6 +211,7 @@ public class DragShapeWall extends DragShape {
         
         controls.add(new GuiSteppedSlider("thickness", 5, 5, 100, 14, nbt.getInteger("thickness"), 1, context.size));
         controls.add(new GuiStateButton("direction", nbt.getInteger("direction"), 5, 27, "facing: y", "facing: x", "facing: z"));
+        controls.add(new GuiCheckBox("smooth", 60, 27, nbt.getBoolean("smooth")));
         return controls;
     }
     
@@ -162,6 +224,9 @@ public class DragShapeWall extends DragShape {
         
         GuiStateButton state = (GuiStateButton) gui.get("direction");
         nbt.setInteger("direction", state.getState());
+        
+        GuiCheckBox box = (GuiCheckBox) gui.get("smooth");
+        nbt.setBoolean("smooth", box.value);
         
     }
     

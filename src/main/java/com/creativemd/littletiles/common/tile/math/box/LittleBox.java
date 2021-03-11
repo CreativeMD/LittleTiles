@@ -1040,6 +1040,26 @@ public class LittleBox {
             return getMin(facing.getAxis()) == 0;
     }
     
+    public void growCentered(int size) {
+        int invSize = size / 2;
+        size -= invSize;
+        minX -= invSize;
+        minY -= invSize;
+        minZ -= invSize;
+        maxX += size;
+        maxY += size;
+        maxZ += size;
+    }
+    
+    public void growToInclude(LittleBox box) {
+        minX = Math.min(minX, box.minX);
+        minY = Math.min(minY, box.minY);
+        minZ = Math.min(minZ, box.minZ);
+        maxX = Math.max(maxX, box.maxX);
+        maxY = Math.max(maxY, box.maxY);
+        maxZ = Math.max(maxZ, box.maxZ);
+    }
+    
     public LittleBox grow(EnumFacing facing) {
         Axis axis = facing.getAxis();
         LittleBox result = this.copy();
