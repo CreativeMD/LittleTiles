@@ -923,12 +923,18 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     public LittleBox grow(EnumFacing facing) {
-        return new LittleTransformableBox(super.grow(facing), data);
+        LittleBox box = super.grow(facing);
+        if (box != null)
+            return new LittleTransformableBox(box, data);
+        return null;
     }
     
     @Override
     public LittleBox shrink(EnumFacing facing, boolean toLimit) {
-        return new LittleTransformableBox(super.shrink(facing, toLimit), data);
+        LittleBox box = super.shrink(facing, toLimit);
+        if (box != null)
+            return new LittleTransformableBox(box, data);
+        return null;
     }
     
     protected Iterator<TransformableVec> corners() {
