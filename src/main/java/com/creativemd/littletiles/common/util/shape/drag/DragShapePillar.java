@@ -39,8 +39,7 @@ public class DragShapePillar extends DragShape {
         originalMax.convertTo(boxes.getContext());
         
         LittleTransformableBox box = new LittleTransformableBox(new LittleBox(min, max), new int[0]);
-        LittleVec size = box.getSize();
-        Axis axis = size.getLongestAxis();
+        Axis axis = box.getSize().getLongestAxis();
         
         CornerCache cache = box.new CornerCache(false);
         
@@ -63,8 +62,23 @@ public class DragShapePillar extends DragShape {
         if (box.getSize(maxFacing.getAxis()) == 1)
             maxFacing = null;
         
+        int invSize = thickness / 2;
+        int size = thickness - invSize;
         minBox.growCentered(thickness);
+        LittleVec vec = new LittleVec(originalMin.facing);
+        if (originalMin.facing.getAxisDirection() == AxisDirection.POSITIVE)
+            vec.scale(size);
+        else
+            vec.scale(-invSize);
+        minBox.add(vec);
+        
         maxBox.growCentered(thickness);
+        vec = new LittleVec(originalMax.facing);
+        if (originalMax.facing.getAxisDirection() == AxisDirection.POSITIVE)
+            vec.scale(size);
+        else
+            vec.scale(-invSize);
+        maxBox.add(vec);
         
         box.growToInclude(minBox);
         box.growToInclude(maxBox);

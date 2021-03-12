@@ -421,6 +421,8 @@ public class LittleTransformableBox extends LittleBox {
                 if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null) {
                     if (tiltedPlanes[j * 2] != null)
                         axisFaceCache.cutAxisStrip(tiltedPlanes[j * 2]);
+                    if (tiltedPlanes[j * 2 + 1] != null)
+                        axisFaceCache.cutAxisStrip(tiltedPlanes[j * 2 + 1]);
                 } else {
                     NormalPlane cutPlane1 = null;
                     NormalPlane cutPlane2 = null;
