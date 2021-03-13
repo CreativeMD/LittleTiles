@@ -37,6 +37,7 @@ public abstract class DragShape {
     
     public static final DragShape box = new DragShapeBox();
     public static final DragShape pillar = new DragShapePillar();
+    public static final DragShape corner = new DragShapeCorner();
     public static final DragShape sphere = new DragShapeSphere();
     public static final DragShape cylinder = new DragShapeCylinder();
     public static final DragShape wall = new DragShapeWall();
@@ -76,6 +77,7 @@ public abstract class DragShape {
     static {
         registerDragShape(box);
         registerDragShape(pillar);
+        registerDragShape(corner);
         registerDragShape(sphere);
         registerDragShape(cylinder);
         registerDragShape(wall);
