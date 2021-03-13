@@ -404,6 +404,16 @@ public class LittleTransformableBox extends LittleBox {
                 if (faceCache.tiltedStrip2 != null)
                     faceCache.tiltedStrip2 = faceCache.tiltedStrip2.cut(planes[j]);
             }
+            
+            if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
+                for (int j = 0; j < faceCache.tiltedStrip2.count(); j++) {
+                    Vector3f vec = faceCache.tiltedStrip2.get(j);
+                    if (BooleanUtils.isTrue(tiltedPlanes[i * 2].isInFront(vec))) {
+                        faceCache.convex = false; // If path strips face inwards the axis strip has to be copied and each cut by one plane
+                        break;
+                    }
+                }
+            }
         }
         
         // Axis strips against transformed box
@@ -426,25 +436,15 @@ public class LittleTransformableBox extends LittleBox {
                 } else {
                     NormalPlane cutPlane1 = null;
                     NormalPlane cutPlane2 = null;
-                    axisFaceCache.convex = true;
                     if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
                         cutPlane1 = tiltedPlanes[j * 2];
                         cutPlane2 = tiltedPlanes[j * 2 + 1];
-                        
-                        if (cutPlane1 != null && cutPlane2 != null)
-                            if (BooleanUtils.isFalse(face.isFacingOutwards(true, inverted, tiltedPlanes[j * 2].normal)) && BooleanUtils
-                                .isFalse(face.isFacingOutwards(false, inverted, tiltedPlanes[j * 2 + 1].normal)))
-                                axisFaceCache.convex = false; // If path strips face inwards the axis strip has to be copied and each cut by one plane
-                                
-                    } else if (faceCache.tiltedStrip1 != null) {
-                        //if (plane.cuts(faceCache.tiltedStrip1))
+                    } else if (faceCache.tiltedStrip1 != null)
                         cutPlane1 = tiltedPlanes[j * 2];
-                    } else if (faceCache.tiltedStrip2 != null) {
-                        //if (plane.cuts(faceCache.tiltedStrip2))
+                    else if (faceCache.tiltedStrip2 != null)
                         cutPlane1 = tiltedPlanes[j * 2 + 1];
-                    }
                     
-                    if (axisFaceCache.convex) {
+                    if (faceCache.convex) {
                         if (cutPlane1 != null)
                             axisFaceCache.cutAxisStrip(cutPlane1);
                         if (cutPlane2 != null)
