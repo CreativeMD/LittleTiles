@@ -321,9 +321,9 @@ public class LittleVec implements IVecInt {
                 return Axis.X;
             else
                 return Axis.Z;
-        else if (Math.abs(y) > Math.abs(z))
-            return Axis.Y;
-        return Axis.Z;
+        else if (Math.abs(z) > Math.abs(y))
+            return Axis.Z;
+        return Axis.Y;
         
     }
     
