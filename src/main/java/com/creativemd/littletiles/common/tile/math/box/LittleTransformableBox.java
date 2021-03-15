@@ -527,7 +527,7 @@ public class LittleTransformableBox extends LittleBox {
                         if (cutPlane2 != null)
                             axisFaceCache.cutAxisStrip(cutPlane2);
                     } else
-                        axisFaceCache.cutAxisStrip(cutPlane1, cutPlane2);
+                        axisFaceCache.cutAxisStrip(facing, cutPlane1, cutPlane2);
                 }
                 
                 if (!axisFaceCache.hasAxisStrip())
@@ -1602,15 +1602,27 @@ public class LittleTransformableBox extends LittleBox {
             return !axisStrips.isEmpty();
         }
         
-        public void cutAxisStrip(NormalPlane plane, NormalPlane plane2) {
+        public void cutAxisStrip(EnumFacing facing, NormalPlane plane, NormalPlane plane2) {
+            Axis axis = facing.getAxis();
+            Axis one = RotationUtils.getOne(axis);
+            Axis two = RotationUtils.getTwo(axis);
+            boolean inverse = facing.getAxisDirection() == AxisDirection.POSITIVE;
+            
             List<VectorFan> newAxisStrips = new ArrayList<>();
             for (int i = 0; i < axisStrips.size(); i++) {
                 VectorFan strip = axisStrips.get(i).cut(plane);
                 VectorFan strip2 = axisStrips.get(i).cut(plane2);
-                if (strip != null)
-                    newAxisStrips.add(strip);
-                if (strip2 != null)
+                
+                if (strip != null && strip2 != null && strip.intersect2d(strip2, one, two, inverse)) {
+                    List<VectorFan> fans = strip.cut2d(strip2, one, two, inverse, false);
                     newAxisStrips.add(strip2);
+                    newAxisStrips.addAll(fans);
+                } else {
+                    if (strip != null)
+                        newAxisStrips.add(strip);
+                    if (strip2 != null)
+                        newAxisStrips.add(strip2);
+                }
             }
             if (completedFilled) {
                 if (newAxisStrips.size() == 1 && axisStrips.size() == 1)
