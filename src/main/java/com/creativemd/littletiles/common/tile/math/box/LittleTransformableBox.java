@@ -44,6 +44,70 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTransformableBox extends LittleBox {
     
+    private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true },
+            { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
+    private static boolean[][] flipMirrorMatrix = new boolean[][] { { true, true, true, true, true, true }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
+    
+    private static boolean[][] buildFlipRotationCache() {
+        boolean[][] cache = new boolean[Rotation.values().length][EnumFacing.VALUES.length];
+        AlignedBox box = new AlignedBox();
+        Vector3f center = new Vector3f(0.5F, 0.5F, 0.5F);
+        for (int i = 0; i < cache.length; i++) {
+            Rotation rotation = Rotation.values()[i];
+            boolean[] flipped = cache[i];
+            for (int j = 0; j < EnumFacing.VALUES.length; j++) {
+                EnumFacing facing = EnumFacing.VALUES[j];
+                BoxFace face = BoxFace.get(facing);
+                BoxCorner corner = face.getCornerInQuestion(false, false);
+                
+                Vector3f vec = box.getCorner(corner);
+                vec.sub(center);
+                RotationUtils.rotate(vec, rotation);
+                vec.add(center);
+                
+                EnumFacing rotatedFacing = RotationUtils.rotate(facing, rotation);
+                BoxFace rotatedFace = BoxFace.get(rotatedFacing);
+                
+                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
+                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                    flipped[j] = false;
+                else
+                    flipped[j] = true;
+            }
+        }
+        return cache;
+    }
+    
+    private static boolean[][] buildFlipMirrorCache() {
+        boolean[][] cache = new boolean[Axis.values().length][EnumFacing.VALUES.length];
+        AlignedBox box = new AlignedBox();
+        Vector3f center = new Vector3f(0.5F, 0.5F, 0.5F);
+        for (int i = 0; i < cache.length; i++) {
+            Axis axis = Axis.values()[i];
+            boolean[] flipped = cache[i];
+            for (int j = 0; j < EnumFacing.VALUES.length; j++) {
+                EnumFacing facing = EnumFacing.VALUES[j];
+                BoxFace face = BoxFace.get(facing);
+                BoxCorner corner = face.getCornerInQuestion(false, false);
+                
+                Vector3f vec = box.getCorner(corner);
+                vec.sub(center);
+                RotationUtils.flip(vec, axis);
+                vec.add(center);
+                
+                EnumFacing rotatedFacing = RotationUtils.flip(facing, axis);
+                BoxFace rotatedFace = BoxFace.get(rotatedFacing);
+                
+                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
+                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                    flipped[j] = false;
+                else
+                    flipped[j] = true;
+            }
+        }
+        return cache;
+    }
+    
     private static final Vector3f ZERO = new Vector3f();
     private static final int sliceIterations = 2000;
     private static final int sliceMin = -5000;
@@ -66,6 +130,8 @@ public class LittleTransformableBox extends LittleBox {
     public LittleTransformableBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice) {
         super(minX, minY, minZ, maxX, maxY, maxZ);
         
+        this.data = new int[1];
+        
         LittleVec size = getSize();
         Axis one = RotationUtils.getOne(slice.axis);
         Axis two = RotationUtils.getTwo(slice.axis);
@@ -87,6 +153,8 @@ public class LittleTransformableBox extends LittleBox {
     
     public LittleTransformableBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
         super(minX, minY, minZ, maxX, maxY, maxZ);
+        
+        this.data = new int[1];
         
         Axis one = RotationUtils.getOne(slice.axis);
         Axis two = RotationUtils.getTwo(slice.axis);
@@ -206,6 +274,15 @@ public class LittleTransformableBox extends LittleBox {
     
     public int getIndicator() {
         return data[0];
+    }
+    
+    public void setFlipped(int facing, boolean value) {
+        data[0] = IntegerUtils.set(getIndicator(), flipStartIndex + facing, value);
+        changed();
+    }
+    
+    public boolean getFlipped(int facing) {
+        return IntegerUtils.bitIs(getIndicator(), flipStartIndex + facing);
     }
     
     public void setFlipped(EnumFacing facing, boolean value) {
@@ -760,6 +837,10 @@ public class LittleTransformableBox extends LittleBox {
         
         super.rotateBox(rotation, doubledCenter);
         this.data = cache.getData();
+        
+        for (int i = 0; i < EnumFacing.VALUES.length; i++)
+            if (flipRotationMatrix[rotation.ordinal()][i])
+                setFlipped(i, !getFlipped(i));
     }
     
     @Override
@@ -794,6 +875,10 @@ public class LittleTransformableBox extends LittleBox {
         super.flipBox(axis, doubledCenter);
         
         this.data = cache.getData();
+        
+        for (int i = 0; i < EnumFacing.VALUES.length; i++)
+            if (flipMirrorMatrix[axis.ordinal()][i])
+                setFlipped(i, !getFlipped(i));
     }
     
     protected void setAbsoluteCorners(CornerCache cache) {
@@ -1309,7 +1394,7 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         public int[] getData() {
-            int indicator = Integer.MIN_VALUE;
+            int indicator = Integer.MIN_VALUE | (0b10111111_00000000_00000000_00000000 & getBox().getIndicator());
             List<Integer> data = new ArrayList<>();
             for (int i = 0; i < corners.length; i++) {
                 LittleVec vec = corners[i];
