@@ -37,13 +37,13 @@ public abstract class DragShape {
     
     public static final DragShape box = new DragShapeBox();
     public static final DragShape pillar = new DragShapePillar();
-    public static final DragShape corner = new DragShapeCorner();
+    public static final DragShape slice = new DragShapeSliced();
+    public static final DragShape inner_corner = new DragShapeInnerCorner();
+    public static final DragShape outer_corner = new DragShapeOuterCorner();
     public static final DragShape sphere = new DragShapeSphere();
     public static final DragShape cylinder = new DragShapeCylinder();
     public static final DragShape wall = new DragShapeWall();
     public static final DragShape line = new DragShapeLine();
-    
-    public static final DragShape slice = new DragShapeSliced();
     
     public static final DragShape pyramid = new DragShapePyramid();
     
@@ -77,12 +77,13 @@ public abstract class DragShape {
     static {
         registerDragShape(box);
         registerDragShape(pillar);
-        registerDragShape(corner);
+        registerDragShape(slice);
+        registerDragShape(inner_corner);
+        registerDragShape(outer_corner);
         registerDragShape(sphere);
         registerDragShape(cylinder);
         registerDragShape(wall);
         registerDragShape(line);
-        registerDragShape(slice);
         registerDragShape(pyramid);
     }
     
