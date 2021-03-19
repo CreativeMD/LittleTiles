@@ -44,6 +44,27 @@ public class DragShapeWall extends DragShape {
         }
     }
     
+    public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, EnumFacing targetFace, LittleBox box) {
+        EnumFacing facing = EnumFacing.getFacingFromAxis(positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
+        if (targetFace == null)
+            targetFace = facing;
+        else if (targetFace == facing.getOpposite())
+            targetFace = facing;
+        Axis targetAxis = targetFace.getAxis();
+        BoxCorner[] corners = BoxCorner.faceCorners(facing);
+        for (int i = 0; i < corners.length; i++) {
+            BoxCorner corner = corners[i];
+            cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
+            cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
+            if (facing != targetFace) {
+                if (corner.isFacingPositive(targetAxis) != (targetFace.getAxisDirection() == AxisDirection.POSITIVE))
+                    cache.setAbsolute(corner, axis, positive ? box.getMin(axis) : box.getMax(axis));
+                else
+                    cache.setAbsolute(corner, targetAxis, (targetFace.getAxisDirection() == AxisDirection.POSITIVE) ? box.getMin(targetAxis) : box.getMax(targetAxis));
+            }
+        }
+    }
+    
     @Override
     public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
         int direction = nbt.getInteger("direction");
@@ -54,7 +75,7 @@ public class DragShapeWall extends DragShape {
             
             int thickness = Math.max(0, nbt.getInteger("thickness") - 1);
             
-            LittleTransformableBox box = new LittleTransformableBox(new LittleBox(min, max), new int[0]);
+            LittleTransformableBox box = new LittleTransformableBox(new LittleBox(min, max), new int[1]);
             Axis toIgnore = direction == 0 ? Axis.Y : direction == 1 ? Axis.X : Axis.Z;
             Axis oneIgnore = RotationUtils.getOne(toIgnore);
             Axis twoIgnore = RotationUtils.getTwo(toIgnore);
@@ -70,21 +91,44 @@ public class DragShapeWall extends DragShape {
             LittleBox minBox = new LittleBox(originalMinVec);
             LittleBox maxBox = new LittleBox(originalMaxVec);
             
+            EnumFacing minFacing = originalMin.facing;
+            EnumFacing maxFacing = originalMax.facing;
+            
+            if (minFacing.getAxis() == toIgnore || box.getSize(minFacing.getAxis()) == 1)
+                minFacing = null;
+            if (maxFacing.getAxis() == toIgnore || box.getSize(maxFacing.getAxis()) == 1)
+                maxFacing = null;
+            
+            int invSize = thickness / 2;
+            int size = thickness - invSize;
             minBox.growCentered(thickness);
+            LittleVec vec = new LittleVec(originalMin.facing);
+            if (originalMin.facing.getAxisDirection() == AxisDirection.POSITIVE)
+                vec.scale(size);
+            else
+                vec.scale(-invSize);
+            minBox.add(vec);
+            
             maxBox.growCentered(thickness);
+            vec = new LittleVec(originalMax.facing);
+            if (originalMax.facing.getAxisDirection() == AxisDirection.POSITIVE)
+                vec.scale(size);
+            else
+                vec.scale(-invSize);
+            maxBox.add(vec);
+            
+            box.growToInclude(minBox);
+            box.growToInclude(maxBox);
             
             minBox.setMin(toIgnore, box.getMin(toIgnore));
             maxBox.setMin(toIgnore, box.getMin(toIgnore));
             minBox.setMax(toIgnore, box.getMax(toIgnore));
             maxBox.setMax(toIgnore, box.getMax(toIgnore));
             
-            box.growToInclude(minBox);
-            box.growToInclude(maxBox);
-            
             boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
             
-            shrinkEdge(cache, axis, one, two, facingPositive, minBox);
-            shrinkEdge(cache, axis, one, two, !facingPositive, maxBox);
+            shrinkEdge(cache, axis, one, two, facingPositive, minFacing, minBox);
+            shrinkEdge(cache, axis, one, two, !facingPositive, maxFacing, maxBox);
             
             box.setData(cache.getData());
             boxes.add(box);
