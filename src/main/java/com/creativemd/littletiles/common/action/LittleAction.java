@@ -320,9 +320,9 @@ public abstract class LittleAction extends CreativeCorePacket {
     }
     
     public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state, int affected) throws LittleActionException {
-        if (LittleTiles.CONFIG.getConfig(player).limitAffectedBlocks && LittleTiles.CONFIG.getConfig(player).maxAffectedBlocks < affected)
+        if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)
             throw new NotAllowedToConvertBlockException(player);
-        if (!LittleTiles.CONFIG.getConfig(player).editUnbreakable)
+        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable)
             return state.getBlock().getBlockHardness(state, world, pos) > 0;
         return LittleTiles.CONFIG.canEditBlock(player, state, pos);
     }

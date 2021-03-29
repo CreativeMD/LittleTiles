@@ -51,7 +51,7 @@ public abstract class LittleActionBoxes extends LittleAction {
         World world = player.world;
         
         if (LittleTiles.CONFIG.isEditLimited(player)) {
-            if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.getConfig(player).maxEditBlocks)
+            if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.build.get(player).maxEditBlocks)
                 throw new NotAllowedToEditException(player);
         }
         
