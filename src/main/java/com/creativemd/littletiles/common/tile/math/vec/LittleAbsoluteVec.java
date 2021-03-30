@@ -61,6 +61,10 @@ public class LittleAbsoluteVec implements IGridBased {
         return pos;
     }
     
+    public int getSmallestContext() {
+        return contextVec.getSmallestContext();
+    }
+    
     @Override
     public void convertToSmallest() {
         this.contextVec.convertToSmallest();

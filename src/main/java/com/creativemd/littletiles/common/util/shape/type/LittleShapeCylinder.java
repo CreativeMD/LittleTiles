@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape.drag;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,27 +13,27 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeCylinder extends DragShape {
+public class LittleShapeCylinder extends LittleShape {
     
-    public DragShapeCylinder() {
-        super("cylinder");
+    public LittleShapeCylinder() {
+        super(2);
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
-        LittleBox box = new LittleBox(min, max);
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        LittleBox box = selection.getOverallBox();
         
-        boolean hollow = nbt.getBoolean("hollow");
+        boolean hollow = selection.nbt.getBoolean("hollow");
         
-        int direction = nbt.getInteger("direction");
+        int direction = selection.nbt.getInteger("direction");
         
         LittleVec size = box.getSize();
         
@@ -55,7 +55,7 @@ public class DragShapeCylinder extends DragShape {
         double b2 = 1;
         double c2 = 1;
         
-        int thickness = nbt.getInteger("thickness");
+        int thickness = selection.nbt.getInteger("thickness");
         
         if (hollow && sizeA > thickness * 2 && sizeB > thickness * 2) {
             int all = sizeA + sizeB;
@@ -79,8 +79,8 @@ public class DragShapeCylinder extends DragShape {
         double centerA = sizeA / 2;
         double centerB = sizeB / 2;
         
-        min = box.getMinVec();
-        max = box.getMaxVec();
+        LittleVec min = box.getMinVec();
+        LittleVec max = box.getMaxVec();
         
         for (int incA = 0; incA < sizeA; incA++) {
             for (int incB = 0; incB < sizeB; incB++) {
@@ -113,8 +113,6 @@ public class DragShapeCylinder extends DragShape {
         }
         
         LittleBox.combineBoxesBlocks(boxes);
-        
-        return boxes;
     }
     
     @Override

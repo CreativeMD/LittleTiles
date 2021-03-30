@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape.drag;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,9 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -28,10 +29,10 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeWall extends DragShape {
+public class LittleShapeWall extends LittleShape {
     
-    public DragShapeWall() {
-        super("wall");
+    public LittleShapeWall() {
+        super(2);
     }
     
     public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, LittleBox box) {
@@ -66,16 +67,18 @@ public class DragShapeWall extends DragShape {
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
-        int direction = nbt.getInteger("direction");
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        int direction = selection.nbt.getInteger("direction");
+        PlacementPosition originalMin = selection.getFirst().pos.copy();
+        PlacementPosition originalMax = selection.getLast().pos.copy();
         
-        if (nbt.getBoolean("smooth")) {
+        if (selection.nbt.getBoolean("smooth")) {
             originalMin.convertTo(boxes.getContext());
             originalMax.convertTo(boxes.getContext());
             
-            int thickness = Math.max(0, nbt.getInteger("thickness") - 1);
+            int thickness = Math.max(0, selection.nbt.getInteger("thickness") - 1);
             
-            LittleTransformableBox box = new LittleTransformableBox(new LittleBox(min, max), new int[1]);
+            LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
             Axis toIgnore = direction == 0 ? Axis.Y : direction == 1 ? Axis.X : Axis.Z;
             Axis oneIgnore = RotationUtils.getOne(toIgnore);
             Axis twoIgnore = RotationUtils.getTwo(toIgnore);
@@ -133,15 +136,15 @@ public class DragShapeWall extends DragShape {
             box.setData(cache.getData());
             boxes.add(box);
             
-            return boxes;
+            return;
         }
         
         int thicknessXInv = 0;
         int thicknessX = 0;
-        int thicknessYInv = nbt.getInteger("thickness") > 1 ? (int) Math.ceil((nbt.getInteger("thickness") - 1) / 2D) : 0;
-        int thicknessY = nbt.getInteger("thickness") > 1 ? (int) Math.floor((nbt.getInteger("thickness") - 1) / 2D) : 0;
+        int thicknessYInv = selection.nbt.getInteger("thickness") > 1 ? (int) Math.ceil((selection.nbt.getInteger("thickness") - 1) / 2D) : 0;
+        int thicknessY = selection.nbt.getInteger("thickness") > 1 ? (int) Math.floor((selection.nbt.getInteger("thickness") - 1) / 2D) : 0;
         
-        LittleBox box = new LittleBox(min, max);
+        LittleBox box = selection.getOverallBox();
         
         LittleAbsoluteVec absolute = new LittleAbsoluteVec(boxes.pos, boxes.context);
         
@@ -224,8 +227,6 @@ public class DragShapeWall extends DragShape {
         }
         
         LittleBox.combineBoxesBlocks(boxes);
-        
-        return boxes;
     }
     
     @Override
@@ -293,5 +294,4 @@ public class DragShapeWall extends DragShape {
     public void flip(NBTTagCompound nbt, Axis axis) {
         
     }
-    
 }

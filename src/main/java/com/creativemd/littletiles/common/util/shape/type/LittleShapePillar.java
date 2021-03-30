@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape.drag;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,9 @@ import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.Co
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -25,20 +26,27 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapePillar extends DragShape {
+public class LittleShapePillar extends LittleShape {
     
-    public DragShapePillar() {
-        super("pillar");
+    public LittleShapePillar() {
+        super(2);
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
-        int thickness = Math.max(0, nbt.getInteger("thickness") - 1);
+    public int maxAllowed() {
+        return 2;
+    }
+    
+    @Override
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        int thickness = Math.max(0, selection.nbt.getInteger("thickness") - 1);
         
+        PlacementPosition originalMin = selection.getFirst().pos.copy();
+        PlacementPosition originalMax = selection.getLast().pos.copy();
         originalMin.convertTo(boxes.getContext());
         originalMax.convertTo(boxes.getContext());
         
-        LittleTransformableBox box = new LittleTransformableBox(new LittleBox(min, max), new int[0]);
+        LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[0]);
         Axis axis = box.getSize().getLongestAxis();
         
         CornerCache cache = box.new CornerCache(false);
@@ -88,7 +96,6 @@ public class DragShapePillar extends DragShape {
         
         box.setData(cache.getData());
         boxes.add(box);
-        return boxes;
     }
     
     public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, EnumFacing targetFace, LittleBox box) {

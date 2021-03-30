@@ -8,7 +8,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiScrewdriver;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -30,7 +30,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleScrewdriver extends Item implements ILittleTile {
+public class ItemLittleScrewdriver extends Item implements ILittlePlacer {
     
     public ItemLittleScrewdriver() {
         setCreativeTab(LittleTiles.littleTab);

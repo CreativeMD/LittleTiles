@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape.drag;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,27 +6,29 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeSliced extends DragShape {
+public class LittleShapeSlice extends LittleShape {
     
-    public DragShapeSliced() {
-        super("slice");
+    public LittleShapeSlice() {
+        super(2);
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
-        boxes.add(new LittleTransformableBox(min.x, min.y, min.z, max.x, max.y, max.z, LittleSlice.values()[nbt.getInteger("slice")]));
-        return boxes;
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        LittleBox box = selection.getOverallBox();
+        boxes.add(new LittleTransformableBox(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, LittleSlice.values()[selection.nbt.getInteger("slice")]));
     }
     
     @Override
@@ -35,14 +37,14 @@ public class DragShapeSliced extends DragShape {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
         return new ArrayList<>();
     }
     
     @Override
-    public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
-        
-    }
+    @SideOnly(Side.CLIENT)
+    public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {}
     
     @Override
     public void rotate(NBTTagCompound nbt, Rotation rotation) {

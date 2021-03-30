@@ -15,7 +15,7 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
@@ -53,7 +53,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICreativeRendered {
+public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered {
     
     public ItemLittleRecipeAdvanced() {
         setCreativeTab(LittleTiles.littleTab);
@@ -83,7 +83,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
     }
     
     @Override
-    public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
+    public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution) {
         return LittlePreview.getPreview(stack, allowLowResolution);
     }
     
@@ -118,7 +118,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
     
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         IBlockState state = world.getBlockState(result.getBlockPos());
         if (state.getBlock() instanceof BlockTile) {
             NBTTagCompound nbt = new NBTTagCompound();

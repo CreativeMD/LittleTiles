@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.action.block;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
@@ -91,7 +91,7 @@ public class LittleActionPlaceStack extends LittleAction {
         World world = player.world;
         
         if (!isAllowedToInteract(world, player, position.getPos(), true, EnumFacing.EAST)) {
-            sendBlockResetToClient(world, (EntityPlayerMP) player, position.getPos());
+            sendBlockResetToClient(world, player, position.getPos());
             return false;
         }
         
@@ -127,7 +127,7 @@ public class LittleActionPlaceStack extends LittleAction {
     }
     
     public PlacementResult placeTile(EntityPlayer player, ItemStack stack, World world, PlacementPosition position, boolean centered, boolean fixed, PlacementMode mode) throws LittleActionException {
-        ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         checkMode(previews);
         
         PlacementPreview result = PlacementHelper.getPreviews(world, previews, iTile.getPreviewsContext(stack), stack, position, centered, fixed, false, mode);
@@ -139,11 +139,10 @@ public class LittleActionPlaceStack extends LittleAction {
         
         LittleInventory inventory = new LittleInventory(player);
         
-        if (needIngredients(player)) {
+        if (needIngredients(player))
             if (!iTile.containsIngredients(stack))
                 canTake(player, inventory, getIngredients(result.previews));
-        }
-        
+            
         Placement placement = new Placement(player, result).setStack(toPlace);
         placedTiles = placement.place();
         

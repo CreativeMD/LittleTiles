@@ -2,6 +2,9 @@ package com.creativemd.littletiles.client.render.overlay;
 
 import java.util.List;
 
+import com.creativemd.creativecore.common.gui.mc.GuiContainerSub;
+import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
@@ -9,30 +12,39 @@ import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.event.LittleEventHandler;
+import com.creativemd.littletiles.common.api.ILittleEditor;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
+import com.creativemd.littletiles.common.api.ILittleTool;
+import com.creativemd.littletiles.common.packet.LittleFlipPacket;
+import com.creativemd.littletiles.common.packet.LittleRotatePacket;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.MarkMode;
+import com.creativemd.littletiles.common.util.place.IMarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementMode.PreviewMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.place.PlacementPreview;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -44,15 +56,15 @@ public class PreviewRenderer {
     
     public static Minecraft mc = Minecraft.getMinecraft();
     
-    public static MarkMode marked = null;
+    public static IMarkMode marked;
     
-    public static boolean isCentered(EntityPlayer player, ILittleTile iTile) {
+    public static boolean isCentered(EntityPlayer player, ILittlePlacer iTile) {
         if (iTile.snapToGridByDefault())
             return LittleAction.isUsingSecondMode(player) && marked == null;
         return LittleTiles.CONFIG.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
     }
     
-    public static boolean isFixed(EntityPlayer player, ILittleTile iTile) {
+    public static boolean isFixed(EntityPlayer player, ILittlePlacer iTile) {
         if (iTile.snapToGridByDefault())
             return !LittleAction.isUsingSecondMode(player) && marked == null;
         return LittleTiles.CONFIG.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
@@ -90,79 +102,107 @@ public class PreviewRenderer {
             
             handleUndoAndRedo(player);
             
-            if (PlacementHelper
-                .isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null))) {
-                if (marked != null)
-                    marked.renderWorld(event.getPartialTicks());
+            if (stack.getItem() instanceof ILittleTool) {
+                PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
+                    .getPosition(world, mc.objectMouseOver, ((ILittleTool) stack.getItem()).getPositionContext(stack), (ILittleTool) stack.getItem(), stack);
                 
-                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-                
-                PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper
-                    .getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
+                double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
+                double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
+                double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
                 
                 processRotateKeys(stack, position.getContext());
-                iTile.tickPreview(player, stack, position, mc.objectMouseOver);
                 
-                PlacementMode mode = iTile.getPlacementMode(stack);
+                ((ILittleTool) stack.getItem()).tick(player, stack, position, mc.objectMouseOver);
                 
-                if (mode.getPreviewMode() == PreviewMode.PREVIEWS) {
-                    GlStateManager.enableBlend();
-                    GlStateManager
-                        .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                    GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
-                    GlStateManager.enableTexture2D();
-                    mc.renderEngine.bindTexture(WHITE_TEXTURE);
-                    GlStateManager.depthMask(false);
+                if (PlacementHelper
+                    .isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null))) {
                     
-                    boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-                    PlacementPreview result = PlacementHelper
-                        .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
+                    ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
                     
-                    if (result != null) {
-                        processMarkKey(player, iTile, stack, result);
-                        double x = position.getPos().getX() - TileEntityRendererDispatcher.staticPlayerX;
-                        double y = position.getPos().getY() - TileEntityRendererDispatcher.staticPlayerY;
-                        double z = position.getPos().getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+                    PlacementMode mode = iTile.getPlacementMode(stack);
+                    
+                    if (mode.getPreviewMode() == PreviewMode.PREVIEWS) {
+                        GlStateManager.enableBlend();
+                        GlStateManager
+                            .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                        GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
+                        GlStateManager.enableTexture2D();
+                        mc.renderEngine.bindTexture(WHITE_TEXTURE);
+                        GlStateManager.depthMask(false);
                         
-                        List<PlacePreview> placePreviews = result.getPreviews();
+                        boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
+                        PlacementPreview result = PlacementHelper
+                            .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, mode);
                         
-                        float alpha = (float) (Math.sin(System.nanoTime() / 200000000F) * 0.2F + 0.5F);
-                        
-                        for (int i = 0; i < placePreviews.size(); i++) {
-                            PlacePreview preview = placePreviews.get(i);
-                            List<LittleRenderBox> cubes = preview.getPreviews(result.context);
-                            for (LittleRenderBox cube : cubes)
-                                cube.renderPreview(x, y, z, (int) (alpha * iTile.getPreviewAlphaFactor() * 255));
+                        if (result != null) {
+                            processMarkKey(player, iTile, stack, result);
+                            List<PlacePreview> placePreviews = result.getPreviews();
+                            
+                            double posX = position.getPos().getX() - TileEntityRendererDispatcher.staticPlayerX;
+                            double posY = position.getPos().getY() - TileEntityRendererDispatcher.staticPlayerY;
+                            double posZ = position.getPos().getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+                            
+                            float alpha = (float) (Math.sin(System.nanoTime() / 200000000F) * 0.2F + 0.5F);
+                            
+                            for (int i = 0; i < placePreviews.size(); i++) {
+                                PlacePreview preview = placePreviews.get(i);
+                                List<LittleRenderBox> cubes = preview.getPreviews(result.context);
+                                for (LittleRenderBox cube : cubes)
+                                    cube.renderPreview(posX, posY, posZ, (int) (alpha * iTile.getPreviewAlphaFactor() * 255));
+                            }
+                            
+                            if (position.positingCubes != null)
+                                for (LittleRenderBox cube : position.positingCubes)
+                                    cube.renderPreview(posX, posY, posZ, (int) (alpha * ColorUtils.getAlphaDecimal(cube.color) * iTile.getPreviewAlphaFactor() * 255));
                         }
                         
-                        if (position.positingCubes != null)
-                            for (LittleRenderBox cube : position.positingCubes)
-                                cube.renderPreview(x, y, z, (int) (alpha * ColorUtils.getAlphaDecimal(cube.color) * iTile.getPreviewAlphaFactor() * 255));
+                        GlStateManager.depthMask(true);
+                        GlStateManager.enableTexture2D();
+                        GlStateManager.disableBlend();
                     }
                     
-                    GlStateManager.depthMask(true);
-                    GlStateManager.enableTexture2D();
-                    GlStateManager.disableBlend();
+                } else
+                    processMarkKey(player, (ILittleTool) stack.getItem(), stack, null);
+                
+                ((ILittleTool) stack.getItem()).render(player, stack, x, y, z);
+                if (marked != null)
+                    marked.render(x, y, z);
+            }
+        } else
+            marked = null;
+    }
+    
+    public void processMarkKey(EntityPlayer player, ILittleTool iTile, ItemStack stack, PlacementPreview preview) {
+        while (LittleTilesClient.mark.isPressed()) {
+            if (marked == null) {
+                marked = iTile
+                    .onMark(player, stack, PlacementHelper.getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack), mc.objectMouseOver, preview);
+                if (GuiScreen.isCtrlKeyDown())
+                    FMLClientHandler.instance().displayGuiScreen(player, new GuiContainerSub(player, marked.getConfigurationGui(), new SubContainerEmpty(player)));
+            } else {
+                if (GuiScreen.isCtrlKeyDown())
+                    FMLClientHandler.instance().displayGuiScreen(player, new GuiContainerSub(player, marked.getConfigurationGui(), new SubContainerEmpty(player)));
+                else {
+                    marked.done();
+                    marked = null;
                 }
-            } else
-                marked = null;
+            }
         }
     }
     
-    public void processMarkKey(EntityPlayer player, ILittleTile iTile, ItemStack stack, PlacementPreview preview) {
-        while (LittleTilesClient.mark.isPressed()) {
-            if (marked == null)
-                marked = iTile.onMark(player, stack);
-            
-            if (marked != null && marked
-                .processPosition(player, PlacementHelper.getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack), preview))
-                marked = null;
-        }
+    public static void processRotateKey(EntityPlayer player, Rotation rotation, ItemStack stack) {
+        LittleRotatePacket packet = new LittleRotatePacket(rotation);
+        packet.executeClient(player);
+        
+        if (stack.getItem() instanceof ILittleTool && !((ILittleTool) stack.getItem()).sendTransformationUpdate())
+            return;
+        
+        PacketHandler.sendPacketToServer(packet);
     }
     
     public void processRotateKeys(ItemStack stack, LittleGridContext context) {
         while (LittleTilesClient.flip.isPressed())
-            LittleEventHandler.processFlipKey(mc.player, stack);
+            processFlipKey(mc.player, stack);
         
         boolean repeated = marked != null;
         
@@ -171,29 +211,60 @@ public class PreviewRenderer {
             if (marked != null)
                 marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.UP : EnumFacing.EAST);
             else
-                LittleEventHandler.processRotateKey(mc.player, Rotation.Z_CLOCKWISE, stack);
+                processRotateKey(mc.player, Rotation.Z_CLOCKWISE, stack);
         }
         
         while (LittleTilesClient.down.isPressed(repeated)) {
             if (marked != null)
                 marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.DOWN : EnumFacing.WEST);
             else
-                LittleEventHandler.processRotateKey(mc.player, Rotation.Z_COUNTER_CLOCKWISE, stack);
+                processRotateKey(mc.player, Rotation.Z_COUNTER_CLOCKWISE, stack);
         }
         
         while (LittleTilesClient.right.isPressed(repeated)) {
             if (marked != null)
                 marked.move(context, EnumFacing.SOUTH);
             else
-                LittleEventHandler.processRotateKey(mc.player, Rotation.Y_COUNTER_CLOCKWISE, stack);
+                processRotateKey(mc.player, Rotation.Y_COUNTER_CLOCKWISE, stack);
         }
         
         while (LittleTilesClient.left.isPressed(repeated)) {
             if (marked != null)
                 marked.move(context, EnumFacing.NORTH);
             else
-                LittleEventHandler.processRotateKey(mc.player, Rotation.Y_CLOCKWISE, stack);
+                processRotateKey(mc.player, Rotation.Y_CLOCKWISE, stack);
         }
+    }
+    
+    public static void processFlipKey(EntityPlayer player, ItemStack stack) {
+        int i4 = MathHelper.floor(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+        EnumFacing direction = null;
+        switch (i4) {
+        case 0:
+            direction = EnumFacing.SOUTH;
+            break;
+        case 1:
+            direction = EnumFacing.WEST;
+            break;
+        case 2:
+            direction = EnumFacing.NORTH;
+            break;
+        case 3:
+            direction = EnumFacing.EAST;
+            break;
+        }
+        if (player.rotationPitch > 45)
+            direction = EnumFacing.DOWN;
+        if (player.rotationPitch < -45)
+            direction = EnumFacing.UP;
+        
+        LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
+        packet.executeClient(player);
+        
+        if (stack.getItem() instanceof ILittleTool && !((ILittleTool) stack.getItem()).sendTransformationUpdate())
+            return;
+        
+        PacketHandler.sendPacketToServer(packet);
     }
     
     @SubscribeEvent
@@ -206,30 +277,61 @@ public class PreviewRenderer {
         if (!LittleAction.canPlace(player))
             return;
         
-        if ((event.getTarget().typeOfHit == Type.BLOCK || marked != null) && PlacementHelper.isLittleBlock(stack)) {
-            if (marked != null)
-                marked.renderBlockHighlight(player, event.getPartialTicks());
+        double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
+        double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
+        double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
+        
+        if ((event.getTarget().typeOfHit == Type.BLOCK || marked != null) && stack.getItem() instanceof ILittleTool) {
+            BlockPos pos = event.getTarget().getBlockPos();
+            IBlockState state = world.getBlockState(pos);
+            if (stack.getItem() instanceof ILittleEditor) {
+                ILittleEditor selector = (ILittleEditor) stack.getItem();
+                
+                processMarkKey(player, selector, stack, null);
+                PlacementPosition result = new PlacementPosition(event.getTarget(), selector.getPositionContext(stack));
+                if (selector.hasCustomBoxes(world, stack, player, state, result, event.getTarget())) {
+                    LittleBoxes boxes = ((ILittleEditor) stack.getItem()).getBoxes(world, stack, player, result, event.getTarget());
+                    GlStateManager.enableBlend();
+                    GlStateManager
+                        .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                    GlStateManager.glLineWidth(4.0F);
+                    GlStateManager.enableTexture2D();
+                    Minecraft.getMinecraft().renderEngine.bindTexture(PreviewRenderer.WHITE_TEXTURE);
+                    GlStateManager.depthMask(false);
+                    for (int i = 0; i < boxes.size(); i++)
+                        RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox(boxes.context).offset(boxes.pos).grow(0.0020000000949949026D)
+                            .offset(-x, -y, -z), 0.0F, 0.0F, 0.0F, 0.4F);
+                    
+                    if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos)) {
+                        GlStateManager.glLineWidth(1.0F);
+                        RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-x, -y, -z), 0.0F, 0.0F, 0.0F, 0.4F);
+                    }
+                    
+                    GlStateManager.depthMask(true);
+                    GlStateManager.enableTexture2D();
+                    GlStateManager.disableBlend();
+                    
+                    event.setCanceled(true);
+                }
+            }
+        } else if (stack.getItem() instanceof ILittlePlacer) {
             
-            ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+            ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
             PlacementMode mode = iTile.getPlacementMode(stack);
             if (mode.getPreviewMode() == PreviewMode.LINES) {
                 BlockPos pos = event.getTarget().getBlockPos();
                 IBlockState state = world.getBlockState(pos);
                 
-                PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper
+                PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
                     .getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
                 
                 boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                 
                 PlacementPreview result = PlacementHelper
-                    .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
+                    .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, mode);
                 
                 if (result != null) {
                     processMarkKey(player, iTile, stack, result);
-                    
-                    double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
-                    double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
-                    double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
                     
                     GlStateManager.enableBlend();
                     GlStateManager
@@ -239,22 +341,18 @@ public class PreviewRenderer {
                     mc.renderEngine.bindTexture(WHITE_TEXTURE);
                     GlStateManager.depthMask(false);
                     
-                    double x = position.getPos().getX();
-                    double y = position.getPos().getY();
-                    double z = position.getPos().getZ();
-                    
-                    d0 -= x;
-                    d1 -= y;
-                    d2 -= z;
+                    double posX = x - position.getPos().getX();
+                    double posY = y - position.getPos().getY();
+                    double posZ = z - position.getPos().getZ();
                     
                     List<PlacePreview> placePreviews = result.getPreviews();
                     for (int i = 0; i < placePreviews.size(); i++)
                         for (LittleRenderBox cube : placePreviews.get(i).getPreviews(result.context))
-                            cube.renderLines(-d0, -d1, -d2, 102);
+                            cube.renderLines(-posX, -posY, -posZ, 102);
                         
                     if (position.positingCubes != null)
                         for (LittleRenderBox cube : position.positingCubes)
-                            cube.renderLines(-d0, -d1, -d2, 102);
+                            cube.renderLines(-posX, -posY, -posZ, 102);
                         
                     GlStateManager.depthMask(true);
                     GlStateManager.enableTexture2D();

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape.drag;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,15 +10,13 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.CornerCache;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -26,19 +24,19 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeOuterCorner extends DragShape {
+public class LittleShapeOuterCorner extends LittleShape {
     
-    public DragShapeOuterCorner() {
-        super("outer_corner");
+    public LittleShapeOuterCorner() {
+        super(2);
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
-        LittleTransformableBox box = new LittleTransformableBox(new LittleBox(min, max), new int[1]);
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
         CornerCache cache = box.new CornerCache(false);
         
-        Vec3i vec = getVec(nbt);
-        EnumFacing facing = getFacing(nbt);
+        Vec3i vec = getVec(selection.nbt);
+        EnumFacing facing = getFacing(selection.nbt);
         Axis axis = facing.getAxis();
         EnumFacing x = vec.getX() > 0 ? EnumFacing.EAST : EnumFacing.WEST;
         EnumFacing y = vec.getY() > 0 ? EnumFacing.UP : EnumFacing.DOWN;
@@ -60,11 +58,10 @@ public class DragShapeOuterCorner extends DragShape {
         cache.setAbsolute(corner.flip(two), axis, value);
         
         box.setData(cache.getData());
-        if (nbt.getBoolean("second"))
+        if (selection.nbt.getBoolean("second"))
             flipped = !flipped;
         box.setFlipped(facing, flipped);
         boxes.add(box);
-        return boxes;
     }
     
     public Vec3i getVec(NBTTagCompound nbt) {

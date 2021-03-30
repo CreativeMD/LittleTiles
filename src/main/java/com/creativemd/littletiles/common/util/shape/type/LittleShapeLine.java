@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape.drag;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,17 +12,18 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeLine extends DragShape {
+public class LittleShapeLine extends LittleShape {
     
-    public DragShapeLine() {
-        super("line");
+    public LittleShapeLine() {
+        super(2);
     }
     
     public void visitAll(double gx0, double gy0, double gz0, double gx1, double gy1, double gz1, List<LittleBox> boxes) {
@@ -97,8 +98,16 @@ public class DragShapeLine extends DragShape {
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
+    public int maxAllowed() {
+        return 2;
+    }
+    
+    @Override
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         LittleAbsoluteVec absolute = new LittleAbsoluteVec(boxes.pos, boxes.context);
+        
+        PlacementPosition originalMin = selection.getFirst().pos.copy();
+        PlacementPosition originalMax = selection.getLast().pos.copy();
         
         LittleVec originalMinVec = originalMin.getRelative(absolute).getVec(boxes.context);
         LittleVec originalMaxVec = originalMax.getRelative(absolute).getVec(boxes.context);
@@ -106,8 +115,6 @@ public class DragShapeLine extends DragShape {
         visitAll(originalMinVec.x + 0.5, originalMinVec.y + 0.5, originalMinVec.z + 0.5, originalMaxVec.x + 0.5, originalMaxVec.y + 0.5, originalMaxVec.z + 0.5, boxes);
         
         LittleBox.combineBoxesBlocks(boxes);
-        
-        return boxes;
     }
     
     @Override
@@ -136,5 +143,4 @@ public class DragShapeLine extends DragShape {
     public void flip(NBTTagCompound nbt, Axis axis) {
         
     }
-    
 }

@@ -37,8 +37,8 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
-import com.creativemd.littletiles.common.api.IBoxSelector;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
+import com.creativemd.littletiles.common.api.ILittleTool;
 import com.creativemd.littletiles.common.block.BlockArrow;
 import com.creativemd.littletiles.common.block.BlockCable;
 import com.creativemd.littletiles.common.block.BlockLTFlowingLava;
@@ -129,7 +129,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.creativemd.littletiles.server.NeighborUpdateOrganizer;
@@ -370,22 +369,16 @@ public class LittleTiles {
             @SideOnly(Side.CLIENT)
             public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
                 ItemStack stack = player.getHeldItemMainhand();
-                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-                if (iTile != null)
-                    return iTile.getConfigureGUI(player, stack);
-                else if (stack.getItem() instanceof IBoxSelector)
-                    return ((IBoxSelector) stack.getItem()).getConfigureGUI(player, stack);
+                if (stack.getItem() instanceof ILittleTool)
+                    return ((ILittleTool) stack.getItem()).getConfigureGUI(player, stack);
                 return null;
             }
             
             @Override
             public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
                 ItemStack stack = player.getHeldItemMainhand();
-                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-                if (iTile != null)
-                    return iTile.getConfigureContainer(player, stack);
-                else if (stack.getItem() instanceof IBoxSelector)
-                    return ((IBoxSelector) stack.getItem()).getConfigureContainer(player, stack);
+                if (stack.getItem() instanceof ILittleTool)
+                    return ((ILittleTool) stack.getItem()).getConfigureContainer(player, stack);
                 return null;
             }
         });
@@ -396,22 +389,16 @@ public class LittleTiles {
             @SideOnly(Side.CLIENT)
             public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
                 ItemStack stack = player.getHeldItemMainhand();
-                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-                if (iTile != null)
-                    return iTile.getConfigureGUIAdvanced(player, stack);
-                else if (stack.getItem() instanceof IBoxSelector)
-                    return ((IBoxSelector) stack.getItem()).getConfigureGUIAdvanced(player, stack);
+                if (stack.getItem() instanceof ILittleTool)
+                    return ((ILittleTool) stack.getItem()).getConfigureGUIAdvanced(player, stack);
                 return null;
             }
             
             @Override
             public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
                 ItemStack stack = player.getHeldItemMainhand();
-                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-                if (iTile != null)
-                    return iTile.getConfigureContainerAdvanced(player, stack);
-                else if (stack.getItem() instanceof IBoxSelector)
-                    return ((IBoxSelector) stack.getItem()).getConfigureContainerAdvanced(player, stack);
+                if (stack.getItem() instanceof ILittleTool)
+                    return ((ILittleTool) stack.getItem()).getConfigureContainerAdvanced(player, stack);
                 return null;
             }
         });
@@ -525,7 +512,7 @@ public class LittleTiles {
             @SideOnly(Side.CLIENT)
             public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
                 ItemStack stack = player.getHeldItemMainhand();
-                return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
+                return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionContext(stack));
             }
             
             @Override

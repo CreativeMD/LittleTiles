@@ -9,7 +9,7 @@ import java.util.Optional;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.item.ItemColorIngredient;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -83,7 +83,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
     
     public static LittleIngredients extractWithoutCount(ItemStack stack, boolean useLTStructures) {
         LittleIngredients ingredients = new LittleIngredients();
-        ILittleTile tile = PlacementHelper.getLittleInterface(stack);
+        ILittlePlacer tile = PlacementHelper.getLittleInterface(stack);
         
         if (tile != null) {
             if (useLTStructures && tile.hasLittlePreview(stack) && tile.containsIngredients(stack))

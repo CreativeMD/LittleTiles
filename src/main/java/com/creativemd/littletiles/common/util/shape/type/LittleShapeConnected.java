@@ -1,93 +1,74 @@
-package com.creativemd.littletiles.common.util.shape.select;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.block.BlockTile.TEResult;
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection.ShapeSelectPos;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class SelectShapeConnected extends SelectShape {
+public class LittleShapeConnected extends LittleShape {
     
-    public SelectShapeConnected() {
-        super("connected");
+    public LittleShapeConnected() {
+        super(1);
     }
     
     @Override
-    public boolean rightClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-        return false;
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        for (ShapeSelectPos pos : selection) {
+            if (pos.result.isComplete()) {
+                ConnectedBlock block = new ConnectedBlock(pos.result.te, pos.result.tile);
+                boxes = block.start(pos.result.tile, selection.inside ? null : pos.pos.facing);
+            } else {
+                LittleGridContext context = selection.getContext();
+                if (selection.inside)
+                    boxes.addBox(context, pos.result.te.getPos(), new LittleBox(0, 0, 0, context.size, context.size, context.size));
+                else
+                    boxes.addBox(context, pos.result.te.getPos().offset(pos.pos.facing), new LittleBox(0, 0, 0, context.size, context.size, context.size));
+            }
+        }
     }
     
     @Override
-    public boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-        return true;
-    }
-    
-    @Override
-    public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-        return getBoxes(world, pos, player, nbt, result, context);
-    }
+    public void addExtraInformation(NBTTagCompound nbt, List<String> list) {}
     
     @Override
     @SideOnly(Side.CLIENT)
     public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
-        return new ArrayList<>();
+        return Collections.EMPTY_LIST;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
-    public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
+    public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {}
+    
+    @Override
+    public void rotate(NBTTagCompound nbt, Rotation rotation) {
         
     }
     
     @Override
-    public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-        TEResult te = BlockTile.loadTeAndTile(world, pos, player);
-        
-        LittleBoxes boxes;
-        if (te.isComplete()) {
-            
-            if (te.parent.isStructure())
-                return new LittleBoxes(te.te.getPos(), te.te.getContext());
-            
-            boolean secondMode = LittleAction.isUsingSecondMode(player);
-            
-            ConnectedBlock block = new ConnectedBlock(te.te, te.tile);
-            boxes = block.start(te.tile);
-        } else {
-            boxes = new LittleBoxes(pos, context);
-            boxes.add(new LittleBox(0, 0, 0, context.size, context.size, context.size));
-        }
-        
-        return boxes;
-    }
-    
-    @Override
-    public void deselect(EntityPlayer player, NBTTagCompound nbt, LittleGridContext context) {
-        
-    }
-    
-    @Override
-    public void addExtraInformation(World world, NBTTagCompound nbt, List<String> list, LittleGridContext context) {
+    public void flip(NBTTagCompound nbt, Axis axis) {
         
     }
     
@@ -108,16 +89,27 @@ public class SelectShapeConnected extends SelectShape {
                         potential.add(tile.getBox());
         }
         
-        public LittleBoxes start(LittleTile startTile) {
+        private void addBox(LittleBoxes boxes, LittleBox box, EnumFacing facing) {
+            if (facing == null)
+                boxes.addBox(parent.getContext(), parent.getPos(), box);
+            else {
+                LittleVec vec = new LittleVec(facing);
+                vec.scale(box.getSize(facing.getAxis()));
+                box.add(vec);
+                boxes.addBox(parent.getContext(), parent.getPos(), box);
+            }
+        }
+        
+        public LittleBoxes start(LittleTile startTile, EnumFacing facing) {
             HashMap<BlockPos, ConnectedBlock> blocks = new HashMap<>();
             blocks.put(parent.getPos(), this);
             LittleBoxes boxes = new LittleBoxes(parent.getPos(), parent.getContext());
-            boxes.addBox(parent.getContext(), parent.getPos(), startTile.getBox().copy());
-            performSearchIn(boxes, blocks, startTile, true, parent.getContext(), startTile.getBox().copy());
+            addBox(boxes, startTile.getBox().copy(), facing);
+            performSearchIn(boxes, blocks, startTile, true, parent.getContext(), startTile.getBox().copy(), facing);
             return boxes;
         }
         
-        public void performSearchIn(LittleBoxes boxes, HashMap<BlockPos, ConnectedBlock> blocks, LittleTile startTile, boolean start, LittleGridContext other, LittleBox otherBox) {
+        public void performSearchIn(LittleBoxes boxes, HashMap<BlockPos, ConnectedBlock> blocks, LittleTile startTile, boolean start, LittleGridContext other, LittleBox otherBox, EnumFacing insideFace) {
             LittleGridContext context = parent.getContext();
             List<LittleBox> added = new ArrayList<>();
             int index = 0;
@@ -126,7 +118,7 @@ public class SelectShapeConnected extends SelectShape {
                     LittleBox box = iterator.next();
                     if (index == 0 ? box.doesTouch(context, other, otherBox) : box.doesTouch(added.get(index - 1))) {
                         LittleBox copy = box.copy();
-                        boxes.addBox(parent.getContext(), parent.getPos(), copy);
+                        addBox(boxes, copy, insideFace);
                         added.add(box.copy());
                         iterator.remove();
                     }
@@ -169,7 +161,7 @@ public class SelectShapeConnected extends SelectShape {
                             used = block.getContext();
                         }
                         
-                        block.performSearchIn(boxes, blocks, startTile, false, used, copyBox);
+                        block.performSearchIn(boxes, blocks, startTile, false, used, copyBox, insideFace);
                     }
                     
                 }

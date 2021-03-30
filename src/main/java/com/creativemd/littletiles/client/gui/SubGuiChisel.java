@@ -14,14 +14,15 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.shape.drag.DragShape;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemBlock;
@@ -35,7 +36,7 @@ public class SubGuiChisel extends SubGuiConfigure {
     }
     
     public LittleGridContext getContext() {
-        return ((ILittleTile) stack.getItem()).getPositionContext(stack);
+        return ((ILittlePlacer) stack.getItem()).getPositionContext(stack);
     }
     
     @Override
@@ -47,8 +48,8 @@ public class SubGuiChisel extends SubGuiConfigure {
         
         selector.setSelectedForce(preview.getBlockStack());
         controls.add(selector);
-        GuiComboBox box = new GuiComboBox("shape", 0, 96, 134, new ArrayList<>(DragShape.keys()));
-        box.select(ItemLittleChisel.getShape(stack).key);
+        GuiComboBox box = new GuiComboBox("shape", 0, 96, 134, new ArrayList<>(ShapeRegistry.shapeNames()));
+        box.select(ItemLittleChisel.getShape(stack).getKey());
         GuiScrollBox scroll = new GuiScrollBox("settings", 0, 117, 133, 58);
         controls.add(box);
         controls.add(scroll);
@@ -75,7 +76,7 @@ public class SubGuiChisel extends SubGuiConfigure {
         GuiComboBox box = (GuiComboBox) get("shape");
         GuiScrollBox scroll = (GuiScrollBox) get("settings");
         
-        DragShape shape = DragShape.getShape(box.getCaption());
+        LittleShape shape = ShapeRegistry.getShape(box.getCaption());
         scroll.controls.clear();
         scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
         scroll.refreshControls();
@@ -105,7 +106,7 @@ public class SubGuiChisel extends SubGuiConfigure {
     public void saveConfiguration() {
         GuiComboBox box = (GuiComboBox) get("shape");
         GuiScrollBox scroll = (GuiScrollBox) get("settings");
-        DragShape shape = DragShape.getShape(box.getCaption());
+        LittleShape shape = ShapeRegistry.getShape(box.getCaption());
         
         GuiColorPicker picker = (GuiColorPicker) get("picker");
         LittlePreview preview = ItemLittleChisel.getPreview(stack);

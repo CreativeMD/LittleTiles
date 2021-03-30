@@ -13,14 +13,16 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
-import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleEditor;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
-import com.creativemd.littletiles.common.util.shape.select.SelectShape;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -38,10 +40,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleHammer extends Item implements IBoxSelector {
+public class ItemLittleHammer extends Item implements ILittleEditor {
     
     private static boolean activeFilter = false;
     private static TileSelector currentFilter = null;
+    public static ShapeSelection selection;
     
     public static boolean isFiltered() {
         return activeFilter;
@@ -66,9 +69,9 @@ public class ItemLittleHammer extends Item implements IBoxSelector {
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         tooltip.add("can be used to chisel blocks");
-        SelectShape shape = getShape(stack);
-        tooltip.add("mode: " + shape.key);
-        shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip, getContext(stack));
+        LittleShape shape = getShape(stack);
+        tooltip.add("mode: " + shape.getKey());
+        shape.addExtraInformation(stack.getTagCompound(), tooltip);
     }
     
     @Override
@@ -81,22 +84,25 @@ public class ItemLittleHammer extends Item implements IBoxSelector {
     }
     
     @Override
-    public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-        SelectShape shape = getShape(stack);
-        
-        return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
+    public LittleBoxes getBoxes(World world, ItemStack stack, EntityPlayer player, PlacementPosition pos, RayTraceResult result) {
+        if (selection == null)
+            selection = new ShapeSelection(stack, true);
+        selection.setLast(player, pos, result);
+        return selection.getBoxes(true);
     }
     
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-        SelectShape shape = getShape(stack);
-        if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
-            if (isFiltered())
-                new LittleActionDestroyBoxesFiltered(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getFilter()).execute();
-            else
-                new LittleActionDestroyBoxes(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack))).execute();
-        return true;
+    public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+        if (LittleAction.isUsingSecondMode(player))
+            selection = null;
+        else if (selection != null)
+            if (selection.addAndCheckIfPlace(player, position, result))
+                if (isFiltered())
+                    new LittleActionDestroyBoxesFiltered(selection.getBoxes(false), getFilter()).execute();
+                else
+                    new LittleActionDestroyBoxes(selection.getBoxes(false)).execute();
+        return false;
     }
     
     @Override
@@ -111,11 +117,12 @@ public class ItemLittleHammer extends Item implements IBoxSelector {
     
     @Override
     public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
-        getShape(stack).deselect(player, stack.getTagCompound(), getContext(stack));
+        if (selection != null)
+            selection = null;
     }
     
     @Override
-    public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
+    public boolean hasCustomBoxes(World world, ItemStack stack, EntityPlayer player, IBlockState state, PlacementPosition pos, RayTraceResult result) {
         return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
     }
     
@@ -131,17 +138,15 @@ public class ItemLittleHammer extends Item implements IBoxSelector {
     }
     
     @Override
-    public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
-        SelectShape shape = getShape(stack);
-        if (shape != null)
-            shape.rotate(rotation, stack.getTagCompound());
+    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation) {
+        if (selection != null)
+            selection.rotate(player, stack, rotation);
     }
     
     @Override
-    public void flipLittlePreview(ItemStack stack, Axis axis) {
-        SelectShape shape = getShape(stack);
-        if (shape != null)
-            shape.flip(axis, stack.getTagCompound());
+    public void flip(EntityPlayer player, ItemStack stack, Axis axis) {
+        if (selection != null)
+            selection.flip(player, stack, axis);
     }
     
     @Override
@@ -157,15 +162,15 @@ public class ItemLittleHammer extends Item implements IBoxSelector {
         };
     }
     
-    public static SelectShape getShape(ItemStack stack) {
+    public static LittleShape getShape(ItemStack stack) {
         if (!stack.hasTagCompound())
             stack.setTagCompound(new NBTTagCompound());
         
-        return SelectShape.getShape(stack.getTagCompound().getString("shape"));
+        return ShapeRegistry.getShape(stack.getTagCompound().getString("shape"));
     }
     
     @Override
-    public LittleGridContext getContext(ItemStack stack) {
+    public LittleGridContext getPositionContext(ItemStack stack) {
         return ItemMultiTiles.currentContext;
     }
 }

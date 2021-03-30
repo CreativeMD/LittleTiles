@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape.drag;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,39 +12,38 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeBox extends DragShape {
+public class LittleShapeBox extends LittleShape {
     
-    public DragShapeBox() {
-        super("box");
+    public LittleShapeBox() {
+        super(2);
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, PlacementPosition originalMin, PlacementPosition originalMax) {
-        LittleBox box = new LittleBox(min, max);
-        if (nbt.getBoolean("hollow")) {
-            int thickness = nbt.getInteger("thickness");
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        LittleBox box = selection.getOverallBox();
+        if (selection.nbt.getBoolean("hollow")) {
+            int thickness = selection.nbt.getInteger("thickness");
             LittleVec size = box.getSize();
             if (thickness * 2 >= size.x || thickness * 2 >= size.y || thickness * 2 >= size.z)
                 boxes.add(box);
             else {
-                boxes.add(new LittleBox(min.x, min.y, min.z, max.x, max.y, min.z + thickness));
-                boxes.add(new LittleBox(min.x, min.y + thickness, min.z + thickness, min.x + thickness, max.y - thickness, max.z - thickness));
-                boxes.add(new LittleBox(max.x - thickness, min.y + thickness, min.z + thickness, max.x, max.y - thickness, max.z - thickness));
-                boxes.add(new LittleBox(min.x, min.y, min.z + thickness, max.x, min.y + thickness, max.z - thickness));
-                boxes.add(new LittleBox(min.x, max.y - thickness, min.z + thickness, max.x, max.y, max.z - thickness));
-                boxes.add(new LittleBox(min.x, min.y, max.z - thickness, max.x, max.y, max.z));
+                boxes.add(new LittleBox(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.minZ + thickness));
+                boxes.add(new LittleBox(box.minX, box.minY + thickness, box.minZ + thickness, box.minX + thickness, box.maxY - thickness, box.maxZ - thickness));
+                boxes.add(new LittleBox(box.maxX - thickness, box.minY + thickness, box.minZ + thickness, box.maxX, box.maxY - thickness, box.maxZ - thickness));
+                boxes.add(new LittleBox(box.minX, box.minY, box.minZ + thickness, box.maxX, box.minY + thickness, box.maxZ - thickness));
+                boxes.add(new LittleBox(box.minX, box.maxY - thickness, box.minZ + thickness, box.maxX, box.maxY, box.maxZ - thickness));
+                boxes.add(new LittleBox(box.minX, box.minY, box.maxZ - thickness, box.maxX, box.maxY, box.maxZ));
             }
         } else
             boxes.add(box);
-        return boxes;
     }
     
     @Override

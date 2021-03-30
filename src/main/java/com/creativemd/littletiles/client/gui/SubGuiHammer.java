@@ -6,10 +6,11 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleEditor;
 import com.creativemd.littletiles.common.item.ItemLittleHammer;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.shape.select.SelectShape;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
@@ -22,28 +23,28 @@ public class SubGuiHammer extends SubGuiConfigure {
     }
     
     public LittleGridContext getContext() {
-        return ((IBoxSelector) stack.getItem()).getContext(stack);
+        return ((ILittleEditor) stack.getItem()).getPositionContext(stack);
     }
     
     @Override
     public void saveConfiguration() {
         GuiComboBox box = (GuiComboBox) get("shape");
         GuiScrollBox scroll = (GuiScrollBox) get("settings");
-        SelectShape shape = SelectShape.getShape(box.getCaption());
+        LittleShape shape = ShapeRegistry.getShape(box.getCaption());
         
         NBTTagCompound nbt = stack.getTagCompound();
         if (nbt == null) {
             nbt = new NBTTagCompound();
             stack.setTagCompound(nbt);
         }
-        nbt.setString("shape", shape.key);
+        nbt.setString("shape", shape.getKey());
         shape.saveCustomSettings(scroll, nbt, getContext());
     }
     
     @Override
     public void createControls() {
-        GuiComboBox box = new GuiComboBox("shape", 0, 0, 134, new ArrayList<>(SelectShape.keys()));
-        box.select(ItemLittleHammer.getShape(stack).key);
+        GuiComboBox box = new GuiComboBox("shape", 0, 0, 134, new ArrayList<>(ShapeRegistry.shapeNames()));
+        box.select(ItemLittleHammer.getShape(stack).getKey());
         GuiScrollBox scroll = new GuiScrollBox("settings", 0, 23, 134, 120);
         controls.add(box);
         controls.add(scroll);
@@ -60,7 +61,7 @@ public class SubGuiHammer extends SubGuiConfigure {
         GuiComboBox box = (GuiComboBox) get("shape");
         GuiScrollBox scroll = (GuiScrollBox) get("settings");
         
-        SelectShape shape = SelectShape.getShape(box.getCaption());
+        LittleShape shape = ShapeRegistry.getShape(box.getCaption());
         scroll.controls.clear();
         scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
         scroll.refreshControls();

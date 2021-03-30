@@ -12,7 +12,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -41,7 +41,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile {
+public class ItemMultiTiles extends Item implements ICreativeRendered, ILittlePlacer {
     
     public static PlacementMode currentMode = PlacementMode.getDefault();
     public static LittleGridContext currentContext;
@@ -103,7 +103,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
     }
     
     @Override
-    public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
+    public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution) {
         return LittlePreview.getPreview(stack, allowLowResolution);
     }
     
