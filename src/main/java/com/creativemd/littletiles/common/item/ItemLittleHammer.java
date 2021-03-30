@@ -18,7 +18,9 @@ import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.IMarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.place.PlacementPreview;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
@@ -87,7 +89,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor {
     public LittleBoxes getBoxes(World world, ItemStack stack, EntityPlayer player, PlacementPosition pos, RayTraceResult result) {
         if (selection == null)
             selection = new ShapeSelection(stack, true);
-        selection.setLast(player, pos, result);
+        selection.setLast(player, stack, pos, result);
         return selection.getBoxes(true);
     }
     
@@ -97,11 +99,13 @@ public class ItemLittleHammer extends Item implements ILittleEditor {
         if (LittleAction.isUsingSecondMode(player))
             selection = null;
         else if (selection != null)
-            if (selection.addAndCheckIfPlace(player, position, result))
+            if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (isFiltered())
                     new LittleActionDestroyBoxesFiltered(selection.getBoxes(false), getFilter()).execute();
                 else
                     new LittleActionDestroyBoxes(selection.getBoxes(false)).execute();
+                selection = null;
+            }
         return false;
     }
     
@@ -147,6 +151,14 @@ public class ItemLittleHammer extends Item implements ILittleEditor {
     public void flip(EntityPlayer player, ItemStack stack, Axis axis) {
         if (selection != null)
             selection.flip(player, stack, axis);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IMarkMode onMark(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result, PlacementPreview previews) {
+        if (selection != null)
+            selection.toggleMark();
+        return selection;
     }
     
     @Override

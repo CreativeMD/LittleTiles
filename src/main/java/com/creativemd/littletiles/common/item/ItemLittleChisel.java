@@ -228,7 +228,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
             LittlePreview preview = getPreview(stack);
             for (int i = 0; i < boxes.size(); i++) {
                 LittlePreview newPreview = preview.copy();
-                newPreview.box = boxes.get(i);
+                newPreview.box = boxes.get(i).copy();
                 previews.addWithoutCheckingPreview(newPreview);
             }
             
@@ -263,7 +263,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     public void tick(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         if (selection == null)
             selection = new ShapeSelection(stack, false);
-        selection.setLast(player, getPosition(position, result, currentMode), result);
+        selection.setLast(player, stack, getPosition(position, result, currentMode), result);
     }
     
     @Override
@@ -287,6 +287,19 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
             position.getVec().add(facing);
         
         return position;
+    }
+    
+    @Override
+    public void onClickAir(EntityPlayer player, ItemStack stack) {
+        if (selection != null)
+            selection.click(player);
+    }
+    
+    @Override
+    public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+        if (selection != null)
+            selection.click(player);
+        return false;
     }
     
     @Override

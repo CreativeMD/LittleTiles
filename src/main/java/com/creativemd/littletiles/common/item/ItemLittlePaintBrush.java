@@ -25,7 +25,9 @@ import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.Vanilla
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.IMarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.place.PlacementPreview;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
@@ -140,7 +142,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor {
     public LittleBoxes getBoxes(World world, ItemStack stack, EntityPlayer player, PlacementPosition pos, RayTraceResult result) {
         if (selection == null)
             selection = new ShapeSelection(stack, true);
-        selection.setLast(player, pos, result);
+        selection.setLast(player, stack, pos, result);
         return selection.getBoxes(true);
     }
     
@@ -150,11 +152,13 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor {
         if (LittleAction.isUsingSecondMode(player))
             selection = null;
         else if (selection != null)
-            if (selection.addAndCheckIfPlace(player, position, result))
+            if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (ItemLittleHammer.isFiltered())
                     new LittleActionColorBoxesFiltered(selection.getBoxes(false), getColor(stack), false, ItemLittleHammer.getFilter()).execute();
                 else
                     new LittleActionColorBoxes(selection.getBoxes(false), getColor(stack), false).execute();
+                selection = null;
+            }
         return false;
     }
     
@@ -173,6 +177,14 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor {
     @Override
     public LittleGridContext getPositionContext(ItemStack stack) {
         return ItemMultiTiles.currentContext;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IMarkMode onMark(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result, PlacementPreview previews) {
+        if (selection != null)
+            selection.toggleMark();
+        return selection;
     }
     
     @Override

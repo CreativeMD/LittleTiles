@@ -38,13 +38,13 @@ public class LittleShapeConnected extends LittleShape {
         for (ShapeSelectPos pos : selection) {
             if (pos.result.isComplete()) {
                 ConnectedBlock block = new ConnectedBlock(pos.result.te, pos.result.tile);
-                boxes = block.start(pos.result.tile, selection.inside ? null : pos.pos.facing);
+                boxes = block.start(boxes, pos.result.tile, selection.inside ? null : pos.pos.facing);
             } else {
                 LittleGridContext context = selection.getContext();
                 if (selection.inside)
-                    boxes.addBox(context, pos.result.te.getPos(), new LittleBox(0, 0, 0, context.size, context.size, context.size));
+                    boxes.addBox(context, pos.ray.getBlockPos(), new LittleBox(0, 0, 0, context.size, context.size, context.size));
                 else
-                    boxes.addBox(context, pos.result.te.getPos().offset(pos.pos.facing), new LittleBox(0, 0, 0, context.size, context.size, context.size));
+                    boxes.addBox(context, pos.ray.getBlockPos().offset(pos.pos.facing), new LittleBox(0, 0, 0, context.size, context.size, context.size));
             }
         }
     }
@@ -100,10 +100,9 @@ public class LittleShapeConnected extends LittleShape {
             }
         }
         
-        public LittleBoxes start(LittleTile startTile, EnumFacing facing) {
+        public LittleBoxes start(LittleBoxes boxes, LittleTile startTile, EnumFacing facing) {
             HashMap<BlockPos, ConnectedBlock> blocks = new HashMap<>();
             blocks.put(parent.getPos(), this);
-            LittleBoxes boxes = new LittleBoxes(parent.getPos(), parent.getContext());
             addBox(boxes, startTile.getBox().copy(), facing);
             performSearchIn(boxes, blocks, startTile, true, parent.getContext(), startTile.getBox().copy(), facing);
             return boxes;

@@ -55,9 +55,9 @@ public class LittleShapeType extends LittleShape {
             } else {
                 LittleGridContext context = selection.getContext();
                 if (selection.inside)
-                    boxes.addBox(context, pos.result.te.getPos(), new LittleBox(0, 0, 0, context.size, context.size, context.size));
+                    boxes.addBox(context, pos.ray.getBlockPos(), new LittleBox(0, 0, 0, context.size, context.size, context.size));
                 else
-                    boxes.addBox(context, pos.result.te.getPos().offset(pos.pos.facing), new LittleBox(0, 0, 0, context.size, context.size, context.size));
+                    boxes.addBox(context, pos.ray.getBlockPos().offset(pos.pos.facing), new LittleBox(0, 0, 0, context.size, context.size, context.size));
             }
         }
     }

@@ -38,11 +38,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMarkMode {
     
-    public final ItemStack stack;
-    public final ILittleTool tool;
-    public final NBTTagCompound nbt;
+    public ItemStack stack;
+    public ILittleTool tool;
+    public NBTTagCompound nbt;
     private final List<ShapeSelectPos> positions = new ArrayList<>();
-    protected final LittleShape shape;
+    protected LittleShape shape;
+    protected String shapeKey;
     public final boolean inside;
     
     private ShapeSelectPos last;
@@ -63,7 +64,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         this.nbt = stack.getTagCompound();
         this.tool = (ILittleTool) stack.getItem();
         this.stack = stack;
-        this.shape = ShapeRegistry.getShape(nbt.getString("shape"));
+        this.shapeKey = nbt.getString("shape");
+        this.shape = ShapeRegistry.getShape(shapeKey);
     }
     
     public BlockPos getPos() {
@@ -98,6 +100,13 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         LittleGridContext context = tool.getPositionContext(stack);
         convertToAtMinimum(context);
         
+        if (nbt != stack.getTagCompound())
+            nbt = stack.getTagCompound();
+        if (!shapeKey.equals(nbt.getString("shape"))) {
+            shapeKey = nbt.getString("shape");
+            shape = ShapeRegistry.getShape(shapeKey);
+        }
+        
         cachedBoxes = null;
         cachedBoxesLowRes = null;
         
@@ -114,8 +123,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     @SideOnly(Side.CLIENT)
     public boolean addAndCheckIfPlace(EntityPlayer player, PlacementPosition position, RayTraceResult result) {
+        if (marked)
+            return true;
         ShapeSelectPos pos = new ShapeSelectPos(player, position, result);
-        if ((shape.pointsBeforePlacing < positions.size() + 1 || GuiScreen.isCtrlKeyDown()) && (shape.maxAllowed() == -1 || shape.maxAllowed() < positions.size() + 1)) {
+        if ((shape.pointsBeforePlacing > positions.size() + 1 || GuiScreen.isCtrlKeyDown()) && (shape.maxAllowed() == -1 || shape.maxAllowed() < positions.size() + 1)) {
             positions.add(pos);
             ensureSameContext(pos);
             rebuildShapeCache();
@@ -128,7 +139,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     @SideOnly(Side.CLIENT)
-    public void setLast(EntityPlayer player, PlacementPosition position, RayTraceResult result) {
+    public void setLast(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+        this.stack = stack;
         if (positions.isEmpty())
             pos = position.getPos();
         last = new ShapeSelectPos(player, position, result);
@@ -172,9 +184,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     @Override
     public void move(LittleGridContext context, EnumFacing facing) {
-        LittleVec vec = new LittleVec(facing);
-        vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
-        positions.get(markedPosition).pos.subVec(vec);
+        positions.get(markedPosition).move(context, facing);
     }
     
     @Override
@@ -204,6 +214,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     @SideOnly(Side.CLIENT)
     public void click(EntityPlayer player) {
+        if (!marked)
+            return;
         int index = -1;
         double distance = Double.MAX_VALUE;
         float partialTickTime = TickUtils.getPartialTickTime();
@@ -244,7 +256,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
                 if (iter.hasNext())
                     return iter.next();
                 else if (!last) {
-                    last = false;
+                    last = true;
                     return ShapeSelection.this.last;
                 }
                 throw new UnsupportedOperationException();
@@ -282,7 +294,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         public final PlacementPosition pos;
         public final RayTraceResult ray;
         public final BlockTile.TEResult result;
-        public final AxisAlignedBB box;
+        public AxisAlignedBB box;
         
         public ShapeSelectPos(EntityPlayer player, PlacementPosition position, RayTraceResult result) {
             this.pos = position;
@@ -291,6 +303,13 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.box = pos.getBox().grow(0.002);
             if (inside && result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
                 pos.getVec().sub(result.sideHit);
+        }
+        
+        public void move(LittleGridContext context, EnumFacing facing) {
+            LittleVec vec = new LittleVec(facing);
+            vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
+            pos.subVec(vec);
+            box = pos.getBox().grow(0.002);
         }
         
         @SideOnly(Side.CLIENT)
@@ -303,16 +322,13 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             GlStateManager.depthMask(false);
             AxisAlignedBB box = this.box.offset(-x, -y, -z);
             
-            if (selected)
-                GlStateManager.color(1, 0, 0);
-            else
-                GlStateManager.color(0, 0, 0);
             GlStateManager.glLineWidth(4.0F);
             RenderGlobal.drawSelectionBoundingBox(box, 0.0F, 0.0F, 0.0F, 1F);
             
             GlStateManager.disableDepth();
             GlStateManager.glLineWidth(1.0F);
-            RenderGlobal.drawSelectionBoundingBox(box, 1F, 0.3F, 0.0F, 1F);
+            if (selected)
+                RenderGlobal.drawSelectionBoundingBox(box, 1F, 0.3F, 0.0F, 1F);
             GlStateManager.enableDepth();
             
             GlStateManager.depthMask(true);

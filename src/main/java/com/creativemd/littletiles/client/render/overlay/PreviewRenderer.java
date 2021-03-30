@@ -138,9 +138,9 @@ public class PreviewRenderer {
                             processMarkKey(player, iTile, stack, result);
                             List<PlacePreview> placePreviews = result.getPreviews();
                             
-                            double posX = position.getPos().getX() - TileEntityRendererDispatcher.staticPlayerX;
-                            double posY = position.getPos().getY() - TileEntityRendererDispatcher.staticPlayerY;
-                            double posZ = position.getPos().getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+                            double posX = result.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
+                            double posY = result.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
+                            double posZ = result.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
                             
                             float alpha = (float) (Math.sin(System.nanoTime() / 200000000F) * 0.2F + 0.5F);
                             
@@ -167,9 +167,9 @@ public class PreviewRenderer {
                 ((ILittleTool) stack.getItem()).render(player, stack, x, y, z);
                 if (marked != null)
                     marked.render(x, y, z);
-            }
-        } else
-            marked = null;
+            } else
+                marked = null;
+        }
     }
     
     public void processMarkKey(EntityPlayer player, ILittleTool iTile, ItemStack stack, PlacementPreview preview) {
@@ -289,7 +289,7 @@ public class PreviewRenderer {
                 
                 processMarkKey(player, selector, stack, null);
                 PlacementPosition result = new PlacementPosition(event.getTarget(), selector.getPositionContext(stack));
-                if (selector.hasCustomBoxes(world, stack, player, state, result, event.getTarget())) {
+                if (selector.hasCustomBoxes(world, stack, player, state, result, event.getTarget()) || marked != null) {
                     LittleBoxes boxes = ((ILittleEditor) stack.getItem()).getBoxes(world, stack, player, result, event.getTarget());
                     GlStateManager.enableBlend();
                     GlStateManager
