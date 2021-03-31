@@ -102,7 +102,8 @@ public class PreviewRenderer {
             
             handleUndoAndRedo(player);
             
-            if (stack.getItem() instanceof ILittleTool) {
+            if (stack
+                .getItem() instanceof ILittleTool && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null))) {
                 PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
                     .getPosition(world, mc.objectMouseOver, ((ILittleTool) stack.getItem()).getPositionContext(stack), (ILittleTool) stack.getItem(), stack);
                 
@@ -114,8 +115,7 @@ public class PreviewRenderer {
                 
                 ((ILittleTool) stack.getItem()).tick(player, stack, position, mc.objectMouseOver);
                 
-                if (PlacementHelper
-                    .isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null))) {
+                if (PlacementHelper.isLittleBlock(stack)) {
                     
                     ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
                     
