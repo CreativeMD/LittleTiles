@@ -126,7 +126,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         if (marked)
             return true;
         ShapeSelectPos pos = new ShapeSelectPos(player, position, result);
-        if ((shape.pointsBeforePlacing > positions.size() + 1 || GuiScreen.isCtrlKeyDown()) && (shape.maxAllowed() == -1 || shape.maxAllowed() < positions.size() + 1)) {
+        if ((shape.pointsBeforePlacing > positions.size() + 1 || GuiScreen.isCtrlKeyDown()) && (shape.maxAllowed() == -1 || shape.maxAllowed() > positions.size() + 1)) {
             positions.add(pos);
             ensureSameContext(pos);
             rebuildShapeCache();
