@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeBox;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeConnected;
+import com.creativemd.littletiles.common.util.shape.type.LittleShapeCurve;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeCylinder;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeInnerCorner;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeLine;
@@ -62,10 +63,12 @@ public class ShapeRegistry {
         registerShape("wall", new LittleShapeWall());
         registerShape("pillar", new LittleShapePillar());
         registerShape("line", new LittleShapeLine());
+        registerShape("curve", new LittleShapeCurve());
         
-        registerShape("pyramid", new LittleShapePyramid());
         registerShape("cylinder", new LittleShapeCylinder());
         registerShape("sphere", new LittleShapeSphere());
+        registerShape("pyramid", new LittleShapePyramid());
+        
     }
     
 }

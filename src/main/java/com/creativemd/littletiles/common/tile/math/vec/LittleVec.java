@@ -7,6 +7,7 @@ import javax.vecmath.Vector3d;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.vec.IVecInt;
+import com.creativemd.creativecore.common.utils.math.vec.Vec3;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagByte;
@@ -60,6 +61,12 @@ public class LittleVec implements IVecInt {
         this(context, vec);
         if (facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(VectorUtils.get(facing.getAxis(), vec)))
             set(facing.getAxis(), get(facing.getAxis()) + 1);
+    }
+    
+    public LittleVec(LittleGridContext context, Vec3 vec) {
+        this.x = context.toGrid(vec.x);
+        this.y = context.toGrid(vec.y);
+        this.z = context.toGrid(vec.z);
     }
     
     public LittleVec(LittleGridContext context, Vec3d vec) {
