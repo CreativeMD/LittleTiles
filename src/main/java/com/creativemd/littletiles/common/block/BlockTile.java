@@ -944,8 +944,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                             } else
                                 updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
                         }
-                        
-                        cube.customData = null;
                     }
                     cubes.add(cube);
                 }
