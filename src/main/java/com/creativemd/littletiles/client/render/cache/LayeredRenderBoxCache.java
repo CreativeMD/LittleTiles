@@ -66,7 +66,7 @@ public class LayeredRenderBoxCache {
         
         for (Iterator iterator = solid.iterator(); iterator.hasNext();) {
             LittleRenderBox littleRenderingCube = (LittleRenderBox) iterator.next();
-            if (littleRenderingCube.isEmissive) {
+            if (littleRenderingCube.needsResorting) {
                 cutout_mipped.add(littleRenderingCube);
                 iterator.remove();
             }

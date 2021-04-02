@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -62,12 +63,20 @@ public class LittleLight extends LittleStructure {
         if (output.component.is("enabled")) {
             World world = getWorld();
             try {
+                tryAttributeChangeForBlocks();
                 for (IStructureTileList list : blocksList()) {
                     IBlockState state = world.getBlockState(list.getPos());
                     world.notifyBlockUpdate(list.getPos(), state, state, 2);
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
+    }
+    
+    @Override
+    public int getAttribute() {
+        if (getOutput(0).getState()[0])
+            return super.getAttribute() | LittleStructureAttribute.EMISSIVE;
+        return super.getAttribute();
     }
     
     public static class LittleLightStructureParser extends LittleStructureGuiParser {

@@ -921,42 +921,42 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                 LittleTile tile = pair.value;
                 if (tile.shouldBeRenderedInLayer(layer)) {
                     // Check for sides which does not need to be rendered
-                    List<LittleRenderBox> tileCubes = tile.getRenderingCubes(((TileEntityLittleTiles) te).getContext(), layer);
-                    for (int j = 0; j < tileCubes.size(); j++) {
-                        LittleRenderBox cube = tileCubes.get(j);
-                        for (int k = 0; k < EnumFacing.VALUES.length; k++) {
-                            EnumFacing facing = EnumFacing.VALUES[k];
-                            LittleBoxFace face = cube.box.generateFace(tileEntity.getContext(), facing);
-                            
-                            cube.customData = tile;
-                            
-                            if (face == null) {
-                                cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
-                            } else {
-                                if (face.isFaceInsideBlock()) {
-                                    if (((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile))
-                                        if (tile.isTranslucent() && face.isPartiallyFilled())
-                                            cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) face.context.pixelSize, true, false));
-                                        else
-                                            cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
+                    LittleRenderBox cube = pair.key.getTileRenderingCube(tile, ((TileEntityLittleTiles) te).getContext(), layer);
+                    if (cube == null)
+                        continue;
+                    for (int k = 0; k < EnumFacing.VALUES.length; k++) {
+                        EnumFacing facing = EnumFacing.VALUES[k];
+                        LittleBoxFace face = cube.box.generateFace(tileEntity.getContext(), facing);
+                        
+                        cube.customData = tile;
+                        
+                        if (face == null)
+                            cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
+                        else {
+                            if (face.isFaceInsideBlock()) {
+                                if (((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile))
+                                    if (tile.isTranslucent() && face.isPartiallyFilled())
+                                        cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) face.context.pixelSize, true, false));
                                     else
-                                        cube.setType(facing, FaceRenderType.INSIDE_NOT_RENDERED);
-                                } else
-                                    updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
-                            }
+                                        cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
+                                else
+                                    cube.setType(facing, FaceRenderType.INSIDE_NOT_RENDERED);
+                            } else
+                                updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
                         }
+                        
+                        cube.customData = null;
                     }
-                    cubes.addAll(tileCubes);
+                    cubes.add(cube);
                 }
+                
             }
             
             for (LittleStructure structure : tileEntity.loadedStructures(LittleStructureAttribute.EXTRA_RENDERING)) {
                 try {
                     structure.load();
                     structure.getRenderingCubes(tileEntity.getPos(), layer, cubes);
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                    
-                }
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
             }
             

@@ -349,6 +349,9 @@ public class TileList extends ParentTileList {
     }
     
     @Override
+    public void setAttribute(int attribute) {}
+    
+    @Override
     public boolean isClient() {
         return client;
     }

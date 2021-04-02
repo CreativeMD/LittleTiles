@@ -9,6 +9,7 @@ public class LittleStructureAttribute {
     public static final int LADDER = 0b00000000_00000000_00000000_00000001;
     public static final int NOCOLLISION = 0b00000000_00000000_00000000_00000010;
     public static final int PREMADE = 0b00000000_00000000_00000000_00000100;
+    public static final int EMISSIVE = 0b00000000_00000000_00000000_00001000;
     
     // active types (only notify when main block)
     
@@ -37,6 +38,10 @@ public class LittleStructureAttribute {
     
     public static boolean premade(int attribute) {
         return (attribute & PREMADE) != 0;
+    }
+    
+    public static boolean emissive(int attribute) {
+        return (attribute & EMISSIVE) != 0;
     }
     
     public static boolean extraCollision(int attribute) {

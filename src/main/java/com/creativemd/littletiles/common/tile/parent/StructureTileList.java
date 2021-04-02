@@ -100,6 +100,11 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     }
     
     @Override
+    public void setAttribute(int attribute) {
+        this.attribute = attribute;
+    }
+    
+    @Override
     public BlockPos getStructurePosition() {
         return relativePos.add(getPos());
     }

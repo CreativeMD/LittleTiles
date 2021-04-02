@@ -175,6 +175,16 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             }
     }
     
+    /** use it at your own risk getAttribute() must return the new attribute */
+    public void tryAttributeChangeForBlocks() throws CorruptedConnectionException, NotYetConnectedException {
+        int attribute = getAttribute();
+        mainBlock.setAttribute(attribute);
+        for (StructureBlockConnector block : blocks)
+            try {
+                block.getList().setAttribute(attribute);
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+    }
+    
     public int count() throws CorruptedConnectionException, NotYetConnectedException {
         int count = mainBlock.size();
         for (StructureBlockConnector block : blocks)
