@@ -39,7 +39,7 @@ public class LittleShapePillar extends LittleShape {
     
     @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
-        int thickness = Math.max(0, selection.nbt.getInteger("thickness") - 1);
+        int thickness = Math.max(0, selection.getNBT().getInteger("thickness") - 1);
         
         PlacementPosition originalMin = selection.getFirst().pos.copy();
         PlacementPosition originalMax = selection.getLast().pos.copy();

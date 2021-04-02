@@ -241,15 +241,19 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {}
     
     @Override
-    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation) {
-        if (selection != null)
+    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation, boolean client) {
+        if (client && selection != null)
             selection.rotate(player, stack, rotation);
+        else
+            new ShapeSelection(stack, false).rotate(player, stack, rotation);
     }
     
     @Override
-    public void flip(EntityPlayer player, ItemStack stack, Axis axis) {
-        if (selection != null)
+    public void flip(EntityPlayer player, ItemStack stack, Axis axis, boolean client) {
+        if (client && selection != null)
             selection.flip(player, stack, axis);
+        else
+            new ShapeSelection(stack, false).flip(player, stack, axis);
     }
     
     @Override

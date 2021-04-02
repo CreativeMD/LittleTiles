@@ -39,7 +39,7 @@ public class LittleFlipPacket extends CreativeCorePacket {
     public void execute(EntityPlayer player) {
         ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
         if (stack.getItem() instanceof ILittleTool)
-            ((ILittleTool) stack.getItem()).flip(player, stack, axis);
+            ((ILittleTool) stack.getItem()).flip(player, stack, axis, player.world.isRemote);
     }
     
     @Override

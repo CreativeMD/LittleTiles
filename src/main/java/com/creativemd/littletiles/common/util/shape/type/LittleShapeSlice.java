@@ -28,7 +28,7 @@ public class LittleShapeSlice extends LittleShape {
     @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         LittleBox box = selection.getOverallBox();
-        boxes.add(new LittleTransformableBox(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, LittleSlice.values()[selection.nbt.getInteger("slice")]));
+        boxes.add(new LittleTransformableBox(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, LittleSlice.values()[selection.getNBT().getInteger("slice")]));
     }
     
     @Override

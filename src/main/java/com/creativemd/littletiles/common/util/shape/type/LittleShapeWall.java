@@ -66,13 +66,13 @@ public class LittleShapeWall extends LittleShape {
     
     @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
-        int direction = selection.nbt.getInteger("direction");
+        int direction = selection.getNBT().getInteger("direction");
         PlacementPosition originalMin = selection.getFirst().pos.copy();
         PlacementPosition originalMax = selection.getLast().pos.copy();
         originalMin.convertTo(boxes.getContext());
         originalMax.convertTo(boxes.getContext());
         
-        int thickness = Math.max(0, selection.nbt.getInteger("thickness") - 1);
+        int thickness = Math.max(0, selection.getNBT().getInteger("thickness") - 1);
         
         LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
         Axis toIgnore = direction == 0 ? Axis.Y : direction == 1 ? Axis.X : Axis.Z;

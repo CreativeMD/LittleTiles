@@ -24,9 +24,9 @@ public interface ILittleTool {
         return LittleGridContext.get();
     }
     
-    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation);
+    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation, boolean client);
     
-    public void flip(EntityPlayer player, ItemStack stack, Axis axis);
+    public void flip(EntityPlayer player, ItemStack stack, Axis axis, boolean client);
     
     @SideOnly(Side.CLIENT)
     public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {

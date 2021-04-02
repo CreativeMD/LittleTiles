@@ -36,7 +36,7 @@ public class LittleShapePyramid extends LittleShape {
     @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         LittleBox box = selection.getOverallBox();
-        EnumFacing facing = getFacing(selection.nbt);
+        EnumFacing facing = getFacing(selection.getNBT());
         Axis axis = facing.getAxis();
         boolean positive = facing.getAxisDirection() == AxisDirection.POSITIVE;
         int minAxis = box.getMin(axis);

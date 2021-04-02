@@ -40,7 +40,6 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     public ItemStack stack;
     public ILittleTool tool;
-    public NBTTagCompound nbt;
     private final List<ShapeSelectPos> positions = new ArrayList<>();
     protected LittleShape shape;
     protected String shapeKey;
@@ -61,11 +60,14 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     public ShapeSelection(ItemStack stack, boolean inside) {
         this.inside = inside;
-        this.nbt = stack.getTagCompound();
         this.tool = (ILittleTool) stack.getItem();
         this.stack = stack;
-        this.shapeKey = nbt.getString("shape");
+        this.shapeKey = getNBT().getString("shape");
         this.shape = ShapeRegistry.getShape(shapeKey);
+    }
+    
+    public NBTTagCompound getNBT() {
+        return stack.getTagCompound();
     }
     
     public BlockPos getPos() {
@@ -97,11 +99,12 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     private void rebuildShapeCache() {
+        if (marked || last == null)
+            return;
         LittleGridContext context = tool.getPositionContext(stack);
         convertToAtMinimum(context);
         
-        if (nbt != stack.getTagCompound())
-            nbt = stack.getTagCompound();
+        NBTTagCompound nbt = getNBT();
         if (!shapeKey.equals(nbt.getString("shape"))) {
             shapeKey = nbt.getString("shape");
             shape = ShapeRegistry.getShape(shapeKey);
@@ -203,12 +206,12 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation) {
-        shape.rotate(nbt, rotation);
+        shape.rotate(getNBT(), rotation);
         rebuildShapeCache();
     }
     
     public void flip(EntityPlayer player, ItemStack stack, Axis axis) {
-        shape.flip(nbt, axis);
+        shape.flip(getNBT(), axis);
         rebuildShapeCache();
     }
     

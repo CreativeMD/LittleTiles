@@ -35,8 +35,8 @@ public class LittleShapeOuterCorner extends LittleShape {
         LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
         CornerCache cache = box.new CornerCache(false);
         
-        Vec3i vec = getVec(selection.nbt);
-        EnumFacing facing = getFacing(selection.nbt);
+        Vec3i vec = getVec(selection.getNBT());
+        EnumFacing facing = getFacing(selection.getNBT());
         Axis axis = facing.getAxis();
         EnumFacing x = vec.getX() > 0 ? EnumFacing.EAST : EnumFacing.WEST;
         EnumFacing y = vec.getY() > 0 ? EnumFacing.UP : EnumFacing.DOWN;
@@ -58,7 +58,7 @@ public class LittleShapeOuterCorner extends LittleShape {
         cache.setAbsolute(corner.flip(two), axis, value);
         
         box.setData(cache.getData());
-        if (selection.nbt.getBoolean("second"))
+        if (selection.getNBT().getBoolean("second"))
             flipped = !flipped;
         box.setFlipped(facing, flipped);
         boxes.add(box);

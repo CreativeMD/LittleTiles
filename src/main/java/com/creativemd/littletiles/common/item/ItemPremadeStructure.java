@@ -156,7 +156,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     }
     
     @Override
-    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation) {
+    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation, boolean client) {
         String id = getPremadeId(stack);
         LittlePreviews previews = getPreviews(id);
         if (previews.isEmpty())
@@ -166,7 +166,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     }
     
     @Override
-    public void flip(EntityPlayer player, ItemStack stack, Axis axis) {
+    public void flip(EntityPlayer player, ItemStack stack, Axis axis, boolean client) {
         String id = getPremadeId(stack);
         LittlePreviews previews = getPreviews(id);
         if (previews.isEmpty())

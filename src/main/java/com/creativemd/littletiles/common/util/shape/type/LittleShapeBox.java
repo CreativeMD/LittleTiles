@@ -29,8 +29,8 @@ public class LittleShapeBox extends LittleShape {
     @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         LittleBox box = selection.getOverallBox();
-        if (selection.nbt.getBoolean("hollow")) {
-            int thickness = selection.nbt.getInteger("thickness");
+        if (selection.getNBT().getBoolean("hollow")) {
+            int thickness = selection.getNBT().getInteger("thickness");
             LittleVec size = box.getSize();
             if (thickness * 2 >= size.x || thickness * 2 >= size.y || thickness * 2 >= size.z)
                 boxes.add(box);

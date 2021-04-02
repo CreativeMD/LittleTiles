@@ -39,7 +39,7 @@ public class LittleRotatePacket extends CreativeCorePacket {
     public void execute(EntityPlayer player) {
         ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
         if (stack.getItem() instanceof ILittleTool)
-            ((ILittleTool) stack.getItem()).rotate(player, stack, rotation);
+            ((ILittleTool) stack.getItem()).rotate(player, stack, rotation, player.world.isRemote);
     }
     
     @Override

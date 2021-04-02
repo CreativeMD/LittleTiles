@@ -8,11 +8,13 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.interpolation.CubicInterpolation;
 import com.creativemd.creativecore.common.utils.math.interpolation.HermiteInterpolation;
 import com.creativemd.creativecore.common.utils.math.interpolation.Interpolation;
 import com.creativemd.creativecore.common.utils.math.interpolation.LinearInterpolation;
-import com.creativemd.creativecore.common.utils.math.vec.Vec3;
+import com.creativemd.creativecore.common.utils.math.vec.Vec2;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -26,21 +28,28 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleShapeCurve extends LittleShape {
+public class LittleShapeCurveWall extends LittleShape {
     
     private static String[] interpolationTypes = new String[] { "hermite", "cubic", "linear" };
     
-    public LittleShapeCurve() {
+    public LittleShapeCurveWall() {
         super(2);
     }
     
     @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
-        List<Vec3> points = new ArrayList<>();
+        int direction = selection.getNBT().getInteger("direction");
+        
+        LittleBox overallBox = selection.getOverallBox();
+        Axis axis = direction == 0 ? Axis.Y : direction == 1 ? Axis.X : Axis.Z;
+        Axis one = RotationUtils.getOne(axis);
+        Axis two = RotationUtils.getTwo(axis);
+        
+        List<Vec2> points = new ArrayList<>();
         double halfPixelSize = selection.getContext().pixelSize * 0.5;
         for (ShapeSelectPos pos : selection) {
             LittleGridContext context = pos.getContext();
-            points.add(new Vec3(pos.pos.getPosX() + halfPixelSize, pos.pos.getPosY() + halfPixelSize, pos.pos.getPosZ() + halfPixelSize));
+            points.add(new Vec2(pos.pos.getVanillaGrid(one) + halfPixelSize, pos.pos.getVanillaGrid(two)));
         }
         
         int thickness = Math.max(0, selection.getNBT().getInteger("thickness") - 1);
@@ -52,34 +61,39 @@ public class LittleShapeCurve extends LittleShape {
             return;
         }
         
-        Interpolation<Vec3> interpolation;
+        Interpolation<Vec2> interpolation;
         switch (selection.getNBT().getInteger("interpolation")) {
         case 0:
-            interpolation = new HermiteInterpolation<>(points.toArray(new Vec3[0]));
+            interpolation = new HermiteInterpolation<>(points.toArray(new Vec2[0]));
             break;
         case 1:
-            interpolation = new CubicInterpolation<>(points.toArray(new Vec3[0]));
+            interpolation = new CubicInterpolation<>(points.toArray(new Vec2[0]));
             break;
         default:
-            interpolation = new LinearInterpolation<>(points.toArray(new Vec3[0]));
+            interpolation = new LinearInterpolation<>(points.toArray(new Vec2[0]));
             break;
         }
         
-        Vec3 origin = new Vec3(boxes.pos.getX(), boxes.pos.getY(), boxes.pos.getZ());
+        Vec2 origin = new Vec2(VectorUtils.get(one, boxes.pos), VectorUtils.get(two, boxes.pos));
         
         int amount = 0;
         double pointTime = 1D / (points.size() - 1);
         double currentTime = 0;
         for (int i = 0; i < points.size() - 1; i++) {
-            Vec3 before = points.get(i);
-            Vec3 end = points.get(i + 1);
+            Vec2 before = points.get(i);
+            Vec2 end = points.get(i + 1);
             
             double distance = before.distance(end);
             int stepCount = (int) Math.ceil(distance / boxes.context.pixelSize * 2);
             double stepSize = pointTime / (stepCount - 1);
             for (int j = 0; j < stepCount; j++) {
-                Vec3 vec = interpolation.valueAt(pointTime * i + stepSize * j);
-                LittleBox box = new LittleBox(new LittleVec(boxes.context, (Vec3) vec.sub(origin)));
+                Vec2 vec = (Vec2) interpolation.valueAt(pointTime * i + stepSize * j).sub(origin);
+                LittleVec point = new LittleVec(0, 0, 0);
+                point.set(one, boxes.context.toGrid(vec.x));
+                point.set(two, boxes.context.toGrid(vec.y));
+                LittleBox box = new LittleBox(point);
+                box.setMin(axis, overallBox.getMin(axis));
+                box.setMax(axis, overallBox.getMax(axis));
                 box.growCentered(thickness);
                 boxes.add(box);
                 amount++;
@@ -90,6 +104,21 @@ public class LittleShapeCurve extends LittleShape {
     @Override
     public void addExtraInformation(NBTTagCompound nbt, List<String> list) {
         list.add("interpolation: " + interpolationTypes[nbt.getInteger("interpolation")]);
+        
+        int facing = nbt.getInteger("direction");
+        String text = "facing: ";
+        switch (facing) {
+        case 0:
+            text += "y";
+            break;
+        case 1:
+            text += "x";
+            break;
+        case 2:
+            text += "z";
+            break;
+        }
+        list.add(text);
     }
     
     @Override
@@ -99,7 +128,8 @@ public class LittleShapeCurve extends LittleShape {
         controls.add(new GuiSteppedSlider("thickness", 5, 5, 100, 14, nbt.getInteger("thickness"), 1, context.size));
         
         controls
-            .add(new GuiStateButton("interpolation", nbt.getInteger("interpolation"), 5, 30, 40, 7, interpolationTypes));
+            .add(new GuiStateButton("interpolation", nbt.getInteger("interpolation"), 60, 30, 40, 7, interpolationTypes));
+        controls.add(new GuiStateButton("direction", nbt.getInteger("direction"), 5, 27, "facing: y", "facing: x", "facing: z"));
         return controls;
     }
     
@@ -109,11 +139,26 @@ public class LittleShapeCurve extends LittleShape {
         GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
         nbt.setInteger("thickness", (int) slider.value);
         
+        GuiStateButton state = (GuiStateButton) gui.get("direction");
+        nbt.setInteger("direction", state.getState());
+        
         nbt.setInteger("interpolation", ((GuiStateButton) gui.get("interpolation")).getState());
     }
     
     @Override
-    public void rotate(NBTTagCompound nbt, Rotation rotation) {}
+    public void rotate(NBTTagCompound nbt, Rotation rotation) {
+        int direction = nbt.getInteger("direction");
+        if (rotation.axis != Axis.Y)
+            direction = 0;
+        else {
+            if (direction == 1)
+                direction = 2;
+            else
+                direction = 1;
+        }
+        
+        nbt.setInteger("direction", direction);
+    }
     
     @Override
     public void flip(NBTTagCompound nbt, Axis axis) {}

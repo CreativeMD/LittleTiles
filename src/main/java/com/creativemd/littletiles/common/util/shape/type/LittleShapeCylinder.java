@@ -31,9 +31,9 @@ public class LittleShapeCylinder extends LittleShape {
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         LittleBox box = selection.getOverallBox();
         
-        boolean hollow = selection.nbt.getBoolean("hollow");
+        boolean hollow = selection.getNBT().getBoolean("hollow");
         
-        int direction = selection.nbt.getInteger("direction");
+        int direction = selection.getNBT().getInteger("direction");
         
         LittleVec size = box.getSize();
         
@@ -55,7 +55,7 @@ public class LittleShapeCylinder extends LittleShape {
         double b2 = 1;
         double c2 = 1;
         
-        int thickness = selection.nbt.getInteger("thickness");
+        int thickness = selection.getNBT().getInteger("thickness");
         
         if (hollow && sizeA > thickness * 2 && sizeB > thickness * 2) {
             int all = sizeA + sizeB;

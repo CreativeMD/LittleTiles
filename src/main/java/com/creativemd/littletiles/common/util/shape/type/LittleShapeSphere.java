@@ -31,7 +31,7 @@ public class LittleShapeSphere extends LittleShape {
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         LittleBox box = selection.getOverallBox();
         
-        boolean hollow = selection.nbt.getBoolean("hollow");
+        boolean hollow = selection.getNBT().getBoolean("hollow");
         LittleVec size = box.getSize();
         if (lowResolution && size.getPercentVolume(boxes.context) > 4) {
             boxes.add(box);
@@ -50,7 +50,7 @@ public class LittleShapeSphere extends LittleShape {
         double b2 = 1;
         double c2 = 1;
         
-        int thickness = selection.nbt.getInteger("thickness");
+        int thickness = selection.getNBT().getInteger("thickness");
         
         if (hollow && size.x > thickness * 2 && size.y > thickness * 2 && size.z > thickness * 2) {
             int all = size.x + size.y + size.z;
