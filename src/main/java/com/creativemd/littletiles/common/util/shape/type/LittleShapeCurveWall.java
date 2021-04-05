@@ -82,8 +82,9 @@ public class LittleShapeCurveWall extends LittleShape {
         for (int i = 0; i < points.size() - 1; i++) {
             Vec2 before = points.get(i);
             Vec2 end = points.get(i + 1);
+            Vec2 middle = interpolation.valueAt(pointTime * (i + 0.5));
             
-            double distance = before.distance(end);
+            double distance = before.distance(middle) + middle.distance(end);
             int stepCount = (int) Math.ceil(distance / boxes.context.pixelSize * 2);
             double stepSize = pointTime / (stepCount - 1);
             for (int j = 0; j < stepCount; j++) {
