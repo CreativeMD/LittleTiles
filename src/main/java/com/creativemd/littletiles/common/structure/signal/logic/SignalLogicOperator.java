@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.structure.signal.logic;
 
 import java.text.ParseException;
 
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionOperator;
@@ -223,11 +224,139 @@ public enum SignalLogicOperator {
             };
         }
         
+    },
+    ADD('#', true, "add") {
+        @Override
+        public SignalLogicOperator lower() {
+            return SignalLogicOperator.BITWISE_XOR;
+        }
+        
+        @Override
+        public boolean perform(boolean first, boolean second) {
+            return false;
+        }
+        
+        @Override
+        public SignalInputCondition create(SignalInputCondition[] conditions) {
+            return new SignalInputConditionOperatorStackableMath(conditions) {
+                
+                @Override
+                public SignalLogicOperator operator() {
+                    return SignalLogicOperator.ADD;
+                }
+                
+                @Override
+                public float getModifier() {
+                    return SignalInputCondition.ADD_DURATION;
+                }
+                
+                @Override
+                public int perform(int first, int second) {
+                    return first + second;
+                }
+            };
+        }
+    },
+    SUB('-', true, "sub") {
+        @Override
+        public SignalLogicOperator lower() {
+            return SignalLogicOperator.ADD;
+        }
+        
+        @Override
+        public boolean perform(boolean first, boolean second) {
+            return false;
+        }
+        
+        @Override
+        public SignalInputCondition create(SignalInputCondition[] conditions) {
+            return new SignalInputConditionOperatorStackableMath(conditions) {
+                
+                @Override
+                public SignalLogicOperator operator() {
+                    return SignalLogicOperator.SUB;
+                }
+                
+                @Override
+                public float getModifier() {
+                    return SignalInputCondition.SUB_DURATION;
+                }
+                
+                @Override
+                public int perform(int first, int second) {
+                    return first - second;
+                }
+            };
+        }
+    },
+    MUL('*', true, "mul") {
+        @Override
+        public SignalLogicOperator lower() {
+            return SignalLogicOperator.SUB;
+        }
+        
+        @Override
+        public boolean perform(boolean first, boolean second) {
+            return false;
+        }
+        
+        @Override
+        public SignalInputCondition create(SignalInputCondition[] conditions) {
+            return new SignalInputConditionOperatorStackableMath(conditions) {
+                
+                @Override
+                public SignalLogicOperator operator() {
+                    return SignalLogicOperator.MUL;
+                }
+                
+                @Override
+                public float getModifier() {
+                    return SignalInputCondition.MUL_DURATION;
+                }
+                
+                @Override
+                public int perform(int first, int second) {
+                    return first * second;
+                }
+            };
+        }
+    },
+    DIV('/', true, "div") {
+        @Override
+        public SignalLogicOperator lower() {
+            return SignalLogicOperator.MUL;
+        }
+        
+        @Override
+        public boolean perform(boolean first, boolean second) {
+            return false;
+        }
+        
+        @Override
+        public SignalInputCondition create(SignalInputCondition[] conditions) {
+            return new SignalInputConditionOperatorStackableMath(conditions) {
+                
+                @Override
+                public SignalLogicOperator operator() {
+                    return SignalLogicOperator.DIV;
+                }
+                
+                @Override
+                public float getModifier() {
+                    return SignalInputCondition.DIV_DURATION;
+                }
+                
+                @Override
+                public int perform(int first, int second) {
+                    return first / second;
+                }
+            };
+        }
     };
     
     public static final SignalLogicOperator HIGHEST_GENERAL = XOR;
     
-    public static final SignalLogicOperator HIGHEST = BITWISE_XOR;
+    public static final SignalLogicOperator HIGHEST = DIV;
     
     public static SignalLogicOperator getHighest(boolean includeBitwise) {
         if (includeBitwise)
@@ -247,6 +376,14 @@ public enum SignalLogicOperator {
             return SignalLogicOperator.XOR;
         case '^':
             return SignalLogicOperator.BITWISE_XOR;
+        case '#':
+            return SignalLogicOperator.ADD;
+        case '-':
+            return SignalLogicOperator.SUB;
+        case '*':
+            return SignalLogicOperator.MUL;
+        case '/':
+            return SignalLogicOperator.DIV;
         default:
             return null;
         }
@@ -402,6 +539,45 @@ public enum SignalLogicOperator {
                 }
             }
             return result;
+        }
+        
+        @Override
+        public boolean needsBrackets() {
+            return true;
+        }
+        
+    }
+    
+    public static abstract class SignalInputConditionOperatorStackableMath extends SignalInputConditionOperatorStackable {
+        
+        public SignalInputConditionOperatorStackableMath(SignalInputCondition[] conditions) {
+            super(conditions);
+        }
+        
+        @Override
+        public boolean perform(boolean first, boolean second) {
+            return false;
+        }
+        
+        public abstract int perform(int first, int second);
+        
+        @Override
+        public boolean[] test(LittleStructure structure) {
+            boolean[][] state = new boolean[conditions.length][];
+            int size = 0;
+            for (int i = 0; i < conditions.length; i++) {
+                state[i] = conditions[i].test(structure, true);
+                size = Math.max(size, state[i].length);
+            }
+            
+            int result = 0;
+            for (int i = 0; i < state.length; i++) {
+                if (i == 0)
+                    result = BooleanUtils.toNumber(state[i]);
+                else
+                    result = perform(result, BooleanUtils.toNumber(state[i]));
+            }
+            return BooleanUtils.toBits(result, Math.max(size, BooleanUtils.getRequiredBandwidth(result)));
         }
         
         @Override
