@@ -43,13 +43,13 @@ public class LittleBoxReturnedVolume {
     
     public LittlePreview createFakePreview(LittlePreview preview) {
         LittlePreview copy = preview.copy();
-        preview.setBox(new LittleBox(0, 0, 0, volume, 1, 1));
+        copy.setBox(new LittleBox(0, 0, 0, volume, 1, 1));
         return copy;
     }
     
     public LittleTile createFakeTile(LittleTile tile) {
         LittleTile copy = tile.copy();
-        tile.setBox(new LittleBox(0, 0, 0, volume, 1, 1));
+        copy.setBox(new LittleBox(0, 0, 0, volume, 1, 1));
         return copy;
     }
     
