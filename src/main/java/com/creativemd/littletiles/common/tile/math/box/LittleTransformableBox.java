@@ -21,7 +21,7 @@ import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
 import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
 import com.creativemd.creativecore.common.utils.math.geo.Ray2d;
-import com.creativemd.creativecore.common.utils.math.geo.Ray3d;
+import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
@@ -1163,7 +1163,7 @@ public class LittleTransformableBox extends LittleBox {
         start.scale(context.size);
         end.scale(context.size);
         
-        Ray3d ray = new Ray3d(start, end);
+        Ray3f ray = new Ray3f(start, end);
         
         vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
         

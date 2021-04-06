@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.util.shape.type.LittleShapeCylinder;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeInnerCorner;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeOuterCorner;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapePillar;
+import com.creativemd.littletiles.common.util.shape.type.LittleShapePolygon;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapePyramid;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeSlice;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeSphere;
@@ -59,6 +60,8 @@ public class ShapeRegistry {
         registerShape("slice", new LittleShapeSlice());
         registerShape("inner_corner", new LittleShapeInnerCorner());
         registerShape("outer_corner", new LittleShapeOuterCorner());
+        
+        registerShape("polygon", new LittleShapePolygon());
         
         registerShape("wall", new LittleShapeWall());
         registerShape("pillar", new LittleShapePillar());

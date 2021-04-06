@@ -75,6 +75,12 @@ public class LittleVec implements IVecInt {
         this.z = context.toGrid(vec.z);
     }
     
+    public LittleVec(LittleGridContext context, Vector3d vec) {
+        this.x = context.toGrid(vec.x);
+        this.y = context.toGrid(vec.y);
+        this.z = context.toGrid(vec.z);
+    }
+    
     public LittleVec(EnumFacing facing) {
         switch (facing) {
         case EAST:
