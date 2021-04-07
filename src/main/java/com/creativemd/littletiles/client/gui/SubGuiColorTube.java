@@ -37,7 +37,7 @@ public class SubGuiColorTube extends SubGuiConfigure {
         // color.setAlpha(255);
         controls.add(new GuiColorPicker("picker", 2, 2, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
         
-        ArrayList<String> shapes = new ArrayList<>(ShapeRegistry.shapeNames());
+        ArrayList<String> shapes = new ArrayList<>(ShapeRegistry.allShapeNames());
         shapes.add(0, "tile");
         GuiComboBox box = new GuiComboBox("shape", 0, 50, 134, shapes);
         LittleShape shape = ItemLittlePaintBrush.getShape(stack);

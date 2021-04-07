@@ -1,10 +1,12 @@
 package com.creativemd.littletiles.common.util.shape;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeBox;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeConnected;
 import com.creativemd.littletiles.common.util.shape.type.LittleShapeCurve;
@@ -24,6 +26,11 @@ import com.creativemd.littletiles.common.util.shape.type.LittleShapeWall;
 public class ShapeRegistry {
     
     private static LinkedHashMap<String, LittleShape> shapes = new LinkedHashMap<>();
+    
+    private static HashMapList<ShapeType, String> shapeTypeLists = new HashMapList<>();
+    private static List<String> noTileList = new ArrayList<>();
+    private static List<String> placingList = new ArrayList<>();
+    
     private static LittleShape defaultShape;
     public static LittleShape tileShape;
     
@@ -31,12 +38,27 @@ public class ShapeRegistry {
         return shapes.values();
     }
     
-    public static Set<String> shapeNames() {
+    public static Collection<String> allShapeNames() {
         return shapes.keySet();
     }
     
-    public static LittleShape registerShape(String id, LittleShape shape) {
+    public static Collection<String> notTileShapeNames() {
+        return noTileList;
+    }
+    
+    public static Collection<String> placingShapeNames() {
+        return placingList;
+    }
+    
+    public static LittleShape registerShape(String id, LittleShape shape, ShapeType type) {
         shapes.put(id, shape);
+        shapeTypeLists.add(type, id);
+        if (type != ShapeType.DEFAULT_SELECTOR)
+            noTileList.add(id);
+        placingList.clear();
+        placingList.addAll(shapeTypeLists.getValuesOrEmpty(ShapeType.SHAPE));
+        placingList.addAll(shapeTypeLists.getValuesOrEmpty(ShapeType.DEFAULT_SELECTOR));
+        placingList.addAll(shapeTypeLists.getValuesOrEmpty(ShapeType.SELECTOR));
         return shape;
     }
     
@@ -52,25 +74,33 @@ public class ShapeRegistry {
     }
     
     static {
-        tileShape = registerShape("tile", new LittleShapeTile());
-        registerShape("type", new LittleShapeType());
-        defaultShape = registerShape("box", new LittleShapeBox());
-        registerShape("connected", new LittleShapeConnected());
+        tileShape = registerShape("tile", new LittleShapeTile(), ShapeType.DEFAULT_SELECTOR);
+        registerShape("type", new LittleShapeType(), ShapeType.SELECTOR);
+        defaultShape = registerShape("box", new LittleShapeBox(), ShapeType.SHAPE);
+        registerShape("connected", new LittleShapeConnected(), ShapeType.SELECTOR);
         
-        registerShape("slice", new LittleShapeSlice());
-        registerShape("inner_corner", new LittleShapeInnerCorner());
-        registerShape("outer_corner", new LittleShapeOuterCorner());
+        registerShape("slice", new LittleShapeSlice(), ShapeType.SHAPE);
+        registerShape("inner_corner", new LittleShapeInnerCorner(), ShapeType.SHAPE);
+        registerShape("outer_corner", new LittleShapeOuterCorner(), ShapeType.SHAPE);
         
-        registerShape("polygon", new LittleShapePolygon());
+        registerShape("polygon", new LittleShapePolygon(), ShapeType.SHAPE);
         
-        registerShape("wall", new LittleShapeWall());
-        registerShape("pillar", new LittleShapePillar());
-        registerShape("curve", new LittleShapeCurve());
-        registerShape("curvewall", new LittleShapeCurveWall());
+        registerShape("wall", new LittleShapeWall(), ShapeType.SHAPE);
+        registerShape("pillar", new LittleShapePillar(), ShapeType.SHAPE);
+        registerShape("curve", new LittleShapeCurve(), ShapeType.SHAPE);
+        registerShape("curvewall", new LittleShapeCurveWall(), ShapeType.SHAPE);
         
-        registerShape("cylinder", new LittleShapeCylinder());
-        registerShape("sphere", new LittleShapeSphere());
-        registerShape("pyramid", new LittleShapePyramid());
+        registerShape("cylinder", new LittleShapeCylinder(), ShapeType.SHAPE);
+        registerShape("sphere", new LittleShapeSphere(), ShapeType.SHAPE);
+        registerShape("pyramid", new LittleShapePyramid(), ShapeType.SHAPE);
+        
+    }
+    
+    public static enum ShapeType {
+        
+        DEFAULT_SELECTOR,
+        SELECTOR,
+        SHAPE
         
     }
     
