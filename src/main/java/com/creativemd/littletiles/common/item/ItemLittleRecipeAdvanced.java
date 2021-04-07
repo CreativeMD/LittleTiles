@@ -215,7 +215,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICr
     
     @Override
     public PlacementMode getPlacementMode(ItemStack stack) {
-        if (!ItemMultiTiles.currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
+        if (!ItemMultiTiles.currentMode.canPlaceStructures() && stack.hasTagCompound() && stack.getTagCompound().hasKey("structure"))
             return PlacementMode.getStructureDefault();
         return ItemMultiTiles.currentMode;
     }
