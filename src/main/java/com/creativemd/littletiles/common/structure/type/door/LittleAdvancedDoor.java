@@ -429,10 +429,9 @@ public class LittleAdvancedDoor extends LittleDoorBase {
                             }
                         }
                     }
-                    context = newContext;
                 }
                 
-                int scale = context.size / newContext.size;
+                context = newContext;
                 selected.value = distance.getDistance();
             } else if (event.source.is("keyValue")) {
                 if (!selected.modifiable)
