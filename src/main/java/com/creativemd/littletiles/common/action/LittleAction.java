@@ -96,6 +96,8 @@ public abstract class LittleAction extends CreativeCorePacket {
     
     @SideOnly(Side.CLIENT)
     public static boolean isUsingSecondMode(EntityPlayer player) {
+        if (player == null)
+            return false;
         if (LittleTiles.CONFIG.building.useALTForEverything)
             return GuiScreen.isAltKeyDown();
         if (LittleTiles.CONFIG.building.useAltWhenFlying)
