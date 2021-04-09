@@ -301,4 +301,9 @@ public class LittleActionSaw extends LittleActionInteract {
             return null;
         }
     }
+    
+    @Override
+    protected boolean requiresBreakEvent() {
+        return false;
+    }
 }
