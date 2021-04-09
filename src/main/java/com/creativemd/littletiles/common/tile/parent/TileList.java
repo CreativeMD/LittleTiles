@@ -60,7 +60,10 @@ public class TileList extends ParentTileList {
     }
     
     public boolean removeStructure(int index) {
-        boolean removed = structures.remove(index) != null;
+        StructureTileList list = structures.remove(index);
+        if (list != null)
+            list.removed();
+        boolean removed = list != null;
         reloadAttributes();
         return removed;
     }
@@ -373,8 +376,10 @@ public class TileList extends ParentTileList {
     public void removeEmptyLists() {
         for (Iterator<StructureTileList> iterator = structures.values().iterator(); iterator.hasNext();) {
             StructureTileList child = iterator.next();
-            if (child.isEmpty())
+            if (child.isEmpty()) {
+                child.isRemoved();
                 iterator.remove();
+            }
         }
     }
     

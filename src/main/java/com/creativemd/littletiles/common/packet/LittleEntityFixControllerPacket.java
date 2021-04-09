@@ -75,7 +75,6 @@ public class LittleEntityFixControllerPacket extends CreativeCorePacket {
                 return;
             }
         }
-        System.out.println("Entity not found! " + nbt);
     }
     
     @Override

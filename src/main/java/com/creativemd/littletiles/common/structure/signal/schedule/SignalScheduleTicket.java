@@ -26,7 +26,7 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
     
     public void run() {
         SignalOutputHandler handler = outputCondition.get();
-        if (handler != null)
+        if (handler != null && handler.isStillAvailable())
             try {
                 handler.performStateChange(result);
             } catch (Exception e) {}

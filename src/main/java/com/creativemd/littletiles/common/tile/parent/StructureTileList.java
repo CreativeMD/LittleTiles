@@ -174,6 +174,15 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
         return structureIndex;
     }
     
+    @Override
+    public boolean isRemoved() {
+        return parent == null;
+    }
+    
+    public void removed() {
+        parent = null;
+    }
+    
     public void remove() {
         parent.removeStructure(structureIndex);
     }

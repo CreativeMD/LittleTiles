@@ -4,4 +4,6 @@ public interface IStructureTileList extends IParentTileList {
     
     public int getIndex();
     
+    public boolean isRemoved();
+    
 }

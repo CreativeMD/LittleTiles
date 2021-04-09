@@ -745,6 +745,11 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     }
     
     @Override
+    public boolean isStillAvailable() {
+        return !mainBlock.isRemoved();
+    }
+    
+    @Override
     public boolean hasChanged() {
         return signalChanged;
     }

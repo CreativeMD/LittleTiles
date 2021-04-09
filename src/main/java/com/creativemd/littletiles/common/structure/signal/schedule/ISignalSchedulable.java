@@ -17,13 +17,15 @@ public interface ISignalSchedulable {
     
     public World getWorld();
     
+    public boolean isStillAvailable();
+    
     public default void updateSignaling() throws CorruptedConnectionException, NotYetConnectedException {
         markUnchanged();
         notifyChange();
     }
     
     public default void schedule() {
-        if (!hasChanged()) {
+        if (!hasChanged() && isStillAvailable()) {
             SignalTicker.schedule(getWorld(), this);
             markChanged();
         }
