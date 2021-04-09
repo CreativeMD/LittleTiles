@@ -26,7 +26,6 @@ import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
@@ -34,8 +33,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionReplace extends LittleActionInteract {
     
@@ -69,20 +66,16 @@ public class LittleActionReplace extends LittleActionInteract {
         return false;
     }
     
+    @Override
+    protected boolean requiresBreakEvent() {
+        return true;
+    }
+    
     public LittleAbsolutePreviews replacedTiles;
     public LittleBoxes boxes;
     
     @Override
     protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-        
-        if (!world.isRemote) {
-            BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
-            MinecraftForge.EVENT_BUS.post(event);
-            if (event.isCanceled()) {
-                sendBlockResetToClient(world, (EntityPlayerMP) player, te);
-                return false;
-            }
-        }
         
         replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
         boxes = new LittleBoxes(pos, te.getContext());

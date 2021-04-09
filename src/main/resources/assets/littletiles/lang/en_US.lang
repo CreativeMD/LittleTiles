@@ -88,6 +88,7 @@ exception.pattern.empty=empty
 exception.pattern.circular=circular reference
 exception.pattern.novalidchildren=broken children
 exception.permission.convert=Cannot edit more than %s blocks
+exception.permission.area-protected=area protected
 
 color.unit.black=black
 color.unit.cyan=cyan

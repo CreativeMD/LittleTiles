@@ -27,8 +27,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionDestroy extends LittleActionInteract {
     
@@ -57,17 +55,12 @@ public class LittleActionDestroy extends LittleActionInteract {
     }
     
     @Override
+    protected boolean requiresBreakEvent() {
+        return true;
+    }
+    
+    @Override
     protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-        
-        if (!world.isRemote) {
-            BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
-            MinecraftForge.EVENT_BUS.post(event);
-            if (event.isCanceled()) {
-                sendBlockResetToClient(world, player, te);
-                return false;
-            }
-        }
-        
         if (parent.isStructure()) {
             try {
                 LittleStructure structure = parent.getStructure();

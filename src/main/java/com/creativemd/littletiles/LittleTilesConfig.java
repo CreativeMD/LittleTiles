@@ -164,6 +164,14 @@ public class LittleTilesConfig {
         
     }
     
+    public static class AreaProtected extends LittleActionException {
+        
+        public AreaProtected() {
+            super("exception.permission.area-protected");
+        }
+        
+    }
+    
     public static class Core implements ICreativeConfig {
         
         @CreativeConfig
