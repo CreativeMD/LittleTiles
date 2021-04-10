@@ -8,6 +8,7 @@ import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxTranslated;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
@@ -48,7 +49,7 @@ public class SubGuiChisel extends SubGuiConfigure {
         
         selector.setSelectedForce(preview.getBlockStack());
         controls.add(selector);
-        GuiComboBox box = new GuiComboBox("shape", 0, 96, 134, new ArrayList<>(ShapeRegistry.placingShapeNames()));
+        GuiComboBox box = new GuiComboBoxTranslated("shape", 0, 96, 134, "shape.", new ArrayList<>(ShapeRegistry.placingShapeNames()));
         box.select(ItemLittleChisel.getShape(stack).getKey());
         GuiScrollBox scroll = new GuiScrollBox("settings", 0, 117, 133, 58);
         controls.add(box);

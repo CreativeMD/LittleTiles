@@ -6,6 +6,7 @@ import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxTranslated;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
@@ -38,8 +39,7 @@ public class SubGuiColorTube extends SubGuiConfigure {
         controls.add(new GuiColorPicker("picker", 2, 2, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
         
         ArrayList<String> shapes = new ArrayList<>(ShapeRegistry.allShapeNames());
-        shapes.add(0, "tile");
-        GuiComboBox box = new GuiComboBox("shape", 0, 50, 134, shapes);
+        GuiComboBox box = new GuiComboBoxTranslated("shape", 0, 50, 134, "shape.", shapes);
         LittleShape shape = ItemLittlePaintBrush.getShape(stack);
         box.select(shape == null ? "tile" : shape.getKey());
         GuiScrollBox scroll = new GuiScrollBox("settings", 0, 73, 134, 90);

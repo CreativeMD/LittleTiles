@@ -25,6 +25,11 @@ public abstract class LittleShape {
         return ShapeRegistry.getShapeName(this);
     }
     
+    @SideOnly(Side.CLIENT)
+    public String getLocalizedName() {
+        return GuiControl.translateOrDefault("shape." + getKey(), getKey());
+    }
+    
     public int maxAllowed() {
         return -1;
     }

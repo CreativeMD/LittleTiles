@@ -169,6 +169,22 @@ selection.save=Save
 selection.scale=Scale
 mode.selection.area=Area
 
+shape.tile=Tile
+shape.type=Tiles of Type
+shape.box=Box
+shape.connected=Connected Tiles
+shape.slice=Slope
+shape.inner_corner=Inner Slope Corner
+shape.outer_corner=Outer Slope Corner
+shape.polygon=Pixel Polygon
+shape.wall=Wall
+shape.pillar=Pillar
+shape.curve=Curve
+shape.curvewall=Curved Wall
+shape.cylinder=Cylinder
+shape.sphere=Sphere
+shape.pyramid=Pyramid
+
 structure.none.name=None
 structure.fixed.name=Fixed
 structure.chair.name=Chair

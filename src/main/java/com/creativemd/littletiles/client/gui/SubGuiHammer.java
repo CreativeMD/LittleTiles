@@ -3,6 +3,7 @@ package com.creativemd.littletiles.client.gui;
 import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxTranslated;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
@@ -43,7 +44,7 @@ public class SubGuiHammer extends SubGuiConfigure {
     
     @Override
     public void createControls() {
-        GuiComboBox box = new GuiComboBox("shape", 0, 0, 134, new ArrayList<>(ShapeRegistry.notTileShapeNames()));
+        GuiComboBox box = new GuiComboBoxTranslated("shape", 0, 0, 134, "shape.", new ArrayList<>(ShapeRegistry.notTileShapeNames()));
         box.select(ItemLittleHammer.getShape(stack).getKey());
         GuiScrollBox scroll = new GuiScrollBox("settings", 0, 23, 134, 120);
         controls.add(box);

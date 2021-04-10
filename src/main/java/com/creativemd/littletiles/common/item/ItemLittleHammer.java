@@ -194,7 +194,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getKey(), LittleTilesClient.mark.getDisplayName(), LittleTilesClient.configure.getDisplayName(),
+        return new Object[] { getShape(stack).getLocalizedName(), LittleTilesClient.mark.getDisplayName(), LittleTilesClient.configure.getDisplayName(),
                 LittleTilesClient.configureAdvanced.getDisplayName() };
     }
 }
