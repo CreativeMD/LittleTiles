@@ -9,6 +9,7 @@ import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
@@ -29,6 +30,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -53,7 +55,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered {
+public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered, IItemTooltip {
     
     public ItemLittleRecipeAdvanced() {
         setCreativeTab(LittleTiles.littleTab);
@@ -235,6 +237,12 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICr
     @Override
     public LittleVec getCachedOffset(ItemStack stack) {
         return LittlePreview.getOffset(stack);
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { Minecraft.getMinecraft().gameSettings.keyBindAttack.getDisplayName(), Minecraft.getMinecraft().gameSettings.keyBindUseItem.getDisplayName(),
+                Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.configure.getDisplayName() };
     }
     
     public static SelectionMode getSelectionMode(ItemStack stack) {

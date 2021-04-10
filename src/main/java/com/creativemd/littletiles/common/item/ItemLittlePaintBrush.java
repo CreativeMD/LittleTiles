@@ -10,6 +10,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiColorTube;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
@@ -32,8 +33,10 @@ import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -50,7 +53,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittlePaintBrush extends Item implements ILittleEditor {
+public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTooltip {
     
     public static ShapeSelection selection;
     
@@ -213,5 +216,12 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor {
                 ItemMultiTiles.currentContext = context;
             }
         };
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { getShape(stack).getKey(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.mark.getDisplayName(),
+                LittleTilesClient.configure.getDisplayName(),
+                LittleTilesClient.configureAdvanced.getDisplayName() };
     }
 }

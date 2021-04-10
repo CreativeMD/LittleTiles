@@ -26,6 +26,7 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.client.gui.SubGuiGrabber;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
@@ -52,6 +53,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -82,7 +84,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittlePlacer {
+public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
     
     public ItemLittleGrabber() {
         setCreativeTab(LittleTiles.littleTab);
@@ -284,6 +286,12 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                 return i;
         }
         return -1;
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getDisplayName(),
+                LittleTilesClient.configureAdvanced.getDisplayName() };
     }
     
     public static abstract class GrabberMode {
@@ -783,4 +791,5 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
     }
+    
 }

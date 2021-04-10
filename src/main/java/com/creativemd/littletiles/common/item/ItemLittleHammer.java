@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiHammer;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
@@ -25,6 +26,7 @@ import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -42,7 +44,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleHammer extends Item implements ILittleEditor {
+public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip {
     
     private static boolean activeFilter = false;
     private static TileSelector currentFilter = null;
@@ -188,5 +190,11 @@ public class ItemLittleHammer extends Item implements ILittleEditor {
     @Override
     public LittleGridContext getPositionContext(ItemStack stack) {
         return ItemMultiTiles.currentContext;
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { getShape(stack).getKey(), LittleTilesClient.mark.getDisplayName(), LittleTilesClient.configure.getDisplayName(),
+                LittleTilesClient.configureAdvanced.getDisplayName() };
     }
 }

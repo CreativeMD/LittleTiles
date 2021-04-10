@@ -17,6 +17,7 @@ import com.creativemd.littletiles.client.render.overlay.OverlayControl;
 import com.creativemd.littletiles.client.render.overlay.OverlayRenderer;
 import com.creativemd.littletiles.client.render.overlay.OverlayRenderer.OverlayPositionType;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
+import com.creativemd.littletiles.client.render.overlay.TooltipOverlay;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.TileEntityTilesRenderer;
 import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
@@ -220,6 +221,7 @@ public class LittleTilesClient extends LittleTilesServer {
         
         // Init overlays
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
+        MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
         
         overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis", 0, 0), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
         

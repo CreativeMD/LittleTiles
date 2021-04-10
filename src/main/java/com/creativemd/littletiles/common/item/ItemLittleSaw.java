@@ -8,9 +8,10 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -24,7 +25,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleSaw extends Item {
+public class ItemLittleSaw extends Item implements IItemTooltip {
     
     public ItemLittleSaw() {
         setCreativeTab(LittleTiles.littleTab);
@@ -50,6 +51,11 @@ public class ItemLittleSaw extends Item {
             return EnumActionResult.SUCCESS;
         }
         return EnumActionResult.PASS;
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { Minecraft.getMinecraft().gameSettings.keyBindAttack.getDisplayName(), Minecraft.getMinecraft().gameSettings.keyBindUseItem.getDisplayName() };
     }
     
 }

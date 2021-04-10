@@ -246,6 +246,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public boolean uploadToVBODirectly = true;
         
+        @CreativeConfig
+        public boolean showTooltip = true;
+        
         @Override
         public void configured() {
             RenderingThread.initThreads(renderingThreadCount);
