@@ -298,9 +298,17 @@ public class PreviewRenderer {
                     GlStateManager.enableTexture2D();
                     Minecraft.getMinecraft().renderEngine.bindTexture(PreviewRenderer.WHITE_TEXTURE);
                     GlStateManager.depthMask(false);
-                    for (int i = 0; i < boxes.size(); i++)
-                        RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox(boxes.context).offset(boxes.pos).grow(0.0020000000949949026D)
-                            .offset(-x, -y, -z), 0.0F, 0.0F, 0.0F, 0.4F);
+                    
+                    double posX = x - boxes.pos.getX();
+                    double posY = y - boxes.pos.getY();
+                    double posZ = z - boxes.pos.getZ();
+                    
+                    for (int i = 0; i < boxes.size(); i++) {
+                        LittleRenderBox cube = boxes.get(i).getRenderingCube(boxes.getContext(), null, 0);
+                        cube.color = 0;
+                        if (cube != null)
+                            cube.renderLines(-posX, -posY, -posZ, 102);
+                    }
                     
                     if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos)) {
                         GlStateManager.glLineWidth(1.0F);
@@ -313,50 +321,48 @@ public class PreviewRenderer {
                     
                     event.setCanceled(true);
                 }
-            }
-        } else if (stack.getItem() instanceof ILittlePlacer) {
-            
-            ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-            PlacementMode mode = iTile.getPlacementMode(stack);
-            if (mode.getPreviewMode() == PreviewMode.LINES) {
-                BlockPos pos = event.getTarget().getBlockPos();
-                IBlockState state = world.getBlockState(pos);
+            } else if (stack.getItem() instanceof ILittlePlacer) {
                 
-                PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
-                    .getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
-                
-                boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-                
-                PlacementPreview result = PlacementHelper
-                    .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, mode);
-                
-                if (result != null) {
-                    processMarkKey(player, iTile, stack, result);
+                ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
+                PlacementMode mode = iTile.getPlacementMode(stack);
+                if (mode.getPreviewMode() == PreviewMode.LINES) {
                     
-                    GlStateManager.enableBlend();
-                    GlStateManager
-                        .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                    GlStateManager.glLineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
-                    GlStateManager.enableTexture2D();
-                    mc.renderEngine.bindTexture(WHITE_TEXTURE);
-                    GlStateManager.depthMask(false);
+                    PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
+                        .getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
                     
-                    double posX = x - position.getPos().getX();
-                    double posY = y - position.getPos().getY();
-                    double posZ = z - position.getPos().getZ();
+                    boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                     
-                    List<PlacePreview> placePreviews = result.getPreviews();
-                    for (int i = 0; i < placePreviews.size(); i++)
-                        for (LittleRenderBox cube : placePreviews.get(i).getPreviews(result.context))
-                            cube.renderLines(-posX, -posY, -posZ, 102);
+                    PlacementPreview result = PlacementHelper
+                        .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, mode);
+                    
+                    if (result != null) {
+                        processMarkKey(player, iTile, stack, result);
                         
-                    if (position.positingCubes != null)
-                        for (LittleRenderBox cube : position.positingCubes)
-                            cube.renderLines(-posX, -posY, -posZ, 102);
+                        GlStateManager.enableBlend();
+                        GlStateManager
+                            .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                        GlStateManager.glLineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
+                        GlStateManager.enableTexture2D();
+                        mc.renderEngine.bindTexture(WHITE_TEXTURE);
+                        GlStateManager.depthMask(false);
                         
-                    GlStateManager.depthMask(true);
-                    GlStateManager.enableTexture2D();
-                    GlStateManager.disableBlend();
+                        double posX = x - position.getPos().getX();
+                        double posY = y - position.getPos().getY();
+                        double posZ = z - position.getPos().getZ();
+                        
+                        List<PlacePreview> placePreviews = result.getPreviews();
+                        for (int i = 0; i < placePreviews.size(); i++)
+                            for (LittleRenderBox cube : placePreviews.get(i).getPreviews(result.context))
+                                cube.renderLines(-posX, -posY, -posZ, 102);
+                            
+                        if (position.positingCubes != null)
+                            for (LittleRenderBox cube : position.positingCubes)
+                                cube.renderLines(-posX, -posY, -posZ, 102);
+                            
+                        GlStateManager.depthMask(true);
+                        GlStateManager.enableTexture2D();
+                        GlStateManager.disableBlend();
+                    }
                 }
             }
         }
