@@ -77,6 +77,10 @@ public class SubGuiDialogSignal extends SubGui {
         opteratorLines.add(SignalLogicOperator.BITWISE_OR.display);
         opteratorLines.add(SignalLogicOperator.BITWISE_XOR.display);
         opteratorLines.add("b-not");
+        opteratorLines.add(SignalLogicOperator.ADD.display);
+        opteratorLines.add(SignalLogicOperator.SUB.display);
+        opteratorLines.add(SignalLogicOperator.MUL.display);
+        opteratorLines.add(SignalLogicOperator.DIV.display);
         controls.add(new GuiComboBox("operators", 103, 180, 40, opteratorLines));
         controls.add(new GuiButton("add", translate("gui.signal.configuration.addop"), 150, 180) {
             
@@ -90,6 +94,8 @@ public class SubGuiDialogSignal extends SubGui {
                     controller.addNotOperator(false);
                 else if (index == 7)
                     controller.addNotOperator(true);
+                else if (index > 7)
+                    controller.addOperator(SignalLogicOperator.values()[index - 2]);
                 else
                     controller.addOperator(SignalLogicOperator.values()[index - 1]);
             }
