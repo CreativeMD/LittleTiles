@@ -46,7 +46,7 @@ public class LittleShapePillar extends LittleShape {
         originalMin.convertTo(boxes.getContext());
         originalMax.convertTo(boxes.getContext());
         
-        LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[0]);
+        LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
         Axis axis = box.getSize().getLongestAxis();
         
         CornerCache cache = box.new CornerCache(false);
