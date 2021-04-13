@@ -126,11 +126,13 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     @Override
     public World getWorld() {
+        if (mainBlock.isRemoved())
+            return null;
         return mainBlock.getWorld();
     }
     
     public boolean hasWorld() {
-        return mainBlock != null && mainBlock.getWorld() != null;
+        return mainBlock != null && !mainBlock.isRemoved() && mainBlock.getWorld() != null;
     }
     
     public boolean isClient() {
@@ -959,6 +961,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     }
     
     public void sendUpdatePacket() {
+        if (mainBlock.isRemoved())
+            return;
         NBTTagCompound nbt = new NBTTagCompound();
         writeToNBT(nbt);
         PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(), getPos(), null);
