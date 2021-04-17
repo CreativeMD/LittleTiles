@@ -23,6 +23,11 @@ public abstract class SignalInputCondition {
     public static final float BNOT_DURATION = 0.02F;
     public static final float VARIABLE_DURATION = 0.01F;
     
+    public static final float ADD_DURATION = 0.5F;
+    public static final float SUB_DURATION = 0.5F;
+    public static final float MUL_DURATION = 0.5F;
+    public static final float DIV_DURATION = 5F;
+    
     public static SignalInputCondition parseInput(String pattern) throws ParseException {
         return parseExpression(new SignalPatternParser(pattern), new char[0], true, false);
     }

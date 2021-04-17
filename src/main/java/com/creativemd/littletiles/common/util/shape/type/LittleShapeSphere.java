@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,32 +10,32 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeSphere extends DragShape {
+public class LittleShapeSphere extends LittleShape {
     
-    public DragShapeSphere() {
-        super("sphere");
+    public LittleShapeSphere() {
+        super(2);
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax) {
-        LittleBox box = new LittleBox(min, max);
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        LittleBox box = selection.getOverallBox();
         
-        boolean hollow = nbt.getBoolean("hollow");
+        boolean hollow = selection.getNBT().getBoolean("hollow");
         LittleVec size = box.getSize();
-        if (preview && size.getPercentVolume(boxes.context) > 4) {
+        if (lowResolution && size.getPercentVolume(boxes.context) > 4) {
             boxes.add(box);
-            return boxes;
+            return;
         }
         
         LittleVec center = size.calculateCenter();
@@ -50,7 +50,7 @@ public class DragShapeSphere extends DragShape {
         double b2 = 1;
         double c2 = 1;
         
-        int thickness = nbt.getInteger("thickness");
+        int thickness = selection.getNBT().getInteger("thickness");
         
         if (hollow && size.x > thickness * 2 && size.y > thickness * 2 && size.z > thickness * 2) {
             int all = size.x + size.y + size.z;
@@ -80,7 +80,7 @@ public class DragShapeSphere extends DragShape {
         double centerY = size.y / 2;
         double centerZ = size.z / 2;
         
-        min = box.getMinVec();
+        LittleVec min = box.getMinVec();
         
         for (int x = 0; x < size.x; x++) {
             for (int y = 0; y < size.y; y++) {
@@ -107,11 +107,10 @@ public class DragShapeSphere extends DragShape {
         
         LittleBox.combineBoxesBlocks(boxes);
         
-        if (preview && boxes.size() > LittlePreview.lowResolutionMode) {
+        if (lowResolution && boxes.size() > LittlePreview.lowResolutionMode) {
             boxes.clear();
             boxes.add(box);
         }
-        return boxes;
     }
     
     @Override
@@ -153,5 +152,4 @@ public class DragShapeSphere extends DragShape {
     public void flip(NBTTagCompound nbt, Axis axis) {
         
     }
-    
 }

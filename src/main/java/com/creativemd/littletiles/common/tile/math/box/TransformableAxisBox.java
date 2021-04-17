@@ -8,7 +8,7 @@ import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
-import com.creativemd.creativecore.common.utils.math.geo.Ray3d;
+import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanCache;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanFaceCache;
@@ -216,7 +216,7 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
             }
         }
         
-        Ray3d ray = new Ray3d(new Vector3f(), direction);
+        Ray3f ray = new Ray3f(new Vector3f(), direction);
         VectorUtils.set(ray.origin, otherAxis, axis);
         float distance = Float.POSITIVE_INFINITY;
         

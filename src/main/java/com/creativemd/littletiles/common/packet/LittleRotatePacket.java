@@ -2,12 +2,9 @@ package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleTool;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -41,22 +38,8 @@ public class LittleRotatePacket extends CreativeCorePacket {
     
     public void execute(EntityPlayer player) {
         ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (PlacementHelper.getLittleInterface(stack) != null) {
-            ILittleTile itile = null;
-            
-            if (stack.getItem() instanceof ILittleTile) {
-                itile = (ILittleTile) stack.getItem();
-            } else if (Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile) {
-                itile = (ILittleTile) Block.getBlockFromItem(stack.getItem());
-            }
-            
-            if (itile != null)
-                itile.rotateLittlePreview(player, stack, rotation);
-        }
-        
-        if (stack.getItem() instanceof IBoxSelector) {
-            ((IBoxSelector) stack.getItem()).rotateLittlePreview(stack, rotation);
-        }
+        if (stack.getItem() instanceof ILittleTool)
+            ((ILittleTool) stack.getItem()).rotate(player, stack, rotation, player.world.isRemote);
     }
     
     @Override

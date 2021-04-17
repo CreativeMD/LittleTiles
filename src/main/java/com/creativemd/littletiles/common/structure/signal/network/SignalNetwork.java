@@ -214,4 +214,9 @@ public class SignalNetwork implements ISignalSchedulable {
         }
         return false;
     }
+    
+    @Override
+    public boolean isStillAvailable() {
+        return true;
+    }
 }

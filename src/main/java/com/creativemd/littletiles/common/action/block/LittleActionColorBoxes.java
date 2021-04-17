@@ -39,8 +39,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionColorBoxes extends LittleActionBoxes {
     
@@ -217,18 +215,11 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         if (ColorUtils.getAlpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
             throw new NotAllowedToPlaceColorException(player);
         
+        fireBlockBreakEvent(world, pos, player);
+        
         TileEntity tileEntity = loadTe(player, world, pos, null, true, 0);
         
         if (tileEntity instanceof TileEntityLittleTiles) {
-            if (!world.isRemote) {
-                BreakEvent event = new BreakEvent(world, tileEntity.getPos(), ((TileEntityLittleTiles) tileEntity).getBlockTileState(), player);
-                MinecraftForge.EVENT_BUS.post(event);
-                if (event.isCanceled()) {
-                    sendBlockResetToClient(world, player, tileEntity);
-                    return;
-                }
-            }
-            
             TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
             
             if (context != te.getContext()) {

@@ -13,7 +13,6 @@ import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -91,6 +90,8 @@ public abstract class LittleActionInteract extends LittleAction {
         transformedCoordinates = true;
     }
     
+    protected abstract boolean requiresBreakEvent();
+    
     protected abstract boolean isRightClick();
     
     protected abstract boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException;
@@ -108,7 +109,7 @@ public abstract class LittleActionInteract extends LittleAction {
                 onEntityNotFound();
             
             if (!isAllowedToInteract(player, animation, isRightClick())) {
-                sendEntityResetToClient((EntityPlayerMP) player, animation);
+                sendEntityResetToClient(player, animation);
                 return false;
             }
             
@@ -119,13 +120,16 @@ public abstract class LittleActionInteract extends LittleAction {
             }
         }
         
+        if (requiresBreakEvent())
+            fireBlockBreakEvent(world, blockPos, player);
+        
         TileEntity tileEntity = world.getTileEntity(blockPos);
         if (tileEntity instanceof TileEntityLittleTiles) {
             TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
             Pair<IParentTileList, LittleTile> pair = te.getFocusedTile(transformedPos, transformedLook);
             
             if (!isAllowedToInteract(world, player, blockPos, isRightClick(), EnumFacing.EAST)) {
-                sendBlockResetToClient(world, (EntityPlayerMP) player, te);
+                sendBlockResetToClient(world, player, te);
                 return false;
             }
             

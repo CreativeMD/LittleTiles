@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.shape;
+package com.creativemd.littletiles.common.util.shape.type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +10,10 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -22,10 +21,10 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapePyramid extends DragShape {
+public class LittleShapePyramid extends LittleShape {
     
-    public DragShapePyramid() {
-        super("pyramid");
+    public LittleShapePyramid() {
+        super(2);
     }
     
     public EnumFacing getFacing(NBTTagCompound nbt) {
@@ -35,9 +34,9 @@ public class DragShapePyramid extends DragShape {
     }
     
     @Override
-    public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax) {
-        LittleBox box = new LittleBox(min, max);
-        EnumFacing facing = getFacing(nbt);
+    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
+        LittleBox box = selection.getOverallBox();
+        EnumFacing facing = getFacing(selection.getNBT());
         Axis axis = facing.getAxis();
         boolean positive = facing.getAxisDirection() == AxisDirection.POSITIVE;
         int minAxis = box.getMin(axis);
@@ -73,7 +72,6 @@ public class DragShapePyramid extends DragShape {
                 boxes.add(toAdd);
                 counter++;
             }
-        return boxes;
     }
     
     @Override

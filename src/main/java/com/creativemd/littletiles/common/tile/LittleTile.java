@@ -307,6 +307,10 @@ public class LittleTile implements ICombinable {
         return false;
     }
     
+    public boolean doesTouch(LittleTile tile) {
+        return box.doesTouch(tile.box);
+    }
+    
     // ================Save & Loading================
     
     public NBTTagCompound startNBTGrouping() {
@@ -479,18 +483,17 @@ public class LittleTile implements ICombinable {
     }
     
     @SideOnly(Side.CLIENT)
-    public final List<LittleRenderBox> getRenderingCubes(LittleGridContext context, BlockRenderLayer layer) {
+    public final LittleRenderBox getRenderingCube(LittleGridContext context, BlockRenderLayer layer) {
         if (invisible)
-            return new ArrayList<>();
-        return getInternalRenderingCubes(context, layer);
+            return null;
+        return getInternalRenderingCube(context, layer);
     }
     
     @SideOnly(Side.CLIENT)
-    protected List<LittleRenderBox> getInternalRenderingCubes(LittleGridContext context, BlockRenderLayer layer) {
-        ArrayList<LittleRenderBox> cubes = new ArrayList<>();
+    protected LittleRenderBox getInternalRenderingCube(LittleGridContext context, BlockRenderLayer layer) {
         if (block != Blocks.BARRIER)
-            cubes.add(box.getRenderingCube(context, block, meta));
-        return cubes;
+            return box.getRenderingCube(context, block, meta);
+        return null;
     }
     
     // ================Sound================

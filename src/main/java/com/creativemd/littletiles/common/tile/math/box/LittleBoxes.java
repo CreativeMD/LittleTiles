@@ -22,11 +22,11 @@ public class LittleBoxes extends ArrayList<LittleBox> implements IGridBased {
         this.context = context;
     }
     
-    public void addBox(IParentTileList parent, LittleTile tile) {
-        addBox(parent.getContext(), parent.getPos(), tile.getBox().copy());
+    public LittleBox addBox(IParentTileList parent, LittleTile tile) {
+        return addBox(parent.getContext(), parent.getPos(), tile.getBox().copy());
     }
     
-    public void addBox(LittleGridContext context, BlockPos pos, LittleBox box) {
+    public LittleBox addBox(LittleGridContext context, BlockPos pos, LittleBox box) {
         if (this.context != context) {
             if (this.context.size > context.size) {
                 box.convertTo(context, this.context);
@@ -37,6 +37,7 @@ public class LittleBoxes extends ArrayList<LittleBox> implements IGridBased {
         
         box.add(new LittleVec(context, pos.subtract(this.pos)));
         add(box);
+        return box;
     }
     
     @Override

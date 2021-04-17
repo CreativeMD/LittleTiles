@@ -328,7 +328,8 @@ public class RenderingThread extends Thread {
                             if (LittleTilesProfilerOverlay.isActive())
                                 LittleTilesProfilerOverlay.finishBuildingCache(System.nanoTime() - duration);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            if (!(e instanceof RenderingException))
+                                e.printStackTrace();
                             if (!finish(data, -1, false))
                                 updateCoords.add(data);
                         }

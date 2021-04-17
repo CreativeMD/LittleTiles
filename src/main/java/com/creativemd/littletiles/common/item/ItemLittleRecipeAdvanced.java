@@ -9,13 +9,14 @@ import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
@@ -29,6 +30,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -53,7 +55,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICreativeRendered {
+public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered, IItemTooltip {
     
     public ItemLittleRecipeAdvanced() {
         setCreativeTab(LittleTiles.littleTab);
@@ -83,7 +85,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
     }
     
     @Override
-    public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
+    public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution) {
         return LittlePreview.getPreview(stack, allowLowResolution);
     }
     
@@ -118,7 +120,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
     
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         IBlockState state = world.getBlockState(result.getBlockPos());
         if (state.getBlock() instanceof BlockTile) {
             NBTTagCompound nbt = new NBTTagCompound();
@@ -215,7 +217,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
     
     @Override
     public PlacementMode getPlacementMode(ItemStack stack) {
-        if (!ItemMultiTiles.currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
+        if (!ItemMultiTiles.currentMode.canPlaceStructures() && stack.hasTagCompound() && stack.getTagCompound().hasKey("structure"))
             return PlacementMode.getStructureDefault();
         return ItemMultiTiles.currentMode;
     }
@@ -235,6 +237,12 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittleTile, ICrea
     @Override
     public LittleVec getCachedOffset(ItemStack stack) {
         return LittlePreview.getOffset(stack);
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { Minecraft.getMinecraft().gameSettings.keyBindAttack.getDisplayName(), Minecraft.getMinecraft().gameSettings.keyBindUseItem.getDisplayName(),
+                Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.configure.getDisplayName() };
     }
     
     public static SelectionMode getSelectionMode(ItemStack stack) {

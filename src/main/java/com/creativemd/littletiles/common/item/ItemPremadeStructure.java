@@ -13,7 +13,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
@@ -36,7 +36,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemPremadeStructure extends Item implements ICreativeRendered, ILittleTile {
+public class ItemPremadeStructure extends Item implements ICreativeRendered, ILittlePlacer {
     
     public ItemPremadeStructure() {
         setCreativeTab(LittleTiles.littleTab);
@@ -156,7 +156,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     }
     
     @Override
-    public void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
+    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation, boolean client) {
         String id = getPremadeId(stack);
         LittlePreviews previews = getPreviews(id);
         if (previews.isEmpty())
@@ -166,7 +166,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     }
     
     @Override
-    public void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
+    public void flip(EntityPlayer player, ItemStack stack, Axis axis, boolean client) {
         String id = getPremadeId(stack);
         LittlePreviews previews = getPreviews(id);
         if (previews.isEmpty())

@@ -10,25 +10,33 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiColorTube;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
-import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleEditor;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.IMarkMode;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.place.PlacementPreview;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
-import com.creativemd.littletiles.common.util.shape.SelectShape;
+import com.creativemd.littletiles.common.util.shape.LittleShape;
+import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
+import com.creativemd.littletiles.common.util.shape.ShapeSelection;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -45,7 +53,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittlePaintBrush extends Item implements IBoxSelector {
+public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTooltip {
+    
+    public static ShapeSelection selection;
     
     public ItemLittlePaintBrush() {
         setCreativeTab(LittleTiles.littleTab);
@@ -86,8 +96,8 @@ public class ItemLittlePaintBrush extends Item implements IBoxSelector {
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         tooltip.add("click: dyes a tile");
         tooltip.add("shift+click: copies tile's color");
-        SelectShape shape = getShape(stack);
-        tooltip.add("shape: " + (shape == null ? "tile" : shape.key));
+        LittleShape shape = getShape(stack);
+        tooltip.add("shape: " + (shape == null ? "tile" : shape.getKey()));
         tooltip.add(TooltipUtils.printRGB(getColor(stack)));
     }
     
@@ -111,72 +121,82 @@ public class ItemLittlePaintBrush extends Item implements IBoxSelector {
         return new SubContainerConfigure(player, stack);
     }
     
-    public static SelectShape getShape(ItemStack stack) {
+    public static LittleShape getShape(ItemStack stack) {
         if (!stack.hasTagCompound())
             stack.setTagCompound(new NBTTagCompound());
         String shape = stack.getTagCompound().getString("shape");
         if (shape.equals("tile") || shape.equals(""))
-            return SelectShape.tileShape;
-        return SelectShape.getShape(shape);
+            return ShapeRegistry.tileShape;
+        return ShapeRegistry.getShape(shape);
     }
     
     @Override
     public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
-        SelectShape shape = getShape(stack);
-        if (shape != null)
-            shape.deselect(player, stack.getTagCompound(), getContext(stack));
+        if (selection != null)
+            selection = null;
     }
     
     @Override
-    public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-        return getShape(stack) != null;
+    public boolean hasCustomBoxes(World world, ItemStack stack, EntityPlayer player, IBlockState state, PlacementPosition pos, RayTraceResult result) {
+        return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
     }
     
     @Override
-    public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-        SelectShape shape = getShape(stack);
-        
-        return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
+    public LittleBoxes getBoxes(World world, ItemStack stack, EntityPlayer player, PlacementPosition pos, RayTraceResult result) {
+        if (selection == null)
+            selection = new ShapeSelection(stack, true);
+        selection.setLast(player, stack, pos, result);
+        return selection.getBoxes(true);
     }
     
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
-        SelectShape shape = getShape(stack);
-        if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))) {
-            if (ItemLittleHammer.isFiltered())
-                new LittleActionColorBoxesFiltered(shape
-                    .getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, ItemLittleHammer.getFilter())
-                        .execute();
-            else
-                new LittleActionColorBoxes(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false)
-                    .execute();
-        }
-        return true;
+    public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+        if (LittleAction.isUsingSecondMode(player))
+            selection = null;
+        else if (selection != null)
+            if (selection.addAndCheckIfPlace(player, position, result)) {
+                if (ItemLittleHammer.isFiltered())
+                    new LittleActionColorBoxesFiltered(selection.getBoxes(false), getColor(stack), false, ItemLittleHammer.getFilter()).execute();
+                else
+                    new LittleActionColorBoxes(selection.getBoxes(false), getColor(stack), false).execute();
+                selection = null;
+            }
+        return false;
     }
     
     @Override
-    public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
-        SelectShape shape = getShape(stack);
-        if (shape != null)
-            shape.rotate(rotation, stack.getTagCompound());
+    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation, boolean client) {
+        if (client && selection != null)
+            selection.rotate(player, stack, rotation);
+        else
+            new ShapeSelection(stack, false).rotate(player, stack, rotation);
     }
     
     @Override
-    public void flipLittlePreview(ItemStack stack, Axis axis) {
-        SelectShape shape = getShape(stack);
-        if (shape != null)
-            shape.flip(axis, stack.getTagCompound());
+    public void flip(EntityPlayer player, ItemStack stack, Axis axis, boolean client) {
+        if (client && selection != null)
+            selection.flip(player, stack, axis);
+        else
+            new ShapeSelection(stack, false).flip(player, stack, axis);
     }
     
     @Override
-    public LittleGridContext getContext(ItemStack stack) {
+    public LittleGridContext getPositionContext(ItemStack stack) {
         return ItemMultiTiles.currentContext;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+    public IMarkMode onMark(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result, PlacementPreview previews) {
+        if (selection != null)
+            selection.toggleMark();
+        return selection;
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
         if (tileEntity instanceof TileEntityLittleTiles)
             PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
@@ -196,5 +216,12 @@ public class ItemLittlePaintBrush extends Item implements IBoxSelector {
                 ItemMultiTiles.currentContext = context;
             }
         };
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.mark.getDisplayName(),
+                LittleTilesClient.configure.getDisplayName(),
+                LittleTilesClient.configureAdvanced.getDisplayName() };
     }
 }

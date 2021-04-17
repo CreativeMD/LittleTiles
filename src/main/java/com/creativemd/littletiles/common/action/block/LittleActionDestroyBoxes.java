@@ -36,8 +36,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionDestroyBoxes extends LittleActionBoxes {
     
@@ -185,18 +183,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     
     @Override
     public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
+        fireBlockBreakEvent(world, pos, player);
+        
         TileEntity tileEntity = loadTe(player, world, pos, null, true, 0);
         
         if (tileEntity instanceof TileEntityLittleTiles) {
-            if (!world.isRemote) {
-                BreakEvent event = new BreakEvent(world, tileEntity.getPos(), ((TileEntityLittleTiles) tileEntity).getBlockTileState(), player);
-                MinecraftForge.EVENT_BUS.post(event);
-                if (event.isCanceled()) {
-                    sendBlockResetToClient(world, player, tileEntity);
-                    return;
-                }
-            }
-            
             TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
             
             if (context != te.getContext()) {

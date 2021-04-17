@@ -47,6 +47,10 @@ public abstract class SignalOutputHandler {
         return mode.create(component, delay, nbt, structure != null && structure.hasWorld() && !structure.getWorld().isRemote);
     }
     
+    public boolean isStillAvailable() {
+        return component.getStructure().isStillAvailable();
+    }
+    
     @Override
     public String toString() {
         return component.toString();

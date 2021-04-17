@@ -1,9 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleTool;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -40,16 +38,8 @@ public class LittleFlipPacket extends CreativeCorePacket {
     
     public void execute(EntityPlayer player) {
         ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        if (PlacementHelper.getLittleInterface(stack) != null) {
-            ILittleTile itile = PlacementHelper.getLittleInterface(stack);
-            
-            if (itile != null)
-                itile.flipLittlePreview(player, stack, axis);
-        }
-        
-        if (stack.getItem() instanceof IBoxSelector) {
-            ((IBoxSelector) stack.getItem()).flipLittlePreview(stack, axis);
-        }
+        if (stack.getItem() instanceof ILittleTool)
+            ((ILittleTool) stack.getItem()).flip(player, stack, axis, player.world.isRemote);
     }
     
     @Override

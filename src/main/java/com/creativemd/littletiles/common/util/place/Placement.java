@@ -138,7 +138,7 @@ public class Placement {
     public PlacementResult place() throws LittleActionException {
         if (player != null && !world.isRemote) {
             if (player != null) {
-                if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.getConfig(player).maxPlaceBlocks) {
+                if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.build.get(player).maxPlaceBlocks) {
                     for (BlockPos pos : blocks.keySet())
                         LittleAction.sendBlockResetToClient(world, player, pos);
                     throw new NotAllowedToPlaceException(player);

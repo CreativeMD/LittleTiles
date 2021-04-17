@@ -1,10 +1,27 @@
 package com.creativemd.littletiles.common.config;
 
 import com.creativemd.creativecore.common.config.api.CreativeConfig;
+import com.creativemd.creativecore.common.config.converation.ConfigTypeConveration;
 
-public class LittleGamemodeConfig {
+public class LittleBuildingConfig {
     
-    public LittleGamemodeConfig(boolean survival) {
+    static {
+        ConfigTypeConveration.registerTypeCreator(LittleBuildingConfig.class, () -> new LittleBuildingConfig());
+    }
+    
+    public LittleBuildingConfig() {
+        limitAffectedBlocks = true;
+        editUnbreakable = false;
+        minimumTransparency = 0;
+        limitEditBlocks = true;
+        limitPlaceBlocks = true;
+        harvestLevelBlock = 0;
+        maxAffectedBlocks = 0;
+        maxEditBlocks = 0;
+        maxPlaceBlocks = 0;
+    }
+    
+    public LittleBuildingConfig(boolean survival) {
         limitAffectedBlocks = survival;
         editUnbreakable = !survival;
         minimumTransparency = survival ? 255 : 0;

@@ -6,7 +6,7 @@ import java.util.List;
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.item.ItemLittleRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -129,7 +129,7 @@ public class StructureStringUtils {
             if (stack.getItem() instanceof ItemLittleRecipe) {
                 previews = LittlePreview.getPreview(stack);
             } else {
-                ILittleTile tile = PlacementHelper.getLittleInterface(stack);
+                ILittlePlacer tile = PlacementHelper.getLittleInterface(stack);
                 previews = tile.getLittlePreview(stack);
             }
             text = stack.getTagCompound().toString();

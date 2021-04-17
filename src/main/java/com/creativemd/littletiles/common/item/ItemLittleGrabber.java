@@ -26,13 +26,14 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.client.gui.SubGuiGrabber;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
@@ -52,6 +53,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -82,7 +84,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittleTile {
+public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
     
     public ItemLittleGrabber() {
         setCreativeTab(LittleTiles.littleTab);
@@ -210,7 +212,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     }
     
     @Override
-    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         return getMode(stack).onMouseWheelClickBlock(world, player, stack, result);
     }
     
@@ -222,7 +224,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     @Override
     @SideOnly(Side.CLIENT)
     public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-        return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
+        return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionContext(stack));
     }
     
     @Override
@@ -284,6 +286,12 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                 return i;
         }
         return -1;
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getDisplayName(),
+                LittleTilesClient.configureAdvanced.getDisplayName() };
     }
     
     public static abstract class GrabberMode {
@@ -527,7 +535,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                     ItemStack slotStack = container.getSlots().get(0).getStack();
                     Block block = Block.getBlockFromItem(slotStack.getItem());
                     if (block instanceof BlockTile) {
-                        LittlePreviews previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
+                        LittlePreviews previews = ((ILittlePlacer) slotStack.getItem()).getLittlePreview(slotStack);
                         if (previews.size() > 0) {
                             int colorInt = previews.get(0).getColor();
                             Vec3i color = ColorUtils.IntToRGB(colorInt);
@@ -783,4 +791,5 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
     }
+    
 }

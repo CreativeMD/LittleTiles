@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.tile;
 
-import java.util.List;
-
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -39,13 +37,11 @@ public class LittleTileColored extends LittleTile {
     }
     
     @Override
-    public List<LittleRenderBox> getInternalRenderingCubes(LittleGridContext context, BlockRenderLayer layer) {
-        List<LittleRenderBox> cubes = super.getInternalRenderingCubes(context, layer);
-        int color = this.color;
-        for (int i = 0; i < cubes.size(); i++) {
-            cubes.get(i).color = color;
-        }
-        return cubes;
+    public LittleRenderBox getInternalRenderingCube(LittleGridContext context, BlockRenderLayer layer) {
+        LittleRenderBox cube = super.getInternalRenderingCube(context, layer);
+        if (cube != null)
+            cube.color = this.color;
+        return cube;
     }
     
     @Override

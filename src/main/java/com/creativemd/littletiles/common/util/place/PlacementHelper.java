@@ -8,7 +8,8 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
+import com.creativemd.littletiles.common.api.ILittleTool;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
@@ -39,27 +40,27 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * preview and placing **/
 public class PlacementHelper {
     
-    public static ILittleTile getLittleInterface(ItemStack stack) {
+    public static ILittlePlacer getLittleInterface(ItemStack stack) {
         if (stack == null)
             return null;
-        if (stack.getItem() instanceof ILittleTile)
-            return (ILittleTile) stack.getItem();
-        if (Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile)
-            return (ILittleTile) Block.getBlockFromItem(stack.getItem());
+        if (stack.getItem() instanceof ILittlePlacer)
+            return (ILittlePlacer) stack.getItem();
+        if (Block.getBlockFromItem(stack.getItem()) instanceof ILittlePlacer)
+            return (ILittlePlacer) Block.getBlockFromItem(stack.getItem());
         return null;
     }
     
     public static boolean isLittleBlock(ItemStack stack) {
         if (stack == null)
             return false;
-        if (stack.getItem() instanceof ILittleTile)
-            return ((ILittleTile) stack.getItem()).hasLittlePreview(stack);
-        if (Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile)
-            return ((ILittleTile) Block.getBlockFromItem(stack.getItem())).hasLittlePreview(stack);
+        if (stack.getItem() instanceof ILittlePlacer)
+            return ((ILittlePlacer) stack.getItem()).hasLittlePreview(stack);
+        if (Block.getBlockFromItem(stack.getItem()) instanceof ILittlePlacer)
+            return ((ILittlePlacer) Block.getBlockFromItem(stack.getItem())).hasLittlePreview(stack);
         return false;
     }
     
-    public static LittleVec getInternalOffset(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, LittleGridContext original) {
+    public static LittleVec getInternalOffset(ILittlePlacer iTile, ItemStack stack, LittlePreviews tiles, LittleGridContext original) {
         LittleVec offset = iTile.getCachedOffset(stack);
         if (offset != null) {
             if (tiles.getContext() != original)
@@ -79,7 +80,7 @@ public class PlacementHelper {
         return new LittleVec(minX, minY, minZ);
     }
     
-    public static LittleVec getSize(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, boolean allowLowResolution, LittleGridContext original) {
+    public static LittleVec getSize(ILittlePlacer iTile, ItemStack stack, LittlePreviews tiles, boolean allowLowResolution, LittleGridContext original) {
         LittleVec cached = iTile.getCachedSize(stack);
         if (cached != null) {
             if (tiles.getContext() != original)
@@ -115,7 +116,7 @@ public class PlacementHelper {
     private static LittlePreviews lastPreviews;
     
     @SideOnly(Side.CLIENT)
-    public static PlacementPosition getPosition(World world, RayTraceResult moving, LittleGridContext context, ILittleTile tile, ItemStack stack) {
+    public static PlacementPosition getPosition(World world, RayTraceResult moving, LittleGridContext context, ILittleTool tile, ItemStack stack) {
         EntityPlayer player = Minecraft.getMinecraft().player;
         
         int x = moving.getBlockPos().getX();
@@ -154,14 +155,14 @@ public class PlacementHelper {
         
         PlacementPosition result = new PlacementPosition(pos, getHitVec(moving, context, canBePlacedInsideBlock).getVecContext(), moving.sideHit);
         
-        if (tile != null && stack != null && (LittleAction.isUsingSecondMode(player) != tile.snapToGridByDefault())) {
+        if (tile instanceof ILittlePlacer && stack != null && (LittleAction.isUsingSecondMode(player) != ((ILittlePlacer) tile).snapToGridByDefault())) {
             Vec3d position = player.getPositionEyes(TickUtils.getPartialTickTime());
             double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
             Vec3d temp = player.getLook(TickUtils.getPartialTickTime());
             Vec3d look = position.addVector(temp.x * d0, temp.y * d0, temp.z * d0);
             position = position.subtract(pos.getX(), pos.getY(), pos.getZ());
             look = look.subtract(pos.getX(), pos.getY(), pos.getZ());
-            List<LittleRenderBox> cubes = tile.getPositingCubes(world, pos, stack);
+            List<LittleRenderBox> cubes = ((ILittlePlacer) tile).getPositingCubes(world, pos, stack);
             if (cubes != null)
                 result.positingCubes = cubes;
         }
@@ -175,13 +176,13 @@ public class PlacementHelper {
      *            if centered is true it will be used to apply the offset
      * @param fixed
      *            if the previews should keep it's original boxes */
-    public static PlacementPreview getPreviews(World world, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution, boolean marked, PlacementMode mode) {
-        ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+    public static PlacementPreview getPreviews(World world, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         
         LittlePreviews tiles = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTagCompound()) ? lastPreviews
             .copy() : null;
         if (tiles == null && iTile != null)
-            tiles = iTile.getLittlePreview(stack, allowLowResolution, marked);
+            tiles = iTile.getLittlePreview(stack, allowLowResolution);
         
         PlacementPreview result = getPreviews(world, tiles, iTile.getPreviewsContext(stack), stack, position, centered, fixed, allowLowResolution, mode);
         
@@ -211,7 +212,7 @@ public class PlacementHelper {
      * @param fixed
      *            if the previews should keep it's original boxes */
     public static PlacementPreview getPreviews(World world, @Nullable LittlePreviews tiles, LittleGridContext original, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
-        ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         
         if (tiles != null && (!tiles.isEmpty() || tiles.hasChildren())) {
             

@@ -21,7 +21,7 @@ import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
 import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
 import com.creativemd.creativecore.common.utils.math.geo.Ray2d;
-import com.creativemd.creativecore.common.utils.math.geo.Ray3d;
+import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
@@ -43,6 +43,70 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTransformableBox extends LittleBox {
+    
+    private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true },
+            { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
+    private static boolean[][] flipMirrorMatrix = new boolean[][] { { true, true, true, true, true, true }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
+    
+    private static boolean[][] buildFlipRotationCache() {
+        boolean[][] cache = new boolean[Rotation.values().length][EnumFacing.VALUES.length];
+        AlignedBox box = new AlignedBox();
+        Vector3f center = new Vector3f(0.5F, 0.5F, 0.5F);
+        for (int i = 0; i < cache.length; i++) {
+            Rotation rotation = Rotation.values()[i];
+            boolean[] flipped = cache[i];
+            for (int j = 0; j < EnumFacing.VALUES.length; j++) {
+                EnumFacing facing = EnumFacing.VALUES[j];
+                BoxFace face = BoxFace.get(facing);
+                BoxCorner corner = face.getCornerInQuestion(false, false);
+                
+                Vector3f vec = box.getCorner(corner);
+                vec.sub(center);
+                RotationUtils.rotate(vec, rotation);
+                vec.add(center);
+                
+                EnumFacing rotatedFacing = RotationUtils.rotate(facing, rotation);
+                BoxFace rotatedFace = BoxFace.get(rotatedFacing);
+                
+                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
+                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                    flipped[j] = false;
+                else
+                    flipped[j] = true;
+            }
+        }
+        return cache;
+    }
+    
+    private static boolean[][] buildFlipMirrorCache() {
+        boolean[][] cache = new boolean[Axis.values().length][EnumFacing.VALUES.length];
+        AlignedBox box = new AlignedBox();
+        Vector3f center = new Vector3f(0.5F, 0.5F, 0.5F);
+        for (int i = 0; i < cache.length; i++) {
+            Axis axis = Axis.values()[i];
+            boolean[] flipped = cache[i];
+            for (int j = 0; j < EnumFacing.VALUES.length; j++) {
+                EnumFacing facing = EnumFacing.VALUES[j];
+                BoxFace face = BoxFace.get(facing);
+                BoxCorner corner = face.getCornerInQuestion(false, false);
+                
+                Vector3f vec = box.getCorner(corner);
+                vec.sub(center);
+                RotationUtils.flip(vec, axis);
+                vec.add(center);
+                
+                EnumFacing rotatedFacing = RotationUtils.flip(facing, axis);
+                BoxFace rotatedFace = BoxFace.get(rotatedFacing);
+                
+                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
+                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                    flipped[j] = false;
+                else
+                    flipped[j] = true;
+            }
+        }
+        return cache;
+    }
     
     private static final Vector3f ZERO = new Vector3f();
     private static final int sliceIterations = 2000;
@@ -66,6 +130,8 @@ public class LittleTransformableBox extends LittleBox {
     public LittleTransformableBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice) {
         super(minX, minY, minZ, maxX, maxY, maxZ);
         
+        this.data = new int[1];
+        
         LittleVec size = getSize();
         Axis one = RotationUtils.getOne(slice.axis);
         Axis two = RotationUtils.getTwo(slice.axis);
@@ -87,6 +153,8 @@ public class LittleTransformableBox extends LittleBox {
     
     public LittleTransformableBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
         super(minX, minY, minZ, maxX, maxY, maxZ);
+        
+        this.data = new int[1];
         
         Axis one = RotationUtils.getOne(slice.axis);
         Axis two = RotationUtils.getTwo(slice.axis);
@@ -208,6 +276,15 @@ public class LittleTransformableBox extends LittleBox {
         return data[0];
     }
     
+    public void setFlipped(int facing, boolean value) {
+        data[0] = IntegerUtils.set(getIndicator(), flipStartIndex + facing, value);
+        changed();
+    }
+    
+    public boolean getFlipped(int facing) {
+        return IntegerUtils.bitIs(getIndicator(), flipStartIndex + facing);
+    }
+    
     public void setFlipped(EnumFacing facing, boolean value) {
         data[0] = IntegerUtils.set(getIndicator(), flipStartIndex + facing.ordinal(), value);
         changed();
@@ -215,6 +292,11 @@ public class LittleTransformableBox extends LittleBox {
     
     public boolean getFlipped(EnumFacing facing) {
         return IntegerUtils.bitIs(getIndicator(), flipStartIndex + facing.ordinal());
+    }
+    
+    public void setData(int[] data) {
+        this.data = data;
+        this.cache = null;
     }
     
     public void setData(int index, short value) {
@@ -399,6 +481,16 @@ public class LittleTransformableBox extends LittleBox {
                 if (faceCache.tiltedStrip2 != null)
                     faceCache.tiltedStrip2 = faceCache.tiltedStrip2.cut(planes[j]);
             }
+            
+            if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
+                for (int j = 0; j < faceCache.tiltedStrip2.count(); j++) {
+                    Vector3f vec = faceCache.tiltedStrip2.get(j);
+                    if (BooleanUtils.isTrue(tiltedPlanes[i * 2].isInFront(vec))) {
+                        faceCache.convex = false; // If path strips face inwards the axis strip has to be copied and each cut by one plane
+                        break;
+                    }
+                }
+            }
         }
         
         // Axis strips against transformed box
@@ -416,36 +508,26 @@ public class LittleTransformableBox extends LittleBox {
                 if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null) {
                     if (tiltedPlanes[j * 2] != null)
                         axisFaceCache.cutAxisStrip(tiltedPlanes[j * 2]);
+                    if (tiltedPlanes[j * 2 + 1] != null)
+                        axisFaceCache.cutAxisStrip(tiltedPlanes[j * 2 + 1]);
                 } else {
                     NormalPlane cutPlane1 = null;
                     NormalPlane cutPlane2 = null;
-                    axisFaceCache.convex = true;
                     if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
-                        if (plane.cuts(faceCache.tiltedStrip1))
-                            cutPlane1 = tiltedPlanes[j * 2];
-                        if (plane.cuts(faceCache.tiltedStrip2))
-                            cutPlane2 = tiltedPlanes[j * 2 + 1];
-                        
-                        if (cutPlane1 != null && cutPlane2 != null)
-                            if (BooleanUtils.isFalse(face.isFacingOutwards(true, inverted, tiltedPlanes[j * 2].normal)) && BooleanUtils
-                                .isFalse(face.isFacingOutwards(false, inverted, tiltedPlanes[j * 2 + 1].normal)))
-                                axisFaceCache.convex = false; // If path strips face inwards the axis strip has to be copied and each cut by one plane
-                                
-                    } else if (faceCache.tiltedStrip1 != null) {
-                        //if (plane.cuts(faceCache.tiltedStrip1))
                         cutPlane1 = tiltedPlanes[j * 2];
-                    } else if (faceCache.tiltedStrip2 != null) {
-                        //if (plane.cuts(faceCache.tiltedStrip2))
+                        cutPlane2 = tiltedPlanes[j * 2 + 1];
+                    } else if (faceCache.tiltedStrip1 != null)
+                        cutPlane1 = tiltedPlanes[j * 2];
+                    else if (faceCache.tiltedStrip2 != null)
                         cutPlane1 = tiltedPlanes[j * 2 + 1];
-                    }
                     
-                    if (axisFaceCache.convex) {
+                    if (faceCache.convex) {
                         if (cutPlane1 != null)
                             axisFaceCache.cutAxisStrip(cutPlane1);
                         if (cutPlane2 != null)
                             axisFaceCache.cutAxisStrip(cutPlane2);
                     } else
-                        axisFaceCache.cutAxisStrip(cutPlane1, cutPlane2);
+                        axisFaceCache.cutAxisStrip(facing, cutPlane1, cutPlane2);
                 }
                 
                 if (!axisFaceCache.hasAxisStrip())
@@ -755,6 +837,10 @@ public class LittleTransformableBox extends LittleBox {
         
         super.rotateBox(rotation, doubledCenter);
         this.data = cache.getData();
+        
+        for (int i = 0; i < EnumFacing.VALUES.length; i++)
+            if (flipRotationMatrix[rotation.ordinal()][i])
+                setFlipped(i, !getFlipped(i));
     }
     
     @Override
@@ -789,6 +875,10 @@ public class LittleTransformableBox extends LittleBox {
         super.flipBox(axis, doubledCenter);
         
         this.data = cache.getData();
+        
+        for (int i = 0; i < EnumFacing.VALUES.length; i++)
+            if (flipMirrorMatrix[axis.ordinal()][i])
+                setFlipped(i, !getFlipped(i));
     }
     
     protected void setAbsoluteCorners(CornerCache cache) {
@@ -918,12 +1008,18 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     public LittleBox grow(EnumFacing facing) {
-        return new LittleTransformableBox(super.grow(facing), data);
+        LittleBox box = super.grow(facing);
+        if (box != null)
+            return new LittleTransformableBox(box, data);
+        return null;
     }
     
     @Override
     public LittleBox shrink(EnumFacing facing, boolean toLimit) {
-        return new LittleTransformableBox(super.shrink(facing, toLimit), data);
+        LittleBox box = super.shrink(facing, toLimit);
+        if (box != null)
+            return new LittleTransformableBox(box, data);
+        return null;
     }
     
     protected Iterator<TransformableVec> corners() {
@@ -1067,7 +1163,7 @@ public class LittleTransformableBox extends LittleBox {
         start.scale(context.size);
         end.scale(context.size);
         
-        Ray3d ray = new Ray3d(start, end);
+        Ray3f ray = new Ray3f(start, end);
         
         vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
         
@@ -1252,7 +1348,7 @@ public class LittleTransformableBox extends LittleBox {
         
         public LittleVec[] corners = new LittleVec[BoxCorner.values().length];
         
-        protected LittleVec getOrCreate(BoxCorner corner) {
+        public LittleVec getOrCreate(BoxCorner corner) {
             LittleVec vec = corners[corner.ordinal()];
             if (vec == null) {
                 if (relative)
@@ -1298,7 +1394,7 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         public int[] getData() {
-            int indicator = Integer.MIN_VALUE;
+            int indicator = Integer.MIN_VALUE | (0b10111111_00000000_00000000_00000000 & getBox().getIndicator());
             List<Integer> data = new ArrayList<>();
             for (int i = 0; i < corners.length; i++) {
                 LittleVec vec = corners[i];
@@ -1506,15 +1602,27 @@ public class LittleTransformableBox extends LittleBox {
             return !axisStrips.isEmpty();
         }
         
-        public void cutAxisStrip(NormalPlane plane, NormalPlane plane2) {
+        public void cutAxisStrip(EnumFacing facing, NormalPlane plane, NormalPlane plane2) {
+            Axis axis = facing.getAxis();
+            Axis one = RotationUtils.getOne(axis);
+            Axis two = RotationUtils.getTwo(axis);
+            boolean inverse = facing.getAxisDirection() == AxisDirection.POSITIVE;
+            
             List<VectorFan> newAxisStrips = new ArrayList<>();
             for (int i = 0; i < axisStrips.size(); i++) {
                 VectorFan strip = axisStrips.get(i).cut(plane);
                 VectorFan strip2 = axisStrips.get(i).cut(plane2);
-                if (strip != null)
-                    newAxisStrips.add(strip);
-                if (strip2 != null)
+                
+                if (strip != null && strip2 != null && strip.intersect2d(strip2, one, two, inverse)) {
+                    List<VectorFan> fans = strip.cut2d(strip2, one, two, inverse, false);
                     newAxisStrips.add(strip2);
+                    newAxisStrips.addAll(fans);
+                } else {
+                    if (strip != null)
+                        newAxisStrips.add(strip);
+                    if (strip2 != null)
+                        newAxisStrips.add(strip2);
+                }
             }
             if (completedFilled) {
                 if (newAxisStrips.size() == 1 && axisStrips.size() == 1)

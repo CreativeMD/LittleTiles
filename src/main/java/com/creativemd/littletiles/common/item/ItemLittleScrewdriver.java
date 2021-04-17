@@ -6,23 +6,23 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiScrewdriver;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -30,7 +30,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleScrewdriver extends Item implements ILittleTile {
+public class ItemLittleScrewdriver extends Item implements ILittlePlacer, IItemTooltip {
     
     public ItemLittleScrewdriver() {
         setCreativeTab(LittleTiles.littleTab);
@@ -109,28 +109,6 @@ public class ItemLittleScrewdriver extends Item implements ILittleTile {
     }
     
     @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        ItemStack stack = player.getHeldItem(hand);
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        if (!world.isRemote) {
-            if (player.isSneaking()) {
-                stack.getTagCompound().setInteger("x2", pos.getX());
-                stack.getTagCompound().setInteger("y2", pos.getY());
-                stack.getTagCompound().setInteger("z2", pos.getZ());
-                player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
-            } else {
-                stack.getTagCompound().setInteger("x1", pos.getX());
-                stack.getTagCompound().setInteger("y1", pos.getY());
-                stack.getTagCompound().setInteger("z1", pos.getZ());
-                player.sendMessage(new TextComponentTranslation("First position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ() + " sneak to set the second pos!"));
-            }
-        }
-        return EnumActionResult.SUCCESS;
-    }
-    
-    @Override
     public boolean hasLittlePreview(ItemStack stack) {
         return false;
     }
@@ -149,4 +127,11 @@ public class ItemLittleScrewdriver extends Item implements ILittleTile {
     public boolean containsIngredients(ItemStack stack) {
         return false;
     }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { Minecraft.getMinecraft().gameSettings.keyBindAttack.getDisplayName(), Minecraft.getMinecraft().gameSettings.keyBindUseItem.getDisplayName(),
+                LittleTilesClient.configure.getDisplayName() };
+    }
+    
 }

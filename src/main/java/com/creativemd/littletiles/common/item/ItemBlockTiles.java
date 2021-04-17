@@ -9,7 +9,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -33,7 +33,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeRendered {
+public class ItemBlockTiles extends ItemBlock implements ILittlePlacer, ICreativeRendered {
     
     public ItemBlockTiles(Block block, ResourceLocation location) {
         super(block);
@@ -122,7 +122,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
                     cubes.add(cube);
                 }
             } else {
-                ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+                ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
                 LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
                 cubes.add((LittleRenderBox) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
             }

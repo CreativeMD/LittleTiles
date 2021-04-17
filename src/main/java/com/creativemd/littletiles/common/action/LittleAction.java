@@ -14,6 +14,7 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig.AreaProtected;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToConvertBlockException;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
 import com.creativemd.littletiles.client.LittleTilesClient;
@@ -83,6 +84,7 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -94,6 +96,8 @@ public abstract class LittleAction extends CreativeCorePacket {
     
     @SideOnly(Side.CLIENT)
     public static boolean isUsingSecondMode(EntityPlayer player) {
+        if (player == null)
+            return false;
         if (LittleTiles.CONFIG.building.useALTForEverything)
             return GuiScreen.isAltKeyDown();
         if (LittleTiles.CONFIG.building.useAltWhenFlying)
@@ -320,9 +324,9 @@ public abstract class LittleAction extends CreativeCorePacket {
     }
     
     public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state, int affected) throws LittleActionException {
-        if (LittleTiles.CONFIG.getConfig(player).limitAffectedBlocks && LittleTiles.CONFIG.getConfig(player).maxAffectedBlocks < affected)
+        if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)
             throw new NotAllowedToConvertBlockException(player);
-        if (!LittleTiles.CONFIG.getConfig(player).editUnbreakable)
+        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable)
             return state.getBlock().getBlockHardness(state, world, pos) > 0;
         return LittleTiles.CONFIG.canEditBlock(player, state, pos);
     }
@@ -397,6 +401,17 @@ public abstract class LittleAction extends CreativeCorePacket {
         if (tileEntity instanceof TileEntityLittleTiles)
             return (TileEntityLittleTiles) tileEntity;
         return null;
+    }
+    
+    public static void fireBlockBreakEvent(World world, BlockPos pos, EntityPlayer player) throws AreaProtected {
+        if (world.isRemote)
+            return;
+        BreakEvent event = new BreakEvent(world, pos, world.getBlockState(pos), player);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) {
+            sendBlockResetToClient(world, player, pos);
+            throw new AreaProtected();
+        }
     }
     
     private static Method loadWorldEditEvent() {

@@ -7,6 +7,7 @@ import javax.vecmath.Vector3d;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.vec.IVecInt;
+import com.creativemd.creativecore.common.utils.math.vec.Vec3;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagByte;
@@ -62,7 +63,19 @@ public class LittleVec implements IVecInt {
             set(facing.getAxis(), get(facing.getAxis()) + 1);
     }
     
+    public LittleVec(LittleGridContext context, Vec3 vec) {
+        this.x = context.toGrid(vec.x);
+        this.y = context.toGrid(vec.y);
+        this.z = context.toGrid(vec.z);
+    }
+    
     public LittleVec(LittleGridContext context, Vec3d vec) {
+        this.x = context.toGrid(vec.x);
+        this.y = context.toGrid(vec.y);
+        this.z = context.toGrid(vec.z);
+    }
+    
+    public LittleVec(LittleGridContext context, Vector3d vec) {
         this.x = context.toGrid(vec.x);
         this.y = context.toGrid(vec.y);
         this.z = context.toGrid(vec.z);
@@ -313,6 +326,18 @@ public class LittleVec implements IVecInt {
         this.y = Math.max(this.y, size.y);
         this.z = Math.max(this.z, size.z);
         return this;
+    }
+    
+    public Axis getLongestAxis() {
+        if (Math.abs(x) > Math.abs(y))
+            if (Math.abs(x) > Math.abs(z))
+                return Axis.X;
+            else
+                return Axis.Z;
+        else if (Math.abs(z) > Math.abs(y))
+            return Axis.Z;
+        return Axis.Y;
+        
     }
     
 }

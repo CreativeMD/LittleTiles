@@ -50,6 +50,10 @@ public class LittleVecContext implements IGridBased {
         this.context = to;
     }
     
+    public int getSmallestContext() {
+        return vec.getSmallestContext(context);
+    }
+    
     @Override
     public void convertToSmallest() {
         int size = vec.getSmallestContext(context);

@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -61,6 +62,10 @@ public class LittleAbsoluteVec implements IGridBased {
         return pos;
     }
     
+    public int getSmallestContext() {
+        return contextVec.getSmallestContext();
+    }
+    
     @Override
     public void convertToSmallest() {
         this.contextVec.convertToSmallest();
@@ -69,6 +74,12 @@ public class LittleAbsoluteVec implements IGridBased {
     @Override
     public void convertTo(LittleGridContext to) {
         this.contextVec.convertTo(to);
+    }
+    
+    public LittleVec getRelative(BlockPos pos) {
+        LittleVec newVec = new LittleVec(getContext(), this.pos.subtract(pos));
+        newVec.add(this.contextVec.vec);
+        return newVec;
     }
     
     public LittleVecContext getRelative(LittleAbsoluteVec pos) {
@@ -147,6 +158,19 @@ public class LittleAbsoluteVec implements IGridBased {
     
     public LittleAbsoluteVec copy() {
         return new LittleAbsoluteVec(pos, contextVec.copy());
+    }
+    
+    public double getVanillaGrid(Axis axis) {
+        switch (axis) {
+        case X:
+            return getPosX();
+        case Y:
+            return getPosY();
+        case Z:
+            return getPosZ();
+        default:
+            return 0;
+        }
     }
     
     public double getPosX() {

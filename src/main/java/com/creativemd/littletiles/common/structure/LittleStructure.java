@@ -126,11 +126,13 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     @Override
     public World getWorld() {
+        if (mainBlock.isRemoved())
+            return null;
         return mainBlock.getWorld();
     }
     
     public boolean hasWorld() {
-        return mainBlock != null && mainBlock.getWorld() != null;
+        return mainBlock != null && !mainBlock.isRemoved() && mainBlock.getWorld() != null;
     }
     
     public boolean isClient() {
@@ -173,6 +175,16 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             } catch (CorruptedConnectionException e) {
                 throw new MissingChildException(child, e);
             }
+    }
+    
+    /** use it at your own risk getAttribute() must return the new attribute */
+    public void tryAttributeChangeForBlocks() throws CorruptedConnectionException, NotYetConnectedException {
+        int attribute = getAttribute();
+        mainBlock.setAttribute(attribute);
+        for (StructureBlockConnector block : blocks)
+            try {
+                block.getList().setAttribute(attribute);
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
     public int count() throws CorruptedConnectionException, NotYetConnectedException {
@@ -735,6 +747,11 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     }
     
     @Override
+    public boolean isStillAvailable() {
+        return !mainBlock.isRemoved();
+    }
+    
+    @Override
     public boolean hasChanged() {
         return signalChanged;
     }
@@ -944,6 +961,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     }
     
     public void sendUpdatePacket() {
+        if (mainBlock.isRemoved())
+            return;
         NBTTagCompound nbt = new NBTTagCompound();
         writeToNBT(nbt);
         PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(), getPos(), null);

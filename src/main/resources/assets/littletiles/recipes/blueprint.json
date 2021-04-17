@@ -7,7 +7,7 @@
   "pattern": [
     "XXX",
     "XLX",
-    "XXX"
+    "XRX"
   ],
   "type": "minecraft:crafting_shaped",
   "key": {
@@ -17,6 +17,9 @@
 	"L": {
       "item": "minecraft:dye",
       "data": 4
+    },
+    "R": {
+      "item": "minecraft:redstone"
     }
   }
 }

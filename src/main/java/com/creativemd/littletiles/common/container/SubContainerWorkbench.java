@@ -4,7 +4,7 @@ import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.item.ItemLittleRecipe;
 import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
@@ -80,7 +80,7 @@ public class SubContainerWorkbench extends SubContainer {
                     basic.setInventorySlotContents(1, stack2);
                 }
             } else {
-                ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
+                ILittlePlacer tile = PlacementHelper.getLittleInterface(stack1);
                 if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemLittleRecipe || stack2.getItem() instanceof ItemLittleRecipeAdvanced))
                     stack2.setTagCompound(stack1.getTagCompound().copy());
             }
