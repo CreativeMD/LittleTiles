@@ -124,7 +124,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittlePlacer, ICreativ
             } else {
                 ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
                 LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
-                cubes.add((LittleRenderBox) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
+                if (preview.getBlockInfo().contains(":"))
+                    cubes.add((LittleRenderBox) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
             }
         }
         return cubes;
