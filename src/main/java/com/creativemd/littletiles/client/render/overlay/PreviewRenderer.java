@@ -45,6 +45,7 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -89,6 +90,12 @@ public class PreviewRenderer {
                 LittleAction.handleExceptionClient(e);
             }
         }
+    }
+    
+    @SubscribeEvent
+    public void unload(WorldEvent.Unload event) {
+        if (event.getWorld().isRemote)
+            LittleAction.unloadWorld();
     }
     
     @SubscribeEvent

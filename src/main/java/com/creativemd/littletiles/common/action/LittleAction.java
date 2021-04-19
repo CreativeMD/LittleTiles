@@ -172,6 +172,11 @@ public abstract class LittleAction extends CreativeCorePacket {
     }
     
     @SideOnly(Side.CLIENT)
+    public static void unloadWorld() {
+        lastActions.clear();
+    }
+    
+    @SideOnly(Side.CLIENT)
     public static boolean redo() throws LittleActionException {
         if (index > 0 && index <= lastActions.size()) {
             EntityPlayer player = Minecraft.getMinecraft().player;
