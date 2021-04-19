@@ -9,10 +9,10 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.SlotControlBlockIngredient;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.item.ItemLittleBag;
 import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.item.ItemColorIngredient;
 import com.creativemd.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
+import com.creativemd.littletiles.common.item.ItemLittleBag;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
@@ -61,7 +62,8 @@ public class SubContainerBag extends SubContainerHeldItem {
                 
                 bag.set(blocks.getClass(), blocks);
                 ((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
-                
+                if (player instanceof EntityPlayerMP)
+                    ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
                 reloadControls();
             } else if (event.source.name.startsWith("input")) {
                 
@@ -121,6 +123,8 @@ public class SubContainerBag extends SubContainerHeldItem {
                         
                     }
                 }
+                if (player instanceof EntityPlayerMP)
+                    ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
             }
             
         }
@@ -154,6 +158,8 @@ public class SubContainerBag extends SubContainerHeldItem {
                 bagInventory.setInventorySlotContents(index, stack);
             }
         }
+        if (player instanceof EntityPlayerMP)
+            ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
     }
     
     @Override
@@ -199,6 +205,8 @@ public class SubContainerBag extends SubContainerHeldItem {
         ItemStack stack = ((SlotControl) get("input0")).slot.getStack();
         if (!stack.isEmpty())
             WorldUtils.dropItem(player, stack);
+        if (player instanceof EntityPlayerMP)
+            ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
     }
     
     @Override
@@ -217,6 +225,8 @@ public class SubContainerBag extends SubContainerHeldItem {
                         WorldUtils.dropItem(player, colorStack);
                     
                     ((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
+                    if (player instanceof EntityPlayerMP)
+                        ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
                     onTick();
                     reloadControls();
                 }
