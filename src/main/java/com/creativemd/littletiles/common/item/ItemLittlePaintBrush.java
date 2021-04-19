@@ -14,6 +14,7 @@ import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiColorTube;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
+import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
@@ -152,9 +153,10 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     @Override
     @SideOnly(Side.CLIENT)
     public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
-        if (LittleAction.isUsingSecondMode(player))
+        if (LittleAction.isUsingSecondMode(player)) {
             selection = null;
-        else if (selection != null)
+            PreviewRenderer.marked = null;
+        } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (ItemLittleHammer.isFiltered())
                     new LittleActionColorBoxesFiltered(selection.getBoxes(false), getColor(stack), false, ItemLittleHammer.getFilter()).execute();

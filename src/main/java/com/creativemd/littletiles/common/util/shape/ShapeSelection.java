@@ -99,7 +99,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     private void rebuildShapeCache() {
-        if (marked || last == null)
+        if (!marked && last == null)
             return;
         LittleGridContext context = tool.getPositionContext(stack);
         convertToAtMinimum(context);
@@ -189,6 +189,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     @Override
     public void move(LittleGridContext context, EnumFacing facing) {
         positions.get(markedPosition).move(context, facing);
+        forceHighResCache();
     }
     
     @Override

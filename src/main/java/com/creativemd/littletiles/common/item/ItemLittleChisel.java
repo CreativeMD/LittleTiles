@@ -20,6 +20,7 @@ import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiChisel;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
+import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.block.BlockTile;
@@ -310,9 +311,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     
     @Override
     public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
-        if (LittleAction.isUsingSecondMode(player))
+        if (LittleAction.isUsingSecondMode(player)) {
             selection = null;
-        else if (selection != null)
+            PreviewRenderer.marked = null;
+        } else if (selection != null)
             return selection.addAndCheckIfPlace(player, getPosition(position, result, currentMode), result);
         return false;
     }
