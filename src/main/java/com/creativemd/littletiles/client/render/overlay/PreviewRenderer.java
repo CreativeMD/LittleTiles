@@ -312,7 +312,7 @@ public class PreviewRenderer {
                     
                     if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos)) {
                         GlStateManager.glLineWidth(1.0F);
-                        RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-x, -y, -z), 0.0F, 0.0F, 0.0F, 0.4F);
+                        RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.002).offset(-x, -y, -z), 0.0F, 0.0F, 0.0F, 0.4F);
                     }
                     
                     GlStateManager.depthMask(true);
@@ -346,9 +346,9 @@ public class PreviewRenderer {
                         mc.renderEngine.bindTexture(WHITE_TEXTURE);
                         GlStateManager.depthMask(false);
                         
-                        double posX = x - position.getPos().getX();
-                        double posY = y - position.getPos().getY();
-                        double posZ = z - position.getPos().getZ();
+                        double posX = x - result.pos.getX();
+                        double posY = y - result.pos.getY();
+                        double posZ = z - result.pos.getZ();
                         
                         List<PlacePreview> placePreviews = result.getPreviews();
                         for (int i = 0; i < placePreviews.size(); i++)
