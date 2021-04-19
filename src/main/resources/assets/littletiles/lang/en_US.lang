@@ -321,10 +321,10 @@ config.littletiles.creative.maxPlaceBlocks.comment=Only affects the range if pla
 config.littletiles.creative.minimumTransparency.comment=Transparency will be enabled if the minimum is smaller than 255.
 config.littletiles.creative.dyeVolume.comment=How many blocks can painted with one dye\nassuming the tile has the exact same color
 
-littletiles.chisel.tooltip=%s\n'%s' to pick block\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size
+littletiles.chisel.tooltip=%s\n'%s' to pick block\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size
 littletiles.grabber.tooltip=%s\n'%s' to configure tool\n'%s' to configure grid size
-littletiles.hammer.tooltip=%s\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size and filter
-littletiles.colortube.tooltip=%s\n'%s' to pick color\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size and filter
+littletiles.hammer.tooltip=%s\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size and filter
+littletiles.colortube.tooltip=%s\n'%s' to pick color\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size and filter
 littletiles.recipeadvanced.tooltip='%s' first position\n'%s' second position\n'%s' pick shape/ structure\n'%s' confirm/ configure selection
 littletiles.saw.tooltip='%s' extend tile\n'%s' shrink tile\nHold 'CTRL' to go further
 littletiles.screwdriver.tooltip='%s' first position\n'%s' second position\n'%s' modify selection
