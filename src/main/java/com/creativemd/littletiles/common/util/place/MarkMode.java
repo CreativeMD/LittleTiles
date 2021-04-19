@@ -70,6 +70,7 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public SubGui getConfigurationGui() {
         return new SubGuiMarkMode(this);
     }

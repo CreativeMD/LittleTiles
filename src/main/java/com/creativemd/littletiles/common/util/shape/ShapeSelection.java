@@ -181,6 +181,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public SubGui getConfigurationGui() {
         return new SubGuiMarkShapeSelection(this);
     }
