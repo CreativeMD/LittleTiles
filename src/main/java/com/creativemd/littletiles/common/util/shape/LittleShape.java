@@ -6,6 +6,8 @@ import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesNoOverlap;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,9 +39,13 @@ public abstract class LittleShape {
     protected abstract void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution);
     
     public LittleBoxes getBoxes(ShapeSelection selection, boolean lowResolution) {
-        LittleBoxes boxes = new LittleBoxes(selection.getPos(), selection.getContext());
+        LittleBoxes boxes = requiresNoOverlap() ? new LittleBoxesNoOverlap(selection.getPos(), selection.getContext()) : new LittleBoxesSimple(selection.getPos(), selection.getContext());
         addBoxes(boxes, selection, lowResolution);
         return boxes;
+    }
+    
+    public boolean requiresNoOverlap() {
+        return false;
     }
     
     public abstract void addExtraInformation(NBTTagCompound nbt, List<String> list);

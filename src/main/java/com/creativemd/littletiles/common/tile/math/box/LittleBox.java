@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.tile.math.box;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -1215,25 +1214,6 @@ public class LittleBox {
                 .intBitsToFloat(array[8]), Float.intBitsToFloat(array[9]), Float.intBitsToFloat(array[10]));
         
         throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
-    }
-    
-    public static void combineBoxesBlocks(LittleBoxes boxes) {
-        combineBoxesBlocks(boxes.context, boxes);
-    }
-    
-    public static void combineBoxesBlocks(LittleGridContext context, List<LittleBox> boxes) {
-        HashMapList<BlockPos, LittleBox> chunked = new HashMapList<>();
-        for (int i = 0; i < boxes.size(); i++) {
-            chunked.add(boxes.get(i).getMinVec().getBlockPos(context), boxes.get(i));
-        }
-        boxes.clear();
-        BasicCombiner combiner = new BasicCombiner(new ArrayList<>());
-        for (Iterator<ArrayList<LittleBox>> iterator = chunked.values().iterator(); iterator.hasNext();) {
-            ArrayList<LittleBox> list = iterator.next();
-            combiner.set(list);
-            combiner.combine();
-            boxes.addAll(list);
-        }
     }
     
     public static boolean isClosest(Vec3d from, @Nullable Vec3d optional, Vec3d toCheck) {

@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
@@ -72,7 +73,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     public HashMapList<Integer, LittleBoxes> revertList;
     
     public void addRevert(int color, BlockPos pos, LittleGridContext context, List<LittleBox> boxes) {
-        LittleBoxes newBoxes = new LittleBoxes(pos, context);
+        LittleBoxes newBoxes = new LittleBoxesSimple(pos, context);
         for (LittleBox box : boxes)
             newBoxes.add(box.copy());
         revertList.add(color, newBoxes);

@@ -105,7 +105,7 @@ public class LittleShapeSphere extends LittleShape {
             }
         }
         
-        LittleBox.combineBoxesBlocks(boxes);
+        boxes.combineBoxesBlocks();
         
         if (lowResolution && boxes.size() > LittlePreview.lowResolutionMode) {
             boxes.clear();

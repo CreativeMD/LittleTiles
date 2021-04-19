@@ -6,6 +6,7 @@ import java.util.List;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.parent.ParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -23,7 +24,7 @@ public class PlacementResult {
     
     public PlacementResult(BlockPos pos) {
         this.placedPreviews = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
-        this.placedBoxes = new LittleBoxes(pos, LittleGridContext.getMin());
+        this.placedBoxes = new LittleBoxesSimple(pos, LittleGridContext.getMin());
     }
     
     public void addPlacedTile(ParentTileList parent, LittleTile tile) {

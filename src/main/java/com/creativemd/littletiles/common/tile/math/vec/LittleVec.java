@@ -121,6 +121,10 @@ public class LittleVec implements IVecInt {
         this.z = z;
     }
     
+    public void set(LittleGridContext context, Vec3i vec) {
+        set(context.toGrid(vec.getX()), context.toGrid(vec.getY()), context.toGrid(vec.getZ()));
+    }
+    
     public int getSmallestContext(LittleGridContext context) {
         int size = LittleGridContext.minSize;
         size = Math.max(size, context.getMinGrid(x));

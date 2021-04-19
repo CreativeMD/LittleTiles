@@ -112,7 +112,7 @@ public class LittleShapeCylinder extends LittleShape {
             }
         }
         
-        LittleBox.combineBoxesBlocks(boxes);
+        boxes.combineBoxesBlocks();
     }
     
     @Override

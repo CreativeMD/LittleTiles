@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
@@ -165,7 +166,7 @@ public class LittleActionPlaceStack extends LittleAction {
             if (!placement.removedTiles.isEmpty())
                 destroyed = placement.removedTiles.copy();
         } else
-            boxes = new LittleBoxes(position.getPos(), result.context);
+            boxes = new LittleBoxesSimple(position.getPos(), result.context);
         
         return placedTiles;
     }

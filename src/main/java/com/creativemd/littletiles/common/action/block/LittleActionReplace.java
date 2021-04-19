@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -78,7 +79,7 @@ public class LittleActionReplace extends LittleActionInteract {
     protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
         
         replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
-        boxes = new LittleBoxes(pos, te.getContext());
+        boxes = new LittleBoxesSimple(pos, te.getContext());
         
         if (LittleTiles.CONFIG.isTransparencyRestricted(player))
             isAllowedToPlacePreview(player, toReplace);
@@ -174,7 +175,7 @@ public class LittleActionReplace extends LittleActionInteract {
         boxes.flip(axis, absoluteBox);
         
         LittleAbsolutePreviews previews = new LittleAbsolutePreviews(boxes.pos, boxes.context);
-        for (LittleBox box : boxes) {
+        for (LittleBox box : boxes.all()) {
             LittlePreview preview = toReplace.copy();
             preview.box = box;
             previews.addWithoutCheckingPreview(preview);

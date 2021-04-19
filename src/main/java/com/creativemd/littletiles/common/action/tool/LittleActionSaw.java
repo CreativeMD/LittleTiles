@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.math.location.TileLocation;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -149,7 +150,7 @@ public class LittleActionSaw extends LittleActionInteract {
                     LittleTile newTile = tile.copy();
                     newTile.setBox(box);
                     te.updateTiles((x) -> x.noneStructureTiles().add(newTile));
-                    newBoxes = new LittleBoxes(te.getPos(), te.getContext());
+                    newBoxes = new LittleBoxesSimple(te.getPos(), te.getContext());
                     newBoxes.addBox(parent, newTile);
                     te.convertToSmallest();
                     return true;

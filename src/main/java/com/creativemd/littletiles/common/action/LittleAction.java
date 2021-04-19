@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -12,6 +13,7 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig.AreaProtected;
@@ -36,6 +38,8 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesNoOverlap;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 import com.creativemd.littletiles.common.tile.math.location.TileLocation;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
@@ -653,21 +657,46 @@ public abstract class LittleAction extends CreativeCorePacket {
     public static void writeBoxes(LittleBoxes boxes, ByteBuf buf) {
         writePos(buf, boxes.pos);
         writeContext(boxes.context, buf);
-        buf.writeInt(boxes.size());
-        for (LittleBox box : boxes) {
-            writeLittleBox(box, buf);
+        if (boxes instanceof LittleBoxesSimple) {
+            buf.writeBoolean(true);
+            buf.writeInt(boxes.size());
+            for (LittleBox box : boxes.all())
+                writeLittleBox(box, buf);
+        } else {
+            buf.writeBoolean(false);
+            HashMapList<BlockPos, LittleBox> map = boxes.generateBlockWise();
+            buf.writeInt(map.size());
+            for (Entry<BlockPos, ArrayList<LittleBox>> entry : map.entrySet()) {
+                writePos(buf, entry.getKey());
+                buf.writeInt(entry.getValue().size());
+                for (LittleBox box : entry.getValue())
+                    writeLittleBox(box, buf);
+            }
         }
     }
     
     public static LittleBoxes readBoxes(ByteBuf buf) {
         BlockPos pos = readPos(buf);
         LittleGridContext context = readContext(buf);
-        LittleBoxes boxes = new LittleBoxes(pos, context);
-        int length = buf.readInt();
-        for (int i = 0; i < length; i++) {
-            boxes.add(readLittleBox(buf));
+        if (buf.readBoolean()) {
+            LittleBoxes boxes = new LittleBoxesSimple(pos, context);
+            int length = buf.readInt();
+            for (int i = 0; i < length; i++)
+                boxes.add(readLittleBox(buf));
+            return boxes;
+        } else {
+            int posCount = buf.readInt();
+            HashMapList<BlockPos, LittleBox> map = new HashMapList<>();
+            for (int i = 0; i < posCount; i++) {
+                BlockPos posList = readPos(buf);
+                int boxCount = buf.readInt();
+                List<LittleBox> blockBoxes = new ArrayList<>();
+                for (int j = 0; j < boxCount; j++)
+                    blockBoxes.add(readLittleBox(buf));
+                map.add(posList, blockBoxes);
+            }
+            return new LittleBoxesNoOverlap(pos, context, map);
         }
-        return boxes;
     }
     
     public static void writeLittlePos(LittleAbsoluteVec pos, ByteBuf buf) {

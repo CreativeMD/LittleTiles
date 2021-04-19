@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -110,11 +111,11 @@ public class LittleActionDestroy extends LittleActionInteract {
     public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
         LittleBoxes boxes;
         if (structurePreview != null) {
-            boxes = new LittleBoxes(structurePreview.previews.pos, structurePreview.previews.getContext());
+            boxes = new LittleBoxesSimple(structurePreview.previews.pos, structurePreview.previews.getContext());
             boxes.add(structurePreview.previews.get(0).box);
         } else if (destroyedTiles != null) {
             destroyedTiles.convertToSmallest();
-            boxes = new LittleBoxes(blockPos, destroyedTiles.getContext());
+            boxes = new LittleBoxesSimple(blockPos, destroyedTiles.getContext());
             for (LittlePreview preview : destroyedTiles)
                 boxes.add(preview.box);
         } else

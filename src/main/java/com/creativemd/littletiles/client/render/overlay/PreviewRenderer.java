@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.api.ILittleTool;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -303,8 +304,8 @@ public class PreviewRenderer {
                     double posY = y - boxes.pos.getY();
                     double posZ = z - boxes.pos.getZ();
                     
-                    for (int i = 0; i < boxes.size(); i++) {
-                        LittleRenderBox cube = boxes.get(i).getRenderingCube(boxes.getContext(), null, 0);
+                    for (LittleBox box : boxes.all()) {
+                        LittleRenderBox cube = box.getRenderingCube(boxes.getContext(), null, 0);
                         cube.color = 0;
                         if (cube != null)
                             cube.renderLines(-posX, -posY, -posZ, 102);

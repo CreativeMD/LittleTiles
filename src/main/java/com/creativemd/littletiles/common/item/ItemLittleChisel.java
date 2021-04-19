@@ -229,9 +229,9 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
             LittleAbsolutePreviews previews = new LittleAbsolutePreviews(boxes.pos, boxes.context);
             
             LittlePreview preview = getPreview(stack);
-            for (int i = 0; i < boxes.size(); i++) {
+            for (LittleBox box : boxes.all()) {
                 LittlePreview newPreview = preview.copy();
-                newPreview.box = boxes.get(i).copy();
+                newPreview.box = box.copy();
                 previews.addWithoutCheckingPreview(newPreview);
             }
             

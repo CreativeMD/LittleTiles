@@ -83,6 +83,11 @@ public class LittleShapePolygon extends LittleShape {
     }
     
     @Override
+    public boolean requiresNoOverlap() {
+        return true;
+    }
+    
+    @Override
     public void addExtraInformation(NBTTagCompound nbt, List<String> list) {
         
     }

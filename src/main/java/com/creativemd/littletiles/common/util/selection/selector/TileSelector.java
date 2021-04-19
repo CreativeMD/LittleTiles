@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -99,7 +100,7 @@ public abstract class TileSelector {
     public abstract boolean is(IParentTileList parent, LittleTile tile);
     
     public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector) {
-        LittleBoxes boxes = new LittleBoxes(pos, LittleGridContext.getMin());
+        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGridContext.getMin());
         
         int minX = Math.min(pos.getX(), pos2.getX());
         int maxX = Math.max(pos.getX(), pos2.getX());

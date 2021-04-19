@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.structure.type.premade.LittleStructureP
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -99,7 +100,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
                     }
                 }
             } else
-                boxes = new LittleBoxes(previews.pos, LittleGridContext.get());
+                boxes = new LittleBoxesSimple(previews.pos, LittleGridContext.get());
             
             return placedTiles != null;
         }
