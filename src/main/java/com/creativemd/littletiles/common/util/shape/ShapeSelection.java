@@ -67,6 +67,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     public NBTTagCompound getNBT() {
+        if (!stack.hasTagCompound())
+            stack.setTagCompound(new NBTTagCompound());
         return stack.getTagCompound();
     }
     
