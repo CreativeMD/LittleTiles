@@ -163,12 +163,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
             }
         }
         
-        if (!simulate)
-        
-        {
+        if (!simulate) {
             for (StructurePreview structure : destroyedStructures)
                 try {
-                    structure.structure.onLittleTileDestroy();
+                    if (!structure.structure.mainBlock.isRemoved())
+                        structure.structure.onLittleTileDestroy();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             te.updateTiles(x -> {
                 ParentTileList parent = x.noneStructureTiles();
