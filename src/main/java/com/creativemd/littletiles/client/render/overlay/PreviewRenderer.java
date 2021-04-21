@@ -302,7 +302,7 @@ public class PreviewRenderer {
                     GlStateManager.enableBlend();
                     GlStateManager
                         .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                    GlStateManager.glLineWidth(4.0F);
+                    
                     GlStateManager.enableTexture2D();
                     Minecraft.getMinecraft().renderEngine.bindTexture(PreviewRenderer.WHITE_TEXTURE);
                     GlStateManager.depthMask(false);
@@ -311,11 +311,14 @@ public class PreviewRenderer {
                     double posY = y - boxes.pos.getY();
                     double posZ = z - boxes.pos.getZ();
                     
+                    GlStateManager.glLineWidth(4.0F);
                     for (LittleBox box : boxes.all()) {
                         LittleRenderBox cube = box.getRenderingCube(boxes.getContext(), null, 0);
-                        cube.color = 0;
-                        if (cube != null)
-                            cube.renderLines(-posX, -posY, -posZ, 102);
+                        
+                        if (cube != null) {
+                            cube.color = 0;
+                            cube.renderLines(-posX, -posY, -posZ, 102, cube.getCenter(), 0.002);
+                        }
                     }
                     
                     if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos)) {
@@ -323,6 +326,7 @@ public class PreviewRenderer {
                         RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.002).offset(-x, -y, -z), 0.0F, 0.0F, 0.0F, 0.4F);
                     }
                     
+                    GlStateManager.depthFunc(515);
                     GlStateManager.depthMask(true);
                     GlStateManager.enableTexture2D();
                     GlStateManager.disableBlend();
@@ -361,11 +365,11 @@ public class PreviewRenderer {
                         List<PlacePreview> placePreviews = result.getPreviews();
                         for (int i = 0; i < placePreviews.size(); i++)
                             for (LittleRenderBox cube : placePreviews.get(i).getPreviews(result.context))
-                                cube.renderLines(-posX, -posY, -posZ, 102);
+                                cube.renderLines(-posX, -posY, -posZ, 102, cube.getCenter(), 0.002);
                             
                         if (position.positingCubes != null)
                             for (LittleRenderBox cube : position.positingCubes)
-                                cube.renderLines(-posX, -posY, -posZ, 102);
+                                cube.renderLines(-posX, -posY, -posZ, 102, cube.getCenter(), 0.002);
                             
                         GlStateManager.depthMask(true);
                         GlStateManager.enableTexture2D();
