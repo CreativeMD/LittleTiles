@@ -215,6 +215,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
             @Override
             public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
                 ItemLittleHammer.setFilter(activeFilter, selector);
+                if (selection != null)
+                    selection.convertTo(context);
                 ItemMultiTiles.currentContext = context;
             }
         };

@@ -359,6 +359,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
             @Override
             public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
                 currentMode = mode;
+                if (selection != null)
+                    selection.convertTo(context);
                 ItemMultiTiles.currentContext = context;
             }
         };

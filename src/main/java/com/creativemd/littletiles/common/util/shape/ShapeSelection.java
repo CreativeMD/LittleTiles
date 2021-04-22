@@ -126,6 +126,11 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         cachedBoxesLowRes = shape.getBoxes(this, true);
     }
     
+    public void deleteCache() {
+        cachedBoxes = null;
+        cachedBoxesLowRes = null;
+    }
+    
     @SideOnly(Side.CLIENT)
     public boolean addAndCheckIfPlace(EntityPlayer player, PlacementPosition position, RayTraceResult result) {
         if (marked)

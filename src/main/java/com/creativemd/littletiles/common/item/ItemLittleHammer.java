@@ -177,6 +177,8 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
             @Override
             public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
                 setFilter(activeFilter, selector);
+                if (selection != null)
+                    selection.convertTo(context);
                 ItemMultiTiles.currentContext = context;
             }
         };
