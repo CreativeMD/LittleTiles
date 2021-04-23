@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
@@ -20,6 +21,7 @@ import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -38,6 +40,8 @@ public class LittleShapeOuterCorner extends LittleShape {
         Vec3i vec = getVec(selection.getNBT());
         EnumFacing facing = getFacing(selection.getNBT());
         Axis axis = facing.getAxis();
+        if ((facing.getAxisDirection() == AxisDirection.POSITIVE) != (VectorUtils.get(axis, vec) > 0))
+            facing = EnumFacing.getFacingFromAxis(VectorUtils.get(axis, vec) > 0 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
         EnumFacing x = vec.getX() > 0 ? EnumFacing.EAST : EnumFacing.WEST;
         EnumFacing y = vec.getY() > 0 ? EnumFacing.UP : EnumFacing.DOWN;
         EnumFacing z = vec.getZ() > 0 ? EnumFacing.SOUTH : EnumFacing.NORTH;
