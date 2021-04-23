@@ -69,7 +69,7 @@ public class ChiselsAndBitsInteractor {
                 }
             }
         }
-        BasicCombiner.combineTiles(tiles);
+        BasicCombiner.combine(tiles);
         return tiles;
     }
     

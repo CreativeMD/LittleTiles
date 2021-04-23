@@ -290,7 +290,7 @@ public class PreviewRenderer {
         double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
         
         if ((event.getTarget().typeOfHit == Type.BLOCK || marked != null) && stack.getItem() instanceof ILittleTool) {
-            BlockPos pos = event.getTarget().getBlockPos();
+            BlockPos pos = marked != null ? marked.getPosition().getPos() : event.getTarget().getBlockPos();
             IBlockState state = world.getBlockState(pos);
             if (stack.getItem() instanceof ILittleEditor) {
                 ILittleEditor selector = (ILittleEditor) stack.getItem();

@@ -25,7 +25,6 @@ import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
-import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
 import com.creativemd.littletiles.common.tile.math.vec.LittleRay;
@@ -602,7 +601,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public LittleBox combineBoxes(LittleBox box, BasicCombiner combinator) {
+    public LittleBox combineBoxes(LittleBox box) {
         if (box instanceof LittleTransformableBox) {
             EnumFacing facing = box.sharedBoxFaceWithoutBounds(this);
             
@@ -698,7 +697,7 @@ public class LittleTransformableBox extends LittleBox {
             return result;
         }
         
-        LittleBox newBox = super.combine(box, combinator);
+        LittleBox newBox = super.combine(box);
         if (newBox == null)
             return null;
         if (box.getClass() == LittleBox.class) {

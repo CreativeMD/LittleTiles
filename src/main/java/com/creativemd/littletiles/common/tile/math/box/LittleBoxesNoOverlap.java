@@ -43,7 +43,7 @@ public class LittleBoxesNoOverlap extends LittleBoxes {
                 existingBoxes.addAll(splitted.cutOut(existingBoxes, cutOutTemp, null));
             }
             
-            BasicCombiner.combineBoxes(existingBoxes);
+            BasicCombiner.combineBoxesOnlyLast(existingBoxes);
             if (missing)
                 blockMap.add(entry.getKey(), existingBoxes);
         }

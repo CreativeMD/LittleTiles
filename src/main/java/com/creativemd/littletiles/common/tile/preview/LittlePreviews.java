@@ -11,7 +11,7 @@ import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttr
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.combine.AdvancedCombiner;
+import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleVolumes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -507,11 +507,9 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
             chunked.add(previews.get(i).box.getMinVec().getBlockPos(context), previews.get(i));
         
         previews.clear();
-        AdvancedCombiner<LittlePreview> combiner = new AdvancedCombiner(new ArrayList<>());
         for (Iterator<ArrayList<LittlePreview>> iterator = chunked.values().iterator(); iterator.hasNext();) {
             ArrayList<LittlePreview> list = iterator.next();
-            combiner.setCombinables(list);
-            combiner.combine();
+            BasicCombiner.combine(list);
             previews.addAll(list);
         }
         

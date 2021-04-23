@@ -661,7 +661,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     public boolean combineTiles(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = BasicCombiner.combineTiles((StructureTileList) getStructure(structureIndex));
+        boolean changed = BasicCombiner.combine((StructureTileList) getStructure(structureIndex));
         convertToSmallest();
         if (changed)
             updateTiles();
@@ -671,13 +671,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     public boolean combineTilesSecretly(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = BasicCombiner.combineTiles((StructureTileList) getStructure(structureIndex));
+        boolean changed = BasicCombiner.combine((StructureTileList) getStructure(structureIndex));
         convertToSmallest();
         return changed;
     }
     
     public boolean combineTiles() {
-        boolean changed = BasicCombiner.combineTiles(tiles);
+        boolean changed = BasicCombiner.combine(tiles);
         
         convertToSmallest();
         if (changed)
@@ -686,7 +686,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     }
     
     public boolean combineTilesSecretly() {
-        boolean changed = BasicCombiner.combineTiles(tiles);
+        boolean changed = BasicCombiner.combine(tiles);
         convertToSmallest();
         return changed;
     }

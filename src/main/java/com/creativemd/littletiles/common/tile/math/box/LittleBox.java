@@ -408,7 +408,7 @@ public class LittleBox {
     
     // ================Box to box================
     
-    protected LittleBox combine(LittleBox box, BasicCombiner combinator) {
+    protected LittleBox combine(LittleBox box) {
         boolean x = this.minX == box.minX && this.maxX == box.maxX;
         boolean y = this.minY == box.minY && this.maxY == box.maxY;
         boolean z = this.minZ == box.minZ && this.maxZ == box.maxZ;
@@ -437,11 +437,11 @@ public class LittleBox {
         return null;
     }
     
-    public LittleBox combineBoxes(LittleBox box, BasicCombiner combinator) {
+    public LittleBox combineBoxes(LittleBox box) {
         if (box.getClass() != LittleBox.class)
             return null;
         
-        return combine(box, combinator);
+        return combine(box);
     }
     
     @Nullable

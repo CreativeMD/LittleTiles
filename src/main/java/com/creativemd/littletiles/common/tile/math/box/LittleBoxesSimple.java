@@ -149,11 +149,9 @@ public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterab
         for (int i = 0; i < boxes.size(); i++)
             chunked.add(boxes.get(i).getMinVec().getBlockPos(context), boxes.get(i));
         boxes.clear();
-        BasicCombiner combiner = new BasicCombiner(new ArrayList<>());
         for (Iterator<ArrayList<LittleBox>> iterator = chunked.values().iterator(); iterator.hasNext();) {
             ArrayList<LittleBox> list = iterator.next();
-            combiner.set(list);
-            combiner.combine();
+            BasicCombiner.combineBoxes(list);
             boxes.addAll(list);
         }
     }
