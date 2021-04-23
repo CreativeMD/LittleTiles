@@ -955,7 +955,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     // ====================Packets====================
     
     public void updateStructure() {
-        if (getWorld() == null && getWorld().isRemote)
+        if (getWorld() == null || getWorld().isRemote)
             return;
         LittleEventHandler.queueStructureForUpdatePacket(this);
     }
