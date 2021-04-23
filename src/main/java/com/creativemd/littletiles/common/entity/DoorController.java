@@ -232,6 +232,11 @@ public class DoorController extends EntityAnimationController {
                     parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor, dynamic);
                 }
                 
+                if (!world.isRemote) {
+                    WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
+                    PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLocation(), parent.getUniqueID()), parent
+                        .getAbsoluteParent(), serverWorld, null);
+                }
                 newDoor.completeAnimation();
             } else {
                 parent.markRemoved();
@@ -242,11 +247,7 @@ public class DoorController extends EntityAnimationController {
             
             parent.markRemoved();
             
-            if (!world.isRemote) {
-                WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
-                PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLocation(), parent.getUniqueID()), parent
-                    .getAbsoluteParent(), serverWorld, null);
-            } else {
+            if (world.isRemote) {
                 boolean subWorld = world instanceof IOrientatedWorld;
                 HashMapList<Object, TileEntityLittleTiles> chunks = new HashMapList<>();
                 if (subWorld)
