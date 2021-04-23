@@ -30,11 +30,25 @@ public class LittleShapePolygon extends LittleShape {
     
     public void generatePixels(LittleBoxes boxes, ShapeSelectPos first, ShapeSelectPos second, ShapeSelectPos third) {
         Vector3d origin = first.pos.getRelative(boxes.pos).getVector(first.getContext());
-        Ray3d tRay = new Ray3d(origin, second.pos.getRelative(boxes.pos).getVector(second.getContext()), false);
+        Vector3d secondVec = second.pos.getRelative(boxes.pos).getVector(second.getContext());
+        Vector3d thirdVec = third.pos.getRelative(boxes.pos).getVector(third.getContext());
+        double contextOffset = first.getContext().pixelSize * 0.5;
+        origin.x += contextOffset;
+        origin.y += contextOffset;
+        origin.z += contextOffset;
+        
+        secondVec.x += contextOffset;
+        secondVec.y += contextOffset;
+        secondVec.z += contextOffset;
+        
+        thirdVec.x += contextOffset;
+        thirdVec.y += contextOffset;
+        thirdVec.z += contextOffset;
+        Ray3d tRay = new Ray3d(origin, secondVec, false);
         int tStepCount = (int) Math.ceil(tRay.direction.length() / boxes.context.pixelSize * 1.4);
         double tStepSize = 1D / (tStepCount - 1);
         
-        Ray3d sRay = new Ray3d(origin, third.pos.getRelative(boxes.pos).getVector(third.getContext()), false);
+        Ray3d sRay = new Ray3d(origin, thirdVec, false);
         int sStepCount = (int) Math.ceil(sRay.direction.length() / boxes.context.pixelSize * 1.4);
         double sStepSize = 1D / (sStepCount - 1);
         
