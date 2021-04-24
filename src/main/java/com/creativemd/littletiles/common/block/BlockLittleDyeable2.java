@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -23,7 +24,7 @@ public class BlockLittleDyeable2 extends Block implements ISpecialBlockHandler {
     public static final PropertyEnum<LittleDyeableType2> VARIANT = PropertyEnum.<LittleDyeableType2>create("variant", LittleDyeableType2.class);
     
     public BlockLittleDyeable2() {
-        super(Material.ROCK);
+        super(Material.ROCK, MapColor.SNOW);
         setCreativeTab(LittleTiles.littleTab);
         this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, LittleDyeableType2.GRAVEL));
     }

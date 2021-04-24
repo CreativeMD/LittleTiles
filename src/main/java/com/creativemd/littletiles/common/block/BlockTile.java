@@ -47,6 +47,7 @@ import com.creativemd.littletiles.server.LittleTilesServer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
@@ -259,6 +260,27 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     @SideOnly(Side.CLIENT)
     public boolean hasCustomBreakingProgress(IBlockState state) {
         return false;
+    }
+    
+    @Override
+    @Deprecated
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
+        TileEntityLittleTiles te = loadTe(worldIn, pos);
+        if (te != null) {
+            double biggest = 0;
+            LittleTile tile = null;
+            for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+                double tempVolume = pair.value.getVolume();
+                if (tempVolume > biggest) {
+                    biggest = tempVolume;
+                    tile = pair.value;
+                }
+            }
+            
+            if (tile != null)
+                return tile.getBlockState().getMapColor(worldIn, pos);
+        }
+        return this.blockMapColor;
     }
     
     @Override
