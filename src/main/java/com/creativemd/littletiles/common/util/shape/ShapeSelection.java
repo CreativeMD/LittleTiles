@@ -41,18 +41,18 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     public ItemStack stack;
     public ILittleTool tool;
     private final List<ShapeSelectPos> positions = new ArrayList<>();
-    protected LittleShape shape;
-    protected String shapeKey;
+    
     public final boolean inside;
     
-    private ShapeSelectPos last;
-    
-    protected LittleBoxes cachedBoxesLowRes;
-    protected LittleBoxes cachedBoxes;
+    protected LittleShape shape;
+    protected String shapeKey;
     
     protected BlockPos pos;
+    private ShapeSelectPos last;
     protected LittleGridContext context = LittleGridContext.getMin();
+    
     protected LittleBox overallBox;
+    protected ShapeSelectCache cache;
     
     private boolean marked;
     private int markedPosition;
@@ -62,14 +62,64 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         this.inside = inside;
         this.tool = (ILittleTool) stack.getItem();
         this.stack = stack;
-        this.shapeKey = getNBT().getString("shape");
-        this.shape = ShapeRegistry.getShape(shapeKey);
+        
+        shapeKey = getNBT().getString("shape");
+        shape = ShapeRegistry.getShape(shapeKey);
     }
     
     public NBTTagCompound getNBT() {
         if (!stack.hasTagCompound())
             stack.setTagCompound(new NBTTagCompound());
         return stack.getTagCompound();
+    }
+    
+    protected boolean requiresCacheUpdate() {
+        if (cache == null)
+            return true;
+        
+        if (cache.context != context)
+            return true;
+        
+        NBTTagCompound nbt = getNBT();
+        if (!shapeKey.equals(nbt.getString("shape"))) {
+            shapeKey = nbt.getString("shape");
+            shape = ShapeRegistry.getShape(shapeKey);
+            if (!cache.shapeKey.equals(shapeKey))
+                return true;
+        }
+        
+        if (countPositions() != cache.positions.size())
+            return true;
+        
+        int i = 0;
+        for (ShapeSelectPos pos : this) {
+            if (!pos.equals(cache.positions.get(i)))
+                return true;
+            i++;
+        }
+        
+        return false;
+    }
+    
+    public LittleBox getOverallBox() {
+        return overallBox.copy();
+    }
+    
+    protected ShapeSelectCache getCache() {
+        if (requiresCacheUpdate()) {
+            LittleBox[] pointBoxes = new LittleBox[countPositions()];
+            List<ShapeSelectPos> positions = new ArrayList<>(pointBoxes.length);
+            int i = 0;
+            for (ShapeSelectPos pos : ShapeSelection.this) {
+                pointBoxes[i] = new LittleBox(pos.pos.getRelative(ShapeSelection.this.pos));
+                positions.add(pos.copy());
+                i++;
+            }
+            
+            overallBox = new LittleBox(pointBoxes);
+            cache = new ShapeSelectCache(context, positions);
+        }
+        return cache;
     }
     
     public BlockPos getPos() {
@@ -81,54 +131,14 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         return context;
     }
     
-    public LittleBox getOverallBox() {
-        return overallBox;
-    }
-    
     public LittleBoxes getBoxes(boolean allowLowResolution) {
-        if (marked) {
-            if (this.allowLowResolution)
-                return cachedBoxesLowRes;
-        } else if (allowLowResolution)
-            return cachedBoxesLowRes;
-        if (cachedBoxes == null)
-            forceHighResCache();
-        return cachedBoxes;
-    }
-    
-    private void forceHighResCache() {
-        cachedBoxes = shape.getBoxes(this, false);
-    }
-    
-    private void rebuildShapeCache() {
-        if (!marked && last == null)
-            return;
-        LittleGridContext context = tool.getPositionContext(stack);
-        convertToAtMinimum(context);
-        
-        NBTTagCompound nbt = getNBT();
-        if (!shapeKey.equals(nbt.getString("shape"))) {
-            shapeKey = nbt.getString("shape");
-            shape = ShapeRegistry.getShape(shapeKey);
-        }
-        
-        cachedBoxes = null;
-        cachedBoxesLowRes = null;
-        
-        LittleBox[] pointBoxes = new LittleBox[positions.size() + (marked ? 0 : 1)];
-        int i = 0;
-        for (ShapeSelectPos pos : this) {
-            pointBoxes[i] = new LittleBox(pos.pos.getRelative(this.pos));
-            i++;
-        }
-        
-        overallBox = new LittleBox(pointBoxes);
-        cachedBoxesLowRes = shape.getBoxes(this, true);
+        if ((marked && this.allowLowResolution) || allowLowResolution)
+            return getCache().get(true);
+        return getCache().get(false);
     }
     
     public void deleteCache() {
-        cachedBoxes = null;
-        cachedBoxesLowRes = null;
+        cache = null;
     }
     
     @SideOnly(Side.CLIENT)
@@ -139,12 +149,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         if ((shape.pointsBeforePlacing > positions.size() + 1 || GuiScreen.isCtrlKeyDown()) && (shape.maxAllowed() == -1 || shape.maxAllowed() > positions.size() + 1)) {
             positions.add(pos);
             ensureSameContext(pos);
-            rebuildShapeCache();
             return false;
         }
         last = pos;
         ensureSameContext(last);
-        rebuildShapeCache();
         return true;
     }
     
@@ -155,7 +163,6 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             pos = position.getPos();
         last = new ShapeSelectPos(player, position, result);
         ensureSameContext(last);
-        rebuildShapeCache();
     }
     
     private void ensureSameContext(ShapeSelectPos pos) {
@@ -196,7 +203,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     @Override
     public void move(LittleGridContext context, EnumFacing facing) {
         positions.get(markedPosition).move(context, facing);
-        forceHighResCache();
+        deleteCache();
     }
     
     @Override
@@ -216,12 +223,12 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation) {
         shape.rotate(getNBT(), rotation);
-        rebuildShapeCache();
+        deleteCache();
     }
     
     public void flip(EntityPlayer player, ItemStack stack, Axis axis) {
         shape.flip(getNBT(), axis);
-        rebuildShapeCache();
+        deleteCache();
     }
     
     @SideOnly(Side.CLIENT)
@@ -301,6 +308,39 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         convertTo(LittleGridContext.get(smallest));
     }
     
+    public int countPositions() {
+        return positions.size() + (marked ? 0 : 1);
+    }
+    
+    public class ShapeSelectCache {
+        
+        protected final List<ShapeSelectPos> positions;
+        protected final LittleGridContext context;
+        
+        protected final LittleShape shape;
+        protected final String shapeKey;
+        protected final LittleBoxes cachedBoxesLowRes;
+        protected LittleBoxes cachedBoxes;
+        
+        public ShapeSelectCache(LittleGridContext context, List<ShapeSelectPos> positions) {
+            this.context = context;
+            NBTTagCompound nbt = getNBT();
+            shapeKey = nbt.getString("shape");
+            shape = ShapeRegistry.getShape(shapeKey);
+            
+            this.positions = positions;
+            cachedBoxesLowRes = shape.getBoxes(ShapeSelection.this, true);
+        }
+        
+        public LittleBoxes get(boolean allowLowResolution) {
+            if (allowLowResolution)
+                return cachedBoxesLowRes;
+            if (cachedBoxes == null)
+                cachedBoxes = shape.getBoxes(ShapeSelection.this, false);
+            return cachedBoxes;
+        }
+    }
+    
     public class ShapeSelectPos implements IGridBased {
         
         public final PlacementPosition pos;
@@ -317,11 +357,32 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
                 pos.getVec().sub(result.sideHit);
         }
         
+        public ShapeSelectPos(PlacementPosition position, RayTraceResult ray, BlockTile.TEResult result) {
+            this.pos = position;
+            this.ray = ray;
+            this.result = result;
+            this.box = pos.getBox().grow(0.002);
+        }
+        
         public void move(LittleGridContext context, EnumFacing facing) {
             LittleVec vec = new LittleVec(facing);
             vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
             pos.subVec(vec);
             box = pos.getBox().grow(0.002);
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ShapeSelectPos) {
+                if (!pos.equals(((ShapeSelectPos) obj).pos))
+                    return false;
+                if (result.parent != ((ShapeSelectPos) obj).result.parent)
+                    return false;
+                if (result.tile != ((ShapeSelectPos) obj).result.tile)
+                    return false;
+                return true;
+            }
+            return false;
         }
         
         @SideOnly(Side.CLIENT)
@@ -365,6 +426,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         
         public int getSmallestContext() {
             return pos.getSmallestContext();
+        }
+        
+        public ShapeSelectPos copy() {
+            return new ShapeSelectPos(pos.copy(), ray, result);
         }
     }
     
