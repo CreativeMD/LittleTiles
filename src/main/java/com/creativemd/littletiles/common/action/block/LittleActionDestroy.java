@@ -81,10 +81,9 @@ public class LittleActionDestroy extends LittleActionInteract {
             LittleInventory inventory = new LittleInventory(player);
             destroyedTiles = new LittleAbsolutePreviews(pos, te.getContext());
             if (BlockTile.selectEntireBlock(player, secondMode)) {
-                for (LittleTile toDestroy : parent) {
+                for (LittleTile toDestroy : parent)
                     destroyedTiles.addTile(parent, toDestroy); // No need to use addPreivew as all previews are inside one block
-                }
-                
+                    
                 checkAndGive(player, inventory, getIngredients(destroyedTiles));
                 te.updateTiles(x -> x.noneStructureTiles().clear());
             } else {

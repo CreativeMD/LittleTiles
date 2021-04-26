@@ -12,10 +12,8 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection.ShapeSelectPos;
 
@@ -27,7 +25,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleShapeConnected extends LittleShape {
+public class LittleShapeConnected extends LittleShapeSelectable {
     
     public LittleShapeConnected() {
         super(1);
@@ -37,15 +35,10 @@ public class LittleShapeConnected extends LittleShape {
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         for (ShapeSelectPos pos : selection) {
             if (pos.result.isComplete()) {
-                ConnectedBlock block = new ConnectedBlock(pos.result.te, pos.result.tile);
+                ConnectedBlock block = new ConnectedBlock(pos.result.te, pos.result.tile, selection.getContext());
                 boxes = block.start(boxes, pos.result.tile, selection.inside ? null : pos.pos.facing);
-            } else {
-                LittleGridContext context = selection.getContext();
-                if (selection.inside)
-                    boxes.addBox(context, pos.ray.getBlockPos(), new LittleBox(0, 0, 0, context.size, context.size, context.size));
-                else
-                    boxes.addBox(context, pos.ray.getBlockPos().offset(pos.pos.facing), new LittleBox(0, 0, 0, context.size, context.size, context.size));
-            }
+            } else
+                addBox(boxes, selection.inside, selection.getContext(), pos.ray.getBlockPos(), pos.pos.facing);
         }
     }
     
@@ -72,17 +65,19 @@ public class LittleShapeConnected extends LittleShape {
         
     }
     
-    private static final ConnectedBlock EMPTY = new ConnectedBlock(null, null);
+    private static final ConnectedBlock EMPTY = new ConnectedBlock(null, null, null);
     
     private static class ConnectedBlock {
         
         private final TileEntityLittleTiles parent;
         private final List<LittleBox> potential;
+        private final LittleGridContext aimedContext;
         private ConnectedBlock[] neighborCache = new ConnectedBlock[6];
         
-        public ConnectedBlock(TileEntityLittleTiles te, LittleTile startTile) {
+        public ConnectedBlock(TileEntityLittleTiles te, LittleTile startTile, LittleGridContext aimedContext) {
             parent = te;
             potential = new ArrayList<>();
+            this.aimedContext = aimedContext;
             if (te != null)
                 for (LittleTile tile : te.noneStructureTiles())
                     if (tile != startTile && tile.canBeCombined(startTile) && startTile.canBeCombined(tile))
@@ -90,14 +85,7 @@ public class LittleShapeConnected extends LittleShape {
         }
         
         private void addBox(LittleBoxes boxes, LittleBox box, EnumFacing facing) {
-            if (facing == null)
-                boxes.addBox(parent.getContext(), parent.getPos(), box);
-            else {
-                LittleVec vec = new LittleVec(facing);
-                vec.scale(box.getSize(facing.getAxis()));
-                box.add(vec);
-                boxes.addBox(parent.getContext(), parent.getPos(), box);
-            }
+            LittleShapeSelectable.addBox(boxes, facing == null, aimedContext, parent.noneStructureTiles(), box, facing);
         }
         
         public LittleBoxes start(LittleBoxes boxes, LittleTile startTile, EnumFacing facing) {
@@ -138,7 +126,7 @@ public class LittleShapeConnected extends LittleShape {
                             if (block == null) {
                                 TileEntity te = parent.getWorld().getTileEntity(pos);
                                 if (te instanceof TileEntityLittleTiles)
-                                    block = new ConnectedBlock((TileEntityLittleTiles) te, startTile);
+                                    block = new ConnectedBlock((TileEntityLittleTiles) te, startTile, aimedContext);
                                 else
                                     block = EMPTY;
                                 blocks.put(pos, block);
