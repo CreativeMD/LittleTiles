@@ -111,16 +111,16 @@ public class LittleTileColored extends LittleTile {
         if (ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color))
             return removeColor(tile);
         if (tile instanceof LittleTileColored) {
-            ((LittleTileColored) tile).color = color;
+            LittleTileColored newTile = (LittleTileColored) tile.copy();
+            newTile.color = color;
             tile.updateTranslucent();
-        } else {
-            LittleTile newTile = new LittleTileColored();
-            tile.assignTo(newTile);
-            ((LittleTileColored) newTile).color = color;
-            newTile.updateTranslucent();
             return newTile;
         }
-        return null;
+        LittleTileColored newTile = new LittleTileColored();
+        tile.assignTo(newTile);
+        newTile.color = color;
+        newTile.updateTranslucent();
+        return newTile;
     }
     
     public static LittleTile removeColor(LittleTile tile) {
@@ -129,7 +129,7 @@ public class LittleTileColored extends LittleTile {
             tile.assignTo(newTile);
             return newTile;
         }
-        return null;
+        return tile;
     }
     
     public static int getColor(LittleTile tile) {
