@@ -136,6 +136,9 @@ public class Placement {
     }
     
     public PlacementResult place() throws LittleActionException {
+        if (blocks.isEmpty())
+            return null;
+        
         if (player != null && !world.isRemote) {
             if (player != null) {
                 if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.build.get(player).maxPlaceBlocks) {
