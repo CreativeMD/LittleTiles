@@ -135,6 +135,8 @@ public abstract class SelectionMode {
             int maxY = Math.max(pos.getY(), pos2.getY());
             int maxZ = Math.max(pos.getZ(), pos2.getZ());
             
+            addBlocksWorld(world, pos, pos2);
+            
             for (EntityAnimation animation : WorldAnimationHandler.getHandler(world).findAnimations(new AxisAlignedBB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
                 addBlocksWorld(animation.fakeWorld, pos, pos2);
         }
