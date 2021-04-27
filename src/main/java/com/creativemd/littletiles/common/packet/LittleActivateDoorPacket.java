@@ -78,7 +78,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
         
         try {
             LittleStructure structure = location.find(player.world);
-            if (structure instanceof LittleDoor) {
+            if (structure instanceof LittleDoor && !structure.mainBlock.isRemoved()) {
                 LittleDoor door = (LittleDoor) structure;
                 World world = door.getWorld();
                 if (world instanceof SubWorld)

@@ -3,7 +3,9 @@ package com.creativemd.littletiles.common.util.selection.mode;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -12,15 +14,18 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -79,29 +84,7 @@ public class AreaSelectionMode extends SelectionMode {
         stack.getTagCompound().removeTag("pos2");
     }
     
-    @Override
-    public LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
-        
-        BlockPos pos = null;
-        if (stack.getTagCompound().hasKey("pos1")) {
-            int[] array = stack.getTagCompound().getIntArray("pos1");
-            pos = new BlockPos(array[0], array[1], array[2]);
-        }
-        
-        BlockPos pos2 = null;
-        if (stack.getTagCompound().hasKey("pos2")) {
-            int[] array = stack.getTagCompound().getIntArray("pos2");
-            pos2 = new BlockPos(array[0], array[1], array[2]);
-        }
-        
-        if (pos == null && pos2 == null)
-            return null;
-        
-        if (pos == null)
-            pos = pos2;
-        else if (pos2 == null)
-            pos2 = pos;
-        
+    public LittlePreviews getPreviews(World world, BlockPos pos, BlockPos pos2, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
         int minX = Math.min(pos.getX(), pos2.getX());
         int minY = Math.min(pos.getY(), pos2.getY());
         int minZ = Math.min(pos.getZ(), pos2.getZ());
@@ -182,6 +165,70 @@ public class AreaSelectionMode extends SelectionMode {
                 }
             }
         }
+        return previews;
+    }
+    
+    @Override
+    public LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
+        BlockPos pos = null;
+        if (stack.getTagCompound().hasKey("pos1")) {
+            int[] array = stack.getTagCompound().getIntArray("pos1");
+            pos = new BlockPos(array[0], array[1], array[2]);
+        }
+        
+        BlockPos pos2 = null;
+        if (stack.getTagCompound().hasKey("pos2")) {
+            int[] array = stack.getTagCompound().getIntArray("pos2");
+            pos2 = new BlockPos(array[0], array[1], array[2]);
+        }
+        
+        if (pos == null && pos2 == null)
+            return null;
+        
+        if (pos == null)
+            pos = pos2;
+        else if (pos2 == null)
+            pos2 = pos;
+        
+        LittlePreviews previews = getPreviews(world, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
+        
+        int minX = Math.min(pos.getX(), pos2.getX());
+        int minY = Math.min(pos.getY(), pos2.getY());
+        int minZ = Math.min(pos.getZ(), pos2.getZ());
+        int maxX = Math.max(pos.getX(), pos2.getX());
+        int maxY = Math.max(pos.getY(), pos2.getY());
+        int maxZ = Math.max(pos.getZ(), pos2.getZ());
+        BlockPos center = new BlockPos(minX, minY, minZ);
+        
+        List<LittleStructure> structures = null;
+        if (rememberStructure)
+            structures = new ArrayList<>();
+        
+        for (EntityAnimation animation : WorldAnimationHandler.getHandler(world).findAnimations(new AxisAlignedBB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1))) {
+            if (rememberStructure) {
+                try {
+                    LittleStructure structure = animation.structure;
+                    while (structure.getParent() != null)
+                        structure = structure.getParent().getStructure();
+                    structure.load();
+                    if (!structures.contains(structure)) {
+                        previews.addChild(structure.getPreviews(center), false);
+                        structures.add(structure);
+                    }
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                    continue;
+                }
+                
+            } else
+                try {
+                    for (Pair<IStructureTileList, LittleTile> pair : animation.structure.tiles()) {
+                        LittlePreview preview = previews.addPreview(null, pair.value.getPreviewTile(), pair.getKey().getContext());
+                        preview.box.add(new LittleVec((pair.key.getPos().getX() - minX) * previews.getContext().size, (pair.key.getPos().getY() - minY) * previews
+                            .getContext().size, (pair.key.getPos().getZ() - minZ) * previews.getContext().size));
+                    }
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        }
+        
         return previews;
     }
     

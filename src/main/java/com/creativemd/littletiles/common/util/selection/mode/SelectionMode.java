@@ -5,15 +5,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -36,7 +39,6 @@ public abstract class SelectionMode {
     }
     
     public static SelectionMode area = new AreaSelectionMode();
-    // public static SelectionMode individual = new SelectionMode("individual");
     
     public final String name;
     
@@ -65,7 +67,7 @@ public abstract class SelectionMode {
             this.world = world;
         }
         
-        private void addBlockDirectly(BlockPos pos) {
+        private void addBlockDirectly(World world, BlockPos pos) {
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileEntityLittleTiles) {
                 ltBlocks++;
@@ -99,10 +101,10 @@ public abstract class SelectionMode {
                 min.setPos(Math.min(min.getX(), pos.getX()), Math.min(min.getY(), pos.getY()), Math.min(min.getZ(), pos.getZ()));
                 max.setPos(Math.max(max.getX(), pos.getX()), Math.max(max.getY(), pos.getY()), Math.max(max.getZ(), pos.getZ()));
             }
-            addBlockDirectly(pos);
+            addBlockDirectly(world, pos);
         }
         
-        public void addBlocks(BlockPos pos, BlockPos pos2) {
+        protected void addBlocksWorld(World world, BlockPos pos, BlockPos pos2) {
             int minX = Math.min(pos.getX(), pos2.getX());
             int minY = Math.min(pos.getY(), pos2.getY());
             int minZ = Math.min(pos.getZ(), pos2.getZ());
@@ -122,7 +124,19 @@ public abstract class SelectionMode {
             for (int posX = minX; posX <= maxX; posX++)
                 for (int posY = minY; posY <= maxY; posY++)
                     for (int posZ = minZ; posZ <= maxZ; posZ++)
-                        addBlockDirectly(mutPos.setPos(posX, posY, posZ));
+                        addBlockDirectly(world, mutPos.setPos(posX, posY, posZ));
+        }
+        
+        public void addBlocks(BlockPos pos, BlockPos pos2) {
+            int minX = Math.min(pos.getX(), pos2.getX());
+            int minY = Math.min(pos.getY(), pos2.getY());
+            int minZ = Math.min(pos.getZ(), pos2.getZ());
+            int maxX = Math.max(pos.getX(), pos2.getX());
+            int maxY = Math.max(pos.getY(), pos2.getY());
+            int maxZ = Math.max(pos.getZ(), pos2.getZ());
+            
+            for (EntityAnimation animation : WorldAnimationHandler.getHandler(world).findAnimations(new AxisAlignedBB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
+                addBlocksWorld(animation.fakeWorld, pos, pos2);
         }
         
         public MutableBlockPos min = null;

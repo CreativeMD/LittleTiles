@@ -37,10 +37,9 @@ public abstract class LittleAnimationHandler {
             return Collections.emptyList();
         
         List<EntityAnimation> doors = new ArrayList<>();
-        for (EntityAnimation door : openDoors) {
+        for (EntityAnimation door : openDoors)
             if (door.getEntityBoundingBox().intersects(bb))
                 doors.add(door);
-        }
         return doors;
     }
     
