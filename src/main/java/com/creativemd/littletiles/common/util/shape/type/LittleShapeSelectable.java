@@ -25,13 +25,15 @@ public abstract class LittleShapeSelectable extends LittleShape {
         if (inside)
             boxes.addBox(parent.getContext(), parent.getPos(), box.copy());
         else {
+            
+            box = box.copy();
             int size = 1;
             if (parent.getContext().size > context.size) {
                 size = parent.getContext().size / context.size;
                 context = parent.getContext();
             } else
                 box.convertTo(parent.getContext(), context);
-            box = box.copy();
+            
             if (facing.getAxisDirection() == AxisDirection.POSITIVE) {
                 int min = box.getMax(facing.getAxis());
                 box.setMin(facing.getAxis(), min);
