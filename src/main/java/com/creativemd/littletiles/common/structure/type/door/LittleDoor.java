@@ -177,7 +177,7 @@ public abstract class LittleDoor extends LittleStructure {
                 e.printStackTrace();
             }
         }
-        if (!isClient()) {
+        if (!mainBlock.isRemoved() && !isClient()) {
             getOutput(0).changed();
             notifyChange();
         }
