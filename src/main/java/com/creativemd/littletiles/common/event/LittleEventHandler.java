@@ -313,7 +313,7 @@ public class LittleEventHandler {
                 if (!stack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, stack)) {
                     PlacementMode mode = ((ILittlePlacer) iTile).getPlacementMode(stack).place();
                     new LittleActionPlaceStack(((ILittlePlacer) iTile).getLittlePreview(stack, false), position, PreviewRenderer
-                        .isCentered(player, (ILittlePlacer) iTile), PreviewRenderer.isFixed(player, (ILittlePlacer) iTile), mode).execute();
+                        .isCentered(player, stack, (ILittlePlacer) iTile), PreviewRenderer.isFixed(player, stack, (ILittlePlacer) iTile), mode).execute();
                     
                     PreviewRenderer.marked = null;
                 }

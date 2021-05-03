@@ -14,6 +14,8 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
@@ -203,8 +205,11 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     }
     
     @Override
-    public boolean snapToGridByDefault() {
-        return true;
+    public boolean snapToGridByDefault(ItemStack stack) {
+        LittleStructureType type = LittleStructureRegistry.getStructureType(getPremadeId(stack));
+        if (type instanceof LittleStructureTypePremade)
+            return ((LittleStructureTypePremade) type).snapToGrid;
+        return false;
     }
     
     public static String getPremadeId(ItemStack stack) {

@@ -229,6 +229,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         
         public final String modid;
         public boolean showInCreativeTab = true;
+        public boolean snapToGrid = true;
         
         public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
             super(id, category, structureClass, LittleStructureAttribute.PREMADE | attribute);
@@ -251,6 +252,11 @@ public abstract class LittleStructurePremade extends LittleStructure {
         
         public LittleStructureTypePremade setNotShowCreativeTab() {
             this.showInCreativeTab = false;
+            return this;
+        }
+        
+        public LittleStructureTypePremade setNotSnapToGrid() {
+            this.snapToGrid = false;
             return this;
         }
         

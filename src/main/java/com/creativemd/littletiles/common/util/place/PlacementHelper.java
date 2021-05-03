@@ -155,7 +155,7 @@ public class PlacementHelper {
         
         PlacementPosition result = new PlacementPosition(pos, getHitVec(moving, context, canBePlacedInsideBlock).getVecContext(), moving.sideHit);
         
-        if (tile instanceof ILittlePlacer && stack != null && (LittleAction.isUsingSecondMode(player) != ((ILittlePlacer) tile).snapToGridByDefault())) {
+        if (tile instanceof ILittlePlacer && stack != null && (LittleAction.isUsingSecondMode(player) != ((ILittlePlacer) tile).snapToGridByDefault(stack))) {
             Vec3d position = player.getPositionEyes(TickUtils.getPartialTickTime());
             double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
             Vec3d temp = player.getLook(TickUtils.getPartialTickTime());

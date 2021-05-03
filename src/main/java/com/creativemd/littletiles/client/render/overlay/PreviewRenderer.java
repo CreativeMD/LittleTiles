@@ -60,14 +60,14 @@ public class PreviewRenderer {
     
     public static IMarkMode marked;
     
-    public static boolean isCentered(EntityPlayer player, ILittlePlacer iTile) {
-        if (iTile.snapToGridByDefault())
+    public static boolean isCentered(EntityPlayer player, ItemStack stack, ILittlePlacer iTile) {
+        if (iTile.snapToGridByDefault(stack))
             return LittleAction.isUsingSecondMode(player) && marked == null;
         return LittleTiles.CONFIG.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
     }
     
-    public static boolean isFixed(EntityPlayer player, ILittlePlacer iTile) {
-        if (iTile.snapToGridByDefault())
+    public static boolean isFixed(EntityPlayer player, ItemStack stack, ILittlePlacer iTile) {
+        if (iTile.snapToGridByDefault(stack))
             return !LittleAction.isUsingSecondMode(player) && marked == null;
         return LittleTiles.CONFIG.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
     }
@@ -140,7 +140,7 @@ public class PreviewRenderer {
                         
                         boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                         PlacementPreview result = PlacementHelper
-                            .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, mode);
+                            .getPreviews(world, stack, position, isCentered(player, stack, iTile), isFixed(player, stack, iTile), allowLowResolution, mode);
                         
                         if (result != null) {
                             processMarkKey(player, iTile, stack, result);
@@ -345,7 +345,7 @@ public class PreviewRenderer {
                     boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                     
                     PlacementPreview result = PlacementHelper
-                        .getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, mode);
+                        .getPreviews(world, stack, position, isCentered(player, stack, iTile), isFixed(player, stack, iTile), allowLowResolution, mode);
                     
                     if (result != null) {
                         processMarkKey(player, iTile, stack, result);
