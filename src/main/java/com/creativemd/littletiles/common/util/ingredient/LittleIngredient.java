@@ -159,12 +159,6 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                     for (LittlePreview preview : previews)
                         ingredient.add(preview.getBlockIngredient(previews.getContext()));
                     
-                for (LittlePreviews child : previews.getChildren()) {
-                    BlockIngredient childIngredient = extract(child);
-                    if (childIngredient != null)
-                        ingredient.add(childIngredient);
-                }
-                
                 if (ingredient.isEmpty())
                     return null;
                 return ingredient;
@@ -241,12 +235,6 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                     for (LittlePreview preview : previews)
                         ingredient.add(ColorIngredient.getColors(previews.getContext(), preview));
                     
-                for (LittlePreviews child : previews.getChildren()) {
-                    ColorIngredient childIngredient = extract(child);
-                    if (childIngredient != null)
-                        ingredient.add(childIngredient);
-                }
-                
                 if (ingredient.isEmpty())
                     return null;
                 return ingredient;
