@@ -689,7 +689,7 @@ public class LittleTransformableBox extends LittleBox {
                 }
             }
             
-            LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data);
+            LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data.clone());
             CornerCache cache = result.new CornerCache(false);
             setAbsoluteCornersTakeBounds(cache);
             result.data = cache.getData();
@@ -925,19 +925,19 @@ public class LittleTransformableBox extends LittleBox {
                 x = getData(activeBits) + get(corner.x);
                 activeBits++;
             } else
-                x = cache.getBox().get(corner.x);
+                x = get(corner.x);
             
             if (IntegerUtils.bitIs(indicator, index + 1)) {
                 y = getData(activeBits) + get(corner.y);
                 activeBits++;
             } else
-                y = cache.getBox().get(corner.y);
+                y = get(corner.y);
             
             if (IntegerUtils.bitIs(indicator, index + 2)) {
                 z = getData(activeBits) + get(corner.z);
                 activeBits++;
             } else
-                z = cache.getBox().get(corner.z);
+                z = get(corner.z);
             
             cache.setAbsolute(corner, new LittleVec(x, y, z));
         }
