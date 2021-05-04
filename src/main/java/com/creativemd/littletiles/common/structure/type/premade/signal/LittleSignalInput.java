@@ -270,7 +270,9 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     
     @Override
     public String info() {
-        return "i" + getId() + ":" + BooleanUtils.print(getState());
+        if (getParent() != null)
+            return "i" + getId() + ":" + BooleanUtils.print(getState());
+        return "";
     }
     
     public static class LittleStructureTypeInput extends LittleStructureTypeNetwork {
