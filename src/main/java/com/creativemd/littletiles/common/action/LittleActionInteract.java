@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -98,6 +99,10 @@ public abstract class LittleActionInteract extends LittleAction {
     
     @Override
     protected boolean action(EntityPlayer player) throws LittleActionException {
+        
+        if (isRightClick() && LittleEventHandler.consumeBlockTilePrevent(player, EnumHand.MAIN_HAND))
+            return false;
+        
         World world = player.world;
         
         transformedPos = this.pos;

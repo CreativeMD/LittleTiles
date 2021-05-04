@@ -42,6 +42,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ReportedException;
@@ -172,9 +173,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
             
             if (pointedEntity != null) {
                 if (pointedEntity.onRightClick(player, pos, look))
-                    if (event instanceof RightClickBlock)
+                    if (event instanceof RightClickBlock) {
                         event.setCanceled(true);
-                    else
+                        event.setCancellationResult(EnumActionResult.SUCCESS);
+                    } else
                         PacketHandler.sendPacketToServer(new LittleConsumeRightClickEvent());
             }
         }

@@ -9,7 +9,6 @@ import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing.Axis;
@@ -34,15 +33,8 @@ public class LittleActionActivated extends LittleActionInteract {
     }
     
     @Override
-    public void writeBytes(ByteBuf buf) {
-        super.writeBytes(buf);
-        buf.writeBoolean(preventInteraction);
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        super.readBytes(buf);
-        preventInteraction = buf.readBoolean();
+    public boolean sendToServer() {
+        return !preventInteraction;
     }
     
     public boolean preventInteraction = false;
@@ -61,14 +53,17 @@ public class LittleActionActivated extends LittleActionInteract {
     
     @Override
     protected boolean action(EntityPlayer player) throws LittleActionException {
-        if (!player.world.isRemote) {
-            //RayTraceResult moving = player.world.rayTraceBlocks(pos, look); // Block server right click event
-            //if (moving != null && moving.typeOfHit != Type.MISS)
-            LittleEventHandler.addBlockTilePrevent(player);
+        boolean result;
+        try {
+            result = super.action(player);
+        } catch (LittleActionException e) {
+            if (!player.world.isRemote)
+                LittleEventHandler.addBlockTilePrevent(player);
+            throw e;
         }
-        if (preventInteraction)
-            return true;
-        return super.action(player);
+        if (!player.world.isRemote)
+            LittleEventHandler.addBlockTilePrevent(player);
+        return result;
     }
     
     @Override
