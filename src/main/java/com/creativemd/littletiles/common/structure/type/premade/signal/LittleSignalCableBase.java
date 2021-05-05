@@ -407,7 +407,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     @SideOnly(Side.CLIENT)
     public void getRenderingCubes(BlockPos pos, BlockRenderLayer layer, List<LittleRenderBox> cubes) {
-        if (layer != BlockRenderLayer.SOLID)
+        if (layer != (ColorUtils.isTransparent(color) ? BlockRenderLayer.TRANSLUCENT : BlockRenderLayer.SOLID))
             return;
         
         try {
