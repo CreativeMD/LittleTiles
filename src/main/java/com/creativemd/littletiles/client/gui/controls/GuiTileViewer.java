@@ -263,6 +263,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
         if (animation == null)
             return;
         
+        GuiAnimationViewer.makeLightBright();
+        
         scale.tick();
         offsetX.tick();
         offsetY.tick();

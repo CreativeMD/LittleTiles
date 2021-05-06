@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.client.gui.controls;
 
+import java.lang.reflect.Field;
+
 import javax.vecmath.Vector3d;
 
 import org.lwjgl.util.glu.Project;
@@ -15,10 +17,14 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
     
@@ -84,10 +90,33 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         return true;
     }
     
+    private static final Field lightmapTextureField = ReflectionHelper.findField(EntityRenderer.class, new String[] { "lightmapTexture", "field_78513_d" });
+    private static final Field lightmapColorsField = ReflectionHelper.findField(EntityRenderer.class, new String[] { "lightmapColors", "field_78504_Q" });
+    private static final Field lightmapUpdateNeededField = ReflectionHelper.findField(EntityRenderer.class, new String[] { "lightmapUpdateNeeded", "field_78536_aa" });
+    
+    public static void makeLightBright() {
+        try {
+            EntityRenderer renderer = Minecraft.getMinecraft().entityRenderer;
+            
+            int[] lightmapColors = (int[]) lightmapColorsField.get(renderer);
+            for (int i = 0; i < 256; ++i)
+                lightmapColors[i] = -16777216 | 255 << 16 | 255 << 8 | 255;
+            
+            ((DynamicTexture) lightmapTextureField.get(renderer)).updateDynamicTexture();
+            lightmapUpdateNeededField.setBoolean(renderer, true);
+            
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        
+    }
+    
     @Override
     protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
         if (animation == null)
             return;
+        
+        makeLightBright();
         
         rotX.tick();
         rotY.tick();
