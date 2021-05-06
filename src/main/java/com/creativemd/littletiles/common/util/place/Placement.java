@@ -504,38 +504,49 @@ public class Placement {
                     
                     cached.forceContext(this);
                     
-                    cached.updateTilesSecretly((x) -> {
-                        
-                        for (int i = 0; i < previews.length; i++) {
-                            if (previews[i] == null || previews[i].isEmpty())
-                                continue;
-                            ParentTileList parent = x.noneStructureTiles();
-                            PlacementStructurePreview structure = structures.get(i);
-                            if (structure.isStructure()) {
-                                StructureTileList list = x.addStructure(structure.getIndex(), structure.getAttribute());
-                                structure.place(list);
-                                parent = list;
-                            }
+                    try {
+                        cached.updateTilesSecretly((x) -> {
                             
-                            mode.prepareBlock(Placement.this, this, collsionTest);
-                            
-                            for (PlacePreview preview : previews[i]) {
-                                for (LittleTile LT : preview.placeTile(Placement.this, this, parent, structure.getStructure(), collsionTest)) {
-                                    if (playSounds) {
-                                        if (!soundsToBePlayed.contains(LT.getSound()))
-                                            soundsToBePlayed.add(LT.getSound());
+                            for (int i = 0; i < previews.length; i++) {
+                                if (previews[i] == null || previews[i].isEmpty())
+                                    continue;
+                                ParentTileList parent = x.noneStructureTiles();
+                                PlacementStructurePreview structure = structures.get(i);
+                                if (structure.isStructure()) {
+                                    StructureTileList list = x.addStructure(structure.getIndex(), structure.getAttribute());
+                                    structure.place(list);
+                                    parent = list;
+                                }
+                                
+                                mode.prepareBlock(Placement.this, this, collsionTest);
+                                
+                                for (PlacePreview preview : previews[i]) {
+                                    try {
+                                        for (LittleTile LT : preview.placeTile(Placement.this, this, parent, structure.getStructure(), collsionTest)) {
+                                            if (playSounds) {
+                                                if (!soundsToBePlayed.contains(LT.getSound()))
+                                                    soundsToBePlayed.add(LT.getSound());
+                                            }
+                                            parent.add(LT);
+                                            result.addPlacedTile(parent, LT);
+                                        }
+                                    } catch (LittleActionException e) {
+                                        throw new RuntimeException(e);
                                     }
-                                    parent.add(LT);
-                                    result.addPlacedTile(parent, LT);
                                 }
                             }
-                        }
-                    });
+                        });
+                    } catch (RuntimeException e) {
+                        if (e.getCause() instanceof LittleActionException)
+                            throw (LittleActionException) e.getCause();
+                        else
+                            throw e;
+                    }
                 }
             }
         }
         
-        public void placeLate() {
+        public void placeLate() throws LittleActionException {
             for (int i = 0; i < latePreviews.length; i++) {
                 if (latePreviews[i] == null)
                     continue;
