@@ -88,6 +88,7 @@ exception.pattern.empty=空
 exception.pattern.circular=循环引用 
 exception.pattern.novalidchildren=断开子级
 exception.permission.convert=不能编辑超过 %s 个方块
+exception.permission.area-protected=保护区
 
 color.unit.black=黑色
 color.unit.cyan=青色
@@ -122,6 +123,7 @@ placement.mode.stencil=模具模式
 placement.mode.stencil.tooltip=将删除重叠空间中的所有方块。\n不要放置任何东西
 placement.mode.colorize=着色模式
 placement.mode.colorize.tooltip=将为重叠空间的所有方块上色。\n不要放置任何东西
+
 
 markmode.gui.allowlowresolution=低分辨率
 markmode.gui.switchpos=切换位置
@@ -166,6 +168,22 @@ selection.mode.area.pos.second=已选择第二个位置 [%s,%s,%s]
 selection.save=保存
 selection.scale=比例
 mode.selection.area=区域
+
+shape.tile=小方块
+shape.type=小方块类型
+shape.box=立方体
+shape.connected=连接的小方块
+shape.slice=斜面
+shape.inner_corner=内斜角
+shape.outer_corner=外斜角
+shape.polygon=体素多边形
+shape.wall=墙面
+shape.pillar=立柱
+shape.curve=曲线
+shape.curvewall=弧形墙
+shape.cylinder=圆柱体
+shape.sphere=球体
+shape.pyramid=金字塔
 
 structure.none.name=无
 structure.fixed.name=固定
@@ -247,7 +265,7 @@ gui.signal.configuration.input.operation.type.equation=方程式
 gui.frame_builder.width=宽度:
 gui.frame_builder.height=高度:
 gui.frame_builder.thickness=厚度:
-gui.frame_builder.craft=工艺
+gui.frame_builder.craft=制图
 gui.frame_builder.failed=失败
 
 animation.event.child.name=激活子级
@@ -291,3 +309,22 @@ config.littletiles.survival.limitPlaceBlocks.comment=生存模式下，玩家可
 config.littletiles.survival.maxPlaceBlocks.comment=如果启用了位置限制，则仅影响范围
 config.littletiles.survival.minimumTransparency.comment=如果最小值小于255，则将启用透明度
 config.littletiles.survival.dyeVolume.comment=可以用一种染料绘画多少块\假设方块具有完全相同的颜色
+
+config.littletiles.creative.limitAffectedBlocks.comment=是否限制 MC方块 的 转化数量
+config.littletiles.creative.maxAffectedBlocks.comment=一次可转换的 MC方块 的 最大数量
+config.littletiles.creative.limitEditBlocks.comment=玩家一次可以摧毁或染色的数量应该受到限制在生存模式下
+config.littletiles.creative.maxEditBlocks.comment=如果启用了编辑/删除限制，则仅影响范围
+config.littletiles.creative.harvestLevelBlock.comment=0: 任何, 1: 石, 2: 铁, 3: 钻石.
+config.littletiles.creative.editUnbreakable.comment=如果可以在生存中编辑牢不可破的方块（基岩）
+config.littletiles.creative.limitPlaceBlocks.comment=玩家一次可以放置的数量应该受到限制在生存模式下
+config.littletiles.creative.maxPlaceBlocks.comment=仅在启用位置限制的情况下影响范围
+config.littletiles.creative.minimumTransparency.comment=如果最小值小于255，则将启用透明度
+config.littletiles.creative.dyeVolume.comment=用一种染料可以绘制多少方块\n假如小方块具有完全相同的颜色
+
+littletiles.chisel.tooltip=%s\n'%s' 拾取方块\n按住 'CTRL' 放置更多点\n'%s' 标记位置\n'%s' 配置工具\n'%s' 配置网格大小
+littletiles.grabber.tooltip=%s\n'%s' 配置工具\n'%s' 配置方块大小
+littletiles.hammer.tooltip=%s\n按住 'CTRL' 放置更多点 \n'%s' 标记位置\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
+littletiles.colortube.tooltip=%s\n'%s' 选择颜色\n按住 'CTRL' 放置更多点\n'%s' 标记位置\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
+littletiles.recipeadvanced.tooltip='%s' 第一个位置\n'%s' 第二个位置\n'%s' 拾取形状/ 结构\n'%s' 确认/ 配置所选区
+littletiles.saw.tooltip='%s' 扩展平铺\n'%s' 缩进\n按住 'CTRL' 延长
+littletiles.screwdriver.tooltip='%s' 第一个位置\n'%s' 第二个位置\n'%s' 修改所选区
