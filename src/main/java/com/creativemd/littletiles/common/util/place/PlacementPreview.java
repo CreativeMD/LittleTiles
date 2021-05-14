@@ -31,7 +31,7 @@ public class PlacementPreview {
         this.world = world;
         this.previews = previews;
         this.context = previews.getContext();
-        if (previews.hasStructureIncludeChildren() && mode.canPlaceStructures())
+        if (previews.hasStructureIncludeChildren() && !mode.canPlaceStructures())
             mode = PlacementMode.getStructureDefault();
         this.mode = mode;
         this.box = box;
