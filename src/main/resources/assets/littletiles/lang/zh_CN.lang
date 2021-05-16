@@ -10,7 +10,7 @@ item.LTRubberMallet.name=橡胶锤
 item.LTColorTube.name=画笔
 item.LTUtilityKnife.name=工具刀
 item.LTGrabber.name=手套
-item.LTRecipeAdvanced.name=配方图纸（高级）
+item.LTRecipeAdvanced.name=蓝图
 item.LTColorBottleBlack.name=瓶装染料（黑色）
 item.LTColorBottleCyan.name=瓶装染料（青色）
 item.LTColorBottleMagenta.name=瓶装染料（洋红色）
@@ -121,7 +121,7 @@ placement.mode.replace=替换模式
 placement.mode.replace.tooltip=只会将方块放在重叠的部分，\n不会移除结构方块
 placement.mode.stencil=模具模式
 placement.mode.stencil.tooltip=将删除重叠空间中的所有方块。\n不要放置任何东西
-placement.mode.colorize=着色模式
+placement.mode.colorize=染色模式
 placement.mode.colorize.tooltip=将为重叠空间的所有方块上色。\n不要放置任何东西
 
 
@@ -150,11 +150,11 @@ item.LTPremade.single_output4.name=单向输出 (4-bit)
 item.LTPremade.single_output16.name=单向输出 (16-bit)
 
 item.LTPremade.particle_emitter.name=粒子发射器
-item.LTPremade.signal_display_16.name=信号显示 (16 bit)
+item.LTPremade.signal_display_16.name=信号显示器 (16 bit)
 item.LTPremade.item_holder.name=物品架
 item.LTPremade.structure_builder.name=结构生成器
 
-selection.clear=清除
+selection.clear =清除
 selection.dialog.clear=是否确实要清除所有内容？
 selection.structure.name=结构名称
 selection.structure.tiles=结构要素
@@ -168,23 +168,24 @@ selection.mode.area.pos.second=已选择第二个位置 [%s,%s,%s]
 selection.save=保存
 selection.scale=比例
 mode.selection.area=区域
-
-shape.tile=小方块
-shape.type=小方块类型
-shape.box=立方体
-shape.connected=连接的小方块
-shape.slice=斜面
-shape.inner_corner=内斜角
-shape.outer_corner=外斜角
-shape.polygon=体素多边形
-shape.wall=墙面
-shape.pillar=立柱
-shape.curve=曲线
-shape.curvewall=弧形墙
-shape.cylinder=圆柱体
-shape.sphere=球体
-shape.pyramid=金字塔
-
+#选区类型
+shape.tile=选区类型：结构要素
+shape.type=选区类型：结构材料类型
+shape.box=选区类型：长方体
+shape.connected=选区类型：相连的结构区块
+shape.slice=选区类型：斜面
+shape.inner_corner=选区类型：内斜角
+shape.outer_corner=选区类型：外斜角
+shape.polygon=选区类型：体素多边形
+shape.wall=选区类型：墙面
+shape.pillar=选区类型：柱形
+shape.curve=选区类型：曲线
+shape.curvewall=选区类型：弧形墙
+shape.cylinder=选区类型：圆柱体
+shape.sphere=选区类型：球体
+shape.pyramid=选区类型：金字塔
+shape.magic_wand=选区类型：魔杖
+#蓝图结构设置
 structure.none.name=无
 structure.fixed.name=固定
 structure.chair.name=椅子
@@ -200,12 +201,12 @@ structure.light.name=光照
 structure.message.name=信息
 structure.item_holder.name=物品架
 structure.little_frame.name=框架
-
+#蓝图结构类别
 structure.category.simple=简易
 structure.category.door=门
 
 gui.save=保存
-
+gui.clear =清除
 gui.door.duration=持续时间
 gui.door.stayAnimated=保持动画
 gui.door.stayAnimatedTooltip=仅在必要时使用，它会影响你的FPS
@@ -266,7 +267,7 @@ gui.frame_builder.width=宽度:
 gui.frame_builder.height=高度:
 gui.frame_builder.thickness=厚度:
 gui.frame_builder.craft=制图
-gui.frame_builder.failed=失败
+gui.frame_builder.failed=缺少蓝图
 
 animation.event.child.name=激活子级
 animation.event.sound-event.name=播放声音事件
@@ -294,37 +295,37 @@ config.littletiles.rendering.uploadToVBODirectly.comment=用于平滑门的放�
 
 config.littletiles.general.allowFlowingWater.comment=如果禁用，则无法使用水桶来改变水流
 config.littletiles.general.allowFlowingLava.comment=如果禁用，则无法使用锹更改熔岩流
-config.littletiles.general.storagePerPixel.comment=默认网格中的每个像素为一个项目堆栈（堆栈大小为1）留出空间.\n64个像素加至一个插槽
+config.littletiles.general.storagePerPixel.comment=默认网格中的每个体素为一个项目堆栈（堆栈大小为1）留出空间.\n一个插槽最多64个体素
 config.littletiles.general.enableBed.comment=是否应该允许玩家在LT床上睡觉。
 config.littletiles.general.enableAnimationCollision.comment=是否开启推动实体动画（对性能产生影响）
 config.littletiles.general.enableCollisionMotion.comment=通过动画移动实体时，将其应用于实体
-
-config.littletiles.survival.limitAffectedBlocks.comment=转换MC方块的数量是否应受到限制
-config.littletiles.survival.maxAffectedBlocks.comment=一次可转换的MC方块的最大数量 
-config.littletiles.survival.limitEditBlocks.comment=生存模式下，玩家可以破坏或油漆的数量上限
+#设置（生存模式)
+config.littletiles.survival.limitAffectedBlocks.comment=是否限制 MC方块 的 转化数量
+config.littletiles.survival.maxAffectedBlocks.comment=一次可转换的 MC方块 的 最大数量
+config.littletiles.survival.limitEditBlocks.comment=生存模式下，玩家可以破坏或着色的数量上限
 config.littletiles.survival.maxEditBlocks.comment=如果启用了编辑/删除限制，则仅影响范围
 config.littletiles.survival.harvestLevelBlock.comment=0: 任何, 1: 原石, 2: 铁, 3: 钻石
 config.littletiles.survival.editUnbreakable.comment=是否可在生存模式下编辑牢不可破的方块（基岩）
 config.littletiles.survival.limitPlaceBlocks.comment=生存模式下，玩家可以放置的数量上限
-config.littletiles.survival.maxPlaceBlocks.comment=如果启用了位置限制，则仅影响范围
+config.littletiles.survival.maxPlaceBlocks.comment=仅在启用位置限制的情况下影响范围
 config.littletiles.survival.minimumTransparency.comment=如果最小值小于255，则将启用透明度
-config.littletiles.survival.dyeVolume.comment=可以用一种染料绘画多少块\假设方块具有完全相同的颜色
-
+config.littletiles.survival.dyeVolume.comment=用一种染料可以绘制多少方块\n假如小方块具有完全相同的颜色
+#设置（创造模式)
 config.littletiles.creative.limitAffectedBlocks.comment=是否限制 MC方块 的 转化数量
 config.littletiles.creative.maxAffectedBlocks.comment=一次可转换的 MC方块 的 最大数量
-config.littletiles.creative.limitEditBlocks.comment=玩家一次可以摧毁或染色的数量应该受到限制在生存模式下
+config.littletiles.creative.limitEditBlocks.comment=生存模式下，玩家可以破坏或着色的数量上限
 config.littletiles.creative.maxEditBlocks.comment=如果启用了编辑/删除限制，则仅影响范围
-config.littletiles.creative.harvestLevelBlock.comment=0: 任何, 1: 石, 2: 铁, 3: 钻石.
-config.littletiles.creative.editUnbreakable.comment=如果可以在生存中编辑牢不可破的方块（基岩）
-config.littletiles.creative.limitPlaceBlocks.comment=玩家一次可以放置的数量应该受到限制在生存模式下
+config.littletiles.creative.harvestLevelBlock.comment=0: 任何, 1: 原石, 2: 铁, 3: 钻石
+config.littletiles.creative.editUnbreakable.comment=是否可在生存模式下编辑牢不可破的方块（基岩）
+config.littletiles.creative.limitPlaceBlocks.comment=生存模式下，玩家可以放置的数量上限
 config.littletiles.creative.maxPlaceBlocks.comment=仅在启用位置限制的情况下影响范围
 config.littletiles.creative.minimumTransparency.comment=如果最小值小于255，则将启用透明度
 config.littletiles.creative.dyeVolume.comment=用一种染料可以绘制多少方块\n假如小方块具有完全相同的颜色
-
-littletiles.chisel.tooltip=%s\n'%s' 拾取方块\n按住 'CTRL' 放置更多点\n'%s' 标记位置\n'%s' 配置工具\n'%s' 配置网格大小
-littletiles.grabber.tooltip=%s\n'%s' 配置工具\n'%s' 配置方块大小
-littletiles.hammer.tooltip=%s\n按住 'CTRL' 放置更多点 \n'%s' 标记位置\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
-littletiles.colortube.tooltip=%s\n'%s' 选择颜色\n按住 'CTRL' 放置更多点\n'%s' 标记位置\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
-littletiles.recipeadvanced.tooltip='%s' 第一个位置\n'%s' 第二个位置\n'%s' 拾取形状/ 结构\n'%s' 确认/ 配置所选区
-littletiles.saw.tooltip='%s' 扩展平铺\n'%s' 缩进\n按住 'CTRL' 延长
-littletiles.screwdriver.tooltip='%s' 第一个位置\n'%s' 第二个位置\n'%s' 修改所选区
+#工具提示说明
+littletiles.chisel.tooltip=%s\n'%s' 拾取材料\n按住'CTRL'然后右键以固定当前选区\n准心移动超过边缘可以扩展选区\n再次右键确定\n'%s' 编辑选区范围\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
+littletiles.grabber.tooltip=%s\n配方模式下'鼠标中键'拾取形状/ 结构\n'%s' 配置工具\n'%s' 配置小方块大小和过滤器
+littletiles.hammer.tooltip=%s\n按住 'CTRL' 然后左键以固定当前选区\n准心移动超过边缘可以扩展选区\n再次左键确定\n'%s' 编辑选区范围\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
+littletiles.colortube.tooltip=%s\n'%s' 拾取颜色\n按住 'CTRL' 然后右键以固定当前选区\n准心移动超过边缘可以扩展选区\n再次右键确定\n'%s' 编辑选区范围\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
+littletiles.recipeadvanced.tooltip='%s' 第一个位置\n'%s' 第二个位置\n'%s' 拾取形状/ 结构\n'%s' 确认/ 配置蓝图
+littletiles.saw.tooltip='%s' 清除\n'%s' 延长\n按住'SHIFT'+右键 缩进\n按住'CTRL'+右键延长至一个MC方块边界
+littletiles.screwdriver.tooltip='%s' 第一个位置\n'%s' 第二个位置\n'%s' 修改所选区域
