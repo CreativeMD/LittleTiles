@@ -917,29 +917,21 @@ public class LittleTransformableBox extends LittleBox {
         for (int i = 0; i < BoxCorner.values().length; i++) {
             BoxCorner corner = BoxCorner.values()[i];
             
-            int x = 0;
-            int y = 0;
-            int z = 0;
             int index = i * 3;
             if (IntegerUtils.bitIs(indicator, index)) {
-                x = getData(activeBits) + get(corner.x);
+                cache.setAbsolute(corner, Axis.X, getData(activeBits) + get(corner.x));
                 activeBits++;
-            } else
-                x = get(corner.x);
+            }
             
             if (IntegerUtils.bitIs(indicator, index + 1)) {
-                y = getData(activeBits) + get(corner.y);
+                cache.setAbsolute(corner, Axis.Y, getData(activeBits) + get(corner.y));
                 activeBits++;
-            } else
-                y = get(corner.y);
+            }
             
             if (IntegerUtils.bitIs(indicator, index + 2)) {
-                z = getData(activeBits) + get(corner.z);
+                cache.setAbsolute(corner, Axis.Z, getData(activeBits) + get(corner.z));
                 activeBits++;
-            } else
-                z = get(corner.z);
-            
-            cache.setAbsolute(corner, new LittleVec(x, y, z));
+            }
         }
     }
     
