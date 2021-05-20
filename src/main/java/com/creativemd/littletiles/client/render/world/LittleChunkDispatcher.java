@@ -7,6 +7,7 @@ import java.nio.FloatBuffer;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
@@ -230,26 +231,44 @@ public class LittleChunkDispatcher {
     }
     
     public static float getDistanceSq(FloatBuffer buffer, float x, float y, float z, int size, int index) {
-        float f = buffer.get(index + 0);
-        float f1 = buffer.get(index + 1);
-        float f2 = buffer.get(index + 2);
-        
-        float f3 = buffer.get(index + size + 0);
-        float f4 = buffer.get(index + size + 1);
-        float f5 = buffer.get(index + size + 2);
-        
+        if (LittleTiles.CONFIG.rendering.enhancedResorting) {
+            float f = buffer.get(index + 0);
+            float f1 = buffer.get(index + 1);
+            float f2 = buffer.get(index + 2);
+            
+            float f3 = buffer.get(index + size + 0);
+            float f4 = buffer.get(index + size + 1);
+            float f5 = buffer.get(index + size + 2);
+            
+            float f6 = buffer.get(index + size * 2 + 0);
+            float f7 = buffer.get(index + size * 2 + 1);
+            float f8 = buffer.get(index + size * 2 + 2);
+            
+            float f9 = buffer.get(index + size * 3 + 0);
+            float f10 = buffer.get(index + size * 3 + 1);
+            float f11 = buffer.get(index + size * 3 + 2);
+            
+            float closeX = closest(x, f, f3, f6, f9);
+            float closeY = closest(y, f1, f4, f7, f10);
+            float closeZ = closest(z, f2, f5, f8, f11);
+            return closeX * closeX + closeY * closeY + closeZ * closeZ;
+        }
+        float f = buffer.get(index + size * 0 + 0);
+        float f1 = buffer.get(index + size * 0 + 1);
+        float f2 = buffer.get(index + size * 0 + 2);
+        float f3 = buffer.get(index + size * 1 + 0);
+        float f4 = buffer.get(index + size * 1 + 1);
+        float f5 = buffer.get(index + size * 1 + 2);
         float f6 = buffer.get(index + size * 2 + 0);
         float f7 = buffer.get(index + size * 2 + 1);
         float f8 = buffer.get(index + size * 2 + 2);
-        
         float f9 = buffer.get(index + size * 3 + 0);
         float f10 = buffer.get(index + size * 3 + 1);
         float f11 = buffer.get(index + size * 3 + 2);
-        
-        float closeX = closest(x, f, f3, f6, f9);
-        float closeY = closest(y, f1, f4, f7, f10);
-        float closeZ = closest(z, f2, f5, f8, f11);
-        return closeX * closeX + closeY * closeY + closeZ * closeZ;
+        float f12 = (f + f3 + f6 + f9) * 0.25F - x;
+        float f13 = (f1 + f4 + f7 + f10) * 0.25F - y;
+        float f14 = (f2 + f5 + f8 + f11) * 0.25F - z;
+        return f12 * f12 + f13 * f13 + f14 * f14;
     }
     
     public static class LittleVertexBufferState extends BufferBuilder.State {

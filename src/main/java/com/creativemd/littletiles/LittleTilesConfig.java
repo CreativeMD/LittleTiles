@@ -249,6 +249,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public boolean showTooltip = true;
         
+        @CreativeConfig
+        public boolean enhancedResorting = true;
+        
         @Override
         public void configured() {
             RenderingThread.initThreads(renderingThreadCount);
