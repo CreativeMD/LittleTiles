@@ -290,6 +290,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     public ShapeSelectPos getLast() {
+        if (marked)
+            return positions.get(positions.size() - 1);
         return last;
     }
     
