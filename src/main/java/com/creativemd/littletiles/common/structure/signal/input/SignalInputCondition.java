@@ -66,14 +66,14 @@ public abstract class SignalInputCondition {
                         throw parser.exception("Invalid signal pattern");
                 }
                 return new SignalInputVirtualVariable(array.toArray(new SignalInputCondition[array.size()]));
+            } else if (next == 'n') {
+                parser.next(true);
+                return new SignalInputVirtualNumber(parser.parseNumber());
             } else if (type == Character.LOWERCASE_LETTER)
                 return SignalInputVariable.parseInput(parser, insideVariable);
             else if (type == Character.UPPERCASE_LETTER)
                 return SignalInputVariable.parseInput(parser, insideVariable);
-            else if (next == '0' || next == '1') {
-                parser.next(true);
-                return new SignalInputBit(next == '1');
-            } else
+            else
                 throw parser.exception("Invalid signal pattern");
         }
         
@@ -197,17 +197,17 @@ public abstract class SignalInputCondition {
         
     }
     
-    public static class SignalInputBit extends SignalInputCondition {
+    public static class SignalInputVirtualNumber extends SignalInputCondition {
         
-        public boolean bit;
+        public int number;
         
-        public SignalInputBit(boolean bit) {
-            this.bit = bit;
+        public SignalInputVirtualNumber(int number) {
+            this.number = number;
         }
         
         @Override
         public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-            return BooleanUtils.asArray(bit);
+            return BooleanUtils.toBits(number, BooleanUtils.getRequiredBandwidth(number));
         }
         
         @Override
@@ -217,7 +217,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public String write() {
-            return bit ? "1" : "0";
+            return "n" + number;
         }
         
         @Override

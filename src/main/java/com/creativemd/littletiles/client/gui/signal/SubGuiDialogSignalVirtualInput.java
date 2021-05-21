@@ -15,7 +15,7 @@ import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignal
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.IConditionConfiguration;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputBit;
+import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -68,7 +68,7 @@ public class SubGuiDialogSignalVirtualInput extends SubGui {
         int bandwidth = counter.getValue();
         config = new GuiVirtualInputIndexConfiguration[bandwidth];
         for (int i = 0; i < bandwidth; i++) {
-            GuiVirtualInputIndexConfiguration index = new GuiVirtualInputIndexConfiguration(i < input.conditions.length ? input.conditions[i] : new SignalInputBit(false), i);
+            GuiVirtualInputIndexConfiguration index = new GuiVirtualInputIndexConfiguration(i < input.conditions.length ? input.conditions[i] : new SignalInputVirtualNumber(0), i);
             index.create(box);
             config[i] = index;
         }
@@ -91,8 +91,8 @@ public class SubGuiDialogSignalVirtualInput extends SubGui {
             panel = new GuiPanel(index + "", 0, index * 24, 162, 20);
             panel.addControl(new GuiLabel("label", index + ": " + (condition != null ? condition.write() : "0"), 0, 3));
             int state = 0;
-            if (condition instanceof SignalInputBit)
-                state = ((SignalInputBit) condition).bit ? 1 : 0;
+            if (condition instanceof SignalInputVirtualNumber)
+                state = ((SignalInputVirtualNumber) condition).number == 1 ? 1 : 0;
             else
                 state = 2;
             panel.addControl(new GuiStateButton("type", state, 90, 0, 40, "false", "true", "equation") {
@@ -125,12 +125,12 @@ public class SubGuiDialogSignalVirtualInput extends SubGui {
         public SignalInputCondition parse() {
             GuiStateButton type = (GuiStateButton) panel.get("type");
             if (type.getState() == 0)
-                return new SignalInputBit(false);
+                return new SignalInputVirtualNumber(0);
             else if (type.getState() == 1)
-                return new SignalInputBit(true);
+                return new SignalInputVirtualNumber(1);
             if (condition != null)
                 return condition;
-            return new SignalInputBit(false);
+            return new SignalInputVirtualNumber(0);
         }
         
         @Override

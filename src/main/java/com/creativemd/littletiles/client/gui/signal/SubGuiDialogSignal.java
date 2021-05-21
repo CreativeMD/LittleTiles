@@ -55,6 +55,7 @@ public class SubGuiDialogSignal extends SubGui {
         for (GuiSignalComponent entry : inputs)
             inputLines.add(entry.info());
         inputLines.add("[]");
+        inputLines.add("number");
         controls.add(new GuiComboBox("inputs", 0, 180, 80, inputLines));
         controls.add(new GuiButton("add", translate("gui.signal.configuration.add"), 88, 180) {
             
@@ -63,8 +64,10 @@ public class SubGuiDialogSignal extends SubGui {
                 GuiComboBox inputsBox = (GuiComboBox) SubGuiDialogSignal.this.get("inputs");
                 if (inputsBox.index < inputs.size())
                     controller.addInput(inputs.get(inputsBox.index));
-                else
+                else if (inputsBox.index == inputs.size())
                     controller.addVirtualInput();
+                else
+                    controller.addVirtualNumberInput();
             }
         });
         

@@ -19,6 +19,7 @@ import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignal
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
+import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableEquation;
@@ -203,6 +204,8 @@ public class GuiSignalController extends GuiParent {
             node = new GuiSignalNodeInput((SignalInputVariable) condition, signal);
         else if (condition instanceof SignalInputVirtualVariable)
             node = new GuiSignalNodeVirtualInput((SignalInputVirtualVariable) condition, signal);
+        else if (condition instanceof SignalInputVirtualNumber)
+            node = new GuiSignalNodeVirtualNumberInput((SignalInputVirtualNumber) condition, signal);
         else
             throw new ParseException("Invalid condition type", 0);
         while (parsed.size() <= level)
@@ -214,6 +217,13 @@ public class GuiSignalController extends GuiParent {
     
     public GuiSignalNodeVirtualInput addVirtualInput() {
         GuiSignalNodeVirtualInput node = new GuiSignalNodeVirtualInput();
+        setToFreeCell(0, node);
+        addControl(node);
+        return node;
+    }
+    
+    public GuiSignalNodeVirtualNumberInput addVirtualNumberInput() {
+        GuiSignalNodeVirtualNumberInput node = new GuiSignalNodeVirtualNumberInput();
         setToFreeCell(0, node);
         addControl(node);
         return node;
@@ -974,6 +984,85 @@ public class GuiSignalController extends GuiParent {
         public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
             reset();
             return new SignalInputVirtualVariable(conditions);
+        }
+    }
+    
+    public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
+        
+        public List<NodeConnection> tos = new ArrayList<>();
+        public int number;
+        
+        public GuiSignalNodeVirtualNumberInput() {
+            super("" + 0);
+            this.number = 0;
+        }
+        
+        public GuiSignalNodeVirtualNumberInput(SignalInputVirtualNumber variable, SubGuiDialogSignal signal) throws ParseException {
+            super("" + variable.number);
+            this.number = variable.number;
+            updateLabel();
+        }
+        
+        public void updateLabel() {
+            caption = "" + number;
+            width = font.getStringWidth(caption) + getContentOffset() * 2;
+            posX = getCol() * cellWidth + cellWidth / 2 - width / 2;
+            raiseEvent(new GuiControlChangedEvent(GuiSignalController.this));
+        }
+        
+        @Override
+        public void onDoubleClicked(int x, int y, int button) {
+            openClientLayer(new SubGuiDialogSignalVirtualNumberInput(number, this));
+        }
+        
+        @Override
+        public boolean canConnectTo(GuiSignalNode node) {
+            for (NodeConnection connectTo : tos)
+                if (connectTo.to == node)
+                    return false;
+            return true;
+        }
+        
+        @Override
+        public boolean canConnectFrom(GuiSignalNode node) {
+            return false;
+        }
+        
+        @Override
+        public void removeConnection(NodeConnection connection) {
+            tos.remove(connection);
+        }
+        
+        @Override
+        public void connect(NodeConnection connection) {
+            tos.add(connection);
+        }
+        
+        @Override
+        public Iterator<NodeConnection> iterator() {
+            return tos.iterator();
+        }
+        
+        @Override
+        public Iterable<NodeConnection> toConnections() {
+            return tos;
+        }
+        
+        @Override
+        public void remove() {
+            for (NodeConnection connection : new ArrayList<>(tos))
+                connection.remove();
+        }
+        
+        @Override
+        public int indexOf(NodeConnection connection) {
+            return tos.indexOf(connection);
+        }
+        
+        @Override
+        public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
+            reset();
+            return new SignalInputVirtualNumber(number);
         }
     }
     
