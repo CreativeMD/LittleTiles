@@ -837,9 +837,17 @@ public class LittleTransformableBox extends LittleBox {
         super.rotateBox(rotation, doubledCenter);
         this.data = cache.getData();
         
+        boolean[] cachedFlipped = new boolean[6];
         for (int i = 0; i < EnumFacing.VALUES.length; i++)
+            cachedFlipped[i] = getFlipped(i);
+        
+        for (int i = 0; i < EnumFacing.VALUES.length; i++) {
+            EnumFacing facing = RotationUtils.rotate(EnumFacing.getFront(i), rotation);
             if (flipRotationMatrix[rotation.ordinal()][i])
-                setFlipped(i, !getFlipped(i));
+                setFlipped(facing.ordinal(), !cachedFlipped[i]);
+            else
+                setFlipped(facing.ordinal(), cachedFlipped[i]);
+        }
     }
     
     @Override
@@ -875,9 +883,17 @@ public class LittleTransformableBox extends LittleBox {
         
         this.data = cache.getData();
         
+        boolean[] cachedFlipped = new boolean[6];
         for (int i = 0; i < EnumFacing.VALUES.length; i++)
+            cachedFlipped[i] = getFlipped(i);
+        
+        for (int i = 0; i < EnumFacing.VALUES.length; i++) {
+            EnumFacing facing = RotationUtils.flip(EnumFacing.getFront(i), axis);
             if (flipMirrorMatrix[axis.ordinal()][i])
-                setFlipped(i, !getFlipped(i));
+                setFlipped(facing.ordinal(), !cachedFlipped[i]);
+            else
+                setFlipped(facing.ordinal(), cachedFlipped[i]);
+        }
     }
     
     protected void setAbsoluteCorners(CornerCache cache) {
