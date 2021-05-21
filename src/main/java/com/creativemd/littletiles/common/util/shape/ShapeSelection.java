@@ -354,9 +354,9 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.pos = position;
             this.ray = result;
             this.result = BlockTile.loadTeAndTile(player.world, result.getBlockPos(), player);
-            this.box = pos.getBox().grow(0.002);
             if (inside && result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
                 pos.getVec().sub(result.sideHit);
+            this.box = pos.getBox().grow(0.002);
         }
         
         public ShapeSelectPos(PlacementPosition position, RayTraceResult ray, BlockTile.TEResult result) {
