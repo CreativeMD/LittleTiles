@@ -36,6 +36,7 @@ public class LittleParticle extends Particle {
         this.settings = settings;
         this.scaleDeviation = (float) (Math.random() * settings.sizeDeviation);
         settings.texture.setTextureInit(this);
+        this.setSize(0.2F * particleScale, 0.2F * particleScale);
     }
     
     @Override
