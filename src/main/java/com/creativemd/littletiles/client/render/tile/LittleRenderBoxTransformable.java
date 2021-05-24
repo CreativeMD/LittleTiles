@@ -12,7 +12,6 @@ import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.Ve
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumFacing;
 
 public class LittleRenderBoxTransformable extends LittleRenderBox {
@@ -98,9 +97,33 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     }
     
     @Override
-    protected void setupPreviewRendering(double x, double y, double z) {
-        GlStateManager.translate(x, y, z);
-        GlStateManager.scale(scale, scale, scale);
+    public float getPreviewOffX() {
+        return 0;
+    }
+    
+    @Override
+    public float getPreviewOffY() {
+        return 0;
+    }
+    
+    @Override
+    public float getPreviewOffZ() {
+        return 0;
+    }
+    
+    @Override
+    public float getPreviewScaleX() {
+        return scale;
+    }
+    
+    @Override
+    public float getPreviewScaleY() {
+        return scale;
+    }
+    
+    @Override
+    public float getPreviewScaleZ() {
+        return scale;
     }
     
     @Override

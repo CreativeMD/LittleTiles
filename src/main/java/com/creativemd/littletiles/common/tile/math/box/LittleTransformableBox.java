@@ -1722,8 +1722,10 @@ public class LittleTransformableBox extends LittleBox {
                 for (int i = 0; i < sizeBefore; i++) {
                     CenterPoint first = centers.get(i);
                     CenterPoint second = first.copy();
-                    first.add(tiltedStrip1);
-                    second.add(tiltedStrip2);
+                    if (tiltedStrip1 != null)
+                        first.add(tiltedStrip1);
+                    if (tiltedStrip2 != null)
+                        second.add(tiltedStrip2);
                     centers.add(second);
                 }
             }
