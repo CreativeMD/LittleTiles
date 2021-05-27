@@ -796,10 +796,15 @@ public class LittleTransformableBox extends LittleBox {
                 } else { // concave requires two separate shapes
                     int sizeBefore = shapes.size();
                     for (int j = 0; j < sizeBefore; j++) {
-                        List<NormalPlane> newList = new ArrayList<>(shapes.get(j));
-                        shapes.get(j).add(plane1);
-                        newList.add(plane2);
-                        shapes.add(newList);
+                        if (plane1 != null && plane2 != null) {
+                            List<NormalPlane> newList = new ArrayList<>(shapes.get(j));
+                            shapes.get(j).add(plane1);
+                            newList.add(plane2);
+                            shapes.add(newList);
+                        } else if (plane1 != null)
+                            shapes.get(j).add(plane1);
+                        else if (plane2 != null)
+                            shapes.get(j).add(plane2);
                     }
                 }
             }
@@ -822,6 +827,7 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         return cache.isInside(shapes);
+        
     }
     
     @Override
