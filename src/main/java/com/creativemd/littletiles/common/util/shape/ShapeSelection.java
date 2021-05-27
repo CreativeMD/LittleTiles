@@ -159,6 +159,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     @SideOnly(Side.CLIENT)
     public void setLast(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         this.stack = stack;
+        if (result == null)
+            return;
         if (positions.isEmpty())
             pos = position.getPos();
         last = new ShapeSelectPos(player, position, result);
