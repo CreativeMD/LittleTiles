@@ -6,15 +6,15 @@ import net.minecraftforge.common.util.Constants;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
-public class OrFilter extends TileFilter {
+public class AndFilter extends TileFilter {
     
     public TileFilter[] selectors;
     
-    public OrFilter(TileFilter... selectors) {
+    public AndFilter(TileFilter... selectors) {
         this.selectors = selectors;
     }
     
-    public OrFilter() {
+    public AndFilter() {
         
     }
     
@@ -36,10 +36,11 @@ public class OrFilter extends TileFilter {
     
     @Override
     public boolean is(IParentCollection parent, LittleTile tile) {
-        for (int i = 0; i < selectors.length; i++)
-            if (selectors[i].is(parent, tile))
-                return true;
-        return false;
+        for (int i = 0; i < selectors.length; i++) {
+            if (!selectors[i].is(parent, tile))
+                return false;
+        }
+        return true;
     }
     
 }

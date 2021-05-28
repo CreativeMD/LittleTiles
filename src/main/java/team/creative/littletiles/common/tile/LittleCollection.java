@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import team.creative.creativecore.common.util.type.Pair;
-import team.creative.littletiles.common.box.LittleBox;
 import team.creative.littletiles.common.filter.TileFilter;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleCollection implements Iterable<LittleTile> {
     

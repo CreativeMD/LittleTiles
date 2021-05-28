@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.box;
+package team.creative.littletiles.common.math.box;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
-
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.utils.math.RangedBitSet;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
@@ -35,7 +33,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.Rotation;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
@@ -144,8 +143,8 @@ public class LittleBox {
     
     // ================Size & Volume================
     
-    public int getSmallestContext(LittleGridContext context) {
-        int size = LittleGridContext.minSize;
+    public int getSmallest(LittleGrid context) {
+        int size = LittleGrid.getMin().count;
         size = Math.max(size, context.getMinGrid(minX));
         size = Math.max(size, context.getMinGrid(minY));
         size = Math.max(size, context.getMinGrid(minZ));
@@ -173,11 +172,11 @@ public class LittleBox {
         maxZ /= ratio;
     }
     
-    public void convertTo(LittleGridContext from, LittleGridContext to) {
-        if (from.size > to.size)
-            divide(from.size / to.size);
+    public void convertTo(LittleGrid from, LittleGrid to) {
+        if (from.count > to.count)
+            divide(from.count / to.count);
         else
-            scale(to.size / from.size);
+            scale(to.count / from.count);
     }
     
     public void convertTo(int from, int to) {
@@ -200,8 +199,8 @@ public class LittleBox {
     }
     
     /** @return the volume in percent to a size of a normal block */
-    public double getPercentVolume(LittleGridContext context) {
-        return getVolume() / (context.maxTilesPerBlock);
+    public double getPercentVolume(LittleGrid context) {
+        return getVolume() / (context.count3d);
     }
     
     public int get(Direction facing) {
@@ -1106,14 +1105,14 @@ public class LittleBox {
     
     // ================Rendering================
     
-    @SideOnly(Side.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGridContext context, Block block, int meta) {
-        return getRenderingCube(context, this.getCube(context), block, meta);
+    @OnlyIn(value = Dist.CLIENT)
+    public LittleRenderBox getRenderingCube(LittleGrid context, Block block, int color) {
+        return getRenderingCube(context, this.getBox(context), block, color);
     }
     
-    @SideOnly(Side.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGridContext context, AlignedBox cube, Block block, int meta) {
-        return new LittleRenderBox(cube, this, block, meta);
+    @OnlyIn(value = Dist.CLIENT)
+    public LittleRenderBox getRenderingCube(LittleGrid grid, AlignedBox cube, Block block, int color) {
+        return new LittleRenderBox(cube, this, block, color);
     }
     
     // ================Faces================

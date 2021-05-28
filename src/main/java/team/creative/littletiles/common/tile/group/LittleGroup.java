@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.group;
+package team.creative.littletiles.common.tile.group;
 
 import java.util.ArrayList;
 import java.util.Iterator;

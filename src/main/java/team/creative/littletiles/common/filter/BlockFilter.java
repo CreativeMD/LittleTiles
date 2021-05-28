@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.parent.IParentTileList;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public class BlockFilter extends TileFilter {
     
@@ -30,7 +30,7 @@ public class BlockFilter extends TileFilter {
     }
     
     @Override
-    public boolean is(IParentTileList parent, LittleTile tile) {
+    public boolean is(IParentCollection parent, LittleTile tile) {
         return tile.block.is(block);
     }
 }

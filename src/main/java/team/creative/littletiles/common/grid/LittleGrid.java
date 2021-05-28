@@ -9,32 +9,34 @@ public class LittleGrid {
     
     public static LittleGrid get(int grid) {}
     
-    public static LittleGridContext defaultGrid() {
+    public static LittleGrid defaultGrid() {
         return 
     }
     
-    public static LittleGridContext getMin() {
-        return context[0];
+    public static LittleGrid getMin() {
+        
     }
     
-    public static LittleGridContext getMax() {
+    public static LittleGrid getMax() {
         return context[context.length - 1];
     }
     
     public static LittleGrid max(LittleGrid context, LittleGrid context2) {
-        if (context.size >= context2.size)
+        if (context.count >= context2.count)
             return context;
         return context2;
     }
     
-    public final int size;
+    public final int count;
+    public final int count2d;
+    public final int count3d;
     public final double pixelLength;
     public final double halfPixelLength;
     public final double pixelVolume;
     protected final int index;
     
     public int getMinGrid(int value) {
-        return minSizes[Math.abs(value % size)];
+        return minSizes[Math.abs(value % count)];
     }
     
     public double toVanillaGrid(double grid) {
@@ -71,18 +73,18 @@ public class LittleGrid {
     }
     
     public int toGrid(int pos) {
-        return pos * size;
+        return pos * count;
     }
     
     public long toGridAccurate(double pos) {
-        pos = LittleUtils.round(pos * size);
+        pos = LittleUtils.round(pos * count);
         if (pos < 0)
             return (long) Math.floor(pos);
         return (long) pos;
     }
     
     public int toGrid(double pos) {
-        pos = LittleUtils.round(pos * size);
+        pos = LittleUtils.round(pos * count);
         if (pos < 0)
             return (int) Math.floor(pos);
         return (int) pos;
@@ -90,7 +92,7 @@ public class LittleGrid {
     
     @Override
     public String toString() {
-        return "" + size;
+        return "" + count;
     }
     
 }

@@ -7,7 +7,7 @@ public interface IGridBased {
     @Deprecated
     public default void forceSameGrid(IGridBased other) {
         if (getGrid() != other.getGrid()) {
-            if (getGrid().size > other.getGrid().size)
+            if (getGrid().count > other.getGrid().count)
                 other.convertTo(getGrid());
             else
                 convertTo(other.getGrid());
@@ -16,7 +16,7 @@ public interface IGridBased {
     
     public default void sameGrid(IGridBased other, Runnable runnable) {
         if (getGrid() != other.getGrid()) {
-            if (getGrid().size > other.getGrid().size)
+            if (getGrid().count > other.getGrid().count)
                 other.convertTo(getGrid());
             else
                 convertTo(other.getGrid());

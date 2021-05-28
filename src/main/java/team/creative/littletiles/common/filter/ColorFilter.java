@@ -2,7 +2,7 @@ package team.creative.littletiles.common.filter;
 
 import net.minecraft.nbt.CompoundNBT;
 import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.parent.IParentTileList;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public class ColorFilter extends TileFilter {
     
@@ -27,7 +27,7 @@ public class ColorFilter extends TileFilter {
     }
     
     @Override
-    public boolean is(IParentTileList parent, LittleTile tile) {
+    public boolean is(IParentCollection parent, LittleTile tile) {
         return tile.color == color;
     }
     

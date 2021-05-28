@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
 import com.creativemd.littletiles.common.tile.NBTTagCompound;
 import com.creativemd.littletiles.common.tile.NBTTagList;
 import com.creativemd.littletiles.common.tile.SideOnly;
-import com.creativemd.littletiles.common.tile.Vec3d;
 import com.creativemd.littletiles.common.tile.combine.ICombinable;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
@@ -44,10 +43,11 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.api.block.LittleBlock;
-import team.creative.littletiles.common.box.LittleBox;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleTile {
     
@@ -55,24 +55,30 @@ public class LittleTile {
     public final int color;
     public final List<LittleBox> boxes = new ArrayList<>(1);
     
+    public LittleTile(LittleBlock block, int color, LittleBox box) {
+        this.block = block;
+        this.color = color;
+        this.boxes.add(box);
+    }
+    
     public boolean isTranslucent() {
         return block.isTranslucent() || ColorUtils.isTransparent(color);
     }
     
     public int getSmallest(LittleGrid grid) {
-        
+        int smallest = 0;
+        for (int i = 0; i < boxes.size(); i++)
+            smallest = Math.max(smallest, boxes.get(i).getSmallest(grid));
+        return smallest;
     }
     
     public void convertTo(LittleGrid from, LittleGrid to) {
-        
-    }
-    
-    public int getSmallestContext(LittleGridContext context) {
-        return box.getSmallestContext(context);
+        for (int i = 0; i < boxes.size(); i++)
+            boxes.get(i).convertTo(from, to);
     }
     
     public void combine() {
-        asdas
+        BasicCombiner.combineBoxes(boxes);
     }
     
     public boolean canBeConvertedToVanilla() {
@@ -96,11 +102,17 @@ public class LittleTile {
     }
     
     public double getVolume() {
-        return box.getVolume();
+        double volume = 0;
+        for (int i = 0; i < boxes.size(); i++)
+            volume += boxes.get(i).getVolume();
+        return volume;
     }
     
-    public double getPercentVolume(LittleGridContext context) {
-        return box.getPercentVolume(context);
+    public double getPercentVolume(LittleGrid grid) {
+        double volume = 0;
+        for (int i = 0; i < boxes.size(); i++)
+            volume += boxes.get(i).getPercentVolume(grid);
+        return volume;
     }
     
     public LittleVec getSize() {

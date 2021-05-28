@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.group;
+package team.creative.littletiles.common.tile.group;
 
 import net.minecraft.nbt.CompoundNBT;
 

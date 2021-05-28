@@ -17,7 +17,7 @@ import team.creative.creativecore.common.util.registry.NamedRegistry.RegistryExc
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxes;
 import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.parent.IParentTileList;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public abstract class TileFilter {
     
@@ -68,7 +68,7 @@ public abstract class TileFilter {
     
     protected abstract void loadNBT(CompoundNBT nbt);
     
-    public abstract boolean is(IParentTileList parent, LittleTile tile);
+    public abstract boolean is(IParentCollection parent, LittleTile tile);
     
     public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector) {
         LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGridContext.getMin());
@@ -93,7 +93,7 @@ public abstract class TileFilter {
                     if (te == null)
                         continue;
                     
-                    for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+                    for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
                         if (selector.is(pair.key, pair.value))
                             boxes.addBox(pair.key, pair.value);
                 }
@@ -106,7 +106,7 @@ public abstract class TileFilter {
     public static List<LittleBox> getBoxes(World world, BlockPos pos, TileSelector selector) {
         List<LittleBox> boxes = new ArrayList<>();
         TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-        for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+        for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
             if (selector.is(pair.key, pair.value))
                 boxes.add(pair.value.getBox());
         return boxes;
