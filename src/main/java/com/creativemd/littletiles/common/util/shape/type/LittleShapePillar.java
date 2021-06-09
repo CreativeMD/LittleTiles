@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
@@ -65,10 +66,15 @@ public class LittleShapePillar extends LittleShape {
         EnumFacing minFacing = originalMin.facing;
         EnumFacing maxFacing = originalMax.facing;
         
-        if (box.getSize(minFacing.getAxis()) == 1)
+        if (selection.getNBT().getBoolean("simple")) {
             minFacing = null;
-        if (box.getSize(maxFacing.getAxis()) == 1)
             maxFacing = null;
+        } else {
+            if (box.getSize(minFacing.getAxis()) == 1)
+                minFacing = null;
+            if (box.getSize(maxFacing.getAxis()) == 1)
+                maxFacing = null;
+        }
         
         int invSize = thickness / 2;
         int size = thickness - invSize;
@@ -129,6 +135,7 @@ public class LittleShapePillar extends LittleShape {
     public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
         List<GuiControl> controls = new ArrayList<>();
         controls.add(new GuiSteppedSlider("thickness", 5, 5, 100, 14, nbt.getInteger("thickness"), 1, context.size));
+        controls.add(new GuiCheckBox("simple", 5, 25, nbt.getBoolean("simple")));
         return controls;
     }
     
@@ -137,6 +144,8 @@ public class LittleShapePillar extends LittleShape {
     public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
         GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
         nbt.setInteger("thickness", (int) slider.value);
+        GuiCheckBox simple = (GuiCheckBox) gui.get("simple");
+        nbt.setBoolean("simple", simple.value);
     }
     
     @Override
