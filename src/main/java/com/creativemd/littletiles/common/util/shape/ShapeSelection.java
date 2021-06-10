@@ -178,6 +178,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         if (marked) {
             while (shape.maxAllowed() != -1 && positions.size() >= shape.maxAllowed())
                 positions.remove(positions.size() - 1);
+            markedPosition = positions.size() - 1;
             marked = false;
         } else {
             markedPosition = positions.size();
