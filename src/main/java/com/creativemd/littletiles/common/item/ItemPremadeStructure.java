@@ -110,13 +110,21 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
         return ItemModelCache.requestCache(stack, facing);
     }
     
+    public boolean isInCreativeTab(CreativeTabs targetTab, LittleStructureTypePremade type) {
+        CreativeTabs tab = type.getCustomTab();
+        if (tab == null)
+            tab = getCreativeTab();
+        if (tab == targetTab)
+            return true;
+        return tab != null && (targetTab == CreativeTabs.SEARCH || targetTab == tab);
+    }
+    
     @Override
     @SideOnly(Side.CLIENT)
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-        if (isInCreativeTab(tab))
-            for (LittleStructureTypePremade entry : LittleStructurePremade.getPremadeStructureTypes())
-                if (entry.showInCreativeTab)
-                    list.add(entry.createItemStack());
+        for (LittleStructureTypePremade entry : LittleStructurePremade.getPremadeStructureTypes())
+            if (entry.showInCreativeTab && isInCreativeTab(tab, entry))
+                list.add(entry.createItemStack());
     }
     
     @Override

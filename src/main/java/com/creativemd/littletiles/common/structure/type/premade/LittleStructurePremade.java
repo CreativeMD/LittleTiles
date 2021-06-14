@@ -37,6 +37,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.google.common.base.Charsets;
 import com.google.gson.JsonParser;
 
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
@@ -238,6 +239,10 @@ public abstract class LittleStructurePremade extends LittleStructure {
         
         public ItemStack createItemStackEmpty() {
             return new ItemStack(LittleTiles.premade);
+        }
+        
+        public CreativeTabs getCustomTab() {
+            return null;
         }
         
         public ItemStack createItemStack() {
