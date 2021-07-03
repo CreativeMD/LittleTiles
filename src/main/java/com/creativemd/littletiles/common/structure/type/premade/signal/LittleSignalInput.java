@@ -146,6 +146,8 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         LittleRenderBox behind = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.dyeableBlock, 0).setColor(color);
         behind.allowOverlap = true;
         
+        float depth = sizeAxis * 0.12F;
+        
         behind.setMin(one, behind.getMin(one) + sizeOne * sizePercentage);
         behind.setMax(one, behind.getMax(one) - sizeOne * sizePercentage);
         
@@ -170,10 +172,10 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         
         if (facing.getAxisDirection() == AxisDirection.POSITIVE) {
             front.setMin(axis, front.getMax(axis) - sizeAxis * 0.5F);
-            front.setMax(axis, front.getMax(axis) - sizeAxis * sizePercentage);
+            front.setMax(axis, front.getMax(axis) - depth);
         } else {
             front.setMax(axis, front.getMin(axis) + sizeAxis * 0.5F);
-            front.setMin(axis, front.getMin(axis) + sizeAxis * sizePercentage);
+            front.setMin(axis, front.getMin(axis) + depth);
         }
         cubes.add(front);
         
