@@ -150,6 +150,11 @@ public class WorldAnimationHandler {
     public static void rightClick(PlayerInteractEvent event) {
         if (event.getWorld().isRemote && client != null && event.getHand() == EnumHand.MAIN_HAND)
             ((LittleAnimationHandlerClient) client).rightClick(event);
+        else if (event.getHand() == EnumHand.MAIN_HAND && !event.getWorld().isRemote) {
+            LittleAnimationHandler handler = worlds.get(event.getWorld());
+            if (handler != null)
+                ((LittleAnimationHandlerServer) handler).rightClick(event);
+        }
     }
     
     @SubscribeEvent

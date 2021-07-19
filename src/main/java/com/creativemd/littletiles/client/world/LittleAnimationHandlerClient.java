@@ -16,6 +16,7 @@ import com.creativemd.littletiles.client.event.WheelClick;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.packet.LittleCancelClickThrough;
 import com.creativemd.littletiles.common.packet.LittleConsumeRightClickEvent;
 import com.creativemd.littletiles.common.world.LittleAnimationHandler;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
@@ -178,6 +179,11 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
                         event.setCancellationResult(EnumActionResult.SUCCESS);
                     } else
                         PacketHandler.sendPacketToServer(new LittleConsumeRightClickEvent());
+                else if (event instanceof RightClickBlock) {
+                    PacketHandler.sendPacketToServer(new LittleCancelClickThrough());
+                    event.setCanceled(true);
+                    event.setCancellationResult(EnumActionResult.SUCCESS);
+                }
             }
         }
     }
