@@ -90,9 +90,13 @@ public abstract class LittleActionBoxes extends LittleAction {
             action(world, player, pos, state, entry.getValue(), boxes.context);
         }
         
+        actionDone(player, world);
+        
         world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
         return placed;
     }
+    
+    public void actionDone(EntityPlayer player, World world) {}
     
     @Override
     public void writeBytes(ByteBuf buf) {

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
@@ -32,6 +33,7 @@ import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
@@ -164,11 +166,6 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         }
         
         if (!simulate) {
-            for (StructurePreview structure : destroyedStructures)
-                try {
-                    if (!structure.structure.mainBlock.isRemoved())
-                        structure.structure.onLittleTileDestroy();
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             te.updateTiles(x -> {
                 ParentTileList parent = x.noneStructureTiles();
                 parent.removeAll(destroyedTiles);
@@ -212,6 +209,22 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     protected boolean action(EntityPlayer player) throws LittleActionException {
         destroyedStructures = new ArrayList<>();
         return super.action(player);
+    }
+    
+    @Override
+    public void actionDone(EntityPlayer player, World world) {
+        for (StructurePreview structure : destroyedStructures) {
+            try {
+                if (!structure.structure.mainBlock.isRemoved()) {
+                    if (needIngredients(player) && !world.isRemote) {
+                        ItemStack stack = structure.structure.getStructureDrop();
+                        if (!stack.isEmpty() && !player.addItemStackToInventory(stack))
+                            WorldUtils.dropItem(player, stack);
+                    }
+                    structure.structure.onLittleTileDestroy();
+                }
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        }
     }
     
     @Override
