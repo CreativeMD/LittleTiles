@@ -62,6 +62,9 @@ public abstract class LittleDoor extends LittleStructure {
     }
     
     public EntityAnimation activate(DoorActivator activator, @Nullable EntityPlayer player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
+        if (mainBlock.isRemoved())
+            throw new LittleActionException("Structure does not exist");
+        
         if (waitingForApproval)
             throw new LittleActionExceptionHidden("Door has not been approved yet!");
         
