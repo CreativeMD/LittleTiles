@@ -340,7 +340,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     
     @Override
     public float getBlockHardness(IBlockState blockState, World worldIn, BlockPos pos) {
-        return 0.1F;
+        return 1F;
     }
     
     public static boolean canHarvestBlock(EntityPlayer player, IBlockState state) {
