@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.exception;
+package team.creative.littletiles.common.structure.exception;
 
 public class CorruptedConnectionException extends StructureException {
     

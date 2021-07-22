@@ -35,8 +35,6 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
-import com.creativemd.littletiles.common.tile.parent.ParentTileList;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
@@ -79,6 +77,8 @@ import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.chisel.ctm.api.IFacade;
+import team.creative.littletiles.common.tile.parent.ParentTileList;
+import team.creative.littletiles.common.tile.parent.StructureTileList;
 
 @Interface(iface = "team.chisel.ctm.api.IFacade", modid = "ctm")
 public class BlockTile extends BlockContainer implements ICreativeRendered, IFacade {// ICustomCachedCreativeRendered {

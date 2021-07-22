@@ -2,9 +2,6 @@ package team.creative.littletiles.common.tile.parent;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +11,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.littletiles.common.block.TETiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.world.ILevelProvider;
 

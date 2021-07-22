@@ -48,6 +48,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public class LittleTile {
     
@@ -451,13 +452,13 @@ public class LittleTile {
         return getBlockState().getMaterial().isLiquid();
     }
     
-    public Vec3d getFogColor(IParentTileList parent, Entity entity, Vec3d originalColor, float partialTicks) {
+    public Vec3d getFogColor(IParentCollection parent, Entity entity, Vec3d originalColor, float partialTicks) {
         if (hasSpecialBlockHandler())
             return handler.getFogColor(parent, this, entity, originalColor, partialTicks);
         return originalColor;
     }
     
-    public Vec3d modifyAcceleration(IParentTileList parent, Entity entityIn, Vec3d motion) {
+    public Vec3d modifyAcceleration(IParentCollection parent, Entity entityIn, Vec3d motion) {
         if (hasSpecialBlockHandler())
             return handler.modifyAcceleration(parent, this, entityIn, motion);
         return null;
@@ -469,7 +470,7 @@ public class LittleTile {
         return true;
     }
     
-    public void onEntityCollidedWithBlock(IParentTileList parent, Entity entityIn) {
+    public void onEntityCollidedWithBlock(IParentCollection parent, Entity entityIn) {
         if (hasSpecialBlockHandler())
             handler.onEntityCollidedWithBlock(parent, this, entityIn);
     }

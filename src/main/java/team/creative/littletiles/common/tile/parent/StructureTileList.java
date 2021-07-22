@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.parent;
+package team.creative.littletiles.common.tile.parent;
 
 import java.security.InvalidParameterException;
 

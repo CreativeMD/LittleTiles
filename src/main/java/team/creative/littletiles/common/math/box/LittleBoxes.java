@@ -1,21 +1,22 @@
 package team.creative.littletiles.common.math.box;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.grid.IGridBased;
+import team.creative.littletiles.common.grid.LittleGrid;
 
 public abstract class LittleBoxes implements IGridBased {
     
     public BlockPos pos;
-    public LittleGridContext context;
+    public LittleGrid context;
     
-    public LittleBoxes(BlockPos pos, LittleGridContext context) {
+    public LittleBoxes(BlockPos pos, LittleGrid context) {
         this.pos = pos;
         this.context = context;
     }

@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.math.RangedBitSet;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
@@ -16,8 +14,6 @@ import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.vec.SplitRangeBoxes;
-import com.creativemd.littletiles.common.util.vec.SplitRangeBoxes.SplitRangeBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.IntArrayNBT;
@@ -27,7 +23,6 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -35,12 +30,18 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.math.Rotation;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.transformation.RotationUtils;
+import team.creative.creativecore.common.util.math.vec.RangedBitSet;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
+import team.creative.littletiles.common.math.vec.SplitRangeBoxes.SplitRangeBox;
 import team.creative.littletiles.common.tile.BasicCombiner;
 
 public class LittleBox {
@@ -144,7 +145,7 @@ public class LittleBox {
     // ================Size & Volume================
     
     public int getSmallest(LittleGrid context) {
-        int size = LittleGrid.getMin().count;
+        int size = LittleGrid.min().count;
         size = Math.max(size, context.getMinGrid(minX));
         size = Math.max(size, context.getMinGrid(minY));
         size = Math.max(size, context.getMinGrid(minZ));
@@ -203,7 +204,7 @@ public class LittleBox {
         return getVolume() / (context.count3d);
     }
     
-    public int get(Direction facing) {
+    public int get(Facing facing) {
         switch (facing) {
         case EAST:
             return maxX;
@@ -325,7 +326,7 @@ public class LittleBox {
         return maxX > minX && maxY > minY && maxZ > minZ;
     }
     
-    public boolean needsMultipleBlocks(LittleGridContext context) {
+    public boolean needsMultipleBlocks(LittleGrid context) {
         int x = minX / context.size;
         int y = minY / context.size;
         int z = minZ / context.size;
@@ -333,11 +334,11 @@ public class LittleBox {
         return maxX - x * context.size <= context.maxPos && maxY - y * context.size <= context.maxPos && maxZ - z * context.size <= context.maxPos;
     }
     
-    public boolean isBoxInsideBlock(LittleGridContext context) {
+    public boolean isBoxInsideBlock(LittleGrid context) {
         return minX >= 0 && maxX <= context.maxPos && minY >= 0 && maxY <= context.maxPos && minZ >= 0 && maxZ <= context.maxPos;
     }
     
-    public void split(LittleGridContext context, BlockPos offset, HashMapList<BlockPos, LittleBox> boxes, @Nullable LittleBoxReturnedVolume volume) {
+    public void split(LittleGrid context, BlockPos offset, HashMapList<BlockPos, LittleBox> boxes, @Nullable LittleBoxReturnedVolume volume) {
         int minOffX = context.toBlockOffset(minX);
         int minOffY = context.toBlockOffset(minY);
         int minOffZ = context.toBlockOffset(minZ);
@@ -375,11 +376,11 @@ public class LittleBox {
         }
     }
     
-    public boolean doesFillEntireBlock(LittleGridContext context) {
+    public boolean doesFillEntireBlock(LittleGrid context) {
         return minX == 0 && minY == 0 && minZ == 0 && maxX == context.size && maxY == context.size && maxZ == context.size;
     }
     
-    public LittleBox createOutsideBlockBox(LittleGridContext context, Direction facing) {
+    public LittleBox createOutsideBlockBox(LittleGrid context, Direction facing) {
         LittleBox box = this.copy();
         switch (facing) {
         case EAST:

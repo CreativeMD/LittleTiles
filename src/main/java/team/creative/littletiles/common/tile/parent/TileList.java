@@ -1,22 +1,20 @@
-package com.creativemd.littletiles.common.tile.parent;
+package team.creative.littletiles.common.tile.parent;
 
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
 
-public class TileList extends ParentTileList {
+public class NoneStructureCollection extends ParentCollection {
     
     public TileEntityLittleTiles te;
     

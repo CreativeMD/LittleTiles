@@ -16,12 +16,12 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.tile.parent.StructureTileList;
 
 public class ChildActivateEvent extends AnimationEvent {
     

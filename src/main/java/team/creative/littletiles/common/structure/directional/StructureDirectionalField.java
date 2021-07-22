@@ -6,11 +6,10 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction.Axis;
-import team.creative.creativecore.common.util.math.Rotation;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
 
 public class StructureDirectionalField {
@@ -70,15 +69,15 @@ public class StructureDirectionalField {
         nbt.put(saveKey, type.write(value));
     }
     
-    public Object move(Object value, LittleGridContext context, LittleVec offset) {
+    public Object move(Object value, LittleGrid context, LittleVec offset) {
         return type.move(value, context, offset);
     }
     
-    public Object flip(Object value, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+    public Object flip(Object value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
         return type.flip(value, context, axis, doubledCenter);
     }
     
-    public Object rotate(Object value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+    public Object rotate(Object value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
         return type.rotate(value, context, rotation, doubledCenter);
     }
     

@@ -36,9 +36,6 @@ import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
-import com.creativemd.littletiles.common.tile.parent.ParentTileList;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
-import com.creativemd.littletiles.common.tile.parent.TileList;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -61,6 +58,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.tile.parent.ParentTileList;
+import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.TileList;
 
 public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, IGridBased {
     

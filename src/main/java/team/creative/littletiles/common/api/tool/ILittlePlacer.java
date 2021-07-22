@@ -18,7 +18,7 @@ import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.creativecore.common.util.math.Rotation;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 
 public interface ILittlePlacer extends ILittleTool {
     

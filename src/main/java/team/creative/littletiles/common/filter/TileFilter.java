@@ -6,7 +6,6 @@ import java.util.List;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 
 import net.minecraft.nbt.CompoundNBT;
@@ -14,6 +13,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import team.creative.creativecore.common.util.registry.NamedRegistry;
 import team.creative.creativecore.common.util.registry.NamedRegistry.RegistryException;
+import team.creative.creativecore.common.util.type.Pair;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxes;
 import team.creative.littletiles.common.tile.LittleTile;
@@ -71,7 +72,7 @@ public abstract class TileFilter {
     public abstract boolean is(IParentCollection parent, LittleTile tile);
     
     public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector) {
-        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGridContext.getMin());
+        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.min());
         
         int minX = Math.min(pos.getX(), pos2.getX());
         int maxX = Math.max(pos.getX(), pos2.getX());

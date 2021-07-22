@@ -5,11 +5,11 @@ import com.creativemd.littletiles.common.structure.exception.CorruptedConnection
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
+import team.creative.littletiles.common.tile.parent.StructureTileList;
 
 public class LittleBlockTransformer {
     

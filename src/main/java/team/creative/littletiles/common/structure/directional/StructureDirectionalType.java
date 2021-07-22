@@ -3,13 +3,10 @@ package team.creative.littletiles.common.structure.directional;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.IntArrayNBT;
@@ -17,8 +14,11 @@ import net.minecraft.nbt.IntNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.math.vector.Vector3f;
-import team.creative.creativecore.common.util.math.Rotation;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.transformation.RotationUtils;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public abstract class StructureDirectionalType<T> {
     
@@ -39,39 +39,37 @@ public abstract class StructureDirectionalType<T> {
     }
     
     static {
-        registerType(Direction.class, new StructureDirectionalType<Direction>() {
+        registerType(Facing.class, new StructureDirectionalType<Facing>() {
             @Override
-            public Direction read(INBT nbt) {
+            public Facing read(INBT nbt) {
                 if (nbt instanceof IntNBT)
-                    return Direction.values()[((IntNBT) nbt).getAsInt()];
+                    return Facing.values()[((IntNBT) nbt).getAsInt()];
                 return null;
             }
             
             @Override
-            public INBT write(Direction value) {
+            public INBT write(Facing value) {
                 return IntNBT.valueOf(value.ordinal());
             }
             
             @Override
-            public Direction move(Direction value, LittleGridContext context, LittleVec offset) {
+            public Facing move(Facing value, LittleGrid context, LittleVec offset) {
                 return value;
             }
             
             @Override
-            public Direction flip(Direction value, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
-                if (axis == value.getAxis())
-                    return value.getOpposite();
-                return value;
+            public Facing flip(Facing value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+                return Mirror
             }
             
             @Override
-            public Direction rotate(Direction value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
-                return RotationUtils.rotate(value, rotation);
+            public Facing rotate(Facing value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
+                return rotation.rotate(value);
             }
             
             @Override
-            public Direction getDefault() {
-                return Direction.EAST;
+            public Facing getDefault() {
+                return Facing.EAST;
             }
         });
         registerType(Axis.class, new StructureDirectionalType<Axis>() {
@@ -89,17 +87,17 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Axis move(Axis value, LittleGridContext context, LittleVec offset) {
+            public Axis move(Axis value, LittleGrid context, LittleVec offset) {
                 return value;
             }
             
             @Override
-            public Axis flip(Axis value, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+            public Axis flip(Axis value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
                 return value;
             }
             
             @Override
-            public Axis rotate(Axis value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+            public Axis rotate(Axis value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
                 return RotationUtils.rotate(value, rotation);
             }
             
@@ -124,19 +122,19 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public StructureRelative move(StructureRelative value, LittleGridContext context, LittleVec offset) {
+            public StructureRelative move(StructureRelative value, LittleGrid context, LittleVec offset) {
                 value.move(context, offset);
                 return value;
             }
             
             @Override
-            public StructureRelative flip(StructureRelative value, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+            public StructureRelative flip(StructureRelative value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
                 value.flip(context, axis, doubledCenter);
                 return value;
             }
             
             @Override
-            public StructureRelative rotate(StructureRelative value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+            public StructureRelative rotate(StructureRelative value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
                 value.rotate(context, rotation, doubledCenter);
                 return value;
             }
@@ -163,7 +161,7 @@ public abstract class StructureDirectionalType<T> {
             
             @Override
             public StructureRelative getDefault() {
-                return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGridContext.get());
+                return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGrid.get());
             }
             
         });
@@ -185,18 +183,18 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Vector3f move(Vector3f value, LittleGridContext context, LittleVec offset) {
+            public Vector3f move(Vector3f value, LittleGrid context, LittleVec offset) {
                 return value;
             }
             
             @Override
-            public Vector3f flip(Vector3f value, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+            public Vector3f flip(Vector3f value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
                 RotationUtils.flip(value, axis);
                 return value;
             }
             
             @Override
-            public Vector3f rotate(Vector3f value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+            public Vector3f rotate(Vector3f value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
                 RotationUtils.rotate(value, rotation);
                 return value;
             }
@@ -212,11 +210,11 @@ public abstract class StructureDirectionalType<T> {
     
     public abstract INBT write(T value);
     
-    public abstract T move(T value, LittleGridContext context, LittleVec offset);
+    public abstract T move(T value, LittleGrid context, LittleVec offset);
     
-    public abstract T flip(T value, LittleGridContext context, Axis axis, LittleVec doubledCenter);
+    public abstract T flip(T value, LittleGrid context, Axis axis, LittleVec doubledCenter);
     
-    public abstract T rotate(T value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter);
+    public abstract T rotate(T value, LittleGrid context, Rotation rotation, LittleVec doubledCenter);
     
     public abstract T getDefault();
     
