@@ -41,7 +41,7 @@ public class GuiChisel extends GuiConfigureTool {
         Color color = new Color(element.color);
         add(new GuiColorPicker("picker", color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
         
-        GuiShowItem show = new GuiShowItem("preview", 60, 60);
+        GuiShowItem show = new GuiShowItem("item", 60, 60);
         add(show);
         
         GuiStackSelector selector = new GuiStackSelector("preview", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
@@ -78,7 +78,7 @@ public class GuiChisel extends GuiConfigureTool {
             element = new LittleElement(ItemLittleChisel.getElement(tool.get()), picker.color.toInt());
         }
         
-        ((GuiShowItem) get("preview")).stack = ItemMultiTiles.of(element);
+        get("item", GuiShowItem.class).stack = ItemMultiTiles.of(element);
     }
     
     @Override

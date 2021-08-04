@@ -28,7 +28,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
     private boolean partiallyFilled = false;
     private LittleTile tile;
     public LittleGrid grid;
-    public LittleBox box;
+    public LittleBox box = new LittleBox(0, 0, 0, 0, 0, 0);
     public Axis one;
     public Axis two;
     public Facing facing;

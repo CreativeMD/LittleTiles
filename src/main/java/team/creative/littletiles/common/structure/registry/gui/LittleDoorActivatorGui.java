@@ -15,6 +15,7 @@ import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
@@ -28,7 +29,7 @@ public class LittleDoorActivatorGui extends LittleStructureGuiControl {
         super(type, handler);
     }
     
-    public String getDisplayName(LittlePreviews previews, int childId) {
+    public String getDisplayName(LittleGroup previews, int childId) {
         String name = previews.getStructureName();
         if (name == null)
             if (previews.hasStructure())

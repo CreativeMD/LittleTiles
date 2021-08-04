@@ -67,7 +67,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     private boolean hasLoaded = false;
     private boolean preventUnload = false;
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
-    private LittleGrid grid;
+    private LittleGrid grid = LittleGrid.min();
     private BlockParentCollection tiles;
     public final SideSolidCache sideCache = new SideSolidCache();
     public LittleFaces faces;
@@ -101,6 +101,13 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         if (level != null)
             return level.isClientSide;
         return false;
+    }
+    
+    @Override
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        if (tiles == null)
+            init();
     }
     
     private void init() {
@@ -519,6 +526,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
                 }
             }
         
+        if (tileFocus == null)
+            return LittleTileContext.FAILED;
         return new LittleTileContext(parent, tileFocus, boxFocus);
     }
     
@@ -893,27 +902,27 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         protected SideState calculate(Facing facing) {
             LittleBox box;
             switch (facing) {
-            case EAST:
-                box = new LittleBox(grid.count - 1, 0, 0, grid.count, grid.count, grid.count);
-                break;
-            case WEST:
-                box = new LittleBox(0, 0, 0, 1, grid.count, grid.count);
-                break;
-            case UP:
-                box = new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count);
-                break;
-            case DOWN:
-                box = new LittleBox(0, 0, 0, grid.count, 1, grid.count);
-                break;
-            case SOUTH:
-                box = new LittleBox(0, 0, grid.count - 1, grid.count, grid.count, grid.count);
-                break;
-            case NORTH:
-                box = new LittleBox(0, 0, 0, grid.count, grid.count, 1);
-                break;
-            default:
-                box = null;
-                break;
+                case EAST:
+                    box = new LittleBox(grid.count - 1, 0, 0, grid.count, grid.count, grid.count);
+                    break;
+                case WEST:
+                    box = new LittleBox(0, 0, 0, 1, grid.count, grid.count);
+                    break;
+                case UP:
+                    box = new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count);
+                    break;
+                case DOWN:
+                    box = new LittleBox(0, 0, 0, grid.count, 1, grid.count);
+                    break;
+                case SOUTH:
+                    box = new LittleBox(0, 0, grid.count - 1, grid.count, grid.count, grid.count);
+                    break;
+                case NORTH:
+                    box = new LittleBox(0, 0, 0, grid.count, grid.count, 1);
+                    break;
+                default:
+                    box = null;
+                    break;
             }
             return calculateState(facing, box);
         }
@@ -948,26 +957,26 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             SideState result;
             
             switch (facing) {
-            case DOWN:
-                result = DOWN;
-                break;
-            case UP:
-                result = UP;
-                break;
-            case NORTH:
-                result = NORTH;
-                break;
-            case SOUTH:
-                result = SOUTH;
-                break;
-            case WEST:
-                result = WEST;
-                break;
-            case EAST:
-                result = EAST;
-                break;
-            default:
-                result = SideState.EMPTY;
+                case DOWN:
+                    result = DOWN;
+                    break;
+                case UP:
+                    result = UP;
+                    break;
+                case NORTH:
+                    result = NORTH;
+                    break;
+                case SOUTH:
+                    result = SOUTH;
+                    break;
+                case WEST:
+                    result = WEST;
+                    break;
+                case EAST:
+                    result = EAST;
+                    break;
+                default:
+                    result = SideState.EMPTY;
             }
             
             if (result == null)
@@ -978,24 +987,24 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         
         public void set(Facing facing, SideState value) {
             switch (facing) {
-            case DOWN:
-                DOWN = value;
-                break;
-            case UP:
-                UP = value;
-                break;
-            case NORTH:
-                NORTH = value;
-                break;
-            case SOUTH:
-                SOUTH = value;
-                break;
-            case WEST:
-                WEST = value;
-                break;
-            case EAST:
-                EAST = value;
-                break;
+                case DOWN:
+                    DOWN = value;
+                    break;
+                case UP:
+                    UP = value;
+                    break;
+                case NORTH:
+                    NORTH = value;
+                    break;
+                case SOUTH:
+                    SOUTH = value;
+                    break;
+                case WEST:
+                    WEST = value;
+                    break;
+                case EAST:
+                    EAST = value;
+                    break;
             }
         }
         

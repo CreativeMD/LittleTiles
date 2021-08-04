@@ -501,7 +501,6 @@ public class Placement {
                     cached = cached.forceSupportAttribute(attribute);
                 
                 if (cached != null) {
-                    
                     int size = cached.tilesCount();
                     for (int i = 0; i < tiles.length; i++)
                         if (tiles[i] != null)

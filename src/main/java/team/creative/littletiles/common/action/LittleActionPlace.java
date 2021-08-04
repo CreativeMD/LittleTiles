@@ -119,9 +119,6 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     
     public PlacementResult placeTile(Player player, ItemStack stack, PlacementPreview preview) throws LittleActionException {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-        if (result == null)
-            return null;
-        
         ItemStack toPlace = stack.copy();
         
         LittleInventory inventory = new LittleInventory(player);

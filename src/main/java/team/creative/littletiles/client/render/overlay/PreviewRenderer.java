@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
@@ -39,7 +41,6 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -59,7 +60,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     
     private boolean lastLowResolution;
     private CompoundTag lastCached;
-    private LittleGroup lastPreviews;
+    private PlacementPreview lastPreviews;
     private IMarkMode marked;
     
     public PreviewRenderer() {
@@ -80,23 +81,22 @@ public class PreviewRenderer implements LevelAwareHandler {
     public PlacementPreview getPreviews(Level level, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         
-        LittleGroup tiles = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews.copy() : null;
-        if (tiles == null && iTile != null)
-            tiles = iTile.get(stack, allowLowResolution);
+        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews
+                .copy() : null;
+        if (preview == null && iTile != null)
+            preview = iTile.getPlacement(level, stack, position, allowLowResolution);
         
-        PlacementPreview result = PlacementPreview.relative(level, stack, tiles, position, centered, fixed);
-        
-        if (result != null) {
+        if (preview != null) {
             if (stack.getTag() == null) {
                 lastCached = null;
                 lastPreviews = null;
             } else {
                 lastLowResolution = allowLowResolution;
                 lastCached = stack.getTag().copy();
-                lastPreviews = tiles.copy();
+                lastPreviews = preview.copy();
             }
         }
-        return result;
+        return preview;
     }
     
     public void removeMarked() {
@@ -162,7 +162,7 @@ public class PreviewRenderer implements LevelAwareHandler {
             
             handleUndoAndRedo();
             
-            if (stack.getItem() instanceof ILittleTool && (marked != null || (mc.hitResult != null && mc.hitResult instanceof BlockHitResult))) {
+            if (stack.getItem() instanceof ILittleTool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
                 BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult ? (BlockHitResult) mc.hitResult : null;
                 
                 PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
@@ -182,11 +182,13 @@ public class PreviewRenderer implements LevelAwareHandler {
                         RenderSystem.enableBlend();
                         RenderSystem
                                 .blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.4F);
+                        RenderSystem.setShaderColor(1, 1, 1, 1);
                         RenderSystem.enableTexture();
                         
                         RenderSystem.setShaderTexture(0, WHITE_TEXTURE);
                         mc.textureManager.bindForSetup(WHITE_TEXTURE);
+                        
+                        RenderSystem.setShader(GameRenderer::getPositionColorShader);
                         
                         RenderSystem.depthMask(false);
                         
@@ -203,10 +205,9 @@ public class PreviewRenderer implements LevelAwareHandler {
                             
                             processMarkKey(player, iTile, stack, result);
                             
-                            Tesselator tesselator = Tesselator.getInstance();
-                            BufferBuilder builder = tesselator.getBuilder();
+                            BufferBuilder builder = Tesselator.getInstance().getBuilder();
                             
-                            float alpha = (float) (Math.sin(System.nanoTime() / 200000000F) * 0.2F + 0.5F);
+                            double alpha = (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5);
                             int colorAlpha = (int) (alpha * iTile.getPreviewAlphaFactor() * 255);
                             
                             for (RenderBox box : result.previews.getPlaceBoxes())
@@ -214,11 +215,10 @@ public class PreviewRenderer implements LevelAwareHandler {
                             
                             if (LittleActionHandlerClient.isUsingSecondMode() != iTile.snapToGridByDefault(stack)) {
                                 List<RenderBox> cubes = iTile.getPositingCubes(level, pos, stack);
-                                for (RenderBox cube : cubes)
-                                    cube.renderPreview(pose, builder, colorAlpha);
+                                if (cubes != null)
+                                    for (RenderBox cube : cubes)
+                                        cube.renderPreview(pose, builder, colorAlpha);
                             }
-                            
-                            tesselator.end();
                             
                             pose.popPose();
                         }
@@ -382,8 +382,9 @@ public class PreviewRenderer implements LevelAwareHandler {
                         
                         if (LittleActionHandlerClient.isUsingSecondMode() != iTile.snapToGridByDefault(stack)) {
                             List<RenderBox> cubes = iTile.getPositingCubes(level, pos, stack);
-                            for (RenderBox cube : cubes)
-                                cube.renderLines(pose, builder, colorAlpha, cube.getCenter(), 0.002);
+                            if (cubes != null)
+                                for (RenderBox cube : cubes)
+                                    cube.renderLines(pose, builder, colorAlpha, cube.getCenter(), 0.002);
                         }
                         
                         pose.popPose();

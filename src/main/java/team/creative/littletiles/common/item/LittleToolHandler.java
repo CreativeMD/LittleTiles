@@ -37,7 +37,6 @@ import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
 import team.creative.littletiles.common.placement.PlacementPosition;
-import team.creative.littletiles.common.placement.PlacementPreview;
 
 public class LittleToolHandler {
     
@@ -128,14 +127,14 @@ public class LittleToolHandler {
     
     @OnlyIn(Dist.CLIENT)
     public boolean onRightInteractClient(ILittleTool iTile, Player player, InteractionHand hand, Level level, ItemStack stack, BlockPos pos, Facing facing) {
-        if (iTile instanceof ILittlePlacer) {
+        if (iTile instanceof ILittlePlacer placer) {
             HitResult result = Minecraft.getInstance().hitResult;
             if (!(result instanceof BlockHitResult))
                 return false;
             PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
             if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && ((ILittlePlacer) iTile).hasTiles(stack)) {
                 if (!stack.isEmpty()) {
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, PlacementPreview.relative(level, stack, position, false)));
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, placer.getPlacement(level, stack, position, false)));
                     LittleTilesClient.PREVIEW_RENDERER.removeMarked();
                 }
                 iTile.onDeselect(level, stack, player);
