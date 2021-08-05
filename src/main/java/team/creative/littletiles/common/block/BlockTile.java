@@ -8,19 +8,13 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
-import com.creativemd.littletiles.common.item.ItemBlockTiles;
-import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
-import com.creativemd.littletiles.common.item.ItemLittleSaw;
-import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -34,7 +28,6 @@ import com.creativemd.littletiles.server.LittleTilesServer;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -44,7 +37,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
@@ -52,13 +44,17 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.util.ForgeSoundType;
@@ -72,11 +68,18 @@ import team.creative.creativecore.client.render.face.CachedFaceRenderType;
 import team.creative.creativecore.client.render.face.FaceRenderType;
 import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.type.Pair;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.BlockTile.TEResult;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.item.ItemBlockTiles;
+import team.creative.littletiles.common.item.ItemLittlePaintBrush;
+import team.creative.littletiles.common.item.ItemLittleSaw;
+import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.ParentTileList;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
@@ -112,12 +115,9 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     public final boolean rendered;
     
     public BlockTile(Material material, boolean ticking, boolean rendered) {
-        super(material);
+        super(BlockBehaviour.Properties.of(material).explosionResistance(3.0F).sound(SILENT));
         this.ticking = ticking;
         this.rendered = rendered;
-        setCreativeTab(LittleTiles.littleTab);
-        setResistance(3.0F);
-        setSoundType(SILENT);
     }
     
     public static int getStateId(BETiles te) {
@@ -128,34 +128,34 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         return rendered ? (ticking ? 3 : 2) : (ticking ? 1 : 0);
     }
     
-    public static IBlockState getState(int id) {
+    public static BlockState getState(int id) {
         switch (id) {
         case 0:
-            return LittleTiles.blockTileNoTicking.getDefaultState();
+            return LittleTiles.blockTileNoTicking.defaultBlockState();
         case 1:
-            return LittleTiles.blockTileTicking.getDefaultState();
+            return LittleTiles.blockTileTicking.defaultBlockState();
         case 2:
-            return LittleTiles.blockTileNoTickingRendered.getDefaultState();
+            return LittleTiles.blockTileNoTickingRendered.defaultBlockState();
         case 3:
-            return LittleTiles.blockTileTickingRendered.getDefaultState();
+            return LittleTiles.blockTileTickingRendered.defaultBlockState();
         }
         return null;
     }
     
-    public static IBlockState getStateByAttribute(int attribute) {
+    public static BlockState getStateByAttribute(int attribute) {
         return getState(LittleStructureAttribute.ticking(attribute), LittleStructureAttribute.tickRendering(attribute));
     }
     
-    public static IBlockState getState(boolean ticking, boolean rendered) {
-        return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.getDefaultState() : LittleTiles.blockTileNoTickingRendered
-                .getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
+    public static BlockState getState(boolean ticking, boolean rendered) {
+        return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.defaultBlockState() : LittleTiles.blockTileNoTickingRendered
+                .defaultBlockState()) : (ticking ? LittleTiles.blockTileTicking.defaultBlockState() : LittleTiles.blockTileNoTicking.defaultBlockState());
     }
     
-    public static IBlockState getState(TileEntityLittleTiles te) {
+    public static BlockState getState(BETiles te) {
         return getState(te.isTicking(), te.isRendered());
     }
     
-    public static IBlockState getState(List<StructureParentCollection> structures) {
+    public static BlockState getState(List<StructureParentCollection> structures) {
         boolean ticking = false;
         boolean rendered = false;
         for (StructureParentCollection structure : structures) {
@@ -168,62 +168,6 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
                 break;
         }
         return getState(ticking, rendered);
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public static Minecraft mc;
-    
-    @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
-        return EnumBlockRenderType.MODEL;
-    }
-    
-    @Override
-    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
-        return true;
-    }
-    
-    /** Used to determine ambient occlusion and culling when rebuilding chunks for
-     * render */
-    @Override
-    public boolean isOpaqueCube(IBlockState state) {
-        return false;
-    }
-    
-    @Override
-    public boolean isFullCube(IBlockState state) {
-        return false;
-    }
-    
-    @Override
-    public void setBedOccupied(IBlockAccess world, BlockPos pos, EntityPlayer player, boolean occupied) {
-        
-    }
-    
-    @Override
-    public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity player) {
-        TileEntityLittleTiles te = loadTe(world, pos);
-        if (te != null) {
-            LittleStructure bed = null;
-            if (player != null) {
-                try {
-                    bed = (LittleStructure) LittleBed.littleBed.get(player);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-            
-            for (LittleStructure structure : te.loadedStructures())
-                if (structure == bed || structure.isBed((EntityLivingBase) player))
-                    return true;
-                
-        }
-        return false;
-    }
-    
-    @Override
-    public EnumFacing getBedDirection(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return EnumFacing.SOUTH;
     }
     
     @Override
@@ -251,43 +195,6 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
                 return tile.getBlockState().getMapColor(worldIn, pos);
         }
         return this.blockMapColor;
-    }
-    
-    @Override
-    public BlockPos getBedSpawnPosition(IBlockState state, IBlockAccess world, BlockPos pos, EntityPlayer player) {
-        int tries = 0;
-        EnumFacing enumfacing = EnumFacing.EAST; // (EnumFacing)worldIn.getBlockState(pos).getValue(FACING);
-        int i = pos.getX();
-        int j = pos.getY();
-        int k = pos.getZ();
-        
-        for (int l = 0; l <= 1; ++l) {
-            int i1 = i - enumfacing.getFrontOffsetX() * l - 1;
-            int j1 = k - enumfacing.getFrontOffsetZ() * l - 1;
-            int k1 = i1 + 2;
-            int l1 = j1 + 2;
-            
-            for (int i2 = i1; i2 <= k1; ++i2) {
-                for (int j2 = j1; j2 <= l1; ++j2) {
-                    BlockPos blockpos = new BlockPos(i2, j, j2);
-                    
-                    if (hasRoomForPlayer(world, blockpos)) {
-                        if (tries <= 0) {
-                            return blockpos;
-                        }
-                        
-                        --tries;
-                    }
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-    protected static boolean hasRoomForPlayer(IBlockAccess worldIn, BlockPos pos) {
-        return worldIn.getBlockState(pos.down())
-                .isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
     }
     
     @Override
