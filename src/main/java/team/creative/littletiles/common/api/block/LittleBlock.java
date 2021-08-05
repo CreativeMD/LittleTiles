@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.api.block;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 
 public abstract class LittleBlock {
     

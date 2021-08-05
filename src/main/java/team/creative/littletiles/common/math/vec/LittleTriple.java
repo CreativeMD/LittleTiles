@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.math.vec;
+package team.creative.littletiles.common.math.vec;
 
 import net.minecraft.util.EnumFacing.Axis;
 

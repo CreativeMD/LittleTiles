@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.block;
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import team.creative.littletiles.common.api.block.LittleBlock;
 
 public class LittleMCBlock extends LittleBlock {

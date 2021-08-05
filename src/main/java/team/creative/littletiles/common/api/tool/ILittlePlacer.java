@@ -7,18 +7,18 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
 public interface ILittlePlacer extends ILittleTool {
     
@@ -33,7 +33,7 @@ public interface ILittlePlacer extends ILittleTool {
     public void saveLittlePreview(ItemStack stack, LittlePreviews previews);
     
     @Override
-    public default void rotate(PlayerEntity player, ItemStack stack, Rotation rotation, boolean client) {
+    public default void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
         LittlePreviews previews = getLittlePreview(stack, false);
         if (previews.isEmpty())
             return;
@@ -42,7 +42,7 @@ public interface ILittlePlacer extends ILittleTool {
     }
     
     @Override
-    public default void flip(PlayerEntity player, ItemStack stack, Axis axis, boolean client) {
+    public default void flip(Player player, ItemStack stack, Axis axis, boolean client) {
         LittlePreviews previews = getLittlePreview(stack, false);
         if (previews.isEmpty())
             return;

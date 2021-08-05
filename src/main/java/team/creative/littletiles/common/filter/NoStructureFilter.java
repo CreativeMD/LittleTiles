@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.filter;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
@@ -11,10 +11,10 @@ public class NoStructureFilter extends TileFilter {
     }
     
     @Override
-    protected void saveNBT(CompoundNBT nbt) {}
+    protected void saveNBT(CompoundTag nbt) {}
     
     @Override
-    protected void loadNBT(CompoundNBT nbt) {}
+    protected void loadNBT(CompoundTag nbt) {}
     
     @Override
     public boolean is(IParentCollection parent, LittleTile tile) {

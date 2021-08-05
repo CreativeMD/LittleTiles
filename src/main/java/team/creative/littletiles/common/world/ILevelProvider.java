@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.world;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public interface ILevelProvider {
     
@@ -8,6 +8,6 @@ public interface ILevelProvider {
         return getLevel() != null;
     }
     
-    public World getLevel();
+    public Level getLevel();
     
 }

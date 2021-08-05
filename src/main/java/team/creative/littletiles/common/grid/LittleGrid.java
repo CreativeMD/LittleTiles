@@ -4,24 +4,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.math.LittleUtils;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.google.common.math.IntMath;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import team.creative.littletiles.common.math.LittleUtils;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleGrid {
     
     public static final int OVERALL_DEFAULT = 16;
     
     private static List<String> names;
-    public static int[] grid_sizes;
-    public static LittleGrid[] grids;
-    public static int overallDefaultIndex;
-    public static int defaultIndex;
-    public static int base;
-    public static int scale;
-    public static int exponent;
+    private static int[] grid_sizes;
+    private static LittleGrid[] grids;
+    private static int overallDefaultIndex;
+    private static int defaultIndex;
+    private static int base;
+    private static int scale;
+    private static int exponent;
     
     public static void loadGrid(int base, int scale, int exponent, int defaultGrid) {
         LittleGrid.overallDefaultIndex = -1;
@@ -87,7 +87,7 @@ public class LittleGrid {
         return context2;
     }
     
-    public static LittleGrid get(CompoundNBT nbt) {
+    public static LittleGrid get(CompoundTag nbt) {
         if (nbt != null && nbt.contains("grid"))
             return LittleGrid.get(nbt.getInt("grid"));
         return LittleGrid.overallDefault();
@@ -128,7 +128,7 @@ public class LittleGrid {
         this.rotationCenter = new LittleVec(this.count, this.count, this.count);
     }
     
-    public void set(CompoundNBT nbt) {
+    public void set(CompoundTag nbt) {
         if (!isDefault)
             nbt.putInt("grid", count);
         else

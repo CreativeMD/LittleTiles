@@ -8,9 +8,10 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.registry.NamedRegistry;
 import team.creative.creativecore.common.util.registry.NamedRegistry.RegistryException;
 import team.creative.creativecore.common.util.type.Pair;
@@ -24,7 +25,7 @@ public abstract class TileFilter {
     
     public static final NamedRegistry<TileFilter> REGISTRY = new NamedRegistry<>();
     
-    public static TileFilter load(String id, CompoundNBT nbt) {
+    public static TileFilter load(String id, CompoundTag nbt) {
         try {
             TileFilter filter = REGISTRY.create(id);
             filter.loadNBT(nbt);
@@ -34,7 +35,7 @@ public abstract class TileFilter {
         }
     }
     
-    public static TileFilter load(CompoundNBT nbt) {
+    public static TileFilter load(CompoundTag nbt) {
         try {
             TileFilter filter = REGISTRY.create(nbt.getString("type"));
             filter.loadNBT(nbt);
@@ -59,19 +60,19 @@ public abstract class TileFilter {
         
     }
     
-    public CompoundNBT writeNBT(CompoundNBT nbt) {
+    public CompoundTag writeNBT(CompoundTag nbt) {
         saveNBT(nbt);
         nbt.putString("type", REGISTRY.getId(this));
         return nbt;
     }
     
-    protected abstract void saveNBT(CompoundNBT nbt);
+    protected abstract void saveNBT(CompoundTag nbt);
     
-    protected abstract void loadNBT(CompoundNBT nbt);
+    protected abstract void loadNBT(CompoundTag nbt);
     
     public abstract boolean is(IParentCollection parent, LittleTile tile);
     
-    public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector) {
+    public static LittleBoxes getAbsoluteBoxes(Level level, BlockPos pos, BlockPos pos2, TileSelector selector) {
         LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.min());
         
         int minX = Math.min(pos.getX(), pos2.getX());
@@ -89,7 +90,7 @@ public abstract class TileFilter {
                     
                     position.setPos(posX, posY, posZ);
                     
-                    TileEntityLittleTiles te = BlockTile.loadTe(world, position);
+                    TileEntityLittleTiles te = BlockTile.loadTe(level, position);
                     
                     if (te == null)
                         continue;
@@ -104,9 +105,9 @@ public abstract class TileFilter {
         return boxes;
     }
     
-    public static List<LittleBox> getBoxes(World world, BlockPos pos, TileSelector selector) {
+    public static List<LittleBox> getBoxes(Level level, BlockPos pos, TileSelector selector) {
         List<LittleBox> boxes = new ArrayList<>();
-        TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
+        TileEntityLittleTiles te = BlockTile.loadTe(level, pos);
         for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
             if (selector.is(pair.key, pair.value))
                 boxes.add(pair.value.getBox());

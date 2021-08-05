@@ -1,8 +1,8 @@
 package team.creative.littletiles.common.filter;
 
-import net.minecraft.block.Block;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
@@ -20,12 +20,12 @@ public class BlockFilter extends TileFilter {
     }
     
     @Override
-    protected void saveNBT(CompoundNBT nbt) {
+    protected void saveNBT(CompoundTag nbt) {
         nbt.putString("block", block.getRegistryName().toString());
     }
     
     @Override
-    protected void loadNBT(CompoundNBT nbt) {
+    protected void loadNBT(CompoundTag nbt) {
         block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(nbt.getString("block")));
     }
     

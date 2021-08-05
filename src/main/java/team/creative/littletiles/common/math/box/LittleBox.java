@@ -12,22 +12,18 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.math.Vector3f;
 
-import net.minecraft.block.Block;
-import net.minecraft.nbt.IntArrayNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -40,6 +36,7 @@ import team.creative.creativecore.common.util.math.vec.RangedBitSet;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes.SplitRangeBox;
 import team.creative.littletiles.common.tile.BasicCombiner;
@@ -71,7 +68,7 @@ public class LittleBox {
         this(context.toGrid(cube.minX), context.toGrid(cube.minY), context.toGrid(cube.minZ), context.toGrid(cube.maxX), context.toGrid(cube.maxY), context.toGrid(cube.maxZ));
     }
     
-    public LittleBox(LittleGrid context, AxisAlignedBB box) {
+    public LittleBox(LittleGrid context, AABB box) {
         this(context.toGrid(box.minX), context.toGrid(box.minY), context.toGrid(box.minZ), context.toGrid(box.maxX), context.toGrid(box.maxY), context.toGrid(box.maxZ));
     }
     
@@ -102,25 +99,25 @@ public class LittleBox {
     
     // ================Conversions================
     
-    public void addCollisionBoxes(LittleGrid context, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, BlockPos offset) {
-        AxisAlignedBB axisalignedbb = getBB(context, offset);
+    public void addCollisionBoxes(LittleGrid context, AABB entityBox, List<AABB> collidingBoxes, BlockPos offset) {
+        AABB axisalignedbb = getBB(context, offset);
         
         if (entityBox.intersects(axisalignedbb))
             collidingBoxes.add(axisalignedbb);
     }
     
-    public AxisAlignedBB getSelectionBB(LittleGrid context, BlockPos pos) {
+    public AABB getSelectionBB(LittleGrid context, BlockPos pos) {
         return getBB(context, pos);
     }
     
-    public AxisAlignedBB getBB(LittleGrid context, BlockPos offset) {
-        return new AxisAlignedBB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context
+    public AABB getBB(LittleGrid context, BlockPos offset) {
+        return new AABB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context
                 .toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
     }
     
-    public AxisAlignedBB getBB(LittleGrid context) {
-        return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context
-                .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+    public AABB getBB(LittleGrid context) {
+        return new AABB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context
+                .toVanillaGrid(maxZ));
     }
     
     public AlignedBox getBox(LittleGrid context) {
@@ -138,8 +135,8 @@ public class LittleBox {
         return new int[] { minX, minY, minZ, maxX, maxY, maxZ };
     }
     
-    public IntArrayNBT getNBTIntArray() {
-        return new IntArrayNBT(getArray());
+    public IntArrayTag getNBTIntArray() {
+        return new IntArrayTag(getArray());
     }
     
     // ================Size & Volume================
@@ -327,15 +324,15 @@ public class LittleBox {
     }
     
     public boolean needsMultipleBlocks(LittleGrid context) {
-        int x = minX / context.size;
-        int y = minY / context.size;
-        int z = minZ / context.size;
+        int x = minX / context.count;
+        int y = minY / context.count;
+        int z = minZ / context.count;
         
-        return maxX - x * context.size <= context.maxPos && maxY - y * context.size <= context.maxPos && maxZ - z * context.size <= context.maxPos;
+        return maxX - x * context.count <= context.count && maxY - y * context.count <= context.count && maxZ - z * context.count <= context.count;
     }
     
     public boolean isBoxInsideBlock(LittleGrid context) {
-        return minX >= 0 && maxX <= context.maxPos && minY >= 0 && maxY <= context.maxPos && minZ >= 0 && maxZ <= context.maxPos;
+        return minX >= 0 && maxX <= context.count && minY >= 0 && maxY <= context.count && minZ >= 0 && maxZ <= context.count;
     }
     
     public void split(LittleGrid context, BlockPos offset, HashMapList<BlockPos, LittleBox> boxes, @Nullable LittleBoxReturnedVolume volume) {
@@ -350,19 +347,19 @@ public class LittleBox {
         for (int x = minOffX; x <= maxOffX; x++) {
             for (int y = minOffY; y <= maxOffY; y++) {
                 for (int z = minOffZ; z <= maxOffZ; z++) {
-                    int minX = Math.max(this.minX, x * context.size);
-                    int minY = Math.max(this.minY, y * context.size);
-                    int minZ = Math.max(this.minZ, z * context.size);
-                    int maxX = Math.min(this.maxX, x * context.size + context.size);
-                    int maxY = Math.min(this.maxY, y * context.size + context.size);
-                    int maxZ = Math.min(this.maxZ, z * context.size + context.size);
+                    int minX = Math.max(this.minX, x * context.count);
+                    int minY = Math.max(this.minY, y * context.count);
+                    int minZ = Math.max(this.minZ, z * context.count);
+                    int maxX = Math.min(this.maxX, x * context.count + context.count);
+                    int maxY = Math.min(this.maxY, y * context.count + context.count);
+                    int maxZ = Math.min(this.maxZ, z * context.count + context.count);
                     
                     if (maxX > minX && maxY > minY && maxZ > minZ) {
                         
                         BlockPos pos = new BlockPos(x + offset.getX(), y + offset.getY(), z + offset.getZ());
-                        int offsetX = x * context.size;
-                        int offsetY = y * context.size;
-                        int offsetZ = z * context.size;
+                        int offsetX = x * context.count;
+                        int offsetY = y * context.count;
+                        int offsetZ = z * context.count;
                         
                         LittleBox box = extractBox(minX, minY, minZ, maxX, maxY, maxZ, volume);
                         if (box != null) {
@@ -377,35 +374,35 @@ public class LittleBox {
     }
     
     public boolean doesFillEntireBlock(LittleGrid context) {
-        return minX == 0 && minY == 0 && minZ == 0 && maxX == context.size && maxY == context.size && maxZ == context.size;
+        return minX == 0 && minY == 0 && minZ == 0 && maxX == context.count && maxY == context.count && maxZ == context.count;
     }
     
-    public LittleBox createOutsideBlockBox(LittleGrid context, Direction facing) {
+    public LittleBox createOutsideBlockBox(LittleGrid context, Facing facing) {
         LittleBox box = this.copy();
         switch (facing) {
         case EAST:
             box.minX = 0;
-            box.maxX -= context.size;
+            box.maxX -= context.count;
             break;
         case WEST:
-            box.minX += context.size;
-            box.maxX = context.size;
+            box.minX += context.count;
+            box.maxX = context.count;
             break;
         case UP:
             box.minY = 0;
-            box.maxY -= context.size;
+            box.maxY -= context.count;
             break;
         case DOWN:
-            box.minY += context.size;
-            box.maxY = context.size;
+            box.minY += context.count;
+            box.maxY = context.count;
             break;
         case SOUTH:
             box.minZ = 0;
-            box.maxZ -= context.size;
+            box.maxZ -= context.count;
             break;
         case NORTH:
-            box.minZ += context.size;
-            box.maxZ = context.size;
+            box.minZ += context.count;
+            box.maxZ = context.count;
             break;
         }
         return box;
@@ -450,45 +447,45 @@ public class LittleBox {
     }
     
     @Nullable
-    public Direction sharedBoxFaceWithoutBounds(LittleBox box) {
+    public Facing sharedBoxFaceWithoutBounds(LittleBox box) {
         boolean x = box.maxX > this.minX && box.minX < this.maxX;
         boolean y = box.maxY > this.minY && box.minY < this.maxY;
         boolean z = box.maxZ > this.minZ && box.minZ < this.maxZ;
         if (this.minZ == box.maxZ)
             if (x && y)
-                return Direction.SOUTH;
+                return Facing.SOUTH;
             else
                 return null;
         else if (this.maxZ == box.minZ)
             if (x && y)
-                return Direction.NORTH;
+                return Facing.NORTH;
             else
                 return null;
         else if (this.minY == box.maxY)
             if (x && z)
-                return Direction.UP;
+                return Facing.UP;
             else
                 return null;
         else if (this.maxY == box.minY)
             if (x && z)
-                return Direction.DOWN;
+                return Facing.DOWN;
             else
                 return null;
         else if (this.minX == box.maxX)
             if (y && z)
-                return Direction.EAST;
+                return Facing.EAST;
             else
                 return null;
         else if (this.maxX == box.minX)
             if (y && z)
-                return Direction.WEST;
+                return Facing.WEST;
             else
                 return null;
         return null;
     }
     
     @Nullable
-    public Direction sharedBoxFace(LittleBox box) {
+    public Facing sharedBoxFace(LittleBox box) {
         boolean x = this.minX == box.minX && this.maxX == box.maxX;
         boolean y = this.minY == box.minY && this.maxY == box.maxY;
         boolean z = this.minZ == box.minZ && this.maxZ == box.maxZ;
@@ -498,21 +495,21 @@ public class LittleBox {
         }
         if (x && y) {
             if (this.minZ == box.maxZ)
-                return Direction.SOUTH;
+                return Facing.SOUTH;
             else if (this.maxZ == box.minZ)
-                return Direction.NORTH;
+                return Facing.NORTH;
         }
         if (x && z) {
             if (this.minY == box.maxY)
-                return Direction.UP;
+                return Facing.UP;
             else if (this.maxY == box.minY)
-                return Direction.DOWN;
+                return Facing.DOWN;
         }
         if (y && z) {
             if (this.minX == box.maxX)
-                return Direction.EAST;
+                return Facing.EAST;
             else if (this.maxX == box.minX)
-                return Direction.WEST;
+                return Facing.WEST;
         }
         return null;
     }
@@ -841,9 +838,9 @@ public class LittleBox {
         return this.getNearstedPointTo(vec).distanceTo(vec);
     }
     
-    public boolean intersectsWithFace(Direction facing, LittleVec vec) {
-        Axis one = RotationUtils.getOne(facing.getAxis());
-        Axis two = RotationUtils.getOne(facing.getAxis());
+    public boolean intersectsWithFace(Facing facing, LittleVec vec) {
+        Axis one = facing.one()
+        Axis two = facing.two();
         return vec.get(one) >= getMin(one) && vec.get(one) <= getMax(one) && vec.get(two) >= getMin(two) && vec.get(two) <= getMax(two);
     }
     

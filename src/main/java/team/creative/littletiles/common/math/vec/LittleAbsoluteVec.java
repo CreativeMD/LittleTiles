@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.math.vec;
+package team.creative.littletiles.common.math.vec;
 
 import java.security.InvalidParameterException;
 
@@ -15,7 +15,7 @@ import net.minecraft.util.math.Vec3i;
 public class LittleAbsoluteVec implements IGridBased {
     
     protected BlockPos pos;
-    protected LittleVecContext contextVec;
+    protected LittleVecGrid contextVec;
     
     public LittleAbsoluteVec(String name, NBTTagCompound nbt) {
         int[] array = nbt.getIntArray(name);
@@ -23,33 +23,33 @@ public class LittleAbsoluteVec implements IGridBased {
         {
             LittleVec vec = new LittleVec(name, nbt);
             LittleGridContext context = LittleGridContext.get();
-            this.pos = vec.getBlockPos(context);
-            this.contextVec = new LittleVecContext(new LittleVec(vec.x - pos.getX() * context.size, vec.y - pos.getY() * context.size, vec.z - pos.getZ() * context.size), context);
+            this.pos = vec.getBlockPos(grid);
+            this.contextVec = new LittleVecGrid(new LittleVec(vec.x - pos.getX() * context.size, vec.y - pos.getY() * context.size, vec.z - pos.getZ() * context.size), grid);
         } else if (array.length == 7) {
             this.pos = new BlockPos(array[0], array[1], array[2]);
-            this.contextVec = new LittleVecContext(new LittleVec(array[4], array[5], array[6]), LittleGridContext.get(array[3]));
+            this.contextVec = new LittleVecGrid(new LittleVec(array[4], array[5], array[6]), LittleGridContext.get(array[3]));
         } else
             throw new InvalidParameterException("No valid coords given " + nbt);
     }
     
     public LittleAbsoluteVec(RayTraceResult result, LittleGridContext context) {
-        long x = context.toGridAccurate(result.hitVec.x);
-        long y = context.toGridAccurate(result.hitVec.y);
-        long z = context.toGridAccurate(result.hitVec.z);
-        this.pos = new BlockPos((int) Math.floor(context.toVanillaGrid(x)), (int) Math.floor(context.toVanillaGrid(y)), (int) Math.floor(context.toVanillaGrid(z)));
-        this.contextVec = new LittleVecContext(new LittleVec((int) (x - context.toGridAccurate(pos.getX())), (int) (y - context.toGridAccurate(pos.getY())), (int) (z - context
-            .toGridAccurate(pos.getZ()))), context);
+        long x = grid.toGridAccurate(result.hitVec.x);
+        long y = grid.toGridAccurate(result.hitVec.y);
+        long z = grid.toGridAccurate(result.hitVec.z);
+        this.pos = new BlockPos((int) Math.floor(grid.toVanillaGrid(x)), (int) Math.floor(grid.toVanillaGrid(y)), (int) Math.floor(grid.toVanillaGrid(z)));
+        this.contextVec = new LittleVecGrid(new LittleVec((int) (x - grid.toGridAccurate(pos.getX())), (int) (y - grid.toGridAccurate(pos.getY())), (int) (z - grid
+            .toGridAccurate(pos.getZ()))), grid);
     }
     
     public LittleAbsoluteVec(BlockPos pos, LittleGridContext context) {
-        this(pos, new LittleVecContext(new LittleVec(0, 0, 0), context));
+        this(pos, new LittleVecGrid(new LittleVec(0, 0, 0), grid));
     }
     
     public LittleAbsoluteVec(BlockPos pos, LittleGridContext context, LittleVec vec) {
-        this(pos, new LittleVecContext(vec, context));
+        this(pos, new LittleVecGrid(vec, grid));
     }
     
-    public LittleAbsoluteVec(BlockPos pos, LittleVecContext contextVec) {
+    public LittleAbsoluteVec(BlockPos pos, LittleVecGrid contextVec) {
         this.pos = pos;
         this.contextVec = contextVec;
     }
@@ -82,9 +82,9 @@ public class LittleAbsoluteVec implements IGridBased {
         return newVec;
     }
     
-    public LittleVecContext getRelative(LittleAbsoluteVec pos) {
+    public LittleVecGrid getRelative(LittleAbsoluteVec pos) {
         forceContext(pos);
-        LittleVecContext newVec = new LittleVecContext(new LittleVec(getContext(), this.pos.subtract(pos.pos)), getContext());
+        LittleVecGrid newVec = new LittleVecGrid(new LittleVec(getContext(), this.pos.subtract(pos.pos)), getContext());
         newVec.vec.add(this.contextVec.vec);
         newVec.vec.sub(pos.contextVec.vec);
         
@@ -111,11 +111,11 @@ public class LittleAbsoluteVec implements IGridBased {
         pos = pos.subtract(vec);
     }
     
-    public void add(LittleVecContext vec) {
+    public void add(LittleVecGrid vec) {
         contextVec.add(vec);
     }
     
-    public void sub(LittleVecContext vec) {
+    public void sub(LittleVecGrid vec) {
         contextVec.sub(vec);
     }
     
@@ -203,7 +203,7 @@ public class LittleAbsoluteVec implements IGridBased {
         return pos.hashCode();
     }
     
-    public LittleVecContext getVecContext() {
+    public LittleVecGrid getVecContext() {
         return contextVec;
     }
     
@@ -211,13 +211,13 @@ public class LittleAbsoluteVec implements IGridBased {
         return contextVec.getVec();
     }
     
-    public void setVecContext(LittleVecContext vec) {
+    public void setVecContext(LittleVecGrid vec) {
         this.contextVec = vec;
     }
     
     @Deprecated
     public void overwriteContext(LittleGridContext context) {
-        contextVec.overwriteContext(context);
+        contextVec.overwriteContext(grid);
     }
     
     @Override

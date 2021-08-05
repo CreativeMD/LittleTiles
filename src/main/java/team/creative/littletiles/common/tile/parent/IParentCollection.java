@@ -3,9 +3,9 @@ package team.creative.littletiles.common.tile.parent;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.littletiles.common.block.TETiles;
@@ -48,7 +48,7 @@ public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider 
     public TETiles getTe();
     
     @Override
-    public default World getLevel() {
+    public default Level getLevel() {
         TETiles te = getTe();
         if (te.hasLevel())
             return te.getLevel();
@@ -65,7 +65,7 @@ public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider 
     
     @OnlyIn(value = Dist.CLIENT)
     public default LittleRenderBox getTileRenderingCube(LittleTile tile, LittleBox box, LittleGrid context, BlockRenderLayer layer) {
-        LittleRenderBox renderBox = box.getRenderingCube(context, tile.block.getBlock(), tile.color);
+        LittleRenderBox renderBox = box.getRenderingCube(grid, tile.block.getBlock(), tile.color);
         if (renderBox != null && isStructure() && LittleStructureAttribute.emissive(getAttribute()))
             renderBox.emissive = true;
         return renderBox;

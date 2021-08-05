@@ -5,7 +5,7 @@ import java.util.Iterator;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import team.creative.littletiles.common.block.TETiles;
 import team.creative.littletiles.common.filter.TileFilter;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -40,22 +40,22 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
             collisionChecks--;
     }
     
-    public void read(NBTTagCompound nbt) {
+    public void read(CompoundTag nbt) {
         this.clear();
-        this.addAll(LittleNBTCompressionTools.readTiles(nbt.getTagList("tiles", 10)));
+        this.addAll(LittleNBTCompressionTools.readTiles(nbt.getList("tiles", 10)));
         readExtra(nbt);
     }
     
-    protected abstract void readExtra(NBTTagCompound nbt);
+    protected abstract void readExtra(CompoundTag nbt);
     
-    public NBTTagCompound write() {
-        NBTTagCompound nbt = new NBTTagCompound();
+    public CompoundTag write() {
+        CompoundTag nbt = new CompoundTag();
         nbt.setTag("tiles", LittleNBTCompressionTools.writeTiles(this));
         writeExtra(nbt);
         return nbt;
     }
     
-    protected abstract void writeExtra(NBTTagCompound nbt);
+    protected abstract void writeExtra(CompoundTag nbt);
     
     public Iterable<LittleTile> filter(TileFilter selector) {
         return new Iterable<LittleTile>() {

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.math.location;
+package team.creative.littletiles.common.math.location;
 
 import java.util.Arrays;
 
