@@ -4,18 +4,17 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.littletiles.common.block.TETiles;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.ILevelProvider;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.world.ILevelProvider;
 
 public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider {
     
@@ -45,26 +44,26 @@ public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider 
     
     public boolean isClient();
     
-    public TETiles getTe();
+    public BETiles getBE();
     
     @Override
     public default Level getLevel() {
-        TETiles te = getTe();
+        BETiles te = getBE();
         if (te.hasLevel())
             return te.getLevel();
-        return te.getTempLevel();
+        throw new IllegalStateException("BlockEntity not loaded yet");
     }
     
     public default BlockPos getPos() {
-        return getTe().getBlockPos();
+        return getBE().getBlockPos();
     }
     
     public default LittleGrid getGrid() {
-        return getTe().getGrid();
+        return getBE().getGrid();
     }
     
     @OnlyIn(value = Dist.CLIENT)
-    public default LittleRenderBox getTileRenderingCube(LittleTile tile, LittleBox box, LittleGrid context, BlockRenderLayer layer) {
+    public default LittleRenderBox getTileRenderingCube(LittleTile tile, LittleBox box, LittleGrid grid) {
         LittleRenderBox renderBox = box.getRenderingCube(grid, tile.block.getBlock(), tile.color);
         if (renderBox != null && isStructure() && LittleStructureAttribute.emissive(getAttribute()))
             renderBox.emissive = true;

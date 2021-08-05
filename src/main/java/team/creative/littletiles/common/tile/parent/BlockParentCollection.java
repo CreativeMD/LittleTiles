@@ -5,47 +5,49 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import team.creative.creativecore.common.util.type.Pair;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.tile.LittleTile;
 
-public class NoneStructureCollection extends ParentCollection {
+public class BlockParentCollection extends ParentCollection {
     
-    public TileEntityLittleTiles te;
+    public BETiles be;
     
-    private final ConcurrentHashMap<Integer, StructureTileList> structures = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, StructureParentCollection> structures = new ConcurrentHashMap<>();
     private int attributes = LittleStructureAttribute.NONE;
     
     private final boolean client;
     
-    public TileList(TileEntityLittleTiles te, boolean client) {
+    public BlockParentCollection(BETiles be, boolean client) {
         super();
-        this.te = te;
+        this.be = be;
         this.client = client;
     }
     
     @Override
-    protected void readExtra(NBTTagCompound nbt) {
+    protected void readExtra(CompoundTag nbt) {
         structures.clear();
-        NBTTagList list = nbt.getTagList("children", 10);
-        for (int i = 0; i < list.tagCount(); i++) {
-            StructureTileList child = new StructureTileList(this, list.getCompoundTagAt(i));
+        ListTag list = nbt.getList("children", 10);
+        for (int i = 0; i < list.size(); i++) {
+            StructureParentCollection child = new StructureParentCollection(this, list.getCompound(i));
             structures.put(child.getIndex(), child);
         }
         reloadAttributes();
     }
     
     @Override
-    protected void writeExtra(NBTTagCompound nbt) {
-        NBTTagList list = new NBTTagList();
-        for (StructureTileList child : structures.values())
-            list.appendTag(child.write());
-        nbt.setTag("children", list);
+    protected void writeExtra(CompoundTag nbt) {
+        ListTag list = new ListTag();
+        for (StructureParentCollection child : structures.values())
+            list.add(child.write());
+        nbt.put("children", list);
     }
     
     public void clearEverything() {
@@ -58,7 +60,7 @@ public class NoneStructureCollection extends ParentCollection {
     }
     
     public boolean removeStructure(int index) {
-        StructureTileList list = structures.remove(index);
+        StructureParentCollection list = structures.remove(index);
         if (list != null)
             list.removed();
         boolean removed = list != null;
@@ -66,16 +68,16 @@ public class NoneStructureCollection extends ParentCollection {
         return removed;
     }
     
-    public void addStructure(int index, StructureTileList list) {
+    public void addStructure(int index, StructureParentCollection list) {
         if (structures.containsKey(index))
             throw new IllegalArgumentException("index '" + index + "' already exists");
         structures.put(index, list);
     }
     
-    public StructureTileList addStructure(int index, int attribute) {
+    public StructureParentCollection addStructure(int index, int attribute) {
         if (structures.containsKey(index))
             throw new IllegalArgumentException("index '" + index + "' already exists");
-        StructureTileList list = new StructureTileList(this, index, attribute);
+        StructureParentCollection list = new StructureParentCollection(this, index, attribute);
         structures.put(index, list);
         reloadAttributes();
         return list;
@@ -88,8 +90,8 @@ public class NoneStructureCollection extends ParentCollection {
             public Iterator<LittleStructure> iterator() {
                 return new Iterator<LittleStructure>() {
                     
-                    Iterator<StructureTileList> itr = structures.values().iterator();
-                    StructureTileList next = null;
+                    Iterator<StructureParentCollection> itr = structures.values().iterator();
+                    StructureParentCollection next = null;
                     
                     @Override
                     public boolean hasNext() {
@@ -111,7 +113,7 @@ public class NoneStructureCollection extends ParentCollection {
                     @Override
                     public LittleStructure next() {
                         try {
-                            StructureTileList temp = next;
+                            StructureParentCollection temp = next;
                             next = null;
                             return temp.getStructure();
                         } catch (CorruptedConnectionException | NotYetConnectedException e) {
@@ -123,14 +125,14 @@ public class NoneStructureCollection extends ParentCollection {
         };
     }
     
-    public Iterable<IStructureTileList> structures() {
-        return new Iterable<IStructureTileList>() {
+    public Iterable<IStructureParentCollection> structures() {
+        return new Iterable<IStructureParentCollection>() {
             
             @Override
-            public Iterator<IStructureTileList> iterator() {
-                return new Iterator<IStructureTileList>() {
+            public Iterator<IStructureParentCollection> iterator() {
+                return new Iterator<IStructureParentCollection>() {
                     
-                    Iterator<StructureTileList> iterator = structures.values().iterator();
+                    Iterator<StructureParentCollection> iterator = structures.values().iterator();
                     
                     @Override
                     public boolean hasNext() {
@@ -138,7 +140,7 @@ public class NoneStructureCollection extends ParentCollection {
                     }
                     
                     @Override
-                    public IStructureTileList next() {
+                    public IStructureParentCollection next() {
                         return iterator.next();
                     }
                 };
@@ -146,7 +148,7 @@ public class NoneStructureCollection extends ParentCollection {
         };
     }
     
-    public Iterable<StructureTileList> structuresReal() {
+    public Iterable<StructureParentCollection> structuresReal() {
         return structures.values();
     }
     
@@ -158,7 +160,7 @@ public class NoneStructureCollection extends ParentCollection {
                 if (LittleStructureAttribute.listener(attribute) || LittleStructureAttribute.active(attribute)) {
                     return new Iterator<LittleStructure>() {
                         
-                        public Iterator<StructureTileList> iterator = structures.values().iterator();
+                        public Iterator<StructureParentCollection> iterator = structures.values().iterator();
                         public LittleStructure next;
                         
                         {
@@ -167,7 +169,7 @@ public class NoneStructureCollection extends ParentCollection {
                         
                         public void findNext() {
                             while (iterator.hasNext()) {
-                                StructureTileList structure = iterator.next();
+                                StructureParentCollection structure = iterator.next();
                                 if ((structure.getAttribute() & attribute) != 0) {
                                     try {
                                         next = structure.getStructure();
@@ -221,21 +223,21 @@ public class NoneStructureCollection extends ParentCollection {
     public boolean hasCollisionListener() {
         if (checkCollision() && LittleStructureAttribute.collisionListener(attributes))
             return true;
-        for (StructureTileList child : structures.values())
+        for (StructureParentCollection child : structures.values())
             if (child.checkCollision())
                 return true;
         return false;
     }
     
-    public Iterable<IParentTileList> groups() {
-        return new Iterable<IParentTileList>() {
+    public Iterable<IParentCollection> groups() {
+        return new Iterable<IParentCollection>() {
             
             @Override
-            public Iterator<IParentTileList> iterator() {
-                return new Iterator<IParentTileList>() {
+            public Iterator<IParentCollection> iterator() {
+                return new Iterator<IParentCollection>() {
                     
-                    IParentTileList current = TileList.this;
-                    Iterator<IStructureTileList> children = structures().iterator();
+                    IParentCollection current = BlockParentCollection.this;
+                    Iterator<IStructureParentCollection> children = structures().iterator();
                     
                     @Override
                     public boolean hasNext() {
@@ -248,8 +250,8 @@ public class NoneStructureCollection extends ParentCollection {
                     }
                     
                     @Override
-                    public IParentTileList next() {
-                        IParentTileList result = current;
+                    public IParentCollection next() {
+                        IParentCollection result = current;
                         current = null;
                         return result;
                     }
@@ -258,23 +260,23 @@ public class NoneStructureCollection extends ParentCollection {
         };
     }
     
-    public Iterable<Pair<IParentTileList, LittleTile>> allTiles() {
-        Iterator<IParentTileList> iterator = groups().iterator();
-        return new Iterable<Pair<IParentTileList, LittleTile>>() {
+    public Iterable<Pair<IParentCollection, LittleTile>> allTileTypes() {
+        Iterator<IParentCollection> iterator = groups().iterator();
+        return new Iterable<Pair<IParentCollection, LittleTile>>() {
             
             @Override
-            public Iterator<Pair<IParentTileList, LittleTile>> iterator() {
-                return new Iterator<Pair<IParentTileList, LittleTile>>() {
+            public Iterator<Pair<IParentCollection, LittleTile>> iterator() {
+                return new Iterator<Pair<IParentCollection, LittleTile>>() {
                     
                     Iterator<LittleTile> inBlock = null;
-                    Pair<IParentTileList, LittleTile> pair = null;
+                    Pair<IParentCollection, LittleTile> pair = null;
                     
                     @Override
                     public boolean hasNext() {
                         while (inBlock == null || !inBlock.hasNext()) {
                             if (!iterator.hasNext())
                                 return false;
-                            IParentTileList list = iterator.next();
+                            IParentCollection list = iterator.next();
                             pair = new Pair<>(list, null);
                             inBlock = list.iterator();
                         }
@@ -282,7 +284,7 @@ public class NoneStructureCollection extends ParentCollection {
                     }
                     
                     @Override
-                    public Pair<IParentTileList, LittleTile> next() {
+                    public Pair<IParentCollection, LittleTile> next() {
                         pair.setValue(inBlock.next());
                         return pair;
                     }
@@ -292,32 +294,22 @@ public class NoneStructureCollection extends ParentCollection {
     }
     
     @Override
-    public LittleTile first() {
-        return isEmpty() ? null : super.get(0);
-    }
-    
-    @Override
     public int totalSize() {
         int size = size();
-        for (StructureTileList list : structures.values())
+        for (StructureParentCollection list : structures.values())
             size += list.totalSize();
         return size;
     }
     
-    @Override
-    public LittleTile last() {
-        return isEmpty() ? null : super.get(size() - 1);
-    }
-    
     private void reloadAttributes() {
         attributes = LittleStructureAttribute.NONE;
-        for (StructureTileList structure : structures.values())
+        for (StructureParentCollection structure : structures.values())
             attributes |= structure.getAttribute();
     }
     
     @Override
-    public TileEntityLittleTiles getTe() {
-        return te;
+    public BETiles getBE() {
+        return be;
     }
     
     @Override
@@ -340,7 +332,7 @@ public class NoneStructureCollection extends ParentCollection {
         throw new CorruptedLinkException();
     }
     
-    public StructureTileList getStructure(int index) {
+    public StructureParentCollection getStructure(int index) {
         return structures.get(index);
     }
     
@@ -357,10 +349,10 @@ public class NoneStructureCollection extends ParentCollection {
         return client;
     }
     
-    public void add(TileList tiles) {
+    public void add(BlockParentCollection tiles) {
         addAll(tiles);
         tiles.structures.putAll(structures);
-        for (StructureTileList list : structures.values()) {
+        for (StructureParentCollection list : structures.values()) {
             list.setParent(this);
         }
     }
@@ -372,8 +364,8 @@ public class NoneStructureCollection extends ParentCollection {
     }
     
     public void removeEmptyLists() {
-        for (Iterator<StructureTileList> iterator = structures.values().iterator(); iterator.hasNext();) {
-            StructureTileList child = iterator.next();
+        for (Iterator<StructureParentCollection> iterator = structures.values().iterator(); iterator.hasNext();) {
+            StructureParentCollection child = iterator.next();
             if (child.isEmpty()) {
                 child.isRemoved();
                 iterator.remove();
@@ -388,7 +380,7 @@ public class NoneStructureCollection extends ParentCollection {
     @Override
     public void unload() {
         super.unload();
-        for (StructureTileList child : structures.values())
+        for (StructureParentCollection child : structures.values())
             child.unload();
     }
     

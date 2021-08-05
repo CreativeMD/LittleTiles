@@ -18,7 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class TileLocation {
     
@@ -39,7 +39,7 @@ public class TileLocation {
     public TileLocation(IParentTileList list, LittleTile tile) {
         if (list.isStructure()) {
             this.isStructure = true;
-            this.index = ((StructureTileList) list).getIndex();
+            this.index = ((StructureParentCollection) list).getIndex();
         } else {
             this.isStructure = false;
             this.index = -1;

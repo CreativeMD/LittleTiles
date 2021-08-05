@@ -199,7 +199,7 @@ public class EntityAnimation extends Entity {
                 ((ChildVecOrigin) ((EntityAnimation) entity).origin).parent = this.origin;
     }
     
-    public void setCenterVec(LittleAbsoluteVec axis, LittleVec additional) {
+    public void setCenterVec(LittleVecAbsolute axis, LittleVec additional) {
         setCenter(new StructureAbsolute(axis, additional));
     }
     
@@ -851,7 +851,7 @@ public class EntityAnimation extends Entity {
         fakeWorld.preventNeighborUpdate = true;
         
         if (compound.hasKey("axis"))
-            setCenterVec(new LittleAbsoluteVec("axis", compound), new LittleVec("additional", compound));
+            setCenterVec(new LittleVecAbsolute("axis", compound), new LittleVec("additional", compound));
         else
             setCenter(new StructureAbsolute("center", compound));
         NBTTagList list = compound.getTagList("tileEntity", 10);

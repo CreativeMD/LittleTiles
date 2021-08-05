@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.math.vec;
 
-import net.minecraft.util.EnumFacing.Axis;
+import team.creative.creativecore.common.util.math.base.Axis;
 
 public class LittleTriple<T> {
     

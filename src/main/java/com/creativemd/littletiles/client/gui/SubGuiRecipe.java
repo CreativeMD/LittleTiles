@@ -30,7 +30,7 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
     
@@ -205,7 +205,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
         
         LittlePreviews previews = holder.previews;
         
-        LittleStructure structure = StructureTileList.create(previews.structureNBT, null);
+        LittleStructure structure = StructureParentCollection.create(previews.structureNBT, null);
         
         GuiComboBoxCategory comboBox = (GuiComboBoxCategory) get("types");
         this.structure = structure;

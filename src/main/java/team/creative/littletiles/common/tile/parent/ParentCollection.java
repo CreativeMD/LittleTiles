@@ -6,7 +6,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 
 import net.minecraft.nbt.CompoundTag;
-import team.creative.littletiles.common.block.TETiles;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.filter.TileFilter;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -90,7 +90,7 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     }
     
     @Override
-    public abstract TETiles getTe();
+    public abstract BETiles getBE();
     
     @Override
     public abstract boolean isStructure();

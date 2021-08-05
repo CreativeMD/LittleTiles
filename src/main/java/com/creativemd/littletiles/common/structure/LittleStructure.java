@@ -80,7 +80,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public abstract class LittleStructure implements ISignalSchedulable, IWorldPositionProvider {
     
@@ -282,7 +282,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     // ================Tiles================
     
-    public void addBlock(StructureTileList block) {
+    public void addBlock(StructureParentCollection block) {
         blocks.add(new StructureBlockConnector(block.getPos().subtract(getPos())));
     }
     
@@ -948,7 +948,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         return getSurroundingBox().getHighestCenterVec();
     }
     
-    public LittleAbsoluteVec getHighestCenterPoint() throws CorruptedConnectionException, NotYetConnectedException {
+    public LittleVecAbsolute getHighestCenterPoint() throws CorruptedConnectionException, NotYetConnectedException {
         return getSurroundingBox().getHighestCenterPoint();
     }
     

@@ -12,18 +12,16 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
-import net.minecraft.nbt.NBTTagByte;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -31,9 +29,9 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.transformation.RotationUtils;
 import team.creative.creativecore.common.util.math.vec.RangedBitSet;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -839,12 +837,12 @@ public class LittleBox {
     }
     
     public boolean intersectsWithFace(Facing facing, LittleVec vec) {
-        Axis one = facing.one()
+        Axis one = facing.one();
         Axis two = facing.two();
         return vec.get(one) >= getMin(one) && vec.get(one) <= getMax(one) && vec.get(two) >= getMin(two) && vec.get(two) <= getMax(two);
     }
     
-    public boolean intersectsWithAxis(LittleGridContext context, Axis axis, Vec3d vec) {
+    public boolean intersectsWithAxis(LittleGrid context, Axis axis, Vec3d vec) {
         switch (axis) {
         case X:
             return intersectsWithYZ(context, vec);
@@ -856,22 +854,22 @@ public class LittleBox {
         return false;
     }
     
-    public boolean intersectsWithYZ(LittleGridContext context, Vec3d vec) {
+    public boolean intersectsWithYZ(LittleGrid context, Vec3d vec) {
         return vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
                 .toVanillaGrid(this.maxZ);
     }
     
-    public boolean intersectsWithXZ(LittleGridContext context, Vec3d vec) {
+    public boolean intersectsWithXZ(LittleGrid context, Vec3d vec) {
         return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
                 .toVanillaGrid(this.maxZ);
     }
     
-    public boolean intersectsWithXY(LittleGridContext context, Vec3d vec) {
+    public boolean intersectsWithXY(LittleGrid context, Vec3d vec) {
         return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.y >= context.toVanillaGrid(this.minY) && vec.y < context
                 .toVanillaGrid(this.maxY);
     }
     
-    public boolean isVecInside(Vector3f vec) {
+    public boolean isVecInside(Vec3f vec) {
         return vec.x > this.minX && vec.x < this.maxX && vec.y > this.minY && vec.y < this.maxY && vec.z > this.minZ && vec.z < this.maxZ;
     }
     
@@ -880,22 +878,22 @@ public class LittleBox {
     }
     
     @Nullable
-    protected Vec3d collideWithPlane(LittleGrid context, Axis axis, double value, Vec3d vecA, Vec3d vecB) {
+    protected Vec3d collideWithPlane(LittleGrid context, Axis axis, double value, Vec3 vecA, Vec3 vecB) {
         Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
                 .getIntermediateWithXValue(vecB, value);
         return vec3d != null && intersectsWithAxis(context, axis, vec3d) ? vec3d : null;
     }
     
     @Nullable
-    public RayTraceResult calculateIntercept(LittleGridContext context, BlockPos pos, Vec3d vecA, Vec3d vecB) {
+    public HitResult calculateIntercept(LittleGrid context, BlockPos pos, Vec3 vecA, Vec3 vecB) {
         vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
         vecB = vecB.subtract(pos.getX(), pos.getY(), pos.getZ());
         
         Vec3d collision = null;
-        Direction collided = null;
+        Facing collided = null;
         
-        for (Direction facing : Direction.VALUES) {
-            Vec3d temp = collideWithPlane(context, facing.getAxis(), (double) get(facing) / context.size, vecA, vecB);
+        for (Facing facing : Facing.values()) {
+            Vec3d temp = collideWithPlane(context, facing.axis, (double) get(facing) / context.count, vecA, vecB);
             if (temp != null && isClosest(vecA, collision, temp)) {
                 collided = facing;
                 collision = temp;
@@ -915,8 +913,8 @@ public class LittleBox {
         return result;
     }
     
-    public boolean doesTouch(LittleGridContext own, LittleGridContext other, LittleBox box) {
-        LittleGridContext context = LittleGridContext.max(own, other);
+    public boolean doesTouch(LittleGrid own, LittleGrid other, LittleBox box) {
+        LittleGrid context = LittleGrid.max(own, other);
         
         LittleBox thisBox = this;
         if (own != context) {
@@ -1034,11 +1032,11 @@ public class LittleBox {
         return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
     }
     
-    public boolean isFaceAtEdge(LittleGridContext context, Direction facing) {
-        if (facing.getAxisDirection() == AxisDirection.POSITIVE)
-            return getMax(facing.getAxis()) == context.size;
+    public boolean isFaceAtEdge(LittleGrid context, Facing facing) {
+        if (facing.positive)
+            return getMax(facing.axis) == context.count;
         else
-            return getMin(facing.getAxis()) == 0;
+            return getMin(facing.axis) == 0;
     }
     
     public void growCentered(int size) {
@@ -1061,24 +1059,22 @@ public class LittleBox {
         maxZ = Math.max(maxZ, box.maxZ);
     }
     
-    public LittleBox grow(Direction facing) {
-        Axis axis = facing.getAxis();
+    public LittleBox grow(Facing facing) {
         LittleBox result = this.copy();
-        if (facing.getAxisDirection() == AxisDirection.POSITIVE)
-            result.setMax(axis, getMax(axis) + 1);
+        if (facing.positive)
+            result.setMax(facing.axis, getMax(facing.axis) + 1);
         else
-            result.setMin(axis, getMin(axis) - 1);
+            result.setMin(facing.axis, getMin(facing.axis) - 1);
         return result;
     }
     
-    public LittleBox shrink(Direction facing, boolean toLimit) {
-        Axis axis = facing.getAxis();
-        if (getSize(axis) > 1) {
+    public LittleBox shrink(Facing facing, boolean toLimit) {
+        if (getSize(facing.axis) > 1) {
             LittleBox result = this.copy();
-            if (facing.getAxisDirection() == AxisDirection.POSITIVE)
-                result.setMax(axis, toLimit ? getMin(axis) + 1 : getMax(axis) - 1);
+            if (facing.positive)
+                result.setMax(facing.axis, toLimit ? getMin(facing.axis) + 1 : getMax(facing.axis) - 1);
             else
-                result.setMin(axis, toLimit ? getMax(axis) - 1 : getMin(axis) + 1);
+                result.setMin(Facing.axis, toLimit ? getMax(facing.axis) - 1 : getMin(facing.axis) + 1);
             return result;
         }
         return null;
@@ -1116,20 +1112,19 @@ public class LittleBox {
     // ================Faces================
     
     @Nullable
-    public LittleBoxFace generateFace(LittleGridContext context, Direction facing) {
-        Axis one = RotationUtils.getOne(facing.getAxis());
-        Axis two = RotationUtils.getTwo(facing.getAxis());
+    public LittleBoxFace generateFace(LittleGrid context, Facing facing) {
+        Axis one = facing.one();
+        Axis two = facing.two();
         
-        return new LittleBoxFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
-                .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+        return new LittleBoxFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
     }
     
     public boolean intersectsWith(LittleBoxFace face) {
-        return (face.facing.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.facing.getAxis()) : getMax(face.facing
+        return (face.facing.positive ? getMin(face.facing.getAxis()) : getMax(face.facing
                 .getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
     }
     
-    public boolean isFaceSolid(Direction facing) {
+    public boolean isFaceSolid(Facing facing) {
         return true;
     }
     
@@ -1158,43 +1153,8 @@ public class LittleBox {
     
     // ================Static Helpers================
     
-    public static LittleBox loadBox(String name, NBTTagCompound nbt) {
-        if (nbt.getTag(name + "minX") instanceof NBTTagByte) // very old pre 1.0.0
-        {
-            LittleBox box = new LittleBox(nbt.getByte(name + "minX"), nbt.getByte(name + "minY"), nbt.getByte(name + "minZ"), nbt.getByte(name + "maxX"), nbt
-                    .getByte(name + "maxY"), nbt.getByte(name + "maxZ"));
-            nbt.removeTag(name + "minX");
-            nbt.removeTag(name + "minY");
-            nbt.removeTag(name + "minZ");
-            nbt.removeTag(name + "maxX");
-            nbt.removeTag(name + "maxY");
-            nbt.removeTag(name + "maxZ");
-            nbt.setTag(name, box.getNBTIntArray());
-            return box;
-        } else if (nbt.getTag(name + "minX") instanceof NBTTagInt) // old pre 1.3.0
-        {
-            LittleBox box = new LittleBox(nbt.getInteger(name + "minX"), nbt.getInteger(name + "minY"), nbt.getInteger(name + "minZ"), nbt.getInteger(name + "maxX"), nbt
-                    .getInteger(name + "maxY"), nbt.getInteger(name + "maxZ"));
-            nbt.removeTag(name + "minX");
-            nbt.removeTag(name + "minY");
-            nbt.removeTag(name + "minZ");
-            nbt.removeTag(name + "maxX");
-            nbt.removeTag(name + "maxY");
-            nbt.removeTag(name + "maxZ");
-            nbt.setTag(name, box.getNBTIntArray());
-            return box;
-        } else if (nbt.getTag(name) instanceof NBTTagIntArray) { // New
-            return createBox(nbt.getIntArray(name));
-        } else if (nbt.getTag(name) instanceof NBTTagString) { // Not used anymore pre 1.5.0
-            String[] coords = nbt.getString(name).split("\\.");
-            try {
-                return new LittleBox(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer
-                        .parseInt(coords[4]), Integer.parseInt(coords[5]));
-            } catch (Exception e) {
-                
-            }
-        }
-        return new LittleBox(0, 0, 0, 0, 0, 0);
+    public static LittleBox loadBox(String name, CompoundTag nbt) {
+        return createBox(nbt.getIntArray(name));
     }
     
     public static LittleBox createBox(int[] array) {
@@ -1218,8 +1178,8 @@ public class LittleBox {
         throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
     }
     
-    public static boolean isClosest(Vec3d from, @Nullable Vec3d optional, Vec3d toCheck) {
-        return optional == null || from.squareDistanceTo(toCheck) < from.squareDistanceTo(optional);
+    public static boolean isClosest(Vec3 from, @Nullable Vec3 optional, Vec3 toCheck) {
+        return optional == null || from.distanceToSqr(toCheck) < from.distanceToSqr(optional);
     }
     
     public static boolean intersectsWith(LittleBox box, LittleBox box2) {

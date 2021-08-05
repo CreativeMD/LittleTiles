@@ -50,7 +50,7 @@ public class StructureAbsolute extends StructureRelative {
         this.rotationCenter.z += baseOffset.getZ();
     }
     
-    public StructureAbsolute(LittleAbsoluteVec pos, LittleBox box, LittleGridContext context) {
+    public StructureAbsolute(LittleVecAbsolute pos, LittleBox box, LittleGridContext context) {
         super(box, context);
         add(pos.getVecContext());
         
@@ -77,7 +77,7 @@ public class StructureAbsolute extends StructureRelative {
         this.rotationCenter.z += baseOffset.getZ();
     }
     
-    public StructureAbsolute(LittleAbsoluteVec pos, StructureRelative relative) {
+    public StructureAbsolute(LittleVecAbsolute pos, StructureRelative relative) {
         this(pos, relative.box.copy(), relative.context);
     }
     
@@ -85,7 +85,7 @@ public class StructureAbsolute extends StructureRelative {
         this(getPos(nbt.getIntArray(name + "_pos")), LittleBox.createBox(nbt.getIntArray(name + "_box")), LittleGridContext.get(nbt.getInteger(name + "_grid")));
     }
     
-    public StructureAbsolute(LittleAbsoluteVec axis, LittleVec additional) {
+    public StructureAbsolute(LittleVecAbsolute axis, LittleVec additional) {
         this(axis.getPos(), convertAxisToBox(axis.getVecContext(), additional), axis.getContext());
     }
     

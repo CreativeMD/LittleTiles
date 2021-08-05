@@ -246,7 +246,7 @@ public class PlacementHelper {
                     
             }
             
-            LittleAbsoluteVec offset = new LittleAbsoluteVec(position.getPos(), context, box.getMinVec());
+            LittleVecAbsolute offset = new LittleVecAbsolute(position.getPos(), context, box.getMinVec());
             LittleVec internalOffset = getInternalOffset(iTile, stack, tiles, original);
             internalOffset.invert();
             offset.getVec().add(internalOffset);
@@ -261,7 +261,7 @@ public class PlacementHelper {
         return null;
     }
     
-    public static LittleBox getTilesBox(LittleAbsoluteVec pos, LittleVec size, boolean centered, @Nullable EnumFacing facing, PlacementMode mode) {
+    public static LittleBox getTilesBox(LittleVecAbsolute pos, LittleVec size, boolean centered, @Nullable EnumFacing facing, PlacementMode mode) {
         LittleVec temp = pos.getVec().copy();
         if (centered) {
             LittleVec center = size.calculateCenter();
@@ -323,8 +323,8 @@ public class PlacementHelper {
         return false;
     }
     
-    public static LittleAbsoluteVec getHitVec(RayTraceResult result, LittleGridContext context, boolean isInsideOfBlock) {
-        LittleAbsoluteVec pos = new LittleAbsoluteVec(result, context);
+    public static LittleVecAbsolute getHitVec(RayTraceResult result, LittleGridContext context, boolean isInsideOfBlock) {
+        LittleVecAbsolute pos = new LittleVecAbsolute(result, context);
         
         if (!isInsideOfBlock)
             pos.getVec().set(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : context.size);

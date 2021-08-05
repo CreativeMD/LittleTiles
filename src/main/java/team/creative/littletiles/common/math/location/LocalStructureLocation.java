@@ -5,12 +5,12 @@ import java.util.Arrays;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.littletiles.common.block.TETiles;
 
 public class LocalStructureLocation {
     
@@ -26,26 +26,26 @@ public class LocalStructureLocation {
         this(structure.getPos(), structure.getIndex());
     }
     
-    public LocalStructureLocation(NBTTagCompound nbt) {
+    public LocalStructureLocation(CompoundTag nbt) {
         int[] posArray = nbt.getIntArray("pos");
         if (posArray.length != 3)
             throw new IllegalArgumentException("Invalid pos array length " + Arrays.toString(posArray));
         
         pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
-        index = nbt.getInteger("index");
+        index = nbt.getInt("index");
     }
     
-    public NBTTagCompound write() {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-        nbt.setInteger("index", index);
+    public CompoundTag write() {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+        nbt.putInt("index", index);
         return nbt;
     }
     
-    public LittleStructure find(World world) throws LittleActionException {
-        TileEntity te = world.getTileEntity(pos);
-        if (te instanceof TileEntityLittleTiles) {
-            IStructureTileList structure = ((TileEntityLittleTiles) te).getStructure(index);
+    public LittleStructure find(Level level) throws LittleActionException {
+        BlockEntity te = level.getBlockEntity(pos);
+        if (te instanceof TETiles) {
+            IStructureTileList structure = ((TETiles) te).getStructure(index);
             if (structure != null)
                 return structure.getStructure();
             throw new LittleActionException.StructureNotFoundException();

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.world;
+package team.creative.littletiles.common.level;
 
 import net.minecraft.world.level.Level;
 

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tileentity;
+package team.creative.littletiles.common.block.entity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -13,70 +13,83 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.creativecore.common.world.CreativeWorld;
-import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
-import com.creativemd.littletiles.common.api.te.ILittleTileTE;
-import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.util.grid.IGridBased;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.tileentity.AxisAlignedBB;
+import com.creativemd.littletiles.common.tileentity.CreativeWorld;
+import com.creativemd.littletiles.common.tileentity.EntityPlayer;
+import com.creativemd.littletiles.common.tileentity.EnumFacing;
+import com.creativemd.littletiles.common.tileentity.IBlockState;
+import com.creativemd.littletiles.common.tileentity.IOrientatedWorld;
+import com.creativemd.littletiles.common.tileentity.IParentTileList;
+import com.creativemd.littletiles.common.tileentity.IStructureTileList;
+import com.creativemd.littletiles.common.tileentity.LittleGridContext;
+import com.creativemd.littletiles.common.tileentity.LittleTilePosition;
+import com.creativemd.littletiles.common.tileentity.Method;
+import com.creativemd.littletiles.common.tileentity.NBTTagCompound;
+import com.creativemd.littletiles.common.tileentity.NBTTagList;
+import com.creativemd.littletiles.common.tileentity.NetworkManager;
+import com.creativemd.littletiles.common.tileentity.RayTraceResult;
+import com.creativemd.littletiles.common.tileentity.SPacketUpdateTileEntity;
+import com.creativemd.littletiles.common.tileentity.SideOnly;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.SideState;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
+import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional.Method;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littletiles.common.tile.parent.ParentTileList;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
-import team.creative.littletiles.common.tile.parent.TileList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.type.Pair;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.api.block.ILittleBlockEntity;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.grid.IGridBased;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
+import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.LittleTileContext;
+import team.creative.littletiles.common.tile.parent.BlockParentCollection;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
+import team.creative.littletiles.common.tile.parent.IStructureCollection;
+import team.creative.littletiles.common.tile.parent.ParentCollection;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
-public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, IGridBased {
+public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity {
     
-    protected final TileEntityInteractor interactor = new TileEntityInteractor();
-    protected TileList tiles;
-    private boolean preventUnload = true;
-    protected LittleGridContext context = LittleGridContext.getMin();
-    
-    private boolean hasLoaded = false;
-    
+    protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
+    private LittleGrid grid;
+    private BlockParentCollection tiles;
     public final SideSolidCache sideCache = new SideSolidCache();
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public TileEntityRenderManager render;
     
-    protected void assign(TileEntityLittleTiles te) {
+    public BETiles(BlockPos pos, BlockState state) {
+        super(LittleTiles.TILES_TE_TYPE, pos, state);
+    }
+    
+    protected void assign(BETiles te) {
         try {
             for (Field field : TileEntityLittleTiles.class.getDeclaredFields())
                 if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
@@ -96,23 +109,30 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             initClient();
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private void initClient() {
         this.render = new TileEntityRenderManager(this);
     }
     
     @Override
-    public void setWorld(World worldIn) {
-        super.setWorld(worldIn);
-        if (tiles == null)
-            init();
+    public LittleGrid getGrid() {
+        return grid;
     }
     
     @Override
-    protected void setWorldCreate(World worldIn) {
-        super.setWorldCreate(worldIn);
-        if (tiles == null)
-            init();
+    public void convertTo(LittleGrid to) {
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTileTypes())
+            pair.value.convertTo(grid, to);
+        
+        this.grid = to;
+    }
+    
+    @Override
+    public int getSmallest() {
+        int size = LittleGrid.min().count;
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTileTypes())
+            size = Math.max(size, pair.value.getSmallest(grid));
+        return size;
     }
     
     public Iterable<LittleStructure> ticking() {
@@ -125,26 +145,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     }
     
     @Override
-    public LittleGridContext getContext() {
-        return context;
-    }
-    
-    @Override
     public void convertToSmallest() {
-        int size = LittleGridContext.minSize;
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
-            size = Math.max(size, pair.value.getSmallestContext(context));
         
         if (size < context.size)
             convertTo(LittleGridContext.get(size));
-    }
-    
-    @Override
-    public void convertTo(LittleGridContext newContext) {
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
-            pair.value.convertTo(context, newContext);
-        
-        this.context = newContext;
     }
     
     public boolean contains(LittleTile tile) {
@@ -461,17 +465,17 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         
         if (nbt.hasKey("tilesCount")) {
             int count = nbt.getInteger("tilesCount");
-            HashMap<LittleIdentifierRelative, StructureTileList> structures = new HashMap<>();
+            HashMap<LittleIdentifierRelative, StructureParentCollection> structures = new HashMap<>();
             for (int i = 0; i < count; i++) {
                 NBTTagCompound tileNBT = new NBTTagCompound();
                 tileNBT = nbt.getCompoundTag("t" + i);
                 sortOldTiles(tileNBT, structures);
             }
-            for (StructureTileList child : structures.values())
+            for (StructureParentCollection child : structures.values())
                 tiles.addStructure(child.getIndex(), child);
         } else if (nbt.hasKey("tiles")) {
             NBTTagList list = nbt.getTagList("tiles", 10);
-            HashMap<LittleIdentifierRelative, StructureTileList> structures = new HashMap<>();
+            HashMap<LittleIdentifierRelative, StructureParentCollection> structures = new HashMap<>();
             for (int i = 0; i < list.tagCount(); i++) {
                 NBTTagCompound ltNBT = list.getCompoundTagAt(i);
                 if (ltNBT.hasKey("boxes")) {
@@ -484,8 +488,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
                 } else
                     sortOldTiles(ltNBT, structures);
             }
-            for (StructureTileList child : structures.values()) {
-                StructureTileList.updateStatus(child);
+            for (StructureParentCollection child : structures.values()) {
+                StructureParentCollection.updateStatus(child);
                 tiles.addStructure(child.getIndex(), child);
             }
             
@@ -504,7 +508,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         return new int[] { box.minX, box.minY, box.minZ };
     }
     
-    protected void sortOldTiles(NBTTagCompound nbt, HashMap<LittleIdentifierRelative, StructureTileList> structures) {
+    protected void sortOldTiles(NBTTagCompound nbt, HashMap<LittleIdentifierRelative, StructureParentCollection> structures) {
         LittleTile tile = LittleTileRegistry.loadTile(nbt);
         
         LittleIdentifierRelative identifier = null;
@@ -533,7 +537,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
                     if (nbt.hasKey("coX")) {
                         LittleTilePosition pos = new LittleTilePosition(nbt);
                         identifier = new LittleIdentifierRelative(getPos().getX() - pos.coord.getX(), getPos().getY() - pos.coord.getY(), getPos().getZ() - pos.coord
-                            .getZ(), context, new int[] { pos.position.x, pos.position.y, pos.position.z });
+                                .getZ(), context, new int[] { pos.position.x, pos.position.y, pos.position.z });
                         System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + identifier);
                     } else
                         identifier = new LittleIdentifierRelative(nbt);
@@ -544,10 +548,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         if (identifier == null)
             tiles.add(tile);
         else {
-            StructureTileList structureList = structures.get(identifier);
+            StructureParentCollection structureList = structures.get(identifier);
             if (structureList == null) {
-                structures.put(identifier, structureList = new StructureTileList(tiles, identifier.generateIndex(pos), attribute));
-                StructureTileList.setRelativePos(structureList, identifier.coord);
+                structures.put(identifier, structureList = new StructureParentCollection(tiles, identifier.generateIndex(pos), attribute));
+                StructureParentCollection.setRelativePos(structureList, identifier.coord);
             }
             if (structureNBT != null) {
                 LittleStructure structure = structureList.setStructureNBT(structureNBT);
@@ -606,7 +610,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         return hit;
     }
     
-    public Pair<IParentTileList, LittleTile> getFocusedTile(EntityPlayer player, float partialTickTime) {
+    public LittleTileContext getFocusedTile(Player player, float partialTickTime) {
         if (!isClientSide())
             return null;
         Vec3d pos = player.getPositionEyes(partialTickTime);
@@ -622,12 +626,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         return getFocusedTile(pos, vec32);
     }
     
-    public Pair<IParentTileList, LittleTile> getFocusedTile(Vec3d pos, Vec3d look) {
-        IParentTileList parent = null;
+    public LittleTileContext getFocusedTile(Vec3d pos, Vec3d look) {
+        IParentCollection parent = null;
         LittleTile tileFocus = null;
-        RayTraceResult hit = null;
+        HitResult hit = null;
         double distance = 0;
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             RayTraceResult Temphit = pair.value.rayTrace(context, getPos(), pos, look);
             if (Temphit != null) {
                 if (hit == null || distance > Temphit.hitVec.distanceTo(pos)) {
@@ -661,7 +665,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     public boolean combineTiles(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = BasicCombiner.combine((StructureTileList) getStructure(structureIndex));
+        boolean changed = BasicCombiner.combine((StructureParentCollection) getStructure(structureIndex));
         convertToSmallest();
         if (changed)
             updateTiles();
@@ -671,7 +675,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     public boolean combineTilesSecretly(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = BasicCombiner.combine((StructureTileList) getStructure(structureIndex));
+        boolean changed = BasicCombiner.combine((StructureParentCollection) getStructure(structureIndex));
         convertToSmallest();
         return changed;
     }
@@ -799,17 +803,17 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         tiles.fillUsedIds(usedIds);
     }
     
-    public class TileEntityInteractor {
+    public class BlockEntityInteractor {
         
-        public Iterable<ParentTileList> groups() {
-            return new Iterable<ParentTileList>() {
+        public Iterable<ParentCollection> groups() {
+            return new Iterable<ParentCollection>() {
                 
                 @Override
-                public Iterator<ParentTileList> iterator() {
-                    return new Iterator<ParentTileList>() {
+                public Iterator<ParentCollection> iterator() {
+                    return new Iterator<ParentCollection>() {
                         
-                        ParentTileList current = tiles;
-                        Iterator<StructureTileList> children = structures().iterator();
+                        ParentCollection current = tiles;
+                        Iterator<StructureParentCollection> children = structures().iterator();
                         
                         @Override
                         public boolean hasNext() {
@@ -822,8 +826,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
                         }
                         
                         @Override
-                        public ParentTileList next() {
-                            ParentTileList result = current;
+                        public ParentCollection next() {
+                            ParentCollection result = current;
                             current = null;
                             return result;
                         }
@@ -832,23 +836,23 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             };
         }
         
-        public ParentTileList get(IParentTileList list) {
-            return (ParentTileList) list;
+        public ParentCollection get(IParentCollection list) {
+            return (ParentCollection) list;
         }
         
-        public StructureTileList get(IStructureTileList list) {
-            return (StructureTileList) list;
+        public StructureParentCollection get(IStructureCollection list) {
+            return (StructureParentCollection) list;
         }
         
-        public ParentTileList noneStructureTiles() {
+        public ParentCollection noneStructureTiles() {
             return tiles;
         }
         
-        public Iterable<StructureTileList> structures() {
+        public Iterable<StructureParentCollection> structures() {
             return tiles.structuresReal();
         }
         
-        public StructureTileList getStructure(int index) {
+        public StructureParentCollection getStructure(int index) {
             return tiles.getStructure(index);
         }
         
@@ -856,7 +860,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             return tiles.removeStructure(index);
         }
         
-        public StructureTileList addStructure(int index, int attribute) {
+        public StructureParentCollection addStructure(int index, int attribute) {
             return tiles.addStructure(index, attribute);
         }
         
@@ -866,108 +870,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         
     }
     
-    public static enum SideState {
-        EMPTY {
-            @Override
-            public boolean doesBlockCollision() {
-                return false;
-            }
-            
-            @Override
-            public boolean doesBlockLight() {
-                return false;
-            }
-            
-            @Override
-            public boolean isFilled() {
-                return false;
-            }
-        },
-        SEETHROUGH {
-            @Override
-            public boolean doesBlockCollision() {
-                return true;
-            }
-            
-            @Override
-            public boolean doesBlockLight() {
-                return false;
-            }
-            
-            @Override
-            public boolean isFilled() {
-                return true;
-            }
-        },
-        NOCLIP {
-            @Override
-            public boolean doesBlockCollision() {
-                return false;
-            }
-            
-            @Override
-            public boolean doesBlockLight() {
-                return true;
-            }
-            
-            @Override
-            public boolean isFilled() {
-                return true;
-            }
-        },
-        SEETHROUGH_NOCLIP {
-            @Override
-            public boolean doesBlockCollision() {
-                return false;
-            }
-            
-            @Override
-            public boolean doesBlockLight() {
-                return false;
-            }
-            
-            @Override
-            public boolean isFilled() {
-                return true;
-            }
-        },
-        SOLID {
-            @Override
-            public boolean doesBlockCollision() {
-                return true;
-            }
-            
-            @Override
-            public boolean doesBlockLight() {
-                return true;
-            }
-            
-            @Override
-            public boolean isFilled() {
-                return true;
-            }
-        };
-        
-        public abstract boolean isFilled();
-        
-        public abstract boolean doesBlockCollision();
-        
-        public abstract boolean doesBlockLight();
-        
-        public static SideState getState(boolean empty, boolean noclip, boolean translucent) {
-            if (empty)
-                return EMPTY;
-            if (noclip && translucent)
-                return SEETHROUGH_NOCLIP;
-            if (noclip)
-                return NOCLIP;
-            if (translucent)
-                return SideState.SEETHROUGH;
-            return SOLID;
-        }
-    }
-    
     public class SideSolidCache {
+        
         SideState DOWN;
         SideState UP;
         SideState NORTH;
@@ -984,26 +888,26 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             EAST = null;
         }
         
-        protected SideState calculate(EnumFacing facing) {
+        protected SideState calculate(Facing facing) {
             LittleBox box;
             switch (facing) {
             case EAST:
-                box = new LittleBox(context.size - 1, 0, 0, context.size, context.size, context.size);
+                box = new LittleBox(grid.count - 1, 0, 0, grid.count, grid.count, grid.count);
                 break;
             case WEST:
-                box = new LittleBox(0, 0, 0, 1, context.size, context.size);
+                box = new LittleBox(0, 0, 0, 1, grid.count, grid.count);
                 break;
             case UP:
-                box = new LittleBox(0, context.size - 1, 0, context.size, context.size, context.size);
+                box = new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count);
                 break;
             case DOWN:
-                box = new LittleBox(0, 0, 0, context.size, 1, context.size);
+                box = new LittleBox(0, 0, 0, grid.count, 1, grid.count);
                 break;
             case SOUTH:
-                box = new LittleBox(0, 0, context.size - 1, context.size, context.size, context.size);
+                box = new LittleBox(0, 0, grid.count - 1, grid.count, grid.count, grid.count);
                 break;
             case NORTH:
-                box = new LittleBox(0, 0, 0, context.size, context.size, 1);
+                box = new LittleBox(0, 0, 0, grid.count, grid.count, 1);
                 break;
             default:
                 box = null;
@@ -1012,14 +916,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             return calculateState(facing, box);
         }
         
-        protected SideState calculateState(EnumFacing facing, LittleBox box) {
+        protected SideState calculateState(Facing facing, LittleBox box) {
             LittleVec size = box.getSize();
             boolean[][][] filled = new boolean[size.x][size.y][size.z];
             
             boolean translucent = false;
             boolean noclip = false;
             
-            for (Pair<IParentTileList, LittleTile> pair : TileEntityLittleTiles.this.tiles.allTiles())
+            for (Pair<IParentCollection, LittleTile> pair : BETiles.this.tiles.allTiles())
                 if (pair.value.fillInSpaceInaccurate(box, filled)) {
                     if (!pair.value.doesProvideSolidFace(facing))
                         translucent = true;
@@ -1038,7 +942,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             return SideState.getState(false, noclip, translucent);
         }
         
-        public SideState get(EnumFacing facing) {
+        public SideState get(Facing facing) {
             SideState result;
             
             switch (facing) {
@@ -1070,7 +974,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             return result;
         }
         
-        public void set(EnumFacing facing, SideState value) {
+        public void set(Facing facing, SideState value) {
             switch (facing) {
             case DOWN:
                 DOWN = value;
@@ -1094,5 +998,4 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         }
         
     }
-    
 }

@@ -9,7 +9,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class LittleBlockTransformer {
     
@@ -25,7 +25,7 @@ public class LittleBlockTransformer {
                         parent.getStructure().flipForWarpDrive(context, axis);
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 } else
-                    ((StructureTileList) parent).flipForWarpDrive(axis);
+                    ((StructureParentCollection) parent).flipForWarpDrive(axis);
             }
             for (LittleTile tile : parent)
                 flipTile(context, tile, axis);
@@ -44,7 +44,7 @@ public class LittleBlockTransformer {
                         parent.getStructure().rotateForWarpDrive(context, rotation, steps);
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 } else
-                    ((StructureTileList) parent).rotateForWarpDrive(rotation, steps);
+                    ((StructureParentCollection) parent).rotateForWarpDrive(rotation, steps);
             }
             for (LittleTile tile : parent)
                 for (int rotationStep = 0; rotationStep < steps; rotationStep++)

@@ -21,7 +21,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class ChildActivateEvent extends AnimationEvent {
     
@@ -107,7 +107,7 @@ public class ChildActivateEvent extends AnimationEvent {
                     .getChild(childId), new AnimationGuiHandler(getTick(), handler), childAnimation == null ? child : childAnimation.structure, childAnimation);
                 LittleStructureGuiParser parser = LittleStructureRegistry
                     .getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
-                parser.create(holder.previews, StructureTileList.create(holder.previews.structureNBT, null));
+                parser.create(holder.previews, StructureParentCollection.create(holder.previews.structureNBT, null));
                 if (holder.handler.hasTimeline())
                     handler.subHolders.add(holder);
             }

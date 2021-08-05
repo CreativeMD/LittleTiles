@@ -110,7 +110,7 @@ public class LittleAxisDoor extends LittleDoorBase {
     
     @Override
     public StructureAbsolute getAbsoluteAxis() {
-        return new StructureAbsolute(new LittleAbsoluteVec(getPos(), mainBlock.getContext()), axisCenter);
+        return new StructureAbsolute(new LittleVecAbsolute(getPos(), mainBlock.getContext()), axisCenter);
     }
     
     @Override

@@ -24,6 +24,10 @@ public class LittleCollection implements Iterable<LittleTile> {
         adasd
     }
     
+    public void addAll(Iterable<LittleTile> tile) {
+        testoisot
+    }
+    
     protected void added(LittleTile tile) {}
     
     protected void refresh() {}

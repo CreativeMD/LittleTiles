@@ -2,57 +2,57 @@ package team.creative.littletiles.common.tile.parent;
 
 import java.security.InvalidParameterException;
 
-import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureConnection;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
-import com.creativemd.littletiles.common.structure.exception.MissingBlockException;
-import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
+import team.creative.littletiles.common.structure.exception.MissingBlockException;
+import team.creative.littletiles.common.structure.exception.MissingStructureException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
-public class StructureTileList extends ParentTileList implements IStructureTileList, IStructureConnection {
+public class StructureParentCollection extends ParentCollection implements IStructureParentCollection, IStructureConnection {
     
-    private TileList parent;
+    private BlockParentCollection parent;
     
     private Object cache;
     private int structureIndex;
     private int attribute;
     private BlockPos relativePos;
     
-    public StructureTileList(TileList parent, int index, int attribute) {
+    public StructureParentCollection(BlockParentCollection parent, int index, int attribute) {
         this.parent = parent;
         this.structureIndex = index;
         this.attribute = attribute;
     }
     
-    public StructureTileList(TileList parent, NBTTagCompound nbt) {
+    public StructureParentCollection(BlockParentCollection parent, CompoundTag nbt) {
         this.parent = parent;
         read(nbt);
     }
     
-    public void setParent(TileList parent) {
+    public void setParent(BlockParentCollection parent) {
         this.parent = parent;
     }
     
     @Override
-    protected void readExtra(NBTTagCompound nbt) {
-        if (nbt.hasKey("structure")) {
-            NBTTagCompound structureNBT = nbt.getCompoundTag("structure");
+    protected void readExtra(CompoundTag nbt) {
+        if (nbt.contains("structure")) {
+            CompoundTag structureNBT = nbt.getCompound("structure");
             cache = create(structureNBT, this);
         } else {
             int[] array = nbt.getIntArray("coord");
@@ -61,20 +61,20 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
             else
                 throw new InvalidParameterException("No valid coord given " + nbt);
         }
-        attribute = nbt.getInteger("type");
-        structureIndex = nbt.getInteger("index");
+        attribute = nbt.getInt("type");
+        structureIndex = nbt.getInt("index");
     }
     
     @Override
-    protected void writeExtra(NBTTagCompound nbt) {
+    protected void writeExtra(CompoundTag nbt) {
         if (isMain()) {
-            NBTTagCompound structureNBT = new NBTTagCompound();
+            CompoundTag structureNBT = new CompoundTag();
             ((LittleStructure) cache).writeToNBT(structureNBT);
-            nbt.setTag("structure", structureNBT);
+            nbt.put("structure", structureNBT);
         } else
-            nbt.setIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
-        nbt.setInteger("type", attribute);
-        nbt.setInteger("index", structureIndex);
+            nbt.putIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
+        nbt.putInt("type", attribute);
+        nbt.putInt("index", structureIndex);
     }
     
     @Override
@@ -88,8 +88,8 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     }
     
     @Override
-    public TileEntityLittleTiles getTe() {
-        return parent.te;
+    public BETiles getBE() {
+        return parent.be;
     }
     
     @Override
@@ -106,10 +106,10 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     
     @Override
     public BlockPos getStructurePosition() {
-        return relativePos.add(getPos());
+        return relativePos.offset(getPos());
     }
     
-    public LittleStructure setStructureNBT(NBTTagCompound nbt) {
+    public LittleStructure setStructureNBT(CompoundTag nbt) {
         if (this.cache instanceof LittleStructure && ((LittleStructure) this.cache).type.id.equals(nbt.getString("id")))
             ((LittleStructure) this.cache).loadFromNBT(nbt);
         else {
@@ -124,35 +124,35 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {
         if (isMain())
             return (LittleStructure) cache;
-        TileEntityLittleTiles te = getTileEntity();
+        BETiles te = getBlockEntity();
         if (!te.hasLoaded())
             throw new NotYetConnectedException();
-        IStructureTileList structure = te.getStructure(structureIndex);
+        IStructureParentCollection structure = te.getStructure(structureIndex);
         if (structure != null)
             if (structure == this)
                 throw new CorruptedLinkException();
             else
                 return structure.getStructure();
-        throw new MissingStructureException(te.getPos());
+        throw new MissingStructureException(te.getBlockPos());
     }
     
-    protected TileEntityLittleTiles getTileEntity() throws CorruptedConnectionException, NotYetConnectedException {
+    protected BETiles getBlockEntity() throws CorruptedConnectionException, NotYetConnectedException {
         if (isMain())
             throw new RuntimeException("Main block cannot look for tileentity");
-        if (cache instanceof TileEntityLittleTiles && !((TileEntityLittleTiles) cache).isInvalid())
-            return (TileEntityLittleTiles) cache;
+        if (cache instanceof BETiles && !((BETiles) cache).isRemoved())
+            return (BETiles) cache;
         
         if (relativePos == null)
             throw new CorruptedLinkException();
         
-        World world = getTe().getWorld();
+        Level level = getBE().getLevel();
         
         BlockPos absoluteCoord = getStructurePosition();
-        Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
+        LevelChunk chunk = level.getChunkFromBlockCoords(absoluteCoord);
         if (WorldUtils.checkIfChunkExists(chunk)) {
-            TileEntity te = world.getTileEntity(absoluteCoord);
-            if (te instanceof TileEntityLittleTiles)
-                return (TileEntityLittleTiles) (cache = te);
+            BlockEntity te = level.getBlockEntity(absoluteCoord);
+            if (te instanceof BETiles)
+                return (BETiles) (cache = te);
             else
                 throw new MissingBlockException(absoluteCoord);
         } else
@@ -207,19 +207,19 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     @Deprecated
     public void rotateForWarpDrive(Rotation rotation, int steps) {
         for (int rotationStep = 0; rotationStep < steps; rotationStep++)
-            relativePos = RotationUtils.rotate(relativePos, rotation);
+            relativePos = rotation.transform(relativePos);
     }
     
-    public static void setRelativePos(StructureTileList list, BlockPos pos) {
+    public static void setRelativePos(StructureParentCollection list, BlockPos pos) {
         list.relativePos = pos;
     }
     
-    public static void updateStatus(StructureTileList list) {
+    public static void updateStatus(StructureParentCollection list) {
         if (list.cache != null)
             list.relativePos = null;
     }
     
-    public static LittleStructure create(NBTTagCompound nbt, StructureTileList mainBlock) {
+    public static LittleStructure create(CompoundTag nbt, StructureParentCollection mainBlock) {
         if (nbt == null)
             return null;
         

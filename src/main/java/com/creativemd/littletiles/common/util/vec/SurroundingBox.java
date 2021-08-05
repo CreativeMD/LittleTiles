@@ -143,7 +143,7 @@ public class SurroundingBox {
         return 0.125 * context.toVanillaGrid(minX + maxX) * context.toVanillaGrid(minY + maxY) * context.toVanillaGrid(minZ + maxZ);
     }
     
-    public LittleAbsoluteVec getHighestCenterPoint() {
+    public LittleVecAbsolute getHighestCenterPoint() {
         int centerX = (int) Math.floor((minX + maxX) / (double) context.size / 2D);
         int centerY = (int) Math.floor((minY + maxY) / (double) context.size / 2D);
         int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.size / 2D);
@@ -152,7 +152,7 @@ public class SurroundingBox {
         int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
         int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
         
-        LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
+        LittleVecAbsolute pos = new LittleVecAbsolute(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
         
         MutableBlockPos blockPos = new MutableBlockPos();
         
@@ -199,7 +199,7 @@ public class SurroundingBox {
         int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
         int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
         
-        LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
+        LittleVecAbsolute pos = new LittleVecAbsolute(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
         
         MutableBlockPos blockPos = new MutableBlockPos();
         

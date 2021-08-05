@@ -1,14 +1,14 @@
 package team.creative.littletiles.common.math.vec;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class RelativeBlockPos {
     
     private BlockPos coord;
     
-    public RelativeBlockPos(TileEntity te, BlockPos coord) {
-        this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord);
+    public RelativeBlockPos(BlockEntity te, BlockPos coord) {
+        this(te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ(), coord);
     }
     
     public RelativeBlockPos(BlockPos origin, BlockPos coord) {
@@ -33,8 +33,8 @@ public class RelativeBlockPos {
         return coord;
     }
     
-    public BlockPos getAbsolutePos(TileEntity te) {
-        return getAbsolutePos(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ());
+    public BlockPos getAbsolutePos(BlockEntity te) {
+        return getAbsolutePos(te.getBlockPos().getX(), te.getBlockPos().getY(), te.getBlockPos().getZ());
     }
     
     public BlockPos getAbsolutePos(BlockPos origin) {

@@ -91,7 +91,7 @@ public class LittleChair extends LittleStructure {
             if (this.player != null)
                 return true;
             try {
-                LittleAbsoluteVec vec = getHighestCenterPoint();
+                LittleVecAbsolute vec = getHighestCenterPoint();
                 if (vec != null) {
                     if (world instanceof IOrientatedWorld)
                         world = ((IOrientatedWorld) world).getRealWorld();

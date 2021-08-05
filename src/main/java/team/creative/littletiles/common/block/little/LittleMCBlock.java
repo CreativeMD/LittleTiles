@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.block;
+package team.creative.littletiles.common.block.little;
 
 import net.minecraft.world.level.block.Block;
 import team.creative.littletiles.common.api.block.LittleBlock;

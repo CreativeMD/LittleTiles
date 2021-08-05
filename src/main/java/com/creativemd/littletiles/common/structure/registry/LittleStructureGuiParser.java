@@ -12,7 +12,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public abstract class LittleStructureGuiParser implements IAnimationControl {
     
@@ -48,7 +48,7 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
     @SideOnly(Side.CLIENT)
     protected abstract LittleStructureType getStructureType();
     
-    public <T extends LittleStructure> T createStructure(Class<T> structureClass, StructureTileList parent) {
+    public <T extends LittleStructure> T createStructure(Class<T> structureClass, StructureParentCollection parent) {
         LittleStructureType type = LittleStructureRegistry.getStructureType(structureClass);
         if (type == null)
             throw new RuntimeException("Could find structure for " + structureClass);

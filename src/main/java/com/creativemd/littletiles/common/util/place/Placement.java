@@ -46,7 +46,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent.MultiPlaceEvent;
 import team.creative.littletiles.common.tile.parent.ParentTileList;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class Placement {
     
@@ -513,7 +513,7 @@ public class Placement {
                                 ParentTileList parent = x.noneStructureTiles();
                                 PlacementStructurePreview structure = structures.get(i);
                                 if (structure.isStructure()) {
-                                    StructureTileList list = x.addStructure(structure.getIndex(), structure.getAttribute());
+                                    StructureParentCollection list = x.addStructure(structure.getIndex(), structure.getAttribute());
                                     structure.place(list);
                                     parent = list;
                                 }
@@ -604,11 +604,11 @@ public class Placement {
             children.add(child);
         }
         
-        public void place(StructureTileList parent) {
+        public void place(StructureParentCollection parent) {
             if (cachedStructure == null)
                 cachedStructure = parent.setStructureNBT(previews.structureNBT);
             else {
-                StructureTileList.setRelativePos(parent, cachedStructure.mainBlock.getPos().subtract(parent.getPos()));
+                StructureParentCollection.setRelativePos(parent, cachedStructure.mainBlock.getPos().subtract(parent.getPos()));
                 cachedStructure.addBlock(parent);
             }
         }

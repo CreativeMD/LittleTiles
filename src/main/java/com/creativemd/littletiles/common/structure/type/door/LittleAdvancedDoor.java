@@ -294,7 +294,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
     public StructureAbsolute getAbsoluteAxis() {
         if (axisCenter == null)
             return new StructureAbsolute(getPos(), new LittleBox(0, 0, 0, 1, 1, 1), mainBlock.getContext());
-        return new StructureAbsolute(new LittleAbsoluteVec(getPos(), mainBlock.getContext()), axisCenter);
+        return new StructureAbsolute(new LittleVecAbsolute(getPos(), mainBlock.getContext()), axisCenter);
     }
     
     public static class LittleAdvancedDoorParser extends LittleStructureGuiParser {

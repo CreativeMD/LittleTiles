@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.block;
+package team.creative.littletiles.common.block.little;
 
 import java.util.HashMap;
 

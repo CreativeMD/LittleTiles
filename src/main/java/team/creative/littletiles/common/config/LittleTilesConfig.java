@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.config;
 
+import java.security.Permission;
+
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.LittleBuildingConfig;
@@ -7,10 +9,9 @@ import com.creativemd.littletiles.common.item.ItemLittleBag;
 import com.creativemd.littletiles.common.item.ItemMultiTiles;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.api.ICreativeConfig;
 import team.creative.creativecore.common.config.sync.ConfigSynchronization;
@@ -35,27 +36,27 @@ public class LittleTilesConfig {
     @CreativeConfig(type = ConfigSynchronization.CLIENT)
     public Rendering rendering = new Rendering();
     
-    public boolean isEditLimited(PlayerEntity player) {
+    public boolean isEditLimited(Player player) {
         return build.get(player).limitEditBlocks;
     }
     
-    public boolean isPlaceLimited(PlayerEntity player) {
+    public boolean isPlaceLimited(Player player) {
         return build.get(player).limitPlaceBlocks;
     }
     
-    public boolean canEditBlock(PlayerEntity player, BlockState state, BlockPos pos) {
+    public boolean canEditBlock(Player player, BlockState state, BlockPos pos) {
         return state.getBlock().getHarvestLevel(state) <= build.get(player).harvestLevelBlock;
     }
     
-    public boolean isTransparencyRestricted(PlayerEntity player) {
+    public boolean isTransparencyRestricted(Player player) {
         return build.get(player).minimumTransparency > 0;
     }
     
-    public boolean isTransparencyEnabled(PlayerEntity player) {
+    public boolean isTransparencyEnabled(Player player) {
         return build.get(player).minimumTransparency < 255;
     }
     
-    public int getMinimumTransparency(PlayerEntity player) {
+    public int getMinimumTransparency(Player player) {
         return build.get(player).minimumTransparency;
     }
     
@@ -63,7 +64,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToConvertBlockException(PlayerEntity player) {
+        public NotAllowedToConvertBlockException(Player player) {
             super("exception.permission.convert");
             config = LittleTiles.CONFIG.build.get(player);
         }
@@ -78,7 +79,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToEditException(PlayerEntity player) {
+        public NotAllowedToEditException(Player player) {
             super("exception.permission.edit");
             config = LittleTiles.CONFIG.build.get(player);
         }
@@ -94,7 +95,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceException(PlayerEntity player) {
+        public NotAllowedToPlaceException(Player player) {
             super("exception.permission.place");
             config = LittleTiles.CONFIG.build.get(player);
         }
@@ -123,7 +124,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceColorException(PlayerEntity player) {
+        public NotAllowedToPlaceColorException(Player player) {
             super("exception.permission.place.color");
             config = LittleTiles.CONFIG.build.get(player);
         }

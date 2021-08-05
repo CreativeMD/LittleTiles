@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.block;
+package team.creative.littletiles.common.block;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,12 +8,6 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderBox;
-import com.creativemd.creativecore.client.rendering.face.CachedFaceRenderType;
-import com.creativemd.creativecore.client.rendering.face.FaceRenderType;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
-import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
@@ -26,12 +20,7 @@ import com.creativemd.littletiles.common.item.ItemLittleSaw;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -42,101 +31,82 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleDigging;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.common.util.ForgeSoundType;
 import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.chisel.ctm.api.IFacade;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.face.CachedFaceRenderType;
+import team.creative.creativecore.client.render.face.FaceRenderType;
+import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.common.block.BlockTile.TEResult;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.ParentTileList;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 @Interface(iface = "team.chisel.ctm.api.IFacade", modid = "ctm")
-public class BlockTile extends BlockContainer implements ICreativeRendered, IFacade {// ICustomCachedCreativeRendered {
+public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFacade {// ICustomCachedCreativeRendered {
     
-    public static class TEResult {
-        
-        public final TileEntityLittleTiles te;
-        public final IParentTileList parent;
-        public final LittleTile tile;
-        
-        public TEResult(TileEntityLittleTiles te, IParentTileList parent, LittleTile tile) {
-            this.te = te;
-            this.parent = parent;
-            this.tile = tile;
-        }
-        
-        public boolean isComplete() {
-            return te != null && tile != null;
-        }
-    }
+    private static boolean loadingBlockEntityFromWorld = false;
     
-    private static final TEResult FAILED = new TEResult(null, null, null);
-    
-    public static TileEntityLittleTiles loadTe(IBlockAccess world, BlockPos pos) {
+    public static BETiles loadBE(LevelAccessor world, BlockPos pos) {
         if (world == null)
             return null;
-        loadingTileEntityFromWorld = true;
-        TileEntity tileEntity = null;
+        loadingBlockEntityFromWorld = true;
+        BlockEntity be = null;
         try {
-            tileEntity = world.getTileEntity(pos);
+            be = world.getBlockEntity(pos);
         } catch (Exception e) {
             return null;
         }
-        loadingTileEntityFromWorld = false;
-        if (tileEntity instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) tileEntity).hasLoaded())
-            return (TileEntityLittleTiles) tileEntity;
+        loadingBlockEntityFromWorld = false;
+        if (be instanceof BETiles && ((BETiles) be).hasLoaded())
+            return (BETiles) be;
         return null;
     }
     
-    public static TEResult loadTeAndTile(IBlockAccess world, BlockPos pos, EntityPlayer player) {
-        return loadTeAndTile(world, pos, player, TickUtils.getPartialTickTime());
+    public static boolean selectEntireBlock(Player player, boolean secondMode) {
+        return secondMode && !(player.getMainHandItem().getItem() instanceof ItemLittleSaw) && !(player.getMainHandItem().getItem() instanceof ItemLittlePaintBrush);
     }
     
-    public static TEResult loadTeAndTile(IBlockAccess world, BlockPos pos, EntityPlayer player, float partialTickTime) {
-        TileEntityLittleTiles te = loadTe(world, pos);
-        if (te != null) {
-            Pair<IParentTileList, LittleTile> pair = te.getFocusedTile(player, partialTickTime);
-            if (pair != null)
-                return new TEResult(te, pair.key, pair.value);
-        }
-        return FAILED;
-    }
-    
-    public static boolean selectEntireBlock(EntityPlayer player, boolean secondMode) {
-        return secondMode && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemLittlePaintBrush);
-    }
-    
-    public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
+    public static final SoundType SILENT = new ForgeSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
     
     public final boolean ticking;
     public final boolean rendered;
@@ -150,7 +120,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
         setSoundType(SILENT);
     }
     
-    public static int getStateId(TileEntityLittleTiles te) {
+    public static int getStateId(BETiles te) {
         return getStateId(te.isTicking(), te.isRendered());
     }
     
@@ -178,17 +148,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     
     public static IBlockState getState(boolean ticking, boolean rendered) {
         return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.getDefaultState() : LittleTiles.blockTileNoTickingRendered
-            .getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
+                .getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
     }
     
     public static IBlockState getState(TileEntityLittleTiles te) {
         return getState(te.isTicking(), te.isRendered());
     }
     
-    public static IBlockState getState(List<StructureTileList> structures) {
+    public static IBlockState getState(List<StructureParentCollection> structures) {
         boolean ticking = false;
         boolean rendered = false;
-        for (StructureTileList structure : structures) {
+        for (StructureParentCollection structure : structures) {
             if (LittleStructureAttribute.ticking(structure.getAttribute()))
                 ticking = true;
             if (LittleStructureAttribute.tickRendering(structure.getAttribute()))
@@ -317,7 +287,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     
     protected static boolean hasRoomForPlayer(IBlockAccess worldIn, BlockPos pos) {
         return worldIn.getBlockState(pos.down())
-            .isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
+                .isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
     }
     
     @Override
@@ -622,7 +592,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
             
             if (heighestTile != null)
                 world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block
-                    .getStateId(heighestTile.getBlockState()) });
+                        .getStateId(heighestTile.getBlockState()) });
         }
         return true;
     }
@@ -649,8 +619,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
             Random random = new Random();
             if (heighestTile != null)
                 world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity
-                    .getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block
-                        .getStateId(heighestTile.getBlockState()));
+                        .getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block
+                                .getStateId(heighestTile.getBlockState()));
             return true;
         }
         return false;
@@ -691,7 +661,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                 d0 = i + axisalignedbb.maxX + 0.10000000149011612D;
             
             ((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos)
-                .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
+                    .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
         }
         return true;
     }
@@ -711,7 +681,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                         double d1 = pos.getY() + (k + 0.5D) / 4.0D;
                         double d2 = pos.getZ() + (l + 0.5D) / 4.0D;
                         manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK
-                            .getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
+                                .getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
                     }
                 }
             }
@@ -788,8 +758,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                 LittleTilesServer.NEIGHBOR.add(worldIn, pos);
         }
     }
-    
-    private static boolean loadingTileEntityFromWorld = false;
     
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
@@ -1024,7 +992,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                     tile.onTileExplodes(parent, explosion);
                 parent.clear();
                 
-                for (StructureTileList list : x.structures())
+                for (StructureParentCollection list : x.structures())
                     try {
                         list.getStructure().onLittleTileDestroy();
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {

@@ -18,7 +18,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class PlacementPosition extends LittleAbsoluteVec {
+public class PlacementPosition extends LittleVecAbsolute {
     
     public EnumFacing facing;
     
@@ -44,7 +44,7 @@ public class PlacementPosition extends LittleAbsoluteVec {
         return new PlacementPosition(CreativeCorePacket.readPos(buf), LittleAction.readLittleVecContext(buf), CreativeCorePacket.readFacing(buf));
     }
     
-    public void assign(LittleAbsoluteVec pos) {
+    public void assign(LittleVecAbsolute pos) {
         this.pos = pos.getPos();
         this.contextVec = pos.getVecContext();
     }

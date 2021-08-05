@@ -27,7 +27,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class LittleActionDestroy extends LittleActionInteract {
     
@@ -72,7 +72,7 @@ public class LittleActionDestroy extends LittleActionInteract {
                 structure.onLittleTileDestroy();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
-                    ((StructureTileList) parent).remove();
+                    ((StructureParentCollection) parent).remove();
                     te.updateTiles();
                 } else
                     throw new LittleActionException.StructureNotLoadedException();

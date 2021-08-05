@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.tile.parent.IStructureCollection;
+import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public class SurroundingBox {
     
@@ -94,7 +94,7 @@ public class SurroundingBox {
         return true;
     }
     
-    public SurroundingBox add(IStructureCollection list) {
+    public SurroundingBox add(IStructureParentCollection list) {
         add(list.getGrid(), list.getPos(), list);
         return this;
     }
@@ -142,7 +142,7 @@ public class SurroundingBox {
         return 0.125 * context.toVanillaGrid(minX + maxX) * context.toVanillaGrid(minY + maxY) * context.toVanillaGrid(minZ + maxZ);
     }
     
-    public LittleAbsoluteVec getHighestCenterPoint() {
+    public LittleVecAbsolute getHighestCenterPoint() {
         int centerX = (int) Math.floor((minX + maxX) / (double) context.count / 2D);
         int centerY = (int) Math.floor((minY + maxY) / (double) context.count / 2D);
         int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.count / 2D);
@@ -151,7 +151,7 @@ public class SurroundingBox {
         int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.count;
         int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.count;
         
-        LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
+        LittleVecAbsolute pos = new LittleVecAbsolute(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
         
         MutableBlockPos blockPos = new MutableBlockPos();
         
@@ -198,7 +198,7 @@ public class SurroundingBox {
         int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.count;
         int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.count;
         
-        LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
+        LittleVecAbsolute pos = new LittleVecAbsolute(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
         
         MutableBlockPos blockPos = new MutableBlockPos();
         

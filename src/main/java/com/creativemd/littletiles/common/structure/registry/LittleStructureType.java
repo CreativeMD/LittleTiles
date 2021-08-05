@@ -28,7 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
-import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class LittleStructureType {
     
@@ -100,7 +100,7 @@ public class LittleStructureType {
         return this;
     }
     
-    public LittleStructure createStructure(StructureTileList mainBlock) {
+    public LittleStructure createStructure(StructureParentCollection mainBlock) {
         try {
             return clazz.getConstructor(LittleStructureType.class, IStructureTileList.class).newInstance(this, mainBlock);
         } catch (Exception e) {
