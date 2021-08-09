@@ -98,6 +98,16 @@ public class LittleShapeWall extends LittleShape {
         if (maxFacing.getAxis() == toIgnore || box.getSize(maxFacing.getAxis()) == 1)
             maxFacing = null;
         
+        if (minFacing != null && minFacing == maxFacing) {
+            if (originalMinVec.get(axis) <= originalMaxVec.get(axis)) {
+                minFacing = EnumFacing.getFacingFromAxis(AxisDirection.NEGATIVE, axis);
+                maxFacing = minFacing.getOpposite();
+            } else {
+                minFacing = EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE, axis);
+                maxFacing = minFacing.getOpposite();
+            }
+        }
+        
         int invSize = thickness / 2;
         int size = thickness - invSize;
         minBox.growCentered(thickness);
