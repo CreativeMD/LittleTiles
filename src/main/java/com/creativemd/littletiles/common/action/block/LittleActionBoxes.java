@@ -45,7 +45,7 @@ public abstract class LittleActionBoxes extends LittleAction {
     @Override
     protected boolean action(EntityPlayer player) throws LittleActionException {
         if (boxes.isEmpty())
-            return false;
+            return true;
         
         boolean placed = false;
         World world = player.world;
