@@ -16,6 +16,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class LittleTilesConfig {
     
@@ -252,9 +253,12 @@ public class LittleTilesConfig {
         @CreativeConfig
         public boolean enhancedResorting = true;
         
+        public void configured() {}
+        
         @Override
-        public void configured() {
-            RenderingThread.initThreads(renderingThreadCount);
+        public void configured(Side side) {
+            if (side.isClient())
+                RenderingThread.initThreads(renderingThreadCount);
         }
     }
 }
