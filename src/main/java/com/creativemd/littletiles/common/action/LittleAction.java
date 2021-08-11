@@ -26,8 +26,6 @@ import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxesNoOverlap;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -85,6 +83,8 @@ import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToCon
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
+import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.location.TileLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;

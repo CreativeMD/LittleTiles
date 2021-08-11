@@ -12,8 +12,6 @@ import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.CornerCache;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection;
@@ -25,6 +23,8 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.math.box.LittleTransformableBox;
+import team.creative.littletiles.common.math.box.LittleTransformableBox.CornerCache;
 
 public class LittleShapeInnerCorner extends LittleShape {
     

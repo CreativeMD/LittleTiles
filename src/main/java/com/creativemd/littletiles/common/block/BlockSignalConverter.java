@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.block;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.tileentity.TESignalConverter;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -22,6 +21,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.block.entity.TESignalConverter;
 
 public class BlockSignalConverter extends BlockContainer {
     

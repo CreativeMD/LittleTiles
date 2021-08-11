@@ -11,11 +11,11 @@ import net.minecraft.world.World;
 
 public class StructureChildFromSubWorldConnection extends StructureChildConnection {
     
-    public StructureChildFromSubWorldConnection(IWorldPositionProvider parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
+    public StructureChildFromSubWorldConnection(ILevelPositionProvider parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
         super(parent, true, dynamic, childId, relative, index, attribute);
     }
     
-    public StructureChildFromSubWorldConnection(IWorldPositionProvider parent, NBTTagCompound nbt) {
+    public StructureChildFromSubWorldConnection(ILevelPositionProvider parent, NBTTagCompound nbt) {
         super(parent, true, nbt);
     }
     

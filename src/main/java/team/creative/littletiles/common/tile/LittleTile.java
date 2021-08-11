@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.tile;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -14,40 +16,34 @@ import com.creativemd.littletiles.common.tile.BlockRenderLayer;
 import com.creativemd.littletiles.common.tile.EntityPlayer;
 import com.creativemd.littletiles.common.tile.EnumFacing;
 import com.creativemd.littletiles.common.tile.EnumHand;
-import com.creativemd.littletiles.common.tile.IBlockAccess;
-import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
 import com.creativemd.littletiles.common.tile.NBTTagCompound;
-import com.creativemd.littletiles.common.tile.NBTTagList;
 import com.creativemd.littletiles.common.tile.SideOnly;
-import com.creativemd.littletiles.common.tile.combine.ICombinable;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.Axis;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittleTile;
-import com.creativemd.littletiles.common.tile.preview.RenderBox;
-import com.creativemd.littletiles.common.tile.preview.Rotation;
 import com.creativemd.littletiles.common.tile.registry.LittleTileType;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 import com.creativemd.littletiles.common.util.ingredient.IngredientUtils;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -55,56 +51,88 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.SingletonList;
 import team.creative.littletiles.common.api.block.LittleBlock;
-import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.LittleBlockRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.face.LittleBoxFace;
+import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
-public final class LittleTile {
+public final class LittleTile implements Iterable<LittleBox> {
     
     public final LittleBlock block;
     public final int color;
-    public final List<LittleBox> boxes = null;
+    private List<LittleBox> boxes;
     
     public LittleTile(LittleBlock block, int color, LittleBox box) {
-        this(block, color);
-        addBox(box);
+        this.block = block;
+        this.color = color;
+        this.boxes = new SingletonList<>(box);
     }
     
     public LittleTile(LittleBlock block, int color, Iterable<LittleBox> boxes) {
-        this(block, color);
-        addBoxes(boxes);
-    }
-    
-    private LittleTile(LittleBlock block, int color) {
         this.block = block;
         this.color = color;
+        if (boxes instanceof SingletonList)
+            this.boxes = new SingletonList<LittleBox>(((SingletonList<LittleBox>) boxes).get(0));
+        else {
+            this.boxes = new ArrayList<>();
+            for (LittleBox box : boxes)
+                this.boxes.add(box);
+        }
+    }
+    
+    public LittleTile(LittleBlock block, int color, List<LittleBox> boxes) {
+        this.block = block;
+        this.color = color;
+        this.boxes = new ArrayList<>();
+        for (LittleBox box : boxes)
+            this.boxes.add(box);
     }
     
     public LittleTile(CompoundTag nbt) {
-        box = LittleBox.createBox(nbt.getIntArray("box"));
-        String[] parts = nbt.getString("block").split(":");
-        if (parts.length == 3)
-            setBlock(nbt.getString("block"), Block.getBlockFromName(parts[0] + ":" + parts[1]), Integer.parseInt(parts[2]));
-        else
-            setBlock(nbt.getString("block"), Block.getBlockFromName(parts[0] + ":" + parts[1]), 0);
+        this.block = LittleBlockRegistry.get(nbt.getString("b"));
+        this.color = nbt.contains("c") ? nbt.getInt("c") : ColorUtils.WHITE;
+        ListTag list = nbt.getList("s", Tag.TAG_INT_ARRAY);
+        this.boxes = list.size() == 1 ? new SingletonList(LittleBox.createBox(list.getIntArray(0))) : new ArrayList<>();
+        if (list.size() > 1)
+            for (Tag tag : list)
+                this.boxes.add(LittleBox.createBox(((IntArrayTag) tag).getAsIntArray()));
     }
     
     // ================Basics================
     
-    protected void addBox(LittleBox box) {
-        adas
+    private void prepareExpand() {
+        if (boxes instanceof SingletonList) {
+            LittleBox box = boxes.get(0);
+            boxes = new ArrayList<>();
+            boxes.add(box);
+        }
     }
     
-    protected void addBoxes(Iterable<LittleBox> boxes) {
-        adasd
+    public void add(LittleBox box) {
+        prepareExpand();
+        boxes.add(box);
+    }
+    
+    public void add(Iterable<LittleBox> boxes) {
+        prepareExpand();
+        for (LittleBox box : boxes)
+            this.boxes.add(box);
+    }
+    
+    @Override
+    public Iterator<LittleBox> iterator() {
+        return boxes.iterator();
     }
     
     public void combine() {
@@ -126,10 +154,7 @@ public final class LittleTile {
     }
     
     public LittleTile copy() {
-        LittleTile tile = new LittleTile(block, color);
-        for (LittleBox box : boxes)
-            tile.addBox(box.copy());
-        return tile;
+        return new LittleTile(block, color, boxes);
     }
     
     // ================Properties================
@@ -228,12 +253,28 @@ public final class LittleTile {
         return false;
     }
     
-    public List<LittleBox> cutOut(LittleBox box, @Nullable LittleBoxReturnedVolume volume) {
-        return this.box.cutOut(box, volume);
+    public List<LittleBox> cutOut(LittleBox cutter, @Nullable LittleBoxReturnedVolume volume) {
+        List<LittleBox> result = null;
+        for (LittleBox box : boxes) {
+            List<LittleBox> temp = box.cutOut(cutter, volume);
+            if (result == null)
+                result = temp;
+            else if (temp != null)
+                result.addAll(temp);
+        }
+        return result;
     }
     
-    public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
-        return this.box.cutOut(boxes, cutout, volume);
+    public List<LittleBox> cutOut(List<LittleBox> cutter, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
+        List<LittleBox> result = null;
+        for (LittleBox box : boxes) {
+            List<LittleBox> temp = box.cutOut(cutter, cutout, volume);
+            if (result == null)
+                result = temp;
+            else if (temp != null)
+                result.addAll(temp);
+        }
+        return result;
     }
     
     public void getIntersectingBoxes(LittleBox intersect, List<LittleBox> boxes) {
@@ -258,61 +299,36 @@ public final class LittleTile {
         return result;
     }
     
-    public boolean equalsBox(LittleBox box) {
-        return this.box.equals(box);
-    }
-    
-    public boolean doesProvideSolidFace(EnumFacing facing) {
-        return !invisible && box.isFaceSolid(facing) && !isTranslucent() && block != Blocks.BARRIER;
-    }
-    
-    public boolean doesTouch(LittleTile tile) {
-        return box.doesTouch(tile.box);
+    public boolean doesProvideSolidFace() {
+        return !isTranslucent() && block.is(Blocks.BARRIER);
     }
     
     // ================Rotating/Mirror================
     
     public void mirror(Axis axis, LittleVec doubledCenter) {
-        box.flipBox(axis, doubledCenter);
-        getSpecialHandler().flipPreview(axis, this, doubledCenter);
+        for (LittleBox box : boxes)
+            box.flipBox(axis, doubledCenter);
+        block.mirror(axis, this, doubledCenter);
     }
     
     public void rotate(Rotation rotation, LittleVec doubledCenter) {
-        box.rotateBox(rotation, doubledCenter);
-        getSpecialHandler().rotatePreview(rotation, this, doubledCenter);
+        for (LittleBox box : boxes)
+            box.rotateBox(rotation, doubledCenter);
+        block.rotate(rotation, this, doubledCenter);
     }
     
     // ================Drop================
     
-    public ItemStack getDrop(LittleGridContext context) {
-        return getDropInternal(context);
-    }
-    
-    protected ItemStack getDropInternal(LittleGridContext context) {
+    public ItemStack getDrop(LittleGrid context) {
         return ItemBlockTiles.getStackFromPreview(context, getPreviewTile());
-    }
-    
-    public LittlePreview getPreviewTile() {
-        if (hasSpecialBlockHandler()) {
-            LittlePreview preview = handler.getPreview(this);
-            if (preview != null)
-                return preview;
-        }
-        
-        NBTTagCompound nbt = new NBTTagCompound();
-        saveTileExtra(nbt);
-        LittleTileType type = getType();
-        if (type.saveId)
-            nbt.setString("tID", type.id);
-        return new LittlePreview(box.copy(), nbt);
     }
     
     // ================Rendering================
     
     @SideOnly(Side.CLIENT)
-    public boolean shouldBeRenderedInLayer(BlockRenderLayer layer) {
+    public boolean shouldBeRenderedInLayer(RenderType layer) {
         if (FMLClientHandler.instance().hasOptifine() && block.canRenderInLayer(state, BlockRenderLayer.CUTOUT))
-            return layer == BlockRenderLayer.CUTOUT_MIPPED; // Should fix an Optifine bug
+            return layer == RenderType.cutoutMipped(); // Should fix an Optifine bug
             
         try {
             return block.canRenderInLayer(getBlockState(), layer);
@@ -326,7 +342,7 @@ public final class LittleTile {
     }
     
     @SideOnly(Side.CLIENT)
-    public final LittleRenderBox getRenderingCube(LittleGridContext context, BlockRenderLayer layer) {
+    public final LittleRenderBox getRenderingCube(LittleGridContext context, RenderType layer) {
         if (invisible)
             return null;
         return getInternalRenderingCube(context, layer);
@@ -350,11 +366,11 @@ public final class LittleTile {
     public boolean canBeRenderCombined(LittleTile tile) {
         if (this.invisible != tile.invisible)
             return false;
-        
+        asd
         if (block == tile.block && meta == tile.meta && block != Blocks.BARRIER && tile.block != Blocks.BARRIER)
             return true;
         
-        if (hasSpecialBlockHandler() && handler.canBeRenderCombined(this, tile))
+        if (block.canBeRenderCombined(tile.block))
             return true;
         
         return false;
@@ -373,16 +389,6 @@ public final class LittleTile {
         if (offset != null)
             newBox.add(offset);
         return new PlacePreview(newBox, this);
-    }
-    
-    // ================Interaction================
-    
-    public boolean canSawResizeTile(EnumFacing facing, EntityPlayer player) {
-        return true;
-    }
-    
-    public boolean canBeMoved(EnumFacing facing) {
-        return true;
     }
     
     // ================Block Event================
@@ -507,7 +513,7 @@ public final class LittleTile {
     // ================Ingredient================
     
     @Nullable
-    public BlockIngredientEntry getBlockIngredient(LittleGridContext context) {
+    public BlockIngredientEntry getBlockIngredient(LittleGrid context) {
         return IngredientUtils.getBlockIngredient(getBlock(), getMeta(), getPercentVolume(context));
     }
     

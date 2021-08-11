@@ -7,7 +7,6 @@ import com.creativemd.littletiles.common.structure.type.premade.LittleStructureP
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -23,6 +22,7 @@ import com.creativemd.littletiles.common.util.place.PlacementResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing.Axis;
+import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 
 public class LittleActionPlaceAbsolute extends LittleAction {
     

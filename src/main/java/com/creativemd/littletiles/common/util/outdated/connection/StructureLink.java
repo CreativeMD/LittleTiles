@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 
 import net.minecraft.nbt.NBTTagCompound;
-import team.creative.littletiles.common.structure.connection.IWorldPositionProvider;
+import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
@@ -14,7 +14,7 @@ import team.creative.littletiles.common.structure.connection.StructureChildToSub
 public class StructureLink {
     
     @Deprecated
-    public static StructureChildConnection loadFromNBTOld(IWorldPositionProvider structure, NBTTagCompound nbt, boolean isChild) {
+    public static StructureChildConnection loadFromNBTOld(ILevelPositionProvider structure, NBTTagCompound nbt, boolean isChild) {
         int childID = nbt.getInteger("childID");
         int attribute = nbt.getInteger("type");
         LittleIdentifierRelative identifier = new LittleIdentifierRelative(nbt);

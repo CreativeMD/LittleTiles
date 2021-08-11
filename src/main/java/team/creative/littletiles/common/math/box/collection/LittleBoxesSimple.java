@@ -1,10 +1,11 @@
-package com.creativemd.littletiles.common.tile.math.box;
+package team.creative.littletiles.common.math.box.collection;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;

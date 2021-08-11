@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 
@@ -17,7 +16,8 @@ import team.creative.creativecore.common.util.registry.NamedRegistry.RegistryExc
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.box.LittleBoxes;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 

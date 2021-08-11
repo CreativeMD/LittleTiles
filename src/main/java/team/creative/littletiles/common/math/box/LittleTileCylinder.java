@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.math.box;
+package team.creative.littletiles.common.math.box;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 

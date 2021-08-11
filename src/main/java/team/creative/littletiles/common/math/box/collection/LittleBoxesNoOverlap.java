@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.math.box;
+package team.creative.littletiles.common.math.box.collection;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -7,11 +7,13 @@ import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleBoxesNoOverlap extends LittleBoxes {
     

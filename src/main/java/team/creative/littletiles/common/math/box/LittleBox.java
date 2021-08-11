@@ -8,23 +8,16 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
-import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -38,7 +31,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.face.LittleBoxFace;
+import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
@@ -103,8 +96,9 @@ public class LittleBox {
     
     // ================Conversions================
     
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        do it
+    public VoxelShape getShape(LittleGrid grid) {
+        return Shapes
+                .box(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
     public AABB getSelectionBB(LittleGrid context, BlockPos pos) {
@@ -651,7 +645,6 @@ public class LittleBox {
                 return boxes;
             } else {
                 LittleBox testBox = new LittleBox(0, 0, 0, 0, 0, 0);
-                LittleVec vec = new LittleVec(0, 0, 0);
                 for (int x = minX; x < maxX; x++) {
                     for (int y = minY; y < maxY; y++) {
                         for (int z = minZ; z < maxZ; z++) {
@@ -886,6 +879,7 @@ public class LittleBox {
     
     @Nullable
     protected Vec3 collideWithPlane(LittleGrid context, Axis axis, double value, Vec3 vecA, Vec3 vecB) {
+        AABB.clip(p_82343_, p_82344_, p_82345_, p_82346_)
         Vec3 vec3 = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
                 .getIntermediateWithXValue(vecB, value);
         return vec3 != null && intersectsWithAxis(context, axis, vec3) ? vec3 : null;
@@ -1081,7 +1075,7 @@ public class LittleBox {
             if (facing.positive)
                 result.setMax(facing.axis, toLimit ? getMin(facing.axis) + 1 : getMax(facing.axis) - 1);
             else
-                result.setMin(Facing.axis, toLimit ? getMax(facing.axis) - 1 : getMin(facing.axis) + 1);
+                result.setMin(facing.axis, toLimit ? getMax(facing.axis) - 1 : getMin(facing.axis) + 1);
             return result;
         }
         return null;
@@ -1119,16 +1113,15 @@ public class LittleBox {
     // ================Faces================
     
     @Nullable
-    public LittleBoxFace generateFace(LittleGrid context, Facing facing) {
+    public LittleFace generateFace(LittleGrid context, Facing facing) {
         Axis one = facing.one();
         Axis two = facing.two();
         
-        return new LittleBoxFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
+        return new LittleFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
     }
     
-    public boolean intersectsWith(LittleBoxFace face) {
-        return (face.facing.positive ? getMin(face.facing.getAxis()) : getMax(face.facing
-                .getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
+    public boolean intersectsWith(LittleFace face) {
+        return (face.facing.positive ? getMin(face.facing.axis) : getMax(face.facing.axis)) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
     }
     
     public boolean isFaceSolid(Facing facing) {
@@ -1145,7 +1138,7 @@ public class LittleBox {
             int maxOne = Math.min(getMax(face.one), face.maxOne);
             int minTwo = Math.max(getMin(face.two), face.minTwo);
             int maxTwo = Math.min(getMax(face.two), face.maxTwo);
-            if (isFaceSolid(face.facing.getOpposite()))
+            if (isFaceSolid(face.facing.opposite()))
                 for (int one = minOne; one < maxOne; one++)
                     for (int two = minTwo; two < maxTwo; two++)
                         face.filled[one - face.minOne][two - face.minTwo] = true;
@@ -1154,7 +1147,7 @@ public class LittleBox {
         }
     }
     
-    protected void fillAdvanced(LittleBoxFace face) {
+    protected void fillAdvanced(LittleFace face) {
         
     }
     
@@ -1175,12 +1168,7 @@ public class LittleBox {
         if (identifier < 0)
             return new LittleTransformableBox(array);
         
-        LittleSlice slice = LittleSlice.getSliceByID(array[6]);
-        if (array.length == 7)
-            return new LittleTransformableBox(array[0], array[1], array[2], array[3], array[4], array[5], slice);
-        if (array.length == 11)
-            return new LittleTransformableBox(array[0], array[1], array[2], array[3], array[4], array[5], LittleSlice.getSliceByID(array[6]), Float.intBitsToFloat(array[7]), Float
-                    .intBitsToFloat(array[8]), Float.intBitsToFloat(array[9]), Float.intBitsToFloat(array[10]));
+        Still needs to be changed, I don't like it
         
         throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
     }

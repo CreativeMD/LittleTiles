@@ -1,11 +1,11 @@
 package team.creative.littletiles.common.structure.connection;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
-public interface IWorldPositionProvider {
+public interface ILevelPositionProvider {
     
-    public World getWorld();
+    public Level getLevel();
     
     public BlockPos getPos();
     

@@ -1,8 +1,7 @@
 package team.creative.littletiles.common.structure.connection;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
-
 import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 

@@ -4,21 +4,23 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.mojang.math.Vector3f;
 
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.IntArrayNBT;
 import net.minecraft.nbt.IntNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.Tag;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.transformation.RotationUtils;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public abstract class StructureDirectionalType<T> {
     
@@ -41,15 +43,15 @@ public abstract class StructureDirectionalType<T> {
     static {
         registerType(Facing.class, new StructureDirectionalType<Facing>() {
             @Override
-            public Facing read(INBT nbt) {
-                if (nbt instanceof IntNBT)
+            public Facing read(Tag nbt) {
+                if (nbt instanceof IntTag)
                     return Facing.values()[((IntNBT) nbt).getAsInt()];
                 return null;
             }
             
             @Override
-            public INBT write(Facing value) {
-                return IntNBT.valueOf(value.ordinal());
+            public Tag write(Facing value) {
+                return IntTag.valueOf(value.ordinal());
             }
             
             @Override
@@ -206,9 +208,9 @@ public abstract class StructureDirectionalType<T> {
         });
     }
     
-    public abstract T read(INBT nbt);
+    public abstract T read(Tag nbt);
     
-    public abstract INBT write(T value);
+    public abstract Tag write(T value);
     
     public abstract T move(T value, LittleGrid context, LittleVec offset);
     
@@ -230,7 +232,7 @@ public abstract class StructureDirectionalType<T> {
         
     }
     
-    public PlacePreview getPlacePreview(T value, LittlePreviews previews, StructureDirectionalField field) {
+    public PlacePreview getPlacePreview(T value, LittleGroup previews, StructureDirectionalField field) {
         return null;
     }
     

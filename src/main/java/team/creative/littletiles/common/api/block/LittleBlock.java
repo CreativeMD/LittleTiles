@@ -14,4 +14,16 @@ public abstract class LittleBlock {
     
     public abstract String blockName();
     
+    @Override
+    public abstract int hashCode();
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LittleBlock)
+            return equals((LittleBlock) obj);
+        return false;
+    }
+    
+    public abstract boolean equals(LittleBlock block);
+    
 }

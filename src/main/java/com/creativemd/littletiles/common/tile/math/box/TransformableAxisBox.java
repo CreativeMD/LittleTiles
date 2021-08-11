@@ -10,8 +10,6 @@ import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
 import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanCache;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanFaceCache;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing;
@@ -20,6 +18,9 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import team.creative.littletiles.common.math.box.LittleTransformableBox;
+import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
+import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanFaceCache;
 
 public class TransformableAxisBox extends CreativeAxisAlignedBB {
     

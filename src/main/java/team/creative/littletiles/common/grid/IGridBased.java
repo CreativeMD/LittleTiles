@@ -38,4 +38,13 @@ public interface IGridBased {
             convertTo(grid);
     }
     
+    public default void minGrid(IGridBased other) {
+        if (this.getGrid().count < other.getGrid().count)
+            convertTo(other.getGrid());
+    }
+    
+    public default void minGrid(LittleGrid grid) {
+        if (this.getGrid().count < grid.count)
+            convertTo(grid);
+    }
 }

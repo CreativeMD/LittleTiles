@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.MissingChildException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.MissingChildException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public class ChildrenList implements Iterable<StructureChildConnection> {
     

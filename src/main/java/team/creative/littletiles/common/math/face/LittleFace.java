@@ -3,14 +3,13 @@ package team.creative.littletiles.common.math.face;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
-import net.minecraft.util.EnumFacing;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -21,7 +20,7 @@ public class LittleFace {
     public LittleBox box;
     public final Axis one;
     public final Axis two;
-    public final EnumFacing facing;
+    public final Facing facing;
     public int minOne;
     public int minTwo;
     public int maxOne;
@@ -35,14 +34,14 @@ public class LittleFace {
     private List<VectorFan> faceFans = null;
     private Iterable<VectorFan> tiltedFans = null;
     
-    public LittleFace(LittleBox box, List<VectorFan> faceFans, Iterable<VectorFan> tiltedFans, LittleGridContext context, EnumFacing facing, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
+    public LittleFace(LittleBox box, List<VectorFan> faceFans, Iterable<VectorFan> tiltedFans, LittleGrid grid, Facing facing, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
         this.box = box;
         this.faceFans = faceFans;
         this.tiltedFans = tiltedFans;
-        this.context = context;
+        this.grid = grid;
         this.facing = facing;
-        this.one = RotationUtils.getOne(facing.getAxis());
-        this.two = RotationUtils.getTwo(facing.getAxis());
+        this.one = facing.one();
+        this.two = facing.two();
         this.minOne = minOne;
         this.minTwo = minTwo;
         this.maxOne = maxOne;
@@ -52,11 +51,11 @@ public class LittleFace {
         this.filled = new boolean[maxOne - minOne][maxTwo - minTwo];
     }
     
-    public void ensureContext(LittleGridContext context) {
-        if (context == this.context || this.context.size > context.size)
+    public void ensureContext(LittleGrid context) {
+        if (context == this.grid || this.grid.count > grid.count)
             return;
         
-        int ratio = context.size / this.context.size;
+        int ratio = context.count / this.grid.count;
         this.minOne *= ratio;
         this.minTwo *= ratio;
         this.maxOne *= ratio;
@@ -64,8 +63,8 @@ public class LittleFace {
         this.origin *= ratio;
         this.oldOrigin *= ratio;
         box = box.copy(); // Make sure the original one will not be modified
-        box.convertTo(this.context, context);
-        this.context = context;
+        box.convertTo(this.grid, context);
+        this.grid = context;
         filled = new boolean[maxOne - minOne][maxTwo - minTwo];
         if (faceFans != null) {
             List<VectorFan> newFans = new ArrayList<>(faceFans.size());
@@ -108,11 +107,11 @@ public class LittleFace {
     }
     
     private float get(LittleBox box, int index) {
-        EnumFacing direction = EnumFacing.VALUES[index];
-        if (direction.getAxis() == one)
-            return (direction.getAxisDirection() == AxisDirection.POSITIVE ? box.maxX : box.minX) + minOne;
-        if (direction.getAxis() == two)
-            return (direction.getAxisDirection() == AxisDirection.POSITIVE ? box.maxY : box.minY) + minTwo;
+        Facing direction = Facing.get(index);
+        if (direction.axis == one)
+            return (direction.positive ? box.maxX : box.minX) + minOne;
+        if (direction.axis == two)
+            return (direction.positive ? box.maxY : box.minY) + minTwo;
         return oldOrigin;
     }
     
@@ -169,7 +168,7 @@ public class LittleFace {
         if (faceFans != null) {
             List<VectorFan> newFans = new ArrayList<>();
             for (VectorFan fan : fans)
-                newFans.addAll(fan.cut2d(faceFans, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE, true));
+                newFans.addAll(fan.cut2d(faceFans, one, two, facing.positive, true));
             fans = newFans;
         }
         
@@ -182,7 +181,7 @@ public class LittleFace {
         
         List<VectorFan> result = new ArrayList<>();
         for (VectorFan fan : fans)
-            result.addAll(fan.cut2d(toCut, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE, false));
+            result.addAll(fan.cut2d(toCut, one, two, facing.positive, false));
         if (tiltedFans != null)
             for (VectorFan fan : tiltedFans)
                 result.add(fan);
@@ -195,11 +194,11 @@ public class LittleFace {
     }
     
     public boolean isFaceInsideBlock() {
-        return origin > 0 && origin < context.maxPos;
+        return origin > 0 && origin < grid.count;
     }
     
-    public void move(EnumFacing facing) {
-        origin = facing.getAxisDirection() == AxisDirection.POSITIVE ? 0 : context.maxPos;
+    public void move(Facing facing) {
+        origin = facing.positive ? 0 : grid.count;
     }
     
 }

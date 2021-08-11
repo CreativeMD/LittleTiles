@@ -2,15 +2,15 @@ package team.creative.littletiles.common.structure.directional;
 
 import java.lang.reflect.Field;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.structure.LittleStructure;
 
 public class StructureDirectionalField {
     
@@ -55,7 +55,7 @@ public class StructureDirectionalField {
         this.defaultValue = value;
     }
     
-    public Object create(CompoundNBT nbt) {
+    public Object create(CompoundTag nbt) {
         Object value = type.read(nbt.get(saveKey));
         if (value == null)
             if (defaultValue != null)
@@ -65,7 +65,7 @@ public class StructureDirectionalField {
         return value;
     }
     
-    public void save(CompoundNBT nbt, Object value) {
+    public void save(CompoundTag nbt, Object value) {
         nbt.put(saveKey, type.write(value));
     }
     

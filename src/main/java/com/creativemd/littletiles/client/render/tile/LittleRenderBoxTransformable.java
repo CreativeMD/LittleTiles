@@ -6,14 +6,14 @@ import java.util.List;
 import com.creativemd.creativecore.client.rendering.face.IFaceRenderType;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanCache;
-import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanFaceCache;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumFacing;
+import team.creative.littletiles.common.math.box.LittleTransformableBox;
+import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
+import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanFaceCache;
 
 public class LittleRenderBoxTransformable extends LittleRenderBox {
     

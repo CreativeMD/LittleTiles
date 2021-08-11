@@ -1,6 +1,6 @@
-package com.creativemd.littletiles.common.tile.math.box;
+package team.creative.littletiles.common.math.box.collection;
 
-import java.util.List;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -14,8 +14,8 @@ import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public abstract class LittleBoxes implements IGridBased {
     
-    public final BlockPos pos;
-    protected LittleGrid grid;
+    public BlockPos pos;
+    public LittleGrid grid;
     
     public LittleBoxes(BlockPos pos, LittleGrid grid) {
         this.pos = pos;
@@ -24,13 +24,8 @@ public abstract class LittleBoxes implements IGridBased {
     
     public abstract void add(LittleBox box);
     
-    public void addBox(IParentCollection parent, LittleTile tile) {
-        addBoxes(parent.getGrid(), parent.getPos(), tile.boxes);
-    }
-    
-    public void addBoxes(LittleGrid grid, BlockPos pos, List<LittleBox> boxes) {
-        for (LittleBox box : boxes)
-            addBox(grid, pos, box.copy());
+    public LittleBox addBox(IParentCollection parent, LittleTile tile) {
+        return addBox(parent.getGrid(), parent.getPos(), tile.getBox().copy());
     }
     
     public LittleBox addBox(LittleGrid grid, BlockPos pos, LittleBox box) {
@@ -51,6 +46,12 @@ public abstract class LittleBoxes implements IGridBased {
     public LittleGrid getGrid() {
         return grid;
     }
+    
+    @Override
+    public abstract void convertTo(LittleGrid to);
+    
+    @Override
+    public abstract int getSmallest();
     
     public abstract void clear();
     

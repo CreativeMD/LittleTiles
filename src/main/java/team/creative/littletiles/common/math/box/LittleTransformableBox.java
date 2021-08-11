@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.math.box;
+package team.creative.littletiles.common.math.box;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -8,43 +8,41 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.creativecore.common.utils.math.IntegerUtils;
-import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.VectorUtils;
-import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
-import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
-import com.creativemd.creativecore.common.utils.math.box.BoxFace;
-import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
-import com.creativemd.creativecore.common.utils.math.geo.Ray2d;
-import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
-import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
+import com.creativemd.littletiles.common.tile.math.box.TransformableAxisBox;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
-import com.creativemd.littletiles.common.tile.math.vec.LittleRay;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.math.Vector3d;
+import com.mojang.math.Vector3f;
 
-import net.minecraft.block.Block;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.creativecore.common.util.math.box.BoxCorner;
+import team.creative.creativecore.common.util.math.box.BoxFace;
+import team.creative.creativecore.common.util.math.geo.NormalPlane;
+import team.creative.creativecore.common.util.math.geo.Ray2d;
+import team.creative.creativecore.common.util.math.geo.Ray3f;
+import team.creative.creativecore.common.util.math.geo.VectorFan;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.utils.IntegerUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.math.vec.VectorUtils;
+import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.vec.LittleRay;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleTransformableBox extends LittleBox {
     
-    private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true },
-            { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
+    private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true }, { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
     private static boolean[][] flipMirrorMatrix = new boolean[][] { { true, true, true, true, true, true }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
     
     private static boolean[][] buildFlipRotationCache() {
@@ -68,7 +66,7 @@ public class LittleTransformableBox extends LittleBox {
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
                 if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
-                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                        .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
                     flipped[j] = false;
                 else
                     flipped[j] = true;
@@ -98,7 +96,7 @@ public class LittleTransformableBox extends LittleBox {
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
                 if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
-                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                        .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
                     flipped[j] = false;
                 else
                     flipped[j] = true;
@@ -261,14 +259,14 @@ public class LittleTransformableBox extends LittleBox {
     @Override
     public TransformableAxisBox getBox(LittleGridContext context, BlockPos offset) {
         return new TransformableAxisBox(this, context, context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context
-            .toVanillaGrid(minZ) + offset
-                .getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
+                .toVanillaGrid(minZ) + offset
+                        .getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
     }
     
     @Override
     public TransformableAxisBox getBox(LittleGridContext context) {
         return new TransformableAxisBox(this, context, context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context
-            .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+                .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
     }
     
     public int getIndicator() {
@@ -763,7 +761,7 @@ public class LittleTransformableBox extends LittleBox {
                 for (VectorFan fan : face.axisStrips)
                     for (VectorFan fan2 : otherFace.axisStrips)
                         if (VectorUtils.get(axis, fan.get(0)) == VectorUtils.get(axis, fan2.get(0)) && fan
-                            .intersect2d(fan2, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE))
+                                .intersect2d(fan2, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE))
                             return true;
             }
         }
@@ -1206,7 +1204,7 @@ public class LittleTransformableBox extends LittleBox {
         Axis one = RotationUtils.getOne(facing.getAxis());
         Axis two = RotationUtils.getTwo(facing.getAxis());
         return new LittleFace(this, faceCache.axisStrips, faceCache.tilted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
-            .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+                .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
     }
     
     class TransformableVec {

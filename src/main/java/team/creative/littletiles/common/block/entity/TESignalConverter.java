@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tileentity;
+package team.creative.littletiles.common.block.entity;
 
 import java.util.ArrayList;
 import java.util.Iterator;

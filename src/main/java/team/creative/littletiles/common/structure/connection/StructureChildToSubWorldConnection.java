@@ -16,12 +16,12 @@ public class StructureChildToSubWorldConnection extends StructureChildConnection
     
     public final UUID entityUUID;
     
-    public StructureChildToSubWorldConnection(IWorldPositionProvider parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute, UUID entityUUID) {
+    public StructureChildToSubWorldConnection(ILevelPositionProvider parent, boolean dynamic, int childId, BlockPos relative, int index, int attribute, UUID entityUUID) {
         super(parent, false, dynamic, childId, relative, index, attribute);
         this.entityUUID = entityUUID;
     }
     
-    public StructureChildToSubWorldConnection(IWorldPositionProvider parent, NBTTagCompound nbt) {
+    public StructureChildToSubWorldConnection(ILevelPositionProvider parent, NBTTagCompound nbt) {
         super(parent, false, nbt);
         this.entityUUID = UUID.fromString(nbt.getString("entity"));
     }

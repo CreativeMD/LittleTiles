@@ -23,7 +23,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 
 public class StructureChildConnection implements IStructureConnection {
     
-    public final IWorldPositionProvider parent;
+    public final ILevelPositionProvider parent;
     public final boolean isChild;
     public final int childId;
     public final boolean dynamic;
@@ -33,7 +33,7 @@ public class StructureChildConnection implements IStructureConnection {
     private final BlockPos relativePos;
     private TileEntityLittleTiles cachedTe;
     
-    public StructureChildConnection(IWorldPositionProvider parent, boolean isChild, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
+    public StructureChildConnection(ILevelPositionProvider parent, boolean isChild, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
         this.parent = parent;
         this.isChild = isChild;
         this.childId = childId;
@@ -43,7 +43,7 @@ public class StructureChildConnection implements IStructureConnection {
         this.dynamic = dynamic;
     }
     
-    public StructureChildConnection(IWorldPositionProvider parent, boolean isChild, NBTTagCompound nbt) {
+    public StructureChildConnection(ILevelPositionProvider parent, boolean isChild, NBTTagCompound nbt) {
         this.parent = parent;
         this.isChild = isChild;
         this.childId = nbt.getInteger("child");
@@ -138,7 +138,7 @@ public class StructureChildConnection implements IStructureConnection {
         return attribute;
     }
     
-    public static StructureChildConnection loadFromNBT(IWorldPositionProvider structure, NBTTagCompound nbt, boolean isChild) {
+    public static StructureChildConnection loadFromNBT(ILevelPositionProvider structure, NBTTagCompound nbt, boolean isChild) {
         if (nbt.hasKey("childID")) // Old
             return StructureLink.loadFromNBTOld(structure, nbt, isChild);
         

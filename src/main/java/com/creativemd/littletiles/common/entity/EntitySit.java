@@ -15,10 +15,10 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import team.creative.littletiles.common.structure.connection.IWorldPositionProvider;
+import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 
-public class EntitySit extends Entity implements IWorldPositionProvider {
+public class EntitySit extends Entity implements ILevelPositionProvider {
     
     public static final DataParameter<NBTTagCompound> CONNECTION = EntityDataManager.createKey(EntitySit.class, DataSerializers.COMPOUND_TAG);
     public static final DataParameter<Float> CHAIRX = EntityDataManager.createKey(EntitySit.class, DataSerializers.FLOAT);

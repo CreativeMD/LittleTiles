@@ -69,7 +69,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.RelativeBlockPos;
 import team.creative.littletiles.common.structure.connection.ChildrenList;
-import team.creative.littletiles.common.structure.connection.IWorldPositionProvider;
+import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
@@ -83,7 +83,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
-public abstract class LittleStructure implements ISignalSchedulable, IWorldPositionProvider {
+public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
     
     private static final Iterator<LittleTile> EMPTY_ITERATOR = new Iterator<LittleTile>() {
         
@@ -240,7 +240,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         this.parent = connector;
     }
     
-    public StructureChildConnection generateConnection(IWorldPositionProvider parent) {
+    public StructureChildConnection generateConnection(ILevelPositionProvider parent) {
         World world = getWorld();
         World parentWorld = parent.getWorld();
         

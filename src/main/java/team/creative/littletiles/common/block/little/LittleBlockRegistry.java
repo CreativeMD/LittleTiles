@@ -9,7 +9,11 @@ public class LittleBlockRegistry {
     
     private static final HashMap<Block, LittleBlock> blockMap = new HashMap<>();
     
-    public static LittleBlock getLittleBlock(Block block) {
+    public static LittleBlock get(String name) {
+        
+    }
+    
+    public static LittleBlock get(Block block) {
         
     }
     

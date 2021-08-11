@@ -90,7 +90,6 @@ import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEm
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.tileentity.TESignalConverter;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
@@ -124,6 +123,7 @@ import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import team.creative.creativecore.CreativeCore;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.entity.TESignalConverter;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemBlockTiles;
