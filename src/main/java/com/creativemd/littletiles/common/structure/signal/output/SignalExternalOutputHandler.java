@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
@@ -18,6 +17,7 @@ import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSig
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 
 public class SignalExternalOutputHandler implements ISignalComponent {
     

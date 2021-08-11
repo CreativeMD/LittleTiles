@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

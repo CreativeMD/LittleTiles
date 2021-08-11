@@ -25,7 +25,6 @@ import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
-import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
 import com.creativemd.littletiles.common.tile.math.vec.LittleRay;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -40,6 +39,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.math.face.LittleFace;
 
 public class LittleTransformableBox extends LittleBox {
     
@@ -1189,7 +1189,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    protected void fillAdvanced(LittleBoxFace face) {
+    protected void fillAdvanced(LittleFace face) {
         List<VectorFan> axis = requestCache().get(face.facing).axisStrips;
         if (axis != null && !axis.isEmpty())
             face.cut(axis);
@@ -1197,7 +1197,7 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     @Nullable
-    public LittleBoxFace generateFace(LittleGridContext context, EnumFacing facing) {
+    public LittleFace generateFace(LittleGridContext context, EnumFacing facing) {
         VectorFanFaceCache faceCache = requestCache().get(facing);
         if (faceCache.isCompletelyFilled())
             return super.generateFace(context, facing);
@@ -1205,7 +1205,7 @@ public class LittleTransformableBox extends LittleBox {
             return null;
         Axis one = RotationUtils.getOne(facing.getAxis());
         Axis two = RotationUtils.getTwo(facing.getAxis());
-        return new LittleBoxFace(this, faceCache.axisStrips, faceCache.tilted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
+        return new LittleFace(this, faceCache.axisStrips, faceCache.tilted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
             .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
     }
     

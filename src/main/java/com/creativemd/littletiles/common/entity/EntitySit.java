@@ -4,8 +4,6 @@ import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.connection.IWorldPositionProvider;
-import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
@@ -17,6 +15,8 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.structure.connection.IWorldPositionProvider;
+import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 
 public class EntitySit extends Entity implements IWorldPositionProvider {
     

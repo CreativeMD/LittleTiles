@@ -10,7 +10,6 @@ import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler.AnimationGuiHolder;
-import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -21,6 +20,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class ChildActivateEvent extends AnimationEvent {

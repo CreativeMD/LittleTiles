@@ -2,13 +2,13 @@ package com.creativemd.littletiles.common.util.outdated.connection;
 
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.structure.connection.IWorldPositionProvider;
-import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
-import com.creativemd.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
-import com.creativemd.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.structure.connection.IWorldPositionProvider;
+import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
+import team.creative.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
 
 @Deprecated
 public class StructureLink {

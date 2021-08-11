@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection;
 
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;

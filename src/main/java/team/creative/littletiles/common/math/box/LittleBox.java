@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
-import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
 import com.mojang.math.Vector3f;
 
@@ -22,6 +21,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -38,6 +38,8 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.face.LittleBoxFace;
+import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes.SplitRangeBox;
@@ -134,7 +136,7 @@ public class LittleBox {
         return new int[] { minX, minY, minZ, maxX, maxY, maxZ };
     }
     
-    public IntArrayTag getNBTIntArray() {
+    public IntArrayTag getArrayTag() {
         return new IntArrayTag(getArray());
     }
     
@@ -673,6 +675,10 @@ public class LittleBox {
         return box.maxX > this.minX && box.minX < this.maxX && box.maxY > this.minY && box.minY < this.maxY && box.maxZ > this.minZ && box.minZ < this.maxZ;
     }
     
+    public boolean intersectsWith(AABB bb, LittleGrid grid) {
+        return box.maxX > this.minX && box.minX < this.maxX && box.maxY > this.minY && box.minY < this.maxY && box.maxZ > this.minZ && box.minZ < this.maxZ;
+    }
+    
     public boolean containsBox(LittleBox box) {
         return this.minX <= box.minX && this.maxX >= box.maxX && this.minY <= box.minY && this.maxY >= box.maxY && this.minZ <= box.minZ && this.maxZ >= box.maxZ;
     }
@@ -879,23 +885,23 @@ public class LittleBox {
     }
     
     @Nullable
-    protected Vec3d collideWithPlane(LittleGrid context, Axis axis, double value, Vec3 vecA, Vec3 vecB) {
-        Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
+    protected Vec3 collideWithPlane(LittleGrid context, Axis axis, double value, Vec3 vecA, Vec3 vecB) {
+        Vec3 vec3 = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
                 .getIntermediateWithXValue(vecB, value);
-        return vec3d != null && intersectsWithAxis(context, axis, vec3d) ? vec3d : null;
+        return vec3 != null && intersectsWithAxis(context, axis, vec3) ? vec3 : null;
     }
     
     @Nullable
-    public HitResult calculateIntercept(LittleGrid context, BlockPos pos, Vec3 vecA, Vec3 vecB) {
-        vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
-        vecB = vecB.subtract(pos.getX(), pos.getY(), pos.getZ());
+    public BlockHitResult rayTrace(LittleGrid grid, BlockPos blockPos, Vec3 pos, Vec3 look) {
+        pos = pos.subtract(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        look = look.subtract(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         
-        Vec3d collision = null;
+        Vec3 collision = null;
         Facing collided = null;
         
         for (Facing facing : Facing.values()) {
-            Vec3d temp = collideWithPlane(context, facing.axis, (double) get(facing) / context.count, vecA, vecB);
-            if (temp != null && isClosest(vecA, collision, temp)) {
+            Vec3 temp = collideWithPlane(grid, facing.axis, (double) get(facing) / grid.count, pos, look);
+            if (temp != null && isClosest(pos, collision, temp)) {
                 collided = facing;
                 collision = temp;
             }
@@ -904,7 +910,7 @@ public class LittleBox {
         if (collision == null)
             return null;
         
-        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
+        return new BlockHitResult(collision.add(blockPos.getX(), blockPos.getY(), blockPos.getZ()), collided.toVanilla(), blockPos, true);
     }
     
     public Vector3f[] getVecArray(BoxCorner[] corners) {
@@ -1133,7 +1139,7 @@ public class LittleBox {
         return true;
     }
     
-    public void fill(LittleBoxFace face) {
+    public void fill(LittleFace face) {
         if (intersectsWith(face)) {
             int minOne = Math.max(getMin(face.one), face.minOne);
             int maxOne = Math.min(getMax(face.one), face.maxOne);

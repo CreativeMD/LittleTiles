@@ -6,14 +6,14 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.connection.IStructureConnection;
-import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.structure.connection.IStructureConnection;
+import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 
 public class SubGuiStructureOverview extends SubGui {
     

@@ -10,4 +10,8 @@ public abstract class LittleBlock {
     
     public abstract Block getBlock();
     
+    public abstract boolean canBeConvertedToVanilla();
+    
+    public abstract String blockName();
+    
 }

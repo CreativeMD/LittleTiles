@@ -1,25 +1,23 @@
-package com.creativemd.littletiles.common.tile.math.box.face;
+package team.creative.littletiles.common.math.face;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.vecmath.Vector3f;
-
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.math.Vector3f;
 
 import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import team.creative.creativecore.common.util.math.geo.VectorFan;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 
-public class LittleBoxFace {
+public class LittleFace {
     
-    public LittleGridContext context;
+    public LittleGrid grid;
     public LittleBox box;
     public final Axis one;
     public final Axis two;
@@ -37,7 +35,7 @@ public class LittleBoxFace {
     private List<VectorFan> faceFans = null;
     private Iterable<VectorFan> tiltedFans = null;
     
-    public LittleBoxFace(LittleBox box, List<VectorFan> faceFans, Iterable<VectorFan> tiltedFans, LittleGridContext context, EnumFacing facing, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
+    public LittleFace(LittleBox box, List<VectorFan> faceFans, Iterable<VectorFan> tiltedFans, LittleGridContext context, EnumFacing facing, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
         this.box = box;
         this.faceFans = faceFans;
         this.tiltedFans = tiltedFans;

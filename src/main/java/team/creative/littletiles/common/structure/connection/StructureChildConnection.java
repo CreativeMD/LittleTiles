@@ -1,25 +1,25 @@
-package com.creativemd.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection;
 
 import java.security.InvalidParameterException;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
-import com.creativemd.littletiles.common.structure.exception.MissingBlockException;
-import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
-import com.creativemd.littletiles.common.structure.exception.MissingWorldException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.connection.StructureLink;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
+import team.creative.littletiles.common.structure.exception.MissingBlockException;
+import team.creative.littletiles.common.structure.exception.MissingStructureException;
+import team.creative.littletiles.common.structure.exception.MissingWorldException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public class StructureChildConnection implements IStructureConnection {
     

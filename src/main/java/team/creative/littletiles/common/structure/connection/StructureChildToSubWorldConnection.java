@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection;
 
 import java.util.UUID;
 

@@ -18,7 +18,6 @@ import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManage
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
-import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.AxisAlignedBB;
 import com.creativemd.littletiles.common.tileentity.CreativeWorld;
@@ -64,6 +63,7 @@ import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.face.LittleBoxFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
@@ -93,7 +93,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     
     protected void assign(BETiles te) {
         try {
-            for (Field field : TileEntityLittleTiles.class.getDeclaredFields())
+            for (Field field : BETiles.class.getDeclaredFields())
                 if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
                     field.set(this, field.get(te));
             setWorld(te.getWorld());
@@ -144,13 +144,6 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     @SideOnly(Side.CLIENT)
     public Iterable<LittleStructure> rendering() {
         return tiles.loadedStructures(LittleStructureAttribute.TICK_RENDERING);
-    }
-    
-    @Override
-    public void convertToSmallest() {
-        
-        if (size < context.size)
-            convertTo(LittleGridContext.get(size));
     }
     
     public boolean contains(LittleTile tile) {
