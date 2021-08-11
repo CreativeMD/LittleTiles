@@ -2,10 +2,10 @@ package com.creativemd.littletiles.client.gui.controls;
 
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.controls.container.client.GuiSlotControl;
-import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 
 import net.minecraft.item.ItemStack;
+import team.creative.littletiles.common.item.ItemBlockIngredient;
 
 public class GuiSlotControlBlockIngredient extends GuiSlotControl {
     

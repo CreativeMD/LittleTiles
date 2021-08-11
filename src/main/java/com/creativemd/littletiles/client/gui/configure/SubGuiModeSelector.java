@@ -6,7 +6,6 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.littletiles.common.item.ItemMultiTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.mojang.realmsclient.gui.ChatFormatting;
@@ -14,6 +13,7 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.translation.I18n;
+import team.creative.littletiles.common.item.ItemMultiTiles;
 
 public abstract class SubGuiModeSelector extends SubGuiConfigure {
     

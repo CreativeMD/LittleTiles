@@ -2,12 +2,12 @@ package team.creative.littletiles.common.tile.parent;
 
 import java.util.Iterator;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.filter.TileFilter;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.tile.LittleCollectionSafe;

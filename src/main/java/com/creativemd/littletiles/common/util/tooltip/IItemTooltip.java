@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.util.tooltip;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface IItemTooltip {
     

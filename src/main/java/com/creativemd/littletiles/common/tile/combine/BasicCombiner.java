@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.tile.combine;
 
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class BasicCombiner {
     

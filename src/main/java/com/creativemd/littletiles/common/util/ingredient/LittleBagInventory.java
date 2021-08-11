@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.util.ingredient;
 
-import com.creativemd.littletiles.common.item.ItemLittleBag;
+import team.creative.littletiles.common.item.ItemLittleBag;
 
 public class LittleBagInventory extends LittleIngredients {
     

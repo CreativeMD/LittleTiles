@@ -9,10 +9,6 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.SlotControlBlockIngredient;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.item.ItemBlockIngredient;
-import com.creativemd.littletiles.common.item.ItemColorIngredient;
-import com.creativemd.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
-import com.creativemd.littletiles.common.item.ItemLittleBag;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
@@ -28,6 +24,10 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.item.ItemBlockIngredient;
+import team.creative.littletiles.common.item.ItemColorIngredient;
+import team.creative.littletiles.common.item.ItemLittleBag;
+import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
 
 public class SubContainerBag extends SubContainerHeldItem {
     

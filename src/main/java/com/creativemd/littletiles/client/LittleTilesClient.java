@@ -29,10 +29,8 @@ import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
-import com.creativemd.littletiles.common.item.ItemLittleGrabber;
 import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.item.ItemLittleRecipe;
-import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
@@ -66,6 +64,8 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.item.ItemLittleGrabber;
+import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 
 @SideOnly(Side.CLIENT)
 public class LittleTilesClient extends LittleTilesServer {

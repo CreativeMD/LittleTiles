@@ -1,17 +1,18 @@
 package com.creativemd.littletiles.common.tile.math.box;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.VectorUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.BlockPos;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.vec.VectorUtils;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.grid.IGridBased;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleAbsoluteBox implements IGridBased {
     
@@ -139,10 +140,10 @@ public class LittleAbsoluteBox implements IGridBased {
         int diffTwo = context.toGrid(VectorUtils.get(two, this.pos) - VectorUtils.get(two, pos));
         
         if (box.getMin(one) - diffOne == this.box.getMin(one) /*&& box.getMax(one) - diffOne == this.box.getMax(one)*/ && box.getMin(two) - diffTwo == this.box
-            .getMin(two) /* && box.getMax(
-                         two) - diffTwo == this.box.getMax(two)*/)
+                .getMin(two) /* && box.getMax(
+                             two) - diffTwo == this.box.getMax(two)*/)
             return positive ? box.getMin(axis) - context.toGrid(VectorUtils.get(axis, this.pos) - VectorUtils.get(axis, pos)) - this.box.getMax(axis) : this.box
-                .getMin(axis) - (box.getMax(axis) - context.toGrid(VectorUtils.get(axis, this.pos) - VectorUtils.get(axis, pos)));
+                    .getMin(axis) - (box.getMax(axis) - context.toGrid(VectorUtils.get(axis, this.pos) - VectorUtils.get(axis, pos)));
         return -1;
     }
     

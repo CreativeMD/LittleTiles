@@ -2,7 +2,6 @@ package com.creativemd.littletiles.client.gui.controls;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
-import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 
 import net.minecraft.entity.player.InventoryPlayer;
@@ -10,6 +9,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.item.ItemBlockIngredient;
 
 public class SlotControlBlockIngredient extends SlotControl {
     

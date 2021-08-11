@@ -13,12 +13,12 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.container.SubContainerExport;
-import com.creativemd.littletiles.common.item.ItemLittleRecipe;
 import com.creativemd.littletiles.common.util.converation.StructureStringUtils;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
+import team.creative.littletiles.common.item.ItemLittleRecipe;
 
 public class SubGuiExport extends SubGui {
     

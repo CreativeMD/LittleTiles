@@ -3,10 +3,6 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.item.ItemLittleChisel;
-import com.creativemd.littletiles.common.item.ItemLittleGrabber;
-import com.creativemd.littletiles.common.item.ItemLittleGrabber.GrabberMode;
-import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -21,6 +17,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.item.ItemLittleChisel;
+import team.creative.littletiles.common.item.ItemLittleGrabber;
+import team.creative.littletiles.common.item.ItemLittlePaintBrush;
+import team.creative.littletiles.common.item.ItemLittleGrabber.GrabberMode;
 
 public class LittleVanillaBlockPacket extends CreativeCorePacket {
     

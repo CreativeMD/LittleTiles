@@ -4,12 +4,11 @@ import java.util.BitSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.CorruptedLinkException;

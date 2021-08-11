@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.tile;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -11,7 +10,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.tile.BlockRenderLayer;
 import com.creativemd.littletiles.common.tile.EntityPlayer;
 import com.creativemd.littletiles.common.tile.EnumFacing;
@@ -24,42 +22,60 @@ import com.creativemd.littletiles.common.tile.SideOnly;
 import com.creativemd.littletiles.common.tile.combine.ICombinable;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.registry.LittleTileType;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.GameType;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public class LittleTile {
     
     public final LittleBlock block;
     public final int color;
-    public final List<LittleBox> boxes = new ArrayList<>(1);
+    public final List<LittleBox> boxes = null;
     
     public LittleTile(LittleBlock block, int color, LittleBox box) {
         this.block = block;
         this.color = color;
-        this.boxes.add(box);
+        addBox(box);
+    }
+    
+    public LittleTile(LittleBlock block, int color, Iterable<LittleBox> boxes) {
+        this.block = block;
+        this.color = color;
+        addBoxes(boxes);
+    }
+    
+    protected void addBox(LittleBox box) {
+        adas
+    }
+    
+    protected void addBoxes(Iterable<LittleBox> boxes) {
+        adasd
     }
     
     public boolean isTranslucent() {
@@ -98,7 +114,7 @@ public class LittleTile {
         return box.maxY;
     }
     
-    public AxisAlignedBB getSelectedBox(BlockPos pos, LittleGridContext context) {
+    public AABB getSelectedBox(BlockPos pos, LittleGrid context) {
         return box.getSelectionBox(context, pos);
     }
     
@@ -160,6 +176,10 @@ public class LittleTile {
     
     public boolean intersectsWith(LittleBox box) {
         return LittleBox.intersectsWith(this.box, box);
+    }
+    
+    public boolean intersectsWith(AABB bb, IParentCollection parent) {
+        
     }
     
     public List<LittleBox> cutOut(LittleBox box, @Nullable LittleBoxReturnedVolume volume) {
@@ -397,12 +417,12 @@ public class LittleTile {
         return block.getExplosionResistance(null);
     }
     
-    public void onTileExplodes(IParentTileList parent, Explosion explosion) {
+    public void onTileExplodes(IParentCollection parent, Explosion explosion) {
         if (hasSpecialBlockHandler())
             handler.onTileExplodes(parent, this, explosion);
     }
     
-    public void randomDisplayTick(IParentTileList parent, Random rand) {
+    public void randomDisplayTick(IParentCollection parent, Random rand) {
         if (hasSpecialBlockHandler())
             handler.randomDisplayTick(parent, this, rand);
         else
@@ -420,24 +440,27 @@ public class LittleTile {
             mc.world.spawnParticle(EnumParticleTypes.BARRIER, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, 0.0D, 0.0D, 0.0D, new int[0]);
     }
     
+    public boolean canInteract(BlockGetter level, BlockPos pos) {
+        block.canInteract();
+        return adasds;
+    }
+    
     public boolean onBlockActivated(IParentTileList parent, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
         if (hasSpecialBlockHandler())
             return handler.onBlockActivated(parent, this, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
         return block.onBlockActivated(parent.getWorld(), parent.getPos(), getBlockState(), playerIn, hand, side, hitX, hitY, hitZ);
     }
     
-    public int getLightValue(IBlockAccess world, BlockPos pos) {
-        if (glowing)
-            return glowing ? 14 : 0;
-        return block.getLightValue(getBlockState());
+    public int getLightValue() {
+        return block.getLightValue();
     }
     
     public float getEnchantPowerBonus(World world, BlockPos pos) {
         return block.getEnchantPowerBonus(world, pos);
     }
     
-    public float getSlipperiness(IBlockAccess world, BlockPos pos, Entity entity) {
-        return block.getSlipperiness(getBlockState(), world, pos, entity);
+    public float getFriction(LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return block.getFriction(level, pos, entity);
     }
     
     public boolean isMaterial(Material material) {
@@ -467,6 +490,7 @@ public class LittleTile {
     // ================Collision================
     
     public boolean shouldCheckForCollision() {
+        // TODO seems weird
         return true;
     }
     
@@ -481,9 +505,20 @@ public class LittleTile {
         return false;
     }
     
-    public LittleBox getCollisionBox() {
+    public VoxelShape getSelectionShape(IParentCollection parent) {
+        
+    }
+    
+    public VoxelShape getOcclusionShape(IParentCollection parent) {
         if (hasSpecialBlockHandler())
-            return handler.getCollisionBox(this, box);
+            return handler.getOcclusionShape(this, box);
+        
+        return box;
+    }
+    
+    public VoxelShape getCollisionShape(IParentCollection parent, CollisionContext context) {
+        if (hasSpecialBlockHandler())
+            return handler.getCollisionShape(this, box);
         
         return box;
     }

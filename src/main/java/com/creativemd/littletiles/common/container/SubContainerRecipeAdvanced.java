@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
@@ -9,6 +8,7 @@ import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 
 public class SubContainerRecipeAdvanced extends SubContainerRecipe {
     

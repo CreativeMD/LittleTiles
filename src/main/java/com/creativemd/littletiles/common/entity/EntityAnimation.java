@@ -26,7 +26,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -64,6 +63,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.item.ItemLittleWrench;
 
 public class EntityAnimation extends Entity {
     

@@ -2,8 +2,6 @@ package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.common.item.ItemLittleRecipe;
-import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.util.converation.StructureStringUtils;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,6 +9,8 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.item.ItemLittleRecipe;
+import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 
 public class SubContainerImport extends SubContainer {
     

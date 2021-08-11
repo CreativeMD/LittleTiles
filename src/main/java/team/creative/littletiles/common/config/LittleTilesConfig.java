@@ -5,8 +5,6 @@ import java.security.Permission;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.LittleBuildingConfig;
-import com.creativemd.littletiles.common.item.ItemLittleBag;
-import com.creativemd.littletiles.common.item.ItemMultiTiles;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 import net.minecraft.core.BlockPos;
@@ -17,6 +15,8 @@ import team.creative.creativecore.common.config.api.ICreativeConfig;
 import team.creative.creativecore.common.config.sync.ConfigSynchronization;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.item.ItemLittleBag;
+import team.creative.littletiles.common.item.ItemMultiTiles;
 
 public class LittleTilesConfig {
     

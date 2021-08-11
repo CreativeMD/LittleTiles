@@ -6,7 +6,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelect
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.client.gui.LittleSubGuiUtils;
-import com.creativemd.littletiles.common.item.ItemMultiTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.selector.AnySelector;
 import com.creativemd.littletiles.common.util.selection.selector.StateSelector;
@@ -17,6 +16,7 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
+import team.creative.littletiles.common.item.ItemMultiTiles;
 
 public abstract class SubGuiGridSelector extends SubGuiConfigure {
     

@@ -9,8 +9,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemListBox
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
-import com.creativemd.littletiles.common.item.ItemLittleRecipe;
-import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
@@ -25,6 +23,8 @@ import com.creativemd.littletiles.common.util.ingredient.StackIngredientEntry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.item.ItemLittleRecipe;
+import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 
 public class SubGuiWorkbench extends SubGui {
     

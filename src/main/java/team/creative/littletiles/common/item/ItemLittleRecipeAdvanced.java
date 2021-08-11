@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.item;
+package team.creative.littletiles.common.item;
 
 import java.util.ArrayList;
 import java.util.List;

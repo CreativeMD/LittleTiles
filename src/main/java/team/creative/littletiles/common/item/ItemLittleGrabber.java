@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.item;
+package team.creative.littletiles.common.item;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;

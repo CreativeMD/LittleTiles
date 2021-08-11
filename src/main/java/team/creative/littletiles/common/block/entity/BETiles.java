@@ -15,7 +15,6 @@ import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
@@ -28,7 +27,6 @@ import com.creativemd.littletiles.common.tileentity.EnumFacing;
 import com.creativemd.littletiles.common.tileentity.IBlockState;
 import com.creativemd.littletiles.common.tileentity.IOrientatedWorld;
 import com.creativemd.littletiles.common.tileentity.IParentTileList;
-import com.creativemd.littletiles.common.tileentity.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.LittleGridContext;
 import com.creativemd.littletiles.common.tileentity.LittleTilePosition;
 import com.creativemd.littletiles.common.tileentity.Method;
@@ -53,10 +51,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.block.ILittleBlockEntity;
@@ -65,6 +65,7 @@ import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.tile.LittleTile;
@@ -72,6 +73,7 @@ import team.creative.littletiles.common.tile.LittleTileContext;
 import team.creative.littletiles.common.tile.parent.BlockParentCollection;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 import team.creative.littletiles.common.tile.parent.IStructureCollection;
+import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.tile.parent.ParentCollection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
@@ -277,13 +279,13 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         customTilesUpdate();
     }
     
-    public void updateTiles(Consumer<TileEntityInteractor> action) {
+    public void updateTiles(Consumer<BlockEntityInteractor> action) {
         action.accept(interactor);
         updateTiles();
     }
     
     /** Block will not update */
-    public void updateTilesSecretly(Consumer<TileEntityInteractor> action) {
+    public void updateTilesSecretly(Consumer<BlockEntityInteractor> action) {
         action.accept(interactor);
     }
     
@@ -374,7 +376,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return render.getRenderBoundingBox();
     }
     
-    public AxisAlignedBB getSelectionBox() {
+    public VoxelShape getBlockShape() {
         int minX = context.size;
         int minY = context.size;
         int minZ = context.size;
@@ -771,19 +773,19 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             structure.tick();
     }
     
-    public Iterable<IParentTileList> groups() {
+    public Iterable<IParentCollection> groups() {
         return tiles.groups();
     }
     
-    public IParentTileList noneStructureTiles() {
+    public IParentCollection noneStructureTiles() {
         return tiles;
     }
     
-    public Iterable<Pair<IParentTileList, LittleTile>> allTiles() {
-        return tiles.allTiles();
+    public Iterable<Pair<IParentCollection, LittleTile>> allTileTypes() {
+        return tiles.allTileTypes();
     }
     
-    public IStructureTileList getStructure(int index) {
+    public IStructureParentCollection getStructure(int index) {
         return tiles.getStructure(index);
     }
     
@@ -795,7 +797,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return tiles.loadedStructures(attribute);
     }
     
-    public Iterable<IStructureTileList> structures() {
+    public Iterable<IStructureParentCollection> structures() {
         return tiles.structures();
     }
     
@@ -995,6 +997,12 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
                 EAST = value;
                 break;
             }
+        }
+        
+        public boolean isCollisionFullBlock() {
+            adas
+            // TODO Auto-generated method stub
+            return false;
         }
         
     }

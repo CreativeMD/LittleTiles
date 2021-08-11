@@ -18,10 +18,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -97,11 +101,8 @@ public class LittleBox {
     
     // ================Conversions================
     
-    public void addCollisionBoxes(LittleGrid context, AABB entityBox, List<AABB> collidingBoxes, BlockPos offset) {
-        AABB axisalignedbb = getBB(context, offset);
-        
-        if (entityBox.intersects(axisalignedbb))
-            collidingBoxes.add(axisalignedbb);
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        do it
     }
     
     public AABB getSelectionBB(LittleGrid context, BlockPos pos) {

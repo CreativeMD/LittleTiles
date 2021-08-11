@@ -4,22 +4,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.util.grid.IGridBased;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.grid.IGridBased;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterable<LittleBox> {
     
     protected List<LittleBox> boxes = new ArrayList<>();
     
-    public LittleBoxesSimple(BlockPos pos, LittleGridContext context) {
+    public LittleBoxesSimple(BlockPos pos, LittleGrid context) {
         super(pos, context);
     }
     
@@ -44,45 +43,38 @@ public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterab
     }
     
     @Override
-    public LittleBox addBox(IParentTileList parent, LittleTile tile) {
-        return addBox(parent.getContext(), parent.getPos(), tile.getBox().copy());
-    }
-    
-    @Override
-    public LittleBox addBox(LittleGridContext context, BlockPos pos, LittleBox box) {
-        if (this.context != context) {
-            if (this.context.size > context.size) {
-                box.convertTo(context, this.context);
-                context = this.context;
+    public LittleBox addBox(LittleGrid grid, BlockPos pos, LittleBox box) {
+        if (this.grid != grid) {
+            if (this.grid.count > grid.count) {
+                box.convertTo(grid, this.grid);
+                grid = this.grid;
             } else
-                convertTo(context);
+                convertTo(grid);
         }
         
-        box.add(new LittleVec(context, pos.subtract(this.pos)));
+        box.add(new LittleVec(grid, pos.subtract(this.pos)));
         add(box);
         return box;
     }
     
     @Override
-    public LittleGridContext getContext() {
-        return context;
+    public LittleGrid getGrid() {
+        return grid;
     }
     
     @Override
-    public void convertTo(LittleGridContext to) {
+    public void convertTo(LittleGrid to) {
         for (LittleBox box : boxes)
-            box.convertTo(this.context, to);
-        this.context = to;
+            box.convertTo(this.grid, to);
+        this.grid = to;
     }
     
     @Override
-    public void convertToSmallest() {
-        int size = LittleGridContext.minSize;
+    public int getSmallest() {
+        int size = LittleGrid.min().count;
         for (LittleBox box : boxes)
-            size = Math.max(size, box.getSmallestContext(context));
-        
-        if (size < context.size)
-            convertTo(LittleGridContext.get(size));
+            size = Math.max(size, box.getSmallest(grid));
+        return size;
     }
     
     @Override
@@ -123,13 +115,13 @@ public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterab
     public HashMapList<BlockPos, LittleBox> generateBlockWise() {
         HashMapList<BlockPos, LittleBox> map = new HashMapList<>();
         for (LittleBox box : this)
-            box.split(context, pos, map, null);
+            box.split(grid, pos, map, null);
         return map;
     }
     
     @Override
     public void flip(Axis axis, LittleAbsoluteBox absoluteBox) {
-        ensureContext(absoluteBox, () -> {
+        sameGrid(absoluteBox, () -> {
             LittleVec center = absoluteBox.getDoubledCenter(pos);
             for (LittleBox box : boxes)
                 box.flipBox(axis, center);
@@ -138,7 +130,7 @@ public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterab
     
     @Override
     public LittleBoxes copy() {
-        LittleBoxesSimple boxes = new LittleBoxesSimple(pos, context);
+        LittleBoxesSimple boxes = new LittleBoxesSimple(pos, grid);
         boxes.boxes.addAll(this.boxes);
         return boxes;
     }
@@ -147,7 +139,7 @@ public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterab
     public void combineBoxesBlocks() {
         HashMapList<BlockPos, LittleBox> chunked = new HashMapList<>();
         for (int i = 0; i < boxes.size(); i++)
-            chunked.add(boxes.get(i).getMinVec().getBlockPos(context), boxes.get(i));
+            chunked.add(boxes.get(i).getMinVec().getBlockPos(grid), boxes.get(i));
         boxes.clear();
         for (Iterator<ArrayList<LittleBox>> iterator = chunked.values().iterator(); iterator.hasNext();) {
             ArrayList<LittleBox> list = iterator.next();

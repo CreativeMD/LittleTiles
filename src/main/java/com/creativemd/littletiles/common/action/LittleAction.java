@@ -11,39 +11,24 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.LittleTilesConfig.AreaProtected;
-import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToConvertBlockException;
-import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.ActionEvent;
 import com.creativemd.littletiles.common.event.ActionEvent.ActionType;
-import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxesNoOverlap;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
-import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
-import com.creativemd.littletiles.common.tile.math.location.TileLocation;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
@@ -63,34 +48,49 @@ import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.GameType;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
+import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
+import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
+import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.location.StructureLocation;
+import team.creative.littletiles.common.math.location.TileLocation;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public abstract class LittleAction extends CreativeCorePacket {
     
@@ -98,15 +98,15 @@ public abstract class LittleAction extends CreativeCorePacket {
     
     private static int index = 0;
     
-    @SideOnly(Side.CLIENT)
-    public static boolean isUsingSecondMode(EntityPlayer player) {
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isUsingSecondMode(Player player) {
         if (player == null)
             return false;
         if (LittleTiles.CONFIG.building.useALTForEverything)
-            return GuiScreen.isAltKeyDown();
+            return Screen.hasAltDown();
         if (LittleTiles.CONFIG.building.useAltWhenFlying)
-            return player.capabilities.isFlying ? GuiScreen.isAltKeyDown() : player.isSneaking();
-        return player.isSneaking();
+            return player.getAbilities().flying ? Screen.hasAltDown() : player.isCrouching();
+        return player.isCrouching();
     }
     
     public static void rememberAction(LittleAction action) {
@@ -616,7 +616,7 @@ public abstract class LittleAction extends CreativeCorePacket {
         if (absolute) {
             if (structure)
                 previews = LittleNBTCompressionTools
-                    .readPreviews(new LittleAbsolutePreviews(readNBT(buf), readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
+                        .readPreviews(new LittleAbsolutePreviews(readNBT(buf), readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
             else
                 previews = LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
         } else {
@@ -903,7 +903,7 @@ public abstract class LittleAction extends CreativeCorePacket {
         if (block.hasTileEntity(state) || block instanceof BlockSlab)
             return false;
         return state.isNormalCube() || state.isFullCube() || state
-            .isFullBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
+                .isFullBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
     }
     
 }

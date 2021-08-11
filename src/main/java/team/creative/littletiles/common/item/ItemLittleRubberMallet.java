@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.item;
+package team.creative.littletiles.common.item;
 
 import com.creativemd.littletiles.LittleTiles;
 

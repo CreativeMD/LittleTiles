@@ -16,8 +16,6 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.item.ItemBlockTiles;
-import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -28,6 +26,8 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import team.creative.littletiles.common.item.ItemBlockTiles;
+import team.creative.littletiles.common.item.ItemLittleChisel;
 
 public class SubGuiChisel extends SubGuiConfigure {
     

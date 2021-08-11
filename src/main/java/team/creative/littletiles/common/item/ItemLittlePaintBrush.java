@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.item;
+package team.creative.littletiles.common.item;
 
 import java.util.List;
 
@@ -6,10 +6,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.SubGuiColorTube;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
@@ -39,47 +36,49 @@ import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTiles;
 
 public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTooltip {
     
     public static ShapeSelection selection;
     
     public ItemLittlePaintBrush() {
-        setCreativeTab(LittleTiles.littleTab);
-        hasSubtypes = true;
-        setMaxStackSize(1);
+        super(new Item.Properties().tab(LittleTiles.littleTab).stacksTo(1));
     }
     
     public static int getColor(ItemStack stack) {
         if (stack == null)
             return ColorUtils.WHITE;
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        if (!stack.getTagCompound().hasKey("color"))
+        if (!stack.hasTag())
+            stack.setTag(new CompoundTag());
+        if (!stack.getTag().contains("color"))
             setColor(stack, ColorUtils.WHITE);
-        return stack.getTagCompound().getInteger("color");
+        return stack.getTag().getInt("color");
     }
     
     public static void setColor(ItemStack stack, int color) {
         if (stack == null)
             return;
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        stack.getTagCompound().setInteger("color", color);
+        if (!stack.hasTag())
+            stack.setTag(new CompoundTag());
+        stack.getTag().putInt("color", color);
     }
     
     @Override
@@ -224,8 +223,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.mark.getDisplayName(),
-                LittleTilesClient.configure.getDisplayName(),
-                LittleTilesClient.configureAdvanced.getDisplayName() };
+        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.mark
+                .getDisplayName(), LittleTilesClient.configure.getDisplayName(), LittleTilesClient.configureAdvanced.getDisplayName() };
     }
 }
