@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.action;
 
-public class LittleAction {
+import team.creative.creativecore.common.network.CreativePacket;
+
+public abstract class LittleAction extends CreativePacket {
     
 }

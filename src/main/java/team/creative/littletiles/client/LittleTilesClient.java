@@ -1,15 +1,10 @@
-package com.creativemd.littletiles.client;
+package team.creative.littletiles.client;
 
-import java.lang.reflect.Field;
 import java.util.UUID;
 
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
-import com.creativemd.creativecore.client.CreativeCoreClient;
-import com.creativemd.creativecore.client.key.ExtendedKeyBinding;
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.GuiAxisIndicatorControl;
 import com.creativemd.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
@@ -24,69 +19,54 @@ import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
 import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
-import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.item.ItemLittleChisel;
-import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
-import com.creativemd.littletiles.common.item.ItemLittleRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
-import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
+import com.mojang.blaze3d.platform.InputConstants;
 
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.client.registry.IRenderFactory;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.network.internal.FMLMessage.EntityMessage;
 import net.minecraftforge.fml.common.network.internal.FMLMessage.EntitySpawnMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fmlclient.registry.ClientRegistry;
+import net.minecraftforge.fmlclient.registry.IRenderFactory;
+import net.minecraftforge.fmlclient.registry.RenderingRegistry;
+import team.creative.creativecore.client.CreativeCoreClient;
+import team.creative.creativecore.client.command.ClientCommandRegistry;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.level.LevelHandlersClient;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGrabber;
+import team.creative.littletiles.common.item.ItemLittlePaintBrush;
+import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.server.LittleTilesServer;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class LittleTilesClient extends LittleTilesServer {
-    
-    Minecraft mc = Minecraft.getMinecraft();
-    
-    public static KeyBinding flip;
-    public static KeyBinding mark;
-    public static KeyBinding configure;
-    public static KeyBinding configureAdvanced;
-    public static ExtendedKeyBinding up;
-    public static ExtendedKeyBinding down;
-    public static ExtendedKeyBinding right;
-    public static ExtendedKeyBinding left;
-    
-    public static KeyBinding undo;
-    public static KeyBinding redo;
-    
-    public static TileEntityTilesRenderer tileEntityRenderer;
-    
-    public static OverlayRenderer overlay;
     
     private static Field entityUUIDField = ReflectionHelper.findField(EntitySpawnMessage.class, "entityUUID");
     private static Field entityIdField = ReflectionHelper.findField(EntityMessage.class, "entityId");
@@ -95,6 +75,30 @@ public class LittleTilesClient extends LittleTilesServer {
     private static Field rawZField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawZ");
     private static Field scaledYawField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledYaw");
     private static Field scaledPitchField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledPitch");
+    
+    public final Minecraft mc = Minecraft.getInstance();
+    
+    public final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
+    
+    public KeyMapping flip;
+    public KeyMapping mark;
+    public KeyMapping configure;
+    public KeyMapping configureAdvanced;
+    public KeyMapping up;
+    public KeyMapping down;
+    public KeyMapping right;
+    public KeyMapping left;
+    
+    public KeyMapping undo;
+    public KeyMapping redo;
+    
+    public TileEntityTilesRenderer tileEntityRenderer;
+    
+    public OverlayRenderer overlay;
+    
+    public LittleTilesClient() {
+        
+    }
     
     public static void displayActionMessage(ActionMessage message) {
         overlay.addMessage(new CompiledActionMessage(message));
@@ -128,16 +132,14 @@ public class LittleTilesClient extends LittleTilesServer {
     
     @Override
     public void loadSidePost() {
-        mc.getItemColors().registerItemColorHandler(new IItemColor() {
+        mc.getItemColors().register(new ItemColor() {
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public int colorMultiplier(ItemStack stack, int color) {
+            public int getColor(ItemStack stack, int color) {
                 if (color == 0)
                     return ColorUtils.WHITE;
                 return ItemLittlePaintBrush.getColor(stack);
             }
-            
         }, LittleTiles.colorTube);
         
         BlockTile.mc = mc;
@@ -145,19 +147,19 @@ public class LittleTilesClient extends LittleTilesServer {
         MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
         MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
         
-        up = new ExtendedKeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
-        down = new ExtendedKeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");
-        right = new ExtendedKeyBinding("key.rotateright", Keyboard.KEY_RIGHT, "key.categories.littletiles");
-        left = new ExtendedKeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
+        up = new KeyMapping("key.rotateup", GLFW.GLFW_KEY_UP, "key.categories.littletiles");
+        down = new KeyMapping("key.rotatedown", GLFW.GLFW_KEY_DOWN, "key.categories.littletiles");
+        right = new KeyMapping("key.rotateright", GLFW.GLFW_KEY_RIGHT, "key.categories.littletiles");
+        left = new KeyMapping("key.rotateleft", GLFW.GLFW_KEY_LEFT, "key.categories.littletiles");
         
-        flip = new KeyBinding("key.little.flip", Keyboard.KEY_G, "key.categories.littletiles");
-        mark = new KeyBinding("key.little.mark", Keyboard.KEY_M, "key.categories.littletiles");
-        mark = new KeyBinding("key.little.mark", Keyboard.KEY_M, "key.categories.littletiles");
-        configure = new KeyBinding("key.little.config.item", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.NONE, Keyboard.KEY_C, "key.categories.littletiles");
-        configureAdvanced = new KeyBinding("key.little.config", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_C, "key.categories.littletiles");
+        flip = new KeyMapping("key.little.flip", GLFW.GLFW_KEY_G, "key.categories.littletiles");
+        mark = new KeyMapping("key.little.mark", GLFW.GLFW_KEY_M, "key.categories.littletiles");
+        mark = new KeyMapping("key.little.mark", GLFW.GLFW_KEY_M, "key.categories.littletiles");
+        configure = new KeyMapping("key.little.config.item", KeyConflictContext.UNIVERSAL, KeyModifier.NONE, InputConstants.Type.KEYSYM, InputConstants.KEY_C, "key.categories.littletiles");
+        configureAdvanced = new KeyMapping("key.little.config", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_C, "key.categories.littletiles");
         
-        undo = new KeyBinding("key.little.undo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Z, "key.categories.littletiles");
-        redo = new KeyBinding("key.little.redo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Y, "key.categories.littletiles");
+        undo = new KeyMapping("key.little.undo", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Z, "key.categories.littletiles");
+        redo = new KeyMapping("key.little.redo", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Y, "key.categories.littletiles");
         
         ClientRegistry.registerKeyBinding(up);
         ClientRegistry.registerKeyBinding(down);
@@ -217,7 +219,7 @@ public class LittleTilesClient extends LittleTilesServer {
         CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTickingRendered);
         CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTickingRendered);
         
-        ClientCommandHandler.instance.registerCommand(new DebugCommand());
+        ClientCommandRegistry.register(new DebugCommand());
         
         // Init overlays
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
@@ -253,8 +255,8 @@ public class LittleTilesClient extends LittleTilesServer {
         
         CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlock, LittleTiles.modid, "colored_block_", BlockLittleDyeable.LittleDyeableType.values());
         CreativeCoreClient
-            .registerBlockModels(LittleTiles.dyeableBlockTransparent, LittleTiles.modid, "colored_transparent_block_", BlockLittleDyeableTransparent.LittleDyeableTransparent
-                .values());
+                .registerBlockModels(LittleTiles.dyeableBlockTransparent, LittleTiles.modid, "colored_transparent_block_", BlockLittleDyeableTransparent.LittleDyeableTransparent
+                        .values());
         CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlock2, LittleTiles.modid, "colored_block_", BlockLittleDyeable2.LittleDyeableType2.values());
         
         CreativeCoreClient.registerBlockItem(LittleTiles.signalConverter);
@@ -282,13 +284,13 @@ public class LittleTilesClient extends LittleTilesServer {
         
         for (int i = 0; i <= 5; i++) {
             ModelLoader.setCustomModelResourceLocation(LittleTiles.blackColorIngredient, i, new ModelResourceLocation(LittleTiles.blackColorIngredient.getRegistryName()
-                .toString() + i, "inventory"));
+                    .toString() + i, "inventory"));
             ModelLoader.setCustomModelResourceLocation(LittleTiles.cyanColorIngredient, i, new ModelResourceLocation(LittleTiles.cyanColorIngredient.getRegistryName()
-                .toString() + i, "inventory"));
+                    .toString() + i, "inventory"));
             ModelLoader.setCustomModelResourceLocation(LittleTiles.magentaColorIngredient, i, new ModelResourceLocation(LittleTiles.magentaColorIngredient.getRegistryName()
-                .toString() + i, "inventory"));
+                    .toString() + i, "inventory"));
             ModelLoader.setCustomModelResourceLocation(LittleTiles.yellowColorIngredient, i, new ModelResourceLocation(LittleTiles.yellowColorIngredient.getRegistryName()
-                .toString() + i, "inventory"));
+                    .toString() + i, "inventory"));
         }
         
         CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);

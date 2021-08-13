@@ -24,7 +24,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
-import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.BlockFaceShape;
@@ -113,6 +112,7 @@ import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.tile.parent.ParentCollection;
 import team.creative.littletiles.common.tile.parent.ParentTileList;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
+import team.creative.littletiles.server.LittleTilesServer;
 
 @Interface(iface = "team.chisel.ctm.api.IFacade", modid = "ctm")
 public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFacade {

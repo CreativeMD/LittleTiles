@@ -14,18 +14,14 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.event.ActionEvent;
-import com.creativemd.littletiles.common.event.ActionEvent.ActionType;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -52,7 +48,6 @@ import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -64,11 +59,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
@@ -77,12 +69,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.ActionEvent;
+import team.creative.littletiles.client.action.ActionEvent.ActionType;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.math.location.StructureLocation;
@@ -93,133 +89,6 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.tile.LittleTile;
 
 public abstract class LittleAction extends CreativeCorePacket {
-    
-    private static List<LittleAction> lastActions = new ArrayList<>();
-    
-    private static int index = 0;
-    
-    @OnlyIn(Dist.CLIENT)
-    public static boolean isUsingSecondMode(Player player) {
-        if (player == null)
-            return false;
-        if (LittleTiles.CONFIG.building.useALTForEverything)
-            return Screen.hasAltDown();
-        if (LittleTiles.CONFIG.building.useAltWhenFlying)
-            return player.getAbilities().flying ? Screen.hasAltDown() : player.isCrouching();
-        return player.isCrouching();
-    }
-    
-    public static void rememberAction(LittleAction action) {
-        if (!action.canBeReverted())
-            return;
-        
-        if (index > 0) {
-            if (index < lastActions.size())
-                lastActions = lastActions.subList(index, lastActions.size() - 1);
-            else
-                lastActions = new ArrayList<>();
-        }
-        
-        index = 0;
-        
-        if (lastActions.size() == LittleTiles.CONFIG.building.maxSavedActions)
-            lastActions.remove(LittleTiles.CONFIG.building.maxSavedActions - 1);
-        
-        lastActions.add(0, action);
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public static boolean undo() throws LittleActionException {
-        if (lastActions.size() > index) {
-            EntityPlayer player = Minecraft.getMinecraft().player;
-            
-            LittleAction reverted = lastActions.get(index).revert(player);
-            
-            if (reverted == null)
-                throw new LittleActionException("action.revert.notavailable");
-            
-            reverted.furtherActions = lastActions.get(index).revertFurtherActions();
-            
-            if (reverted.action(player)) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.undo, player));
-                if (reverted.sendToServer())
-                    PacketHandler.sendPacketToServer(reverted);
-                
-                if (reverted.furtherActions != null && !reverted.furtherActions.isEmpty()) {
-                    for (int i = 0; i < reverted.furtherActions.size(); i++) {
-                        LittleAction subAction = reverted.furtherActions.get(i);
-                        
-                        if (subAction == null)
-                            continue;
-                        
-                        try {
-                            subAction.action(player);
-                            
-                            if (subAction.sendToServer())
-                                PacketHandler.sendPacketToServer(subAction);
-                            
-                        } catch (LittleActionException e) {
-                            handleExceptionClient(e);
-                        }
-                    }
-                }
-                lastActions.set(index, reverted);
-                index++;
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public static void unloadWorld() {
-        lastActions.clear();
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public static boolean redo() throws LittleActionException {
-        if (index > 0 && index <= lastActions.size()) {
-            EntityPlayer player = Minecraft.getMinecraft().player;
-            
-            index--;
-            
-            LittleAction reverted = lastActions.get(index).revert(player);
-            
-            if (reverted == null)
-                throw new LittleActionException("action.revert.notavailable");
-            
-            reverted.furtherActions = lastActions.get(index).revertFurtherActions();
-            
-            if (reverted.action(player)) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.redo, player));
-                if (reverted.sendToServer())
-                    PacketHandler.sendPacketToServer(reverted);
-                
-                if (reverted.furtherActions != null && !reverted.furtherActions.isEmpty()) {
-                    for (int i = 0; i < reverted.furtherActions.size(); i++) {
-                        LittleAction subAction = reverted.furtherActions.get(i);
-                        
-                        if (subAction == null)
-                            continue;
-                        
-                        try {
-                            subAction.action(player);
-                            
-                            if (subAction.sendToServer())
-                                PacketHandler.sendPacketToServer(subAction);
-                            
-                        } catch (LittleActionException e) {
-                            handleExceptionClient(e);
-                        }
-                    }
-                }
-                lastActions.set(index, reverted);
-                
-                return true;
-            }
-        }
-        return false;
-    }
     
     public static void registerLittleAction(String id, Class<? extends LittleAction>... classTypes) {
         for (int i = 0; i < classTypes.length; i++)

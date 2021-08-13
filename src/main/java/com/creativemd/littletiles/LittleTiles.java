@@ -97,8 +97,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking
 import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
-import com.creativemd.littletiles.server.LittleTilesServer;
-import com.creativemd.littletiles.server.NeighborUpdateOrganizer;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -145,6 +143,8 @@ import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.StructureTileList;
+import team.creative.littletiles.server.LittleTilesServer;
+import team.creative.littletiles.server.NeighborUpdateOrganizer;
 
 @Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles", acceptedMinecraftVersions = "",
         guiFactory = "com.creativemd.littletiles.client.LittleTilesSettings", dependencies = "required-after:creativecore")

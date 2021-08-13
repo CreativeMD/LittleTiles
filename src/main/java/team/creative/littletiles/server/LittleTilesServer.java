@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.server;
+package team.creative.littletiles.server;
 
 public class LittleTilesServer {
     

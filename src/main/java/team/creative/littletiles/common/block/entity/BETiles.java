@@ -141,7 +141,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return tiles.loadedStructures(LittleStructureAttribute.TICKING);
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public Iterable<LittleStructure> rendering() {
         return tiles.loadedStructures(LittleStructureAttribute.TICK_RENDERING);
     }

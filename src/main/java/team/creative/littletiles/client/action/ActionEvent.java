@@ -1,9 +1,9 @@
-package com.creativemd.littletiles.common.event;
+package team.creative.littletiles.client.action;
 
 import com.creativemd.littletiles.common.action.LittleAction;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.eventbus.api.Event;
 
 public class ActionEvent extends Event {
     
@@ -11,9 +11,9 @@ public class ActionEvent extends Event {
     
     public final ActionType type;
     
-    public final EntityPlayer player;
+    public final Player player;
     
-    public ActionEvent(LittleAction action, ActionType type, EntityPlayer player) {
+    public ActionEvent(LittleAction action, ActionType type, Player player) {
         this.action = action;
         this.type = type;
         this.player = player;

@@ -5,7 +5,6 @@ import java.util.Iterator;
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
@@ -35,6 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.optifine.shaders.ShadersRender;
+import team.creative.littletiles.client.LittleTilesClient;
 
 public class RenderAnimation extends Render<EntityAnimation> {
     

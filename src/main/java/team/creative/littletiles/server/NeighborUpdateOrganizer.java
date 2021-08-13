@@ -1,56 +1,59 @@
-package com.creativemd.littletiles.server;
+package team.creative.littletiles.server;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.level.SubLevel;
+import team.creative.creativecore.common.util.type.HashMapList;
 
 public class NeighborUpdateOrganizer {
     
-    private HashMapList<World, BlockPos> positions = new HashMapList<>();
+    private HashMapList<LevelAccessor, BlockPos> positions = new HashMapList<>();
     
     public NeighborUpdateOrganizer() {
         MinecraftForge.EVENT_BUS.register(this);
     }
     
-    public void add(World world, BlockPos pos) {
-        if (world instanceof IOrientatedWorld)
+    public void add(LevelAccessor level, BlockPos pos) {
+        if (level instanceof IOrientatedLevel)
             return;
-        if (!positions.contains(world, pos))
-            positions.add(world, pos);
+        if (!positions.contains(level, pos))
+            positions.add(level, pos);
     }
     
     @SubscribeEvent
     public void tick(ServerTickEvent event) {
         if (event.phase == Phase.END) {
-            for (Entry<World, ArrayList<BlockPos>> entry : positions.entrySet()) {
-                World world = entry.getKey();
-                if (world instanceof WorldServer) {
+            for (Entry<LevelAccessor, ArrayList<BlockPos>> entry : positions.entrySet()) {
+                LevelAccessor level = entry.getKey();
+                if (level instanceof ServerLevel) {
                     HashMapList<ChunkPos, BlockPos> chunks = new HashMapList<>();
                     for (BlockPos pos : entry.getValue())
                         chunks.add(new ChunkPos(pos), pos);
                     
-                    for (EntityPlayer player : world.playerEntities) {
+                    for (Player player : level.players()) {
                         List<BlockPos> collected = new ArrayList<>();
                         for (Entry<ChunkPos, ArrayList<BlockPos>> chunk : chunks.entrySet()) {
-                            if (((WorldServer) world).getPlayerChunkMap().isPlayerWatchingChunk((EntityPlayerMP) player, chunk.getKey().x, chunk.getKey().z))
+                            if (((ServerLevel) level).getPlayerChunkMap().isPlayerWatchingChunk((ServerPlayer) player, chunk.getKey().x, chunk.getKey().z))
                                 collected.addAll(chunk.getValue());
                         }
                         
@@ -58,9 +61,9 @@ public class NeighborUpdateOrganizer {
                             PacketHandler.sendPacketToPlayer(new LittleNeighborUpdatePacket(world, collected), (EntityPlayerMP) player);
                     }
                     
-                } else if (world instanceof SubWorld)
-                    PacketHandler.sendPacketToTrackingPlayers(new LittleNeighborUpdatePacket(world, entry.getValue()), ((SubWorld) world).parent, (WorldServer) ((SubWorld) world)
-                        .getRealWorld(), null);
+                } else if (level instanceof SubLevel)
+                    PacketHandler.sendPacketToTrackingPlayers(new LittleNeighborUpdatePacket(level, entry.getValue()), ((SubWorld) world).parent, (WorldServer) ((SubWorld) world)
+                            .getRealWorld(), null);
             }
             
             positions.clear();

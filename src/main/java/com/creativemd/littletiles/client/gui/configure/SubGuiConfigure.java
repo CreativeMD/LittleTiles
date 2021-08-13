@@ -1,10 +1,10 @@
 package com.creativemd.littletiles.client.gui.configure;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.littletiles.client.LittleTilesClient;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.client.LittleTilesClient;
 
 public abstract class SubGuiConfigure extends SubGui {
     
