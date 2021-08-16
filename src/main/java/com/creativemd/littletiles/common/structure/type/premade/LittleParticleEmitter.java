@@ -15,7 +15,6 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.particle.LittleParticle;
@@ -45,6 +44,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
     

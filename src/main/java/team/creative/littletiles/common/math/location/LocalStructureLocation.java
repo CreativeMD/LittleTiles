@@ -2,12 +2,11 @@ package team.creative.littletiles.common.math.location;
 
 import java.util.Arrays;
 
-import com.creativemd.littletiles.common.action.LittleActionException;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.tile.parent.IStructureParentCollection;

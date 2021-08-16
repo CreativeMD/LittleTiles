@@ -16,7 +16,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
@@ -39,6 +38,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class SubGuiScrewdriver extends SubGuiConfigure {
     

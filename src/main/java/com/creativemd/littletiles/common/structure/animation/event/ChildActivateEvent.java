@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.animation.event;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimationController;
@@ -20,6 +19,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 

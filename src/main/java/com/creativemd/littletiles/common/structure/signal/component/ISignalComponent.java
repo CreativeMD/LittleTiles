@@ -1,11 +1,10 @@
 package com.creativemd.littletiles.common.structure.signal.component;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public interface ISignalComponent {
     
@@ -24,10 +23,10 @@ public interface ISignalComponent {
     
     public boolean[] getState() throws CorruptedConnectionException, NotYetConnectedException;
     
-    public SignalComponentType getType();
+    public SignalComponentType getComponentType();
     
     public LittleStructure getStructure();
     
-    public World getStructureWorld();
+    public Level getStructureLevel();
     
 }

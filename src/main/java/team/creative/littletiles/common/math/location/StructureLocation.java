@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.CreativeWorld;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.MissingAnimationException;
@@ -16,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class StructureLocation {
     

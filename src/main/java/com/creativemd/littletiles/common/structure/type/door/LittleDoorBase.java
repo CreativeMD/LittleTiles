@@ -20,7 +20,6 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorSettings.GuiDoorSettingsButton;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
@@ -65,6 +64,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStructure {
     

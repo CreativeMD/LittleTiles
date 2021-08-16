@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing.Axis;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class LittleActionCombined extends LittleAction {
     

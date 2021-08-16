@@ -6,7 +6,6 @@ import java.util.List;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -33,6 +32,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 
 public class LittleActionReplace extends LittleActionInteract {

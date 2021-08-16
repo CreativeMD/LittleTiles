@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -13,6 +12,7 @@ import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class PlaceModeNormal extends PlacementMode {
     

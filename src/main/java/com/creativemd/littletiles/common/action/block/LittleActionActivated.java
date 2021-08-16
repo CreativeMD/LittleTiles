@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.action.block;
 
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -17,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class LittleActionActivated extends LittleActionInteract {
     

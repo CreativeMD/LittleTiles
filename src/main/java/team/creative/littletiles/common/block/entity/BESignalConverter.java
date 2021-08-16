@@ -6,24 +6,26 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.block.BlockSignalConverter;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.structure.LittleStructure;
 
-public class TESignalConverter extends TileEntityCreative implements ISignalStructureComponent {
+public class BESignalConverter extends BlockEntity implements ISignalStructureComponent {
     
     private SignalNetwork network;
     private boolean[] inputSignalState = new boolean[4];
@@ -32,13 +34,17 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     
     private List<SignalConnection> connections = new ArrayList<>();
     
-    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
+    public BESignalConverter(BlockPos pos, BlockState state) {
+        super(LittleTiles.BE_SIGNALCONVERTER_TYPE, pos, state);
+    }
+    
+    public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Facing side) {
         return state.canProvidePower() && side != null;
     }
     
     @Override
-    public World getStructureWorld() {
-        return getWorld();
+    public Level getStructureLevel() {
+        return level;
     }
     
     @Override
@@ -85,7 +91,7 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     }
     
     @Override
-    public boolean canConnect(EnumFacing facing) {
+    public boolean canConnect(Facing facing) {
         return true;
     }
     
@@ -97,7 +103,7 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     }
     
     @Override
-    public boolean connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance, boolean oneSidedRenderer) {
+    public boolean connect(Facing facing, ISignalStructureBase base, LittleGrid context, int distance, boolean oneSidedRenderer) {
         int index = indexOf(base);
         if (index == -1)
             connections.add(new SignalConnection(facing, base));
@@ -105,14 +111,14 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     }
     
     @Override
-    public void disconnect(EnumFacing facing, ISignalStructureBase base) {
+    public void disconnect(Facing facing, ISignalStructureBase base) {
         int index = indexOf(base);
         if (index != -1)
             connections.remove(index);
     }
     
     @Override
-    public SignalComponentType getType() {
+    public SignalComponentType getComponentType() {
         return SignalComponentType.IOSPECIAL;
     }
     
@@ -126,9 +132,9 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     
     @Override
     public void changed() {
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = level.getBlockState(worldPosition);
         EnumFacing facing = state.getValue(BlockSignalConverter.FACING);
-        world.neighborChanged(pos.offset(facing), state.getBlock(), pos);
+        level.neighborChanged(worldPosition.offset(facing), state.getBlock(), worldPosition);
     }
     
     public int getPower() {
@@ -169,10 +175,10 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     
     public class SignalConnection {
         
-        public final EnumFacing facing;
+        public final Facing facing;
         public final ISignalStructureBase base;
         
-        public SignalConnection(EnumFacing facing, ISignalStructureBase base) {
+        public SignalConnection(Facing facing, ISignalStructureBase base) {
             this.facing = facing;
             this.base = base;
         }

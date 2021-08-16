@@ -10,7 +10,6 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleEditor;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.api.ILittleTool;
@@ -50,6 +49,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.action.LittleActionException;
 
 @SideOnly(Side.CLIENT)
 public class PreviewRenderer {

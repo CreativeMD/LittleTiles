@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -17,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public abstract class PlacementMode {
     

@@ -8,8 +8,6 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.action.LittleActionException.LittleActionExceptionHidden;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
@@ -35,6 +33,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.LittleActionException.LittleActionExceptionHidden;
 
 public abstract class LittleDoor extends LittleStructure {
     

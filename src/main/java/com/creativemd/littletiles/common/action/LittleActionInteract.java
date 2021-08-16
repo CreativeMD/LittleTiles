@@ -22,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public abstract class LittleActionInteract extends LittleAction {
     

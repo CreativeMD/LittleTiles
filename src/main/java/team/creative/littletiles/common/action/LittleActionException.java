@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.action;
+package team.creative.littletiles.common.action;
 
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 

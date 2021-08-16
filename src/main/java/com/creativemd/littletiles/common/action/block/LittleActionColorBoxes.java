@@ -12,7 +12,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
@@ -38,6 +37,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 

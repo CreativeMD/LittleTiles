@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.action.block;
 
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
@@ -28,6 +27,7 @@ import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 
 public class LittleActionPlaceStack extends LittleAction {

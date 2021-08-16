@@ -63,10 +63,9 @@ import team.creative.littletiles.common.item.ItemLittleGrabber;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
-import team.creative.littletiles.server.LittleTilesServer;
 
 @OnlyIn(Dist.CLIENT)
-public class LittleTilesClient extends LittleTilesServer {
+public class LittleTilesClient {
     
     private static Field entityUUIDField = ReflectionHelper.findField(EntitySpawnMessage.class, "entityUUID");
     private static Field entityIdField = ReflectionHelper.findField(EntityMessage.class, "entityId");
@@ -76,9 +75,9 @@ public class LittleTilesClient extends LittleTilesServer {
     private static Field scaledYawField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledYaw");
     private static Field scaledPitchField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledPitch");
     
-    public final Minecraft mc = Minecraft.getInstance();
+    public static final Minecraft mc = Minecraft.getInstance();
     
-    public final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
+    public static final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
     
     public KeyMapping flip;
     public KeyMapping mark;
@@ -104,34 +103,7 @@ public class LittleTilesClient extends LittleTilesServer {
         overlay.addMessage(new CompiledActionMessage(message));
     }
     
-    @Override
-    public void loadSidePre() {
-        RenderingRegistry.registerEntityRenderingHandler(EntitySizedTNTPrimed.class, new IRenderFactory<EntitySizedTNTPrimed>() {
-            
-            @Override
-            public Render<? super EntitySizedTNTPrimed> createRenderFor(RenderManager manager) {
-                return new RenderSizedTNTPrimed(manager);
-            }
-        });
-        
-        RenderingRegistry.registerEntityRenderingHandler(EntityAnimation.class, new IRenderFactory<EntityAnimation>() {
-            
-            @Override
-            public Render<? super EntityAnimation> createRenderFor(RenderManager manager) {
-                return new Render<EntityAnimation>(manager) {
-                    
-                    @Override
-                    protected ResourceLocation getEntityTexture(EntityAnimation entity) {
-                        return TextureMap.LOCATION_BLOCKS_TEXTURE;
-                    }
-                    
-                };
-            }
-        });
-    }
-    
-    @Override
-    public void loadSidePost() {
+    public static void setup() {
         mc.getItemColors().register(new ItemColor() {
             
             @Override
@@ -238,10 +210,34 @@ public class LittleTilesClient extends LittleTilesServer {
                 ItemLittleRecipeAdvanced.model = null;
             }
         });
+        
+        CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
     }
     
-    @Override
-    public void loadSide() {
+    public static void init() {
+        RenderingRegistry.registerEntityRenderingHandler(EntitySizedTNTPrimed.class, new IRenderFactory<EntitySizedTNTPrimed>() {
+            
+            @Override
+            public Render<? super EntitySizedTNTPrimed> createRenderFor(RenderManager manager) {
+                return new RenderSizedTNTPrimed(manager);
+            }
+        });
+        
+        RenderingRegistry.registerEntityRenderingHandler(EntityAnimation.class, new IRenderFactory<EntityAnimation>() {
+            
+            @Override
+            public Render<? super EntityAnimation> createRenderFor(RenderManager manager) {
+                return new Render<EntityAnimation>(manager) {
+                    
+                    @Override
+                    protected ResourceLocation getEntityTexture(EntityAnimation entity) {
+                        return TextureMap.LOCATION_BLOCKS_TEXTURE;
+                    }
+                    
+                };
+            }
+        });
+        
         tileEntityRenderer = new TileEntityTilesRenderer();
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesRendered.class, tileEntityRenderer);
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTickingRendered.class, tileEntityRenderer);
@@ -282,7 +278,9 @@ public class LittleTilesClient extends LittleTilesServer {
         
         CreativeCoreClient.registerItemRenderer(LittleTiles.blockIngredient);
         
-        for (int i = 0; i <= 5; i++) {
+        for (
+                
+                int i = 0; i <= 5; i++) {
             ModelLoader.setCustomModelResourceLocation(LittleTiles.blackColorIngredient, i, new ModelResourceLocation(LittleTiles.blackColorIngredient.getRegistryName()
                     .toString() + i, "inventory"));
             ModelLoader.setCustomModelResourceLocation(LittleTiles.cyanColorIngredient, i, new ModelResourceLocation(LittleTiles.cyanColorIngredient.getRegistryName()

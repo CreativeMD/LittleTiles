@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
@@ -23,6 +22,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class OpenCommand extends CommandBase {
     

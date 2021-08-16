@@ -11,7 +11,6 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToEditException;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
@@ -27,6 +26,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public abstract class LittleActionBoxes extends LittleAction {
     

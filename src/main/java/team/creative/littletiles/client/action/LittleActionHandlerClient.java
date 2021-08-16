@@ -3,18 +3,24 @@ package team.creative.littletiles.client.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.ActionEvent.ActionType;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.level.LevelHandler;
 
 @OnlyIn(Dist.CLIENT)
@@ -28,7 +34,7 @@ public class LittleActionHandlerClient extends LevelHandler {
         super(level);
     }
     
-    public void rememberAction(LittleAction action) {
+    protected void rememberAction(LittleAction action) {
         if (!action.canBeReverted())
             return;
         
@@ -47,6 +53,11 @@ public class LittleActionHandlerClient extends LevelHandler {
         lastActions.add(0, action);
     }
     
+    public static boolean canUseUndoOrRedo(Player player) {
+        GameType type = PlayerUtils.getGameType(player);
+        return type == GameType.CREATIVE || type == GameType.SURVIVAL;
+    }
+    
     public static boolean isUsingSecondMode(Player player) {
         if (player == null)
             return false;
@@ -57,40 +68,41 @@ public class LittleActionHandlerClient extends LevelHandler {
         return player.isCrouching();
     }
     
+    public boolean execute(LittleAction action) {
+        Player player = Minecraft.getInstance().player;
+        
+        try {
+            if (action.action(player)) {
+                rememberAction(action);
+                MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.normal, player));
+                
+                LittleTiles.NETWORK.sendToServer(action);
+                
+                return true;
+            }
+        } catch (LittleActionException e) {
+            handleException(e);
+        }
+        
+        return false;
+    }
+    
     public boolean undo() throws LittleActionException {
         if (lastActions.size() > index) {
             Player player = mc.player;
+            
+            if (!canUseUndoOrRedo(player))
+                return false;
             
             LittleAction reverted = lastActions.get(index).revert(player);
             
             if (reverted == null)
                 throw new LittleActionException("action.revert.notavailable");
             
-            reverted.furtherActions = lastActions.get(index).revertFurtherActions();
-            
             if (reverted.action(player)) {
                 MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.undo, player));
-                if (reverted.sendToServer())
-                    PacketHandler.sendPacketToServer(reverted);
+                LittleTiles.NETWORK.sendToServer(reverted);
                 
-                if (reverted.furtherActions != null && !reverted.furtherActions.isEmpty()) {
-                    for (int i = 0; i < reverted.furtherActions.size(); i++) {
-                        LittleAction subAction = reverted.furtherActions.get(i);
-                        
-                        if (subAction == null)
-                            continue;
-                        
-                        try {
-                            subAction.action(player);
-                            
-                            if (subAction.sendToServer())
-                                PacketHandler.sendPacketToServer(subAction);
-                            
-                        } catch (LittleActionException e) {
-                            handleExceptionClient(e);
-                        }
-                    }
-                }
                 lastActions.set(index, reverted);
                 index++;
                 return true;
@@ -103,6 +115,9 @@ public class LittleActionHandlerClient extends LevelHandler {
         if (index > 0 && index <= lastActions.size()) {
             Player player = mc.player;
             
+            if (!canUseUndoOrRedo(player))
+                return false;
+            
             index--;
             
             LittleAction reverted = lastActions.get(index).revert(player);
@@ -110,31 +125,10 @@ public class LittleActionHandlerClient extends LevelHandler {
             if (reverted == null)
                 throw new LittleActionException("action.revert.notavailable");
             
-            reverted.furtherActions = lastActions.get(index).revertFurtherActions();
-            
             if (reverted.action(player)) {
                 MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.redo, player));
-                if (reverted.sendToServer())
-                    PacketHandler.sendPacketToServer(reverted);
+                LittleTiles.NETWORK.sendToServer(reverted);
                 
-                if (reverted.furtherActions != null && !reverted.furtherActions.isEmpty()) {
-                    for (int i = 0; i < reverted.furtherActions.size(); i++) {
-                        LittleAction subAction = reverted.furtherActions.get(i);
-                        
-                        if (subAction == null)
-                            continue;
-                        
-                        try {
-                            subAction.action(player);
-                            
-                            if (subAction.sendToServer())
-                                PacketHandler.sendPacketToServer(subAction);
-                            
-                        } catch (LittleActionException e) {
-                            handleExceptionClient(e);
-                        }
-                    }
-                }
                 lastActions.set(index, reverted);
                 
                 return true;
@@ -143,4 +137,14 @@ public class LittleActionHandlerClient extends LevelHandler {
         return false;
     }
     
+    public static void handleException(LittleActionException e) {
+        if (e.isHidden())
+            return;
+        
+        ActionMessage message = e.getActionMessage();
+        if (message != null)
+            LittleTilesClient.displayActionMessage(message);
+        else
+            mc.player.sendMessage(new TextComponent(e.getLocalizedMessage()), Util.NIL_UUID);
+    }
 }

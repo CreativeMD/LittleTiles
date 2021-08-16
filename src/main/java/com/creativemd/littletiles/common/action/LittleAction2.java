@@ -11,7 +11,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
@@ -21,7 +20,6 @@ import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -47,7 +45,6 @@ import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -57,24 +54,18 @@ import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
-import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.action.ActionEvent;
-import team.creative.littletiles.client.action.ActionEvent.ActionType;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
-import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -88,138 +79,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.tile.LittleTile;
 
-public abstract class LittleAction extends CreativeCorePacket {
-    
-    public static void registerLittleAction(String id, Class<? extends LittleAction>... classTypes) {
-        for (int i = 0; i < classTypes.length; i++)
-            CreativeCorePacket.registerPacket(classTypes[i]);
-    }
-    
-    public List<LittleAction> furtherActions = null;
-    
-    /** Must be implemented by every action **/
-    public LittleAction() {
-        
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public abstract boolean canBeReverted();
-    
-    /** @return null if an revert action is not available */
-    @SideOnly(Side.CLIENT)
-    public abstract LittleAction revert(EntityPlayer player) throws LittleActionException;
-    
-    private List<LittleAction> revertFurtherActions() {
-        if (furtherActions == null || furtherActions.isEmpty())
-            return null;
-        
-        List<LittleAction> result = new ArrayList<>(furtherActions.size());
-        for (int i = furtherActions.size() - 1; i >= 0; i--)
-            result.add(furtherActions.get(i));
-        return result;
-    }
-    
-    public boolean sendToServer() {
-        return true;
-    }
-    
-    protected abstract boolean action(EntityPlayer player) throws LittleActionException;
-    
-    @SideOnly(Side.CLIENT)
-    public boolean execute() {
-        EntityPlayer player = Minecraft.getMinecraft().player;
-        
-        try {
-            if (action(player)) {
-                rememberAction(this);
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(this, ActionType.normal, player));
-                
-                if (sendToServer())
-                    PacketHandler.sendPacketToServer(this);
-                
-                if (furtherActions != null && !furtherActions.isEmpty()) {
-                    for (int i = 0; i < furtherActions.size(); i++) {
-                        LittleAction subAction = furtherActions.get(i);
-                        
-                        if (subAction == null)
-                            continue;
-                        
-                        try {
-                            subAction.action(player);
-                            
-                            if (subAction.sendToServer())
-                                PacketHandler.sendPacketToServer(subAction);
-                            
-                        } catch (LittleActionException e) {
-                            handleExceptionClient(e);
-                        }
-                    }
-                }
-                
-                return true;
-            }
-        } catch (LittleActionException e) {
-            handleExceptionClient(e);
-        }
-        
-        return false;
-    }
-    
-    @Override
-    public void executeClient(EntityPlayer player) {
-        
-    }
-    
-    @Override
-    public void executeServer(EntityPlayer player) {
-        try {
-            action(player);
-        } catch (LittleActionException e) {
-            player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
-        }
-    }
-    
-    public boolean activateServer(EntityPlayer player) {
-        try {
-            return action(player);
-        } catch (LittleActionException e) {
-            return false;
-        }
-    }
-    
-    public abstract LittleAction flip(Axis axis, LittleAbsoluteBox box);
-    
-    @SideOnly(Side.CLIENT)
-    public static void handleExceptionClient(LittleActionException e) {
-        if (e.isHidden())
-            return;
-        
-        ActionMessage message = e.getActionMessage();
-        if (message != null)
-            LittleTilesClient.displayActionMessage(message);
-        else
-            Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
-    }
-    
-    public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state, int affected) throws LittleActionException {
-        if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)
-            throw new NotAllowedToConvertBlockException(player);
-        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable)
-            return state.getBlock().getBlockHardness(state, world, pos) > 0;
-        return LittleTiles.CONFIG.canEditBlock(player, state, pos);
-    }
-    
-    public static boolean canUseUndoOrRedo(EntityPlayer player) {
-        GameType type = PlayerUtils.getGameType(player);
-        return type == GameType.CREATIVE || type == GameType.SURVIVAL;
-    }
-    
-    public static boolean canPlace(EntityPlayer player) {
-        GameType type = PlayerUtils.getGameType(player);
-        if (type == GameType.CREATIVE || type == GameType.SURVIVAL || type == GameType.ADVENTURE)
-            return true;
-        return false;
-    }
+public abstract class LittleAction2 extends CreativeCorePacket {
     
     public static boolean canPlaceInside(LittlePreviews previews, World world, BlockPos pos, boolean placeInside) {
         IBlockState state = world.getBlockState(pos);

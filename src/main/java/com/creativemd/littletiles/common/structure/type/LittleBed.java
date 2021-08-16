@@ -14,7 +14,6 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -56,6 +55,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class LittleBed extends LittleStructure {
     

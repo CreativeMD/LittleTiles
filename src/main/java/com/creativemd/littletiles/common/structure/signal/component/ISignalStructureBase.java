@@ -3,10 +3,10 @@ package com.creativemd.littletiles.common.structure.signal.component;
 import java.util.Iterator;
 
 import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.common.grid.LittleGrid;
 
 public interface ISignalStructureBase {
     
@@ -16,7 +16,7 @@ public interface ISignalStructureBase {
         return getBandwidth() == other.getBandwidth();
     }
     
-    public World getStructureWorld();
+    public Level getStructureLevel();
     
     public int getBandwidth();
     
@@ -26,11 +26,11 @@ public interface ISignalStructureBase {
     
     public Iterator<ISignalStructureBase> connections();
     
-    public boolean canConnect(EnumFacing facing);
+    public boolean canConnect(Facing facing);
     
-    public boolean connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance, boolean oneSidedRenderer);
+    public boolean connect(Facing facing, ISignalStructureBase base, LittleGrid context, int distance, boolean oneSidedRenderer);
     
-    public void disconnect(EnumFacing facing, ISignalStructureBase base);
+    public void disconnect(Facing facing, ISignalStructureBase base);
     
     public default boolean hasNetwork() {
         return getNetwork() != null;
@@ -54,7 +54,7 @@ public interface ISignalStructureBase {
         return getNetwork();
     }
     
-    public SignalComponentType getType();
+    public SignalComponentType getComponentType();
     
     public int getColor();
 }

@@ -3,10 +3,10 @@ package team.creative.littletiles.common.ingredient;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 
 import net.minecraft.item.ItemStack;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class NotEnoughIngredientsException extends LittleActionException {
     

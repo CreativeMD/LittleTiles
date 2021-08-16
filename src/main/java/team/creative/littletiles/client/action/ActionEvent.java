@@ -1,9 +1,8 @@
 package team.creative.littletiles.client.action;
 
-import com.creativemd.littletiles.common.action.LittleAction;
-
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Event;
+import team.creative.littletiles.common.action.LittleAction;
 
 public class ActionEvent extends Event {
     

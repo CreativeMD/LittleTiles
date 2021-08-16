@@ -47,6 +47,7 @@ import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -88,7 +89,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public TileEntityRenderManager render;
     
     public BETiles(BlockPos pos, BlockState state) {
-        super(LittleTiles.TILES_TE_TYPE, pos, state);
+        super(LittleTiles.BE_TILES_TYPE, pos, state);
     }
     
     protected void assign(BETiles te) {

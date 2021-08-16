@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -19,6 +18,7 @@ import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 
 public class PlacePreview {
