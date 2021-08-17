@@ -1,10 +1,8 @@
 package com.creativemd.littletiles.common.action.block;
 
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -21,7 +19,9 @@ import com.creativemd.littletiles.common.util.place.PlacementResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing.Axis;
+import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 
 public class LittleActionPlaceAbsolute extends LittleAction {
@@ -66,7 +66,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
         
         if (destroyed != null) {
             destroyed.convertToSmallest();
-            return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, PlacementMode.normal, true));
+            return new LittleActions(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, PlacementMode.normal, true));
         }
         
         return new LittleActionDestroyBoxes(boxes);
@@ -134,7 +134,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+    public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
         LittleAbsolutePreviews newPreviews = previews.copy();
         
         if (newPreviews.getContext() != box.context)
@@ -178,7 +178,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
         }
         
         @Override
-        public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+        public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
             LittleAbsolutePreviews newPreviews = previews.copy();
             
             if (newPreviews.getContext() != box.context)

@@ -5,11 +5,9 @@ import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -32,7 +30,9 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 
 public class LittleActionReplace extends LittleActionInteract {
@@ -166,11 +166,11 @@ public class LittleActionReplace extends LittleActionInteract {
     
     @Override
     public LittleAction revert(EntityPlayer player) throws LittleActionException {
-        return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, PlacementMode.normal));
+        return new LittleActions(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, PlacementMode.normal));
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleAbsoluteBox absoluteBox) {
+    public LittleAction flip(Axis axis, LittleBoxAbsolute absoluteBox) {
         LittleBoxes boxes = this.boxes.copy();
         boxes.flip(axis, absoluteBox);
         
@@ -180,6 +180,6 @@ public class LittleActionReplace extends LittleActionInteract {
             preview.box = box;
             previews.addWithoutCheckingPreview(preview);
         }
-        return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(previews, PlacementMode.normal));
+        return new LittleActions(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(previews, PlacementMode.normal));
     }
 }

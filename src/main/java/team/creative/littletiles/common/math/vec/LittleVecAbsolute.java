@@ -192,7 +192,7 @@ public class LittleVecAbsolute implements IGridBased {
         return pos.hashCode();
     }
     
-    public LittleVecGrid getVecContext() {
+    public LittleVecGrid getVecGrid() {
         return gridVec;
     }
     

@@ -11,13 +11,11 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -37,7 +35,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 
@@ -279,11 +279,11 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                 actions.add(new LittleActionColorBoxes(boxes, entry.getKey(), true));
             }
         }
-        return new LittleActionCombined(actions.toArray(new LittleAction[0]));
+        return new LittleActions(actions.toArray(new LittleAction[0]));
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+    public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
         LittleActionColorBoxes action = new LittleActionColorBoxes();
         action.color = color;
         action.toVanilla = toVanilla;
@@ -321,7 +321,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         }
         
         @Override
-        public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+        public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
             LittleActionColorBoxesFiltered action = new LittleActionColorBoxesFiltered();
             action.selector = selector;
             action.color = color;

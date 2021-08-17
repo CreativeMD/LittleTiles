@@ -152,6 +152,7 @@ import team.creative.littletiles.common.item.ItemLittleUtilityKnife;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.server.LittleTilesServer;
@@ -266,6 +267,7 @@ public class LittleTiles {
         
         IngredientRules.loadRules();
         LittleStructureRegistry.initStructures();
+        LittlePacketTypes.init();
         
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> LittleTilesClient::init);
         

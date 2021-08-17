@@ -15,7 +15,6 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
@@ -38,6 +37,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.action.LittleActionException;
 
 public class SubGuiScrewdriver extends SubGuiConfigure {
@@ -177,7 +177,7 @@ public class SubGuiScrewdriver extends SubGuiConfigure {
             }
             
             if (!actions.isEmpty())
-                return new LittleActionCombined(actions.toArray(new LittleAction[0]));
+                return new LittleActions(actions.toArray(new LittleAction[0]));
         }
         
         if (!remove && !replace && !colorize)

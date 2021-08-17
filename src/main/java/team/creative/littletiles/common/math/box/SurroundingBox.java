@@ -2,7 +2,6 @@ package team.creative.littletiles.common.math.box;
 
 import java.util.HashMap;
 
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -128,9 +127,9 @@ public class SurroundingBox {
         count++;
     }
     
-    public LittleAbsoluteBox getAbsoluteBox() {
+    public LittleBoxAbsolute getAbsoluteBox() {
         BlockPos pos = getMinPos();
-        return new LittleAbsoluteBox(pos, new LittleBox((int) (minX - context.toGrid(pos.getX())), (int) (minY - context.toGrid(pos.getY())), (int) (minZ - context
+        return new LittleBoxAbsolute(pos, new LittleBox((int) (minX - context.toGrid(pos.getX())), (int) (minY - context.toGrid(pos.getY())), (int) (minZ - context
                 .toGrid(pos.getZ())), (int) (maxX - context.toGrid(pos.getX())), (int) (maxY - context.toGrid(pos.getY())), (int) (maxZ - context.toGrid(pos.getZ()))), context);
     }
     

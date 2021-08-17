@@ -8,7 +8,6 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -26,6 +25,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.item.ItemLittleWrench;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
@@ -107,7 +107,7 @@ public class LittleActionDestroy extends LittleActionInteract {
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+    public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
         LittleBoxes boxes;
         if (structurePreview != null) {
             boxes = new LittleBoxesSimple(structurePreview.previews.pos, structurePreview.previews.getContext());

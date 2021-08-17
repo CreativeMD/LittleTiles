@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.action;
 
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
-
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
@@ -17,6 +15,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
 public abstract class LittleAction extends CreativePacket {
     
@@ -46,7 +45,7 @@ public abstract class LittleAction extends CreativePacket {
         }
     }
     
-    public abstract LittleAction flip(Axis axis, LittleAbsoluteBox box);
+    public abstract LittleAction flip(Axis axis, LittleBoxAbsolute box);
     
     public static boolean canConvertBlock(Player player, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
         if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)

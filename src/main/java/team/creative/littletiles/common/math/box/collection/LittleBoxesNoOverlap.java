@@ -7,12 +7,12 @@ import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleBoxesNoOverlap extends LittleBoxes {
@@ -143,7 +143,7 @@ public class LittleBoxesNoOverlap extends LittleBoxes {
     }
     
     @Override
-    public void flip(Axis axis, LittleAbsoluteBox absoluteBox) {
+    public void flip(Axis axis, LittleBoxAbsolute absoluteBox) {
         ensureContext(absoluteBox, () -> {
             HashMapList<BlockPos, LittleBox> oldMap = blockMap;
             blockMap = new HashMapList<>();

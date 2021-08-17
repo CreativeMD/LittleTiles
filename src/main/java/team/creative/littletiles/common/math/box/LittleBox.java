@@ -1153,11 +1153,7 @@ public class LittleBox {
     
     // ================Static Helpers================
     
-    public static LittleBox loadBox(String name, CompoundTag nbt) {
-        return createBox(nbt.getIntArray(name));
-    }
-    
-    public static LittleBox createBox(int[] array) {
+    public static LittleBox create(int[] array) {
         if (array.length == 6)
             return new LittleBox(array[0], array[1], array[2], array[3], array[4], array[5]);
         

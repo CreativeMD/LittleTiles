@@ -24,7 +24,6 @@ import com.creativemd.littletiles.common.structure.signal.component.SignalCompon
 import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -47,6 +46,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
 public abstract class LittleSignalCableBase extends LittleStructurePremade implements ISignalStructureBase {
     
@@ -212,7 +212,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             if (getWorld().isRemote)
                 return;
             
-            LittleAbsoluteBox box = getSurroundingBox().getAbsoluteBox();
+            LittleBoxAbsolute box = getSurroundingBox().getAbsoluteBox();
             boolean changed = false;
             for (int i = 0; i < faces.length; i++) {
                 EnumFacing facing = getFacing(i);
@@ -242,7 +242,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             load();
             return new Iterator<ISignalStructureBase>() {
                 
-                LittleAbsoluteBox box = getSurroundingBox().getAbsoluteBox();
+                LittleBoxAbsolute box = getSurroundingBox().getAbsoluteBox();
                 int index = searchForNextIndex(0);
                 
                 int searchForNextIndex(int index) {
@@ -282,7 +282,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         };
     }
     
-    protected LittleConnectResult checkConnection(World world, LittleAbsoluteBox box, EnumFacing facing, BlockPos pos) throws ConnectionException {
+    protected LittleConnectResult checkConnection(World world, LittleBoxAbsolute box, EnumFacing facing, BlockPos pos) throws ConnectionException {
         try {
             TileEntity tileEntity = world.getTileEntity(pos);
             if (tileEntity instanceof TileEntityLittleTiles) {
@@ -379,7 +379,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         return null;
     }
     
-    public LittleConnectResult checkConnection(EnumFacing facing, LittleAbsoluteBox box) {
+    public LittleConnectResult checkConnection(EnumFacing facing, LittleBoxAbsolute box) {
         if (!canConnect(facing))
             return null;
         
@@ -536,7 +536,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             updateStructure();
         }
         
-        public boolean verifyConnect(EnumFacing facing, LittleAbsoluteBox box) {
+        public boolean verifyConnect(EnumFacing facing, LittleBoxAbsolute box) {
             if (connection != null)
                 return true;
             

@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.util.vec;
 import java.util.HashMap;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -18,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
 public class SurroundingBox {
     
@@ -128,9 +128,9 @@ public class SurroundingBox {
         count++;
     }
     
-    public LittleAbsoluteBox getAbsoluteBox() {
+    public LittleBoxAbsolute getAbsoluteBox() {
         BlockPos pos = getMinPos();
-        return new LittleAbsoluteBox(pos, new LittleBox((int) (minX - context.toGrid(pos.getX())), (int) (minY - context.toGrid(pos.getY())), (int) (minZ - context
+        return new LittleBoxAbsolute(pos, new LittleBox((int) (minX - context.toGrid(pos.getX())), (int) (minY - context.toGrid(pos.getY())), (int) (minZ - context
             .toGrid(pos.getZ())), (int) (maxX - context.toGrid(pos.getX())), (int) (maxY - context.toGrid(pos.getY())), (int) (maxZ - context.toGrid(pos.getZ()))), context);
     }
     

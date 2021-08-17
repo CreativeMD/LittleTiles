@@ -3,21 +3,22 @@ package team.creative.littletiles.common.math.location;
 import java.util.Arrays;
 import java.util.UUID;
 
-import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.exception.MissingAnimationException;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.exception.MissingAnimationException;
+import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.LittleTileContext;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class TileLocation {
@@ -26,17 +27,17 @@ public class TileLocation {
     public final boolean isStructure;
     public final int index;
     public final LittleBox box;
-    public final UUID worldUUID;
+    public final UUID levelUUID;
     
     public TileLocation(BlockPos pos, boolean isStructure, int index, LittleBox box, UUID world) {
         this.pos = pos;
         this.isStructure = isStructure;
         this.index = index;
         this.box = box;
-        this.worldUUID = world;
+        this.levelUUID = world;
     }
     
-    public TileLocation(IParentTileList list, LittleTile tile) {
+    public TileLocation(LittleTileContext context) {
         if (list.isStructure()) {
             this.isStructure = true;
             this.index = ((StructureParentCollection) list).getIndex();
@@ -46,10 +47,10 @@ public class TileLocation {
         }
         this.pos = list.getPos();
         this.box = tile.getBox().copy();
-        if (list.getWorld() instanceof CreativeWorld)
-            this.worldUUID = ((CreativeWorld) list.getWorld()).parent.getUniqueID();
+        if (list.getLevel() instanceof CreativeWorld)
+            this.levelUUID = ((CreativeWorld) list.getWorld()).parent.getUniqueID();
         else
-            this.worldUUID = null;
+            this.levelUUID = null;
     }
     
     public TileLocation(NBTTagCompound nbt) {
@@ -78,7 +79,7 @@ public class TileLocation {
         return nbt;
     }
     
-    public Pair<IParentTileList, LittleTile> find(World world) throws LittleActionException {
+    public Pair<IParentCollection, LittleTile> find(Level level) throws LittleActionException {
         if (worldUUID != null) {
             EntityAnimation animation = WorldAnimationHandler.findAnimation(world.isRemote, worldUUID);
             if (animation == null)

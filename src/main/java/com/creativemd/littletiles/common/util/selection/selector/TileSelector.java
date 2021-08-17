@@ -6,20 +6,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public abstract class TileSelector {
     
@@ -41,7 +41,7 @@ public abstract class TileSelector {
         return selectorTypes.get(id);
     }
     
-    public static TileSelector loadSelector(String id, NBTTagCompound nbt) {
+    public static TileSelector loadSelector(String id, CompoundTag nbt) {
         Class<? extends TileSelector> type = getType(id);
         if (type != null) {
             try {
@@ -56,7 +56,7 @@ public abstract class TileSelector {
         return null;
     }
     
-    public static TileSelector loadSelector(NBTTagCompound nbt) {
+    public static TileSelector loadSelector(CompoundTag nbt) {
         Class<? extends TileSelector> type = getType(nbt.getString("type"));
         if (type != null) {
             try {
@@ -87,7 +87,7 @@ public abstract class TileSelector {
         
     }
     
-    public NBTTagCompound writeNBT(NBTTagCompound nbt) {
+    public CompoundTag write(CompoundTag nbt) {
         saveNBT(nbt);
         nbt.setString("type", getTypeID(this.getClass()));
         return nbt;

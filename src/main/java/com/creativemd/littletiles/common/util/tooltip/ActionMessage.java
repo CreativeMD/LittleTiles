@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.common.action.LittleAction;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.GuiRenderHelper;
 
 public class ActionMessage {
     
@@ -87,9 +87,9 @@ public class ActionMessage {
             return index;
         }
         
-        public abstract void write(T object, ByteBuf buf);
+        public abstract void write(T object, FriendlyByteBuf buf);
         
-        public abstract T read(ByteBuf buf);
+        public abstract T read(FriendlyByteBuf buf);
         
         @SideOnly(Side.CLIENT)
         public abstract int width(T object, GuiRenderHelper helper);

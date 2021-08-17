@@ -3,39 +3,39 @@ package team.creative.littletiles.common.math.location;
 import java.util.Arrays;
 import java.util.UUID;
 
-import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.MissingAnimationException;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
 public class StructureLocation {
     
     public final BlockPos pos;
     public final int index;
-    public final UUID worldUUID;
+    public final UUID levelUUID;
     
     public StructureLocation(BlockPos pos, int index, UUID world) {
         this.pos = pos;
         this.index = index;
-        this.worldUUID = world;
+        this.levelUUID = world;
     }
     
-    public StructureLocation(World world, BlockPos pos, int index) {
+    public StructureLocation(Level level, BlockPos pos, int index) {
         this.pos = pos;
         this.index = index;
-        if (world instanceof CreativeWorld)
-            this.worldUUID = ((CreativeWorld) world).parent.getUniqueID();
+        if (level instanceof CreativeLevel)
+            this.levelUUID = ((CreativeLevel) level).parent.getUUID();
         else
-            this.worldUUID = null;
+            this.levelUUID = null;
     }
     
     public StructureLocation(LittleStructure structure) {
@@ -64,7 +64,7 @@ public class StructureLocation {
         return nbt;
     }
     
-    public LittleStructure find(World world) throws LittleActionException {
+    public LittleStructure find(Level level) throws LittleActionException {
         if (worldUUID != null) {
             EntityAnimation animation = WorldAnimationHandler.findAnimation(world.isRemote, worldUUID);
             if (animation == null)

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tile.math.box;
+package team.creative.littletiles.common.math.box;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
@@ -11,22 +11,22 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.IGridBased;
-import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
-public class LittleAbsoluteBox implements IGridBased {
+public class LittleBoxAbsolute implements IGridBased {
     
     public BlockPos pos;
-    public LittleGridContext context;
+    public LittleGrid context;
     public LittleBox box;
     
-    public LittleAbsoluteBox(BlockPos pos) {
+    public LittleBoxAbsolute(BlockPos pos) {
         this.pos = pos;
         this.context = LittleGridContext.getMin();
         this.box = new LittleBox(0, 0, 0, context.size, context.size, context.size);
     }
     
-    public LittleAbsoluteBox(BlockPos pos, LittleBox box, LittleGridContext context) {
+    public LittleBoxAbsolute(BlockPos pos, LittleBox box, LittleGrid context) {
         this.pos = pos;
         this.box = box;
         this.context = context;
@@ -118,7 +118,7 @@ public class LittleAbsoluteBox implements IGridBased {
         return pos;
     }
     
-    public int getDistanceIfEqualFromOneSide(EnumFacing facing, LittleAbsoluteBox box) {
+    public int getDistanceIfEqualFromOneSide(EnumFacing facing, LittleBoxAbsolute box) {
         return getDistanceIfEqualFromOneSide(facing, box.box, box.pos, box.context);
     }
     
@@ -147,8 +147,8 @@ public class LittleAbsoluteBox implements IGridBased {
         return -1;
     }
     
-    public LittleAbsoluteBox createBoxFromFace(EnumFacing facing, int size) {
-        LittleAbsoluteBox newBox = new LittleAbsoluteBox(pos, box.copy(), context);
+    public LittleBoxAbsolute createBoxFromFace(EnumFacing facing, int size) {
+        LittleBoxAbsolute newBox = new LittleBoxAbsolute(pos, box.copy(), context);
         Axis axis = facing.getAxis();
         if (facing.getAxisDirection() == AxisDirection.POSITIVE) {
             int max = box.getMax(axis);

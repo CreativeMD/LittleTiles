@@ -5,7 +5,6 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.location.TileLocation;
@@ -29,6 +28,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 
 public class LittleActionSaw extends LittleActionInteract {
@@ -193,7 +193,7 @@ public class LittleActionSaw extends LittleActionInteract {
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+    public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
         return null;
     }
     
@@ -298,7 +298,7 @@ public class LittleActionSaw extends LittleActionInteract {
         }
         
         @Override
-        public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+        public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
             return null;
         }
     }

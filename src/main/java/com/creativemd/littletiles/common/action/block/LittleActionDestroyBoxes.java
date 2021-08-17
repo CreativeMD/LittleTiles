@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy.StructurePreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -33,7 +31,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.tile.parent.ParentTileList;
 
@@ -229,7 +229,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         }
         for (int i = 0; i < destroyedStructures.size(); i++)
             actions[(additionalPreviews ? 1 : 0) + i] = destroyedStructures.get(i).getPlaceAction();
-        return new LittleActionCombined(actions);
+        return new LittleActions(actions);
     }
     
     public static class LittleActionDestroyBoxesFiltered extends LittleActionDestroyBoxes {
@@ -391,7 +391,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+    public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
         return assignFlip(new LittleActionDestroyBoxes(), axis, box);
     }
 }

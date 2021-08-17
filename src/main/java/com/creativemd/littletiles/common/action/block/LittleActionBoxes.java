@@ -11,7 +11,6 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToEditException;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -27,6 +26,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
 public abstract class LittleActionBoxes extends LittleAction {
     
@@ -104,7 +104,7 @@ public abstract class LittleActionBoxes extends LittleAction {
         boxes = readBoxes(buf);
     }
     
-    protected LittleActionBoxes assignFlip(LittleActionBoxes action, Axis axis, LittleAbsoluteBox box) {
+    protected LittleActionBoxes assignFlip(LittleActionBoxes action, Axis axis, LittleBoxAbsolute box) {
         action.boxes = this.boxes.copy();
         action.boxes.flip(axis, box);
         return action;
