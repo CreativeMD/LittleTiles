@@ -17,10 +17,6 @@ import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.LittleStructureTypeParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable;
@@ -45,6 +41,10 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
+import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 
 public abstract class LittleStructurePremade extends LittleStructure {
     

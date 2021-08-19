@@ -20,6 +20,7 @@ import team.creative.creativecore.common.util.math.transformation.RotationUtils;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public abstract class StructureDirectionalType<T> {
@@ -212,7 +213,7 @@ public abstract class StructureDirectionalType<T> {
     
     public abstract Tag write(T value);
     
-    public abstract T move(T value, LittleGrid context, LittleVec offset);
+    public abstract T move(T value, LittleVecGrid vec);
     
     public abstract T flip(T value, LittleGrid context, Axis axis, LittleVec doubledCenter);
     

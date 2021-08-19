@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.recipe;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -11,6 +10,7 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.crafting.IIngredientFactory;
 import net.minecraftforge.common.crafting.JsonContext;
+import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
 public class StructureIngredientFactory implements IIngredientFactory {
     

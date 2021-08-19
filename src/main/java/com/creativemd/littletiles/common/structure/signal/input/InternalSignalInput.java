@@ -2,11 +2,11 @@ package com.creativemd.littletiles.common.structure.signal.input;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.InternalSignal;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 
 public class InternalSignalInput extends InternalSignal<InternalComponent> {
     

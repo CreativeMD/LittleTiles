@@ -35,9 +35,6 @@ import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -54,6 +51,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
+import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.registry.LittleStructureType;
 
 public class LittleAdvancedDoor extends LittleDoorBase {
     

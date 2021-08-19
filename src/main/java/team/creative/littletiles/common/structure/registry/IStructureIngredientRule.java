@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.registry;
+package team.creative.littletiles.common.structure.registry;
 
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.tile.group.LittleGroup;

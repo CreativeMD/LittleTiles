@@ -17,7 +17,6 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
@@ -47,6 +46,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.structure.registry.LittleStructureType;
 
 public abstract class LittleSignalCableBase extends LittleStructurePremade implements ISignalStructureBase {
     

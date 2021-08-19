@@ -22,7 +22,6 @@ import com.creativemd.littletiles.common.particle.LittleParticlePresets;
 import com.creativemd.littletiles.common.particle.LittleParticleTexture;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -45,6 +44,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.structure.registry.LittleStructureType;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
     

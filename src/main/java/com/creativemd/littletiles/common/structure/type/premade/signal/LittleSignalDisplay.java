@@ -12,7 +12,6 @@ import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
@@ -32,6 +31,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.structure.registry.LittleStructureType;
 
 public class LittleSignalDisplay extends LittleStructurePremade {
     

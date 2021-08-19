@@ -7,7 +7,6 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.packet.LittleUpdateOutputPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
 import com.creativemd.littletiles.common.structure.signal.component.InternalSignal;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -15,6 +14,7 @@ import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.SignalOutputHandlerToggle;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
 
 public class InternalSignalOutput extends InternalSignal<InternalComponentOutput> {
     

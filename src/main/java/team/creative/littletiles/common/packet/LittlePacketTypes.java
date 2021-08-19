@@ -34,7 +34,7 @@ import team.creative.littletiles.common.math.location.TileLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
-import team.creative.littletiles.common.tile.group.LittleGroup;
+import team.creative.littletiles.common.tile.group.LittleGroupHolder;
 
 public class LittlePacketTypes {
     
@@ -92,10 +92,10 @@ public class LittlePacketTypes {
             
         }, StructureLocation.class);
         
-        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroup>() {
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroupHolder>() {
             
             @Override
-            protected void writeContent(LittleGroup content, FriendlyByteBuf buffer) {
+            protected void writeContent(LittleGroupHolder content, FriendlyByteBuf buffer) {
                 buffer.writeBoolean(previews.isAbsolute());
                 buffer.writeBoolean(previews.hasStructure());
                 if (previews.hasStructure())
@@ -116,7 +116,7 @@ public class LittlePacketTypes {
             }
             
             @Override
-            protected LittleGroup readContent(FriendlyByteBuf buffer) {
+            protected LittleGroupHolder readContent(FriendlyByteBuf buffer) {
                 boolean absolute = buf.readBoolean();
                 boolean structure = buf.readBoolean();
                 
@@ -143,7 +143,7 @@ public class LittlePacketTypes {
                 return previews;
             }
             
-        }, LittleGroup.class);
+        }, LittleGroupHolder.class);
         NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementMode>() {
             
             @Override

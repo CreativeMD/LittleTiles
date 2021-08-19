@@ -1,10 +1,10 @@
 package com.creativemd.littletiles.common.structure.signal.component;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 
 public abstract class InternalSignal<T extends InternalComponent> implements ISignalComponent {
     

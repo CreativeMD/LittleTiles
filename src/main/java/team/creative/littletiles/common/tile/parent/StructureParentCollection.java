@@ -4,8 +4,6 @@ import java.security.InvalidParameterException;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 
 import net.minecraft.core.BlockPos;
@@ -24,6 +22,8 @@ import team.creative.littletiles.common.structure.exception.CorruptedLinkExcepti
 import team.creative.littletiles.common.structure.exception.MissingBlockException;
 import team.creative.littletiles.common.structure.exception.MissingStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.registry.LittleStructureType;
 
 public class StructureParentCollection extends ParentCollection implements IStructureParentCollection, IStructureConnection {
     

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.registry;
+package team.creative.littletiles.common.structure.registry;
 
 import javax.annotation.Nullable;
 

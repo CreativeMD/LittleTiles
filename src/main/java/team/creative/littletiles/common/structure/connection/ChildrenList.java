@@ -1,98 +1,80 @@
 package team.creative.littletiles.common.structure.connection;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
-import team.creative.littletiles.common.structure.exception.MissingChildException;
-import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-
-public class ChildrenList implements Iterable<StructureChildConnection> {
+public abstract class ChildrenList<T> implements Iterable<T> {
     
-    private int size = 0;
-    private List<StructureChildConnection> content = new ArrayList<>();
+    private List<T> children;
+    private HashMap<String, T> extensions;
     
-    public ChildrenList() {
-        
+    public ChildrenList(List<T> children) {
+        this.children = children != null ? Collections.unmodifiableList(children) : Collections.EMPTY_LIST;
     }
     
-    public StructureChildConnection get(int index) throws CorruptedConnectionException, NotYetConnectedException {
-        if (index >= content.size())
-            throw new MissingChildException(index);
-        StructureChildConnection child = content.get(index);
-        if (child != null)
-            return child;
-        throw new MissingChildException(index);
+    protected abstract void added(T child);
+    
+    public void addExtension(String key, T extension) {
+        if (extensions.containsKey(key))
+            throw new RuntimeException("Extension " + key + " already exists");
+        extensions.put(key, extension);
     }
     
-    public void set(StructureChildConnection child) {
-        while (content.size() <= child.childId)
-            content.add(null);
-        content.set(child.childId, child);
-        size = countSize();
+    public void addExtensions(Map<String, T> extensions) {
+        for (Entry<String, T> pair : extensions.entrySet())
+            addExtension(pair.getKey(), pair.getValue());
     }
     
-    public void remove(int index) throws CorruptedConnectionException, NotYetConnectedException {
-        StructureChildConnection child = get(index);
-        if (!child.dynamic)
-            throw new RuntimeException("Cannot remove non dynamic child");
-        child.getStructure().removeParent();
-        content.set(index, null);
-        size = countSize();
+    protected T removeExt(String key) {
+        return extensions.remove(key);
+    }
+    
+    public T getExtension(String key) {
+        return extensions.get(key);
     }
     
     @Override
-    public Iterator<StructureChildConnection> iterator() {
-        return new Iterator<StructureChildConnection>() {
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
             
-            private Iterator<StructureChildConnection> iter = content.iterator();
-            private StructureChildConnection next = findNext();
-            
-            StructureChildConnection findNext() {
-                while (iter.hasNext()) {
-                    StructureChildConnection child = iter.next();
-                    if (child != null)
-                        return child;
-                }
-                return null;
-            }
+            private Iterator<T> itr = children.iterator();
+            private boolean firstItr = true;
             
             @Override
             public boolean hasNext() {
-                return next != null;
+                if (!itr.hasNext() && firstItr) {
+                    itr = extensions.values().iterator();
+                    firstItr = false;
+                }
+                return itr.hasNext();
             }
             
             @Override
-            public StructureChildConnection next() {
-                StructureChildConnection toReturn = next;
-                next = findNext();
-                return toReturn;
+            public T next() {
+                return itr.next();
             }
+            
         };
     }
     
-    private int countSize() {
-        int size = 0;
-        for (StructureChildConnection child : content)
-            if (child != null)
-                size++;
-        return size;
+    public Iterable<T> children() {
+        return children;
+    }
+    
+    public Iterable<T> extensions() {
+        return extensions.values();
     }
     
     public int size() {
-        return size;
+        return children.size() + extensions.size();
     }
     
     public boolean isEmpty() {
-        return size == 0;
-    }
-    
-    public int findFreeIndex() {
-        for (int i = 0; i < content.size(); i++)
-            if (content.get(i) == null)
-                return i;
-        return content.size();
+        return children.isEmpty() && extensions.isEmpty();
     }
     
 }

@@ -69,6 +69,7 @@ import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.RelativeBlockPos;
 import team.creative.littletiles.common.structure.connection.ChildrenList;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
+import team.creative.littletiles.common.structure.connection.LevelChildrenList;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
@@ -108,7 +109,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public String name;
     
     private StructureChildConnection parent;
-    protected ChildrenList children;
+    protected LevelChildrenList children;
     
     private HashMap<Integer, SignalExternalOutputHandler> externalHandler;
     private final InternalSignalInput[] inputs;

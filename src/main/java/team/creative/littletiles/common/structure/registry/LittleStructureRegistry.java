@@ -1,16 +1,11 @@
-package com.creativemd.littletiles.common.structure.registry;
+package team.creative.littletiles.common.structure.registry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.creativecore.common.utils.type.PairList;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import com.creativemd.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScalerVolume;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
@@ -36,11 +31,14 @@ import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
-import com.creativemd.littletiles.common.util.ingredient.StackIngredient;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.util.type.PairList;
+import team.creative.littletiles.common.ingredient.StackIngredient;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class LittleStructureRegistry {
     
@@ -153,24 +151,25 @@ public class LittleStructureRegistry {
         defaultType = registerStructureType("fixed", "simple", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
         
         registerStructureType("ladder", "simple", LittleLadder.class, LittleStructureAttribute.LADDER, LittleLadderParser.class)
-            .addIngredient(StructureIngredientRule.LONGEST_SIDE, new StackIngredient(new ItemStack(Blocks.LADDER)));
+                .addIngredient(StructureIngredientRule.LONGEST_SIDE, new StackIngredient(new ItemStack(Blocks.LADDER)));
         
         registerStructureType("bed", "simple", LittleBed.class, LittleStructureAttribute.NONE, LittleBedParser.class).addInput("occupied", 1)
-            .addIngredient(StructureIngredientRule.SINGLE, new StackIngredient(new ItemStack(Items.BED)));
+                .addIngredient(StructureIngredientRule.SINGLE, new StackIngredient(new ItemStack(Items.BED)));
         registerStructureType("chair", "simple", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class).addInput("occupied", 1);
         
         registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE).addInput("accessed", 1)
-            .addInput("filled", 16), LittleStorageParser.class);
+                .addInput("filled", 16), LittleStorageParser.class);
         registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.NOCOLLISION | LittleStructureAttribute.COLLISION_LISTENER, LittleNoClipStructureParser.class)
-            .addInput("players", 4).addInput("entities", 4);
+                .addInput("players", 4).addInput("entities", 4);
         
         registerStructureType("light", "simple", LittleLight.class, LittleStructureAttribute.LIGHT_EMITTER, LittleLightStructureParser.class)
-            .addOutput("enabled", 1, SignalMode.TOGGLE, true).addIngredient(new StructureIngredientScalerVolume(8), new StackIngredient(new ItemStack(Items.GLOWSTONE_DUST)));
+                .addOutput("enabled", 1, SignalMode.TOGGLE, true).addIngredient(new StructureIngredientScalerVolume(8), new StackIngredient(new ItemStack(Items.GLOWSTONE_DUST)));
         
         registerStructureType("message", "simple", LittleStructureMessage.class, 0, LittleMessageStructureParser.class).addOutput("message", 1, SignalMode.EQUAL);
         
-        LittleStructureBuilder.register(new LittleStructureBuilderType(registerStructureType("item_holder", "simple", LittleItemHolder.class, LittleStructureAttribute.EXTRA_RENDERING, null)
-            .addInput("filled", 1), "frame"));
+        LittleStructureBuilder
+                .register(new LittleStructureBuilderType(registerStructureType("item_holder", "simple", LittleItemHolder.class, LittleStructureAttribute.EXTRA_RENDERING, null)
+                        .addInput("filled", 1), "frame"));
         
         LittleDoorBase.initDoors();
         

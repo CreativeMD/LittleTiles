@@ -24,6 +24,8 @@ public class LittleCollection implements Iterable<LittleTile> {
     }
     
     public void add(LittleTile tile) {
+        if (!canAdd())
+            return;
         for (LittleTile other : this) {
             if (other.equals(tile)) {
                 other.add(tile);
@@ -36,6 +38,10 @@ public class LittleCollection implements Iterable<LittleTile> {
     public void addAll(Iterable<LittleTile> tiles) {
         for (LittleTile tile : tiles)
             add(tile);
+    }
+    
+    protected boolean canAdd() {
+        return true;
     }
     
     protected void added(LittleTile tile) {}

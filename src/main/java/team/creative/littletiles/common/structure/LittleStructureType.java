@@ -7,9 +7,6 @@ import java.util.List;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.registry.IStructureIngredientRule;
-import com.creativemd.littletiles.common.structure.registry.StructureIngredientRule;
-import com.creativemd.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScaler;
 import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
@@ -31,7 +28,11 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
+import team.creative.littletiles.common.structure.registry.IStructureIngredientRule;
+import team.creative.littletiles.common.structure.registry.StructureIngredientRule;
+import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScaler;
 import team.creative.littletiles.common.tile.group.LittleGroup;
+import team.creative.littletiles.common.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class LittleStructureType {
@@ -131,7 +132,7 @@ public class LittleStructureType {
         return false;
     }
     
-    public void addIngredients(LittleGroup group, LittleIngredients ingredients) {
+    public void addIngredients(LittleGroupHolder group, LittleIngredients ingredients) {
         if (ingredientRules != null)
             for (IStructureIngredientRule rule : ingredientRules)
                 rule.add(group, ingredients);

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.registry;
+package team.creative.littletiles.common.structure.registry;
 
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;

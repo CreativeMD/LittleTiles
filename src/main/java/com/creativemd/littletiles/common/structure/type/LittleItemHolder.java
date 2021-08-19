@@ -12,7 +12,6 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBoxItem;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -26,6 +25,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.structure.registry.LittleStructureType;
 
 public class LittleItemHolder extends LittleStructure {
     
