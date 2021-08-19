@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
-
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 public class LittleIngredients extends LittleIngredientBase<LittleIngredients> implements Iterable<LittleIngredient> {
     

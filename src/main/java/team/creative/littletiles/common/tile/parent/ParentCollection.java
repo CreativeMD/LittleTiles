@@ -10,8 +10,8 @@ import team.creative.littletiles.common.filter.TileFilter;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.common.tile.LittleCollectionSafe;
 import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.collection.LittleCollectionSafe;
 
 public abstract class ParentCollection extends LittleCollectionSafe implements IParentCollection {
     

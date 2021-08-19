@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class StackIngredientEntry {
     

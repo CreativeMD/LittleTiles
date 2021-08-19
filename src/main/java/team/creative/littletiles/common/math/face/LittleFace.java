@@ -3,7 +3,6 @@ package team.creative.littletiles.common.math.face;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.renderer.EnumFaceDirection;
@@ -12,6 +11,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleFace {
@@ -148,7 +148,7 @@ public class LittleFace {
             }
         }
         
-        BasicCombiner.combineBoxes(boxes);
+        LittleBoxCombiner.combineBoxes(boxes);
         
         List<VectorFan> fans = new ArrayList<>(boxes.size());
         for (LittleBox box : boxes) {

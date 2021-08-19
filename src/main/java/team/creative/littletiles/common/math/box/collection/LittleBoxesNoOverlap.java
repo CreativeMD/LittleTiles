@@ -5,37 +5,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import net.minecraft.core.BlockPos;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxCombiner;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
-public class LittleBoxesNoOverlap extends LittleBoxes {
+public final class LittleBoxesNoOverlap extends LittleBoxes {
     
     protected HashMapList<BlockPos, LittleBox> blockMap = new HashMapList<>();
     protected HashMapList<BlockPos, LittleBox> tempMap = new HashMapList<>();
     protected List<LittleBox> cutOutTemp = new ArrayList<>();
     
-    public LittleBoxesNoOverlap(BlockPos pos, LittleGridContext context, HashMapList<BlockPos, LittleBox> map) {
-        super(pos, context);
+    public LittleBoxesNoOverlap(BlockPos pos, LittleGrid grid, HashMapList<BlockPos, LittleBox> map) {
+        super(pos, grid);
         this.blockMap = map;
     }
     
-    public LittleBoxesNoOverlap(BlockPos pos, LittleGridContext context) {
-        super(pos, context);
+    public LittleBoxesNoOverlap(BlockPos pos, LittleGrid grid) {
+        super(pos, grid);
     }
     
     @Override
     public void add(LittleBox box) {
         tempMap.clear();
-        box.split(context, pos, tempMap, null);
+        box.split(grid, pos, tempMap, null);
         for (Entry<BlockPos, ArrayList<LittleBox>> entry : tempMap.entrySet()) {
-            List<LittleBox> existingBoxes = blockMap.getValues(entry.getKey());
+            List<LittleBox> existingBoxes = blockMap.get(entry.getKey());
             boolean missing = existingBoxes == null;
             
             if (missing)
@@ -45,7 +44,7 @@ public class LittleBoxesNoOverlap extends LittleBoxes {
                 existingBoxes.addAll(splitted.cutOut(existingBoxes, cutOutTemp, null));
             }
             
-            BasicCombiner.combineBoxesOnlyLast(existingBoxes);
+            LittleBoxCombiner.combineLast(existingBoxes);
             if (missing)
                 blockMap.add(entry.getKey(), existingBoxes);
         }
@@ -53,28 +52,24 @@ public class LittleBoxesNoOverlap extends LittleBoxes {
     
     @Override
     public LittleBoxesNoOverlap copy() {
-        return new LittleBoxesNoOverlap(pos, context, new HashMapList<>(blockMap));
+        return new LittleBoxesNoOverlap(pos, grid, new HashMapList<>(blockMap));
     }
     
     @Override
-    public void convertTo(LittleGridContext to) {
+    public void convertTo(LittleGrid to) {
         for (Iterator<LittleBox> iterator = blockMap.iterator(); iterator.hasNext();) {
             LittleBox box = iterator.next();
-            box.convertTo(this.context, to);
+            box.convertTo(this.grid, to);
         }
-        this.context = to;
+        this.grid = to;
     }
     
     @Override
-    public void convertToSmallest() {
-        int size = LittleGridContext.minSize;
-        for (Iterator<LittleBox> iterator = blockMap.iterator(); iterator.hasNext();) {
-            LittleBox box = iterator.next();
-            size = Math.max(size, box.getSmallestContext(context));
-        }
-        
-        if (size < context.size)
-            convertTo(LittleGridContext.get(size));
+    public int getSmallest() {
+        int size = LittleGrid.min().count;
+        for (LittleBox box : blockMap)
+            size = Math.max(size, box.getSmallest(grid));
+        return size;
     }
     
     @Override
@@ -105,9 +100,9 @@ public class LittleBoxesNoOverlap extends LittleBoxes {
         int maxZ = Integer.MIN_VALUE;
         
         for (Entry<BlockPos, ArrayList<LittleBox>> entry : blockMap.entrySet()) {
-            int x = entry.getKey().getX() * context.size;
-            int y = entry.getKey().getY() * context.size;
-            int z = entry.getKey().getZ() * context.size;
+            int x = entry.getKey().getX() * grid.count;
+            int y = entry.getKey().getY() * grid.count;
+            int z = entry.getKey().getZ() * grid.count;
             
             for (LittleBox box : entry.getValue()) {
                 minX = Math.min(minX, x + box.minX);
@@ -132,7 +127,7 @@ public class LittleBoxesNoOverlap extends LittleBoxes {
         List<LittleBox> boxes = new ArrayList<>();
         LittleVec vec = new LittleVec(0, 0, 0);
         for (Entry<BlockPos, ArrayList<LittleBox>> entry : blockMap.entrySet()) {
-            vec.set(context, entry.getKey().subtract(this.pos));
+            vec.set(grid, entry.getKey().subtract(this.pos));
             for (LittleBox box : entry.getValue()) {
                 LittleBox toAdd = box.copy();
                 toAdd.add(vec);
@@ -144,11 +139,11 @@ public class LittleBoxesNoOverlap extends LittleBoxes {
     
     @Override
     public void flip(Axis axis, LittleBoxAbsolute absoluteBox) {
-        ensureContext(absoluteBox, () -> {
-            HashMapList<BlockPos, LittleBox> oldMap = blockMap;
+        sameGrid(absoluteBox, () -> {
+            Iterable<LittleBox> boxes = all();
             blockMap = new HashMapList<>();
             LittleVec center = absoluteBox.getDoubledCenter(pos);
-            for (LittleBox box : all()) {
+            for (LittleBox box : boxes) {
                 box.flipBox(axis, center);
                 add(box);
             }

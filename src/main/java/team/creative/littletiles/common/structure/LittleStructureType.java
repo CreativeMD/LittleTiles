@@ -7,27 +7,31 @@ import java.util.List;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.IStructureIngredientRule;
 import com.creativemd.littletiles.common.structure.registry.StructureIngredientRule;
 import com.creativemd.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScaler;
 import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.ingredient.LittleIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
+import team.creative.littletiles.common.tile.group.LittleGroup;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class LittleStructureType {
@@ -127,10 +131,10 @@ public class LittleStructureType {
         return false;
     }
     
-    public void addIngredients(LittlePreviews previews, LittleIngredients ingredients) {
+    public void addIngredients(LittleGroup group, LittleIngredients ingredients) {
         if (ingredientRules != null)
             for (IStructureIngredientRule rule : ingredientRules)
-                rule.add(previews, ingredients);
+                rule.add(group, ingredients);
             
     }
     
@@ -164,7 +168,7 @@ public class LittleStructureType {
         return type.getPlacePreview(value, previews);
     }
     
-    public LittleGridContext getMinContext(LittlePreviews previews) {
+    public LittleGrid getMinContext(LittleGroup group) {
         LittleGridContext context = LittleGridContext.getMin();
         
         for (StructureDirectionalField field : directional) {
@@ -196,7 +200,7 @@ public class LittleStructureType {
         return this;
     }
     
-    public void move(LittleStructure structure, LittleGridContext context, LittleVec offset) {
+    public void move(LittleStructure structure, LittleVecGrid offset) {
         for (StructureDirectionalField field : directional) {
             Object value = field.get(structure);
             value = field.move(value, context, offset);
@@ -204,7 +208,7 @@ public class LittleStructureType {
         }
     }
     
-    public void move(LittlePreviews previews, LittleGridContext context, LittleVec offset) {
+    public void move(LittleGroup group, LittleVecGrid offset) {
         for (StructureDirectionalField field : directional) {
             Object value = field.create(previews.structureNBT);
             value = field.move(value, context, offset);
@@ -212,7 +216,7 @@ public class LittleStructureType {
         }
     }
     
-    public void flip(LittlePreviews previews, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+    public void mirror(LittleGroup group, LittleGrid context, Axis axis, LittleVec doubledCenter) {
         for (StructureDirectionalField field : directional) {
             Object value = field.create(previews.structureNBT);
             value = field.flip(value, context, axis, doubledCenter);
@@ -220,7 +224,7 @@ public class LittleStructureType {
         }
     }
     
-    public void rotate(LittlePreviews previews, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+    public void rotate(LittleGroup group, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
         for (StructureDirectionalField field : directional) {
             Object value = field.create(previews.structureNBT);
             value = field.rotate(value, context, rotation, doubledCenter);
@@ -228,7 +232,7 @@ public class LittleStructureType {
         }
     }
     
-    public void advancedScale(LittlePreviews previews, int from, int to) {
+    public void advancedScale(LittleGroup previews, int from, int to) {
         for (StructureDirectionalField field : directional) {
             Object value = field.create(previews.structureNBT);
             field.advancedScale(value, from, to);

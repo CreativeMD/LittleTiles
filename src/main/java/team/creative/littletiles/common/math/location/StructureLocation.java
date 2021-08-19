@@ -4,18 +4,18 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
+import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public class StructureLocation {
     
@@ -39,42 +39,41 @@ public class StructureLocation {
     }
     
     public StructureLocation(LittleStructure structure) {
-        this(structure.getWorld(), structure.getPos(), structure.getIndex());
+        this(structure.getLevel(), structure.getPos(), structure.getIndex());
     }
     
-    public StructureLocation(NBTTagCompound nbt) {
+    public StructureLocation(CompoundTag nbt) {
         int[] posArray = nbt.getIntArray("pos");
         if (posArray.length != 3)
             throw new IllegalArgumentException("Invalid pos array length " + Arrays.toString(posArray));
         
         pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
-        index = nbt.getInteger("index");
-        if (nbt.hasKey("world"))
-            worldUUID = UUID.fromString(nbt.getString("world"));
+        index = nbt.getInt("index");
+        if (nbt.contains("world"))
+            levelUUID = UUID.fromString(nbt.getString("world"));
         else
-            worldUUID = null;
+            levelUUID = null;
     }
     
-    public NBTTagCompound write() {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-        nbt.setInteger("index", index);
-        if (worldUUID != null)
-            nbt.setString("world", worldUUID.toString());
+    public CompoundTag write(CompoundTag nbt) {
+        nbt.putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+        nbt.putInt("index", index);
+        if (levelUUID != null)
+            nbt.putString("world", levelUUID.toString());
         return nbt;
     }
     
     public LittleStructure find(Level level) throws LittleActionException {
-        if (worldUUID != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(world.isRemote, worldUUID);
+        if (levelUUID != null) {
+            EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
             if (animation == null)
-                throw new MissingAnimationException(worldUUID);
+                throw new MissingAnimationException(levelUUID);
             
-            world = animation.fakeWorld;
+            level = animation.fakeWorld;
         }
-        TileEntity te = world.getTileEntity(pos);
-        if (te instanceof TileEntityLittleTiles) {
-            IStructureTileList structure = ((TileEntityLittleTiles) te).getStructure(index);
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof BETiles) {
+            IStructureParentCollection structure = ((BETiles) be).getStructure(index);
             if (structure != null)
                 return structure.getStructure();
             throw new LittleActionException.StructureNotFoundException();

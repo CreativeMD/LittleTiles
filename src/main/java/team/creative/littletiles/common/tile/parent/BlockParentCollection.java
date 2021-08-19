@@ -259,7 +259,7 @@ public class BlockParentCollection extends ParentCollection {
         };
     }
     
-    public Iterable<Pair<IParentCollection, LittleTile>> allTileTypes() {
+    public Iterable<Pair<IParentCollection, LittleTile>> allTiles() {
         Iterator<IParentCollection> iterator = groups().iterator();
         return new Iterable<Pair<IParentCollection, LittleTile>>() {
             

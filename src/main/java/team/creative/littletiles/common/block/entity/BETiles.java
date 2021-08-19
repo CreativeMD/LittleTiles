@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
 import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
-import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.AxisAlignedBB;
 import com.creativemd.littletiles.common.tileentity.CreativeWorld;
@@ -62,6 +61,7 @@ import team.creative.littletiles.common.api.block.ILittleBlockEntity;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.BasicCombiner;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleBoxFace;
@@ -775,8 +775,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return tiles;
     }
     
-    public Iterable<Pair<IParentCollection, LittleTile>> allTileTypes() {
-        return tiles.allTileTypes();
+    public Iterable<Pair<IParentCollection, LittleTile>> allTiles() {
+        return tiles.allTiles();
     }
     
     public IStructureParentCollection getStructure(int index) {

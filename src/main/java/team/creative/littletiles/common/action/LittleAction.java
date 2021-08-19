@@ -45,7 +45,7 @@ public abstract class LittleAction extends CreativePacket {
         }
     }
     
-    public abstract LittleAction flip(Axis axis, LittleBoxAbsolute box);
+    public abstract LittleAction mirror(Axis axis, LittleBoxAbsolute box);
     
     public static boolean canConvertBlock(Player player, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
         if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)

@@ -28,7 +28,6 @@ import com.creativemd.littletiles.client.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.client.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
-import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
@@ -129,6 +128,8 @@ import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionRegistry;
+import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -525,7 +526,7 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleUpdateOutputPacket.class);
         CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
         
-        LittleAction.registerLittleAction("com", LittleActionCombined.class);
+        LittleActionRegistry.register(LittleActions.class);
         
         LittleAction.registerLittleAction("act", LittleActionActivated.class);
         LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);

@@ -1,10 +1,10 @@
 package com.creativemd.littletiles.common.structure.registry;
 
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public interface IStructureIngredientRule {
     
-    public void add(LittlePreviews previews, LittleIngredients ingredients);
+    public void add(LittleGroup group, LittleIngredients ingredients);
     
 }

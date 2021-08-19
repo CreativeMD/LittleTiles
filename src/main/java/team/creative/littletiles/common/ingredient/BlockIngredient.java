@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.ingredient;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,19 +7,20 @@ import java.util.Map.Entry;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.client.resources.I18n;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.type.HashMapDouble;
 import team.creative.creativecore.common.util.type.LinkedHashMapDouble;
+import team.creative.littletiles.common.api.block.LittleBlock;
 
 public class BlockIngredient extends LittleIngredient<BlockIngredient> implements Iterable<BlockIngredientEntry> {
     
     private int maxEntries = -1;
     private double maxVolume = -1;
     
-    private List<BlockIngredientEntry> content;
+    private HashMapDouble<LittleBlock> content;
     
     public BlockIngredient() {
-        this.content = new ArrayList<>();
+        this.content = new HashMapDouble<>();
     }
     
     public BlockIngredient setLimits(int maxEntries, double maxVolume) {

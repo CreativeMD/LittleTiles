@@ -2,13 +2,13 @@ package team.creative.littletiles.common.ingredient;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.item.ItemStack;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     
@@ -257,9 +257,9 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     public static float dyeToBlockPercentage = 4096;
     public static int bottleSize = (int) (dyeToBlockPercentage * 64);
     
-    public static ColorIngredient getColors(LittlePreview preview, double volume) {
-        if (preview.hasColor()) {
-            ColorIngredient color = getColors(preview.getColor());
+    public static ColorIngredient getColors(LittleTile tile, double volume) {
+        if (tile.hasColor()) {
+            ColorIngredient color = getColors(tile.color);
             color.scale(volume);
             return color;
         }
@@ -275,8 +275,8 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
         return null;
     }
     
-    public static ColorIngredient getColors(LittleGridContext context, LittlePreview preview) {
-        return getColors(preview, preview.getPercentVolume(context));
+    public static ColorIngredient getColors(LittleGrid grid, LittleTile tile) {
+        return getColors(tile, tile.getPercentVolume(grid));
     }
     
     public static ColorIngredient getColors(int color) {

@@ -1,12 +1,10 @@
-package com.creativemd.littletiles.common.tile.combine;
+package team.creative.littletiles.common.math.box;
 
 import java.util.List;
 
-import team.creative.littletiles.common.math.box.LittleBox;
-
-public class BasicCombiner {
+public class LittleBoxCombiner {
     
-    public static boolean combineBoxes(List<LittleBox> boxes) {
+    public static boolean combine(List<LittleBox> boxes) {
         int sizeBefore = boxes.size();
         boolean modified = true;
         while (modified) {
@@ -34,7 +32,7 @@ public class BasicCombiner {
         return sizeBefore != boxes.size();
     }
     
-    public static boolean combineBoxesOnlyLast(List<LittleBox> boxes) {
+    public static boolean combineLast(List<LittleBox> boxes) {
         int sizeBefore = boxes.size();
         boolean modified = true;
         while (modified) {
@@ -60,35 +58,6 @@ public class BasicCombiner {
             }
         }
         return sizeBefore != boxes.size();
-    }
-    
-    public static <T extends ICombinable> boolean combine(List<T> tiles) {
-        int sizeBefore = tiles.size();
-        boolean modified = true;
-        while (modified) {
-            modified = false;
-            
-            int i = 0;
-            while (i < tiles.size()) {
-                int j = 0;
-                while (j < tiles.size()) {
-                    if (i != j && tiles.get(i).canCombine(tiles.get(j))) {
-                        LittleBox box = tiles.get(i).getBox().combineBoxes(tiles.get(j).getBox());
-                        if (box != null) {
-                            tiles.get(i).setBox(box);
-                            tiles.remove(j);
-                            if (i > j)
-                                i--;
-                            modified = true;
-                            continue;
-                        }
-                    }
-                    j++;
-                }
-                i++;
-            }
-        }
-        return sizeBefore != tiles.size();
     }
     
 }

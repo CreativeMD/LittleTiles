@@ -5,8 +5,8 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
@@ -23,8 +23,9 @@ public abstract class LittleBoxes implements IGridBased {
     
     public abstract void add(LittleBox box);
     
-    public LittleBox addBox(IParentCollection parent, LittleTile tile) {
-        return addBox(parent.getGrid(), parent.getPos(), tile.getBox().copy());
+    public void addBoxes(IParentCollection parent, LittleTile tile) {
+        for (LittleBox box : tile)
+            addBox(parent.getGrid(), parent.getPos(), box.copy());
     }
     
     public LittleBox addBox(LittleGrid grid, BlockPos pos, LittleBox box) {

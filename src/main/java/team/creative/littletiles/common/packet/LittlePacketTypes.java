@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.creativemd.littletiles.common.action.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.action.LittleGridContext;
 import com.creativemd.littletiles.common.action.LittlePreviews;
 import com.creativemd.littletiles.common.action.NBTTagCompound;
 import com.creativemd.littletiles.common.action.NBTTagList;
@@ -40,7 +39,7 @@ import team.creative.littletiles.common.tile.group.LittleGroup;
 public class LittlePacketTypes {
     
     public static void init() {
-        NetworkFieldTypes.register(TileLocation.class, new NetworkFieldTypeClass<TileLocation>() {
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<TileLocation>() {
             
             @Override
             protected void writeContent(TileLocation content, FriendlyByteBuf buffer) {
@@ -67,8 +66,8 @@ public class LittlePacketTypes {
                 return new TileLocation(pos, isStructure, index, LittleBox.create(boxArray), level);
             }
             
-        });
-        NetworkFieldTypes.register(StructureLocation.class, new NetworkFieldTypeClass<StructureLocation>() {
+        }, TileLocation.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<StructureLocation>() {
             
             @Override
             protected void writeContent(StructureLocation content, FriendlyByteBuf buffer) {
@@ -91,14 +90,14 @@ public class LittlePacketTypes {
                 return new StructureLocation(pos, index, level);
             }
             
-        });
+        }, StructureLocation.class);
         
-        NetworkFieldTypes.register(LittleGroup.class, new NetworkFieldTypeClass<LittleGroup>() {
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroup>() {
             
             @Override
             protected void writeContent(LittleGroup content, FriendlyByteBuf buffer) {
-                buf.writeBoolean(previews.isAbsolute());
-                buf.writeBoolean(previews.hasStructure());
+                buffer.writeBoolean(previews.isAbsolute());
+                buffer.writeBoolean(previews.hasStructure());
                 if (previews.hasStructure())
                     writeNBT(buf, previews.structureNBT);
                 if (previews.isAbsolute())
@@ -144,8 +143,8 @@ public class LittlePacketTypes {
                 return previews;
             }
             
-        });
-        NetworkFieldTypes.register(PlacementMode.class, new NetworkFieldTypeClass<PlacementMode>() {
+        }, LittleGroup.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementMode>() {
             
             @Override
             protected void writeContent(PlacementMode content, FriendlyByteBuf buffer) {
@@ -157,8 +156,8 @@ public class LittlePacketTypes {
                 return PlacementMode.getModeOrDefault(buffer.readUtf());
             }
             
-        });
-        NetworkFieldTypes.register(LittleAction.class, new NetworkFieldTypeClass<LittleAction>() {
+        }, PlacementMode.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleAction>() {
             
             @Override
             protected void writeContent(LittleAction content, FriendlyByteBuf buffer) {
@@ -168,12 +167,16 @@ public class LittlePacketTypes {
             
             @Override
             protected LittleAction readContent(FriendlyByteBuf buffer) {
-                Class clazz = Class.forName(buffer.readUtf());
-                return (LittleAction) LittleTiles.NETWORK.getPacketType(clazz).read(buffer);
+                try {
+                    Class clazz = Class.forName(buffer.readUtf());
+                    return (LittleAction) LittleTiles.NETWORK.getPacketType(clazz).read(buffer);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
             }
             
-        });
-        NetworkFieldTypes.register(LittleGrid.class, new NetworkFieldTypeClass<LittleGrid>() {
+        }, LittleAction.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGrid>() {
             
             @Override
             protected void writeContent(LittleGrid content, FriendlyByteBuf buffer) {
@@ -185,8 +188,8 @@ public class LittlePacketTypes {
                 return LittleGrid.get(buffer.readInt());
             }
             
-        });
-        NetworkFieldTypes.register(LittleVec.class, new NetworkFieldTypeClass<LittleVec>() {
+        }, LittleGrid.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleVec>() {
             
             @Override
             protected void writeContent(LittleVec vec, FriendlyByteBuf buffer) {
@@ -200,8 +203,8 @@ public class LittlePacketTypes {
                 return new LittleVec(buffer.readInt(), buffer.readInt(), buffer.readInt());
             }
             
-        });
-        NetworkFieldTypes.register(LittleVecGrid.class, new NetworkFieldTypeClass<LittleVecGrid>() {
+        }, LittleVec.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleVecGrid>() {
             
             @Override
             protected void writeContent(LittleVecGrid vec, FriendlyByteBuf buffer) {
@@ -216,8 +219,8 @@ public class LittlePacketTypes {
                 return new LittleVecGrid(new LittleVec(buffer.readInt(), buffer.readInt(), buffer.readInt()), LittleGrid.get(buffer.readInt()));
             }
             
-        });
-        NetworkFieldTypes.register(LittleVecAbsolute.class, new NetworkFieldTypeClass<LittleVecAbsolute>() {
+        }, LittleVecGrid.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleVecAbsolute>() {
             
             @Override
             protected void writeContent(LittleVecAbsolute content, FriendlyByteBuf buffer) {
@@ -230,8 +233,8 @@ public class LittlePacketTypes {
                 return new LittleVecAbsolute(buffer.readBlockPos(), NetworkFieldTypes.read(LittleVecGrid.class, buffer));
             }
             
-        });
-        NetworkFieldTypes.register(LittleBox.class, new NetworkFieldTypeClass<LittleBox>() {
+        }, LittleVecAbsolute.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleBox>() {
             
             @Override
             protected void writeContent(LittleBox content, FriendlyByteBuf buffer) {
@@ -243,8 +246,8 @@ public class LittlePacketTypes {
                 return LittleBox.create(buffer.readVarIntArray());
             }
             
-        });
-        NetworkFieldTypes.register(LittleBoxAbsolute.class, new NetworkFieldTypeClass<LittleBoxAbsolute>() {
+        }, LittleBox.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleBoxAbsolute>() {
             
             @Override
             protected void writeContent(LittleBoxAbsolute content, FriendlyByteBuf buffer) {
@@ -258,58 +261,58 @@ public class LittlePacketTypes {
                 return new LittleBoxAbsolute(buffer.readBlockPos(), LittleBox.create(buffer.readVarIntArray()), LittleGrid.get(buffer.readInt()));
             }
             
-        });
-        NetworkFieldTypes.register(LittleBoxes.class, new NetworkFieldTypeClass<LittleBoxes>() {
+        }, LittleBoxAbsolute.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleBoxes>() {
             
             @Override
             protected void writeContent(LittleBoxes content, FriendlyByteBuf buffer) {
-                writePos(buf, boxes.pos);
-                writeContext(boxes.context, buf);
-                if (boxes instanceof LittleBoxesSimple) {
-                    buf.writeBoolean(true);
-                    buf.writeInt(boxes.size());
-                    for (LittleBox box : boxes.all())
-                        writeLittleBox(box, buf);
+                buffer.writeBlockPos(content.pos);
+                buffer.writeInt(content.grid.count);
+                if (content instanceof LittleBoxesSimple) {
+                    buffer.writeBoolean(true);
+                    buffer.writeInt(content.size());
+                    for (LittleBox box : content.all())
+                        buffer.writeVarIntArray(box.getArray());
                 } else {
-                    buf.writeBoolean(false);
-                    HashMapList<BlockPos, LittleBox> map = boxes.generateBlockWise();
-                    buf.writeInt(map.size());
+                    buffer.writeBoolean(false);
+                    HashMapList<BlockPos, LittleBox> map = content.generateBlockWise();
+                    buffer.writeInt(map.size());
                     for (Entry<BlockPos, ArrayList<LittleBox>> entry : map.entrySet()) {
-                        writePos(buf, entry.getKey());
-                        buf.writeInt(entry.getValue().size());
+                        buffer.writeBlockPos(entry.getKey());
+                        buffer.writeInt(entry.getValue().size());
                         for (LittleBox box : entry.getValue())
-                            writeLittleBox(box, buf);
+                            buffer.writeVarIntArray(box.getArray());
                     }
                 }
             }
             
             @Override
             protected LittleBoxes readContent(FriendlyByteBuf buffer) {
-                BlockPos pos = readPos(buf);
-                LittleGridContext context = readContext(buf);
-                if (buf.readBoolean()) {
-                    LittleBoxes boxes = new LittleBoxesSimple(pos, context);
-                    int length = buf.readInt();
+                BlockPos pos = buffer.readBlockPos();
+                LittleGrid grid = LittleGrid.get(buffer.readInt());
+                if (buffer.readBoolean()) {
+                    LittleBoxes boxes = new LittleBoxesSimple(pos, grid);
+                    int length = buffer.readInt();
                     for (int i = 0; i < length; i++)
-                        boxes.add(readLittleBox(buf));
+                        boxes.add(LittleBox.create(buffer.readVarIntArray()));
                     return boxes;
                 } else {
-                    int posCount = buf.readInt();
+                    int posCount = buffer.readInt();
                     HashMapList<BlockPos, LittleBox> map = new HashMapList<>();
                     for (int i = 0; i < posCount; i++) {
-                        BlockPos posList = readPos(buf);
-                        int boxCount = buf.readInt();
+                        BlockPos posList = buffer.readBlockPos();
+                        int boxCount = buffer.readInt();
                         List<LittleBox> blockBoxes = new ArrayList<>();
                         for (int j = 0; j < boxCount; j++)
-                            blockBoxes.add(readLittleBox(buf));
+                            blockBoxes.add(LittleBox.create(buffer.readVarIntArray()));
                         map.add(posList, blockBoxes);
                     }
-                    return new LittleBoxesNoOverlap(pos, context, map);
+                    return new LittleBoxesNoOverlap(pos, grid, map);
                 }
             }
             
-        });
-        NetworkFieldTypes.register(TileSelector.class, new NetworkFieldTypeClass<TileSelector>() {
+        }, LittleBoxes.class, LittleBoxesNoOverlap.class, LittleBoxesSimple.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<TileSelector>() {
             
             @Override
             protected void writeContent(TileSelector content, FriendlyByteBuf buffer) {
@@ -321,9 +324,9 @@ public class LittlePacketTypes {
                 return TileSelector.loadSelector(buffer.readNbt());
             }
             
-        });
+        }, TileSelector.class);
         
-        NetworkFieldTypes.register(ActionMessage.class, new NetworkFieldTypeClass<ActionMessage>() {
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<ActionMessage>() {
             
             @Override
             protected void writeContent(ActionMessage content, FriendlyByteBuf buffer) {
@@ -347,6 +350,6 @@ public class LittlePacketTypes {
                 return new ActionMessage(text, objects);
             }
             
-        });
+        }, ActionMessage.class);
     }
 }

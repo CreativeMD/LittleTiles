@@ -5,10 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.utils.type.LinkedHashMapInteger;
-
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.type.LinkedHashMapInteger;
 
 public class StackIngredient extends LittleIngredient<StackIngredient> implements Iterable<StackIngredientEntry> {
     

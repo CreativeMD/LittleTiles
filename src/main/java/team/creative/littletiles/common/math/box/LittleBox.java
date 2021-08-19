@@ -187,7 +187,7 @@ public class LittleBox {
         return new LittleVec(maxX - minX, maxY - minY, maxZ - minZ);
     }
     
-    public double getVolume() {
+    public int getVolume() {
         return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
     }
     
@@ -612,8 +612,8 @@ public class LittleBox {
             }
         }
         
-        BasicCombiner.combineBoxes(newBoxes);
-        BasicCombiner.combineBoxes(cutout);
+        LittleBoxCombiner.combine(newBoxes);
+        LittleBoxCombiner.combine(cutout);
         
         return newBoxes;
     }
@@ -656,7 +656,7 @@ public class LittleBox {
                 }
             }
             
-            BasicCombiner.combineBoxes(boxes);
+            LittleBoxCombiner.combine(boxes);
             
             return boxes;
         }
@@ -968,7 +968,7 @@ public class LittleBox {
      *            coordinates are doubled, meaning in order to get the correct
      *            coordinates they have to be divided by two. This allows to rotate
      *            around even axis. */
-    public void rotateBox(Rotation rotation, LittleVec doubledCenter) {
+    public void rotate(Rotation rotation, LittleVec doubledCenter) {
         long tempMinX = minX * 2 - doubledCenter.x;
         long tempMinY = minY * 2 - doubledCenter.y;
         long tempMinZ = minZ * 2 - doubledCenter.z;
@@ -989,7 +989,7 @@ public class LittleBox {
      *            coordinates are doubled, meaning in order to get the correct
      *            coordinates they have to be divided by two. This allows to flip
      *            around even axis. */
-    public void flipBox(Axis axis, LittleVec doubledCenter) {
+    public void mirror(Axis axis, LittleVec doubledCenter) {
         long tempMin = getMin(axis) * 2 - doubledCenter.get(axis);
         long tempMax = getMax(axis) * 2 - doubledCenter.get(axis);
         int min = (int) ((doubledCenter.get(axis) - tempMin) / 2);

@@ -62,6 +62,7 @@ import team.creative.littletiles.common.block.little.LittleBlockRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -103,10 +104,10 @@ public final class LittleTile implements Iterable<LittleBox> {
         this.block = LittleBlockRegistry.get(nbt.getString("b"));
         this.color = nbt.contains("c") ? nbt.getInt("c") : ColorUtils.WHITE;
         ListTag list = nbt.getList("s", Tag.TAG_INT_ARRAY);
-        this.boxes = list.size() == 1 ? new SingletonList(LittleBox.createBox(list.getIntArray(0))) : new ArrayList<>();
+        this.boxes = list.size() == 1 ? new SingletonList(LittleBox.create(list.getIntArray(0))) : new ArrayList<>();
         if (list.size() > 1)
             for (Tag tag : list)
-                this.boxes.add(LittleBox.createBox(((IntArrayTag) tag).getAsIntArray()));
+                this.boxes.add(LittleBox.create(((IntArrayTag) tag).getAsIntArray()));
     }
     
     // ================Basics================
@@ -136,7 +137,12 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     public void combine() {
-        BasicCombiner.combineBoxes(boxes);
+        LittleBoxCombiner.combine(boxes);
+    }
+    
+    public void combineBlockwise() {
+        adadadss
+        LittleBoxCombiner.combine(boxes);
     }
     
     public CompoundTag write(CompoundTag nbt) {
@@ -154,10 +160,30 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     public LittleTile copy() {
+        List<LittleBox> boxes = new ArrayList<>();
+        for (LittleBox box : this.boxes)
+            boxes.add(box.copy());
         return new LittleTile(block, color, boxes);
     }
     
+    @Override
+    public int hashCode() {
+        return block.hashCode() + color;
+    }
+    
+    @Override
+    /** note this does not check for boxes, just for the type */
+    public boolean equals(Object obj) {
+        if (obj instanceof LittleTile)
+            return ((LittleTile) obj).block == block && ((LittleTile) obj).color == color;
+        return false;
+    }
+    
     // ================Properties================
+    
+    public boolean hasColor() {
+        return ColorUtils.isDefault(color);
+    }
     
     public boolean isTranslucent() {
         return block.isTranslucent() || ColorUtils.isTransparent(color);
@@ -179,8 +205,8 @@ public final class LittleTile implements Iterable<LittleBox> {
     
     // ================Math================
     
-    public double getVolume() {
-        double volume = 0;
+    public int getVolume() {
+        int volume = 0;
         for (int i = 0; i < boxes.size(); i++)
             volume += boxes.get(i).getVolume();
         return volume;
@@ -303,17 +329,24 @@ public final class LittleTile implements Iterable<LittleBox> {
         return !isTranslucent() && block.is(Blocks.BARRIER);
     }
     
+    public boolean contains(LittleBox other) {
+        for (LittleBox box : boxes)
+            if (box.equals(other))
+                return true;
+        return false;
+    }
+    
     // ================Rotating/Mirror================
     
     public void mirror(Axis axis, LittleVec doubledCenter) {
         for (LittleBox box : boxes)
-            box.flipBox(axis, doubledCenter);
+            box.mirror(axis, doubledCenter);
         block.mirror(axis, this, doubledCenter);
     }
     
     public void rotate(Rotation rotation, LittleVec doubledCenter) {
         for (LittleBox box : boxes)
-            box.rotateBox(rotation, doubledCenter);
+            box.rotate(rotation, doubledCenter);
         block.rotate(rotation, this, doubledCenter);
     }
     

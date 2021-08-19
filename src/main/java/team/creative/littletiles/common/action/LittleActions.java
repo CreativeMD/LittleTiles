@@ -48,10 +48,10 @@ public class LittleActions extends LittleAction {
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
+    public LittleAction mirror(Axis axis, LittleBoxAbsolute box) {
         LittleAction[] newActions = new LittleAction[actions.length];
         for (int i = 0; i < actions.length; i++)
-            newActions[i] = actions[i].flip(axis, box);
+            newActions[i] = actions[i].mirror(axis, box);
         return new LittleActions(newActions);
     }
     

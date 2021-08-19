@@ -3,10 +3,6 @@ package team.creative.littletiles.common.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +10,8 @@ import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.registry.NamedRegistry;
 import team.creative.creativecore.common.util.registry.NamedRegistry.RegistryException;
 import team.creative.creativecore.common.util.type.Pair;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -72,7 +70,7 @@ public abstract class TileFilter {
     
     public abstract boolean is(IParentCollection parent, LittleTile tile);
     
-    public static LittleBoxes getAbsoluteBoxes(Level level, BlockPos pos, BlockPos pos2, TileSelector selector) {
+    public static LittleBoxes getAbsoluteBoxes(Level level, BlockPos pos, BlockPos pos2, TileFilter selector) {
         LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.min());
         
         int minX = Math.min(pos.getX(), pos2.getX());
@@ -88,16 +86,16 @@ public abstract class TileFilter {
             for (int posY = minY; posY <= maxY; posY++) {
                 for (int posZ = minZ; posZ <= maxZ; posZ++) {
                     
-                    position.setPos(posX, posY, posZ);
+                    position.set(posX, posY, posZ);
                     
-                    TileEntityLittleTiles te = BlockTile.loadTe(level, position);
+                    BETiles be = BlockTile.loadBE(level, position);
                     
-                    if (te == null)
+                    if (be == null)
                         continue;
                     
-                    for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
+                    for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
                         if (selector.is(pair.key, pair.value))
-                            boxes.addBox(pair.key, pair.value);
+                            boxes.addBoxes(pair.key, pair.value);
                 }
             }
         }
@@ -105,12 +103,13 @@ public abstract class TileFilter {
         return boxes;
     }
     
-    public static List<LittleBox> getBoxes(Level level, BlockPos pos, TileSelector selector) {
+    public static List<LittleBox> getBoxes(Level level, BlockPos pos, TileFilter selector) {
         List<LittleBox> boxes = new ArrayList<>();
-        TileEntityLittleTiles te = BlockTile.loadTe(level, pos);
-        for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
+        BETiles be = BlockTile.loadBE(level, pos);
+        for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
             if (selector.is(pair.key, pair.value))
-                boxes.add(pair.value.getBox());
+                for (LittleBox box : pair.value)
+                    boxes.add(box);
         return boxes;
     }
     

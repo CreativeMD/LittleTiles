@@ -7,24 +7,25 @@ import java.util.List;
 import java.util.Optional;
 
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.oredict.DyeUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
+import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public abstract class LittleIngredient<T extends LittleIngredient> extends LittleIngredientBase<T> {
     
@@ -49,35 +50,35 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         return types.size();
     }
     
-    static void extract(LittleIngredients ingredients, LittlePreviews previews, boolean onlyStructure) {
+    static void extract(LittleIngredients ingredients, LittleGroup group, boolean onlyStructure) {
         if (!onlyStructure)
             for (IngredientConvertionHandler handler : converationHandlers)
-                ingredients.add(handler.extract(previews));
+                ingredients.add(handler.extract(group));
             
-        if (previews.hasStructure())
-            previews.getStructureType().addIngredients(previews, ingredients);
+        if (group.hasStructure())
+            group.getStructureType().addIngredients(group, ingredients);
         
-        if (previews.hasChildren())
-            for (LittlePreviews child : previews.getChildren())
+        if (group.hasChildren())
+            for (LittleGroup child : group.children())
                 extract(ingredients, child, onlyStructure);
     }
     
-    public static LittleIngredients extract(LittlePreview preview, double volume) {
+    public static LittleIngredients extract(LittleTile tile, double volume) {
         LittleIngredients ingredients = new LittleIngredients();
         for (IngredientConvertionHandler handler : converationHandlers)
-            ingredients.add(handler.extract(preview, volume));
+            ingredients.add(handler.extract(tile, volume));
         return ingredients;
     }
     
-    public static LittleIngredients extract(LittlePreviews previews) {
+    public static LittleIngredients extract(LittleGroup group) {
         LittleIngredients ingredients = new LittleIngredients();
-        extract(ingredients, previews, false);
+        extract(ingredients, group, false);
         return ingredients;
     }
     
-    public static LittleIngredients extractStructureOnly(LittlePreviews previews) {
+    public static LittleIngredients extractStructureOnly(LittleGroup group) {
         LittleIngredients ingredients = new LittleIngredients();
-        extract(ingredients, previews, true);
+        extract(ingredients, group, true);
         return ingredients;
     }
     
@@ -341,9 +342,9 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         
         public abstract T extract(ItemStack stack);
         
-        public abstract T extract(LittlePreviews previews);
+        public abstract T extract(LittleGroup group);
         
-        public abstract T extract(LittlePreview preview, double volume);
+        public abstract T extract(LittleTile tile, double volume);
         
         public boolean requiresExtraHandler() {
             return false;

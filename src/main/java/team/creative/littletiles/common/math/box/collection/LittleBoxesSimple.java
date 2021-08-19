@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
-
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
-public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterable<LittleBox> {
+public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterable<LittleBox> {
     
     protected List<LittleBox> boxes = new ArrayList<>();
     
@@ -144,7 +143,7 @@ public class LittleBoxesSimple extends LittleBoxes implements IGridBased, Iterab
         boxes.clear();
         for (Iterator<ArrayList<LittleBox>> iterator = chunked.values().iterator(); iterator.hasNext();) {
             ArrayList<LittleBox> list = iterator.next();
-            BasicCombiner.combineBoxes(list);
+            LittleBoxCombiner.combine(list);
             boxes.addAll(list);
         }
     }

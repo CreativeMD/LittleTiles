@@ -12,14 +12,12 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
@@ -63,6 +61,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -81,6 +80,7 @@ import team.creative.littletiles.common.structure.exception.MissingParentExcepti
 import team.creative.littletiles.common.structure.exception.MissingStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
@@ -102,7 +102,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     private static final HashMapList<BlockPos, LittleTile> EMPTY_HASHMAPLIST = new HashMapList<>();
     
     public final LittleStructureType type;
-    public final IStructureTileList mainBlock;
+    public final IStructureParentCollection mainBlock;
     private final List<StructureBlockConnector> blocks = new ArrayList<>();
     
     public String name;

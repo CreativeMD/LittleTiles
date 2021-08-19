@@ -6,64 +6,60 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane;
-import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane.PushCache;
-import com.creativemd.creativecore.common.utils.math.collision.CollisionCoordinator;
-import com.creativemd.creativecore.common.utils.math.vec.ChildVecOrigin;
-import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.VecUtils;
-import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.util.vec.LittleRayTraceResult;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Predicate;
+import com.mojang.math.Vector3d;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.MoverType;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.util.math.collision.CollidingPlane;
+import team.creative.creativecore.common.util.math.collision.CollidingPlane.PushCache;
+import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
+import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
+import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.math.vec.VectorUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.item.ItemLittleWrench;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.location.LocalStructureLocation;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class EntityAnimation extends Entity {
     
@@ -180,7 +176,7 @@ public class EntityAnimation extends Entity {
     public double initalRotY;
     public double initalRotZ;
     
-    public CreativeWorld fakeWorld;
+    public CreativeLevel fakeWorld;
     public IVecOrigin origin;
     public EntityAnimationController controller;
     
@@ -414,7 +410,7 @@ public class EntityAnimation extends Entity {
                         
                         EnumFacing facing = CollidingPlane.getDirection(coordinator, box, center);
                         if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils
-                            .getOffset(VectorUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
+                                .getOffset(VectorUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
                             continue;
                         
                         double intersectingVolume = box.getIntersectionVolume(cache.entityBoxOrientated);
@@ -579,7 +575,7 @@ public class EntityAnimation extends Entity {
         Vector3d offset = state.getOffset();
         Vector3d rotation = state.getRotation();
         moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin
-            .rotY(), rotation.z - origin.rotZ());
+                .rotY(), rotation.z - origin.rotZ());
         origin.tick();
         hasOriginChanged = true;
     }
@@ -591,7 +587,7 @@ public class EntityAnimation extends Entity {
         Vector3d offset = state.getOffset();
         Vector3d rotation = state.getRotation();
         moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin
-            .rotY(), rotation.z - origin.rotZ());
+                .rotY(), rotation.z - origin.rotZ());
     }
     
     private boolean addedDoor;
@@ -780,7 +776,7 @@ public class EntityAnimation extends Entity {
         Vec3d hit = result.getHitVec();
         if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
             ((ItemLittleWrench) player.getHeldItemMainhand().getItem())
-                .onItemUse(player, fakeWorld, result.getBlockPos(), EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
+                    .onItemUse(player, fakeWorld, result.getBlockPos(), EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
             return true;
         }
         
@@ -788,7 +784,7 @@ public class EntityAnimation extends Entity {
         IBlockState state = result.world.getBlockState(result.getBlockPos());
         
         return state.getBlock()
-            .onBlockActivated(fakeWorld, result.getBlockPos(), state, player, EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
+                .onBlockActivated(fakeWorld, result.getBlockPos(), state, player, EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
     }
     
     @Override

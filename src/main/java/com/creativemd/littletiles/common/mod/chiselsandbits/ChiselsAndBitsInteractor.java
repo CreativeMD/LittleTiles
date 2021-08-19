@@ -10,7 +10,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -27,6 +26,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 
 public class ChiselsAndBitsInteractor {
     
@@ -69,7 +69,7 @@ public class ChiselsAndBitsInteractor {
                 }
             }
         }
-        BasicCombiner.combine(tiles);
+        LittleBoxCombiner.combine(tiles);
         return tiles;
     }
     
