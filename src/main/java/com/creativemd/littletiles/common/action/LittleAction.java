@@ -115,7 +115,7 @@ public abstract class LittleAction extends CreativeCorePacket {
         
         if (index > 0) {
             if (index < lastActions.size())
-                lastActions = lastActions.subList(index, lastActions.size() - 1);
+                lastActions = lastActions.subList(index, lastActions.size());
             else
                 lastActions = new ArrayList<>();
         }
