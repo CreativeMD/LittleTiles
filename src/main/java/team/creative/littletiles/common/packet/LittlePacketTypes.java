@@ -11,7 +11,6 @@ import com.creativemd.littletiles.common.action.NBTTagCompound;
 import com.creativemd.littletiles.common.action.NBTTagList;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
-import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
 
@@ -20,9 +19,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import team.creative.creativecore.common.network.type.NetworkFieldTypeClass;
 import team.creative.creativecore.common.network.type.NetworkFieldTypes;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.filter.TileFilter;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
@@ -34,7 +35,9 @@ import team.creative.littletiles.common.math.location.TileLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
-import team.creative.littletiles.common.tile.group.LittleGroupHolder;
+import team.creative.littletiles.common.placement.PlacementPosition;
+import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public class LittlePacketTypes {
     
@@ -92,10 +95,10 @@ public class LittlePacketTypes {
             
         }, StructureLocation.class);
         
-        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroupHolder>() {
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroup>() {
             
             @Override
-            protected void writeContent(LittleGroupHolder content, FriendlyByteBuf buffer) {
+            protected void writeContent(LittleGroup content, FriendlyByteBuf buffer) {
                 buffer.writeBoolean(previews.isAbsolute());
                 buffer.writeBoolean(previews.hasStructure());
                 if (previews.hasStructure())
@@ -116,7 +119,7 @@ public class LittlePacketTypes {
             }
             
             @Override
-            protected LittleGroupHolder readContent(FriendlyByteBuf buffer) {
+            protected LittleGroup readContent(FriendlyByteBuf buffer) {
                 boolean absolute = buf.readBoolean();
                 boolean structure = buf.readBoolean();
                 
@@ -143,7 +146,7 @@ public class LittlePacketTypes {
                 return previews;
             }
             
-        }, LittleGroupHolder.class);
+        }, LittleGroup.class);
         NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementMode>() {
             
             @Override
@@ -234,6 +237,22 @@ public class LittlePacketTypes {
             }
             
         }, LittleVecAbsolute.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementPosition>() {
+            
+            @Override
+            protected void writeContent(PlacementPosition content, FriendlyByteBuf buffer) {
+                buffer.writeBlockPos(content.getPos());
+                NetworkFieldTypes.write(LittleVecGrid.class, content.getVecGrid(), buffer);
+                buffer.writeEnum(content.facing);
+            }
+            
+            @Override
+            protected PlacementPosition readContent(FriendlyByteBuf buffer) {
+                return new PlacementPosition(buffer.readBlockPos(), NetworkFieldTypes.read(LittleVecGrid.class, buffer), buffer.readEnum(Facing.class));
+            }
+            
+        }, PlacementPosition.class);
+        
         NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleBox>() {
             
             @Override
@@ -312,19 +331,20 @@ public class LittlePacketTypes {
             }
             
         }, LittleBoxes.class, LittleBoxesNoOverlap.class, LittleBoxesSimple.class);
-        NetworkFieldTypes.register(new NetworkFieldTypeClass<TileSelector>() {
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<TileFilter>() {
             
             @Override
-            protected void writeContent(TileSelector content, FriendlyByteBuf buffer) {
+            protected void writeContent(TileFilter content, FriendlyByteBuf buffer) {
                 buffer.writeNbt(content.write(new CompoundTag()));
             }
             
             @Override
-            protected TileSelector readContent(FriendlyByteBuf buffer) {
-                return TileSelector.loadSelector(buffer.readNbt());
+            protected TileFilter readContent(FriendlyByteBuf buffer) {
+                return TileFilter.load(buffer.readNbt());
             }
             
-        }, TileSelector.class);
+        }, TileFilter.class);
         
         NetworkFieldTypes.register(new NetworkFieldTypeClass<ActionMessage>() {
             
@@ -351,5 +371,28 @@ public class LittlePacketTypes {
             }
             
         }, ActionMessage.class);
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementPreview>() {
+            
+            @Override
+            protected void writeContent(PlacementPreview content, FriendlyByteBuf buffer) {
+                if (content.levelUUID != null) {
+                    buffer.writeBoolean(true);
+                    buffer.writeUUID(content.levelUUID);
+                } else
+                    buffer.writeBoolean(false);
+                
+                NetworkFieldTypes.write(LittleGroup.class, content.previews, buffer);
+                NetworkFieldTypes.write(PlacementMode.class, content.mode, buffer);
+                NetworkFieldTypes.write(PlacementPosition.class, content.position, buffer);
+            }
+            
+            @Override
+            protected PlacementPreview readContent(FriendlyByteBuf buffer) {
+                return new PlacementPreview(buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes.read(LittleGroup.class, buffer), NetworkFieldTypes
+                        .read(PlacementMode.class, buffer), NetworkFieldTypes.read(PlacementPosition.class, buffer));
+            }
+            
+        }, PlacementPreview.class);
     }
 }

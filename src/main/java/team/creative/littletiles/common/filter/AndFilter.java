@@ -22,7 +22,7 @@ public class AndFilter extends TileFilter {
     protected void saveNBT(CompoundTag nbt) {
         ListTag list = new ListTag();
         for (int i = 0; i < selectors.length; i++)
-            list.add(selectors[i].writeNBT(new CompoundTag()));
+            list.add(selectors[i].write(new CompoundTag()));
         nbt.put("list", list);
     }
     

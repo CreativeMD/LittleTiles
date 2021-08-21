@@ -1,16 +1,13 @@
 package team.creative.littletiles.common.action;
 
+import java.util.function.Supplier;
+
 import team.creative.littletiles.LittleTiles;
 
 public class LittleActionRegistry {
     
-    public static void register(Class<? extends LittleAction> clazz) {
-        LittleTiles.NETWORK.registerType(clazz);
-    }
-    
-    public static void register(Class<? extends LittleAction>... classTypes) {
-        for (int i = 0; i < classTypes.length; i++)
-            LittleTiles.NETWORK.registerType(classTypes[i]);
+    public static <T extends LittleAction> void register(Class<T> clazz, Supplier<T> supplier) {
+        LittleTiles.NETWORK.registerType(clazz, supplier);
     }
     
 }

@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
-import com.creativemd.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScalerVolume;
 import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
@@ -38,7 +36,10 @@ import team.creative.creativecore.common.util.type.PairList;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
+import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScalerVolume;
 
 public class LittleStructureRegistry {
     
@@ -50,7 +51,7 @@ public class LittleStructureRegistry {
     
     private static LittleStructureType defaultType;
     
-    public static LittleStructureType registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, int attribute, Class<? extends LittleStructureGuiParser> parser) {
+    public static LittleStructureType registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, LittleAttributeBuilder attribute, Class<? extends LittleStructureGuiParser> parser) {
         return registerStructureType(new LittleStructureType(id, category, classStructure, attribute), parser);
     }
     

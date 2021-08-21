@@ -91,4 +91,68 @@ public class LittleStructureAttribute {
         }
     }
     
+    public static class LittleAttributeBuilder {
+        
+        private int attribute = 0;
+        
+        public int build() {
+            return attribute;
+        }
+        
+        public LittleAttributeBuilder ladder() {
+            attribute |= LADDER;
+            return this;
+        }
+        
+        public LittleAttributeBuilder noCollision() {
+            attribute |= NOCOLLISION;
+            return this;
+        }
+        
+        public LittleAttributeBuilder premade() {
+            attribute |= PREMADE;
+            return this;
+        }
+        
+        public LittleAttributeBuilder emissive() {
+            attribute |= EMISSIVE;
+            return this;
+        }
+        
+        public LittleAttributeBuilder extraCollision() {
+            attribute |= EXTRA_COLLSION;
+            return this;
+        }
+        
+        public LittleAttributeBuilder extraRendering() {
+            attribute |= EXTRA_RENDERING;
+            return this;
+        }
+        
+        public LittleAttributeBuilder ticking() {
+            attribute |= TICKING;
+            return this;
+        }
+        
+        public LittleAttributeBuilder tickRendering() {
+            attribute |= TICK_RENDERING;
+            return this;
+        }
+        
+        public LittleAttributeBuilder neighborListener() {
+            attribute |= NEIGHBOR_LISTENER;
+            return this;
+        }
+        
+        public LittleAttributeBuilder collisionListener() {
+            attribute |= COLLISION_LISTENER;
+            return this;
+        }
+        
+        public LittleAttributeBuilder lightEmitter() {
+            attribute |= LIGHT_EMITTER;
+            return this;
+        }
+    }
+    
 }

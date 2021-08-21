@@ -124,7 +124,7 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
         sameGrid(absoluteBox, () -> {
             LittleVec center = absoluteBox.getDoubledCenter(pos);
             for (LittleBox box : boxes)
-                box.flipBox(axis, center);
+                box.mirror(axis, center);
         });
     }
     

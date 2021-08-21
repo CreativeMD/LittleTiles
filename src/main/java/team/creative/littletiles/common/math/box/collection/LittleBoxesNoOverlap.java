@@ -144,7 +144,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
             blockMap = new HashMapList<>();
             LittleVec center = absoluteBox.getDoubledCenter(pos);
             for (LittleBox box : boxes) {
-                box.flipBox(axis, center);
+                box.mirror(axis, center);
                 add(box);
             }
         });

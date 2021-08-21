@@ -6,17 +6,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public abstract class PlacementMode {
     
@@ -97,9 +96,9 @@ public abstract class PlacementMode {
     
     public abstract List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos);
     
-    public abstract List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) throws LittleActionException;
+    public abstract List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentCollection parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) throws LittleActionException;
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public PlacementMode place() {
         return this;
     }

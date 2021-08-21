@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.placement.PlacementPosition;
 
 public interface IMarkMode {
     

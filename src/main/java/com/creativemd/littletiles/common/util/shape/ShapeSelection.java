@@ -17,7 +17,6 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.IMarkMode;
-import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection.ShapeSelectPos;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -35,6 +34,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.placement.PlacementPosition;
 
 public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMarkMode {
     

@@ -2,7 +2,7 @@ package team.creative.littletiles.common.action;
 
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.language.I18n;
 
 public class LittleActionException extends Exception {
     
@@ -20,7 +20,7 @@ public class LittleActionException extends Exception {
     
     @Override
     public String getLocalizedMessage() {
-        return I18n.translateToLocal(getMessage());
+        return I18n.get(getMessage());
     }
     
     public boolean isHidden() {

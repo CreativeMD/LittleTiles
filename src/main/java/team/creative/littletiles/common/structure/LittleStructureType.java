@@ -26,6 +26,7 @@ import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.registry.IStructureIngredientRule;
@@ -46,11 +47,11 @@ public class LittleStructureType {
     public final List<InternalComponentOutput> outputs = new ArrayList<>();
     protected List<IStructureIngredientRule> ingredientRules = null;
     
-    public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
+    public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute) {
         this.id = id;
         this.category = category;
         this.clazz = structureClass;
-        this.attribute = attribute;
+        this.attribute = attribute.build();
         
         this.directional = new ArrayList<>();
         for (Field field : structureClass.getFields())

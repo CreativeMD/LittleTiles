@@ -11,8 +11,8 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 
 public class LittleFace {
     
@@ -148,7 +148,7 @@ public class LittleFace {
             }
         }
         
-        LittleBoxCombiner.combineBoxes(boxes);
+        LittleBoxCombiner.combine(boxes);
         
         List<VectorFan> fans = new ArrayList<>(boxes.size());
         for (LittleBox box : boxes) {

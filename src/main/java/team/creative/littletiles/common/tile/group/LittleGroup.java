@@ -138,6 +138,11 @@ public class LittleGroup extends LittleCollection implements IGridBased {
     }
     
     @Override
+    public LittleGrid getGrid() {
+        return grid;
+    }
+    
+    @Override
     public int getSmallest() {
         int size = LittleGrid.min().count;
         for (LittleTile tile : this)
@@ -482,4 +487,5 @@ public class LittleGroup extends LittleCollection implements IGridBased {
             return previews;
         }
     }
+    
 }

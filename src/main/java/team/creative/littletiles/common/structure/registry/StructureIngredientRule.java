@@ -1,16 +1,16 @@
 package team.creative.littletiles.common.structure.registry;
 
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.LittleIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public class StructureIngredientRule implements IStructureIngredientRule {
     
     public static final StructureIngredientScaler SINGLE = new StructureIngredientScaler() {
         
         @Override
-        public double calculate(LittlePreviews previews) {
+        public double calculate(LittleGroup previews) {
             return 1;
         }
     };
@@ -18,21 +18,21 @@ public class StructureIngredientRule implements IStructureIngredientRule {
     public static final StructureIngredientScaler LONGEST_SIDE = new StructureIngredientScaler() {
         
         @Override
-        public double calculate(LittlePreviews previews) {
-            LittleVec vec = previews.getSize();
+        public double calculate(LittleGroup group) {
+            LittleVec vec = group.getSize();
             int side = vec.x;
             if (side < vec.y)
                 side = vec.y;
             if (side < vec.z)
                 side = vec.z;
-            return previews.getContext().toVanillaGrid(side);
+            return group.getGrid().toVanillaGrid(side);
         }
     };
     
     public static final StructureIngredientScaler VOLUME = new StructureIngredientScaler() {
         
         @Override
-        public double calculate(LittlePreviews previews) {
+        public double calculate(LittleGroup previews) {
             return previews.getVolume();
         }
     };
@@ -46,8 +46,8 @@ public class StructureIngredientRule implements IStructureIngredientRule {
     }
     
     @Override
-    public void add(LittlePreviews previews, LittleIngredients ingredients) {
-        double volume = scale.calculate(previews);
+    public void add(LittleGroup group, LittleIngredients ingredients) {
+        double volume = scale.calculate(group);
         if (volume > 0) {
             LittleIngredient toAdd = ingredient.copy();
             toAdd.scaleAdvanced(volume);
@@ -57,7 +57,7 @@ public class StructureIngredientRule implements IStructureIngredientRule {
     
     public static abstract class StructureIngredientScaler {
         
-        public abstract double calculate(LittlePreviews previews);
+        public abstract double calculate(LittleGroup group);
         
     }
     
@@ -70,8 +70,8 @@ public class StructureIngredientRule implements IStructureIngredientRule {
         }
         
         @Override
-        public double calculate(LittlePreviews previews) {
-            return VOLUME.calculate(previews) * scale;
+        public double calculate(LittleGroup group) {
+            return VOLUME.calculate(group) * scale;
         }
         
     }

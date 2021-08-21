@@ -11,78 +11,76 @@ import java.util.function.BiPredicate;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.LittleTilesConfig;
-import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceException;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHolder;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.Placement.PlacementStructurePreview;
 
-import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent.MultiPlaceEvent;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.config.LittleTilesConfig;
+import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceException;
+import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.placement.PlacementResult;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 import team.creative.littletiles.common.tile.parent.ParentTileList;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class Placement {
     
-    public final EntityPlayer player;
-    public final World world;
-    public final PlacementMode mode;
-    public final BlockPos pos;
-    public final EnumFacing facing;
-    public final LittlePreviews previews;
+    public final Player player;
+    public final Level level;
+    public final PlacementPreview preview;
     public final LinkedHashMap<BlockPos, PlacementBlock> blocks = new LinkedHashMap<>();
     public final PlacementStructurePreview origin;
     public final List<PlacementStructurePreview> structures = new ArrayList<>();
     
     public final BitSet availableIds = new BitSet();
     
-    public final LittleAbsolutePreviews removedTiles;
-    public final LittleAbsolutePreviews unplaceableTiles;
+    public final LittleGroupAbsolute removedTiles;
+    public final LittleGroupAbsolute unplaceableTiles;
     public final List<SoundType> soundsToBePlayed = new ArrayList<>();
     
     protected MutableInt affectedBlocks = new MutableInt();
     protected ItemStack stack;
     protected boolean ignoreWorldBoundaries = true;
-    protected BiPredicate<IParentTileList, LittleTile> predicate;
+    protected BiPredicate<IParentCollection, LittleTile> predicate;
     protected boolean playSounds = true;
     
-    public Placement(EntityPlayer player, PlacementPreview preview) {
+    public Placement(Player player, PlacementPreview preview) {
         this.player = player;
-        this.world = preview.world;
-        this.mode = preview.mode;
-        this.pos = preview.pos;
-        this.facing = preview.facing;
-        this.previews = preview.previews;
+        this.level = preview.getLevel(player);
+        this.preview = preview;
         this.origin = createStructureTree(null, preview.previews);
         
-        this.removedTiles = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
-        this.unplaceableTiles = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
+        this.removedTiles = new LittleGroupAbsolute(preview.position.getPos());
+        this.unplaceableTiles = new LittleGroupAbsolute(preview.position.getPos());
         
         createPreviews(origin, preview.inBlockOffset, preview.pos);
         
@@ -100,7 +98,7 @@ public class Placement {
         return this;
     }
     
-    public Placement setPredicate(BiPredicate<IParentTileList, LittleTile> predicate) {
+    public Placement setPredicate(BiPredicate<IParentCollection, LittleTile> predicate) {
         this.predicate = predicate;
         return this;
     }
@@ -120,7 +118,7 @@ public class Placement {
             }
         }
         
-        List<BlockPos> coordsToCheck = mode.getCoordsToCheck(blocks.keySet(), pos);
+        List<BlockPos> coordsToCheck = preview.mode.getCoordsToCheck(blocks.keySet(), preview.position.getPos());
         if (coordsToCheck != null) {
             for (BlockPos pos : coordsToCheck) {
                 PlacementBlock block = blocks.get(pos);
@@ -247,7 +245,7 @@ public class Placement {
         if (playSounds)
             for (int i = 0; i < soundsToBePlayed.size(); i++)
                 world.playSound((EntityPlayer) null, pos, soundsToBePlayed.get(i)
-                    .getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
+                        .getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
             
         removedTiles.convertToSmallest();
         unplaceableTiles.convertToSmallest();

@@ -58,7 +58,7 @@ public abstract class TileFilter {
         
     }
     
-    public CompoundTag writeNBT(CompoundTag nbt) {
+    public CompoundTag write(CompoundTag nbt) {
         saveNBT(nbt);
         nbt.putString("type", REGISTRY.getId(this));
         return nbt;
