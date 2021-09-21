@@ -39,6 +39,8 @@ public class ItemLittleScrewdriver extends Item implements ILittlePlacer, IItemT
     }
     
     public void onClick(EntityPlayer player, boolean rightClick, BlockPos pos, ItemStack stack) {
+        if (!stack.hasTagCompound())
+            stack.setTagCompound(new NBTTagCompound());
         if (rightClick) {
             stack.getTagCompound().setIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
             if (!player.world.isRemote)
