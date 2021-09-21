@@ -41,6 +41,10 @@ public class LittleBoxReturnedVolume {
         return volume / (double) context.maxTilesPerBlock;
     }
     
+    public void clear() {
+        volume = 0;
+    }
+    
     public LittlePreview createFakePreview(LittlePreview preview) {
         LittlePreview copy = preview.copy();
         copy.setBox(new LittleBox(0, 0, 0, volume, 1, 1));

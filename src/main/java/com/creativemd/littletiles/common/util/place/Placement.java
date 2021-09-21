@@ -33,6 +33,8 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHol
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -62,6 +64,7 @@ public class Placement {
     
     public final BitSet availableIds = new BitSet();
     
+    public final LittleIngredients removedIngredients;
     public final LittleAbsolutePreviews removedTiles;
     public final LittleAbsolutePreviews unplaceableTiles;
     public final List<SoundType> soundsToBePlayed = new ArrayList<>();
@@ -81,6 +84,7 @@ public class Placement {
         this.previews = preview.previews;
         this.origin = createStructureTree(null, preview.previews);
         
+        this.removedIngredients = new LittleIngredients();
         this.removedTiles = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
         this.unplaceableTiles = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
         
@@ -108,6 +112,10 @@ public class Placement {
     public Placement setStack(ItemStack stack) {
         this.stack = stack;
         return this;
+    }
+    
+    public void addRemovedIngredient(PlacementBlock block, LittleTile tile, LittleBoxReturnedVolume volume) {
+        removedIngredients.add(LittleIngredient.extract(tile.getPreviewTile(), volume.getPercentVolume(block.getContext())));
     }
     
     public boolean canPlace() throws LittleActionException {

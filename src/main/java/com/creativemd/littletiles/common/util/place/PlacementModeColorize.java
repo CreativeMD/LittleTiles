@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
@@ -41,12 +42,16 @@ public class PlacementModeColorize extends PlacementMode {
         if (!requiresCollisionTest)
             return Collections.EMPTY_LIST;
         List<LittleTile> tiles = new ArrayList<>();
-        for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false)) {
+        LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
+        for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false, volume)) {
             LittleTile newTile = LittleTileColored.setColor(lt, tile instanceof LittleTileColored ? ((LittleTileColored) tile).color : ColorUtils.WHITE);
             if (newTile != null) {
                 placement.removedTiles.addTile(parent, lt);
                 tiles.add(newTile);
             }
+            if (volume.has())
+                placement.addRemovedIngredient(block, tile, volume);
+            volume.clear();
         }
         return tiles;
     }

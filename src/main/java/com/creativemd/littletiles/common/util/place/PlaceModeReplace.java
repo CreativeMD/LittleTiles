@@ -7,6 +7,7 @@ import java.util.Set;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
@@ -38,11 +39,15 @@ public class PlaceModeReplace extends PlacementMode {
         if (!requiresCollisionTest)
             return new ArrayList<>();
         List<LittleTile> tiles = new ArrayList<>();
-        for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false)) {
+        LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
+        for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false, volume)) {
             LittleTile newTile = tile.copy();
             newTile.setBox(lt.getBox());
             tiles.add(newTile);
             placement.removedTiles.addTile(parent, lt);
+            if (volume.has())
+                placement.addRemovedIngredient(block, tile, volume);
+            volume.clear();
         }
         return tiles;
     }

@@ -608,6 +608,8 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     public LittleBox combineBoxes(LittleBox box) {
+        if (!this.isSolid())
+            return null;
         if (box instanceof LittleTransformableBox) {
             EnumFacing facing = box.sharedBoxFaceWithoutBounds(this);
             

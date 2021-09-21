@@ -277,7 +277,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         
     }
     
-    public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleBox toCut, boolean update) {
+    public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleBox toCut, boolean update, LittleBoxReturnedVolume returnedVolume) {
         if (context != te.getContext()) {
             if (context.size > te.getContext().size)
                 te.convertTo(context);
@@ -305,7 +305,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                     List<LittleBox> cutout = new ArrayList<>();
                     List<LittleBox> boxes = new ArrayList<>();
                     boxes.add(toCut);
-                    LittleBoxReturnedVolume returnedVolume = new LittleBoxReturnedVolume();
+                    
                     List<LittleBox> newBoxes = tile.cutOut(boxes, cutout, returnedVolume);
                     
                     if (newBoxes != null) {
@@ -320,9 +320,6 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                             copy.setBox(box);
                             removed.add(copy);
                         }
-                        
-                        if (returnedVolume.has())
-                            removed.add(returnedVolume.createFakeTile(tile));
                     }
                 } else
                     removed.add(tile);

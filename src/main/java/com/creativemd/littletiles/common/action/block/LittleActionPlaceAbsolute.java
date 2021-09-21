@@ -88,7 +88,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
                 
                 if (!player.world.isRemote) {
                     checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
-                    checkAndGive(player, inventory, getIngredients(placement.removedTiles));
+                    checkAndGive(player, inventory, getIngredients(placement.removedTiles).add(placement.removedIngredients));
                 }
                 
                 if (!placement.removedTiles.isEmpty())
