@@ -91,6 +91,7 @@ import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.item.ItemMultiTiles;
 import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.mod.albedo.AlbedoExtension;
+import com.creativemd.littletiles.common.mod.lux.LuxExtension;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mod.warpdrive.TileEntityLittleTilesTransformer;
 import com.creativemd.littletiles.common.packet.LittleActionMessagePacket;
@@ -612,6 +613,9 @@ public class LittleTiles {
         
         if (Loader.isModLoaded("albedo"))
             MinecraftForge.EVENT_BUS.register(AlbedoExtension.class);
+        
+        if (Loader.isModLoaded("lux"))
+            LuxExtension.init();
         
         MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
