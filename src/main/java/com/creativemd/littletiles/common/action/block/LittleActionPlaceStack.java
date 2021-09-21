@@ -151,7 +151,7 @@ public class LittleActionPlaceStack extends LittleAction {
             boxes = placedTiles.placedBoxes;
             
             if (needIngredients(player)) {
-                checkAndGive(player, inventory, getIngredients(placement.removedTiles).add(placement.removedIngredients));
+                checkAndGive(player, inventory, placement.overflow());
                 
                 if (iTile.containsIngredients(stack)) {
                     stack.shrink(1);

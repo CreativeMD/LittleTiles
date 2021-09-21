@@ -118,6 +118,12 @@ public class Placement {
         removedIngredients.add(LittleIngredient.extract(tile.getPreviewTile(), volume.getPercentVolume(block.getContext())));
     }
     
+    public LittleIngredients overflow() {
+        LittleIngredients ingredients = LittleAction.getIngredients(removedTiles);
+        ingredients.add(this.removedIngredients);
+        return ingredients;
+    }
+    
     public boolean canPlace() throws LittleActionException {
         affectedBlocks.setValue(0);
         
