@@ -1,9 +1,8 @@
-package com.creativemd.littletiles.common.structure.signal.schedule;
+package team.creative.littletiles.common.structure.signal.schedule;
 
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public interface ISignalSchedulable {
     
@@ -15,7 +14,7 @@ public interface ISignalSchedulable {
     
     public void markUnchanged();
     
-    public World getWorld();
+    public Level getComponentLevel();
     
     public boolean isStillAvailable();
     
@@ -26,7 +25,7 @@ public interface ISignalSchedulable {
     
     public default void schedule() {
         if (!hasChanged() && isStillAvailable()) {
-            SignalTicker.schedule(getWorld(), this);
+            SignalTicker.schedule(getComponentLevel(), this);
             markChanged();
         }
     }

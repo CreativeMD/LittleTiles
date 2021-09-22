@@ -1,17 +1,16 @@
-package com.creativemd.littletiles.common.structure.signal.component;
+package team.creative.littletiles.common.structure.signal.component;
 
 import java.util.Iterator;
-
-import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
 
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.structure.signal.network.SignalNetwork;
 
 public interface ISignalStructureBase {
     
     public default boolean compatible(ISignalStructureBase other) {
-        if (other.getType() != SignalComponentType.TRANSMITTER && other.getType() == getType())
+        if (other.getComponentType() != SignalComponentType.TRANSMITTER && other.getComponentType() == getComponentType())
             return false;
         return getBandwidth() == other.getBandwidth();
     }

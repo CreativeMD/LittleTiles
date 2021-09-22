@@ -4,12 +4,12 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 
 public class LittleUpdateOutputPacket extends CreativeCorePacket {
     

@@ -1,13 +1,12 @@
-package com.creativemd.littletiles.common.structure.signal.output;
+package team.creative.littletiles.common.structure.signal.output;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
-
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public abstract class SignalOutputHandler {
     
@@ -15,7 +14,7 @@ public abstract class SignalOutputHandler {
     public final int delay;
     public boolean[] lastReacted;
     
-    public SignalOutputHandler(ISignalComponent component, int delay, NBTTagCompound nbt) {
+    public SignalOutputHandler(ISignalComponent component, int delay, CompoundTag nbt) {
         this.component = component;
         this.delay = delay;
     }
@@ -41,10 +40,10 @@ public abstract class SignalOutputHandler {
         return component.getBandwidth();
     }
     
-    public abstract void write(boolean preview, NBTTagCompound nbt);
+    public abstract void write(boolean preview, CompoundTag nbt);
     
-    public static SignalOutputHandler create(ISignalComponent component, SignalMode mode, int delay, NBTTagCompound nbt, LittleStructure structure) {
-        return mode.create(component, delay, nbt, structure != null && structure.hasWorld() && !structure.getWorld().isRemote);
+    public static SignalOutputHandler create(ISignalComponent component, SignalMode mode, int delay, CompoundTag nbt, LittleStructure structure) {
+        return mode.create(component, delay, nbt, structure != null && structure.hasWorld() && !structure.getLevel().isClientSide);
     }
     
     public boolean isStillAvailable() {

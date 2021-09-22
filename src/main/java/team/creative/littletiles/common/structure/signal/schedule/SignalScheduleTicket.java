@@ -1,11 +1,10 @@
-package com.creativemd.littletiles.common.structure.signal.schedule;
+package team.creative.littletiles.common.structure.signal.schedule;
 
 import java.lang.ref.WeakReference;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
-
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
 public class SignalScheduleTicket implements ISignalScheduleTicket {
     
@@ -74,10 +73,10 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
         outputCondition.clear();
     }
     
-    public World getWorld() {
+    public Level getLevel() {
         SignalOutputHandler handler = outputCondition.get();
         if (handler != null)
-            return handler.component.getStructureWorld();
+            return handler.component.getStructureLevel();
         return null;
     }
     

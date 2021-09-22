@@ -1,23 +1,23 @@
-package com.creativemd.littletiles.common.structure.signal.output;
+package team.creative.littletiles.common.structure.signal.output;
 
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public class SignalExternalOutputHandler implements ISignalComponent {
     
@@ -33,11 +33,11 @@ public class SignalExternalOutputHandler implements ISignalComponent {
         this.handler = function.apply(this);
     }
     
-    public SignalExternalOutputHandler(LittleStructure structure, NBTTagCompound nbt) throws ParseException {
+    public SignalExternalOutputHandler(LittleStructure structure, CompoundTag nbt) throws ParseException {
         this.structure = structure;
-        this.index = nbt.getInteger("index");
+        this.index = nbt.getInt("index");
         try {
-            if (nbt.hasKey("con"))
+            if (nbt.contains("con"))
                 condition = SignalInputCondition.parseInput(nbt.getString("con"));
             else
                 condition = null;
@@ -45,11 +45,11 @@ public class SignalExternalOutputHandler implements ISignalComponent {
             condition = null;
         }
         SignalMode mode = SignalMode.EQUAL;
-        if (nbt.hasKey("mode"))
+        if (nbt.contains("mode"))
             mode = SignalMode.valueOf(nbt.getString("mode"));
-        int delay = nbt.getInteger("delay");
+        int delay = nbt.getInt("delay");
         if (condition != null)
-            delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInteger("delay"));
+            delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInt("delay"));
         handler = SignalOutputHandler.create(this, mode, delay, nbt, structure);
     }
     
@@ -81,18 +81,18 @@ public class SignalExternalOutputHandler implements ISignalComponent {
         
     }
     
-    public NBTTagCompound write(boolean preview) {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setInteger("index", index);
+    public CompoundTag write(boolean preview) {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putInt("index", index);
         if (structure != null)
             try {
-                nbt.setInteger("state", BooleanUtils.boolToInt(getState()));
+                nbt.putInt("state", BooleanUtils.boolToInt(getState()));
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         if (condition != null)
-            nbt.setString("con", condition.write());
-        nbt.setString("mode", handler == null ? SignalMode.EQUAL.name() : handler.getMode().name());
+            nbt.putString("con", condition.write());
+        nbt.putString("mode", handler == null ? SignalMode.EQUAL.name() : handler.getMode().name());
         if (handler != null) {
-            nbt.setInteger("delay", handler.delay);
+            nbt.putInt("delay", handler.delay);
             handler.write(preview, nbt);
         }
         return nbt;
@@ -116,7 +116,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     }
     
     @Override
-    public SignalComponentType getType() {
+    public SignalComponentType getComponentType() {
         return SignalComponentType.OUTPUT;
     }
     
@@ -126,10 +126,10 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     }
     
     @Override
-    public World getStructureWorld() {
+    public Level getStructureLevel() {
         if (structure == null)
             return null;
-        return structure.getWorld();
+        return structure.getLevel();
     }
     
     @Override

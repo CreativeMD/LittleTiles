@@ -7,9 +7,6 @@ import java.util.List;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
-import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -32,6 +29,9 @@ import team.creative.littletiles.common.structure.directional.StructureDirection
 import team.creative.littletiles.common.structure.registry.IStructureIngredientRule;
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule;
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScaler;
+import team.creative.littletiles.common.structure.signal.input.InternalSignalInput;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.tile.group.LittleGroup;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 

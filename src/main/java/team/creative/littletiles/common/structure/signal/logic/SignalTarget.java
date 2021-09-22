@@ -1,15 +1,15 @@
-package com.creativemd.littletiles.common.structure.signal.logic;
+package team.creative.littletiles.common.structure.signal.logic;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.SignalUtils;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalUtils;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 
 public abstract class SignalTarget {
     

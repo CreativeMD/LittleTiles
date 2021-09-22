@@ -1,13 +1,13 @@
-package com.creativemd.littletiles.common.structure.signal;
+package team.creative.littletiles.common.structure.signal;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
-import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.input.InternalSignalInput;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 
 public class SignalUtils {
     
@@ -28,7 +28,7 @@ public class SignalUtils {
         if (id >= 0 && id < structure.countChildren())
             try {
                 LittleStructure child = structure.getChild(id).getStructure();
-                if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getType() == SignalComponentType.INPUT)
+                if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getComponentType() == SignalComponentType.INPUT)
                     return (ISignalStructureComponent) child;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         return null;
@@ -50,7 +50,7 @@ public class SignalUtils {
         if (id >= 0 && id < structure.countChildren())
             try {
                 LittleStructure child = structure.getChild(id).getStructure();
-                if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getType() == SignalComponentType.OUTPUT)
+                if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getComponentType() == SignalComponentType.OUTPUT)
                     return (ISignalStructureComponent) child;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         return null;

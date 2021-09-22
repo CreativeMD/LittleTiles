@@ -3,42 +3,40 @@ package com.creativemd.littletiles.common.structure.type.premade.signal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.RenderBox;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.place.PlacePreviewFacing;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.directional.StructureDirectional;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public class LittleSignalOutput extends LittleSignalCableBase implements ISignalStructureComponent {
     
     private final boolean[] state;
     @StructureDirectional
-    public EnumFacing facing;
+    public Facing facing;
     
-    public LittleSignalOutput(LittleStructureType type, IStructureTileList mainBlock) {
+    public LittleSignalOutput(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
         this.state = new boolean[getBandwidth()];
     }
@@ -54,19 +52,19 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     }
     
     @Override
-    protected void loadFromNBTExtra(NBTTagCompound nbt) {
+    protected void loadFromNBTExtra(CompoundTag nbt) {
         super.loadFromNBTExtra(nbt);
-        BooleanUtils.intToBool(nbt.getInteger("state"), state);
+        BooleanUtils.intToBool(nbt.getInt("state"), state);
     }
     
     @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
+    protected void writeToNBTExtra(CompoundTag nbt) {
         super.writeToNBTExtra(nbt);
-        nbt.setInteger("state", BooleanUtils.boolToInt(state));
+        nbt.putInt("state", BooleanUtils.boolToInt(state));
     }
     
     @Override
-    public SignalComponentType getType() {
+    public SignalComponentType getComponentType() {
         return SignalComponentType.OUTPUT;
     }
     

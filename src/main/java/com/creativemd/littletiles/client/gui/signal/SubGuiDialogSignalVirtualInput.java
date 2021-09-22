@@ -13,11 +13,12 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.signal.GuiSignalController.GuiSignalNodeVirtualInput;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.IConditionConfiguration;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputBit;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
+
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputBit;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
 public class SubGuiDialogSignalVirtualInput extends SubGui {
     

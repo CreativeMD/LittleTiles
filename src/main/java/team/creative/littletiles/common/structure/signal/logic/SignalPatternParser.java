@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.signal.logic;
+package team.creative.littletiles.common.structure.signal.logic;
 
 import java.text.ParseException;
 

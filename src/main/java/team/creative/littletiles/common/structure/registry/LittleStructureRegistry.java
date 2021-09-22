@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
@@ -40,6 +39,7 @@ import team.creative.littletiles.common.structure.LittleStructureAttribute.Littl
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScalerVolume;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public class LittleStructureRegistry {
     

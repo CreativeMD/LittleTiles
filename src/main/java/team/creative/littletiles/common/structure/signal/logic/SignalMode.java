@@ -1,29 +1,30 @@
-package com.creativemd.littletiles.common.structure.signal.logic;
+package team.creative.littletiles.common.structure.signal.logic;
 
 import java.util.Arrays;
 import java.util.List;
 
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
-import com.creativemd.littletiles.common.structure.signal.schedule.ISignalScheduleTicket;
-import com.creativemd.littletiles.common.structure.signal.schedule.SignalTicker;
-
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
+import team.creative.littletiles.common.structure.signal.schedule.ISignalScheduleTicket;
+import team.creative.littletiles.common.structure.signal.schedule.SignalTicker;
 
 public enum SignalMode {
     
     EQUAL("signal.mode.equal") {
         @Override
-        public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+        public SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld) {
             SignalOutputHandler handler = new SignalOutputHandler(component, delay, nbt) {
                 
                 @Override
@@ -37,23 +38,23 @@ public enum SignalMode {
                 }
                 
                 @Override
-                public void write(boolean preview, NBTTagCompound nbt) {
+                public void write(boolean preview, CompoundTag nbt) {
                     if (preview)
                         return;
                     List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
-                    NBTTagList list = new NBTTagList();
+                    ListTag list = new ListTag();
                     for (int i = 0; i < tickets.size(); i++) {
                         ISignalScheduleTicket ticket = tickets.get(i);
-                        list.appendTag(new NBTTagIntArray(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
+                        list.add(new IntArrayTag(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
                     }
-                    nbt.setTag("tickets", list);
+                    nbt.put("tickets", list);
                 }
                 
             };
             if (hasWorld) {
-                NBTTagList list = nbt.getTagList("tickets", 11);
-                for (int i = 0; i < list.tagCount(); i++) {
-                    int[] array = list.getIntArrayAt(i);
+                ListTag list = nbt.getList("tickets", 11);
+                for (int i = 0; i < list.size(); i++) {
+                    int[] array = list.getIntArray(i);
                     if (array.length == 2) {
                         try {
                             boolean[] state = new boolean[component.getBandwidth()];
@@ -68,19 +69,19 @@ public enum SignalMode {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+        @OnlyIn(Dist.CLIENT)
+        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
             if (nbt == null)
                 return new GuiSignalModeConfigurationEqual(1);
             return new GuiSignalModeConfigurationEqual(nbt);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
             return new GuiSignalModeConfigurationEqual(delay);
         }
@@ -89,15 +90,15 @@ public enum SignalMode {
     TOGGLE("signal.mode.toggle") {
         
         @Override
-        public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+        public SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld) {
             boolean[] before;
             boolean[] result;
-            int bandwidth = nbt.getInteger("bandwidth");
+            int bandwidth = nbt.getInt("bandwidth");
             if (bandwidth > 0) {
                 before = new boolean[bandwidth];
                 result = new boolean[bandwidth];
-                BooleanUtils.intToBool(nbt.getInteger("before"), before);
-                BooleanUtils.intToBool(nbt.getInteger("result"), result);
+                BooleanUtils.intToBool(nbt.getInt("before"), before);
+                BooleanUtils.intToBool(nbt.getInt("result"), result);
             } else {
                 before = null;
                 result = null;
@@ -105,9 +106,9 @@ public enum SignalMode {
             
             SignalOutputHandler handler = new SignalOutputHandlerToggle(component, delay, nbt, before, result);
             if (hasWorld) {
-                NBTTagList list = nbt.getTagList("tickets", 11);
-                for (int i = 0; i < list.tagCount(); i++) {
-                    int[] array = list.getIntArrayAt(i);
+                ListTag list = nbt.getList("tickets", 11);
+                for (int i = 0; i < list.size(); i++) {
+                    int[] array = list.getIntArray(i);
                     if (array.length == 2) {
                         try {
                             boolean[] state = new boolean[component.getBandwidth()];
@@ -121,17 +122,17 @@ public enum SignalMode {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+        @OnlyIn(Dist.CLIENT)
+        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
             return new GuiSignalModeConfigurationToggle(nbt);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
             return new GuiSignalModeConfigurationToggle(delay);
         }
@@ -140,26 +141,26 @@ public enum SignalMode {
     PULSE("signal.mode.pulse") {
         
         @Override
-        public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+        public SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld) {
             SignalOutputHandler condition = new SignalOutputHandlerPulse(component, delay, nbt);
             if (hasWorld) {
-                if (nbt.hasKey("start")) {
-                    SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
-                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
-                } else if (nbt.hasKey("end"))
-                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+                if (nbt.contains("start")) {
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInt("start"));
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInt("end"));
+                } else if (nbt.contains("end"))
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInt("end"));
             }
             return condition;
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+        @OnlyIn(Dist.CLIENT)
+        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
             return new GuiSignalModeConfigurationPulse(nbt);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
             parent.addControl(new GuiLabel("length:", 0, 43));
             parent.addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationPulse ? ((GuiSignalModeConfigurationPulse) configuration).length : 10), 40, 41, 50, 12)
@@ -167,7 +168,7 @@ public enum SignalMode {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
             GuiTextfield length = (GuiTextfield) parent.get("length");
             return new GuiSignalModeConfigurationPulse(delay, Math.max(1, length.parseInteger()));
@@ -176,7 +177,7 @@ public enum SignalMode {
     THRESHOLD("signal.mode.threshold") {
         
         @Override
-        public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+        public SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld) {
             SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
                 
                 @Override
@@ -199,14 +200,14 @@ public enum SignalMode {
                 }
                 
                 @Override
-                public void write(boolean preview, NBTTagCompound nbt) {
+                public void write(boolean preview, CompoundTag nbt) {
                     if (!preview && ticket != null)
-                        nbt.setIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
+                        nbt.putIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
                 }
             };
             
             if (hasWorld) {
-                if (nbt.hasKey("ticket")) {
+                if (nbt.contains("ticket")) {
                     int[] array = nbt.getIntArray("ticket");
                     if (array.length == 2) {
                         try {
@@ -221,17 +222,17 @@ public enum SignalMode {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+        @OnlyIn(Dist.CLIENT)
+        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
             return new GuiSignalModeConfigurationThreshold(nbt);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
             return new GuiSignalModeConfigurationThreshold(delay);
         }
@@ -239,7 +240,7 @@ public enum SignalMode {
     STABILIZER("signal.mode.stabilizer") {
         
         @Override
-        public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+        public SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld) {
             SignalOutputHandlerStoreOne handler = new SignalOutputHandlerStoreOne(component, delay, nbt) {
                 
                 @Override
@@ -261,16 +262,16 @@ public enum SignalMode {
                 }
                 
                 @Override
-                public void write(boolean preview, NBTTagCompound nbt) {
+                public void write(boolean preview, CompoundTag nbt) {
                     if (preview)
                         return;
                     if (ticket != null)
-                        nbt.setIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
+                        nbt.putIntArray("ticket", new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) });
                 }
             };
             
             if (hasWorld) {
-                if (nbt.hasKey("ticket")) {
+                if (nbt.contains("ticket")) {
                     int[] array = nbt.getIntArray("ticket");
                     if (array.length == 2) {
                         try {
@@ -285,17 +286,17 @@ public enum SignalMode {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+        @OnlyIn(Dist.CLIENT)
+        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
             return new GuiSignalModeConfigurationStabilizer(nbt);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {}
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
             return new GuiSignalModeConfigurationStabilizer(delay);
         }
@@ -303,34 +304,34 @@ public enum SignalMode {
     EXTENDER("signal.mode.extender") {
         
         @Override
-        public SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld) {
+        public SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld) {
             SignalOutputHandler condition = new SignalOutputHandlerExtender(component, delay, nbt);
             if (hasWorld) {
-                if (nbt.hasKey("start")) {
-                    SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInteger("start"));
-                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
-                } else if (nbt.hasKey("end"))
-                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInteger("end"));
+                if (nbt.contains("start")) {
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(true), nbt.getInt("start"));
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInt("end"));
+                } else if (nbt.contains("end"))
+                    SignalTicker.schedule(condition, BooleanUtils.asArray(false), nbt.getInt("end"));
             }
             return condition;
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt) {
+        @OnlyIn(Dist.CLIENT)
+        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
             return new GuiSignalModeConfigurationExtender(nbt);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-            parent.addControl(new GuiLabel("length:", 0, 43));
+            parent.addControl(new GuiLabel("length:"));
             parent.addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10), 40, 41, 50, 12)
                     .setNumbersOnly());
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public GuiSignalModeConfiguration parseControls(GuiParent parent, int delay) {
             GuiTextfield length = (GuiTextfield) parent.get("length");
             return new GuiSignalModeConfigurationExtender(delay, Math.max(1, length.parseInteger()));
@@ -344,22 +345,22 @@ public enum SignalMode {
         this.translateKey = translateKey;
     }
     
-    public abstract SignalOutputHandler create(ISignalComponent component, int delay, NBTTagCompound nbt, boolean hasWorld);
+    public abstract SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld);
     
-    @SideOnly(Side.CLIENT)
-    public abstract GuiSignalModeConfiguration createConfiguration(NBTTagCompound nbt);
+    @OnlyIn(Dist.CLIENT)
+    public abstract GuiSignalModeConfiguration createConfiguration(CompoundTag nbt);
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public abstract void createControls(GuiParent parent, GuiSignalModeConfiguration configuration);
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public abstract GuiSignalModeConfiguration parseControls(GuiParent parent, int delay);
     
     public static abstract class SignalOutputHandlerStoreOne extends SignalOutputHandler {
         
         ISignalScheduleTicket ticket;
         
-        public SignalOutputHandlerStoreOne(ISignalComponent component, int delay, NBTTagCompound nbt) {
+        public SignalOutputHandlerStoreOne(ISignalComponent component, int delay, CompoundTag nbt) {
             super(component, delay, nbt);
         }
         
@@ -370,7 +371,7 @@ public enum SignalMode {
         public boolean[] stateBefore;
         public boolean[] result;
         
-        public SignalOutputHandlerToggle(ISignalComponent component, int delay, NBTTagCompound nbt, boolean[] stateBefore, boolean[] result) {
+        public SignalOutputHandlerToggle(ISignalComponent component, int delay, CompoundTag nbt, boolean[] stateBefore, boolean[] result) {
             super(component, delay, nbt);
             this.stateBefore = stateBefore;
             this.result = result;
@@ -410,21 +411,21 @@ public enum SignalMode {
         }
         
         @Override
-        public void write(boolean preview, NBTTagCompound nbt) {
+        public void write(boolean preview, CompoundTag nbt) {
             if (stateBefore != null) {
-                nbt.setInteger("bandwidth", stateBefore.length);
-                nbt.setInteger("before", BooleanUtils.boolToInt(stateBefore));
-                nbt.setInteger("result", BooleanUtils.boolToInt(result));
+                nbt.putInt("bandwidth", stateBefore.length);
+                nbt.putInt("before", BooleanUtils.boolToInt(stateBefore));
+                nbt.putInt("result", BooleanUtils.boolToInt(result));
             }
             if (preview)
                 return;
             List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
-            NBTTagList list = new NBTTagList();
+            ListTag list = new ListTag();
             for (int i = 0; i < tickets.size(); i++) {
                 ISignalScheduleTicket ticket = tickets.get(i);
-                list.appendTag(new NBTTagIntArray(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
+                list.add(new IntArrayTag(new int[] { ticket.getDelay(), BooleanUtils.boolToInt(ticket.getState()) }));
             }
-            nbt.setTag("tickets", list);
+            nbt.put("tickets", list);
         }
     }
     
@@ -435,9 +436,9 @@ public enum SignalMode {
         public ISignalScheduleTicket pulseStart;
         public ISignalScheduleTicket pulseEnd;
         
-        public SignalOutputHandlerPulse(ISignalComponent component, int delay, NBTTagCompound nbt) {
+        public SignalOutputHandlerPulse(ISignalComponent component, int delay, CompoundTag nbt) {
             super(component, delay, nbt);
-            this.pulseLength = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+            this.pulseLength = nbt.contains("length") ? nbt.getInt("length") : 10;
             this.stateBefore = nbt.getBoolean("before");
         }
         
@@ -476,15 +477,15 @@ public enum SignalMode {
         }
         
         @Override
-        public void write(boolean preview, NBTTagCompound nbt) {
-            nbt.setInteger("length", pulseLength);
-            nbt.setBoolean("before", stateBefore);
+        public void write(boolean preview, CompoundTag nbt) {
+            nbt.putInt("length", pulseLength);
+            nbt.putBoolean("before", stateBefore);
             if (preview)
                 return;
             if (pulseStart != null)
-                nbt.setInteger("start", pulseStart.getDelay());
+                nbt.putInt("start", pulseStart.getDelay());
             if (pulseEnd != null)
-                nbt.setInteger("end", pulseEnd.getDelay());
+                nbt.putInt("end", pulseEnd.getDelay());
         }
         
     }
@@ -496,9 +497,9 @@ public enum SignalMode {
         public ISignalScheduleTicket pulseStart;
         public ISignalScheduleTicket pulseEnd;
         
-        public SignalOutputHandlerExtender(ISignalComponent component, int delay, NBTTagCompound nbt) {
+        public SignalOutputHandlerExtender(ISignalComponent component, int delay, CompoundTag nbt) {
             super(component, delay, nbt);
-            this.pulseLength = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+            this.pulseLength = nbt.contains("length") ? nbt.getInt("length") : 10;
             this.stateBefore = nbt.getBoolean("before");
         }
         
@@ -547,26 +548,26 @@ public enum SignalMode {
         }
         
         @Override
-        public void write(boolean preview, NBTTagCompound nbt) {
-            nbt.setInteger("length", pulseLength);
-            nbt.setBoolean("before", stateBefore);
+        public void write(boolean preview, CompoundTag nbt) {
+            nbt.putInt("length", pulseLength);
+            nbt.putBoolean("before", stateBefore);
             if (preview)
                 return;
             if (pulseStart != null)
-                nbt.setInteger("start", pulseStart.getDelay());
+                nbt.putInt("start", pulseStart.getDelay());
             if (pulseEnd != null)
-                nbt.setInteger("end", pulseEnd.getDelay());
+                nbt.putInt("end", pulseEnd.getDelay());
         }
         
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static GuiSignalModeConfiguration getConfigDefault() {
         return EQUAL.createConfiguration(null);
     }
     
-    @SideOnly(Side.CLIENT)
-    public static GuiSignalModeConfiguration getConfig(NBTTagCompound nbt, SignalMode defaultMode) {
+    @OnlyIn(Dist.CLIENT)
+    public static GuiSignalModeConfiguration getConfig(CompoundTag nbt, SignalMode defaultMode) {
         return get(nbt.getString("mode"), defaultMode).createConfiguration(nbt);
     }
     
@@ -586,13 +587,13 @@ public enum SignalMode {
         }
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static abstract class GuiSignalModeConfiguration {
         
         public int delay;
         
-        public GuiSignalModeConfiguration(NBTTagCompound nbt) {
-            this(nbt.getInteger("delay"));
+        public GuiSignalModeConfiguration(CompoundTag nbt) {
+            this(nbt.getInt("delay"));
         }
         
         public GuiSignalModeConfiguration(int delay) {
@@ -607,14 +608,14 @@ public enum SignalMode {
         
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static class GuiSignalModeConfigurationEqual extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationEqual(int delay) {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationEqual(NBTTagCompound nbt) {
+        public GuiSignalModeConfigurationEqual(CompoundTag nbt) {
             super(nbt);
         }
         
@@ -630,21 +631,21 @@ public enum SignalMode {
         
         @Override
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInteger("delay", delay);
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("delay", delay);
             return getMode().create(component, delay, nbt, false);
         }
         
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static class GuiSignalModeConfigurationToggle extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationToggle(int delay) {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationToggle(NBTTagCompound nbt) {
+        public GuiSignalModeConfigurationToggle(CompoundTag nbt) {
             super(nbt);
         }
         
@@ -660,14 +661,14 @@ public enum SignalMode {
         
         @Override
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInteger("delay", delay);
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("delay", delay);
             return getMode().create(component, delay, nbt, false);
         }
         
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static class GuiSignalModeConfigurationPulse extends GuiSignalModeConfiguration {
         
         public int length;
@@ -677,9 +678,9 @@ public enum SignalMode {
             this.length = length;
         }
         
-        public GuiSignalModeConfigurationPulse(NBTTagCompound nbt) {
+        public GuiSignalModeConfigurationPulse(CompoundTag nbt) {
             super(nbt);
-            this.length = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+            this.length = nbt.contains("length") ? nbt.getInt("length") : 10;
         }
         
         @Override
@@ -694,15 +695,15 @@ public enum SignalMode {
         
         @Override
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInteger("delay", delay);
-            nbt.setInteger("length", length);
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("delay", delay);
+            nbt.putInt("length", length);
             return getMode().create(component, delay, nbt, false);
         }
         
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static class GuiSignalModeConfigurationExtender extends GuiSignalModeConfiguration {
         
         public int length;
@@ -712,9 +713,9 @@ public enum SignalMode {
             this.length = length;
         }
         
-        public GuiSignalModeConfigurationExtender(NBTTagCompound nbt) {
+        public GuiSignalModeConfigurationExtender(CompoundTag nbt) {
             super(nbt);
-            this.length = nbt.hasKey("length") ? nbt.getInteger("length") : 10;
+            this.length = nbt.contains("length") ? nbt.getInt("length") : 10;
         }
         
         @Override
@@ -729,22 +730,22 @@ public enum SignalMode {
         
         @Override
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInteger("delay", delay);
-            nbt.setInteger("length", length);
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("delay", delay);
+            nbt.putInt("length", length);
             return getMode().create(component, delay, nbt, false);
         }
         
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static class GuiSignalModeConfigurationThreshold extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationThreshold(int delay) {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationThreshold(NBTTagCompound nbt) {
+        public GuiSignalModeConfigurationThreshold(CompoundTag nbt) {
             super(nbt);
         }
         
@@ -760,21 +761,21 @@ public enum SignalMode {
         
         @Override
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInteger("delay", delay);
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("delay", delay);
             return getMode().create(component, delay, nbt, false);
         }
         
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static class GuiSignalModeConfigurationStabilizer extends GuiSignalModeConfiguration {
         
         public GuiSignalModeConfigurationStabilizer(int delay) {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationStabilizer(NBTTagCompound nbt) {
+        public GuiSignalModeConfigurationStabilizer(CompoundTag nbt) {
             super(nbt);
         }
         
@@ -790,8 +791,8 @@ public enum SignalMode {
         
         @Override
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInteger("delay", delay);
+            CompoundTag nbt = new CompoundTag();
+            nbt.putInt("delay", delay);
             return getMode().create(component, delay, nbt, false);
         }
         

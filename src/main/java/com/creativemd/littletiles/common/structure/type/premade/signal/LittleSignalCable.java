@@ -8,8 +8,6 @@ import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.network.ISignalStructureTransmitter;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -19,6 +17,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.network.ISignalStructureTransmitter;
 
 public class LittleSignalCable extends LittleSignalCableBase implements ISignalStructureTransmitter {
     

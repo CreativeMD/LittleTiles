@@ -1,11 +1,11 @@
-package com.creativemd.littletiles.common.structure.signal.logic;
+package team.creative.littletiles.common.structure.signal.logic;
 
 import java.text.ParseException;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionOperator;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionOperator;
 
 public enum SignalLogicOperator {
     

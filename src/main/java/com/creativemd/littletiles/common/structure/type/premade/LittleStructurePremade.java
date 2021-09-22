@@ -17,7 +17,6 @@ import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.LittleStructureTypeParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable.LittleStructureTypeCable;
@@ -45,6 +44,7 @@ import team.creative.littletiles.common.structure.registry.LittleStructureGuiPar
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public abstract class LittleStructurePremade extends LittleStructure {
     

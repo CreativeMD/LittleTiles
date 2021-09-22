@@ -1,15 +1,15 @@
-package com.creativemd.littletiles.common.structure.signal.input;
+package team.creative.littletiles.common.structure.signal.input;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.SignalUtils;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalPatternParser;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.signal.SignalUtils;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
 public class SignalInputVariable extends SignalInputCondition {
     

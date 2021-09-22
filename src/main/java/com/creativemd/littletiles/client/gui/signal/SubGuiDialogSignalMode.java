@@ -10,9 +10,10 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.IConditionConfiguration;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
+
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
 public class SubGuiDialogSignalMode extends SubGui {
     

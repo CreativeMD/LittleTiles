@@ -17,10 +17,6 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -47,6 +43,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.network.SignalNetwork;
 
 public abstract class LittleSignalCableBase extends LittleStructurePremade implements ISignalStructureBase {
     

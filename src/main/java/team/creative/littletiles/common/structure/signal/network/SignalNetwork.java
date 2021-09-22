@@ -1,18 +1,17 @@
-package com.creativemd.littletiles.common.structure.signal.network;
+package team.creative.littletiles.common.structure.signal.network;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
-import com.creativemd.littletiles.common.structure.signal.schedule.ISignalSchedulable;
-
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
 
 public class SignalNetwork implements ISignalSchedulable {
     
@@ -78,13 +77,13 @@ public class SignalNetwork implements ISignalSchedulable {
     }
     
     @Override
-    public World getWorld() {
+    public Level getComponentLevel() {
         if (!inputs.isEmpty())
-            return inputs.get(0).getStructureWorld();
+            return inputs.get(0).getStructureLevel();
         if (!outputs.isEmpty())
-            return outputs.get(0).getStructureWorld();
+            return outputs.get(0).getStructureLevel();
         if (!transmitters.isEmpty())
-            return transmitters.get(0).getStructureWorld();
+            return transmitters.get(0).getStructureLevel();
         return null;
     }
     
@@ -151,7 +150,7 @@ public class SignalNetwork implements ISignalSchedulable {
         while (connections.hasNext())
             add(connections.next());
         
-        switch (base.getType()) {
+        switch (base.getComponentType()) {
         case INPUT:
             inputs.add((ISignalStructureComponent) base);
             forceUpdate = true;
@@ -194,7 +193,7 @@ public class SignalNetwork implements ISignalSchedulable {
     public boolean remove(ISignalStructureBase base) {
         base.setNetwork(null);
         
-        switch (base.getType()) {
+        switch (base.getComponentType()) {
         case INPUT:
             inputs.remove(base);
             schedule();

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.signal.schedule;
+package team.creative.littletiles.common.structure.signal.schedule;
 
 public interface ISignalScheduleTicket {
     

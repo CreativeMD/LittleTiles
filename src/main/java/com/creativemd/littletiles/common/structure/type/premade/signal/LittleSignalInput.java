@@ -14,8 +14,6 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
@@ -31,6 +29,8 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 
 public class LittleSignalInput extends LittleSignalCableBase implements ISignalStructureComponent {
     

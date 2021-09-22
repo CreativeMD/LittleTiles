@@ -10,7 +10,6 @@ import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -29,6 +28,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 
 public class LittleLight extends LittleStructure {
     

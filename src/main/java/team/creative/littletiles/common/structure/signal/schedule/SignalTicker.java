@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.signal.schedule;
+package team.creative.littletiles.common.structure.signal.schedule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,22 +6,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
-
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
 public class SignalTicker {
     
-    private static HashMap<World, SignalTicker> tickers = new HashMap<>();
+    private static HashMap<Level, SignalTicker> tickers = new HashMap<>();
     private static List<SignalScheduleTicket> unsortedTickets = new ArrayList<>();
     public static final int queueLength = 20;
     
@@ -30,47 +29,47 @@ public class SignalTicker {
             return;
         for (Iterator<SignalScheduleTicket> iterator = unsortedTickets.iterator(); iterator.hasNext();) {
             SignalScheduleTicket ticket = iterator.next();
-            World world = ticket.getWorld();
-            if (world != null) {
-                get(world).openTicket(ticket);
+            Level level = ticket.getLevel();
+            if (level != null) {
+                get(level).openTicket(ticket);
                 iterator.remove();
             }
         }
     }
     
     public static synchronized List<ISignalScheduleTicket> findTickets(ISignalComponent component, SignalOutputHandler condition) {
-        World world = component.getStructureWorld();
-        if (world != null && !world.isRemote)
-            return get(world).findTickets(condition);
+        Level level = component.getStructureLevel();
+        if (level != null && !level.isClientSide)
+            return get(level).findTickets(condition);
         return Collections.EMPTY_LIST;
     }
     
     public static synchronized SignalTicker get(ISignalComponent component) {
-        return get(component.getStructureWorld());
+        return get(component.getStructureLevel());
     }
     
-    public static synchronized SignalTicker get(World world) {
-        if (world.isRemote)
+    public static synchronized SignalTicker get(Level level) {
+        if (level.isClientSide)
             throw new RuntimeException("Client should never ask for a signal ticker");
-        if (world instanceof IOrientatedWorld)
-            world = ((IOrientatedWorld) world).getRealWorld();
-        SignalTicker ticker = tickers.get(world);
+        if (level instanceof IOrientatedLevel)
+            level = ((IOrientatedLevel) level).getRealLevel();
+        SignalTicker ticker = tickers.get(level);
         if (ticker == null) {
-            ticker = new SignalTicker(world);
-            tickers.put(world, ticker);
+            ticker = new SignalTicker(level);
+            tickers.put(level, ticker);
         }
         return ticker;
     }
     
-    public static void schedule(World world, ISignalSchedulable schedulable) {
-        if (world == null)
+    public static void schedule(Level level, ISignalSchedulable schedulable) {
+        if (level == null)
             return;
-        get(world).schedule(schedulable);
+        get(level).schedule(schedulable);
     }
     
     public static ISignalScheduleTicket schedule(SignalOutputHandler handler, boolean[] result, int tick) {
-        World world = handler.component.getStructureWorld();
-        if (world == null) {
+        Level level = handler.component.getStructureLevel();
+        if (level == null) {
             SignalScheduleTicket ticket = new SignalScheduleTicket(handler, result, tick);
             unsortedTickets.add(ticket);
             return ticket;
@@ -80,18 +79,18 @@ public class SignalTicker {
     
     private static synchronized void unload(SignalTicker ticker) {
         MinecraftForge.EVENT_BUS.unregister(ticker);
-        tickers.remove(ticker.world);
+        tickers.remove(ticker.level);
     }
     
-    public final World world;
+    public final Level level;
     private int queueIndex;
     private List<ISignalSchedulable> scheduled = new ArrayList<>();
     private List<SignalScheduleTicket>[] queue;
     
     private List<SignalScheduleTicket> longQueue = new ArrayList<>();
     
-    protected SignalTicker(World world) {
-        this.world = world;
+    protected SignalTicker(Level level) {
+        this.level = level;
         queue = new List[queueLength];
         for (int i = 0; i < queue.length; i++)
             queue[i] = new ArrayList<>();
@@ -101,7 +100,7 @@ public class SignalTicker {
     
     @SubscribeEvent
     public synchronized void tick(WorldTickEvent event) {
-        if (event.phase == Phase.END && world == event.world) {
+        if (event.phase == Phase.END && level == event.world) {
             
             for (int i = 0; i < scheduled.size(); i++)
                 try {
@@ -129,8 +128,8 @@ public class SignalTicker {
     }
     
     @SubscribeEvent
-    public void worldUnload(WorldEvent.Unload event) {
-        if (event.getWorld() == world)
+    public void levelUnload(WorldEvent.Unload event) {
+        if (event.getWorld() == level)
             unload(this);
     }
     

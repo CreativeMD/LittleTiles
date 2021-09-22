@@ -16,17 +16,17 @@ import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.littletiles.client.gui.signal.GuiSignalController.GeneratePatternException;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
 import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
 public class SubGuiDialogSignal extends SubGui {
     

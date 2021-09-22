@@ -13,12 +13,13 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTran
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.signal.GuiSignalController.GuiSignalNodeInput;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalPatternParser;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
+
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
 
 public class SubGuiDialogSignalInput extends SubGui {
     

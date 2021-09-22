@@ -7,7 +7,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -29,6 +28,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 
 public class LittleStructureMessage extends LittleStructure {
     

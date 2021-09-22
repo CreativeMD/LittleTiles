@@ -16,27 +16,27 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableEquation;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableOperator;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariablePattern;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalLogicOperator.SignalInputConditionOperatorStackable;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalPatternParser;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndexRange;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndexSingle;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildCustomIndex;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildIndex;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildIndexRange;
 
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputVariable;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
+import team.creative.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableEquation;
+import team.creative.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableOperator;
+import team.creative.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariablePattern;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator.SignalInputConditionOperatorStackable;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndexRange;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndexSingle;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildCustomIndex;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildIndex;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChildIndexRange;
 
 public class GuiSignalController extends GuiParent {
     

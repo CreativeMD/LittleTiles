@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.signal.component;
+package team.creative.littletiles.common.structure.signal.component;
 
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;

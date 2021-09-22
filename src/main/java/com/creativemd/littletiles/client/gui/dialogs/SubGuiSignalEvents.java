@@ -19,19 +19,19 @@ import com.creativemd.littletiles.client.gui.signal.SubGuiDialogSignal.IConditio
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
-import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
-import com.creativemd.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
-import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
+import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
+import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
 public class SubGuiSignalEvents extends SubGui {
     

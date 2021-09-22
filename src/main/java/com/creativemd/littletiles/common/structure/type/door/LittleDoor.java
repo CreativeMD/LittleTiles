@@ -17,7 +17,6 @@ import com.creativemd.littletiles.common.structure.animation.event.AnimationEven
 import com.creativemd.littletiles.common.structure.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -35,6 +34,7 @@ import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionException.LittleActionExceptionHidden;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 
 public abstract class LittleDoor extends LittleStructure {
     

@@ -1,20 +1,20 @@
-package com.creativemd.littletiles.common.structure.signal.output;
+package team.creative.littletiles.common.structure.signal.output;
 
 import java.text.ParseException;
 import java.util.Arrays;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.packet.LittleUpdateOutputPacket;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.signal.component.InternalSignal;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.input.SignalInputCondition;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalMode.SignalOutputHandlerToggle;
 
-import net.minecraft.nbt.NBTTagCompound;
-import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
+import net.minecraft.nbt.CompoundTag;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
+import team.creative.littletiles.common.structure.signal.component.InternalSignal;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode.SignalOutputHandlerToggle;
 
 public class InternalSignalOutput extends InternalSignal<InternalComponentOutput> {
     
@@ -34,19 +34,20 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
         parent.performInternalOutputChange(this);
         parent.schedule();
         if (syncToClient)
-            PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateOutputPacket(parent.getStructureLocation(), component.index, getState()), getStructureWorld(), parent.getPos(), null);
+            PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateOutputPacket(parent.getStructureLocation(), component.index, getState()), getStructureWorld(), parent
+                    .getPos(), null);
     }
     
     @Override
-    public SignalComponentType getType() {
+    public SignalComponentType getComponentType() {
         return SignalComponentType.OUTPUT;
     }
     
     @Override
-    public void load(NBTTagCompound nbt) {
-        BooleanUtils.intToBool(nbt.getInteger("state"), getState());
+    public void load(CompoundTag nbt) {
+        BooleanUtils.intToBool(nbt.getInt("state"), getState());
         try {
-            if (nbt.hasKey("con"))
+            if (nbt.contains("con"))
                 condition = SignalInputCondition.parseInput(nbt.getString("con"));
             else
                 condition = null;
@@ -54,22 +55,22 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
             condition = null;
         }
         SignalMode mode = defaultMode;
-        if (nbt.hasKey("mode"))
+        if (nbt.contains("mode"))
             mode = SignalMode.valueOf(nbt.getString("mode"));
-        int delay = nbt.getInteger("delay");
+        int delay = nbt.getInt("delay");
         if (condition != null)
-            delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInteger("delay"));
+            delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInt("delay"));
         handler = SignalOutputHandler.create(this, mode, delay, nbt, parent);
     }
     
     @Override
-    public NBTTagCompound write(boolean preview, NBTTagCompound nbt) {
-        nbt.setInteger("state", BooleanUtils.boolToInt(getState()));
+    public CompoundTag write(boolean preview, CompoundTag nbt) {
+        nbt.putInt("state", BooleanUtils.boolToInt(getState()));
         if (condition != null)
-            nbt.setString("con", condition.write());
-        nbt.setString("mode", handler == null ? defaultMode.name() : handler.getMode().name());
+            nbt.putString("con", condition.write());
+        nbt.putString("mode", handler == null ? defaultMode.name() : handler.getMode().name());
         if (handler != null) {
-            nbt.setInteger("delay", handler.delay);
+            nbt.putInt("delay", handler.delay);
             handler.write(preview, nbt);
         }
         return nbt;

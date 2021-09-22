@@ -1,10 +1,9 @@
-package com.creativemd.littletiles.common.structure.signal.component;
+package team.creative.littletiles.common.structure.signal.component;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
-
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType.InternalComponent;
 
 public abstract class InternalSignal<T extends InternalComponent> implements ISignalComponent {
     
@@ -18,14 +17,14 @@ public abstract class InternalSignal<T extends InternalComponent> implements ISi
         this.state = new boolean[component.bandwidth];
     }
     
-    public abstract void load(NBTTagCompound nbt);
+    public abstract void load(CompoundTag nbt);
     
     @Override
     public boolean[] getState() {
         return state;
     }
     
-    public abstract NBTTagCompound write(boolean preview, NBTTagCompound nbt);
+    public abstract CompoundTag write(boolean preview, CompoundTag nbt);
     
     @Override
     public int getBandwidth() {
@@ -38,9 +37,9 @@ public abstract class InternalSignal<T extends InternalComponent> implements ISi
     }
     
     @Override
-    public World getStructureWorld() {
+    public Level getStructureLevel() {
         if (parent.mainBlock != null)
-            return parent.getWorld();
+            return parent.getLevel();
         return null;
     }
     

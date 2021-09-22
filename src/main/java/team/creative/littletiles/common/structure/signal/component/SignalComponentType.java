@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.signal.component;
+package team.creative.littletiles.common.structure.signal.component;
 
 public enum SignalComponentType {
     TRANSMITTER,
