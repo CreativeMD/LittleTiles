@@ -283,7 +283,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         VoxelShape shape = Shapes.empty();
         BETiles be = loadBE(level, pos);
         if (be != null) {
-            for (Pair<IParentCollection, LittleTile> pair : be.allTileTypes()) {
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                 if (pair.key.isStructure() && LittleStructureAttribute.lightEmitter(pair.key.getAttribute()))
                     continue;
                 if (pair.value.block.isTranslucent())
@@ -525,7 +525,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         if (LittleTiles.CONFIG.rendering.enableRandomDisplayTick) {
             BETiles be = loadBE(level, pos);
             if (be != null)
-                for (Pair<IParentCollection, LittleTile> pair : be.allTileTypes())
+                for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
                     pair.value.randomDisplayTick(pair.key, rand);
         }
     }
@@ -554,7 +554,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         BETiles be = loadBE(level, pos);
         if (be != null && entity != null && entity.getBoundingBox() != null) {
             AABB bb = entity.getBoundingBox().move(0, -0.001, 0);
-            for (Pair<IParentCollection, LittleTile> pair : be.allTileTypes()) {
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                 if (pair.value.intersectsWith(bb, pair.key)) {
                     slipperiness = Math.min(slipperiness, pair.value.getFriction(level, pos, entity));
                     found = true;

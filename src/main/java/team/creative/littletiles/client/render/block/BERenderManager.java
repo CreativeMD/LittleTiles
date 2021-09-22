@@ -1,19 +1,20 @@
-package com.creativemd.littletiles.client.render.world;
+package team.creative.littletiles.client.render.block;
 
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.structure.LittleStructure;
 
-@SideOnly(Side.CLIENT)
-public class TileEntityRenderManager {
+@OnlyIn(Dist.CLIENT)
+public class BERenderManager {
     
-    private TileEntityLittleTiles te;
+    private BETiles be;
     
     private int requestedIndex = -1;
     private int finishedIndex = -1;
@@ -26,18 +27,18 @@ public class TileEntityRenderManager {
     public boolean hasNeighbourChanged = false;
     
     private double cachedRenderDistance = 0;
-    private AxisAlignedBB cachedRenderBoundingBox = null;
+    private AABB cachedRenderBoundingBox = null;
     private boolean requireRenderingBoundingBoxUpdate = false;
     
     private final LayeredRenderBufferCache bufferCache = new LayeredRenderBufferCache();
     private final LayeredRenderBoxCache boxCache = new LayeredRenderBoxCache();
     
-    public TileEntityRenderManager(TileEntityLittleTiles te) {
-        this.te = te;
+    public BERenderManager(BETiles be) {
+        this.be = be;
     }
     
-    public void setTe(TileEntityLittleTiles te) {
-        this.te = te;
+    public void setTe(BETiles be) {
+        this.be = be;
     }
     
     public boolean isInQueue() {
@@ -75,14 +76,14 @@ public class TileEntityRenderManager {
     public double getMaxRenderDistanceSquared() {
         if (cachedRenderDistance == 0) {
             double renderDistance = 5 * 5; // 512 blocks
-            for (LittleStructure structure : te.rendering())
+            for (LittleStructure structure : be.rendering())
                 renderDistance = Math.max(renderDistance, structure.getMaxRenderDistanceSquared());
             cachedRenderDistance = renderDistance;
         }
         return cachedRenderDistance;
     }
     
-    public AxisAlignedBB getRenderBoundingBox() {
+    public AABB getRenderBoundingBox() {
         if (requireRenderingBoundingBoxUpdate || cachedRenderBoundingBox == null) {
             double minX = Double.MAX_VALUE;
             double minY = Double.MAX_VALUE;
@@ -91,8 +92,8 @@ public class TileEntityRenderManager {
             double maxY = -Double.MAX_VALUE;
             double maxZ = -Double.MAX_VALUE;
             boolean found = false;
-            for (LittleStructure structure : te.rendering()) {
-                AxisAlignedBB box = structure.getRenderBoundingBox();
+            for (LittleStructure structure : be.rendering()) {
+                AABB box = structure.getRenderBoundingBox();
                 if (box == null)
                     continue;
                 box = box.offset(te.getPos());
@@ -105,9 +106,9 @@ public class TileEntityRenderManager {
                 found = true;
             }
             if (found)
-                cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+                cachedRenderBoundingBox = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
             else
-                cachedRenderBoundingBox = new AxisAlignedBB(te.getPos());
+                cachedRenderBoundingBox = new AABB(be.getPos());
             
             requireRenderingBoundingBoxUpdate = false;
         }
@@ -123,7 +124,7 @@ public class TileEntityRenderManager {
         synchronized (this) {
             requestedIndex++;
             if (!queued) {
-                if (RenderingThread.addCoordToUpdate(te))
+                if (RenderingThread.addCoordToUpdate(be))
                     queued = true;
             }
         }

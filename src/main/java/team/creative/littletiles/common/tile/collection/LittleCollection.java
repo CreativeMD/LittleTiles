@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.tile.LittleTile;
 
@@ -132,9 +133,9 @@ public class LittleCollection implements Iterable<LittleTile> {
         };
     }
     
-    public void combineBlockwise() {
+    public void combineBlockwise(LittleGrid grid) {
         for (LittleTile tile : content)
-            tile.combineBlockwise();
+            tile.combineBlockwise(grid);
     }
     
     public boolean isEmpty() {
@@ -143,6 +144,10 @@ public class LittleCollection implements Iterable<LittleTile> {
     
     public int size() {
         return content.size();
+    }
+    
+    public LittleTile first() {
+        return content.get(0);
     }
     
 }

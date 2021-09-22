@@ -41,6 +41,7 @@ import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -430,7 +431,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     // ================Save and loading================
     
-    public void loadFromNBT(NBTTagCompound nbt) {
+    public void loadFromNBT(CompoundTag nbt) {
         blocks.clear();
         
         // LoadTiles
@@ -544,7 +545,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return nbt;
     }
     
-    public void writeToNBT(NBTTagCompound nbt) {
+    public void writeToNBT(CompoundTag nbt) {
         
         // Save family (parent and children)
         if (parent != null)

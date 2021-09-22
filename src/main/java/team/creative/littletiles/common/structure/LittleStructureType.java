@@ -33,7 +33,6 @@ import team.creative.littletiles.common.structure.registry.IStructureIngredientR
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule;
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScaler;
 import team.creative.littletiles.common.tile.group.LittleGroup;
-import team.creative.littletiles.common.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class LittleStructureType {
@@ -133,7 +132,7 @@ public class LittleStructureType {
         return false;
     }
     
-    public void addIngredients(LittleGroupHolder group, LittleIngredients ingredients) {
+    public void addIngredients(LittleGroup group, LittleIngredients ingredients) {
         if (ingredientRules != null)
             for (IStructureIngredientRule rule : ingredientRules)
                 rule.add(group, ingredients);

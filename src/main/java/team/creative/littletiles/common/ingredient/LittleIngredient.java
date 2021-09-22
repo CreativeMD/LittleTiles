@@ -59,7 +59,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             group.getStructureType().addIngredients(group, ingredients);
         
         if (group.hasChildren())
-            for (LittleGroup child : group.children())
+            for (LittleGroup child : group.children)
                 extract(ingredients, child, onlyStructure);
     }
     
@@ -87,8 +87,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         ILittlePlacer tile = PlacementHelper.getLittleInterface(stack);
         
         if (tile != null) {
-            if (useLTStructures && tile.hasLittlePreview(stack) && tile.containsIngredients(stack))
-                extract(ingredients, tile.getLittlePreview(stack), false);
+            if (useLTStructures && tile.hasTiles(stack) && tile.containsIngredients(stack))
+                extract(ingredients, tile.getTiles(stack), false);
         } else
             for (IngredientConvertionHandler handler : converationHandlers)
                 ingredients.add(handler.extract(stack));

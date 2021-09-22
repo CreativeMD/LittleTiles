@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
@@ -45,18 +44,24 @@ import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.render.block.BERenderManager;
+import team.creative.littletiles.client.render.block.TileEntityRenderManager;
 import team.creative.littletiles.common.api.block.ILittleBlockEntity;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.grid.IGridBased;
@@ -86,7 +91,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public final SideSolidCache sideCache = new SideSolidCache();
     
     @OnlyIn(Dist.CLIENT)
-    public TileEntityRenderManager render;
+    public BERenderManager render;
     
     public BETiles(BlockPos pos, BlockState state) {
         super(LittleTiles.BE_TILES_TYPE, pos, state);
@@ -99,22 +104,27 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
                     field.set(this, field.get(te));
             setWorld(te.getWorld());
             tiles.te = this;
-            if (isClientSide())
+            if (isClient())
                 render.setTe(this);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
     
+    private boolean isClient() {
+        if (level != null)
+            return level.isClientSide;
+    }
+    
     private void init() {
-        tiles = new TileList(this, isClientSide());
-        if (isClientSide())
+        tiles = new BlockParentCollection(this, isClient());
+        if (isClient())
             initClient();
     }
     
     @OnlyIn(Dist.CLIENT)
     private void initClient() {
-        this.render = new TileEntityRenderManager(this);
+        this.render = new BERenderManager(this);
     }
     
     @Override
@@ -124,7 +134,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     
     @Override
     public void convertTo(LittleGrid to) {
-        for (Pair<IParentCollection, LittleTile> pair : tiles.allTileTypes())
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             pair.value.convertTo(grid, to);
         
         this.grid = to;
@@ -133,7 +143,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     @Override
     public int getSmallest() {
         int size = LittleGrid.min().count;
-        for (Pair<IParentCollection, LittleTile> pair : tiles.allTileTypes())
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             size = Math.max(size, pair.value.getSmallest(grid));
         return size;
     }
@@ -167,7 +177,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return tiles.hasCollisionListener();
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void updateQuadCache(Object chunk) {
         if (tiles == null)
             return;
@@ -175,10 +185,10 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public void updateLighting() {
-        world.checkLight(getPos());
+        level.getLightEngine().checkBlock(getBlockPos());
     }
     
-    public TileEntityLittleTiles forceSupportAttribute(int attribute) {
+    public BETiles forceSupportAttribute(int attribute) {
         boolean rendered = tiles.hasRendered() | LittleStructureAttribute.tickRendering(attribute);
         boolean ticking = tiles.hasTicking() | LittleStructureAttribute.ticking(attribute);
         if (ticking != isTicking() || rendered != isRendered()) {
@@ -206,7 +216,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     protected void customTilesUpdate() {
-        if (world.isRemote)
+        if (level.isClientSide)
             return;
         boolean rendered = tiles.hasRendered();
         boolean ticking = tiles.hasTicking();
@@ -233,7 +243,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public void onNeighbourChanged() {
-        if (isClientSide())
+        if (isClient())
             render.neighborChanged();
         
         notifyStructure();
@@ -254,21 +264,21 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         
         sideCache.reset();
         
-        if (world != null) {
+        if (level != null) {
             updateBlock();
             if (updateNeighbour)
                 updateNeighbour();
             updateLighting();
         }
         
-        if (isClientSide())
+        if (isClient())
             render.tilesChanged();
         
-        if (!world.isRemote && tiles.isCompletelyEmpty())
-            world.setBlockToAir(getPos());
+        if (!level.isClientSide && tiles.isCompletelyEmpty())
+            level.setBlockAndUpdate(getBlockPos(), Blocks.AIR.defaultBlockState());
         
-        if (world instanceof CreativeWorld)
-            ((CreativeWorld) world).hasChanged = true;
+        if (level instanceof CreativeLevel)
+            ((CreativeLevel) level).hasChanged = true;
         
         customTilesUpdate();
     }
@@ -289,41 +299,23 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public boolean convertBlockToVanilla() {
         LittleTile firstTile = null;
         if (tiles.isCompletelyEmpty()) {
-            world.setBlockToAir(pos);
+            level.setBlock(getBlockPos(), Blocks.AIR.defaultBlockState(), 35);
             return true;
         }
         
-        if (world instanceof IOrientatedWorld || tiles.countStructures() > 0)
+        if (level instanceof IOrientatedLevel || tiles.countStructures() > 0)
             return false;
         
         if (tiles.size() == 1) {
-            if (!tiles.first().canBeConvertedToVanilla() || !tiles.first().doesFillEntireBlock(context))
+            LittleTile first = tiles.first();
+            if (!first.canBeConvertedToVanilla() || !first.doesFillEntireBlock(grid))
                 return false;
             firstTile = tiles.first();
-        } else {
-            boolean[][][] filled = new boolean[context.size][context.size][context.size];
-            for (LittleTile tile : tiles) {
-                if (firstTile == null) {
-                    if (!tile.canBeConvertedToVanilla())
-                        return false;
-                    
-                    firstTile = tile;
-                } else if (!firstTile.canBeCombined(tile) || !tile.canBeCombined(firstTile))
-                    return false;
-                
-                tile.fillInSpace(filled);
-            }
-            
-            for (int x = 0; x < filled.length; x++)
-                for (int y = 0; y < filled[x].length; y++)
-                    for (int z = 0; z < filled[x][y].length; z++)
-                        if (!filled[x][y][z])
-                            return false;
+            level.setBlockAndUpdate(getBlockPos(), firstTile.block.getState());
+            return true;
         }
         
-        world.setBlockState(pos, firstTile.getBlockState());
-        
-        return true;
+        return false;
     }
     
     public boolean isBoxFilled(LittleBox box) {
@@ -343,7 +335,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public void updateNeighbour() {
-        world.notifyNeighborsOfStateChange(getPos(), getBlockType(), true);
+        level.updateNeighborsAt(getBlockPos(), getBlockState().getBlock());
     }
     
     @Override
@@ -352,7 +344,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public double getMaxRenderDistanceSquared() {
         return render.getMaxRenderDistanceSquared();
     }
@@ -363,8 +355,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox() {
+    @OnlyIn(Dist.CLIENT)
+    public AABB getRenderBoundingBox() {
         if (!hasLoaded())
             return super.getRenderBoundingBox();
         return render.getRenderBoundingBox();
@@ -390,7 +382,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     /** Used for rendering */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public boolean shouldSideBeRendered(EnumFacing facing, LittleBoxFace face, LittleTile rendered) {
         face.ensureContext(context);
         
@@ -607,7 +599,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public LittleTileContext getFocusedTile(Player player, float partialTickTime) {
-        if (!isClientSide())
+        if (!isClient())
             return null;
         Vec3d pos = player.getPositionEyes(partialTickTime);
         double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;

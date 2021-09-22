@@ -1,17 +1,18 @@
 package team.creative.littletiles.common.config;
 
-import java.security.Permission;
-
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.common.config.LittleBuildingConfig;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.api.ICreativeConfig;
+import team.creative.creativecore.common.config.premade.Permission;
 import team.creative.creativecore.common.config.sync.ConfigSynchronization;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -36,27 +37,27 @@ public class LittleTilesConfig {
     @CreativeConfig(type = ConfigSynchronization.CLIENT)
     public Rendering rendering = new Rendering();
     
-    public boolean isEditLimited(Player player) {
+    public boolean isEditLimited(ServerPlayer player) {
         return build.get(player).limitEditBlocks;
     }
     
-    public boolean isPlaceLimited(Player player) {
+    public boolean isPlaceLimited(ServerPlayer player) {
         return build.get(player).limitPlaceBlocks;
     }
     
-    public boolean canEditBlock(Player player, BlockState state, BlockPos pos) {
+    public boolean canEditBlock(ServerPlayer player, BlockState state, BlockPos pos) {
         return state.getBlock().getHarvestLevel(state) <= build.get(player).harvestLevelBlock;
     }
     
-    public boolean isTransparencyRestricted(Player player) {
+    public boolean isTransparencyRestricted(ServerPlayer player) {
         return build.get(player).minimumTransparency > 0;
     }
     
-    public boolean isTransparencyEnabled(Player player) {
+    public boolean isTransparencyEnabled(ServerPlayer player) {
         return build.get(player).minimumTransparency < 255;
     }
     
-    public int getMinimumTransparency(Player player) {
+    public int getMinimumTransparency(ServerPlayer player) {
         return build.get(player).minimumTransparency;
     }
     
@@ -64,14 +65,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToConvertBlockException(Player player) {
+        public NotAllowedToConvertBlockException(ServerPlayer player) {
             super("exception.permission.convert");
             config = LittleTiles.CONFIG.build.get(player);
         }
         
         @Override
         public String getLocalizedMessage() {
-            return I18n.translateToLocalFormatted(getMessage(), config.maxAffectedBlocks);
+            return LanguageUtils.translate(getMessage(), config.maxAffectedBlocks);
         }
     }
     
@@ -79,14 +80,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToEditException(Player player) {
+        public NotAllowedToEditException(ServerPlayer player) {
             super("exception.permission.edit");
             config = LittleTiles.CONFIG.build.get(player);
         }
         
         @Override
         public String getLocalizedMessage() {
-            return I18n.translateToLocalFormatted(getMessage(), config.maxEditBlocks);
+            return LanguageUtils.translate(getMessage(), config.maxEditBlocks);
         }
         
     }
@@ -95,14 +96,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceException(Player player) {
+        public NotAllowedToPlaceException(ServerPlayer player) {
             super("exception.permission.place");
             config = LittleTiles.CONFIG.build.get(player);
         }
         
         @Override
         public String getLocalizedMessage() {
-            return I18n.translateToLocalFormatted(getMessage(), config.maxPlaceBlocks);
+            return LanguageUtils.translate(getMessage(), config.maxPlaceBlocks);
         }
         
     }
@@ -115,7 +116,7 @@ public class LittleTilesConfig {
         
         @Override
         public String getLocalizedMessage() {
-            return I18n.translateToLocalFormatted(getMessage(), LittleTiles.CONFIG.general.maxAllowedDensity);
+            return LanguageUtils.translate(getMessage(), LittleTiles.CONFIG.general.maxAllowedDensity);
         }
         
     }
@@ -124,14 +125,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceColorException(Player player) {
+        public NotAllowedToPlaceColorException(ServerPlayer player) {
             super("exception.permission.place.color");
             config = LittleTiles.CONFIG.build.get(player);
         }
         
         @Override
         public String getLocalizedMessage() {
-            return I18n.translateToLocalFormatted(getMessage(), config.minimumTransparency);
+            return LanguageUtils.translate(getMessage(), config.minimumTransparency);
         }
         
     }
@@ -180,7 +181,7 @@ public class LittleTilesConfig {
         public boolean showTooltip = true;
         
         @Override
-        public void configured() {
+        public void configured(Dist side) {
             RenderingThread.initThreads(renderingThreadCount);
         }
     }
@@ -244,7 +245,7 @@ public class LittleTilesConfig {
         public int exponent = 2;
         
         @Override
-        public void configured() {
+        public void configured(Dist side) {
             LittleGrid.loadGrid(base, scale, exponent, LittleTiles.CONFIG.general.defaultSelectedGrid);
             ItemMultiTiles.currentContext = LittleGrid.defaultGrid();
             ItemLittleBag.maxStackSizeOfTiles = ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d;

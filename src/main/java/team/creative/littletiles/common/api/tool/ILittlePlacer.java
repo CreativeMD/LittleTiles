@@ -2,75 +2,74 @@ package team.creative.littletiles.common.api.tool;
 
 import java.util.List;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public interface ILittlePlacer extends ILittleTool {
     
-    public boolean hasLittlePreview(ItemStack stack);
+    public boolean hasTiles(ItemStack stack);
     
-    public LittlePreviews getLittlePreview(ItemStack stack);
+    public LittleGroup getTiles(ItemStack stack);
     
-    public default LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution) {
-        return getLittlePreview(stack);
+    public default LittleGroup getTiles(ItemStack stack, boolean allowLowResolution) {
+        return getTiles(stack);
     }
     
-    public void saveLittlePreview(ItemStack stack, LittlePreviews previews);
+    public void saveTiles(ItemStack stack, LittleGroup group);
     
     @Override
     public default void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        LittlePreviews previews = getLittlePreview(stack, false);
-        if (previews.isEmpty())
+        LittleGroup group = getTiles(stack, false);
+        if (group.isEmpty())
             return;
-        previews.rotatePreviews(rotation, previews.getContext().rotationCenter);
-        saveLittlePreview(stack, previews);
+        group.rotate(rotation, group.getGrid().rotationCenter);
+        saveTiles(stack, group);
     }
     
     @Override
     public default void flip(Player player, ItemStack stack, Axis axis, boolean client) {
-        LittlePreviews previews = getLittlePreview(stack, false);
-        if (previews.isEmpty())
+        LittleGroup group = getTiles(stack, false);
+        if (group.isEmpty())
             return;
-        previews.flipPreviews(axis, previews.getContext().rotationCenter);
-        saveLittlePreview(stack, previews);
+        group.mirror(axis, group.getGrid().rotationCenter);
+        saveTiles(stack, group);
     }
     
-    public default LittleGridContext getPreviewsContext(ItemStack stack) {
-        if (stack.hasTagCompound())
-            return LittleGridContext.get(stack.getTagCompound());
-        return LittleGridContext.get();
+    public default LittleGrid getTilesGrid(ItemStack stack) {
+        if (stack.hasTag())
+            return LittleGrid.get(stack.getTag());
+        return LittleGrid.defaultGrid();
     }
     
     public boolean containsIngredients(ItemStack stack);
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public default float getPreviewAlphaFactor() {
         return 1;
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public default boolean shouldCache() {
         return true;
     }
     
     public default PlacementMode getPlacementMode(ItemStack stack) {
-        if (stack.hasTagCompound())
-            return PlacementMode.getModeOrDefault(stack.getTagCompound().getString("mode"));
+        if (stack.hasTag())
+            return PlacementMode.getModeOrDefault(stack.getTag().getString("mode"));
         return PlacementMode.getDefault();
     }
     
@@ -96,12 +95,12 @@ public interface ILittlePlacer extends ILittleTool {
         return null;
     }
     
-    @SideOnly(Side.CLIENT)
-    public default List<LittleRenderBox> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure")) {
-            LittleStructureType type = LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
+    @OnlyIn(Dist.CLIENT)
+    public default List<LittleRenderBox> getPositingCubes(Level level, BlockPos pos, ItemStack stack) {
+        if (stack.hasTag() && stack.getTag().contains("structure")) {
+            LittleStructureType type = LittleStructureRegistry.getStructureType(stack.getTag().getCompound("structure").getString("id"));
             if (type != null)
-                return type.getPositingCubes(world, pos, stack);
+                return type.getPositingCubes(level, pos, stack);
         }
         return null;
     }

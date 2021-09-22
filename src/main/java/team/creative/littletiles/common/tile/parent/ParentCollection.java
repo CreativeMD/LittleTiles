@@ -23,7 +23,7 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     
     @Override
     protected void added(LittleTile tile) {
-        if (tile.shouldCheckForCollision())
+        if (tile.checkEntityCollision())
             collisionChecks++;
     }
     
@@ -36,7 +36,7 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     
     @Override
     protected void removed(LittleTile tile) {
-        if (tile.shouldCheckForCollision())
+        if (tile.checkEntityCollision())
             collisionChecks--;
     }
     

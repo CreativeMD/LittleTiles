@@ -3,21 +3,21 @@ package com.creativemd.littletiles.client.render.cache;
 import java.nio.ByteBuffer;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.BlockRenderLayer;
+import team.creative.littletiles.client.render.block.BERenderManager;
 
 public class BlockRenderCache {
     
-    public final TileEntityRenderManager manager;
+    public final BERenderManager manager;
     public final int length;
     public final int vertexCount;
     
     public ByteBuffer buffer;
     public BufferLink link;
     
-    public BlockRenderCache(TileEntityRenderManager manager, int layer, IRenderDataCache cache, ByteBuffer buffer) {
+    public BlockRenderCache(BERenderManager manager, int layer, IRenderDataCache cache, ByteBuffer buffer) {
         this.manager = manager;
         this.length = cache.length();
         this.vertexCount = cache.vertexCount();

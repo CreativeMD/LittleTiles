@@ -36,7 +36,6 @@ import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes.SplitRangeBox;
-import team.creative.littletiles.common.tile.BasicCombiner;
 
 public class LittleBox {
     
@@ -669,11 +668,22 @@ public class LittleBox {
     }
     
     public boolean intersectsWith(AABB bb, LittleGrid grid) {
-        return box.maxX > this.minX && box.minX < this.maxX && box.maxY > this.minY && box.minY < this.maxY && box.maxZ > this.minZ && box.minZ < this.maxZ;
+        return bb.maxX > grid.toVanillaGrid(this.minX) && bb.minX < grid.toVanillaGrid(this.maxX) && bb.maxY > grid.toVanillaGrid(this.minY) && bb.minY < grid
+                .toVanillaGrid(this.maxY) && bb.maxZ > grid.toVanillaGrid(this.minZ) && bb.minZ < grid.toVanillaGrid(this.maxZ);
     }
     
     public boolean containsBox(LittleBox box) {
         return this.minX <= box.minX && this.maxX >= box.maxX && this.minY <= box.minY && this.maxY >= box.maxY && this.minZ <= box.minZ && this.maxZ >= box.maxZ;
+    }
+    
+    public void fillInSpace(boolean[][][] filled) {
+        if (!isSolid())
+            return;
+        
+        for (int x = minX; x < maxX; x++)
+            for (int y = minY; y < maxY; y++)
+                for (int z = minZ; z < maxZ; z++)
+                    filled[x][y][z] = true;
     }
     
     public boolean fillInSpaceInaccurate(LittleBox otherBox, boolean[][][] filled) {

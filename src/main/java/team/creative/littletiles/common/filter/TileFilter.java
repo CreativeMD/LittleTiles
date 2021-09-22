@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
-import team.creative.creativecore.common.util.registry.NamedTypeRegistry.RegistryException;
+import team.creative.creativecore.common.util.registry.exception.RegistryException;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.block.entity.BETiles;

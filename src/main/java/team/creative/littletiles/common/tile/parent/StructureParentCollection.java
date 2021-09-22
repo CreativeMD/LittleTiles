@@ -2,8 +2,6 @@ package team.creative.littletiles.common.tile.parent;
 
 import java.security.InvalidParameterException;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 
 import net.minecraft.core.BlockPos;
@@ -13,9 +11,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.connection.IStructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
@@ -23,7 +23,6 @@ import team.creative.littletiles.common.structure.exception.MissingBlockExceptio
 import team.creative.littletiles.common.structure.exception.MissingStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
 
 public class StructureParentCollection extends ParentCollection implements IStructureParentCollection, IStructureConnection {
     
@@ -148,7 +147,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
         Level level = getBE().getLevel();
         
         BlockPos absoluteCoord = getStructurePosition();
-        LevelChunk chunk = level.getChunkFromBlockCoords(absoluteCoord);
+        LevelChunk chunk = level.getChunkAt(absoluteCoord);
         if (WorldUtils.checkIfChunkExists(chunk)) {
             BlockEntity te = level.getBlockEntity(absoluteCoord);
             if (te instanceof BETiles)
@@ -201,7 +200,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     
     @Deprecated
     public void flipForWarpDrive(Axis axis) {
-        relativePos = RotationUtils.flip(relativePos, axis);
+        relativePos = axis.mirror(relativePos);
     }
     
     @Deprecated

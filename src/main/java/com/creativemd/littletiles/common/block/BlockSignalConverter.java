@@ -1,9 +1,7 @@
 package com.creativemd.littletiles.common.block;
 
-import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.core.BlockPos;
@@ -13,16 +11,19 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.Material;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.TESignalConverter;
 
 public class BlockSignalConverter extends BaseContainerBlockEntity {
     
-    public static final PropertyDirection FACING = BlockHorizontal.FACING;
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     
     public BlockSignalConverter() {
-        super(Material.IRON);
+        super(Material.METAL);
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
         setCreativeTab(LittleTiles.littleTab);
     }

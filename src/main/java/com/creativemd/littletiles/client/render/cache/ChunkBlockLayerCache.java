@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
 
 import net.minecraft.client.renderer.BufferBuilder;
+import team.creative.littletiles.client.render.block.BERenderManager;
 
 public class ChunkBlockLayerCache {
     
@@ -42,7 +42,7 @@ public class ChunkBlockLayerCache {
         totalSize = buffer.position();
     }
     
-    public void add(TileEntityRenderManager manager, IRenderDataCache data) {
+    public void add(BERenderManager manager, IRenderDataCache data) {
         synchronized (manager) {
             if (data == null)
                 return;
