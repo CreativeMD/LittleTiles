@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -24,6 +23,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.packet.update.LittleNeighborUpdatePacket;
 
 public class NeighborUpdateOrganizer {
     

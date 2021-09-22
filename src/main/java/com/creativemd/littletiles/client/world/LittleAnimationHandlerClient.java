@@ -16,7 +16,6 @@ import com.creativemd.littletiles.client.event.WheelClick;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleConsumeRightClickEvent;
 import com.creativemd.littletiles.common.world.LittleAnimationHandler;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -67,6 +66,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
 
 @SideOnly(Side.CLIENT)
 public class LittleAnimationHandlerClient extends LittleAnimationHandler {

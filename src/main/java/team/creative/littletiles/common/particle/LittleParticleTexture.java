@@ -1,8 +1,8 @@
-package com.creativemd.littletiles.common.particle;
+package team.creative.littletiles.common.particle;
 
 import java.util.Random;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
 
 public enum LittleParticleTexture {
     
@@ -223,7 +223,7 @@ public enum LittleParticleTexture {
     public abstract void setTextureTick(LittleParticle particle);
     
     public String translatedName() {
-        return GuiControl.translateOrDefault("particle.texture." + name(), name());
+        return LanguageUtils.translateOr("particle.texture." + name(), name());
     }
     
     public static LittleParticleTexture get(String name) {

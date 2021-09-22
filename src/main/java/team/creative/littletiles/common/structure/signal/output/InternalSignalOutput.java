@@ -4,10 +4,10 @@ import java.text.ParseException;
 import java.util.Arrays;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.common.packet.LittleUpdateOutputPacket;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.packet.LittleUpdateOutputPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
 import team.creative.littletiles.common.structure.signal.component.InternalSignal;

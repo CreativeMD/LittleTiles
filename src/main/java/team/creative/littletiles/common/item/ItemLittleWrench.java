@@ -10,8 +10,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
 import com.creativemd.littletiles.common.block.BlockTile.TEResult;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.client.util.ITooltipFlag;
@@ -28,6 +26,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.packet.LittleBlockPacket;
+import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 
 public class ItemLittleWrench extends Item {
     

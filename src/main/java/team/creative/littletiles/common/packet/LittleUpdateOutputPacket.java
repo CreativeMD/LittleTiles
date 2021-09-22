@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.packet;
+package team.creative.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;

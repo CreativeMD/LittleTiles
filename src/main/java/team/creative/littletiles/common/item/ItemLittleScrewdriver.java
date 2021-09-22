@@ -10,7 +10,6 @@ import com.creativemd.littletiles.client.gui.SubGuiScrewdriver;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
-import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
@@ -28,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
 
 public class ItemLittleScrewdriver extends Item implements ILittlePlacer, IItemTooltip {

@@ -10,7 +10,6 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
@@ -33,6 +32,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionException.LittleActionExceptionHidden;
+import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 

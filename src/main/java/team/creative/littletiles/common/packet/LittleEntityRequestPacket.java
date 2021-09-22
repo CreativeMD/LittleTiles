@@ -1,11 +1,10 @@
-package com.creativemd.littletiles.common.packet;
+package team.creative.littletiles.common.packet;
 
 import java.util.Iterator;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Predicate;
@@ -16,42 +15,41 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class LittleEntityFixControllerPacket extends CreativeCorePacket {
+public class LittleEntityRequestPacket extends CreativeCorePacket {
+    
+    public LittleEntityRequestPacket() {
+        
+    }
     
     public UUID uuid;
     public NBTTagCompound nbt;
+    public boolean enteredAsChild;
     
-    public LittleEntityFixControllerPacket(UUID uuid, NBTTagCompound nbt) {
+    public LittleEntityRequestPacket(UUID uuid, NBTTagCompound nbt, boolean enteredAsChild) {
         this.uuid = uuid;
         this.nbt = nbt;
-    }
-    
-    public LittleEntityFixControllerPacket() {
-        
+        this.enteredAsChild = enteredAsChild;
     }
     
     @Override
     public void writeBytes(ByteBuf buf) {
         writeString(buf, uuid.toString());
         writeNBT(buf, nbt);
+        buf.writeBoolean(enteredAsChild);
     }
     
     @Override
     public void readBytes(ByteBuf buf) {
         uuid = UUID.fromString(readString(buf));
         nbt = readNBT(buf);
+        enteredAsChild = buf.readBoolean();
     }
     
     @Override
     public void executeClient(EntityPlayer player) {
         EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
         if (animation != null) {
-            if (nbt.getBoolean("animationHasBeenRemoved")) {
-                animation.destroyAnimation();
-                return;
-            }
-            animation.controller = DoorController.parseController(animation, nbt);
-            animation.updateTickState();
+            updateAnimation(animation);
             return;
         }
         
@@ -66,23 +64,32 @@ public class LittleEntityFixControllerPacket extends CreativeCorePacket {
             Entity entity = iterator.next();
             if (entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid)) {
                 animation = (EntityAnimation) entity;
-                if (nbt.getBoolean("animationHasBeenRemoved")) {
-                    animation.destroyAnimation();
-                    return;
-                }
-                animation.controller = DoorController.parseController(animation, nbt);
-                animation.updateTickState();
+                updateAnimation(animation);
+                if (!animation.isDoorAdded())
+                    animation.addDoor();
                 return;
             }
+        }
+        System.out.println("Entity not found!");
+    }
+    
+    public void updateAnimation(EntityAnimation animation) {
+        animation.isDead = false;
+        if (!this.enteredAsChild || animation.enteredAsChild != this.enteredAsChild) {
+            animation.readFromNBT(nbt);
+            animation.updateTickState();
         }
     }
     
     @Override
     public void executeServer(EntityPlayer player) {
         EntityAnimation animation = WorldAnimationHandler.findAnimation(false, uuid);
-        if (animation != null)
-            PacketHandler.sendPacketToPlayer(new LittleEntityFixControllerPacket(uuid, animation.controller.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) player);
-        else {
+        if (animation != null) {
+            PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation
+                .writeToNBT(new NBTTagCompound()), animation.enteredAsChild), (EntityPlayerMP) player);
+            System.out.println("Sending back request packet");
+        } else {
+            System.out.println("Send back delete packet");
             NBTTagCompound nbt = new NBTTagCompound();
             nbt.setBoolean("animationHasBeenRemoved", true);
             PacketHandler.sendPacketToPlayer(new LittleEntityFixControllerPacket(uuid, nbt), (EntityPlayerMP) player);

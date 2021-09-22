@@ -1,28 +1,28 @@
-package com.creativemd.littletiles.common.packet;
+package team.creative.littletiles.common.packet.update;
 
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.common.network.CreativePacket;
 
-public class LittleBlockUpdatePacket extends CreativeCorePacket {
+public class LittleBlockUpdatePacket extends CreativePacket {
     
     public UUID uuid;
-    public IBlockState state;
+    public BlockState state;
     public BlockPos pos;
     public SPacketUpdateTileEntity packet;
     
@@ -40,38 +40,7 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
     }
     
     @Override
-    public void writeBytes(ByteBuf buf) {
-        writePos(buf, pos);
-        writeState(buf, state);
-        if (packet != null) {
-            buf.writeBoolean(true);
-            writePacket(buf, packet);
-            
-        } else
-            buf.writeBoolean(false);
-        
-        if (uuid != null) {
-            buf.writeBoolean(true);
-            writeString(buf, uuid.toString());
-        } else
-            buf.writeBoolean(false);
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        pos = readPos(buf);
-        state = readState(buf);
-        if (buf.readBoolean())
-            packet = (SPacketUpdateTileEntity) readPacket(buf);
-        
-        if (buf.readBoolean())
-            uuid = UUID.fromString(readString(buf));
-        else
-            uuid = null;
-    }
-    
-    @Override
-    public void executeClient(EntityPlayer player) {
+    public void executeClient(Player player) {
         World world = player.world;
         
         if (uuid != null) {
@@ -91,7 +60,7 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
     }
     
     @Override
-    public void executeServer(EntityPlayer player) {
+    public void executeServer(ServerPlayer player) {
         
     }
 }

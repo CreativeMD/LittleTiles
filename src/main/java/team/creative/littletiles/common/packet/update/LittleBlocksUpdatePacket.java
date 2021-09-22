@@ -1,37 +1,39 @@
-package com.creativemd.littletiles.common.packet;
+package team.creative.littletiles.common.packet.update;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.creativecore.common.network.CreativePacket;
 
-public class LittleBlocksUpdatePacket extends CreativeCorePacket {
+public class LittleBlocksUpdatePacket extends CreativePacket {
     
     public List<BlockPos> positions;
     public List<IBlockState> states;
     public List<SPacketUpdateTileEntity> packets;
     public UUID uuid;
     
-    public LittleBlocksUpdatePacket(World world, Iterable<? extends TileEntity> tileEntities) {
+    public LittleBlocksUpdatePacket(Level level, Iterable<? extends BlockEntity> blockEntities) {
         positions = new ArrayList<>();
         states = new ArrayList<>();
         packets = new ArrayList<>();
         
-        for (TileEntity te : tileEntities) {
+        for (BlockEntity be : blockEntities) {
             positions.add(te.getPos());
             states.add(world.getBlockState(te.getPos()));
             packets.add(te.getUpdatePacket());
@@ -46,48 +48,7 @@ public class LittleBlocksUpdatePacket extends CreativeCorePacket {
     }
     
     @Override
-    public void writeBytes(ByteBuf buf) {
-        buf.writeInt(positions.size());
-        for (int i = 0; i < positions.size(); i++) {
-            writePos(buf, positions.get(i));
-            writeState(buf, states.get(i));
-            if (packets.get(i) != null) {
-                buf.writeBoolean(true);
-                writePacket(buf, packets.get(i));
-            } else
-                buf.writeBoolean(false);
-        }
-        
-        if (uuid != null) {
-            buf.writeBoolean(true);
-            writeString(buf, uuid.toString());
-        } else
-            buf.writeBoolean(false);
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        int size = buf.readInt();
-        positions = new ArrayList<>(size);
-        states = new ArrayList<>(size);
-        packets = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            positions.add(readPos(buf));
-            states.add(readState(buf));
-            if (buf.readBoolean())
-                packets.add((SPacketUpdateTileEntity) readPacket(buf));
-            else
-                packets.add(null);
-        }
-        
-        if (buf.readBoolean())
-            uuid = UUID.fromString(readString(buf));
-        else
-            uuid = null;
-    }
-    
-    @Override
-    public void executeClient(EntityPlayer player) {
+    public void executeClient(Player player) {
         World world = player.world;
         
         if (uuid != null) {
@@ -114,7 +75,7 @@ public class LittleBlocksUpdatePacket extends CreativeCorePacket {
     }
     
     @Override
-    public void executeServer(EntityPlayer player) {
+    public void executeServer(ServerPlayer player) {
         
     }
 }

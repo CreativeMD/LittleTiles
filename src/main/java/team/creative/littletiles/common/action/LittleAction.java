@@ -28,9 +28,6 @@ import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
-import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 
 import net.minecraft.Util;
@@ -68,6 +65,9 @@ import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
+import team.creative.littletiles.common.packet.update.LittleBlockUpdatePacket;
+import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;

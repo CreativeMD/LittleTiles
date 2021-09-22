@@ -19,9 +19,6 @@ import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
-import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -53,6 +50,9 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.packet.LittleBlockPacket;
+import team.creative.littletiles.common.packet.LittleSelectionModePacket;
+import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import team.creative.littletiles.common.placement.PlacementPosition;
 
 public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered, IItemTooltip {

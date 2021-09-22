@@ -1,5 +1,6 @@
 package team.creative.littletiles.client;
 
+import java.lang.reflect.Field;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
@@ -39,6 +40,7 @@ import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -49,6 +51,7 @@ import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.internal.FMLMessage.EntitySpawnMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import net.minecraftforge.fmlclient.registry.IRenderFactory;
 import net.minecraftforge.fmlclient.registry.RenderingRegistry;
@@ -67,13 +70,13 @@ import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 @OnlyIn(Dist.CLIENT)
 public class LittleTilesClient {
     
-    private static Field entityUUIDField = ReflectionHelper.findField(EntitySpawnMessage.class, "entityUUID");
-    private static Field entityIdField = ReflectionHelper.findField(EntityMessage.class, "entityId");
-    private static Field rawXField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawX");
-    private static Field rawYField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawY");
-    private static Field rawZField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawZ");
-    private static Field scaledYawField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledYaw");
-    private static Field scaledPitchField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledPitch");
+    private static Field entityUUIDField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "entityUUID");
+    private static Field entityIdField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "entityId");
+    private static Field rawXField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "rawX");
+    private static Field rawYField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "rawY");
+    private static Field rawZField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "rawZ");
+    private static Field scaledYawField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "scaledYaw");
+    private static Field scaledPitchField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "scaledPitch");
     
     public static final Minecraft mc = Minecraft.getInstance();
     
@@ -103,7 +106,7 @@ public class LittleTilesClient {
         overlay.addMessage(new CompiledActionMessage(message));
     }
     
-    public static void setup() {
+    public void setup() {
         mc.getItemColors().register(new ItemColor() {
             
             @Override
