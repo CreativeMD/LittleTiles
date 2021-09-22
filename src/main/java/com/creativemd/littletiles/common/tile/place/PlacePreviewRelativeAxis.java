@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
+import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public class PlacePreviewRelativeAxis extends PlacePreviewRelative {
     

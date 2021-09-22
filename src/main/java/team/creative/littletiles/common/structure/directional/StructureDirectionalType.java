@@ -233,7 +233,7 @@ public abstract class StructureDirectionalType<T> {
         
     }
     
-    public PlacePreview getPlacePreview(T value, LittleGroup previews, StructureDirectionalField field) {
+    public PlacePreview getPlacePreview(T value, LittleGroup group, StructureDirectionalField field) {
         return null;
     }
     

@@ -15,7 +15,6 @@ import com.creativemd.littletiles.client.gui.controls.GuiTileViewer.GuiTileViewe
 import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -27,6 +26,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public class SubGuiDialogAxis extends SubGui {
     

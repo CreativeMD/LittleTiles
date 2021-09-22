@@ -31,6 +31,7 @@ import com.creativemd.littletiles.common.structure.type.premade.LittleStructureP
 
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.util.type.Pair;
 import team.creative.creativecore.common.util.type.PairList;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.structure.LittleStructure;

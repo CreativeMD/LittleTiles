@@ -16,7 +16,6 @@ import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
-import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierAbsolute;
@@ -59,6 +58,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.tile.LittleTile;
 
 public class EntityAnimation extends Entity {

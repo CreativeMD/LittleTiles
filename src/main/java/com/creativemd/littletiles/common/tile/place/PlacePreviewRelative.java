@@ -6,7 +6,6 @@ import java.util.List;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -15,6 +14,7 @@ import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public class PlacePreviewRelative extends PlacePreview {
     
