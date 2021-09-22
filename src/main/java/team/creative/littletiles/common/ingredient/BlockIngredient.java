@@ -32,7 +32,7 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
     @Override
     public BlockIngredient add(BlockIngredient ingredient) {
         BlockIngredient remaings = null;
-        for (BlockIngredientEntry entry : ingredient.content) {
+        for (Entry<LittleBlock, Double> entry : ingredient.content.entrySet()) {
             BlockIngredientEntry remaing = add(entry);
             if (remaing != null) {
                 if (remaings == null)
@@ -57,7 +57,7 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         return remaings;
     }
     
-    public BlockIngredientEntry add(BlockIngredientEntry ingredient) {
+    public double add(LittleBlock block, double volume) {
         if (ingredient == null || ingredient.isEmpty())
             return null;
         

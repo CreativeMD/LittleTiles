@@ -76,6 +76,7 @@ public class LittleVecAbsolute implements IGridBased {
         return newVec;
     }
     
+    @SuppressWarnings("deprecation")
     public LittleVecGrid getRelative(LittleVecAbsolute pos) {
         forceSameGrid(pos);
         LittleVecGrid newVec = new LittleVecGrid(new LittleVec(getGrid(), this.pos.subtract(pos.pos)), getGrid());

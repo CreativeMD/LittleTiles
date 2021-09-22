@@ -69,6 +69,18 @@ public abstract class ChildrenList<T> implements Iterable<T> {
         return extensions.values();
     }
     
+    public Iterable<Entry<String, T>> extensionEntries() {
+        return extensions.entrySet();
+    }
+    
+    public int sizeChildren() {
+        return children.size();
+    }
+    
+    public int sizeExtensions() {
+        return extensions.size();
+    }
+    
     public int size() {
         return children.size() + extensions.size();
     }

@@ -7,8 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import team.creative.creativecore.common.util.registry.NamedRegistry;
-import team.creative.creativecore.common.util.registry.NamedRegistry.RegistryException;
+import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
+import team.creative.creativecore.common.util.registry.NamedTypeRegistry.RegistryException;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -21,7 +21,7 @@ import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public abstract class TileFilter {
     
-    public static final NamedRegistry<TileFilter> REGISTRY = new NamedRegistry<>();
+    public static final NamedTypeRegistry<TileFilter> REGISTRY = new NamedTypeRegistry<>();
     
     public static TileFilter load(String id, CompoundTag nbt) {
         try {

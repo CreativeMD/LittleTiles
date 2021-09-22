@@ -3,13 +3,6 @@ package com.creativemd.littletiles.common.structure.signal.logic;
 import java.util.Arrays;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.output.SignalOutputHandler;
 import com.creativemd.littletiles.common.structure.signal.schedule.ISignalScheduleTicket;
@@ -20,6 +13,11 @@ import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 
 public enum SignalMode {
     
@@ -164,8 +162,7 @@ public enum SignalMode {
         @SideOnly(Side.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
             parent.addControl(new GuiLabel("length:", 0, 43));
-            parent
-                .addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationPulse ? ((GuiSignalModeConfigurationPulse) configuration).length : 10), 40, 41, 50, 12)
+            parent.addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationPulse ? ((GuiSignalModeConfigurationPulse) configuration).length : 10), 40, 41, 50, 12)
                     .setNumbersOnly());
         }
         
@@ -328,8 +325,7 @@ public enum SignalMode {
         @SideOnly(Side.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
             parent.addControl(new GuiLabel("length:", 0, 43));
-            parent
-                .addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10), 40, 41, 50, 12)
+            parent.addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10), 40, 41, 50, 12)
                     .setNumbersOnly());
         }
         
@@ -405,13 +401,9 @@ public enum SignalMode {
                 stateBefore = new boolean[state.length];
                 result = new boolean[state.length];
             }
-            boolean toggled = false;
             for (int i = 0; i < state.length; i++) {
-                if (!stateBefore[i] && state[i]) {
-                    //Toggle
+                if (!stateBefore[i] && state[i])
                     result[i] = !result[i];
-                    toggled = true;
-                }
                 stateBefore[i] = state[i];
             }
             SignalTicker.schedule(this, result, delay);

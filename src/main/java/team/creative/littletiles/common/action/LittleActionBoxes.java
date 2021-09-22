@@ -1,57 +1,72 @@
-package com.creativemd.littletiles.common.action.block;
+package team.creative.littletiles.common.action;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToEditException;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.network.CanBeNull;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
 public abstract class LittleActionBoxes extends LittleAction {
     
     public LittleBoxes boxes;
+    @CanBeNull
+    public UUID levelUUID;
     
-    public LittleActionBoxes(LittleBoxes boxes) {
+    public LittleActionBoxes(Level level, LittleBoxes boxes) {
         this.boxes = boxes;
+        if (level instanceof CreativeLevel)
+            this.levelUUID = ((CreativeLevel) level).parent.getUUID();
+        else
+            this.levelUUID = null;
     }
     
     public LittleActionBoxes() {
         
     }
     
-    public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException;
+    public abstract void action(Level level, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException;
     
     @Override
-    protected boolean action(EntityPlayer player) throws LittleActionException {
+    public boolean action(Player player) throws LittleActionException {
         if (boxes.isEmpty())
             return false;
         
         boolean placed = false;
-        World world = player.world;
+        Level level = player.level;
+        if (levelUUID != null) {
+            EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
+            if (animation == null)
+                throw new MissingAnimationException(levelUUID);
+            
+            level = animation.fakeWorld;
+        }
         
         if (LittleTiles.CONFIG.isEditLimited(player)) {
-            if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.build.get(player).maxEditBlocks)
+            if (boxes.getSurroundingBox().getPercentVolume(boxes.grid) > LittleTiles.CONFIG.build.get(player).maxEditBlocks)
                 throw new NotAllowedToEditException(player);
         }
         
@@ -87,27 +102,11 @@ public abstract class LittleActionBoxes extends LittleAction {
             
             placed = true;
             
-            action(world, player, pos, state, entry.getValue(), boxes.context);
+            action(world, player, pos, state, entry.getValue(), boxes.grid);
         }
         
         world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
         return placed;
-    }
-    
-    @Override
-    public void writeBytes(ByteBuf buf) {
-        writeBoxes(boxes, buf);
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        boxes = readBoxes(buf);
-    }
-    
-    protected LittleActionBoxes assignFlip(LittleActionBoxes action, Axis axis, LittleBoxAbsolute box) {
-        action.boxes = this.boxes.copy();
-        action.boxes.flip(axis, box);
-        return action;
     }
     
 }

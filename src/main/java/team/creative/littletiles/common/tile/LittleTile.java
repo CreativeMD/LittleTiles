@@ -136,6 +136,14 @@ public final class LittleTile implements Iterable<LittleBox> {
         return boxes.iterator();
     }
     
+    public boolean isEmpty() {
+        return boxes.isEmpty();
+    }
+    
+    public int size() {
+        return boxes.size();
+    }
+    
     public void combine() {
         LittleBoxCombiner.combine(boxes);
     }

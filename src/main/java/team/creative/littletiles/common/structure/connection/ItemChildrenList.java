@@ -14,6 +14,7 @@ public class ItemChildrenList extends ChildrenList<LittleGroup> {
     }
     
     @Override
+    @SuppressWarnings("deprecation")
     protected void added(LittleGroup child) {
         LittleGroup.setGroupParent(child, parent);
     }

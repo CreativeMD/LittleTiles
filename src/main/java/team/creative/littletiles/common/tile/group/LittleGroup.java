@@ -33,6 +33,7 @@ public class LittleGroup extends LittleCollection implements IGridBased {
         this.grid = grid;
         this.structure = structure;
         this.children = new ItemChildrenList(this, children);
+        convertTo(grid);
     }
     
     public LittleGroup getParent() {
@@ -78,6 +79,10 @@ public class LittleGroup extends LittleCollection implements IGridBased {
         return null;
     }
     
+    public CompoundTag getStructureTag() {
+        return structure;
+    }
+    
     public boolean transformable() {
         for (LittleGroup child : children)
             if (!child.transformable())
@@ -91,6 +96,7 @@ public class LittleGroup extends LittleCollection implements IGridBased {
         return true;
     }
     
+    @SuppressWarnings("deprecation")
     public void move(LittleVecGrid vec) {
         if (!transformable())
             throw new RuntimeException("Cannot transform group with links");

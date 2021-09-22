@@ -73,6 +73,8 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.group.LittleGroup;
+import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 import team.creative.littletiles.common.tile.parent.ParentCollection;
 
 public abstract class LittleAction extends CreativePacket {
@@ -316,13 +318,13 @@ public abstract class LittleAction extends CreativePacket {
         return !player.isCreative();
     }
     
-    public static LittleIngredients getIngredients(IParentTileList parent, LittleTile tile) {
+    public static LittleIngredients getIngredients(IParentCollection parent, LittleTile tile) {
         LittlePreviews previews = new LittlePreviews(parent.getContext());
         previews.addTile(parent, tile);
         return getIngredients(previews);
     }
     
-    public static LittleIngredients getIngredients(IParentTileList parent, List<LittleTile> tiles) {
+    public static LittleIngredients getIngredients(IParentCollection parent, List<LittleTile> tiles) {
         LittlePreviews previews = new LittlePreviews(parent.getContext());
         for (LittleTile tile : tiles)
             previews.addTile(parent, tile);
@@ -331,6 +333,10 @@ public abstract class LittleAction extends CreativePacket {
     
     public static LittleIngredients getIngredients(LittleGroup previews) {
         return LittleIngredient.extract(previews);
+    }
+    
+    public static LittleIngredients getIngredients(LittleGroupAbsolute previews) {
+        return LittleIngredient.extract(previews.group);
     }
     
     public static LittleIngredients getIngredients(LittleTile tile, double volume) {

@@ -137,7 +137,7 @@ public class Placement {
         if (blocks.isEmpty())
             return null;
         
-        if (player != null && !world.isRemote) {
+        if (player != null && !level.isClientSide) {
             if (player != null) {
                 if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.build.get(player).maxPlaceBlocks) {
                     for (BlockPos pos : blocks.keySet())

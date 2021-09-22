@@ -88,15 +88,13 @@ public class LittleActionPlace extends LittleAction {
         
         LittleInventory inventory = new LittleInventory(player);
         if (canDrainIngredientsBeforePlacing(player, inventory)) {
-            Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(player.world, previews, previews.pos, mode));
+            Placement placement = new Placement(player, preview);
             PlacementResult placedTiles = placement.place();
             
             if (placedTiles != null) {
-                boxes = placedTiles.placedBoxes;
-                
                 drainIngredientsAfterPlacing(player, inventory, placedTiles, previews);
                 
-                if (!player.world.isRemote) {
+                if (!player.level.isClientSide) {
                     checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
                     checkAndGive(player, inventory, getIngredients(placement.removedTiles));
                 }

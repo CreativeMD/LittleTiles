@@ -5,11 +5,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.action.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.action.LittlePreviews;
-import com.creativemd.littletiles.common.action.NBTTagCompound;
-import com.creativemd.littletiles.common.action.NBTTagList;
-import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
@@ -23,6 +18,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.block.little.LittleBlockRegistry;
 import team.creative.littletiles.common.filter.TileFilter;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -37,7 +33,11 @@ import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.collection.LittleCollection;
 import team.creative.littletiles.common.tile.group.LittleGroup;
+import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.tile.group.LittleGroupHolder;
 
 public class LittlePacketTypes {
     
@@ -95,58 +95,113 @@ public class LittlePacketTypes {
             
         }, StructureLocation.class);
         
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleTile>() {
+            
+            @Override
+            protected void writeContent(LittleTile content, FriendlyByteBuf buffer) {
+                buffer.writeInt(content.size());
+                for (LittleBox box : content)
+                    buffer.writeVarIntArray(box.getArray());
+                buffer.writeUtf(content.block.blockName());
+                buffer.writeInt(content.color);
+            }
+            
+            @Override
+            protected LittleTile readContent(FriendlyByteBuf buffer) {
+                int size = buffer.readInt();
+                List<LittleBox> boxes = new ArrayList<>(size);
+                for (int i = 0; i < size; i++)
+                    boxes.add(LittleBox.create(buffer.readVarIntArray()));
+                return new LittleTile(LittleBlockRegistry.get(buffer.readUtf()), buffer.readInt(), boxes);
+            }
+            
+        }, LittleTile.class);
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleCollection>() {
+            
+            @Override
+            protected void writeContent(LittleCollection content, FriendlyByteBuf buffer) {
+                buffer.writeInt(content.size());
+                for (LittleTile tile : content)
+                    NetworkFieldTypes.write(LittleTile.class, tile, buffer);
+            }
+            
+            @Override
+            protected LittleCollection readContent(FriendlyByteBuf buffer) {
+                int size = buffer.readInt();
+                LittleCollection collection = new LittleCollection();
+                for (int i = 0; i < size; i++)
+                    collection.add(NetworkFieldTypes.read(LittleTile.class, buffer));
+                return collection;
+            }
+            
+        }, LittleGroup.class);
+        
         NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroup>() {
             
             @Override
             protected void writeContent(LittleGroup content, FriendlyByteBuf buffer) {
-                buffer.writeBoolean(previews.isAbsolute());
-                buffer.writeBoolean(previews.hasStructure());
-                if (previews.hasStructure())
-                    writeNBT(buf, previews.structureNBT);
-                if (previews.isAbsolute())
-                    writePos(buf, ((LittleAbsolutePreviews) previews).pos);
+                if (content instanceof LittleGroupHolder)
+                    throw new RuntimeException("LittleGroupHolder cannot be send across the network");
                 
-                writeContext(previews.getContext(), buf);
-                NBTTagCompound nbt = new NBTTagCompound();
-                nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
+                buffer.writeInt(content.children.sizeChildren());
+                for (LittleGroup child : content.children.children())
+                    NetworkFieldTypes.write(LittleGroup.class, child, buffer);
                 
-                NBTTagList children = new NBTTagList();
-                for (LittlePreviews child : previews.getChildren())
-                    children.appendTag(LittlePreview.saveChildPreviews(child));
-                nbt.setTag("children", children);
+                buffer.writeInt(content.getGrid().count);
+                if (content.hasStructure()) {
+                    buffer.writeBoolean(true);
+                    buffer.writeNbt(content.getStructureTag());
+                } else
+                    buffer.writeBoolean(false);
                 
-                writeNBT(buf, nbt);
+                buffer.writeInt(content.size());
+                for (LittleTile tile : content)
+                    NetworkFieldTypes.write(LittleTile.class, tile, buffer);
+                
+                buffer.writeInt(content.children.sizeExtensions());
+                for (Entry<String, LittleGroup> extension : content.children.extensionEntries()) {
+                    buffer.writeUtf(extension.getKey());
+                    NetworkFieldTypes.write(LittleGroup.class, extension.getValue(), buffer);
+                }
             }
             
             @Override
             protected LittleGroup readContent(FriendlyByteBuf buffer) {
-                boolean absolute = buf.readBoolean();
-                boolean structure = buf.readBoolean();
+                int size = buffer.readInt();
+                List<LittleGroup> children = new ArrayList<>(size);
+                for (int i = 0; i < size; i++)
+                    children.add(NetworkFieldTypes.read(LittleGroup.class, buffer));
                 
-                NBTTagCompound nbt;
-                LittlePreviews previews;
-                if (absolute) {
-                    if (structure)
-                        previews = LittleNBTCompressionTools
-                                .readPreviews(new LittleAbsolutePreviews(readNBT(buf), readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
-                    else
-                        previews = LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
-                } else {
-                    if (structure)
-                        previews = LittleNBTCompressionTools.readPreviews(new LittlePreviews(readNBT(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
-                    else
-                        previews = LittleNBTCompressionTools.readPreviews(new LittlePreviews(readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
-                }
+                LittleGrid grid = LittleGrid.get(buffer.readInt());
+                LittleGroup group = new LittleGroup(buffer.readBoolean() ? buffer.readAnySizeNbt() : null, grid, children);
+                int tileCount = buffer.readInt();
+                for (int i = 0; i < tileCount; i++)
+                    group.add(NetworkFieldTypes.read(LittleTile.class, buffer));
                 
-                NBTTagList list = nbt.getTagList("children", 10);
-                for (int i = 0; i < list.tagCount(); i++) {
-                    NBTTagCompound child = list.getCompoundTagAt(i);
-                    previews.addChild(LittlePreviews.getChild(previews.getContext(), child), child.getBoolean("dynamic"));
-                }
-                return previews;
+                int extensionCount = buffer.readInt();
+                for (int i = 0; i < extensionCount; i++)
+                    group.children.addExtension(buffer.readUtf(), NetworkFieldTypes.read(LittleGroup.class, buffer));
+                
+                return group;
             }
             
         }, LittleGroup.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroupAbsolute>() {
+            
+            @Override
+            protected void writeContent(LittleGroupAbsolute content, FriendlyByteBuf buffer) {
+                buffer.writeBlockPos(content.pos);
+                NetworkFieldTypes.write(LittleGroup.class, content.group, buffer);
+            }
+            
+            @Override
+            protected LittleGroupAbsolute readContent(FriendlyByteBuf buffer) {
+                return new LittleGroupAbsolute(buffer.readBlockPos(), NetworkFieldTypes.read(LittleGroup.class, buffer));
+            }
+            
+        }, LittleGroupAbsolute.class);
+        
         NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementMode>() {
             
             @Override
