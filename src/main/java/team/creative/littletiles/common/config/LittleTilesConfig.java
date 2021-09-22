@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.config;
 
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
-import com.creativemd.littletiles.common.config.LittleBuildingConfig;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 import net.minecraft.core.BlockPos;

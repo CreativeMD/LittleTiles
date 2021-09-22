@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.recipe;
+package team.creative.littletiles.common.recipe;
 
 import java.util.Map;
 

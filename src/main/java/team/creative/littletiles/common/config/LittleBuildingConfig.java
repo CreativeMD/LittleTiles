@@ -1,7 +1,7 @@
-package com.creativemd.littletiles.common.config;
+package team.creative.littletiles.common.config;
 
-import com.creativemd.creativecore.common.config.api.CreativeConfig;
-import com.creativemd.creativecore.common.config.converation.ConfigTypeConveration;
+import team.creative.creativecore.common.config.api.CreativeConfig;
+import team.creative.creativecore.common.config.converation.ConfigTypeConveration;
 
 public class LittleBuildingConfig {
     

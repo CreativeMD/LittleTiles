@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
-import com.creativemd.littletiles.common.recipe.BlankOMaticRecipeRegistry;
-import com.creativemd.littletiles.common.recipe.BlankOMaticRecipeRegistry.BleachRecipe;
 import com.creativemd.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -16,6 +14,8 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry;
+import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry.BleachRecipe;
 
 public class SubContainerBlankOMatic extends SubContainer {
     
