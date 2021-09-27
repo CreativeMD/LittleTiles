@@ -1,5 +1,10 @@
 package com.creativemd.littletiles.common.mod.lux;
 
+import java.util.List;
+
+import org.zeith.lux.api.LuxManager;
+import org.zeith.lux.api.light.ILightBlockHandler;
+
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
@@ -8,9 +13,6 @@ import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.zeitheron.hammercore.api.lighting.ColoredLight;
-import com.zeitheron.hammercore.api.lighting.impl.IGlowingBlock;
-import com.zeitheron.lux.api.LuxManager;
-import com.zeitheron.lux.api.light.ILightBlockHandler;
 
 import net.minecraft.tileentity.TileEntity;
 
@@ -25,9 +27,10 @@ public class LuxExtension {
                 
                 for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
                     LittleTile tile = pair.value;
-                    if (tile.getBlock() instanceof IGlowingBlock) {
-                        ColoredLight light = ((IGlowingBlock) tile.getBlock()).produceColoredLight(world, pos, state, e.getPartialTicks());
-                        
+                    List<ColoredLight> lights = LuxManager.getLights(world, pos, tile.getBlockState(), null, e.getPartialTicks());
+                    if (lights.isEmpty())
+                        continue;
+                    for (ColoredLight light : lights) {
                         int color = ColorUtils.RGBAToInt(light.r, light.g, light.b, light.a);
                         if (tile instanceof LittleTileColored)
                             color = ColorUtils.blend(color, ((LittleTileColored) tile).color);

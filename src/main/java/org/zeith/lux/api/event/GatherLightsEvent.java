@@ -1,4 +1,4 @@
-package com.zeitheron.lux.api.event;
+package org.zeith.lux.api.event;
 
 import java.util.ArrayList;
 import java.util.stream.Stream;
