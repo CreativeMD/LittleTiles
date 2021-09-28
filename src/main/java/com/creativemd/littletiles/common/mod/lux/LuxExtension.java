@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.mod.lux;
 import java.util.List;
 
 import org.zeith.lux.api.LuxManager;
+import org.zeith.lux.api.event.ReloadLuxManagerEvent;
 import org.zeith.lux.api.light.ILightBlockHandler;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
@@ -15,10 +16,12 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.zeitheron.hammercore.api.lighting.ColoredLight;
 
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class LuxExtension {
     
-    public static void init() {
+    @SubscribeEvent
+    public static void reloadLux(ReloadLuxManagerEvent event) {
         ILightBlockHandler handler = (world, pos, state, e) -> {
             
             TileEntity tileEntity = world.getTileEntity(pos);
@@ -41,10 +44,10 @@ public class LuxExtension {
                 }
             }
         };
-        LuxManager.registerBlockLight(LittleTiles.blockTileNoTicking, handler);
-        LuxManager.registerBlockLight(LittleTiles.blockTileNoTickingRendered, handler);
-        LuxManager.registerBlockLight(LittleTiles.blockTileTicking, handler);
-        LuxManager.registerBlockLight(LittleTiles.blockTileTickingRendered, handler);
+        event.registerBlockLight(LittleTiles.blockTileNoTicking, handler);
+        event.registerBlockLight(LittleTiles.blockTileNoTickingRendered, handler);
+        event.registerBlockLight(LittleTiles.blockTileTicking, handler);
+        event.registerBlockLight(LittleTiles.blockTileTickingRendered, handler);
     }
     
 }

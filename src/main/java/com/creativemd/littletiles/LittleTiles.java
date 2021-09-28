@@ -615,7 +615,7 @@ public class LittleTiles {
             MinecraftForge.EVENT_BUS.register(AlbedoExtension.class);
         
         if (Loader.isModLoaded("lux"))
-            LuxExtension.init();
+            MinecraftForge.EVENT_BUS.register(LuxExtension.class);
         
         MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
