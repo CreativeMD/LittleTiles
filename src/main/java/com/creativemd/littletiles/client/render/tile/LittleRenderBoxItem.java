@@ -1,34 +1,42 @@
 package com.creativemd.littletiles.client.render.tile;
 
+import static team.creative.creativecore.client.render.box.RenderBox.DOWN;
+import static team.creative.creativecore.client.render.box.RenderBox.EAST;
+import static team.creative.creativecore.client.render.box.RenderBox.NORTH;
+import static team.creative.creativecore.client.render.box.RenderBox.SOUTH;
+import static team.creative.creativecore.client.render.box.RenderBox.UP;
+import static team.creative.creativecore.client.render.box.RenderBox.WEST;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3f;
 
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
-import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.littletiles.common.structure.type.LittleItemHolder;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.mojang.math.Vector3f;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.init.Blocks;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.client.render.model.CreativeBakedQuad;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleRenderBoxItem extends LittleRenderBox {
     
-    private static final Vector3f defaultDirection = new Vector3f(1, 1, 0);
-    private static final Vector3f center = new Vector3f(0.5F, 0.5F, 0.5F);
+    private static final Vec3f defaultDirection = new Vec3f(1, 1, 0);
+    private static final Vec3f center = new Vec3f(0.5F, 0.5F, 0.5F);
     
     public final LittleItemHolder structure;
     
@@ -40,7 +48,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     }
     
     @Override
-    public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
+    public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, BlockState state, IBakedModel blockModel, Facing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
         if (facing != structure.facing)
             return Collections.EMPTY_LIST;
         IBakedModel bakedmodel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(structure.stack, null, null);
@@ -51,7 +59,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
             blockQuads.addAll(newQuads);
         }
         
-        Vector3f topRight = new Vector3f(defaultDirection);
+        Vec3f topRight = new Vec3f(defaultDirection);
         Rotation rotation;
         int rotationSteps = 1;
         boolean flipX = false;
@@ -126,7 +134,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
             for (int k = 0; k < 4; k++) {
                 int index = k * quad.getFormat().getIntegerSize();
                 Vector3f vec = new Vector3f(Float.intBitsToFloat(originalData[index]), Float.intBitsToFloat(originalData[index + 1]), Float
-                    .intBitsToFloat(originalData[index + 2]));
+                        .intBitsToFloat(originalData[index + 2]));
                 
                 vec.sub(center);
                 

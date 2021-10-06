@@ -4,21 +4,21 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
-import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.core.NonNullList;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.common.ingredient.ColorIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.LittleInventory;
 
 public class ItemColorIngredient extends Item implements ILittleIngredientInventory {
     
@@ -132,7 +132,7 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         ColorIngredient color = ingredients.get(ColorIngredient.class);
         if (color != null && type.getIngredient(color) > 0) {
             saveIngredient(stack, color);
-            double stateSize = (double) ColorIngredient.bottleSize / (double) states;
+            double stateSize = (double) ColorIngredient.bottleSize / states;
             int state = Math.min(5, (int) (type.getIngredient(color) / stateSize));
             stack.setItemDamage(state);
             return;

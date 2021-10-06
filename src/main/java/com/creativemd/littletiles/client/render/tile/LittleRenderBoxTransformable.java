@@ -3,14 +3,14 @@ package com.creativemd.littletiles.client.render.tile;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.face.IFaceRenderType;
-import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
-import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.level.block.Block;
+import team.creative.creativecore.client.render.face.IFaceRenderType;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.creativecore.common.util.math.geo.VectorFan;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanFaceCache;
@@ -21,11 +21,11 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     private float inverseScale;
     public VectorFanCache cache;
     
-    public LittleRenderBoxTransformable(AlignedBox cube, LittleGridContext context, LittleTransformableBox box, Block block, int meta) {
+    public LittleRenderBoxTransformable(AlignedBox cube, LittleGrid context, LittleTransformableBox box, Block block, int meta) {
         super(cube, box, block, meta);
         this.cache = box.requestCache();
-        this.scale = (float) context.pixelSize;
-        this.inverseScale = context.size;
+        this.scale = (float) context.pixelLength;
+        this.inverseScale = context.count;
     }
     
     @Override

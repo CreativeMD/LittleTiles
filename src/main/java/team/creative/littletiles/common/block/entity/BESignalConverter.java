@@ -7,9 +7,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.block.BlockSignalConverter;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
-import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
-import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,6 +20,9 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.network.SignalNetwork;
 
 public class BESignalConverter extends BlockEntity implements ISignalStructureComponent {

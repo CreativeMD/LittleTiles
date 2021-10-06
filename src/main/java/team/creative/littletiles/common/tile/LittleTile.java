@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -43,6 +42,7 @@ import team.creative.creativecore.common.util.type.SingletonList;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.LittleBlockRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
@@ -367,12 +367,18 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public final LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer) {
-        return block.getRenderBox(grid, layer);
+    public final List<LittleRenderBox> getRenderBoxes(LittleGrid grid, RenderType layer) {
+        List<LittleRenderBox> render = new ArrayList<>(boxes.size());
+        for (LittleBox box : boxes) {
+            LittleRenderBox renderBox = block.getRenderBox(grid, layer, box, color);
+            if (renderBox != null)
+                render.add(renderBox);
+        }
+        return render;
     }
     
     @OnlyIn(Dist.CLIENT)
-    public RenderBox getPreviewBox(LittleGrid context) {
+    public List<RenderBox> getPreviewBoxes(LittleGrid context) {
         RenderBox cube = box.getRenderingCube(context, getBlock(), getMeta());
         cube.color = color;
         return cube;
@@ -472,7 +478,7 @@ public final class LittleTile implements Iterable<LittleBox> {
     
     @Nullable
     public BlockIngredientEntry getBlockIngredient(LittleGrid context) {
-        return IngredientUtils.getBlockIngredient(getBlock(), getMeta(), getPercentVolume(context));
+        return IngredientUtils.getBlockIngredient(block, getPercentVolume(context));
     }
     
     public PlacePreview getPlaceableTile(LittleVec offset) {

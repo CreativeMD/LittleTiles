@@ -5,32 +5,31 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class ChiselsAndBitsInteractor {
     
-    public static boolean isChiselsAndBitsStructure(IBlockState state) {
+    public static boolean isChiselsAndBitsStructure(BlockState state) {
         Block block = state.getBlock();
         Map blocks = ChiselsAndBits.getBlocks().getConversions();
         for (Iterator iterator = blocks.values().iterator(); iterator.hasNext();) {
@@ -60,7 +59,7 @@ public class ChiselsAndBitsInteractor {
                     IBlockState state = ModUtil.getStateById(blob.get(x, y, z));
                     if (state.getBlock() == Blocks.WATER)
                         state = LittleTiles.dyeableBlockTransparent.getDefaultState()
-                            .withProperty(BlockLittleDyeableTransparent.VARIANT, BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER);
+                                .withProperty(BlockLittleDyeableTransparent.VARIANT, BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER);
                     if (state.getBlock() != Blocks.AIR) {
                         LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
                         tile.setBox(new LittleBox(new LittleVec(x, y, z)));
@@ -88,23 +87,23 @@ public class ChiselsAndBitsInteractor {
         return null;
     }
     
-    public static LittlePreviews getPreviews(TileEntity te) {
+    public static LittlePreviews getPreviews(BlockEntity te) {
         if (te instanceof TileEntityBlockChiseled)
             return getPreviews(((TileEntityBlockChiseled) te).getBlob());
         return null;
     }
     
-    public static boolean isChiselsAndBitsStructure(TileEntity te) {
+    public static boolean isChiselsAndBitsStructure(BlockEntity te) {
         return te instanceof TileEntityBlockChiseled;
     }
     
-    public static List<LittleTile> getTiles(TileEntity te) {
+    public static List<LittleTile> getTiles(BlockEntity te) {
         if (te instanceof TileEntityBlockChiseled)
             return getTiles(((TileEntityBlockChiseled) te).getBlob());
         return null;
     }
     
-    public static VoxelBlob getVoxelBlob(TileEntityLittleTiles te, boolean force) throws Exception {
+    public static VoxelBlob getVoxelBlob(BETiles te, boolean force) throws Exception {
         if (te.getContext().size > ChiselsAndBitsManager.convertingFrom)
             throw new Exception("Invalid grid size of " + te.getContext() + "!");
         

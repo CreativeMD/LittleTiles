@@ -14,7 +14,6 @@ import com.creativemd.littletiles.SideOnly;
 import com.creativemd.littletiles.StructureTileList;
 import com.creativemd.littletiles.SubContainer;
 import com.creativemd.littletiles.SubGui;
-import com.creativemd.littletiles.TileEntityLittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiBlankOMatic;
 import com.creativemd.littletiles.client.gui.SubGuiBuilder;
 import com.creativemd.littletiles.client.gui.SubGuiDiagnose;
@@ -40,8 +39,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.api.ILittleTool;
 import com.creativemd.littletiles.common.block.BlockArrow;
 import com.creativemd.littletiles.common.block.BlockCable;
 import com.creativemd.littletiles.common.block.BlockLTFlowingLava;
@@ -77,27 +74,10 @@ import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.mod.albedo.AlbedoExtension;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mod.warpdrive.TileEntityLittleTilesTransformer;
-import com.creativemd.littletiles.common.packet.LittleActionMessagePacket;
-import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleConsumeRightClickEvent;
-import com.creativemd.littletiles.common.packet.LittleEntityFixControllerPacket;
-import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleResetAnimationPacket;
-import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
-import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
-import com.creativemd.littletiles.common.packet.LittleUpdateOutputPacket;
-import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
-import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
@@ -108,6 +88,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -117,17 +98,17 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fmllegacy.common.registry.GameRegistry;
 import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.entity.TESignalConverter;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemBlockTiles;
@@ -147,12 +128,26 @@ import team.creative.littletiles.common.item.ItemLittleUtilityKnife;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
 import team.creative.littletiles.common.packet.LittleBedPacket;
+import team.creative.littletiles.common.packet.LittleBlockPacket;
+import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
+import team.creative.littletiles.common.packet.LittleEntityFixControllerPacket;
 import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
+import team.creative.littletiles.common.packet.LittleResetAnimationPacket;
+import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
+import team.creative.littletiles.common.packet.LittleSelectionModePacket;
+import team.creative.littletiles.common.packet.LittleUpdateOutputPacket;
+import team.creative.littletiles.common.packet.LittleUpdateStructurePacket;
+import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
+import team.creative.littletiles.common.packet.action.LittleActionMessagePacket;
 import team.creative.littletiles.common.packet.item.LittleMirrorPacket;
 import team.creative.littletiles.common.packet.item.LittleRotatePacket;
+import team.creative.littletiles.common.packet.update.LittleBlockUpdatePacket;
+import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
+import team.creative.littletiles.common.packet.update.LittleNeighborUpdatePacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.tile.LittleTile;
@@ -167,13 +162,16 @@ public class LittleTiles {
     
     public static BlockEntityType BE_SIGNALCONVERTER_TYPE;
     public static BlockEntityType BE_TILES_TYPE;
+    public static BlockEntityType BE_TILES_TYPE_RENDERED;
+    public static BlockEntityType BE_TILES_TYPE_TICKING;
+    public static BlockEntityType BE_TILES_TYPE_TICKING_RENDERED;
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
     
-    public static Block blockTileNoTicking;
+    public static Block blockTile;
     public static Block blockTileTicking;
-    public static Block blockTileNoTickingRendered;
+    public static Block blockTileRendered;
     public static Block blockTileTickingRendered;
     
     public static BlockLittleDyeable dyeableBlock = (BlockLittleDyeable) new BlockLittleDyeable().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock")
@@ -238,11 +236,10 @@ public class LittleTiles {
     }
     
     private void init(final FMLCommonSetupEvent event) {
-        
-        blockTileNoTicking = new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
-        blockTileTicking = new BlockTile(Material.ROCK, true, false).setRegistryName("BlockLittleTilesTicking");
-        blockTileNoTickingRendered = new BlockTile(Material.ROCK, false, true).setRegistryName("BlockLittleTilesRendered");
-        blockTileTickingRendered = new BlockTile(Material.ROCK, true, true).setRegistryName("BlockLittleTilesTickingRendered");
+        blockTile = new BlockTile(Material.STONE, false, false).setRegistryName("tiles");
+        blockTileTicking = new BlockTile(Material.STONE, true, false).setRegistryName("tiles_ticking");
+        blockTileRendered = new BlockTile(Material.STONE, false, true).setRegistryName("tiles_rendered");
+        blockTileTickingRendered = new BlockTile(Material.STONE, true, true).setRegistryName("tiles_ticking_rendered");
         
         hammer = new ItemLittleHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
         recipe = new ItemLittleRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
@@ -274,15 +271,11 @@ public class LittleTiles {
         
         ForgeModContainer.fullBoundingBoxLadders = true;
         
-        BE_TILES_TYPE = BlockEntityType.Builder.of(BETiles::new, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered).build(null)
-                .setRegistryName(MODID, "tiles");
+        BE_TILES_TYPE = BlockEntityType.Builder.of(BETiles::new, blockTile).build(null).setRegistryName(MODID, "tiles");
+        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder.of(BETiles::new, blockTileRendered).build(null).setRegistryName(MODID, "tiles_rendered");
+        BE_TILES_TYPE_TICKING = BlockEntityType.Builder.of(BETiles::new, blockTileTicking).build(null).setRegistryName(MODID, "tiles_ticking");
+        BE_TILES_TYPE_TICKING_RENDERED = BlockEntityType.Builder.of(BETiles::new, blockTileTickingRendered).build(null).setRegistryName(MODID, "tiles_ticking_rendered");
         BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, signalConverter).build(null).setRegistryName(MODID, "converter");
-        
-        GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
-        GameRegistry.registerTileEntity(TileEntityLittleTilesTicking.class, "LittleTilesTileEntityTicking");
-        GameRegistry.registerTileEntity(TileEntityLittleTilesRendered.class, "LittleTilesTileEntityRendered");
-        GameRegistry.registerTileEntity(TileEntityLittleTilesTickingRendered.class, "LittleTilesTileEntityTickingRendered");
-        GameRegistry.registerTileEntity(TESignalConverter.class, new ResourceLocation(modid, "signal_converter"));
         
         GuiHandler.registerGuiHandler("littleStorageStructure", new LittleStructureGuiHandler() {
             
@@ -526,7 +519,7 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleUpdateOutputPacket.class);
         CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
         
-        LittleActionRegistry.register(LittleActions.class);
+        LittleActionRegistry.register(LittleActions.class, LittleActions::new);
         
         LittleAction.registerLittleAction("act", LittleActionActivated.class);
         LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);

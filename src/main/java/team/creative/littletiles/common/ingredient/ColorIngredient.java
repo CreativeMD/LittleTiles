@@ -3,9 +3,9 @@ package team.creative.littletiles.common.ingredient;
 import java.util.List;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.tile.LittleTile;
 
@@ -59,23 +59,17 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     }
     
     @Override
-    public void print(List<String> lines, List<ItemStack> stacks) {
-        if (black > 0) {
-            lines.add(getBlackDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
-        if (cyan > 0) {
-            lines.add(getCyanDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
-        if (magenta > 0) {
-            lines.add(getMagentaDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
-        if (yellow > 0) {
-            lines.add(getYellowDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
+    public TextBuilder toText() {
+        TextBuilder text = new TextBuilder();
+        if (black > 0)
+            text.text(getBlackDescription());
+        if (cyan > 0)
+            text.text(getCyanDescription());
+        if (magenta > 0)
+            text.text(getMagentaDescription());
+        if (yellow > 0)
+            text.text(getYellowDescription());
+        return text;
     }
     
     private static String getUnit(int number) {

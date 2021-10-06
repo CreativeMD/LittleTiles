@@ -35,9 +35,6 @@ import com.creativemd.littletiles.common.tileentity.SideOnly;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.SideState;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
@@ -93,8 +90,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     @OnlyIn(Dist.CLIENT)
     public BERenderManager render;
     
-    public BETiles(BlockPos pos, BlockState state) {
-        super(LittleTiles.BE_TILES_TYPE, pos, state);
+    public BETiles(BlockEntityType<? extends BETiles> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
     
     protected void assign(BETiles te) {
@@ -148,6 +145,16 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return size;
     }
     
+    public static void tickUpdate() {
+        if (!tiles.hasTicking() && !world.isRemote) {
+            customTilesUpdate();
+            System.out.println("Ticking tileentity which shouldn't " + pos);
+            return;
+        }
+        
+        tick();
+    }
+    
     public Iterable<LittleStructure> ticking() {
         return tiles.loadedStructures(LittleStructureAttribute.TICKING);
     }
@@ -192,7 +199,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         boolean rendered = tiles.hasRendered() | LittleStructureAttribute.tickRendering(attribute);
         boolean ticking = tiles.hasTicking() | LittleStructureAttribute.ticking(attribute);
         if (ticking != isTicking() || rendered != isRendered()) {
-            TileEntityLittleTiles newTe;
+            BETiles newTe;
             if (rendered)
                 if (ticking)
                     newTe = new TileEntityLittleTilesTickingRendered();

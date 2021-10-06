@@ -57,7 +57,7 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     
     protected abstract void writeExtra(CompoundTag nbt);
     
-    public Iterable<LittleTile> filter(TileFilter selector) {
+    public Iterable<LittleTile> filter(TileFilters selector) {
         return new Iterable<LittleTile>() {
             
             @Override

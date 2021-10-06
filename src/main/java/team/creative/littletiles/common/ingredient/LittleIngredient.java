@@ -14,10 +14,12 @@ import com.creativemd.littletiles.common.util.place.PlacementHelper;
 
 import net.minecraft.block.BlockAir;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.oredict.DyeUtils;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
@@ -125,7 +127,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 for (BlockIngredientEntry entry : overflow) {
                     double volume = entry.value;
                     if (volume >= 1) {
-                        ItemStack stack = entry.getItemStack();
+                        ItemStack stack = entry.getBlockStack();
                         stack.setCount((int) volume);
                         volume -= stack.getCount();
                         stacks.add(stack);
@@ -133,7 +135,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                     
                     if (volume > 0) {
                         ItemStack stack = new ItemStack(LittleTiles.blockIngredient);
-                        stack.setTagCompound(new NBTTagCompound());
+                        stack.setTag(new CompoundTag());
                         ItemBlockIngredient.saveIngredient(stack, entry);
                         stacks.add(stack);
                     }
@@ -144,7 +146,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             
             @Override
             public BlockIngredient extract(ItemStack stack) {
-                Block block = Block.getBlockFromItem(stack.getItem());
+                Block block = Block.byItem(stack.getItem());
                 if (block != null && !(block instanceof BlockAir) && LittleAction.isBlockValid(BlockUtils.getState(block, stack.getMetadata()))) {
                     BlockIngredient ingredient = new BlockIngredient();
                     ingredient.add(IngredientUtils.getBlockIngredient(block, stack.getMetadata(), 1));
@@ -154,7 +156,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public BlockIngredient extract(LittlePreviews previews) {
+            public BlockIngredient extract(LittleGroup previews) {
                 BlockIngredient ingredient = new BlockIngredient();
                 if (previews.containsIngredients())
                     for (LittlePreview preview : previews)
@@ -166,7 +168,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public BlockIngredient extract(LittlePreview preview, double volume) {
+            public BlockIngredient extract(LittleTile tile, double volume) {
                 BlockIngredient ingredient = new BlockIngredient();
                 BlockIngredientEntry entry = preview.getBlockIngredient(LittleGridContext.get());
                 entry.value = volume;
@@ -183,25 +185,25 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 List<ItemStack> stacks = new ArrayList<>();
                 if (overflow.black > 0) {
                     ItemStack stack = new ItemStack(LittleTiles.blackColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.cyan > 0) {
                     ItemStack stack = new ItemStack(LittleTiles.cyanColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.magenta > 0) {
                     ItemStack stack = new ItemStack(LittleTiles.magentaColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.yellow > 0) {
                     ItemStack stack = new ItemStack(LittleTiles.yellowColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
@@ -230,7 +232,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public ColorIngredient extract(LittlePreviews previews) {
+            public ColorIngredient extract(LittleGroup previews) {
                 ColorIngredient ingredient = new ColorIngredient();
                 if (previews.containsIngredients())
                     for (LittlePreview preview : previews)
@@ -242,9 +244,9 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public ColorIngredient extract(LittlePreview preview, double volume) {
+            public ColorIngredient extract(LittleTile tile, double volume) {
                 ColorIngredient ingredient = new ColorIngredient();
-                ingredient.add(ColorIngredient.getColors(preview, volume));
+                ingredient.add(ColorIngredient.getColors(tile, volume));
                 return ingredient;
             }
             
@@ -306,7 +308,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
     @Override
     public abstract T copy();
     
-    public abstract void print(List<String> lines, List<ItemStack> stacks);
+    public abstract TextBuilder toText();
     
     @Override
     public abstract T add(T ingredient);

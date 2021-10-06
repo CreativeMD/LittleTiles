@@ -2,14 +2,13 @@ package com.creativemd.littletiles.common.mod.chiselsandbits;
 
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class ChiselsAndBitsManager {
     
@@ -30,7 +29,7 @@ public class ChiselsAndBitsManager {
         return null;
     }
     
-    public static boolean isChiselsAndBitsStructure(IBlockState state) {
+    public static boolean isChiselsAndBitsStructure(BlockState state) {
         if (isInstalled())
             return ChiselsAndBitsInteractor.isChiselsAndBitsStructure(state);
         return false;
@@ -42,25 +41,25 @@ public class ChiselsAndBitsManager {
         return false;
     }
     
-    public static boolean isChiselsAndBitsStructure(TileEntity te) {
+    public static boolean isChiselsAndBitsStructure(BlockEntity te) {
         if (isInstalled())
             return ChiselsAndBitsInteractor.isChiselsAndBitsStructure(te);
         return false;
     }
     
-    public static LittlePreviews getPreviews(TileEntity te) {
+    public static LittlePreviews getPreviews(BlockEntity te) {
         if (isInstalled())
             return ChiselsAndBitsInteractor.getPreviews(te);
         return null;
     }
     
-    public static List<LittleTile> getTiles(TileEntity te) {
+    public static List<LittleTile> getTiles(BlockEntity te) {
         if (isInstalled())
             return ChiselsAndBitsInteractor.getTiles(te);
         return null;
     }
     
-    public static Object getVoxelBlob(TileEntityLittleTiles te, boolean force) throws Exception {
+    public static Object getVoxelBlob(BETiles te, boolean force) throws Exception {
         return ChiselsAndBitsInteractor.getVoxelBlob(te, force);
     }
 }

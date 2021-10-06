@@ -15,7 +15,6 @@ import com.creativemd.littletiles.client.render.overlay.OverlayRenderer.OverlayP
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.client.render.overlay.TooltipOverlay;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
-import com.creativemd.littletiles.client.render.world.TileEntityTilesRenderer;
 import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
@@ -23,8 +22,6 @@ import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
 import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Function;
@@ -33,6 +30,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -60,6 +58,7 @@ import team.creative.creativecore.client.command.ClientCommandRegistry;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.level.LevelHandlersClient;
+import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGrabber;
@@ -82,31 +81,27 @@ public class LittleTilesClient {
     
     public static final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
     
-    public KeyMapping flip;
-    public KeyMapping mark;
-    public KeyMapping configure;
-    public KeyMapping configureAdvanced;
-    public KeyMapping up;
-    public KeyMapping down;
-    public KeyMapping right;
-    public KeyMapping left;
+    public static KeyMapping flip;
+    public static KeyMapping mark;
+    public static KeyMapping configure;
+    public static KeyMapping configureAdvanced;
+    public static KeyMapping up;
+    public static KeyMapping down;
+    public static KeyMapping right;
+    public static KeyMapping left;
     
-    public KeyMapping undo;
-    public KeyMapping redo;
+    public static KeyMapping undo;
+    public static KeyMapping redo;
     
-    public TileEntityTilesRenderer tileEntityRenderer;
+    public static BETilesRenderer blockEntityRenderer;
     
-    public OverlayRenderer overlay;
-    
-    public LittleTilesClient() {
-        
-    }
+    public static OverlayRenderer overlay;
     
     public static void displayActionMessage(ActionMessage message) {
         overlay.addMessage(new CompiledActionMessage(message));
     }
     
-    public void setup() {
+    public static void setup() {
         mc.getItemColors().register(new ItemColor() {
             
             @Override
@@ -241,9 +236,9 @@ public class LittleTilesClient {
             }
         });
         
-        tileEntityRenderer = new TileEntityTilesRenderer();
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesRendered.class, tileEntityRenderer);
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTickingRendered.class, tileEntityRenderer);
+        blockEntityRenderer = new BETilesRenderer();
+        BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_RENDERED, x -> blockEntityRenderer);
+        BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_TICKING_RENDERED, x -> blockEntityRenderer);
         
         CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
         CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);

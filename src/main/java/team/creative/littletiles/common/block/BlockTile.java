@@ -21,9 +21,6 @@ import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.BlockFaceShape;
@@ -96,6 +93,12 @@ import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.BlockTile.TEResult;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.entity.BETilesRendered;
+import team.creative.littletiles.common.block.entity.BETilesTicking;
+import team.creative.littletiles.common.block.entity.BETilesTickingRendered;
+import team.creative.littletiles.common.block.entity.TileEntityLittleTilesRendered;
+import team.creative.littletiles.common.block.entity.TileEntityLittleTilesTicking;
+import team.creative.littletiles.common.block.entity.TileEntityLittleTilesTickingRendered;
 import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleSaw;
@@ -162,11 +165,11 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     public static BlockState getState(int id) {
         switch (id) {
         case 0:
-            return LittleTiles.blockTileNoTicking.defaultBlockState();
+            return LittleTiles.blockTile.defaultBlockState();
         case 1:
             return LittleTiles.blockTileTicking.defaultBlockState();
         case 2:
-            return LittleTiles.blockTileNoTickingRendered.defaultBlockState();
+            return LittleTiles.blockTileRendered.defaultBlockState();
         case 3:
             return LittleTiles.blockTileTickingRendered.defaultBlockState();
         }
@@ -178,8 +181,8 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     public static BlockState getState(boolean ticking, boolean rendered) {
-        return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.defaultBlockState() : LittleTiles.blockTileNoTickingRendered
-                .defaultBlockState()) : (ticking ? LittleTiles.blockTileTicking.defaultBlockState() : LittleTiles.blockTileNoTicking.defaultBlockState());
+        return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.defaultBlockState() : LittleTiles.blockTileRendered
+                .defaultBlockState()) : (ticking ? LittleTiles.blockTileTicking.defaultBlockState() : LittleTiles.blockTile.defaultBlockState());
     }
     
     public static BlockState getState(BETiles te) {
@@ -910,16 +913,16 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     @Override
-    public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         if (rendered)
             if (ticking)
-                return new TileEntityLittleTilesTickingRendered();
+                return new BETilesTickingRendered(pos, state);
             else
-                return new TileEntityLittleTilesRendered();
+                return new BETilesRendered(pos, state);
             
         if (ticking)
-            return new TileEntityLittleTilesTicking();
-        return new TileEntityLittleTiles();
+            return new BETilesTicking(pos, state);
+        return new BETiles(LittleTiles.BE_TILES_TYPE, pos, state);
     }
     
     @Override
@@ -1123,6 +1126,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     
     @Override
     @SideOnly(Side.CLIENT)
+    
     public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
         TileEntityLittleTiles te = loadTe(world, pos);
         if (te != null)

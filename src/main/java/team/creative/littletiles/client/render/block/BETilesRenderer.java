@@ -1,18 +1,19 @@
-package com.creativemd.littletiles.client.render.world;
+package team.creative.littletiles.client.render.block;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureAttribute;
 
-public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntityLittleTiles> {
+public class BETilesRenderer implements BlockEntityRenderer<BETiles> {
     
     private WorldVertexBufferUploader uploader = new WorldVertexBufferUploader();
     private VertexBufferUploader vertexUploader = new VertexBufferUploader();
@@ -40,7 +41,7 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
         // float f = entityIn.width / 2.0F;
         // AxisAlignedBB axisalignedbb = entityIn.getEntityBoundingBox();
         RenderGlobal
-            .drawBoundingBox(axisalignedbb.minX + x, axisalignedbb.minY + y, axisalignedbb.minZ + z, axisalignedbb.maxX + x, axisalignedbb.maxY + y, axisalignedbb.maxZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
+                .drawBoundingBox(axisalignedbb.minX + x, axisalignedbb.minY + y, axisalignedbb.minZ + z, axisalignedbb.maxX + x, axisalignedbb.maxY + y, axisalignedbb.maxZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.enableTexture2D();
         GlStateManager.enableLighting();
         GlStateManager.enableCull();

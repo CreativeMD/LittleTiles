@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import net.minecraft.inventory.IInventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 import team.creative.creativecore.common.util.type.LinkedHashMapInteger;
 
 public class StackIngredient extends LittleIngredient<StackIngredient> implements Iterable<StackIngredientEntry> {
@@ -29,8 +29,8 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
         stacks.forEach((x) -> content.add(new StackIngredientEntry(x, x.getCount())));
     }
     
-    public StackIngredient(IInventory inventory) {
-        for (int i = 0; i < inventory.getSizeInventory(); i++) {
+    public StackIngredient(IItemHandler inventory) {
+        for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty())
                 add(new StackIngredientEntry(stack, stack.getCount())); // Might be bad for performance (for huge inventories)

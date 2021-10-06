@@ -387,19 +387,19 @@ public class LittlePacketTypes {
             
         }, LittleBoxes.class, LittleBoxesNoOverlap.class, LittleBoxesSimple.class);
         
-        NetworkFieldTypes.register(new NetworkFieldTypeClass<TileFilter>() {
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<TileFilters>() {
             
             @Override
-            protected void writeContent(TileFilter content, FriendlyByteBuf buffer) {
+            protected void writeContent(TileFilters content, FriendlyByteBuf buffer) {
                 buffer.writeNbt(content.write(new CompoundTag()));
             }
             
             @Override
-            protected TileFilter readContent(FriendlyByteBuf buffer) {
-                return TileFilter.load(buffer.readNbt());
+            protected TileFilters readContent(FriendlyByteBuf buffer) {
+                return TileFilters.load(buffer.readNbt());
             }
             
-        }, TileFilter.class);
+        }, TileFilters.class);
         
         NetworkFieldTypes.register(new NetworkFieldTypeClass<ActionMessage>() {
             

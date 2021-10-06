@@ -6,19 +6,14 @@ import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
@@ -29,18 +24,20 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.SideOnly;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public abstract class LittleBlock {
     
     public abstract boolean isTranslucent();
     
+    public abstract boolean is(ItemStack stack);
+    
     public abstract boolean is(Block block);
     
-    public abstract Block getBlock();
+    public abstract ItemStack getStack();
     
     public abstract BlockState getState();
     
@@ -80,7 +77,7 @@ public abstract class LittleBlock {
     
     public abstract boolean canRenderInLayer(RenderType layer);
     
-    public abstract LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer);
+    public abstract LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, int color);
     
     public abstract boolean canBeRenderCombined(LittleBlock tile);
     
@@ -93,25 +90,5 @@ public abstract class LittleBlock {
     public abstract VoxelShape getOcclusionShape(IParentCollection parent, LittleTile tile);
     
     public abstract VoxelShape getCollisionShape(IParentCollection parent, CollisionContext context, LittleTile tile);
-    
-    @Override
-    public abstract int hashCode();
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof LittleBlock)
-            return equals((LittleBlock) obj);
-        return false;
-    }
-    
-    public abstract boolean equals(LittleBlock block);
-    
-    @SideOnly(Side.CLIENT)
-    private void spawnBarrierParticles(BlockPos pos) {
-        Minecraft mc = Minecraft.getMinecraft();
-        ItemStack itemstack = mc.player.getHeldItemMainhand();
-        if (mc.playerController.getCurrentGameType() == GameType.CREATIVE && !itemstack.isEmpty() && itemstack.getItem() == Item.getItemFromBlock(Blocks.BARRIER))
-            mc.world.spawnParticle(EnumParticleTypes.BARRIER, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, 0.0D, 0.0D, 0.0D, new int[0]);
-    }
     
 }
