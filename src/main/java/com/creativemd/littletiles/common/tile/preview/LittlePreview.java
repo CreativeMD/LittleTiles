@@ -112,6 +112,8 @@ public class LittlePreview implements ICombinable {
     
     public String getBlockName() {
         String[] parts = tileData.getString("block").split(":");
+        if (parts.length < 2)
+            return parts[0];
         return parts[0] + ":" + parts[1];
     }
     
