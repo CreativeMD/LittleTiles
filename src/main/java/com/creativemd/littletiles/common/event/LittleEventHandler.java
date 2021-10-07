@@ -307,9 +307,10 @@ public class LittleEventHandler {
     
     @SideOnly(Side.CLIENT)
     public boolean onRightInteractClient(ILittleTool iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing) {
-        if (iTile instanceof ILittlePlacer) {
+        if (iTile instanceof ILittleTool) {
             PlacementPosition position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
-            if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver) && ((ILittlePlacer) iTile).hasLittlePreview(stack)) {
+            if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver) && iTile instanceof ILittlePlacer && ((ILittlePlacer) iTile)
+                .hasLittlePreview(stack)) {
                 if (!stack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, stack)) {
                     PlacementMode mode = ((ILittlePlacer) iTile).getPlacementMode(stack).place();
                     new LittleActionPlaceStack(((ILittlePlacer) iTile).getLittlePreview(stack, false), position, PreviewRenderer

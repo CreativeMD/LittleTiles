@@ -303,6 +303,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         if (selection != null)
             selection.click(player);

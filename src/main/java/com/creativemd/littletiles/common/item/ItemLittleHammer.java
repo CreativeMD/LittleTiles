@@ -115,6 +115,14 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
+    public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+        if (selection != null)
+            selection.click(player);
+        return true;
+    }
+    
+    @Override
     public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
         return false;
     }
