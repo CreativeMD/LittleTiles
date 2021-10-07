@@ -200,6 +200,10 @@ public class LittleInventory implements Iterable<ItemStack> {
     
     protected boolean takeFromStacks(LittleIngredients ingredients, LittleIngredients overflow) {
         for (int i = 0; i < size(); i++) {
+            
+            if (ingredients.isEmpty())
+                return true;
+            
             ItemStack stack = get(i);
             
             if (stack.isEmpty())
@@ -233,6 +237,10 @@ public class LittleInventory implements Iterable<ItemStack> {
                 return true;
             
         for (int i = 0; i < size(); i++) {
+            
+            if (ingredients.isEmpty())
+                return true;
+            
             ItemStack stack = get(i);
             if (stack.getItem() instanceof ILittleIngredientSupplier)
                 ((ILittleIngredientSupplier) stack.getItem()).requestIngredients(stack, ingredients, overflow, this);

@@ -120,8 +120,9 @@ public class LittleActionReplace extends LittleActionInteract {
             te.updateTilesSecretly(x -> x.noneStructureTiles().removeAll(toRemove));
             
             Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
-            placement.place();
-            checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+            take(player, inventory, getIngredients(placement.place().placedPreviews));
+            checkAndGive(player, inventory, placement.overflow());
+            checkAndGive(player, inventory, getIngredients(replacedTiles));
         } else {
             if (parent.isStructure())
                 return false;
@@ -149,8 +150,9 @@ public class LittleActionReplace extends LittleActionInteract {
             previews.addWithoutCheckingPreview(toReplace);
             
             Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
-            placement.place();
-            checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+            take(player, inventory, getIngredients(placement.place().placedPreviews));
+            checkAndGive(player, inventory, placement.overflow());
+            checkAndGive(player, inventory, getIngredients(replacedTiles));
         }
         
         world.playSound((EntityPlayer) null, pos, tile.getSound()
