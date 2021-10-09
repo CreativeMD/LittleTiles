@@ -22,6 +22,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;

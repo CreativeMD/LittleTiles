@@ -6,16 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
-import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 
-import net.minecraft.block.BlockAir;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.oredict.DyeUtils;
@@ -23,6 +20,8 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.little.LittleBlockRegistry;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -147,9 +146,9 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             @Override
             public BlockIngredient extract(ItemStack stack) {
                 Block block = Block.byItem(stack.getItem());
-                if (block != null && !(block instanceof BlockAir) && LittleAction.isBlockValid(BlockUtils.getState(block, stack.getMetadata()))) {
+                if (block != null && !(block instanceof AirBlock) && LittleAction.isBlockValid(block.defaultBlockState())) {
                     BlockIngredient ingredient = new BlockIngredient();
-                    ingredient.add(IngredientUtils.getBlockIngredient(block, stack.getMetadata(), 1));
+                    ingredient.add(IngredientUtils.getBlockIngredient(LittleBlockRegistry.get(block), 1));
                     return ingredient;
                 }
                 return null;
@@ -170,7 +169,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             @Override
             public BlockIngredient extract(LittleTile tile, double volume) {
                 BlockIngredient ingredient = new BlockIngredient();
-                BlockIngredientEntry entry = preview.getBlockIngredient(LittleGridContext.get());
+                BlockIngredientEntry entry = tile.getBlockIngredient(LittleGrid.overallDefault());
                 entry.value = volume;
                 ingredient.add(entry);
                 return ingredient;
@@ -266,12 +265,12 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         }, new IngredientConvertionHandler<StackIngredient>() {
             
             @Override
-            public StackIngredient extract(LittlePreview preview, double volume) {
+            public StackIngredient extract(LittleTile tile, double volume) {
                 return null;
             }
             
             @Override
-            public StackIngredient extract(LittlePreviews previews) {
+            public StackIngredient extract(LittleGroup previews) {
                 return null;
             }
             

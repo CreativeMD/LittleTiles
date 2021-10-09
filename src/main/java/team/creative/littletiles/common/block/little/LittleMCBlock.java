@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.block.little;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
@@ -12,9 +13,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.api.block.LittleBlock;
@@ -25,6 +28,8 @@ import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public class LittleMCBlock extends LittleBlock {
+    
+    private static final Field hasCollisionField = ObfuscationReflectionHelper.findField(BlockBehaviour.class, "f_60443_");
     
     public final Block block;
     private final boolean translucent;
@@ -46,6 +51,16 @@ public class LittleMCBlock extends LittleBlock {
                 return layer == BlockRenderLayer.SOLID;
             }
         }
+    }
+    
+    @Override
+    public boolean noCollision() {
+        try {
+            return !hasCollisionField.getBoolean(block);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
     
     @Override

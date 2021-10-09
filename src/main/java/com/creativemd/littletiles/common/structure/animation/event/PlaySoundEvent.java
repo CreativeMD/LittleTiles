@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.structure.animation.event;
 import com.creativemd.creativecore.client.sound.EntitySound;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.littletiles.common.entity.DoorController;
-import com.creativemd.littletiles.common.entity.EntityAnimationController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
@@ -14,6 +13,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.animation.EntityAnimationController;
 
 public class PlaySoundEvent extends AnimationEvent {
     

@@ -13,7 +13,6 @@ import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -25,6 +24,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import team.creative.littletiles.common.entity.EntityAnimation;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
     

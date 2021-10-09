@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.mod.theoneprobe;
 
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 
 import mcjty.theoneprobe.api.IBlockDisplayOverride;
 import mcjty.theoneprobe.api.IEntityDisplayOverride;
@@ -13,6 +12,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.entity.EntityAnimation;
 
 public class TheOneProbeInteractor implements IEntityDisplayOverride, IBlockDisplayOverride {
     

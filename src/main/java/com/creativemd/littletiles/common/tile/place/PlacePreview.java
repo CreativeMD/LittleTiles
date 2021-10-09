@@ -5,21 +5,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class PlacePreview {
     

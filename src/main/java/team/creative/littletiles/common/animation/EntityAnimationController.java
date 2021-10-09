@@ -1,14 +1,16 @@
-package com.creativemd.littletiles.common.entity;
+package team.creative.littletiles.common.animation;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
+import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationController;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.entity.EntityAnimation;
 
 public abstract class EntityAnimationController extends AnimationController {
     

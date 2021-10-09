@@ -1,14 +1,12 @@
 package com.creativemd.littletiles.common.util.vec;
 
-import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
 
 public class LittleTransformation {
     
@@ -20,7 +18,7 @@ public class LittleTransformation {
     
     public LittleVec doubledRotationCenter;
     
-    public LittleVecContext offset;
+    public LittleVecGrid offset;
     
     public LittleTransformation(int[] array) {
         if (array.length != 13)
@@ -31,10 +29,10 @@ public class LittleTransformation {
         rotY = array[4];
         rotZ = array[5];
         doubledRotationCenter = new LittleVec(array[6], array[7], array[8]);
-        offset = new LittleVecContext(new LittleVec(array[9], array[10], array[11]), LittleGridContext.get(array[12]));
+        offset = new LittleVecGrid(new LittleVec(array[9], array[10], array[11]), LittleGrid.get(array[12]));
     }
     
-    public LittleTransformation(BlockPos center, int rotX, int rotY, int rotZ, LittleVec doubledRotationCenter, LittleVecContext offset) {
+    public LittleTransformation(BlockPos center, int rotX, int rotY, int rotZ, LittleVec doubledRotationCenter, LittleVecGrid offset) {
         this.center = center;
         this.rotX = rotX;
         this.rotY = rotY;
@@ -49,7 +47,7 @@ public class LittleTransformation {
         this.rotY = rotation.axis == Axis.Y ? (rotation.clockwise ? 1 : -1) : 0;
         this.rotZ = rotation.axis == Axis.Z ? (rotation.clockwise ? 1 : -1) : 0;
         this.doubledRotationCenter = new LittleVec(0, 0, 0);
-        this.offset = new LittleVecContext();
+        this.offset = new LittleVecGrid();
     }
     
     public Rotation getRotation(Axis axis) {
@@ -75,55 +73,55 @@ public class LittleTransformation {
         if (rotX != 0) {
             Rotation rotation = getRotation(Axis.X);
             for (int i = 0; i < Math.abs(rotX); i++)
-                pos = RotationUtils.rotate(pos, rotation);
+                pos = rotation.transform(pos);
         }
         if (rotY != 0) {
             Rotation rotation = getRotation(Axis.Y);
             for (int i = 0; i < Math.abs(rotY); i++)
-                pos = RotationUtils.rotate(pos, rotation);
+                pos = rotation.transform(pos);
         }
         if (rotZ != 0) {
             Rotation rotation = getRotation(Axis.Z);
             for (int i = 0; i < Math.abs(rotZ); i++)
-                pos = RotationUtils.rotate(pos, rotation);
+                pos = rotation.transform(pos);
         }
         
-        pos = pos.add(center);
+        pos = pos.offset(center);
         
         if (offset != null)
-            pos = pos.add(offset.getBlockPos());
+            pos = pos.offset(offset.getBlockPos());
         return pos;
     }
     
-    public void transform(LittleAbsolutePreviews previews) {
+    public void transform(LittleGroupAbsolute previews) {
         if (rotX != 0) {
             Rotation rotation = getRotation(Axis.X);
             for (int i = 0; i < Math.abs(rotX); i++)
-                previews.rotatePreviews(rotation, doubledRotationCenter);
+                previews.group.rotate(rotation, doubledRotationCenter);
         }
         if (rotY != 0) {
             Rotation rotation = getRotation(Axis.Y);
             for (int i = 0; i < Math.abs(rotY); i++)
-                previews.rotatePreviews(rotation, doubledRotationCenter);
+                previews.group.rotate(rotation, doubledRotationCenter);
         }
         if (rotZ != 0) {
             Rotation rotation = getRotation(Axis.Z);
             for (int i = 0; i < Math.abs(rotZ); i++)
-                previews.rotatePreviews(rotation, doubledRotationCenter);
+                previews.group.rotate(rotation, doubledRotationCenter);
         }
         
         if (offset != null)
-            previews.movePreviews(offset.getContext(), offset.getVec());
+            previews.group.move(offset);
     }
     
     public int[] array() {
         return new int[] { center.getX(), center.getY(), center.getZ(), rotX, rotY, rotZ, doubledRotationCenter.x, doubledRotationCenter.y, doubledRotationCenter.z, offset
-            .getVec().x, offset.getVec().y, offset.getVec().z, offset.getContext().size };
+                .getVec().x, offset.getVec().y, offset.getVec().z, offset.getGrid().count };
     }
     
     @Override
     public String toString() {
         return "center:" + center.getX() + "," + center.getY() + "," + center.getZ() + ";rotation:" + rotX + "," + rotY + "," + rotZ + ";offset:" + offset.getVec().x + "," + offset
-            .getVec().y + "," + offset.getVec().z + ";context:" + offset.getContext();
+                .getVec().y + "," + offset.getVec().z + ";context:" + offset.getGrid();
     }
 }

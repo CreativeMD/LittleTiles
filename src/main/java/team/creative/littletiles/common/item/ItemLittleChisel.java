@@ -6,28 +6,16 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.util.Color;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiChisel;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -39,41 +27,46 @@ import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
+import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.TooltipUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class ItemLittleChisel extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
     
@@ -128,7 +121,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
         
         IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
         LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound()
-            .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
+                .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
         
         LittleGridContext context = LittleGridContext.get();
         tile.setBox(new LittleBox(0, 0, 0, context.size, context.size, context.size));
@@ -164,7 +157,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
         if (model == null)
             model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
         ForgeHooksClient
-            .handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
+                .handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
         
         mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
         
@@ -191,7 +184,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
                     Color color = preview.hasColor() ? ColorUtils.IntToRGBA(preview.getColor()) : ColorUtils.IntToRGBA(ColorUtils.WHITE);
                     color.setAlpha(255);
                     ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_191967_a", IBakedModel.class, int.class, ItemStack.class)
-                        .invoke(mc.getRenderItem(), model, preview.hasColor() ? ColorUtils.RGBAToInt(color) : -1, blockStack);
+                            .invoke(mc.getRenderItem(), model, preview.hasColor() ? ColorUtils.RGBAToInt(color) : -1, blockStack);
                 }
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -386,8 +379,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(),
-                LittleTilesClient.mark.getDisplayName(), LittleTilesClient.configure.getDisplayName(),
-                LittleTilesClient.configureAdvanced.getDisplayName() };
+        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.mark
+                .getDisplayName(), LittleTilesClient.configure.getDisplayName(), LittleTilesClient.configureAdvanced.getDisplayName() };
     }
 }

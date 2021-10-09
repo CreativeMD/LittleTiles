@@ -2,7 +2,6 @@ package team.creative.littletiles.common.structure.connection;
 
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.MissingAnimationException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
@@ -11,6 +10,7 @@ import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.entity.EntityAnimation;
 
 public class StructureChildToSubWorldConnection extends StructureChildConnection {
     

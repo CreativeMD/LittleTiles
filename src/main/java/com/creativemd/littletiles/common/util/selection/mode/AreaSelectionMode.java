@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -30,6 +29,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import team.creative.littletiles.common.entity.EntityAnimation;
 
 public class AreaSelectionMode extends SelectionMode {
     

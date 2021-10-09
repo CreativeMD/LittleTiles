@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.type.LinkedHashMapInteger;
 
 public class StackIngredient extends LittleIngredient<StackIngredient> implements Iterable<StackIngredientEntry> {
@@ -58,11 +59,11 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     }
     
     @Override
-    public void print(List<String> lines, List<ItemStack> stacks) {
-        for (StackIngredientEntry entry : content) {
-            lines.add(entry.stack.getDisplayName());
-            stacks.add(entry.stack);
-        }
+    public TextBuilder toText() {
+        TextBuilder text = new TextBuilder();
+        for (StackIngredientEntry entry : content)
+            text.add(entry.stack.getDisplayName()).stack(entry.stack);
+        return text;
     }
     
     public StackIngredientEntry add(StackIngredientEntry ingredient) {

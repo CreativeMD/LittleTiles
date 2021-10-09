@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.block.BlockSignalConverter;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -18,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.block.BlockSignalConverter;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;

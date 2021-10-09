@@ -41,6 +41,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.placement.PlacementResult;
 
 public class DoorController extends EntityAnimationController {

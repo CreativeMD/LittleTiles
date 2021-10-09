@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.api.ILittleTool;
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
@@ -88,6 +87,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.placement.PlacementPosition;
 
 public class LittleEventHandler {

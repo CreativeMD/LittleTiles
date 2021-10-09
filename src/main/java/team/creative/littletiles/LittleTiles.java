@@ -1,14 +1,18 @@
 package team.creative.littletiles;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.littletiles.CustomGuiHandler;
 import com.creativemd.littletiles.EntityPlayer;
 import com.creativemd.littletiles.IParentTileList;
-import com.creativemd.littletiles.ItemBlock;
 import com.creativemd.littletiles.NBTTagCompound;
 import com.creativemd.littletiles.SideOnly;
 import com.creativemd.littletiles.StructureTileList;
@@ -39,24 +43,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
-import com.creativemd.littletiles.common.block.BlockArrow;
-import com.creativemd.littletiles.common.block.BlockCable;
-import com.creativemd.littletiles.common.block.BlockLTFlowingLava;
-import com.creativemd.littletiles.common.block.BlockLTFlowingWater;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
-import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
-import com.creativemd.littletiles.common.block.BlockSignalConverter;
-import com.creativemd.littletiles.common.block.BlockStorageTile;
-import com.creativemd.littletiles.common.block.ItemBlockColored;
-import com.creativemd.littletiles.common.block.ItemBlockColored2;
-import com.creativemd.littletiles.common.block.ItemBlockFlowingLava;
-import com.creativemd.littletiles.common.block.ItemBlockFlowingWater;
-import com.creativemd.littletiles.common.block.ItemBlockTransparentColored;
-import com.creativemd.littletiles.common.command.ExportCommand;
-import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.command.OpenCommand;
-import com.creativemd.littletiles.common.command.ToVanillaCommand;
 import com.creativemd.littletiles.common.container.SubContainerBlankOMatic;
 import com.creativemd.littletiles.common.container.SubContainerBuilder;
 import com.creativemd.littletiles.common.container.SubContainerDiagnose;
@@ -67,9 +54,6 @@ import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.entity.EntitySit;
-import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.mod.albedo.AlbedoExtension;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
@@ -79,16 +63,25 @@ import com.creativemd.littletiles.common.structure.type.premade.LittleBlankOMati
 import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
-import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -98,6 +91,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -106,12 +100,24 @@ import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;
+import team.creative.littletiles.common.block.BlockArrow;
+import team.creative.littletiles.common.block.BlockFlowingLava;
+import team.creative.littletiles.common.block.BlockFlowingWater;
+import team.creative.littletiles.common.block.BlockLava;
+import team.creative.littletiles.common.block.BlockSignalConverter;
 import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.BlockWater;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.entity.BETilesRendered;
+import team.creative.littletiles.common.block.entity.BETilesTicking;
+import team.creative.littletiles.common.block.entity.BETilesTickingRendered;
 import team.creative.littletiles.common.config.LittleTilesConfig;
+import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.entity.EntitySit;
+import team.creative.littletiles.common.entity.EntitySizedTNTPrimed;
+import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
-import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
 import team.creative.littletiles.common.item.ItemLittleBag;
@@ -121,7 +127,6 @@ import team.creative.littletiles.common.item.ItemLittleHammer;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
-import team.creative.littletiles.common.item.ItemLittleRubberMallet;
 import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleScrewdriver;
 import team.creative.littletiles.common.item.ItemLittleUtilityKnife;
@@ -174,30 +179,45 @@ public class LittleTiles {
     public static Block blockTileRendered;
     public static Block blockTileTickingRendered;
     
-    public static BlockLittleDyeable dyeableBlock = (BlockLittleDyeable) new BlockLittleDyeable().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock")
-            .setHardness(1.5F);
-    public static BlockLittleDyeable2 dyeableBlock2 = (BlockLittleDyeable2) new BlockLittleDyeable2().setRegistryName("LTColoredBlock2").setUnlocalizedName("LTColoredBlock2")
-            .setHardness(1.5F);
-    public static Block dyeableBlockTransparent = new BlockLittleDyeableTransparent().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock")
-            .setHardness(0.3F);
-    public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
+    public static Block CLEAN = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_clean");
+    public static Block FLOOR = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_floor");
+    public static Block GRAINY_BIG = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_grainy_big");
+    public static Block GRAINY = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_grainy");
+    public static Block GRAINY_LOW = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_grainy_low");
+    public static Block BRICK = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_brick");
+    public static Block BRICK_BIG = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_brick_big");
+    public static Block BORDERED = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_bordered");
+    public static Block CHISELED = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_chiseled");
+    public static Block BROKEN_BRICK_BIG = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_broken_brick_big");
+    public static Block CLAY = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_clay");
+    public static Block STRIPS = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_strips");
+    public static Block GRAVEL = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_gravel");
+    public static Block SAND = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_sand");
+    public static Block STONE = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_stone");
+    public static Block CORK = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_cork");
     
-    public static Block flowingWater = new BlockLTFlowingWater(BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER).setRegistryName("LTFlowingWater")
-            .setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
-    public static Block whiteFlowingWater = new BlockLTFlowingWater(BlockLittleDyeableTransparent.LittleDyeableTransparent.WHITE_WATER).setRegistryName("LTWhiteFlowingWater")
-            .setUnlocalizedName("LTWhiteFlowingWater").setHardness(0.3F);
+    public static Block WATER = new BlockWater(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED).noCollission()).setRegistryName("colored_water");
+    public static Block WHITE_WATER = new BlockWater(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED).noCollission()).setRegistryName("colored_white_water");
     
-    public static Block flowingLava = new BlockLTFlowingLava(BlockLittleDyeable.LittleDyeableType.LAVA).setRegistryName("LTFlowingLava").setUnlocalizedName("LTFlowingLava")
-            .setHardness(0.3F);
-    public static Block whiteFlowingLava = new BlockLTFlowingLava(BlockLittleDyeable.LittleDyeableType.WHITE_LAVA).setRegistryName("LTWhiteFlowingLava")
-            .setUnlocalizedName("LTWhiteFlowingLava").setHardness(0.3F);
+    public static Block LAVA = new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED).noCollission()).setRegistryName("colored_lava");
+    public static Block WHITE_LAVA = new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW).noCollission().lightLevel((state) -> {
+        return 15;
+    })).setRegistryName("colored_white_lava");
     
-    public static Block singleCable = new BlockCable().setRegistryName("ltsinglecable").setUnlocalizedName("ltsinglecable").setHardness(1.5F);
+    public static Block storageBlock = new Block(BlockBehaviour.Properties.of(Material.WOOD).destroyTime(1.5F).strength(1.5F).sound(SoundType.WOOD)).setRegistryName("storage");
     
-    public static Block inputArrow = new BlockArrow().setRegistryName("ltinput").setUnlocalizedName("ltinput").setHardness(1.5F);
-    public static Block outputArrow = new BlockArrow().setRegistryName("ltoutput").setUnlocalizedName("ltoutput").setHardness(1.5F);
+    public static Block flowingWater = new BlockFlowingWater(WATER).setRegistryName("colored_water_flowing");
+    public static Block whiteFlowingWater = new BlockFlowingWater(WHITE_WATER).setRegistryName("colored_white_water_flowing");
     
-    public static Block signalConverter = new BlockSignalConverter().setRegistryName("signal_converter").setUnlocalizedName("signal_converter").setHardness(1.5F);
+    public static Block flowingLava = new BlockFlowingLava(LAVA).setRegistryName("colored_lava_flowing");
+    public static Block whiteFlowingLava = new BlockFlowingLava(WHITE_LAVA).setRegistryName("colored_white_lava_flowing");
+    
+    public static Block singleCable = new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DECORATION)).setRegistryName("cable_single");
+    
+    public static Block inputArrow = new BlockArrow().setRegistryName("arrow_input");
+    public static Block outputArrow = new BlockArrow().setRegistryName("arrow_output");
+    
+    public static Block signalConverter = new BlockSignalConverter().setRegistryName("signal_converter");
     
     public static Item hammer;
     public static Item recipe;
@@ -232,7 +252,7 @@ public class LittleTiles {
     public LittleTiles() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::client);
-        MinecraftForge.EVENT_BUS.addListener(this::server);
+        MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
     }
     
     private void init(final FMLCommonSetupEvent event) {
@@ -241,27 +261,26 @@ public class LittleTiles {
         blockTileRendered = new BlockTile(Material.STONE, false, true).setRegistryName("tiles_rendered");
         blockTileTickingRendered = new BlockTile(Material.STONE, true, true).setRegistryName("tiles_ticking_rendered");
         
-        hammer = new ItemLittleHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
-        recipe = new ItemLittleRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
-        recipeAdvanced = new ItemLittleRecipeAdvanced().setUnlocalizedName("LTRecipeAdvanced").setRegistryName("recipeadvanced");
-        multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
-        saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
-        container = new ItemLittleBag().setUnlocalizedName("LTContainer").setRegistryName("container");
-        wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench").setRegistryName("wrench");
-        screwdriver = new ItemLittleScrewdriver().setUnlocalizedName("LTScrewdriver").setRegistryName("screwdriver");
-        chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel").setRegistryName("chisel");
-        colorTube = new ItemLittlePaintBrush().setUnlocalizedName("LTColorTube").setRegistryName("colorTube");
-        rubberMallet = new ItemLittleRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
-        utilityKnife = new ItemLittleUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
-        grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
-        premade = new ItemPremadeStructure().setUnlocalizedName("LTPremade").setRegistryName("premade");
+        hammer = new ItemLittleHammer().setRegistryName("hammer");
+        recipe = new ItemLittleRecipe().setRegistryName("recipe");
+        recipeAdvanced = new ItemLittleRecipeAdvanced().setRegistryName("recipeadvanced");
+        multiTiles = new ItemMultiTiles().setRegistryName("multiTiles");
+        saw = new ItemLittleSaw().setRegistryName("saw");
+        container = new ItemLittleBag().setRegistryName("container");
+        wrench = new ItemLittleWrench().setRegistryName("wrench");
+        screwdriver = new ItemLittleScrewdriver().setRegistryName("screwdriver");
+        chisel = new ItemLittleChisel().setRegistryName("chisel");
+        colorTube = new ItemLittlePaintBrush().setRegistryName("paint_brush");
+        utilityKnife = new ItemLittleUtilityKnife().setRegistryName("utility_knife");
+        grabber = new ItemLittleGrabber().setRegistryName("grabber");
+        premade = new ItemPremadeStructure().setRegistryName("premade");
         
-        blockIngredient = new ItemBlockIngredient().setUnlocalizedName("LTBlockIngredient").setRegistryName("blockingredient");
+        blockIngredient = new ItemBlockIngredient().setRegistryName("blockingredient");
         
-        blackColorIngredient = new ItemColorIngredient(ColorIngredientType.black).setUnlocalizedName("LTColorBottleBlack").setRegistryName("bottle_black");
-        cyanColorIngredient = new ItemColorIngredient(ColorIngredientType.cyan).setUnlocalizedName("LTColorBottleCyan").setRegistryName("bottle_cyan");
-        magentaColorIngredient = new ItemColorIngredient(ColorIngredientType.magenta).setUnlocalizedName("LTColorBottleMagenta").setRegistryName("bottle_magenta");
-        yellowColorIngredient = new ItemColorIngredient(ColorIngredientType.yellow).setUnlocalizedName("LTColorBottleYellow").setRegistryName("bottle_yellow");
+        blackColorIngredient = new ItemColorIngredient(ColorIngredientType.black).setRegistryName("bottle_black");
+        cyanColorIngredient = new ItemColorIngredient(ColorIngredientType.cyan).setRegistryName("bottle_cyan");
+        magentaColorIngredient = new ItemColorIngredient(ColorIngredientType.magenta).setRegistryName("bottle_magenta");
+        yellowColorIngredient = new ItemColorIngredient(ColorIngredientType.yellow).setRegistryName("bottle_yellow");
         
         IngredientRules.loadRules();
         LittleStructureRegistry.initStructures();
@@ -272,9 +291,10 @@ public class LittleTiles {
         ForgeModContainer.fullBoundingBoxLadders = true;
         
         BE_TILES_TYPE = BlockEntityType.Builder.of(BETiles::new, blockTile).build(null).setRegistryName(MODID, "tiles");
-        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder.of(BETiles::new, blockTileRendered).build(null).setRegistryName(MODID, "tiles_rendered");
-        BE_TILES_TYPE_TICKING = BlockEntityType.Builder.of(BETiles::new, blockTileTicking).build(null).setRegistryName(MODID, "tiles_ticking");
-        BE_TILES_TYPE_TICKING_RENDERED = BlockEntityType.Builder.of(BETiles::new, blockTileTickingRendered).build(null).setRegistryName(MODID, "tiles_ticking_rendered");
+        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder.of(BETilesRendered::new, blockTileRendered).build(null).setRegistryName(MODID, "tiles_rendered");
+        BE_TILES_TYPE_TICKING = BlockEntityType.Builder.of(BETilesTicking::new, blockTileTicking).build(null).setRegistryName(MODID, "tiles_ticking");
+        BE_TILES_TYPE_TICKING_RENDERED = BlockEntityType.Builder.of(BETilesTickingRendered::new, blockTileTickingRendered).build(null)
+                .setRegistryName(MODID, "tiles_ticking_rendered");
         BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, signalConverter).build(null).setRegistryName(MODID, "converter");
         
         GuiHandler.registerGuiHandler("littleStorageStructure", new LittleStructureGuiHandler() {
@@ -537,9 +557,9 @@ public class LittleTiles {
         // MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
         // Entity
-        EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
-        EntityRegistry.registerModEntity(new ResourceLocation(modid, "sit"), EntitySit.class, "sit", 1, this, 250, 250, true);
-        EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
+        EntityRegistry.registerModEntity(new ResourceLocation(MODID, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
+        EntityRegistry.registerModEntity(new ResourceLocation(MODID, "sit"), EntitySit.class, "sit", 1, this, 250, 250, true);
+        EntityRegistry.registerModEntity(new ResourceLocation(MODID, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
         
         LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
         
@@ -567,55 +587,63 @@ public class LittleTiles {
     
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        
         event.getRegistry()
-                .registerAll(new Block[] { dyeableBlock, dyeableBlock2, dyeableBlockTransparent, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava, singleCable, inputArrow, outputArrow, signalConverter });
+                .registerAll(new Block[] { CLEAN, FLOOR, GRAINY_BIG, GRAINY, GRAINY_LOW, BRICK, BRICK_BIG, BORDERED, CHISELED, BROKEN_BRICK_BIG, CLAY, STRIPS, GRAVEL, SAND, STONE, CORK, WATER, WHITE_WATER, LAVA, WHITE_LAVA, blockTile, blockTileTicking, blockTileRendered, blockTileTickingRendered, storageBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava, singleCable, inputArrow, outputArrow, signalConverter });
+    }
+    
+    private static Item createItem(Block block) {
+        return new BlockItem(block, new Item.Properties().tab(littleTab)).setRegistryName(block.getRegistryName());
     }
     
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry()
-                .registerAll(new Item[] { hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, new ItemBlock(storageBlock)
-                        .setRegistryName(storageBlock.getRegistryName()), new ItemBlockColored(dyeableBlock, dyeableBlock.getRegistryName())
-                                .setRegistryName(dyeableBlock.getRegistryName()), new ItemBlockColored2(dyeableBlock2, dyeableBlock2.getRegistryName())
-                                        .setRegistryName(dyeableBlock2.getRegistryName()), new ItemBlockTransparentColored(dyeableBlockTransparent, dyeableBlockTransparent
-                                                .getRegistryName()).setRegistryName(dyeableBlockTransparent
-                                                        .getRegistryName()), new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName())
-                                                                .setRegistryName(blockTileNoTicking.getRegistryName()), new ItemBlockTiles(blockTileTicking, blockTileTicking
-                                                                        .getRegistryName()).setRegistryName(blockTileTicking
-                                                                                .getRegistryName()), new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered
-                                                                                        .getRegistryName()).setRegistryName(blockTileNoTickingRendered
-                                                                                                .getRegistryName()), new ItemBlockTiles(blockTileTickingRendered, blockTileTickingRendered
-                                                                                                        .getRegistryName()).setRegistryName(blockTileTickingRendered
-                                                                                                                .getRegistryName()), new ItemBlockFlowingWater(flowingWater, flowingWater
-                                                                                                                        .getRegistryName()).setRegistryName(flowingWater
-                                                                                                                                .getRegistryName()), new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater
-                                                                                                                                        .getRegistryName())
-                                                                                                                                                .setRegistryName(whiteFlowingWater
-                                                                                                                                                        .getRegistryName()), new ItemBlockFlowingLava(flowingLava, flowingLava
-                                                                                                                                                                .getRegistryName())
-                                                                                                                                                                        .setRegistryName(flowingLava
-                                                                                                                                                                                .getRegistryName()), new ItemBlockFlowingLava(whiteFlowingLava, whiteFlowingLava
-                                                                                                                                                                                        .getRegistryName())
-                                                                                                                                                                                                .setRegistryName(whiteFlowingLava
-                                                                                                                                                                                                        .getRegistryName()), new ItemBlock(singleCable)
-                                                                                                                                                                                                                .setRegistryName(singleCable
-                                                                                                                                                                                                                        .getRegistryName()), new ItemBlock(inputArrow)
-                                                                                                                                                                                                                                .setRegistryName(inputArrow
-                                                                                                                                                                                                                                        .getRegistryName()), new ItemBlock(outputArrow)
-                                                                                                                                                                                                                                                .setRegistryName(outputArrow
-                                                                                                                                                                                                                                                        .getRegistryName()), new ItemBlock(signalConverter)
-                                                                                                                                                                                                                                                                .setRegistryName(signalConverter
-                                                                                                                                                                                                                                                                        .getRegistryName()) });
-        
-        proxy.loadSide();
+                .registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(storageBlock), createItem(signalConverter));
     }
     
-    public void server(FMLServerStartingEvent event) {
-        event.registerServerCommand(new ExportCommand());
-        event.registerServerCommand(new ImportCommand());
+    private void serverStarting(final FMLServerStartingEvent event) {
+        Field loadedBlockEntities = ObfuscationReflectionHelper.findField(Level.class, "f_46434_");
+        event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
+            x.getSource()
+                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server start <player> <path> [time|ms|s|m|h|d] [loops (-1 -> endless)] " + ChatFormatting.RED + "starts the animation"), false);
+            x.getSource()
+                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server stop <player> " + ChatFormatting.RED + "stops the animation"), false);
+            x.getSource()
+                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server list " + ChatFormatting.RED + "lists all saved paths"), false);
+            x.getSource()
+                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server remove <name> " + ChatFormatting.RED + "removes the given path"), false);
+            
+            Level level = x.getSource().getLevel();
+            List<BETiles> blocks = new ArrayList<>();
+            
+            for (BlockEntity be : (Set<BlockEntity>) loadedBlockEntities.get(level))
+                if (be instanceof BETiles)
+                    blocks.add((BETiles) be);
+            x.getSource().sendSuccess(new TextComponent("Attempting to convert " + blocks.size() + " blocks!"), false);
+            int converted = 0;
+            int i = 0;
+            for (BETiles be : blocks) {
+                if (be.convertBlockToVanilla())
+                    converted++;
+                i++;
+                if (i % 50 == 0)
+                    x.getSource().sendSuccess(new TextComponent("Processed " + i + "/" + blocks.size() + " and converted " + converted), false);
+            }
+            x.getSource().sendSuccess(new TextComponent("Converted " + converted + " blocks"), false);
+            return 0;
+        }));
+        
+        event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-export").executes((x) -> {
+            GuiHandler.openGui("lt-export", new NBTTagCompound(), (EntityPlayer) sender.getCommandSenderEntity());
+            return 0;
+        }));
+        
+        event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-import").executes((x) -> {
+            GuiHandler.openGui("lt-import", new NBTTagCompound(), (EntityPlayer) sender.getCommandSenderEntity());
+            return 0;
+        }));
+        
         event.registerServerCommand(new OpenCommand());
-        event.registerServerCommand(new ToVanillaCommand());
     }
     
 }

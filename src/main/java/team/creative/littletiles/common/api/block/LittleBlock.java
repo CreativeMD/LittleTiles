@@ -37,6 +37,8 @@ public abstract class LittleBlock {
     
     public abstract boolean is(Block block);
     
+    public abstract boolean noCollision();
+    
     public abstract ItemStack getStack();
     
     public abstract BlockState getState();
@@ -89,6 +91,9 @@ public abstract class LittleBlock {
     
     public abstract VoxelShape getOcclusionShape(IParentCollection parent, LittleTile tile);
     
-    public abstract VoxelShape getCollisionShape(IParentCollection parent, CollisionContext context, LittleTile tile);
+    public VoxelShape getCollisionShape(IParentCollection parent, CollisionContext context, LittleTile tile) {
+        if (noCollision())
+            return null;
+    }
     
 }

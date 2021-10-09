@@ -3,7 +3,6 @@ package team.creative.littletiles.common.math.location;
 import java.util.Arrays;
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.core.BlockPos;
@@ -13,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 import team.creative.littletiles.common.tile.parent.IStructureParentCollection;

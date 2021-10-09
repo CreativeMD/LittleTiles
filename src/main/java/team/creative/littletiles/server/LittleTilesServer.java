@@ -2,7 +2,6 @@ package team.creative.littletiles.server;
 
 import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.LittleAnimationHandler;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -13,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.common.api.RayTraceResult;
 import team.creative.littletiles.common.api.World;
 import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.entity.EntityAnimation;
 
 public class LittleTilesServer {
     

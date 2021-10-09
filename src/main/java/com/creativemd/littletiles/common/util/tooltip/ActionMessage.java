@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.GuiRenderHelper;
 
 public class ActionMessage {
@@ -49,26 +47,28 @@ public class ActionMessage {
         registerType(new ActionMessageObjectType<ItemStack>(ItemStack.class) {
             
             @Override
-            public void write(ItemStack object, ByteBuf buf) {
-                CreativeCorePacket.writeItemStack(buf, object);
+            public void write(ItemStack object, FriendlyByteBuf buf) {
+                buf.writeItem(object);
             }
             
             @Override
-            public ItemStack read(ByteBuf buf) {
-                return CreativeCorePacket.readItemStack(buf);
+            public ItemStack read(FriendlyByteBuf buf) {
+                return buf.readItem();
             }
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public int width(ItemStack object, GuiRenderHelper helper) {
+            @OnlyIn(Dist.CLIENT)
+            public int width(ItemStack object) {
                 return 20;
             }
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public void render(ItemStack object, GuiRenderHelper helper, int color, float alpha) {
-                GlStateManager.color(1, 1, 1, alpha);
-                helper.drawItemStack(object, 2, -4, 16, 16, 0, color);
+            @OnlyIn(Dist.CLIENT)
+            public void render(PoseStack stack, ItemStack object, int color, float alpha) {
+                stack.pushPose();
+                stack.translate(2, -4, 0);
+                GuiRenderHelper.drawItemStack(stack, object, alpha);
+                stack.popPose();
             }
             
         });
@@ -91,11 +91,11 @@ public class ActionMessage {
         
         public abstract T read(FriendlyByteBuf buf);
         
-        @SideOnly(Side.CLIENT)
-        public abstract int width(T object, GuiRenderHelper helper);
+        @OnlyIn(Dist.CLIENT)
+        public abstract int width(T object);
         
-        @SideOnly(Side.CLIENT)
-        public abstract void render(T object, GuiRenderHelper helper, int color, float alpha);
+        @OnlyIn(Dist.CLIENT)
+        public abstract void render(PoseStack stack, T object, int color, float alpha);
         
     }
     

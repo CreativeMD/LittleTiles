@@ -25,7 +25,6 @@ import com.creativemd.littletiles.common.action.TileEntity;
 import com.creativemd.littletiles.common.action.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.action.World;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
@@ -40,6 +39,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -58,6 +58,7 @@ import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
+import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
@@ -445,7 +446,7 @@ public abstract class LittleAction extends CreativePacket {
         return inventories;
     }
     
-    public static boolean isBlockValid(IBlockState state) {
+    public static boolean isBlockValid(BlockState state) {
         Block block = state.getBlock();
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
             return true;

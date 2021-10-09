@@ -1,17 +1,17 @@
-package com.creativemd.littletiles.common.entity;
+package team.creative.littletiles.common.entity;
 
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.item.PrimedTnt;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
-public class EntitySizedTNTPrimed extends EntityTNTPrimed {
+public class EntitySizedTNTPrimed extends PrimedTnt {
     
     private static final DataParameter<String> TNTSIZE = EntityDataManager.<String>createKey(EntitySizedTNTPrimed.class, DataSerializers.STRING);
     
@@ -79,6 +79,7 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
             super.onUpdate();
     }
     
+    @Override
     protected void explode() {
         this.world.createExplosion(this, this.posX, this.posY + this.height / 16.0F, this.posZ, (float) (4.0D * size.getPercentVolume(context)), true);
     }

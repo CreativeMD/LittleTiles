@@ -8,37 +8,22 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.util.Color;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
-import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.client.gui.SubGuiGrabber;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -48,41 +33,50 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.TooltipUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import team.creative.littletiles.common.placement.PlacementPosition;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
     
@@ -125,7 +119,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         
         model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
         ForgeHooksClient
-            .handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
+                .handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
         
         mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
         
@@ -154,7 +148,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                         Color color = preview.hasColor() ? ColorUtils.IntToRGBA(preview.getColor()) : ColorUtils.IntToRGBA(ColorUtils.WHITE);
                         color.setAlpha(255);
                         ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_191967_a", IBakedModel.class, int.class, ItemStack.class)
-                            .invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
+                                .invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
                     }
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     e.printStackTrace();
@@ -290,8 +284,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getDisplayName(),
-                LittleTilesClient.configureAdvanced.getDisplayName() };
+        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getDisplayName(), LittleTilesClient.configureAdvanced.getDisplayName() };
     }
     
     public static abstract class GrabberMode {
@@ -443,7 +436,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
             
             IBlockState state = nbt.hasKey("state") ? Block.getStateById(nbt.getInteger("state")) : Blocks.STONE.getDefaultState();
             LittleTile tile = nbt.hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), nbt
-                .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
+                    .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
             tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
             return tile.getPreviewTile();
         }
@@ -491,7 +484,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                     
                     Color color = ColorUtils.IntToRGBA(preview.getColor());
                     controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
-                        .getMinimumTransparency(getPlayer())));
+                            .getMinimumTransparency(getPlayer())));
                     
                     GuiAvatarLabel label = new GuiAvatarLabel("", 110, 20, 0, null);
                     label.name = "avatar";
@@ -639,7 +632,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
             if (previews.size() == 0) {
                 IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
                 LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound()
-                    .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
+                        .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
                 tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
                 LittlePreview preview = tile.getPreviewTile();
                 
@@ -732,7 +725,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                     
                     Color color = ColorUtils.IntToRGBA(preview.getColor());
                     controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
-                        .getMinimumTransparency(getPlayer())));
+                            .getMinimumTransparency(getPlayer())));
                     
                     GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
                     selector.setSelectedForce(preview.getBlockStack());

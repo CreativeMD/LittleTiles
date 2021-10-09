@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -25,6 +24,7 @@ import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
+import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;

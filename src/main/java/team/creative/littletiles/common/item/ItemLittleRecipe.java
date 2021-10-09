@@ -5,39 +5,34 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderBox;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.container.SubContainerRecipe;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
@@ -45,13 +40,17 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCreator {
     
@@ -96,7 +95,7 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
                         for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
                             LittlePreview preview = previews.addPreview(null, pair.value.getPreviewTile(), te.getContext());
                             preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews
-                                .getContext().size));
+                                    .getContext().size));
                         }
                         continue;
                     }
@@ -105,7 +104,7 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
                         for (int i = 0; i < specialPreviews.size(); i++) {
                             LittlePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
                             preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews
-                                .getContext().size));
+                                    .getContext().size));
                         }
                     }
                 }
@@ -127,7 +126,7 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
         stack.getTagCompound().removeTag("z");
         
         LittlePreview.savePreview(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math
-            .max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
+                .max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
     }
     
     @Override
@@ -165,7 +164,7 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
         if (stack.hasTagCompound()) {
             if (stack.getTagCompound().hasKey("x"))
                 tooltip.add("First pos: x=" + stack.getTagCompound().getInteger("x") + ",y=" + stack.getTagCompound().getInteger("y") + ",z=" + stack.getTagCompound()
-                    .getInteger("z"));
+                        .getInteger("z"));
             else {
                 String id = "none";
                 if (stack.getTagCompound().hasKey("structure"))

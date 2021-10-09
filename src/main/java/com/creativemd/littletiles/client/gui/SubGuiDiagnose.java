@@ -6,9 +6,9 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.entity.EntityAnimation;
 
 public class SubGuiDiagnose extends SubGui {
     

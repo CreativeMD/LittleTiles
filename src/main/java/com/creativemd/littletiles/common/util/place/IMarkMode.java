@@ -1,11 +1,11 @@
 package com.creativemd.littletiles.common.util.place;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 
 public interface IMarkMode {
@@ -14,12 +14,12 @@ public interface IMarkMode {
     
     public PlacementPosition getPosition();
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public SubGui getConfigurationGui();
     
     public void render(double x, double y, double z);
     
-    public void move(LittleGridContext context, EnumFacing facing);
+    public void move(LittleGrid context, Facing facing);
     
     public void done();
     

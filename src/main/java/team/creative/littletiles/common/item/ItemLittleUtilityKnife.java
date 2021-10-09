@@ -1,11 +1,7 @@
 package team.creative.littletiles.common.item;
 
-import com.creativemd.littletiles.LittleTiles;
-
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.item.Item;
+import team.creative.littletiles.LittleTiles;
 
 public class ItemLittleUtilityKnife extends Item {
     
@@ -13,11 +9,6 @@ public class ItemLittleUtilityKnife extends Item {
         setCreativeTab(LittleTiles.littleTab);
         hasSubtypes = true;
         setMaxStackSize(1);
-    }
-    
-    @Override
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-        
     }
     
 }

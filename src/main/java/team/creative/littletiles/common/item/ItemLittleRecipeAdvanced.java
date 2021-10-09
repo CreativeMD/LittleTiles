@@ -5,54 +5,54 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderBox;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
 import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleSelectionModePacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.LittleSelectionModePacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
 
 public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered, IItemTooltip {
@@ -153,7 +153,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICr
                 GlStateManager.disableDepth();
             if (model == null)
                 model = mc.getRenderItem().getItemModelMesher().getModelManager()
-                    .getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
+                        .getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
             ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
             
             mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
@@ -241,8 +241,8 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICr
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { Minecraft.getMinecraft().gameSettings.keyBindAttack.getDisplayName(), Minecraft.getMinecraft().gameSettings.keyBindUseItem.getDisplayName(),
-                Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.configure.getDisplayName() };
+        return new Object[] { Minecraft.getMinecraft().gameSettings.keyBindAttack.getDisplayName(), Minecraft.getMinecraft().gameSettings.keyBindUseItem
+                .getDisplayName(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.configure.getDisplayName() };
     }
     
     public static SelectionMode getSelectionMode(ItemStack stack) {

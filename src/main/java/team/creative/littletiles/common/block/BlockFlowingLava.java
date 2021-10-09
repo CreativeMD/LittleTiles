@@ -1,48 +1,43 @@
-package com.creativemd.littletiles.common.block;
+package team.creative.littletiles.common.block;
 
-import com.creativemd.creativecore.common.utils.math.Rotation;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable.LittleDyeableType;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBucket;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.tile.LittleTile;
 
-public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, IFakeRenderingBlock {
+public class BlockFlowingLava extends Block implements ISpecialBlockHandler, IFakeRenderingBlock {
     
     public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
     
-    public final BlockLittleDyeable.LittleDyeableType still;
+    public final Block still;
     
-    public BlockLTFlowingLava(BlockLittleDyeable.LittleDyeableType still) {
+    public BlockFlowingLava(Block still) {
         super(Material.LAVA);
         this.still = still;
         setCreativeTab(LittleTiles.littleTab);
@@ -131,7 +126,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
     public void onEntityCollidedWithBlock(IParentTileList parent, LittleTile tile, Entity entityIn) {
         AxisAlignedBB box = entityIn.getEntityBoundingBox();
         LittleVec center = new LittleVec(parent.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2)
-            .subtract(new Vec3d(parent.getPos())));
+                .subtract(new Vec3d(parent.getPos())));
         LittleBox testBox = new LittleBox(center, 1, 1, 1);
         if (tile.intersectsWith(testBox)) {
             double scale = 0.05;
@@ -192,17 +187,6 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
         if (facing.getAxis() == axis)
             facing = facing.getOpposite();
         preview.getTileData().setInteger("meta", facing.ordinal());
-    }
-    
-    public static class LittleFlowingLavaPreview extends LittlePreview {
-        
-        public LittleFlowingLavaPreview(NBTTagCompound nbt) {
-            super(nbt);
-        }
-        
-        public LittleFlowingLavaPreview(LittleBox box, NBTTagCompound tileData) {
-            super(box, tileData);
-        }
     }
     
 }

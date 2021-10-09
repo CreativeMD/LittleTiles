@@ -94,6 +94,10 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         super(type, pos, state);
     }
     
+    public BETiles(BlockPos pos, BlockState state) {
+        super(LittleTiles.BE_TILES_TYPE, pos, state);
+    }
+    
     protected void assign(BETiles te) {
         try {
             for (Field field : BETiles.class.getDeclaredFields())

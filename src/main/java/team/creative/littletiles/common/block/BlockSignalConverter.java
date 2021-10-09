@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.block;
+package team.creative.littletiles.common.block;
 
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.properties.IProperty;
@@ -11,21 +11,22 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Material;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.TESignalConverter;
 
-public class BlockSignalConverter extends BaseContainerBlockEntity {
+public class BlockSignalConverter extends BaseEntityBlock {
     
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     
     public BlockSignalConverter() {
-        super(Material.METAL);
+        super(BlockBehaviour.Properties.of(Material.METAL));
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
-        setCreativeTab(LittleTiles.littleTab);
     }
     
     @Override
@@ -127,22 +128,22 @@ public class BlockSignalConverter extends BaseContainerBlockEntity {
     }
     
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
+    public EnumBlockRenderType getRenderType(BlockState state) {
         return EnumBlockRenderType.MODEL;
     }
     
     @Override
-    public int getMetaFromState(IBlockState state) {
+    public int getMetaFromState(BlockState state) {
         return state.getValue(FACING).getIndex();
     }
     
     @Override
-    public IBlockState withRotation(IBlockState state, Rotation rot) {
+    public BlockState withRotation(BlockState state, Rotation rot) {
         return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
     }
     
     @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
+    public BlockState withMirror(BlockState state, Mirror mirrorIn) {
         return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
     }
     

@@ -1,22 +1,20 @@
-package com.creativemd.littletiles.common.entity;
-
-import javax.vecmath.Vector3d;
+package team.creative.littletiles.common.entity;
 
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
+import com.mojang.math.Vector3d;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 
 public class EntitySit extends Entity implements ILevelPositionProvider {
     

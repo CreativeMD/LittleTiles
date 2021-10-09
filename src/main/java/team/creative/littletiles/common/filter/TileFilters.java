@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.filter.tile;
+package team.creative.littletiles.common.filter;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;

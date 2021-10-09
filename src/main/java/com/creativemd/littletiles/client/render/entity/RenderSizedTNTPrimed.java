@@ -1,6 +1,5 @@
 package com.creativemd.littletiles.client.render.entity;
 
-import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -12,6 +11,7 @@ import net.minecraft.client.renderer.entity.RenderTNTPrimed;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.MathHelper;
+import team.creative.littletiles.common.entity.EntitySizedTNTPrimed;
 
 public class RenderSizedTNTPrimed extends RenderTNTPrimed {
     

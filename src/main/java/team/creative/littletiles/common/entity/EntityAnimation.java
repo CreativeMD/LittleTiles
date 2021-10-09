@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.entity;
+package team.creative.littletiles.common.entity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
@@ -37,8 +39,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.collision.CollidingPlane;
@@ -50,12 +52,14 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.physic.AABBCombiner;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;

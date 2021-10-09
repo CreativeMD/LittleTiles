@@ -1,9 +1,10 @@
-package com.creativemd.littletiles.common.entity;
+package team.creative.littletiles.common.physic;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+
+import team.creative.creativecore.common.util.math.box.BoxUtils;
 
 public class AABBCombiner {
     
@@ -121,6 +122,6 @@ public class AABBCombiner {
     
     public static OrientatedBoundingBox sumBox(OrientatedBoundingBox box1, OrientatedBoundingBox box2) {
         return new OrientatedBoundingBox(box1.origin, Math.min(box1.minX, box2.minX), Math.min(box1.minY, box2.minY), Math.min(box1.minZ, box2.minZ), Math
-            .max(box1.maxX, box2.maxX), Math.max(box1.maxY, box2.maxY), Math.max(box1.maxZ, box2.maxZ));
+                .max(box1.maxX, box2.maxX), Math.max(box1.maxY, box2.maxY), Math.max(box1.maxZ, box2.maxZ));
     }
 }

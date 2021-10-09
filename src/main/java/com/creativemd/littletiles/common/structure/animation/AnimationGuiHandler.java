@@ -7,11 +7,11 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
+import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public class AnimationGuiHandler implements IAnimationHandler {

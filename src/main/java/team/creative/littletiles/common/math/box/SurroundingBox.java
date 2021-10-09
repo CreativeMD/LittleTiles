@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.World;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -36,9 +35,9 @@ public class SurroundingBox {
     protected boolean mapScannedLists = false;
     protected HashMap<BlockPos, Iterable<LittleTile>> map = new HashMap<>();
     
-    public SurroundingBox(boolean mapScannedLists, World world) {
+    public SurroundingBox(boolean mapScannedLists, Level level) {
         this.mapScannedLists = mapScannedLists;
-        this.world = world;
+        this.level = level;
     }
     
     public void clear() {
