@@ -40,6 +40,7 @@ import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifi
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -103,8 +104,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             for (Field field : BETiles.class.getDeclaredFields())
                 if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
                     field.set(this, field.get(te));
-            setWorld(te.getWorld());
-            tiles.te = this;
+            setLevel(getLevel());
+            tiles.be = this;
             if (isClient())
                 render.setTe(this);
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -206,7 +207,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             BETiles newTe;
             if (rendered)
                 if (ticking)
-                    newTe = new TileEntityLittleTilesTickingRendered();
+                    newTe = new BETilesTickingRendered();
                 else
                     newTe = new TileEntityLittleTilesRendered();
             else if (ticking)
@@ -322,7 +323,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             if (!first.canBeConvertedToVanilla() || !first.doesFillEntireBlock(grid))
                 return false;
             firstTile = tiles.first();
-            level.setBlockAndUpdate(getBlockPos(), firstTile.block.getState());
+            level.setBlockAndUpdate(getBlockPos(), firstTile.getBlock().getState());
             return true;
         }
         
@@ -380,16 +381,17 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         int maxX = 0;
         int maxY = 0;
         int maxZ = 0;
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
-            LittleBox box = pair.value.getCompleteBox();
-            minX = Math.min(box.minX, minX);
-            minY = Math.min(box.minY, minY);
-            minZ = Math.min(box.minZ, minZ);
-            maxX = Math.max(box.maxX, maxX);
-            maxY = Math.max(box.maxY, maxY);
-            maxZ = Math.max(box.maxZ, maxZ);
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
+            for (LittleBox box : pair.value) {
+                minX = Math.min(box.minX, minX);
+                minY = Math.min(box.minY, minY);
+                minZ = Math.min(box.minZ, minZ);
+                maxX = Math.max(box.maxX, maxX);
+                maxY = Math.max(box.maxY, maxY);
+                maxZ = Math.max(box.maxZ, maxZ);
+            }
         }
-        return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(context, pos);
+        return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ).getShape(grid);
     }
     
     /** Used for rendering */
@@ -413,20 +415,20 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
      * @return all boxes which are not cutout by other tiles */
     public List<LittleBox> cutOut(LittleBox box, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> cutting = new ArrayList<>();
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             pair.value.getIntersectingBox(box, cutting);
         return box.cutOut(cutting, cutout, volume);
     }
     
-    public Pair<IParentTileList, LittleTile> intersectingTile(LittleBox box) {
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
+    public Pair<IParentCollection, LittleTile> intersectingTile(LittleBox box) {
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             if (pair.value.intersectsWith(box))
                 return pair;
         return null;
     }
     
-    public boolean isSpaceForLittleTile(LittleBox box, BiPredicate<IParentTileList, LittleTile> predicate) {
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
+    public boolean isSpaceForLittleTile(LittleBox box, BiPredicate<IParentCollection, LittleTile> predicate) {
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             if (predicate != null && !predicate.test(pair.key, pair.value))
                 continue;
             if (pair.value.intersectsWith(box))
@@ -452,8 +454,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
-        super.readFromNBT(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
         
         if (tiles == null)
             init();
@@ -657,7 +659,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return false;
     }
     
-    public IBlockState getBlockTileState() {
+    public BlockState getBlockTileState() {
         return BlockTile.getState(this);
     }
     
@@ -702,7 +704,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     
     @Override
     @Nullable
-    public IBlockState getState(AxisAlignedBB box, boolean realistic) {
+    public BlockState getState(AABB box, boolean realistic) {
         if (tiles == null)
             return null;
         

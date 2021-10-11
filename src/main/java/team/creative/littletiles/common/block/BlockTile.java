@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
@@ -46,6 +45,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SpawnPlacements.Type;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -69,6 +69,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootContext.Builder;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -207,23 +208,6 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     @Override
     public RenderShape getRenderShape(BlockState p_49232_) {
         return RenderShape.MODEL;
-    }
-    
-    @Override
-    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
-        return true;
-    }
-    
-    /** Used to determine ambient occlusion and culling when rebuilding chunks for
-     * render */
-    @Override
-    public boolean isOpaqueCube(IBlockState state) {
-        return false;
-    }
-    
-    @Override
-    public boolean isFullCube(IBlockState state) {
-        return false;
     }
     
     @Override
@@ -458,7 +442,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         return false;
     }
     
-    public static boolean canHarvestBlock(EntityPlayer player, IBlockState state) {
+    public static boolean canHarvestBlock(Player player, BlockState state) {
         if (state.getMaterial().isToolNotRequired()) {
             return true;
         }
@@ -547,7 +531,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     public InteractionResult useClient(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
         if (context.isComplete() && !(player.getItemInHand(hand).getItem() instanceof ItemLittleWrench))
-            return new LittleActionActivated(worldIn, pos, playerIn).execute();
+            return new LittleActionActivated(level, pos, player).execute();
         return InteractionResult.PASS;
     }
     
@@ -622,14 +606,14 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     @Override
-    public boolean canCreatureSpawn(IBlockState state, IBlockAccess world, BlockPos pos, net.minecraft.entity.EntityLiving.SpawnPlacementType type) {
+    public boolean canCreatureSpawn(BlockState state, BlockGetter world, BlockPos pos, Type type, EntityType<?> entityType) {
         return false;
     }
     
     @Override
     public boolean removedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (level.isClientSide)
-            return removedByPlayerClient(state, level, pos, player, willHarvest);
+            return removedByPlayerClient(state, level, pos, player, willHarvest, fluid);
         return true;
     }
     
@@ -665,8 +649,8 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     @Override
-    public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-        return new ArrayList<ItemStack>(); // Removed
+    public List<ItemStack> getDrops(BlockState state, Builder builder) {
+        return Collections.emptyList();
     }
     
     @Override
@@ -806,39 +790,39 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         return true;
     }
     
-    @SideOnly(Side.CLIENT)
-    public SoundType getSoundTypeClient(IBlockState state, World world, BlockPos pos) {
-        TEResult result = loadTeAndTile(world, pos, mc.player);
-        if (result != null && result.tile != null)
+    @OnlyIn(Dist.CLIENT)
+    public SoundType getSoundTypeClient(BlockState state, LevelReader level, BlockPos pos) {
+        LittleTileContext result = LittleTileContext.selectFocused(level, pos, mc.player);
+        if (result.isComplete())
             return result.tile.getSound();
         return null;
     }
     
     @Override
-    public SoundType getSoundType(IBlockState state, World world, BlockPos pos, @Nullable Entity entity) {
+    public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, Entity entity) {
         if (entity == null)
             return SILENT;
         SoundType sound = null;
-        if (entity instanceof EntityPlayer && world.isRemote)
-            sound = getSoundTypeClient(state, world, pos);
+        if (entity instanceof Player && level.isClientSide())
+            sound = getSoundTypeClient(state, level, pos);
         
         if (sound == null) {
             // GET HEIGHEST TILE POSSIBLE
-            TileEntityLittleTiles te = loadTe(world, pos);
-            if (te != null) {
+            BETiles be = loadBE(level, pos);
+            if (be != null) {
                 int heighest = 0;
                 LittleTile heighestTile = null;
-                for (IParentTileList list : te.groups()) {
+                for (IParentCollection list : be.groups()) {
                     if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
                         continue;
                     
-                    for (LittleTile tile : list) {
-                        LittleBox box = tile.getCollisionBox();
-                        if (box != null && box.maxY > heighest) {
-                            heighest = box.maxY;
-                            heighestTile = tile;
-                        }
-                    }
+                    for (LittleTile tile : list)
+                        for (LittleBox box : tile)
+                            if (box != null && box.maxY > heighest) {
+                                heighest = box.maxY;
+                                heighestTile = tile;
+                            }
+                        
                 }
                 
                 if (heighestTile != null)
@@ -852,35 +836,30 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     @Override
-    public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return false; // removed because if is normal cube player will be pushed out of the block (bad for no-clip structure or water)
-    }
-    
-    @Override
-    public float getEnchantPowerBonus(World world, BlockPos pos) {
+    public float getEnchantPowerBonus(BlockState state, LevelReader level, BlockPos pos) {
         float bonus = 0F;
-        TileEntityLittleTiles te = loadTe(world, pos);
-        if (te != null)
-            for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
-                bonus += pair.value.getEnchantPowerBonus(world, pos) * pair.value.getPercentVolume(te.getContext());
+        BETiles be = loadBE(level, pos);
+        if (be != null)
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
+                bonus += pair.value.getEnchantPowerBonus(pair.key);
         return bonus;
     }
     
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-        TileEntityLittleTiles te = loadTe(worldIn, pos);
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos origin, boolean p_60514_) {
+        BETiles te = loadBE(level, pos);
         if (te != null) {
             te.onNeighbourChanged();
-            if (!worldIn.isRemote)
-                LittleTilesServer.NEIGHBOR.add(worldIn, pos);
+            if (!level.isClientSide)
+                LittleTilesServer.NEIGHBOR.add(level, pos);
         }
     }
     
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
         if (loadingTileEntityFromWorld)
             return;
-        TileEntityLittleTiles te = loadTe(world, pos);
+        BETiles te = loadBE(level, pos);
         if (te != null)
             te.onNeighbourChanged();
     }
@@ -927,7 +906,8 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level p_152694_, BlockState p_152695_, BlockEntityType<T> p_152696_) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        
         adasds
         return p_152694_.isClientSide ? null : createTickerHelper(p_152696_, BlockEntityType.BREWING_STAND, BrewingStandBlockEntity::serverTick);
     }
@@ -1079,23 +1059,23 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     @Override
-    public boolean canDropFromExplosion(Explosion explosionIn) {
+    public boolean dropFromExplosion(Explosion p_49826_) {
         return false;
     }
     
     @Override
-    public float getExplosionResistance(World world, BlockPos pos, @Nullable Entity exploder, Explosion explosion) {
-        TileEntityLittleTiles te = loadTe(world, pos);
+    public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
+        BETiles be = loadBE(level, pos);
         float calculatedResistance = 0;
         float structureResistance = 0;
-        if (te != null)
-            for (IParentTileList list : te.groups())
+        if (be != null)
+            for (IParentCollection list : be.groups())
                 try {
                     if (list.isStructure() && list.getStructure().getExplosionResistance() > 0)
                         structureResistance = Math.max(structureResistance, list.getStructure().getExplosionResistance());
                     else
                         for (LittleTile tile : list)
-                            calculatedResistance += tile.getExplosionResistance() * tile.getPercentVolume(te.getContext());
+                            calculatedResistance += tile.getExplosionResistance();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
                     
                 }
@@ -1127,7 +1107,6 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     
     @Override
     @SideOnly(Side.CLIENT)
-    
     public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
         TileEntityLittleTiles te = loadTe(world, pos);
         if (te != null)

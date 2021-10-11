@@ -2,7 +2,7 @@ package team.creative.littletiles.common.api.block;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public interface ILittleBlockEntity {
@@ -18,6 +18,6 @@ public interface ILittleBlockEntity {
     public Object getVoxelBlob(boolean force) throws Exception;
     
     @Nullable
-    public Block getState(AABB box, boolean realistic);
+    public BlockState getState(AABB box, boolean realistic);
     
 }

@@ -46,6 +46,11 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
+    public Block asBlock() {
+        return this;
+    }
+    
+    @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }

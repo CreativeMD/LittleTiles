@@ -60,7 +60,7 @@ public class TileFilters {
         
         @Override
         public boolean is(IParentCollection parent, LittleTile tile) {
-            return tile.block.is(block);
+            return tile.getBlock().is(block);
         }
     }
     

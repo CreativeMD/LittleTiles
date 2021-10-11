@@ -49,6 +49,11 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     }
     
     @Override
+    public Block asBlock() {
+        return this;
+    }
+    
+    @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
