@@ -8,9 +8,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -27,7 +28,6 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHol
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
-import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -45,17 +45,19 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
@@ -118,7 +120,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     private boolean signalChanged = false;
     
-    public LittleStructure(LittleStructureType type, IStructureTileList mainBlock) {
+    public LittleStructure(LittleStructureType type, IStructureParentCollection mainBlock) {
         this.type = type;
         this.mainBlock = mainBlock;
         this.inputs = type.createInputs(this);
@@ -128,18 +130,18 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ================Basics================
     
     @Override
-    public World getWorld() {
+    public Level getLevel() {
         if (mainBlock.isRemoved())
             return null;
-        return mainBlock.getWorld();
+        return mainBlock.getLevel();
     }
     
-    public boolean hasWorld() {
-        return mainBlock != null && !mainBlock.isRemoved() && mainBlock.getWorld() != null;
+    public boolean hasLevel() {
+        return mainBlock != null && !mainBlock.isRemoved() && mainBlock.getLevel() != null;
     }
     
     public boolean isClient() {
-        return getWorld().isRemote;
+        return getLevel().isClientSide;
     }
     
     @Override

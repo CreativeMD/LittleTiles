@@ -1,9 +1,9 @@
 package com.creativemd.littletiles.client.api;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface IFakeRenderingBlock {
     
-    public IBlockState getFakeState(IBlockState state);
+    public BlockState getFakeState(BlockState state);
     
 }

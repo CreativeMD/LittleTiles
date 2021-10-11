@@ -7,8 +7,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,7 +28,6 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     private SignalNetwork network;
     private boolean[] inputSignalState = new boolean[4];
     private boolean[] inputRedstoneState = new boolean[4];
-    private int redstoneState;
     
     private List<SignalConnection> connections = new ArrayList<>();
     
@@ -38,22 +36,12 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     }
     
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Facing side) {
-        return state.canProvidePower() && side != null;
+        return state.isSignalSource() && side != null;
     }
     
     @Override
     public Level getStructureLevel() {
         return level;
-    }
-    
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-        return super.writeToNBT(compound);
-    }
-    
-    @Override
-    public void readFromNBT(NBTTagCompound compound) {
-        super.readFromNBT(compound);
     }
     
     @Override
@@ -132,8 +120,8 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     @Override
     public void changed() {
         BlockState state = level.getBlockState(worldPosition);
-        EnumFacing facing = state.getValue(BlockSignalConverter.FACING);
-        level.neighborChanged(worldPosition.offset(facing), state.getBlock(), worldPosition);
+        Direction facing = state.getValue(BlockSignalConverter.FACING);
+        level.neighborChanged(worldPosition.relative(facing), state.getBlock(), worldPosition);
     }
     
     public int getPower() {

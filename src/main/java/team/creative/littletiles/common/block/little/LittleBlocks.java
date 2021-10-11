@@ -7,7 +7,6 @@ import com.creativemd.littletiles.common.api.block.BlockRotatedPillar;
 import com.creativemd.littletiles.common.api.block.BlockSelectorAnd;
 import com.creativemd.littletiles.common.api.block.BlockSelectorClass;
 import com.creativemd.littletiles.common.api.block.BlockSelectorProperty;
-import com.creativemd.littletiles.common.api.block.BlockTNT;
 import com.creativemd.littletiles.common.api.block.BlockWorkbench;
 import com.creativemd.littletiles.common.api.block.ContainerWorkbench;
 import com.creativemd.littletiles.common.api.block.EntityLivingBase;
@@ -28,6 +27,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TntBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.filter.block.BlockFilters;
@@ -40,6 +40,12 @@ public class LittleBlocks {
     
     static {
         LittleBlockRegistry.register(BlockFilters.block(Blocks.BARRIER), x -> new LittleMCBlock(x) {
+            
+            @Override
+            public boolean randomTicks() {
+                return true;
+            }
+            
             @Override
             @OnlyIn(Dist.CLIENT)
             public void randomDisplayTick(IParentCollection parent, LittleTile tile, java.util.Random rand) {
@@ -50,7 +56,7 @@ public class LittleBlocks {
             }
         });
         
-        LittleBlockRegistry.register(BlockFilters.instance(BlockTNT.class), new ISpecialBlockHandler() {
+        LittleBlockRegistry.register(BlockFilters.instance(TntBlock.class), new ISpecialBlockHandler() {
             
             @Override
             public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {

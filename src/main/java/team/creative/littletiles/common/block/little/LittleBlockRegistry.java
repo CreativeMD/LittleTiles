@@ -36,6 +36,10 @@ public class LittleBlockRegistry {
     }
     
     private static LittleBlock create(String name, Block block) {
+        if (block instanceof LittleBlock) {
+            nameMap.put(name, (LittleBlock) block);
+            return (LittleBlock) block;
+        }
         if (block == null) {
             for (Function<String, LittleBlock> special : specialHandlers) {
                 LittleBlock little = special.apply(name);

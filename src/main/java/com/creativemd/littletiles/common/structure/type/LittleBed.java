@@ -5,57 +5,54 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.packet.LittleBedPacket;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Biomes;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.packet.LittleBedPacket;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.directional.StructureDirectional;
+import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class LittleBed extends LittleStructure {
     
@@ -169,7 +166,7 @@ public class LittleBed extends LittleStructure {
             double d0 = 8.0D;
             double d1 = 5.0D;
             List<EntityMob> list = player.world
-                .<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(highest.x - 8.0D, highest.y - 5.0D, highest.z - 8.0D, highest.x + 8.0D, highest.y + 5.0D, highest.z + 8.0D));
+                    .<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(highest.x - 8.0D, highest.y - 5.0D, highest.z - 8.0D, highest.x + 8.0D, highest.y + 5.0D, highest.z + 8.0D));
             
             if (!list.isEmpty()) {
                 return EntityPlayer.SleepResult.NOT_SAFE;
@@ -247,7 +244,7 @@ public class LittleBed extends LittleStructure {
                         double forward = 0;
                         
                         GlStateManager
-                            .translate(((LittleBed) bed).direction.getDirectionVec().getX() * forward, height, ((LittleBed) bed).direction.getDirectionVec().getZ() * forward);
+                                .translate(((LittleBed) bed).direction.getDirectionVec().getX() * forward, height, ((LittleBed) bed).direction.getDirectionVec().getZ() * forward);
                     }
                     // GlStateManager.translate(0, ((LittleBed) bed).playerPostion.getPosY() -
                     // player.posY, 0);

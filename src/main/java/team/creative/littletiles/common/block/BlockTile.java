@@ -241,7 +241,8 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
                 for (LittleTile tile : list)
-                    shape = Shapes.or(shape, tile.getCollisionShape(list, context));
+                    if (!tile.getBlock().noCollision())
+                        shape = Shapes.or(shape, tile.getShapes(list));
             }
         }
         return shape;
@@ -289,9 +290,9 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
             for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                 if (pair.key.isStructure() && LittleStructureAttribute.lightEmitter(pair.key.getAttribute()))
                     continue;
-                if (pair.value.block.isTranslucent())
+                if (pair.value.getBlock().isTranslucent())
                     continue;
-                shape = Shapes.or(shape, pair.value.getOcclusionShape(pair.key));
+                shape = Shapes.or(shape, pair.value.getShapes(pair.key));
             }
         }
         
@@ -314,8 +315,8 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
             for (IParentCollection parent : be.groups()) {
                 boolean canInteract = parent.isStructure() && parent.getStructure().canInteract(level, pos);
                 for (LittleTile tile : parent)
-                    if (canInteract || tile.canInteract(level, pos))
-                        shape = Shapes.or(shape, tile.getSelectionShape(parent));
+                    if (canInteract || tile.canInteract())
+                        shape = Shapes.or(shape, tile.getShapes(parent));
             }
         }
         
@@ -333,7 +334,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
                 try {
                     return tileContext.parent.getStructure().getSurroundingBox().getShape();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            return tileContext.tile.getSelectionShape(tileContext.parent, context);
+            return tileContext.tile.getShapes(tileContext.parent);
         }
         return shape;
     }

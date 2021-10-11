@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,7 +27,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
-public class LittleMissingBlock extends LittleBlock {
+public class LittleMissingBlock implements LittleBlock {
     
     public final String blockName;
     
@@ -37,6 +38,11 @@ public class LittleMissingBlock extends LittleBlock {
     @Override
     public String blockName() {
         return blockName;
+    }
+    
+    @Override
+    public ItemStack getStack() {
+        return ItemStack.EMPTY;
     }
     
     @Override
@@ -60,10 +66,14 @@ public class LittleMissingBlock extends LittleBlock {
     }
     
     @Override
-    public void mirror(LittleTile tile, Axis axis, LittleVec doubledCenter) {}
+    public LittleBlock mirror(Axis axis, LittleVec doubledCenter) {
+        return this;
+    }
     
     @Override
-    public void rotate(LittleTile tile, Rotation rotation, LittleVec doubledCenter) {}
+    public LittleBlock rotate(Rotation rotation, LittleVec doubledCenter) {
+        return this;
+    }
     
     @Override
     public SoundType getSoundType() {
@@ -84,12 +94,12 @@ public class LittleMissingBlock extends LittleBlock {
     }
     
     @Override
-    public boolean canInteract(LittleTile tile) {
+    public boolean canInteract() {
         return false;
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
         return InteractionResult.PASS;
     }
     
@@ -129,18 +139,13 @@ public class LittleMissingBlock extends LittleBlock {
     }
     
     @Override
-    public boolean canRenderInLayer(RenderType layer) {
-        return layer == RenderType.solid();
-    }
-    
-    @Override
     public LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, int color) {
         return new LittleRenderBox(box.getBox(grid), box, null, color);
     }
     
     @Override
-    public boolean canBeRenderCombined(LittleBlock tile) {
-        return tile instanceof LittleMissingBlock;
+    public boolean canBeRenderCombined(LittleTile one, LittleTile two) {
+        return two.getBlock() instanceof LittleMissingBlock;
     }
     
     @Override
@@ -150,5 +155,20 @@ public class LittleMissingBlock extends LittleBlock {
     
     @Override
     public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity) {}
+    
+    @Override
+    public boolean is(ItemStack stack) {
+        return false;
+    }
+    
+    @Override
+    public boolean noCollision() {
+        return false;
+    }
+    
+    @Override
+    public boolean randomTicks() {
+        return false;
+    }
     
 }

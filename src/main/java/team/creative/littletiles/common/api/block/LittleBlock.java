@@ -18,8 +18,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -29,71 +27,62 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
-public abstract class LittleBlock {
+public interface LittleBlock {
     
-    public abstract boolean isTranslucent();
+    public boolean isTranslucent();
     
-    public abstract boolean is(ItemStack stack);
+    public boolean is(ItemStack stack);
     
-    public abstract boolean is(Block block);
+    public boolean is(Block block);
     
-    public abstract boolean noCollision();
+    public boolean noCollision();
     
-    public abstract ItemStack getStack();
+    public ItemStack getStack();
     
-    public abstract BlockState getState();
+    public BlockState getState();
     
-    public abstract boolean canBeConvertedToVanilla();
+    public boolean canBeConvertedToVanilla();
     
-    public abstract String blockName();
+    public String blockName();
     
-    public abstract void mirror(LittleTile tile, Axis axis, LittleVec doubledCenter);
+    public LittleBlock mirror(Axis axis, LittleVec doubledCenter);
     
-    public abstract void rotate(LittleTile tile, Rotation rotation, LittleVec doubledCenter);
+    public LittleBlock rotate(Rotation rotation, LittleVec doubledCenter);
     
-    public abstract SoundType getSoundType();
+    public SoundType getSoundType();
     
-    public abstract float getExplosionResistance(LittleTile tile);
+    public float getExplosionResistance(LittleTile tile);
     
-    public abstract void exploded(IParentCollection parent, LittleTile tile, Explosion explosion);
+    public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion);
     
-    public abstract void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand);
+    public boolean randomTicks();
     
-    public abstract boolean canInteract(LittleTile tile);
+    public void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand);
     
-    public abstract InteractionResult use(IParentCollection parent, LittleTile tile, Player player, InteractionHand hand, BlockHitResult result);
+    public boolean canInteract();
     
-    public abstract int getLightValue();
+    public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result);
     
-    public abstract float getEnchantPowerBonus(IParentCollection parent, LittleTile tile);
+    public int getLightValue();
     
-    public abstract float getFriction(IParentCollection parent, LittleTile tile, @Nullable Entity entity);
+    public float getEnchantPowerBonus(IParentCollection parent, LittleTile tile);
     
-    public abstract boolean isMaterial(Material material);
+    public float getFriction(IParentCollection parent, LittleTile tile, @Nullable Entity entity);
     
-    public abstract boolean isLiquid();
+    public boolean isMaterial(Material material);
     
-    public abstract Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks);
+    public boolean isLiquid();
     
-    public abstract Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion);
+    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks);
     
-    public abstract boolean canRenderInLayer(RenderType layer);
+    public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion);
     
-    public abstract LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, int color);
+    public LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, int color);
     
-    public abstract boolean canBeRenderCombined(LittleBlock tile);
+    public boolean canBeRenderCombined(LittleTile one, LittleTile two);
     
-    public abstract boolean checkEntityCollision();
+    public boolean checkEntityCollision();
     
-    public abstract void entityCollided(IParentCollection parent, LittleTile tile, Entity entity);
-    
-    public abstract VoxelShape getSelectionShape(IParentCollection parent, LittleTile tile);
-    
-    public abstract VoxelShape getOcclusionShape(IParentCollection parent, LittleTile tile);
-    
-    public VoxelShape getCollisionShape(IParentCollection parent, CollisionContext context, LittleTile tile) {
-        if (noCollision())
-            return null;
-    }
+    public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity);
     
 }

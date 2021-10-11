@@ -7,10 +7,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
@@ -27,12 +25,10 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -53,7 +49,7 @@ import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public final class LittleTile implements Iterable<LittleBox> {
     
-    public final LittleBlock block;
+    private LittleBlock block;
     public final int color;
     private List<LittleBox> boxes;
     
@@ -94,6 +90,10 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     // ================Basics================
+    
+    public LittleBlock getBlock() {
+        return block;
+    }
     
     private void prepareExpand() {
         if (boxes instanceof SingletonList) {
@@ -348,45 +348,20 @@ public final class LittleTile implements Iterable<LittleBox> {
     public void mirror(Axis axis, LittleVec doubledCenter) {
         for (LittleBox box : boxes)
             box.mirror(axis, doubledCenter);
-        block.mirror(this, axis, doubledCenter);
+        block = block.mirror(axis, doubledCenter);
     }
     
     public void rotate(Rotation rotation, LittleVec doubledCenter) {
         for (LittleBox box : boxes)
             box.rotate(rotation, doubledCenter);
-        block.rotate(this, rotation, doubledCenter);
+        block = block.rotate(rotation, doubledCenter);
     }
     
     // ================Rendering================
     
     @OnlyIn(Dist.CLIENT)
-    public boolean canRenderInLayer(RenderType layer) {
-        if (OptifineHelper.installed() && block.canRenderInLayer(RenderType.cutout()))
-            return layer == RenderType.cutoutMipped(); // Should fix an Optifine bug
-        return block.canRenderInLayer(layer);
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public final List<LittleRenderBox> getRenderBoxes(LittleGrid grid, RenderType layer) {
-        List<LittleRenderBox> render = new ArrayList<>(boxes.size());
-        for (LittleBox box : boxes) {
-            LittleRenderBox renderBox = block.getRenderBox(grid, layer, box, color);
-            if (renderBox != null)
-                render.add(renderBox);
-        }
-        return render;
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public List<RenderBox> getPreviewBoxes(LittleGrid context) {
-        RenderBox cube = box.getRenderingCube(context, getBlock(), getMeta());
-        cube.color = color;
-        return cube;
-    }
-    
-    @OnlyIn(Dist.CLIENT)
     public boolean canBeRenderCombined(LittleTile tile) {
-        return block.canBeRenderCombined(tile.block);
+        return block.canBeRenderCombined(this, tile);
     }
     
     // ================Sound================
@@ -410,11 +385,11 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     public boolean canInteract() {
-        return block.canInteract(this);
+        return block.canInteract();
     }
     
-    public InteractionResult use(IParentCollection parent, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-        return block.use(parent, this, player, hand, result);
+    public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+        return block.use(parent, box, player, hand, result);
     }
     
     public int getLightValue() {
@@ -462,16 +437,11 @@ public final class LittleTile implements Iterable<LittleBox> {
         block.entityCollided(parent, this, entity);
     }
     
-    public VoxelShape getSelectionShape(IParentCollection parent) {
-        return block.getSelectionShape(parent, this);
-    }
-    
-    public VoxelShape getOcclusionShape(IParentCollection parent) {
-        return block.getOcclusionShape(parent, this);
-    }
-    
-    public VoxelShape getCollisionShape(IParentCollection parent, CollisionContext context) {
-        return block.getCollisionShape(parent, context, this);
+    public VoxelShape getShapes(IParentCollection parent) {
+        VoxelShape shape = Shapes.empty();
+        for (LittleBox box : boxes)
+            shape = Shapes.or(shape, box.getShape(parent.getGrid()));
+        return shape;
     }
     
     // ================Ingredient================

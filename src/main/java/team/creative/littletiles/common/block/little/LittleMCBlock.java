@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -27,30 +29,31 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
-public class LittleMCBlock extends LittleBlock {
+public class LittleMCBlock implements LittleBlock {
     
-    private static final Field hasCollisionField = ObfuscationReflectionHelper.findField(BlockBehaviour.class, "f_60443_");
+    public static final Field hasCollisionField = ObfuscationReflectionHelper.findField(BlockBehaviour.class, "f_60443_");
     
     public final Block block;
     private final boolean translucent;
     
     public LittleMCBlock(Block block) {
         this.block = block;
-        this.translucent = !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState()
-                .isSolidRender(p_200015_1_, p_200015_2_).isOpaqueCube();
+        this.translucent = !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid() || block.defaultBlockState().canOcclude(); // Also depends on block model
     }
     
     @Override
-    public boolean canRenderInLayer(RenderType layer) {
-        try {
-            return block.canRenderInLayer(layer);
-        } catch (Exception e) {
-            try {
-                return block.getBlockLayer() == layer;
-            } catch (Exception e2) {
-                return layer == BlockRenderLayer.SOLID;
-            }
-        }
+    public boolean is(ItemStack stack) {
+        return Block.byItem(stack.getItem()) == block;
+    }
+    
+    @Override
+    public ItemStack getStack() {
+        return new ItemStack(block);
+    }
+    
+    @Override
+    public boolean canBeRenderCombined(LittleTile one, LittleTile two) {
+        return one.getBlock() == two.getBlock() && one.color == two.color;
     }
     
     @Override
@@ -79,10 +82,14 @@ public class LittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public void mirror(LittleTile tile, Axis axis, LittleVec doubledCenter) {}
+    public LittleBlock mirror(Axis axis, LittleVec doubledCenter) {
+        return this;
+    }
     
     @Override
-    public void rotate(LittleTile tile, Rotation rotation, LittleVec doubledCenter) {}
+    public LittleBlock rotate(Rotation rotation, LittleVec doubledCenter) {
+        return this;
+    }
     
     @Override
     @SuppressWarnings("deprecation")
@@ -98,6 +105,11 @@ public class LittleMCBlock extends LittleBlock {
     
     @Override
     public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {}
+    
+    @Override
+    public boolean randomTicks() {
+        return false;
+    }
     
     @Override
     public void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand) {}
@@ -119,12 +131,12 @@ public class LittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public boolean canInteract(LittleTile tile) {
+    public boolean canInteract() {
         return false;
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
         return InteractionResult.PASS;
     }
     
@@ -163,4 +175,14 @@ public class LittleMCBlock extends LittleBlock {
     
     @Override
     public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity) {}
+    
+    @Override
+    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
+        return originalColor;
+    }
+    
+    @Override
+    public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
+        return motion;
+    }
 }

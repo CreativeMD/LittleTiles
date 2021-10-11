@@ -1,180 +1,151 @@
 package team.creative.littletiles.common.block;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
-import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
-import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent.LittleDyeableTransparent;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBucket;
-import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.core.Direction;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.api.block.ILittleMCBlock;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.parent.IParentCollection;
 
-public class BlockFlowingWater extends Block implements ISpecialBlockHandler, IFakeRenderingBlock {
+public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRenderingBlock {
     
-    public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     
     public final Block still;
     
     public BlockFlowingWater(Block still) {
-        super(Material.WATER);
+        super(BlockBehaviour.Properties.of(Material.WATER));
         this.still = still;
-        setCreativeTab(LittleTiles.littleTab);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.EAST));
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-        IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
-        Block block = iblockstate.getBlock();
-        
-        if (block == this) {
-            return false;
-        }
-        
-        return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
     
     @Override
-    public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
-        return false;
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
     }
     
     @Override
-    public boolean isOpaqueCube(IBlockState state) {
-        return false;
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getClickedFace());
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer() {
-        return BlockRenderLayer.TRANSLUCENT;
-    }
-    
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-        /*
-         * for (int i = 0; i < DIRECTION.getAllowedValues().size(); i++) { items.add(new
-         * ItemStack(this, 1, i)); }
-         */
-    }
-    
-    @Override
-    public int damageDropped(IBlockState state) {
-        return state.getValue(DIRECTION).ordinal();
-    }
-    
-    @Override
-    public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState().withProperty(DIRECTION, EnumFacing.getFront(meta));
-    }
-    
-    @Override
-    public int getMetaFromState(IBlockState state) {
-        return state.getValue(DIRECTION).ordinal();
-    }
-    
-    @Override
-    protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, DIRECTION);
-    }
-    
-    @Override
-    public boolean canWalkThrough(LittleTile tile) {
+    public boolean noCollision() {
         return true;
     }
     
     @Override
-    public boolean isMaterial(LittleTile tile, Material material) {
+    public boolean isMaterial(Material material) {
         return material == Material.WATER;
     }
     
     @Override
-    public boolean isLiquid(LittleTile tile) {
+    public boolean isLiquid() {
         return true;
     }
     
     @Override
-    public Vec3d modifyAcceleration(IParentTileList parent, LittleTile tile, Entity entityIn, Vec3d motion) {
-        AxisAlignedBB box = entityIn.getEntityBoundingBox();
-        LittleVec center = new LittleVec(parent.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2)
-                .subtract(new Vec3d(parent.getPos())));
+    public boolean checkEntityCollision() {
+        return true;
+    }
+    
+    @Override
+    public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
+        AABB box = entity.getBoundingBox();
+        LittleVec center = new LittleVec(parent.getGrid(), new Vec3((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2)
+                .subtract(Vec3.atLowerCornerOf(parent.getPos())));
         LittleBox testBox = new LittleBox(center, 1, 1, 1);
         if (tile.intersectsWith(testBox)) {
             double scale = 0.01;
-            Vec3d vec = new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
-            entityIn.motionX += vec.x * scale;
-            entityIn.motionY += vec.y * scale;
-            entityIn.motionZ += vec.z * scale;
+            Vec3d vec = new Vec3(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
+            entity.motionX += vec.x * scale;
+            entity.motionY += vec.y * scale;
+            entity.motionZ += vec.z * scale;
         }
         return new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec());
     }
     
     @Override
-    public boolean canBeConvertedToVanilla(LittleTile tile) {
+    public boolean canBeConvertedToVanilla() {
         return false;
     }
     
     @Override
-    public IBlockState getFakeState(IBlockState state) {
+    public BlockState getFakeState(BlockState state) {
         return Blocks.FLOWING_WATER.getDefaultState();
     }
     
     @Override
-    public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-        if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingWater) {
+    public boolean canInteract() {
+        return true;
+    }
+    
+    @Override
+    public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
+        if (hand == InteractionHand.MAIN_HAND && player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
             int meta = tile.getMeta() + 1;
             if (meta > EnumFacing.VALUES.length)
                 tile.setBlock(LittleTiles.dyeableBlockTransparent, still.ordinal());
             else
                 tile.setMeta(meta);
             parent.getTe().updateTiles();
-            return true;
+            return InteractionResult.SUCCESS;
         }
-        return ISpecialBlockHandler.super.onBlockActivated(parent, tile, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+        return ILittleMCBlock.super.use(parent, box, player, hand, result);
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
         if (tile.getBlock() == this)
             return true;
-        if (tile.getBlock() == LittleTiles.dyeableBlockTransparent && LittleDyeableTransparent.values()[tile.getMeta()].isWater())
+        if (tile.getBlock() == LittleTiles.WATER)
             return true;
         return false;
     }
     
     @Override
-    public Vec3d getFogColor(IParentTileList parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
+    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
         float f12 = 0.0F;
-        if (entity instanceof net.minecraft.entity.EntityLivingBase) {
-            net.minecraft.entity.EntityLivingBase ent = (net.minecraft.entity.EntityLivingBase) entity;
-            f12 = net.minecraft.enchantment.EnchantmentHelper.getRespirationModifier(ent) * 0.2F;
+        if (entity instanceof LivingEntity) {
+            LivingEntity ent = (LivingEntity) entity;
+            f12 = EnchantmentHelper.getRespiration(ent) * 0.2F;
             
-            if (ent.isPotionActive(net.minecraft.init.MobEffects.WATER_BREATHING))
+            if (ent.hasEffect(MobEffects.WATER_BREATHING))
                 f12 = f12 * 0.3F + 0.6F;
         }
         return new Vec3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
