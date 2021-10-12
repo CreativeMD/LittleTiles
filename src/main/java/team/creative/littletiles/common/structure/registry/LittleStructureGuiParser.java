@@ -2,16 +2,18 @@ package team.creative.littletiles.common.structure.registry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents.GuiSignalEventsButton;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public abstract class LittleStructureGuiParser implements IAnimationControl {

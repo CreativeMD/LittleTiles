@@ -2,8 +2,6 @@ package team.creative.littletiles.common.tile.parent;
 
 import java.security.InvalidParameterException;
 
-import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -23,6 +21,7 @@ import team.creative.littletiles.common.structure.exception.MissingBlockExceptio
 import team.creative.littletiles.common.structure.exception.MissingStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.type.LittleFixedStructure;
 
 public class StructureParentCollection extends ParentCollection implements IStructureParentCollection, IStructureConnection {
     

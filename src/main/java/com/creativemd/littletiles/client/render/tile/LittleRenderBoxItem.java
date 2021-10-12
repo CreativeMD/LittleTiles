@@ -14,7 +14,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.common.structure.type.LittleItemHolder;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Minecraft;
@@ -32,6 +31,7 @@ import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.type.LittleItemHolder;
 
 public class LittleRenderBoxItem extends LittleRenderBox {
     

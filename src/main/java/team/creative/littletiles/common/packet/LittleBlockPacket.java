@@ -19,7 +19,6 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,6 +41,7 @@ import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGrabber;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public class LittleBlockPacket extends CreativeCorePacket {
     

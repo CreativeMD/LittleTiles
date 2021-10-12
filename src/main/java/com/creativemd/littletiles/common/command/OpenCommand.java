@@ -9,10 +9,7 @@ import javax.annotation.Nullable;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -23,6 +20,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.structure.type.door.LittleDoor;
+import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 
 public class OpenCommand extends CommandBase {
     

@@ -396,7 +396,7 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-        return block.use(parent, box, player, hand, result);
+        return block.use(parent, this, box, player, hand, result);
     }
     
     public int getLightValue() {

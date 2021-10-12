@@ -4,13 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 import com.creativemd.littletiles.common.entity.DoorController;
-import com.creativemd.littletiles.common.structure.IAnimatedStructure;
-import com.creativemd.littletiles.common.structure.animation.AnimationController;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.structure.IAnimatedStructure;
 
 public abstract class EntityAnimationController extends AnimationController {
     
@@ -38,17 +37,17 @@ public abstract class EntityAnimationController extends AnimationController {
             ((IAnimatedStructure) parent.structure).setAnimation(parent);
     }
     
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-        nbt.setString("id", controllerTypesInv.get(this.getClass()));
+    public CompoundTag writeToNBT(CompoundTag nbt) {
+        nbt.putString("id", controllerTypesInv.get(this.getClass()));
         writeToNBTExtra(nbt);
         return nbt;
     }
     
-    protected abstract void writeToNBTExtra(NBTTagCompound nbt);
+    protected abstract void writeToNBTExtra(CompoundTag nbt);
     
-    protected abstract void readFromNBT(NBTTagCompound nbt);
+    protected abstract void readFromNBT(CompoundTag nbt);
     
-    public EntityPlayer activator() {
+    public Player activator() {
         return null;
     }
     
@@ -66,7 +65,7 @@ public abstract class EntityAnimationController extends AnimationController {
     
     public abstract void transform(LittleTransformation transformation);
     
-    public static EntityAnimationController parseController(EntityAnimation animation, NBTTagCompound nbt) {
+    public static EntityAnimationController parseController(EntityAnimation animation, CompoundTag nbt) {
         Class<? extends EntityAnimationController> controllerType = controllerTypes.get(nbt.getString("id"));
         if (controllerType == null)
             throw new RuntimeException("Unkown controller type '" + nbt.getString("id") + "'");

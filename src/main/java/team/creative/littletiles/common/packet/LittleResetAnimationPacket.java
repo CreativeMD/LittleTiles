@@ -3,11 +3,11 @@ package team.creative.littletiles.common.packet;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public class LittleResetAnimationPacket extends CreativeCorePacket {
     

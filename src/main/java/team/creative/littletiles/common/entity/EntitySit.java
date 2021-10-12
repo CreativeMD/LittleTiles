@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.entity;
 
-import com.creativemd.littletiles.common.structure.type.LittleChair;
 import com.mojang.math.Vector3d;
 
 import net.minecraft.core.BlockPos;
@@ -20,6 +19,7 @@ import team.creative.littletiles.common.structure.connection.ILevelPositionProvi
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.type.LittleChair;
 
 public class EntitySit extends Entity implements ILevelPositionProvider {
     

@@ -3,24 +3,20 @@ package team.creative.littletiles.common.structure.directional;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.mojang.math.Vector3f;
 
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.IntArrayNBT;
-import net.minecraft.nbt.IntNBT;
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.transformation.RotationUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public abstract class StructureDirectionalType<T> {
@@ -46,7 +42,7 @@ public abstract class StructureDirectionalType<T> {
             @Override
             public Facing read(Tag nbt) {
                 if (nbt instanceof IntTag)
-                    return Facing.values()[((IntNBT) nbt).getAsInt()];
+                    return Facing.values()[((IntTag) nbt).getAsInt()];
                 return null;
             }
             
@@ -56,13 +52,13 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Facing move(Facing value, LittleGrid context, LittleVec offset) {
+            public Facing move(Facing value, LittleVecGrid offset) {
                 return value;
             }
             
             @Override
-            public Facing flip(Facing value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
-                return Mirror
+            public Facing mirror(Facing value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+                return axis.mirror(value);
             }
             
             @Override
@@ -78,30 +74,30 @@ public abstract class StructureDirectionalType<T> {
         registerType(Axis.class, new StructureDirectionalType<Axis>() {
             
             @Override
-            public Axis read(INBT nbt) {
-                if (nbt instanceof IntNBT)
-                    return Axis.values()[((IntNBT) nbt).getAsInt()];
+            public Axis read(Tag nbt) {
+                if (nbt instanceof IntTag)
+                    return Axis.values()[((IntTag) nbt).getAsInt()];
                 return null;
             }
             
             @Override
-            public INBT write(Axis value) {
-                return IntNBT.valueOf(value.ordinal());
+            public Tag write(Axis value) {
+                return IntTag.valueOf(value.ordinal());
             }
             
             @Override
-            public Axis move(Axis value, LittleGrid context, LittleVec offset) {
+            public Axis move(Axis value, LittleVecGrid offset) {
                 return value;
             }
             
             @Override
-            public Axis flip(Axis value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+            public Axis mirror(Axis value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
                 return value;
             }
             
             @Override
             public Axis rotate(Axis value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
-                return RotationUtils.rotate(value, rotation);
+                return rotation.rotate(value);
             }
             
             @Override
@@ -113,26 +109,26 @@ public abstract class StructureDirectionalType<T> {
         registerType(StructureRelative.class, new StructureDirectionalType<StructureRelative>() {
             
             @Override
-            public StructureRelative read(INBT nbt) {
-                if (nbt instanceof IntArrayNBT)
-                    return new StructureRelative(((IntArrayNBT) nbt).getAsIntArray());
+            public StructureRelative read(Tag nbt) {
+                if (nbt instanceof IntArrayTag)
+                    return new StructureRelative(((IntArrayTag) nbt).getAsIntArray());
                 return null;
             }
             
             @Override
-            public INBT write(StructureRelative value) {
-                return new IntArrayNBT(value.write());
+            public Tag write(StructureRelative value) {
+                return new IntArrayTag(value.write());
             }
             
             @Override
-            public StructureRelative move(StructureRelative value, LittleGrid context, LittleVec offset) {
-                value.move(context, offset);
+            public StructureRelative move(StructureRelative value, LittleVecGrid offset) {
+                value.move(offset);
                 return value;
             }
             
             @Override
-            public StructureRelative flip(StructureRelative value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
-                value.flip(context, axis, doubledCenter);
+            public StructureRelative mirror(StructureRelative value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+                value.mirror(context, axis, doubledCenter);
                 return value;
             }
             
@@ -143,8 +139,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public LittleGrid getContext(StructureRelative value) {
-                return value.getContext();
+            public LittleGrid getGrid(StructureRelative value) {
+                return value.getGrid();
             }
             
             @Override
@@ -158,53 +154,53 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public PlacePreview getPlacePreview(StructureRelative value, LittlePreviews previews, StructureDirectionalField field) {
+            public PlacePreview getPlacePreview(StructureRelative value, LittleGroup previews, StructureDirectionalField field) {
                 return value.getPlacePreview(previews, field);
             }
             
             @Override
             public StructureRelative getDefault() {
-                return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGrid.get());
+                return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGrid.defaultGrid());
             }
             
         });
-        registerType(Vector3f.class, new StructureDirectionalType<Vector3f>() {
+        registerType(Vec3f.class, new StructureDirectionalType<Vec3f>() {
             
             @Override
-            public Vector3f read(INBT nbt) {
-                if (nbt instanceof IntArrayNBT) {
-                    int[] array = ((IntArrayNBT) nbt).getAsIntArray();
+            public Vec3f read(Tag nbt) {
+                if (nbt instanceof IntArrayTag) {
+                    int[] array = ((IntArrayTag) nbt).getAsIntArray();
                     if (array.length == 3)
-                        return new Vector3f(Float.intBitsToFloat(array[0]), Float.intBitsToFloat(array[1]), Float.intBitsToFloat(array[2]));
+                        return new Vec3f(Float.intBitsToFloat(array[0]), Float.intBitsToFloat(array[1]), Float.intBitsToFloat(array[2]));
                 }
                 return null;
             }
             
             @Override
-            public INBT write(Vector3f value) {
-                return new IntArrayNBT(new int[] { Float.floatToIntBits(value.x), Float.floatToIntBits(value.y), Float.floatToIntBits(value.z) });
+            public Tag write(Vec3f value) {
+                return new IntArrayTag(new int[] { Float.floatToIntBits(value.x), Float.floatToIntBits(value.y), Float.floatToIntBits(value.z) });
             }
             
             @Override
-            public Vector3f move(Vector3f value, LittleGrid context, LittleVec offset) {
+            public Vec3f move(Vec3f value, LittleVecGrid offset) {
                 return value;
             }
             
             @Override
-            public Vector3f flip(Vector3f value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
-                RotationUtils.flip(value, axis);
+            public Vec3f mirror(Vec3f value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+                axis.mirror(value);
                 return value;
             }
             
             @Override
-            public Vector3f rotate(Vector3f value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
-                RotationUtils.rotate(value, rotation);
+            public Vec3f rotate(Vec3f value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
+                rotation.transform(value);
                 return value;
             }
             
             @Override
-            public Vector3f getDefault() {
-                return new Vector3f();
+            public Vec3f getDefault() {
+                return new Vec3f();
             }
         });
     }
@@ -215,13 +211,13 @@ public abstract class StructureDirectionalType<T> {
     
     public abstract T move(T value, LittleVecGrid vec);
     
-    public abstract T flip(T value, LittleGrid context, Axis axis, LittleVec doubledCenter);
+    public abstract T mirror(T value, LittleGrid context, Axis axis, LittleVec doubledCenter);
     
     public abstract T rotate(T value, LittleGrid context, Rotation rotation, LittleVec doubledCenter);
     
     public abstract T getDefault();
     
-    public LittleGrid getContext(T value) {
+    public LittleGrid getGrid(T value) {
         return null;
     }
     

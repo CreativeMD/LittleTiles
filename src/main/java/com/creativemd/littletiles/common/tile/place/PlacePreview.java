@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -88,11 +89,11 @@ public class PlacePreview {
         box.add(vec);
     }
     
-    public void convertTo(LittleGridContext context, LittleGridContext to) {
+    public void convertTo(LittleGrid context, LittleGrid to) {
         box.convertTo(context, to);
     }
     
-    public int getSmallestContext(LittleGridContext context) {
+    public int getSmallestContext(LittleGrid context) {
         return box.getSmallestContext(context);
     }
     

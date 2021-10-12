@@ -5,42 +5,42 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.type.LittleBed;
-import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
-import com.creativemd.littletiles.common.structure.type.LittleChair;
-import com.creativemd.littletiles.common.structure.type.LittleChair.LittleChairParser;
-import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
-import com.creativemd.littletiles.common.structure.type.LittleFixedStructure.LittleFixedStructureParser;
-import com.creativemd.littletiles.common.structure.type.LittleItemHolder;
-import com.creativemd.littletiles.common.structure.type.LittleLadder;
-import com.creativemd.littletiles.common.structure.type.LittleLadder.LittleLadderParser;
-import com.creativemd.littletiles.common.structure.type.LittleLight;
-import com.creativemd.littletiles.common.structure.type.LittleLight.LittleLightStructureParser;
-import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure;
-import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.LittleNoClipStructureParser;
-import com.creativemd.littletiles.common.structure.type.LittleStorage;
-import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
-import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageType;
-import com.creativemd.littletiles.common.structure.type.LittleStructureMessage;
-import com.creativemd.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
-
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.creativecore.common.util.type.PairList;
+import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScalerVolume;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.type.LittleBed;
+import team.creative.littletiles.common.structure.type.LittleBed.LittleBedParser;
+import team.creative.littletiles.common.structure.type.LittleChair;
+import team.creative.littletiles.common.structure.type.LittleChair.LittleChairParser;
+import team.creative.littletiles.common.structure.type.LittleFixedStructure;
+import team.creative.littletiles.common.structure.type.LittleFixedStructure.LittleFixedStructureParser;
+import team.creative.littletiles.common.structure.type.LittleItemHolder;
+import team.creative.littletiles.common.structure.type.LittleLadder;
+import team.creative.littletiles.common.structure.type.LittleLadder.LittleLadderParser;
+import team.creative.littletiles.common.structure.type.LittleLight;
+import team.creative.littletiles.common.structure.type.LittleLight.LittleLightStructureParser;
+import team.creative.littletiles.common.structure.type.LittleNoClipStructure;
+import team.creative.littletiles.common.structure.type.LittleNoClipStructure.LittleNoClipStructureParser;
+import team.creative.littletiles.common.structure.type.LittleStorage;
+import team.creative.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
+import team.creative.littletiles.common.structure.type.LittleStorage.LittleStorageType;
+import team.creative.littletiles.common.structure.type.LittleStructureMessage;
+import team.creative.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
+import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
+import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
+import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 public class LittleStructureRegistry {
     
@@ -150,27 +150,28 @@ public class LittleStructureRegistry {
     }
     
     public static void initStructures() {
-        defaultType = registerStructureType("fixed", "simple", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
+        defaultType = registerStructureType("fixed", "simple", LittleFixedStructure.class, new LittleAttributeBuilder(), LittleFixedStructureParser.class);
         
-        registerStructureType("ladder", "simple", LittleLadder.class, LittleStructureAttribute.LADDER, LittleLadderParser.class)
+        registerStructureType("ladder", "simple", LittleLadder.class, new LittleAttributeBuilder().ladder(), LittleLadderParser.class)
                 .addIngredient(StructureIngredientRule.LONGEST_SIDE, new StackIngredient(new ItemStack(Blocks.LADDER)));
         
-        registerStructureType("bed", "simple", LittleBed.class, LittleStructureAttribute.NONE, LittleBedParser.class).addInput("occupied", 1)
+        registerStructureType("bed", "simple", LittleBed.class, new LittleAttributeBuilder(), LittleBedParser.class).addInput("occupied", 1)
                 .addIngredient(StructureIngredientRule.SINGLE, new StackIngredient(new ItemStack(Items.BED)));
-        registerStructureType("chair", "simple", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class).addInput("occupied", 1);
+        registerStructureType("chair", "simple", LittleChair.class, new LittleAttributeBuilder(), LittleChairParser.class).addInput("occupied", 1);
         
-        registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE).addInput("accessed", 1)
+        registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, new LittleAttributeBuilder()).addInput("accessed", 1)
                 .addInput("filled", 16), LittleStorageParser.class);
-        registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.NOCOLLISION | LittleStructureAttribute.COLLISION_LISTENER, LittleNoClipStructureParser.class)
+        registerStructureType("noclip", "simple", LittleNoClipStructure.class, new LittleAttributeBuilder().noCollision().collisionListener(), LittleNoClipStructureParser.class)
                 .addInput("players", 4).addInput("entities", 4);
         
-        registerStructureType("light", "simple", LittleLight.class, LittleStructureAttribute.LIGHT_EMITTER, LittleLightStructureParser.class)
+        registerStructureType("light", "simple", LittleLight.class, new LittleAttributeBuilder().lightEmitter(), LittleLightStructureParser.class)
                 .addOutput("enabled", 1, SignalMode.TOGGLE, true).addIngredient(new StructureIngredientScalerVolume(8), new StackIngredient(new ItemStack(Items.GLOWSTONE_DUST)));
         
-        registerStructureType("message", "simple", LittleStructureMessage.class, 0, LittleMessageStructureParser.class).addOutput("message", 1, SignalMode.EQUAL);
+        registerStructureType("message", "simple", LittleStructureMessage.class, new LittleAttributeBuilder(), LittleMessageStructureParser.class)
+                .addOutput("message", 1, SignalMode.EQUAL);
         
         LittleStructureBuilder
-                .register(new LittleStructureBuilderType(registerStructureType("item_holder", "simple", LittleItemHolder.class, LittleStructureAttribute.EXTRA_RENDERING, null)
+                .register(new LittleStructureBuilderType(registerStructureType("item_holder", "simple", LittleItemHolder.class, new LittleAttributeBuilder().extraRendering(), null)
                         .addInput("filled", 1), "frame"));
         
         LittleDoorBase.initDoors();

@@ -1,10 +1,9 @@
 package team.creative.littletiles.common.particle;
 
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpread;
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpreadRandom;
-
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpread;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpreadRandom;
 
 public enum LittleParticlePresets {
     

@@ -11,9 +11,6 @@ import com.creativemd.creativecore.common.utils.mc.NBTUtils;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -36,6 +33,9 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
 
 public class ItemPremadeStructure extends Item implements ICreativeRendered, ILittlePlacer {
     

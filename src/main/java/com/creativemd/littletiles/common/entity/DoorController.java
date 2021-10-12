@@ -17,13 +17,8 @@ import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.animation.AnimationController;
-import com.creativemd.littletiles.common.structure.animation.AnimationState;
-import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.place.Placement;
@@ -41,8 +36,13 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import team.creative.littletiles.common.animation.AnimationController;
+import team.creative.littletiles.common.animation.AnimationState;
+import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.placement.PlacementResult;
+import team.creative.littletiles.common.structure.type.door.LittleDoor;
+import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
 public class DoorController extends EntityAnimationController {
     

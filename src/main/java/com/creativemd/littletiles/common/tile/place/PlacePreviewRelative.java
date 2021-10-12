@@ -4,17 +4,17 @@ import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class PlacePreviewRelative extends PlacePreview {
     
@@ -43,7 +43,7 @@ public class PlacePreviewRelative extends PlacePreview {
     }
     
     @Override
-    public List<LittleRenderBox> getPreviews(LittleGridContext context) {
+    public List<LittleRenderBox> getPreviews(LittleGrid context) {
         List<LittleRenderBox> cubes = super.getPreviews(context);
         for (LittleRenderBox cube : cubes)
             cube.color = relativeType.annotation.color();

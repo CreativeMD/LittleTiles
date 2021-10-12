@@ -5,14 +5,14 @@ import java.util.UUID;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.structure.type.door.LittleDoor;
 
 public class LittlePlacedAnimationPacket extends CreativeCorePacket {
     

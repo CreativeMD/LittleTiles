@@ -9,7 +9,6 @@ import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManage
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,6 +20,7 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public abstract class SelectionMode {
     

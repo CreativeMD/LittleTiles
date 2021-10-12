@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
 import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
 import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Function;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -65,6 +64,7 @@ import team.creative.littletiles.common.item.ItemLittleGrabber;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleTilesClient {

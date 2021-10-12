@@ -7,9 +7,6 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor.StillInMotionException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
@@ -22,6 +19,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.structure.type.door.LittleDoor;
+import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
+import team.creative.littletiles.common.structure.type.door.LittleDoor.StillInMotionException;
 
 public class LittleActivateDoorPacket extends CreativeCorePacket {
     

@@ -152,4 +152,8 @@ public class LittleVecGrid implements IGridBased {
     public String toString() {
         return "[" + vec.x + "," + vec.y + "," + vec.z + ",grid:" + grid.count + "]";
     }
+    
+    public void invert() {
+        this.vec.invert();
+    }
 }

@@ -135,14 +135,14 @@ public class LittleBox {
     
     // ================Size & Volume================
     
-    public int getSmallest(LittleGrid context) {
+    public int getSmallest(LittleGrid grid) {
         int size = LittleGrid.min().count;
-        size = Math.max(size, context.getMinGrid(minX));
-        size = Math.max(size, context.getMinGrid(minY));
-        size = Math.max(size, context.getMinGrid(minZ));
-        size = Math.max(size, context.getMinGrid(maxX));
-        size = Math.max(size, context.getMinGrid(maxY));
-        size = Math.max(size, context.getMinGrid(maxZ));
+        size = Math.max(size, grid.getMinGrid(minX));
+        size = Math.max(size, grid.getMinGrid(minY));
+        size = Math.max(size, grid.getMinGrid(minZ));
+        size = Math.max(size, grid.getMinGrid(maxX));
+        size = Math.max(size, grid.getMinGrid(maxY));
+        size = Math.max(size, grid.getMinGrid(maxZ));
         return size;
     }
     

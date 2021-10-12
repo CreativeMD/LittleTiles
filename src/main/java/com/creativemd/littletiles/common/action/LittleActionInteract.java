@@ -9,7 +9,6 @@ import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public abstract class LittleActionInteract extends LittleAction {
     

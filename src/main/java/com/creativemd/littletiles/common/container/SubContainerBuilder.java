@@ -2,8 +2,6 @@ package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -14,6 +12,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
+import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 
 public class SubContainerBuilder extends SubContainer {
     

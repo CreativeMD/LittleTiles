@@ -23,16 +23,16 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTran
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter;
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpread;
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpreadCircular;
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpreadRandom;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.nbt.NBTTagCompound;
 import team.creative.littletiles.common.particle.LittleParticlePresets;
 import team.creative.littletiles.common.particle.LittleParticleTexture;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpread;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpreadCircular;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSpreadRandom;
 
 public class SubGuiParticle extends SubGui {
     

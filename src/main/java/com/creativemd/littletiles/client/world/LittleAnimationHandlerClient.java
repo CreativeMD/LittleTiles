@@ -15,8 +15,6 @@ import com.creativemd.littletiles.client.event.LeftClick;
 import com.creativemd.littletiles.client.event.WheelClick;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
-import com.creativemd.littletiles.common.world.LittleAnimationHandler;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
@@ -66,6 +64,8 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.LittleAnimationHandler;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
 
 @SideOnly(Side.CLIENT)

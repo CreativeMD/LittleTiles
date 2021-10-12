@@ -6,8 +6,6 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
-import com.creativemd.littletiles.common.structure.animation.AnimationState;
-import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
@@ -22,10 +20,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
+import team.creative.littletiles.common.structure.type.LittleFixedStructure;
 
 public class AnimationPreview {
     

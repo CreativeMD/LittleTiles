@@ -4,26 +4,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.tile.LittleTile;
 
 public class PlacePreviewFacing extends PlacePreview {
     
-    public EnumFacing facing;
+    public Facing facing;
     public int color;
     
-    public PlacePreviewFacing(LittleBox box, EnumFacing facing, int color) {
+    public PlacePreviewFacing(LittleBox box, Facing facing, int color) {
         super(box.copy(), null);
         this.facing = facing;
         this.color = color;
@@ -45,7 +43,7 @@ public class PlacePreviewFacing extends PlacePreview {
     }
     
     @Override
-    public List<LittleRenderBox> getPreviews(LittleGridContext context) {
+    public List<LittleRenderBox> getPreviews(LittleGrid context) {
         List<LittleRenderBox> cubes = new ArrayList<>();
         LittleRenderBox cube = new LittleRenderBox(box.getCube(context), box, LittleTiles.dyeableBlock, 0);
         cube.setColor(color);

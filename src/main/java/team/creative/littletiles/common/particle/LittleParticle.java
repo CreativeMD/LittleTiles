@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.particle;
 
-import com.creativemd.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Camera;
@@ -11,6 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleParticle extends Particle {

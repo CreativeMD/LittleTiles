@@ -18,7 +18,6 @@ import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
@@ -30,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry;
 import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry.BleachRecipe;
+import team.creative.littletiles.common.structure.type.premade.LittleBlankOMatic;
 
 public class SubGuiBlankOMatic extends SubGui {
     

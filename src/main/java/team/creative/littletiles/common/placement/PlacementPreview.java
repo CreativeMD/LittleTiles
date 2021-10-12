@@ -3,12 +3,12 @@ package team.creative.littletiles.common.placement;
 import java.util.UUID;
 
 import com.creativemd.littletiles.common.util.place.PlacementMode;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 import team.creative.littletiles.common.tile.group.LittleGroup;
 

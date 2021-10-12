@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.CreativeWorld;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public class LittleBlocksUpdatePacket extends CreativePacket {
     

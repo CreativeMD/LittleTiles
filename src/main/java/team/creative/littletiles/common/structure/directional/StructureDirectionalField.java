@@ -74,16 +74,16 @@ public class StructureDirectionalField {
         return type.move(value, vec);
     }
     
-    public Object flip(Object value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
-        return type.flip(value, context, axis, doubledCenter);
+    public Object mirror(Object value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+        return type.mirror(value, context, axis, doubledCenter);
     }
     
     public Object rotate(Object value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
         return type.rotate(value, context, rotation, doubledCenter);
     }
     
-    public LittleGrid getContext(Object value) {
-        return type.getContext(value);
+    public LittleGrid getGrid(Object value) {
+        return type.getGrid(value);
     }
     
     public void convertToSmallest(Object value) {

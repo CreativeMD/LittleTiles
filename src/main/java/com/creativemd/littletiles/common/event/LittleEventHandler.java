@@ -16,7 +16,6 @@ import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -83,6 +82,7 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.signal.schedule.SignalTicker;
+import team.creative.littletiles.common.structure.type.LittleBed;
 import team.creative.littletiles.common.tile.LittleTile;
 
 public class LittleEventHandler {

@@ -6,9 +6,9 @@ import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.littletiles.common.container.SubContainerStorage.StorageSize;
-import com.creativemd.littletiles.common.structure.type.LittleStorage;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.structure.type.LittleStorage;
 
 public class SubGuiStorage extends SubGui {
     

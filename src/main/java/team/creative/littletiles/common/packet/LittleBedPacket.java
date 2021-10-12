@@ -3,13 +3,13 @@ package team.creative.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.structure.type.LittleBed;
 
 public class LittleBedPacket extends CreativeCorePacket {
     

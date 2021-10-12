@@ -80,16 +80,8 @@ public class StructureRelative implements IGridBased {
         return new PlacePreviewRelative(box, this, type);
     }
     
-    public void move(LittleGrid grid, LittleVec offset) {
-        int scale = 1;
-        if (grid.count > this.grid.count)
-            convertTo(grid);
-        else if (grid.count < this.grid.count)
-            scale = this.grid.count / grid.count;
-        
-        box.add(offset.x * scale, offset.y * scale, offset.z * scale);
-        
-        convertToSmallest();
+    public void move(LittleVecGrid offset) {
+        sameGrid(offset, () -> box.add(offset.getVec()));
     }
     
     public void mirror(LittleGrid grid, Axis axis, LittleVec doubledCenter) {

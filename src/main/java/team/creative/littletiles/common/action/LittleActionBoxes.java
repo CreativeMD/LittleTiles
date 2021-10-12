@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.core.BlockPos;
@@ -26,6 +25,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;

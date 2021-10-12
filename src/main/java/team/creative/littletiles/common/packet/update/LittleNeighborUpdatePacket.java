@@ -3,8 +3,6 @@ package team.creative.littletiles.common.packet.update;
 import java.util.List;
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.world.WorldAnimationHandler;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +13,7 @@ import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public class LittleNeighborUpdatePacket extends CreativePacket {
     

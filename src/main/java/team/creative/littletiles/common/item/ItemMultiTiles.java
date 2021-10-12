@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -40,6 +39,7 @@ import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 public class ItemMultiTiles extends Item implements ICreativeRendered, ILittlePlacer {
     

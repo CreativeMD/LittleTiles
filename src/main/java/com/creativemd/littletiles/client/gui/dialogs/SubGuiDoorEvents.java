@@ -17,12 +17,12 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
-import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
-import com.creativemd.littletiles.common.structure.animation.event.AnimationEventGuiParser;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.littletiles.common.animation.event.AnimationEvent;
+import team.creative.littletiles.common.animation.event.AnimationEventGuiParser;
+import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
 public class SubGuiDoorEvents extends SubGui {
     

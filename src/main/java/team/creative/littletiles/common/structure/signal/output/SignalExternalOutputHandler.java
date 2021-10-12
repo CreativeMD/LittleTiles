@@ -4,8 +4,6 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
@@ -18,6 +16,7 @@ import team.creative.littletiles.common.structure.signal.component.ISignalStruct
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
 
 public class SignalExternalOutputHandler implements ISignalComponent {
     

@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.config;
 
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
-import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +16,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.ItemLittleBag;
 import team.creative.littletiles.common.item.ItemMultiTiles;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 public class LittleTilesConfig {
     

@@ -4,18 +4,14 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -33,6 +29,7 @@ import team.creative.littletiles.common.structure.signal.input.InternalSignalInp
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.tile.group.LittleGroup;
+import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class LittleStructureType {
@@ -107,14 +104,14 @@ public class LittleStructureType {
     
     public LittleStructure createStructure(StructureParentCollection mainBlock) {
         try {
-            return clazz.getConstructor(LittleStructureType.class, IStructureTileList.class).newInstance(this, mainBlock);
+            return clazz.getConstructor(LittleStructureType.class, IStructureParentCollection.class).newInstance(this, mainBlock);
         } catch (Exception e) {
             throw new RuntimeException("Invalid structure type " + id, e);
         }
     }
     
-    @SideOnly(Side.CLIENT)
-    public List<LittleRenderBox> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
+    @OnlyIn(Dist.CLIENT)
+    public List<LittleRenderBox> getPositingCubes(Level level, BlockPos pos, ItemStack stack) {
         return null;
     }
     
@@ -139,56 +136,56 @@ public class LittleStructureType {
             
     }
     
-    public void finializePreview(LittlePreviews previews) {
-        LittleGridContext context = getMinContext(previews);
-        if (context.size > previews.getContext().size)
-            previews.convertTo(context);
+    public void finializePreview(LittleGroup group) {
+        LittleGrid grid = getMinContext(group);
+        if (grid.count > group.getGrid().count)
+            group.convertTo(grid);
     }
     
-    public List<PlacePreview> getSpecialTiles(LittlePreviews previews) {
+    public List<PlacePreview> getSpecialTiles(LittleGroup group) {
         if (directional.isEmpty())
             return new ArrayList<>();
         
         List<PlacePreview> placePreviews = new ArrayList<>();
         
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(previews.structureNBT);
-            PlacePreview tile = getPlacePreview(value, field, previews);
+            Object value = field.create(group.getStructureTag());
+            PlacePreview tile = getPlacePreview(value, field, group);
             if (tile == null)
                 continue;
             
-            if (field.getContext(value).size < previews.getContext().size)
-                tile.convertTo(field.getContext(value), previews.getContext());
+            if (field.getGrid(value).count < group.getGrid().count)
+                tile.convertTo(field.getGrid(value), group.getGrid());
             
             placePreviews.add(tile);
         }
         return placePreviews;
     }
     
-    protected PlacePreview getPlacePreview(Object value, StructureDirectionalField type, LittlePreviews previews) {
+    protected PlacePreview getPlacePreview(Object value, StructureDirectionalField type, LittleGroup previews) {
         return type.getPlacePreview(value, previews);
     }
     
     public LittleGrid getMinContext(LittleGroup group) {
-        LittleGridContext context = LittleGridContext.getMin();
+        LittleGrid context = LittleGrid.min();
         
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(previews.structureNBT);
+            Object value = field.create(group.getStructureTag());
             field.convertToSmallest(value);
-            LittleGridContext fieldContext = field.getContext(value);
+            LittleGrid fieldContext = field.getGrid(value);
             if (fieldContext == null)
                 continue;
             
-            context = LittleGridContext.max(context, fieldContext);
-            field.save(previews.structureNBT, value);
+            context = LittleGrid.max(context, fieldContext);
+            field.save(group.getStructureTag(), value);
         }
         return context;
     }
     
-    public Object loadDirectional(LittlePreviews previews, String key) {
+    public Object loadDirectional(LittleGroup group, String key) {
         for (StructureDirectionalField field : directional)
             if (field.key.equals(key))
-                return field.create(previews.structureNBT);
+                return field.create(group.getStructureTag());
         return null;
     }
     
@@ -204,40 +201,40 @@ public class LittleStructureType {
     public void move(LittleStructure structure, LittleVecGrid offset) {
         for (StructureDirectionalField field : directional) {
             Object value = field.get(structure);
-            value = field.move(value, context, offset);
+            value = field.move(value, offset);
             field.set(structure, value);
         }
     }
     
     public void move(LittleGroup group, LittleVecGrid offset) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(previews.structureNBT);
-            value = field.move(value, context, offset);
-            field.save(previews.structureNBT, value);
+            Object value = field.create(group.getStructureTag());
+            value = field.move(value, offset);
+            field.save(group.getStructureTag(), value);
         }
     }
     
     public void mirror(LittleGroup group, LittleGrid context, Axis axis, LittleVec doubledCenter) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(previews.structureNBT);
-            value = field.flip(value, context, axis, doubledCenter);
-            field.save(previews.structureNBT, value);
+            Object value = field.create(group.getStructureTag());
+            value = field.mirror(value, context, axis, doubledCenter);
+            field.save(group.getStructureTag(), value);
         }
     }
     
     public void rotate(LittleGroup group, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(previews.structureNBT);
+            Object value = field.create(group.getStructureTag());
             value = field.rotate(value, context, rotation, doubledCenter);
-            field.save(previews.structureNBT, value);
+            field.save(group.getStructureTag(), value);
         }
     }
     
-    public void advancedScale(LittleGroup previews, int from, int to) {
+    public void advancedScale(LittleGroup group, int from, int to) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(previews.structureNBT);
+            Object value = field.create(group.getStructureTag());
             field.advancedScale(value, from, to);
-            field.save(previews.structureNBT, value);
+            field.save(group.getStructureTag(), value);
         }
     }
     
