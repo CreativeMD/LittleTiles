@@ -55,13 +55,11 @@ public interface LittleBlock {
     
     public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion);
     
-    public boolean randomTicks();
-    
     public void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand);
     
     public boolean canInteract();
     
-    public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result);
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result);
     
     public int getLightValue();
     

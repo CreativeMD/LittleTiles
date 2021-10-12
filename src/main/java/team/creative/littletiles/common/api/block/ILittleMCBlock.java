@@ -100,11 +100,6 @@ public interface ILittleMCBlock extends LittleBlock {
     public default void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {}
     
     @Override
-    public default boolean randomTicks() {
-        return false;
-    }
-    
-    @Override
     public default void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand) {}
     
     @Override

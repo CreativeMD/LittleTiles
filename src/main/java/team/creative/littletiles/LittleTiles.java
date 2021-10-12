@@ -69,6 +69,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -83,6 +85,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -115,7 +118,9 @@ import team.creative.littletiles.common.block.entity.BETilesTickingRendered;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.entity.EntitySit;
+import team.creative.littletiles.common.entity.EntitySizeHandler;
 import team.creative.littletiles.common.entity.EntitySizedTNTPrimed;
+import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -241,6 +246,9 @@ public class LittleTiles {
     public static Item magentaColorIngredient;
     public static Item yellowColorIngredient;
     
+    public static EntityType<PrimedSizedTnt> SIZED_TNT_TYPE;
+    public static EntityType<EntitySit> SIT_TYPE;
+    
     public static CreativeModeTab littleTab = new CreativeModeTab("littletiles") {
         
         @Override
@@ -288,7 +296,7 @@ public class LittleTiles {
         
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> LittleTilesClient::init);
         
-        ForgeModContainer.fullBoundingBoxLadders = true;
+        ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
         BE_TILES_TYPE = BlockEntityType.Builder.of(BETiles::new, blockTile).build(null).setRegistryName(MODID, "tiles");
         BE_TILES_TYPE_RENDERED = BlockEntityType.Builder.of(BETilesRendered::new, blockTileRendered).build(null).setRegistryName(MODID, "tiles_rendered");
@@ -296,6 +304,9 @@ public class LittleTiles {
         BE_TILES_TYPE_TICKING_RENDERED = BlockEntityType.Builder.of(BETilesTickingRendered::new, blockTileTickingRendered).build(null)
                 .setRegistryName(MODID, "tiles_ticking_rendered");
         BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, signalConverter).build(null).setRegistryName(MODID, "converter");
+        
+        SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
+        SIT_TYPE = EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit");
         
         GuiHandler.registerGuiHandler("littleStorageStructure", new LittleStructureGuiHandler() {
             
@@ -574,6 +585,8 @@ public class LittleTiles {
             MinecraftForge.EVENT_BUS.register(AlbedoExtension.class);
         
         MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
+        
+        MinecraftForge.EVENT_BUS.register(EntitySizeHandler.class);
     }
     
     private void client(final FMLClientSetupEvent event) {
@@ -582,7 +595,12 @@ public class LittleTiles {
     
     @SubscribeEvent
     public static void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
-        event.getRegistry().registerAll(BE_TILES_TYPE, BE_SIGNALCONVERTER_TYPE);
+        event.getRegistry().registerAll(BE_TILES_TYPE, BE_TILES_TYPE_TICKING, BE_TILES_TYPE_RENDERED, BE_TILES_TYPE_TICKING_RENDERED, BE_SIGNALCONVERTER_TYPE);
+    }
+    
+    @SubscribeEvent
+    public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
+        event.getRegistry().registerAll(SIZED_TNT_TYPE, SIT_TYPE);
     }
     
     @SubscribeEvent

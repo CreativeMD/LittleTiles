@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.entity.RenderTNTPrimed;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.MathHelper;
-import team.creative.littletiles.common.entity.EntitySizedTNTPrimed;
+import team.creative.littletiles.common.entity.PrimedSizedTnt;
 
 public class RenderSizedTNTPrimed extends RenderTNTPrimed {
     
@@ -21,10 +21,10 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
     
     @Override
     public void doRender(EntityTNTPrimed entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        LittleVec size = ((EntitySizedTNTPrimed) entity).size;
+        LittleVec size = ((PrimedSizedTnt) entity).size;
         BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         GlStateManager.pushMatrix();
-        LittleGridContext context = ((EntitySizedTNTPrimed) entity).context;
+        LittleGridContext context = ((PrimedSizedTnt) entity).context;
         GlStateManager.translate((float) x, (float) y + size.getPosY(context) / 2, (float) z);
         
         GlStateManager.scale(size.getPosX(context), size.getPosY(context), size.getPosZ(context));

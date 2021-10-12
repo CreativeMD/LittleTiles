@@ -51,6 +51,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.extensions.IForgeBlockEntity;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -81,7 +82,7 @@ import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.tile.parent.ParentCollection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
-public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity {
+public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
     
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
     private LittleGrid grid;
@@ -841,7 +842,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             return (ParentCollection) list;
         }
         
-        public StructureParentCollection get(IStructureCollection list) {
+        public StructureParentCollection get(IStructureParentCollection list) {
             return (StructureParentCollection) list;
         }
         

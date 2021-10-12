@@ -107,11 +107,6 @@ public class LittleMCBlock implements LittleBlock {
     public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {}
     
     @Override
-    public boolean randomTicks() {
-        return false;
-    }
-    
-    @Override
     public void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand) {}
     
     @Override
@@ -136,7 +131,7 @@ public class LittleMCBlock implements LittleBlock {
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
         return InteractionResult.PASS;
     }
     

@@ -99,7 +99,7 @@ public class LittleMissingBlock implements LittleBlock {
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
         return InteractionResult.PASS;
     }
     
@@ -163,11 +163,6 @@ public class LittleMissingBlock implements LittleBlock {
     
     @Override
     public boolean noCollision() {
-        return false;
-    }
-    
-    @Override
-    public boolean randomTicks() {
         return false;
     }
     

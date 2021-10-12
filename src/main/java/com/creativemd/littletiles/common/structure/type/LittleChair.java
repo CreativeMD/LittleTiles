@@ -2,42 +2,41 @@ package com.creativemd.littletiles.common.structure.type;
 
 import java.util.UUID;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.entity.EntitySit;
+import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public class LittleChair extends LittleStructure {
     
     private UUID sitUUID;
-    private EntityPlayer player;
+    private Player player;
     
-    public LittleChair(LittleStructureType type, IStructureTileList mainBlock) {
+    public LittleChair(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -57,7 +56,7 @@ public class LittleChair extends LittleStructure {
             nbt.removeTag("sit");
     }
     
-    public void setPlayer(EntityPlayer player) {
+    public void setPlayer(Player player) {
         this.player = player;
         if (!getWorld().isRemote)
             getInput(0).updateState(BooleanUtils.asArray(player != null));

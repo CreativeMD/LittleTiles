@@ -46,6 +46,7 @@ import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
+import team.creative.littletiles.common.tile.parent.ParentCollection;
 
 public final class LittleTile implements Iterable<LittleBox> {
     
@@ -112,6 +113,12 @@ public final class LittleTile implements Iterable<LittleBox> {
         prepareExpand();
         for (LittleBox box : boxes)
             this.boxes.add(box);
+    }
+    
+    public void remove(ParentCollection parent, LittleBox box) {
+        boxes.remove(box);
+        if (boxes.isEmpty())
+            parent.remove(this);
     }
     
     @Override

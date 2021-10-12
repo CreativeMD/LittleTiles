@@ -51,6 +51,14 @@ public class LittleCollection implements Iterable<LittleTile> {
     
     protected void removed(LittleTile tile) {}
     
+    public boolean remove(LittleTile tile) {
+        if (content.remove(tile)) {
+            removed(tile);
+            return true;
+        }
+        return false;
+    }
+    
     public void clear() {
         content.clear();
         refresh();

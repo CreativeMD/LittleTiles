@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.world.SubWorld;
@@ -19,7 +17,6 @@ import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -28,7 +25,9 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHol
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
+import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,21 +35,22 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
@@ -1007,7 +1007,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return false;
     }
     
-    public void onEntityCollidedWithBlock(World worldIn, IParentTileList parent, BlockPos pos, Entity entityIn) {}
+    public void onEntityCollidedWithBlock(Level level, IStructureParentCollection parent, BlockPos pos, Entity entityIn) {}
     
     public void onUpdatePacketReceived() {}
     
@@ -1049,21 +1049,21 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return false;
     }
     
-    @SideOnly(Side.CLIENT)
-    public void renderTick(BlockPos pos, double x, double y, double z, float partialTickTime) {}
+    @OnlyIn(Dist.CLIENT)
+    public void renderTick(PoseStack pose, BlockPos pos, double x, double y, double z, float partialTickTime) {}
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public double getMaxRenderDistanceSquared() {
         return 0;
     }
     
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox() {
+    @OnlyIn(Dist.CLIENT)
+    public AABB getRenderBoundingBox() {
         return null;
     }
     
-    @SideOnly(Side.CLIENT)
-    public void getRenderingCubes(BlockPos pos, BlockRenderLayer layer, List<LittleRenderBox> cubes) {}
+    @OnlyIn(Dist.CLIENT)
+    public void getRenderingCubes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {}
     
     public VoxelShape getExtraShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.empty();

@@ -2,16 +2,17 @@ package team.creative.littletiles.common.structure.connection;
 
 import java.security.InvalidParameterException;
 
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.connection.StructureLink;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -65,13 +66,13 @@ public class StructureChildConnection implements IStructureConnection {
         return childId;
     }
     
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-        nbt.setInteger("child", childId);
-        nbt.setIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
-        nbt.setInteger("type", attribute);
-        nbt.setInteger("index", structureIndex);
+    public CompoundTag writeToNBT(CompoundTag nbt) {
+        nbt.putInt("child", childId);
+        nbt.putIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
+        nbt.putInt("type", attribute);
+        nbt.putInt("index", structureIndex);
         if (dynamic)
-            nbt.setBoolean("dynamic", dynamic);
+            nbt.putBoolean("dynamic", dynamic);
         return nbt;
     }
     
@@ -138,11 +139,11 @@ public class StructureChildConnection implements IStructureConnection {
         return attribute;
     }
     
-    public static StructureChildConnection loadFromNBT(ILevelPositionProvider structure, NBTTagCompound nbt, boolean isChild) {
-        if (nbt.hasKey("childID")) // Old
+    public static StructureChildConnection loadFromNBT(ILevelPositionProvider structure, CompoundTag nbt, boolean isChild) {
+        if (nbt.contains("childID")) // Old
             return StructureLink.loadFromNBTOld(structure, nbt, isChild);
         
-        if (nbt.hasKey("entity"))
+        if (nbt.contains("entity"))
             return new StructureChildToSubWorldConnection(structure, nbt);
         else if (nbt.getBoolean("subWorld"))
             return new StructureChildFromSubWorldConnection(structure, nbt);

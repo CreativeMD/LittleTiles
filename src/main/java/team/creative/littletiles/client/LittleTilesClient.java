@@ -59,7 +59,7 @@ import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.entity.EntityAnimation;
-import team.creative.littletiles.common.entity.EntitySizedTNTPrimed;
+import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGrabber;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
@@ -213,10 +213,10 @@ public class LittleTilesClient {
     }
     
     public static void init() {
-        RenderingRegistry.registerEntityRenderingHandler(EntitySizedTNTPrimed.class, new IRenderFactory<EntitySizedTNTPrimed>() {
+        RenderingRegistry.registerEntityRenderingHandler(PrimedSizedTnt.class, new IRenderFactory<PrimedSizedTnt>() {
             
             @Override
-            public Render<? super EntitySizedTNTPrimed> createRenderFor(RenderManager manager) {
+            public Render<? super PrimedSizedTnt> createRenderFor(RenderManager manager) {
                 return new RenderSizedTNTPrimed(manager);
             }
         });

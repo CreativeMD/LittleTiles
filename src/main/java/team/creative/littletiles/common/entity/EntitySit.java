@@ -1,124 +1,123 @@
 package team.creative.littletiles.common.entity;
 
-import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
 import com.mojang.math.Vector3d;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public class EntitySit extends Entity implements ILevelPositionProvider {
     
-    public static final DataParameter<NBTTagCompound> CONNECTION = EntityDataManager.createKey(EntitySit.class, DataSerializers.COMPOUND_TAG);
-    public static final DataParameter<Float> CHAIRX = EntityDataManager.createKey(EntitySit.class, DataSerializers.FLOAT);
-    public static final DataParameter<Float> CHAIRY = EntityDataManager.createKey(EntitySit.class, DataSerializers.FLOAT);
-    public static final DataParameter<Float> CHAIRZ = EntityDataManager.createKey(EntitySit.class, DataSerializers.FLOAT);
+    public static final EntityDataAccessor<CompoundTag> CONNECTION = SynchedEntityData.defineId(EntitySit.class, EntityDataSerializers.COMPOUND_TAG);
+    public static final EntityDataAccessor<Float> CHAIRX = SynchedEntityData.defineId(EntitySit.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Float> CHAIRY = SynchedEntityData.defineId(EntitySit.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Float> CHAIRZ = SynchedEntityData.defineId(EntitySit.class, EntityDataSerializers.FLOAT);
     private StructureChildConnection temp;
     
-    public EntitySit(LittleChair chair, World world, double x, double y, double z) {
-        super(world);
-        dataManager.set(CHAIRX, (float) x);
-        dataManager.set(CHAIRY, (float) y);
-        dataManager.set(CHAIRZ, (float) z);
+    public EntitySit(LittleChair chair, Level level, double x, double y, double z) {
+        super(LittleTiles.SIT_TYPE, level);
+        entityData.set(CHAIRX, (float) x);
+        entityData.set(CHAIRY, (float) y);
+        entityData.set(CHAIRZ, (float) z);
         this.temp = chair.generateConnection(this);
-        this.dataManager.set(CONNECTION, temp.writeToNBT(new NBTTagCompound()));
-        noClip = true;
-        preventEntitySpawning = true;
-        width = 0.0F;
-        height = 0.0F;
-        setPosition(x, y, z);
+        entityData.set(CONNECTION, temp.writeToNBT(new CompoundTag()));
+        setPos(x, y, z);
     }
     
-    public EntitySit(World world) {
-        super(world);
-        noClip = true;
-        preventEntitySpawning = true;
-        width = 0.0F;
-        height = 0.0F;
+    public EntitySit(EntityType<? extends EntitySit> type, Level level) {
+        super(type, level);
+        noPhysics = true;
     }
     
     @Override
-    public boolean canBePushed() {
+    public boolean isPushable() {
         return false;
     }
     
     @Override
-    public void onUpdate() {
-        super.onUpdate();
-        StructureChildConnection connection = StructureChildConnection.loadFromNBT(this, dataManager.get(CONNECTION), false);
-        if (!world.isRemote && !isBeingRidden()) {
+    public void tick() {
+        super.tick();
+        StructureChildConnection connection = StructureChildConnection.loadFromNBT(this, entityData.get(CONNECTION), false);
+        if (!level.isClientSide && !isVehicle()) {
             try {
                 
                 LittleStructure structure = connection.getStructure();
                 if (structure instanceof LittleChair)
                     ((LittleChair) structure).setPlayer(null);
-                this.setDead();
+                kill();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             
         } else {
             try {
                 LittleStructure structure = connection.getStructure();
-                if (structure.getWorld() instanceof IOrientatedWorld) {
-                    Vector3d vec = new Vector3d(dataManager.get(CHAIRX), dataManager.get(CHAIRY), dataManager.get(CHAIRZ));
-                    ((IOrientatedWorld) structure.getWorld()).getOrigin().transformPointToWorld(vec);
-                    setPosition(vec.x, vec.y, vec.z);
+                if (structure.getLevel() instanceof IOrientatedLevel) {
+                    Vector3d vec = new Vector3d(entityData.get(CHAIRX), entityData.get(CHAIRY), entityData.get(CHAIRZ));
+                    ((IOrientatedLevel) structure.getLevel()).getOrigin().transformPointToWorld(vec);
+                    setPos(vec.x, vec.y, vec.z);
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
     }
     
     @Override
-    public double getMountedYOffset() {
+    public double getPassengersRidingOffset() {
         return 0;
     }
     
-    protected boolean isAIEnabled() {
-        return false;
+    @Override
+    protected void defineSynchedData() {
+        this.entityData.define(CONNECTION, new CompoundTag());
+        this.entityData.define(CHAIRX, 0F);
+        this.entityData.define(CHAIRY, 0F);
+        this.entityData.define(CHAIRZ, 0F);
     }
     
     @Override
-    protected void entityInit() {
-        this.dataManager.register(CONNECTION, new NBTTagCompound());
-        this.dataManager.register(CHAIRX, 0F);
-        this.dataManager.register(CHAIRY, 0F);
-        this.dataManager.register(CHAIRZ, 0F);
+    protected void addAdditionalSaveData(CompoundTag nbt) {
+        nbt.put("connection", entityData.get(CONNECTION));
+        nbt.putFloat("chairX", entityData.get(CHAIRX));
+        nbt.putFloat("chairY", entityData.get(CHAIRY));
+        nbt.putFloat("chairZ", entityData.get(CHAIRZ));
     }
     
     @Override
-    protected void readEntityFromNBT(NBTTagCompound nbt) {
-        dataManager.set(CONNECTION, nbt.getCompoundTag("connection"));
-        dataManager.set(CHAIRX, nbt.getFloat("chairX"));
-        dataManager.set(CHAIRY, nbt.getFloat("chairY"));
-        dataManager.set(CHAIRZ, nbt.getFloat("chairZ"));
+    protected void readAdditionalSaveData(CompoundTag nbt) {
+        entityData.set(CONNECTION, nbt.getCompound("connection"));
+        entityData.set(CHAIRX, nbt.getFloat("chairX"));
+        entityData.set(CHAIRY, nbt.getFloat("chairY"));
+        entityData.set(CHAIRZ, nbt.getFloat("chairZ"));
     }
     
     @Override
-    protected void writeEntityToNBT(NBTTagCompound nbt) {
-        nbt.setTag("connection", dataManager.get(CONNECTION));
-        nbt.setFloat("chairX", dataManager.get(CHAIRX));
-        nbt.setFloat("chairY", dataManager.get(CHAIRY));
-        nbt.setFloat("chairZ", dataManager.get(CHAIRZ));
-    }
-    
-    @Override
-    public World getWorld() {
-        return world;
+    public Level getLevel() {
+        return level;
     }
     
     @Override
     public BlockPos getPos() {
-        return BlockPos.ORIGIN;
+        return BlockPos.ZERO;
     }
     
     @Override
     public void onStructureDestroyed() {}
+    
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        return new ClientboundAddEntityPacket(this);
+    }
 }
