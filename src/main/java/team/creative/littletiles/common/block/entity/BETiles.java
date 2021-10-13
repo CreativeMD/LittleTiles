@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -14,19 +13,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.tileentity.CreativeWorld;
-import com.creativemd.littletiles.common.tileentity.EntityPlayer;
-import com.creativemd.littletiles.common.tileentity.EnumFacing;
-import com.creativemd.littletiles.common.tileentity.IParentTileList;
-import com.creativemd.littletiles.common.tileentity.LittleGridContext;
-import com.creativemd.littletiles.common.tileentity.LittleTilePosition;
-import com.creativemd.littletiles.common.tileentity.NBTTagCompound;
-import com.creativemd.littletiles.common.tileentity.NBTTagList;
-import com.creativemd.littletiles.common.tileentity.NetworkManager;
-import com.creativemd.littletiles.common.tileentity.RayTraceResult;
-import com.creativemd.littletiles.common.tileentity.SPacketUpdateTileEntity;
-import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
 import net.minecraft.core.BlockPos;
@@ -42,7 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
@@ -53,10 +38,9 @@ import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.Pair;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.common.api.block.ILittleBlockEntity;
 import team.creative.littletiles.common.block.BlockTile;
@@ -64,13 +48,10 @@ import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
-import team.creative.littletiles.common.math.face.LittleBoxFace;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
-import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.LittleTileContext;
 import team.creative.littletiles.common.tile.parent.BlockParentCollection;
@@ -439,13 +420,17 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public BlockHitResult rayTrace(Player player) {
-        RayTraceResult hit = null;
+        Vec3 pos = player.getPosition(TickUtils.getDeltaFrameTime(level));
+        double distance = PlayerUtils.getReach(player);
+        Vec3 view = player.getViewVector(TickUtils.getDeltaFrameTime(level));
+        Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
-        Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
-        double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-        Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-        Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
-        return rayTrace(pos, vec32);
+        if (level != player.level && level instanceof CreativeLevel) {
+            pos = ((CreativeLevel) level).getOrigin().transformPointToFakeWorld(pos);
+            look = ((CreativeLevel) level).getOrigin().transformPointToFakeWorld(look);
+        }
+        
+        return rayTrace(pos, look);
     }
     
     public BlockHitResult rayTrace(Vec3 pos, Vec3 look) {
@@ -469,17 +454,17 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public LittleTileContext getFocusedTile(Player player, float partialTickTime) {
         if (!isClient())
             return null;
-        Vec3 pos = player.getPositionEyes(partialTickTime);
-        double d0 = player.getAbilities()..isCreativeMode ? 5.0F : 4.5F;
-        Vec3 look = player.getLook(partialTickTime);
-        Vec3 vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        Vec3 pos = player.getPosition(partialTickTime);
+        double distance = PlayerUtils.getReach(player);
+        Vec3 view = player.getViewVector(partialTickTime);
+        Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
         if (level != player.level && level instanceof CreativeLevel) {
             pos = ((CreativeLevel) level).getOrigin().transformPointToFakeWorld(pos);
-            vec32 = ((CreativeLevel) level).getOrigin().transformPointToFakeWorld(vec32);
+            look = ((CreativeLevel) level).getOrigin().transformPointToFakeWorld(look);
         }
         
-        return getFocusedTile(pos, vec32);
+        return getFocusedTile(pos, look);
     }
     
     public LittleTileContext getFocusedTile(Vec3 pos, Vec3 look) {

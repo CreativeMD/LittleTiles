@@ -5,16 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHolder;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.RenderType;
@@ -60,7 +58,7 @@ import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
-import team.creative.littletiles.common.packet.LittleUpdateStructurePacket;
+import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.structure.connection.ChildrenList;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.LevelChildrenList;
@@ -85,6 +83,7 @@ import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedul
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.group.LittleGroup;
 import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
@@ -789,15 +788,20 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public LittleGroup getPreviews(BlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
         CompoundTag structureNBT = new CompoundTag();
         this.writeToNBTPreview(structureNBT, pos);
-        LittleGroup previews = new LittleGroup(structureNBT, LittleGridContext.getMin());
+        
+        List<LittleGroup> childrenGroup = new ArrayList<>();
+        for (StructureChildConnection child : children.children())
+            childrenGroup.add(child.getStructure().getPreviews(pos));
+        
+        LittleGroup previews = new LittleGroup(structureNBT, LittleGrid.min(), childrenGroup);
         
         for (Pair<IStructureParentCollection, LittleTile> pair : tiles()) {
             LittlePreview preview = previews.addTile(pair.key, pair.value);
             preview.box.add(new LittleVec(previews.getContext(), pair.key.getPos().subtract(pos)));
         }
         
-        for (StructureChildConnection child : children)
-            previews.addChild(child.getStructure().getPreviews(pos), child.dynamic);
+        for (Entry<String, StructureChildConnection> entry : children.extensionEntries())
+            previews.children.addExtension(entry.getKey(), entry.getValue().getStructure().getPreviews(pos));
         
         previews.convertToSmallest();
         return previews;
@@ -810,18 +814,26 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public LittleGroup getPreviewsSameWorldOnly(BlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
         CompoundTag structureNBT = new CompoundTag();
         this.writeToNBTPreview(structureNBT, pos);
-        LittleGroup previews = new LittleGroup(structureNBT, LittleGrid.min());
+        
+        List<LittleGroup> childrenGroup = new ArrayList<>();
+        for (StructureChildConnection child : children.children())
+            if (child.isLinkToAnotherWorld())
+                childrenGroup.add(new LittleGroupHolder(child.getStructure()));
+            else
+                childrenGroup.add(child.getStructure().getPreviewsSameWorldOnly(pos));
+            
+        LittleGroup previews = new LittleGroup(structureNBT, LittleGrid.min(), childrenGroup);
         
         for (Pair<IStructureParentCollection, LittleTile> pair : tiles()) {
             LittlePreview preview = previews.addTile(pair.key, pair.value);
             preview.box.add(new LittleVec(previews.getContext(), pair.key.getPos().subtract(pos)));
         }
         
-        for (StructureChildConnection child : children)
-            if (!child.isLinkToAnotherWorld())
-                previews.addChild(child.getStructure().getPreviews(pos), child.dynamic);
+        for (Entry<String, StructureChildConnection> entry : children.extensionEntries())
+            if (entry.getValue().isLinkToAnotherWorld())
+                previews.children.addExtension(entry.getKey(), new LittleGroupHolder(entry.getValue().getStructure()));
             else
-                previews.addChild(new LittlePreviewsStructureHolder(child.getStructure()), child.dynamic);
+                previews.children.addExtension(entry.getKey(), entry.getValue().getStructure().getPreviewsSameWorldOnly(pos));
             
         previews.convertToSmallest();
         return previews;
@@ -926,7 +938,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             return;
         CompoundTag nbt = new CompoundTag();
         writeToNBT(nbt);
-        PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(), getPos(), null);
+        LittleTiles.NETWORK.sendToClient(new StructureUpdate(getStructureLocation(), nbt), getLevel(), getPos());
     }
     
     // ====================Extra====================

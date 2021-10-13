@@ -9,15 +9,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.client.LittleTilesClient;
 
-public class LittleActionMessagePacket extends CreativePacket {
+public class ActionMessagePacket extends CreativePacket {
     
     public ActionMessage message;
     
-    public LittleActionMessagePacket(ActionMessage message) {
+    public ActionMessagePacket(ActionMessage message) {
         this.message = message;
     }
     
-    public LittleActionMessagePacket() {
+    public ActionMessagePacket() {
         
     }
     

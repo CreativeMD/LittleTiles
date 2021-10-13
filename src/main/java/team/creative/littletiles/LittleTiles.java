@@ -110,7 +110,6 @@ import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
-import team.creative.littletiles.common.entity.EntitySizedTNTPrimed;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
@@ -142,14 +141,14 @@ import team.creative.littletiles.common.packet.LittleResetAnimationPacket;
 import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.LittleSelectionModePacket;
 import team.creative.littletiles.common.packet.LittleUpdateOutputPacket;
-import team.creative.littletiles.common.packet.LittleUpdateStructurePacket;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
-import team.creative.littletiles.common.packet.action.LittleActionMessagePacket;
-import team.creative.littletiles.common.packet.item.LittleMirrorPacket;
-import team.creative.littletiles.common.packet.item.LittleRotatePacket;
+import team.creative.littletiles.common.packet.action.ActionMessagePacket;
+import team.creative.littletiles.common.packet.item.MirrorPacket;
+import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.update.LittleBlockUpdatePacket;
 import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
-import team.creative.littletiles.common.packet.update.LittleNeighborUpdatePacket;
+import team.creative.littletiles.common.packet.update.NeighborUpdate;
+import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.LittleStorage;
@@ -173,10 +172,10 @@ public class LittleTiles {
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
     
-    public static Block blockTile;
-    public static Block blockTileTicking;
-    public static Block blockTileRendered;
-    public static Block blockTileTickingRendered;
+    public static Block BLOCK_TILES;
+    public static Block BLOCK_TILES_TICKING;
+    public static Block BLOCK_TILES_RENDERED;
+    public static Block BLOCK_TILES_TICKING_RENDERED;
     
     public static Block CLEAN = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_clean");
     public static Block FLOOR = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_floor");
@@ -203,20 +202,20 @@ public class LittleTiles {
         return 15;
     })).setRegistryName("colored_white_lava");
     
-    public static Block storageBlock = new Block(BlockBehaviour.Properties.of(Material.WOOD).destroyTime(1.5F).strength(1.5F).sound(SoundType.WOOD)).setRegistryName("storage");
+    public static Block STORAGE_BLOCK = new Block(BlockBehaviour.Properties.of(Material.WOOD).destroyTime(1.5F).strength(1.5F).sound(SoundType.WOOD)).setRegistryName("storage");
     
-    public static Block flowingWater = new BlockFlowingWater(WATER).setRegistryName("colored_water_flowing");
-    public static Block whiteFlowingWater = new BlockFlowingWater(WHITE_WATER).setRegistryName("colored_white_water_flowing");
+    public static Block FLOWING_WATER = new BlockFlowingWater(WATER).setRegistryName("colored_water_flowing");
+    public static Block WHITE_FLOWING_WATER = new BlockFlowingWater(WHITE_WATER).setRegistryName("colored_white_water_flowing");
     
-    public static Block flowingLava = new BlockFlowingLava(LAVA).setRegistryName("colored_lava_flowing");
-    public static Block whiteFlowingLava = new BlockFlowingLava(WHITE_LAVA).setRegistryName("colored_white_lava_flowing");
+    public static Block FLOWING_LAVA = new BlockFlowingLava(LAVA).setRegistryName("colored_lava_flowing");
+    public static Block WHITE_FLOWING_LAVA = new BlockFlowingLava(WHITE_LAVA).setRegistryName("colored_white_lava_flowing");
     
-    public static Block singleCable = new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DECORATION)).setRegistryName("cable_single");
+    public static Block SINGLE_CABLE = new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DECORATION)).setRegistryName("cable_single");
     
-    public static Block inputArrow = new BlockArrow().setRegistryName("arrow_input");
-    public static Block outputArrow = new BlockArrow().setRegistryName("arrow_output");
+    public static Block INPUT_ARROW = new BlockArrow().setRegistryName("arrow_input");
+    public static Block OUTPUT_ARROW = new BlockArrow().setRegistryName("arrow_output");
     
-    public static Block signalConverter = new BlockSignalConverter().setRegistryName("signal_converter");
+    public static Block SIGNAL_CONVERTER = new BlockSignalConverter().setRegistryName("signal_converter");
     
     public static Item hammer;
     public static Item recipe;
@@ -258,10 +257,10 @@ public class LittleTiles {
     }
     
     private void init(final FMLCommonSetupEvent event) {
-        blockTile = new BlockTile(Material.STONE, false, false).setRegistryName("tiles");
-        blockTileTicking = new BlockTile(Material.STONE, true, false).setRegistryName("tiles_ticking");
-        blockTileRendered = new BlockTile(Material.STONE, false, true).setRegistryName("tiles_rendered");
-        blockTileTickingRendered = new BlockTile(Material.STONE, true, true).setRegistryName("tiles_ticking_rendered");
+        BLOCK_TILES = new BlockTile(Material.STONE, false, false).setRegistryName("tiles");
+        BLOCK_TILES_TICKING = new BlockTile(Material.STONE, true, false).setRegistryName("tiles_ticking");
+        BLOCK_TILES_RENDERED = new BlockTile(Material.STONE, false, true).setRegistryName("tiles_rendered");
+        BLOCK_TILES_TICKING_RENDERED = new BlockTile(Material.STONE, true, true).setRegistryName("tiles_ticking_rendered");
         
         hammer = new ItemLittleHammer().setRegistryName("hammer");
         recipe = new ItemLittleRecipe().setRegistryName("recipe");
@@ -290,12 +289,12 @@ public class LittleTiles {
         
         ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
-        BE_TILES_TYPE = BlockEntityType.Builder.of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE, pos, state), blockTile, blockTileTicking).build(null)
+        BE_TILES_TYPE = BlockEntityType.Builder.of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE, pos, state), BLOCK_TILES, BLOCK_TILES_TICKING).build(null)
                 .setRegistryName(MODID, "tiles");
         BE_TILES_TYPE_RENDERED = BlockEntityType.Builder
-                .of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state), blockTileRendered, blockTileTickingRendered).build(null)
+                .of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state), BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED).build(null)
                 .setRegistryName(MODID, "tiles_rendered");
-        BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, signalConverter).build(null).setRegistryName(MODID, "converter");
+        BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, SIGNAL_CONVERTER).build(null).setRegistryName(MODID, "converter");
         
         SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
         SIT_TYPE = EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit");
@@ -522,11 +521,16 @@ public class LittleTiles {
             }
         });
         
+        NETWORK.registerType(ActionMessagePacket.class, ActionMessagePacket::new);
+        
+        NETWORK.registerType(RotatePacket.class, RotatePacket::new);
+        NETWORK.registerType(MirrorPacket.class, MirrorPacket::new);
+        
+        NETWORK.registerType(StructureUpdate.class, StructureUpdate::new);
+        NETWORK.registerType(NeighborUpdate.class, NeighborUpdate::new);
+        
         CreativeCorePacket.registerPacket(LittleBlockPacket.class);
         CreativeCorePacket.registerPacket(LittleBlocksUpdatePacket.class);
-        CreativeCorePacket.registerPacket(LittleRotatePacket.class);
-        CreativeCorePacket.registerPacket(LittleMirrorPacket.class);
-        CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class);
         CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
         CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
         CreativeCorePacket.registerPacket(LittleBedPacket.class);
@@ -535,8 +539,6 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class);
         CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
-        CreativeCorePacket.registerPacket(LittleActionMessagePacket.class);
-        CreativeCorePacket.registerPacket(LittleUpdateStructurePacket.class);
         CreativeCorePacket.registerPacket(LittleEntityFixControllerPacket.class);
         CreativeCorePacket.registerPacket(LittleScrewdriverSelectionPacket.class);
         CreativeCorePacket.registerPacket(LittleUpdateOutputPacket.class);
@@ -560,13 +562,9 @@ public class LittleTiles {
         // MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
         // Entity
-        EntityRegistry.registerModEntity(new ResourceLocation(MODID, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
-        EntityRegistry.registerModEntity(new ResourceLocation(MODID, "sit"), EntitySit.class, "sit", 1, this, 250, 250, true);
         EntityRegistry.registerModEntity(new ResourceLocation(MODID, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
         
         LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
-        
-        proxy.loadSidePost();
         
         if (Loader.isModLoaded("warpdrive"))
             TileEntityLittleTilesTransformer.init();
@@ -598,7 +596,7 @@ public class LittleTiles {
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry()
-                .registerAll(new Block[] { CLEAN, FLOOR, GRAINY_BIG, GRAINY, GRAINY_LOW, BRICK, BRICK_BIG, BORDERED, CHISELED, BROKEN_BRICK_BIG, CLAY, STRIPS, GRAVEL, SAND, STONE, CORK, WATER, WHITE_WATER, LAVA, WHITE_LAVA, blockTile, blockTileTicking, blockTileRendered, blockTileTickingRendered, storageBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava, singleCable, inputArrow, outputArrow, signalConverter });
+                .registerAll(new Block[] { CLEAN, FLOOR, GRAINY_BIG, GRAINY, GRAINY_LOW, BRICK, BRICK_BIG, BORDERED, CHISELED, BROKEN_BRICK_BIG, CLAY, STRIPS, GRAVEL, SAND, STONE, CORK, WATER, WHITE_WATER, LAVA, WHITE_LAVA, BLOCK_TILES, BLOCK_TILES_TICKING, BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED, STORAGE_BLOCK, FLOWING_WATER, WHITE_FLOWING_WATER, FLOWING_LAVA, WHITE_FLOWING_LAVA, SINGLE_CABLE, INPUT_ARROW, OUTPUT_ARROW, SIGNAL_CONVERTER });
     }
     
     private static Item createItem(Block block) {
@@ -608,7 +606,7 @@ public class LittleTiles {
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry()
-                .registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(storageBlock), createItem(signalConverter));
+                .registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(signalConverter));
     }
     
     private void serverStarting(final FMLServerStartingEvent event) {

@@ -41,10 +41,10 @@ public class BlockLava extends Block implements ILittleMCBlock {
     @Override
     public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
         if (hand == InteractionHand.MAIN_HAND && player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
-            if (state.getValue(VARIANT) == LittleDyeableTransparent.WATER)
-                tile.setBlock(LittleTiles.flowingWater, 0);
+            if (this == LittleTiles.LAVA)
+                tile.setBlock(LittleTiles.FLOWING_LAVA, 0);
             else
-                tile.setBlock(LittleTiles.whiteFlowingWater, 0);
+                tile.setBlock(LittleTiles.WHITE_FLOWING_LAVA, 0);
             parent.getTe().updateTiles();
             return InteractionResult.SUCCESS;
         }

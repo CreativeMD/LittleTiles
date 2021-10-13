@@ -7,15 +7,15 @@ import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 
-public class LittleMirrorPacket extends CreativePacket {
+public class MirrorPacket extends CreativePacket {
     
-    public LittleMirrorPacket() {
+    public MirrorPacket() {
         
     }
     
     public Axis axis;
     
-    public LittleMirrorPacket(Axis axis) {
+    public MirrorPacket(Axis axis) {
         this.axis = axis;
     }
     

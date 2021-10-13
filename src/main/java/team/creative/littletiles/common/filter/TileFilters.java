@@ -6,14 +6,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.CompoundSerializer;
 import team.creative.creativecore.common.util.filter.BiFilter;
-import team.creative.creativecore.common.util.filter.BiFilterSerializer;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
 
 public class TileFilters {
     
-    public static final BiFilterSerializer<IParentCollection, LittleTile> SERIALIZER = new BiFilterSerializer<IParentCollection, LittleTile>().register("b", TileBlockFilter.class)
-            .register("c", TileColorFilter.class).register("no", TileNoStructureFilter.class);
+    static {
+        BiFilter.SERIALIZER.register("b", TileBlockFilter.class).register("c", TileColorFilter.class).register("no", TileNoStructureFilter.class);
+    }
     
     public static BiFilter<IParentCollection, LittleTile> block(Block block) {
         return new TileBlockFilter(block);

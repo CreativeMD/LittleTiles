@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.block;
 
-import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent.LittleDyeableTransparent;
-
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -43,10 +41,10 @@ public class BlockWater extends Block implements ILittleMCBlock {
     @Override
     public InteractionResult use(IParentCollection parent, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
         if (hand == InteractionHand.MAIN_HAND && player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
-            if (state.getValue(VARIANT) == LittleDyeableTransparent.WATER)
-                tile.setBlock(LittleTiles.flowingWater, 0);
+            if (this == LittleTiles.WATER)
+                tile.setBlock(LittleTiles.FLOWING_WATER, 0);
             else
-                tile.setBlock(LittleTiles.whiteFlowingWater, 0);
+                tile.setBlock(LittleTiles.WHITE_FLOWING_WATER, 0);
             parent.getTe().updateTiles();
             return InteractionResult.SUCCESS;
         }

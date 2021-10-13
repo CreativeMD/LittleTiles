@@ -4,6 +4,7 @@ import com.creativemd.littletiles.client.render.cache.RenderingThread;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import team.creative.creativecore.common.config.api.CreativeConfig;
@@ -36,27 +37,27 @@ public class LittleTilesConfig {
     @CreativeConfig(type = ConfigSynchronization.CLIENT)
     public Rendering rendering = new Rendering();
     
-    public boolean isEditLimited(ServerPlayer player) {
+    public boolean isEditLimited(Player player) {
         return build.get(player).limitEditBlocks;
     }
     
-    public boolean isPlaceLimited(ServerPlayer player) {
+    public boolean isPlaceLimited(Player player) {
         return build.get(player).limitPlaceBlocks;
     }
     
-    public boolean canEditBlock(ServerPlayer player, BlockState state, BlockPos pos) {
+    public boolean canEditBlock(Player player, BlockState state, BlockPos pos) {
         return state.getBlock().getHarvestLevel(state) <= build.get(player).harvestLevelBlock;
     }
     
-    public boolean isTransparencyRestricted(ServerPlayer player) {
+    public boolean isTransparencyRestricted(Player player) {
         return build.get(player).minimumTransparency > 0;
     }
     
-    public boolean isTransparencyEnabled(ServerPlayer player) {
+    public boolean isTransparencyEnabled(Player player) {
         return build.get(player).minimumTransparency < 255;
     }
     
-    public int getMinimumTransparency(ServerPlayer player) {
+    public int getMinimumTransparency(Player player) {
         return build.get(player).minimumTransparency;
     }
     

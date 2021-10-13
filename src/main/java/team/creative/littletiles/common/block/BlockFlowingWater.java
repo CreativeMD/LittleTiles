@@ -96,10 +96,8 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
         LittleBox testBox = new LittleBox(center, 1, 1, 1);
         if (tile.intersectsWith(testBox)) {
             double scale = 0.01;
-            Vec3d vec = new Vec3(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
-            entity.motionX += vec.x * scale;
-            entity.motionY += vec.y * scale;
-            entity.motionZ += vec.z * scale;
+            Vec3 vec = new Vec3(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize().scale(scale);
+            entity.setDeltaMovement(entity.getDeltaMovement().add(vec));
         }
         return new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec());
     }

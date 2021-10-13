@@ -237,10 +237,10 @@ public class LittleTilesClient {
         blockEntityRenderer = new BETilesRenderer();
         BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_RENDERED, x -> blockEntityRenderer);
         
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileRendered);
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTickingRendered);
+        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES);
+        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_TICKING);
+        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_RENDERED);
+        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_TICKING_RENDERED);
         
         CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
         

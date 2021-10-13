@@ -10,7 +10,6 @@ import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import team.creative.creativecore.common.network.type.NetworkFieldTypeClass;
 import team.creative.creativecore.common.network.type.NetworkFieldTypes;
@@ -19,7 +18,6 @@ import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.little.LittleBlockRegistry;
-import team.creative.littletiles.common.filter.TileFilter;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
@@ -102,7 +100,7 @@ public class LittlePacketTypes {
                 buffer.writeInt(content.size());
                 for (LittleBox box : content)
                     buffer.writeVarIntArray(box.getArray());
-                buffer.writeUtf(content.block.blockName());
+                buffer.writeUtf(content.getBlock().blockName());
                 buffer.writeInt(content.color);
             }
             
@@ -386,20 +384,6 @@ public class LittlePacketTypes {
             }
             
         }, LittleBoxes.class, LittleBoxesNoOverlap.class, LittleBoxesSimple.class);
-        
-        NetworkFieldTypes.register(new NetworkFieldTypeClass<TileFilters>() {
-            
-            @Override
-            protected void writeContent(TileFilters content, FriendlyByteBuf buffer) {
-                buffer.writeNbt(content.write(new CompoundTag()));
-            }
-            
-            @Override
-            protected TileFilters readContent(FriendlyByteBuf buffer) {
-                return TileFilters.load(buffer.readNbt());
-            }
-            
-        }, TileFilters.class);
         
         NetworkFieldTypes.register(new NetworkFieldTypeClass<ActionMessage>() {
             

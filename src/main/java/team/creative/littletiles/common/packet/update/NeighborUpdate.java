@@ -15,19 +15,19 @@ import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 
-public class LittleNeighborUpdatePacket extends CreativePacket {
+public class NeighborUpdate extends CreativePacket {
     
     @CanBeNull
     public UUID uuid;
     public List<BlockPos> positions;
     
-    public LittleNeighborUpdatePacket(Level level, List<BlockPos> positions) {
+    public NeighborUpdate(Level level, List<BlockPos> positions) {
         this.positions = positions;
         if (level instanceof CreativeLevel)
             uuid = ((CreativeLevel) level).parent.getUUID();
     }
     
-    public LittleNeighborUpdatePacket() {
+    public NeighborUpdate() {
         
     }
     

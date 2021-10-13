@@ -93,10 +93,8 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
         LittleBox testBox = new LittleBox(center, 1, 1, 1);
         if (tile.intersectsWith(testBox)) {
             double scale = 0.05;
-            Vec3d vec = new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
-            entityIn.motionX += vec.x * scale;
-            entityIn.motionY += vec.y * scale;
-            entityIn.motionZ += vec.z * scale;
+            Vec3 vec = new Vec3(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize().scale(scale);
+            entity.setDeltaMovement(entity.getDeltaMovement().add(vec));
         }
     }
     

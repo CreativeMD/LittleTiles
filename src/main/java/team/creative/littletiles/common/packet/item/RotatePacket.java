@@ -7,15 +7,15 @@ import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 
-public class LittleRotatePacket extends CreativePacket {
+public class RotatePacket extends CreativePacket {
     
-    public LittleRotatePacket() {
+    public RotatePacket() {
         
     }
     
     public Rotation rotation;
     
-    public LittleRotatePacket(Rotation rotation) {
+    public RotatePacket(Rotation rotation) {
         this.rotation = rotation;
     }
     

@@ -19,6 +19,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.StillInMotionException;
@@ -66,7 +67,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
         } catch (StillInMotionException e) {
             PacketHandler.sendPacketToServer(new LittleEntityFixControllerPacket(uuid, new NBTTagCompound()));
         } catch (LittleActionException e) {
-            PacketHandler.sendPacketToServer(new LittleUpdateStructurePacket(location, new NBTTagCompound()));
+            PacketHandler.sendPacketToServer(new StructureUpdate(location, new NBTTagCompound()));
         }
         
     }

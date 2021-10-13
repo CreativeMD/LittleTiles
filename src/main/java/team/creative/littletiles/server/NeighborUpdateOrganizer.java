@@ -23,7 +23,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.util.type.HashMapList;
-import team.creative.littletiles.common.packet.update.LittleNeighborUpdatePacket;
+import team.creative.littletiles.common.packet.update.NeighborUpdate;
 
 public class NeighborUpdateOrganizer {
     
@@ -58,11 +58,11 @@ public class NeighborUpdateOrganizer {
                         }
                         
                         if (!collected.isEmpty())
-                            PacketHandler.sendPacketToPlayer(new LittleNeighborUpdatePacket(world, collected), (EntityPlayerMP) player);
+                            PacketHandler.sendPacketToPlayer(new NeighborUpdate(world, collected), (EntityPlayerMP) player);
                     }
                     
                 } else if (level instanceof SubLevel)
-                    PacketHandler.sendPacketToTrackingPlayers(new LittleNeighborUpdatePacket(level, entry.getValue()), ((SubWorld) world).parent, (WorldServer) ((SubWorld) world)
+                    PacketHandler.sendPacketToTrackingPlayers(new NeighborUpdate(level, entry.getValue()), ((SubWorld) world).parent, (WorldServer) ((SubWorld) world)
                             .getRealWorld(), null);
             }
             

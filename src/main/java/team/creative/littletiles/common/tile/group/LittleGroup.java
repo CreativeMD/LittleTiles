@@ -33,7 +33,7 @@ public class LittleGroup extends LittleCollection implements IGridBased {
         this.grid = grid;
         this.structure = structure;
         this.children = new ItemChildrenList(this, children);
-        convertTo(grid);
+        convertToSmallest();
     }
     
     public LittleGroup getParent() {

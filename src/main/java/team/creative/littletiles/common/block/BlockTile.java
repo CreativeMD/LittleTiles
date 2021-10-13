@@ -163,35 +163,13 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         this.rendered = rendered;
     }
     
-    public static int getStateId(BETiles te) {
-        return getStateId(te.isTicking(), te.isRendered());
-    }
-    
-    public static int getStateId(boolean ticking, boolean rendered) {
-        return rendered ? (ticking ? 3 : 2) : (ticking ? 1 : 0);
-    }
-    
-    public static BlockState getState(int id) {
-        switch (id) {
-        case 0:
-            return LittleTiles.blockTile.defaultBlockState();
-        case 1:
-            return LittleTiles.blockTileTicking.defaultBlockState();
-        case 2:
-            return LittleTiles.blockTileRendered.defaultBlockState();
-        case 3:
-            return LittleTiles.blockTileTickingRendered.defaultBlockState();
-        }
-        return null;
-    }
-    
     public static BlockState getStateByAttribute(int attribute) {
         return getState(LittleStructureAttribute.ticking(attribute), LittleStructureAttribute.tickRendering(attribute));
     }
     
     public static BlockState getState(boolean ticking, boolean rendered) {
-        return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.defaultBlockState() : LittleTiles.blockTileRendered
-                .defaultBlockState()) : (ticking ? LittleTiles.blockTileTicking.defaultBlockState() : LittleTiles.blockTile.defaultBlockState());
+        return rendered ? (ticking ? LittleTiles.BLOCK_TILES_TICKING_RENDERED.defaultBlockState() : LittleTiles.BLOCK_TILES_RENDERED
+                .defaultBlockState()) : (ticking ? LittleTiles.BLOCK_TILES_TICKING.defaultBlockState() : LittleTiles.BLOCK_TILES.defaultBlockState());
     }
     
     public static BlockState getState(BETiles te) {
