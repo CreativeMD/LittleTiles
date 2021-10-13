@@ -23,6 +23,8 @@ import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.google.common.base.Function;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -35,6 +37,7 @@ import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +49,7 @@ import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.internal.FMLMessage.EntitySpawnMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import net.minecraftforge.fmlclient.registry.IRenderFactory;
@@ -212,7 +216,7 @@ public class LittleTilesClient {
         CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
     }
     
-    public static void init() {
+    public static void init(final FMLClientSetupEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(PrimedSizedTnt.class, new IRenderFactory<PrimedSizedTnt>() {
             
             @Override
@@ -309,6 +313,16 @@ public class LittleTilesClient {
         
         CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.premade);
         CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.blockIngredient);
+        
+        event.enqueueWork(() -> {
+            ClientCommandRegistry.register(LiteralArgumentBuilder.<SharedSuggestionProvider>literal("lt-debug").executes(x -> {
+                if (LittleTilesProfilerOverlay.isActive())
+                    LittleTilesProfilerOverlay.stop();
+                else
+                    LittleTilesProfilerOverlay.start();
+                return Command.SINGLE_SUCCESS;
+            }));
+        });
     }
     
 }

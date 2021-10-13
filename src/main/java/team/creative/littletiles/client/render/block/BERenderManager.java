@@ -73,11 +73,11 @@ public class BERenderManager {
         }
     }
     
-    public double getMaxRenderDistanceSquared() {
+    public double getMaxRenderDistance() {
         if (cachedRenderDistance == 0) {
-            double renderDistance = 5 * 5; // 512 blocks
+            double renderDistance = 64;
             for (LittleStructure structure : be.rendering())
-                renderDistance = Math.max(renderDistance, structure.getMaxRenderDistanceSquared());
+                renderDistance = Math.max(renderDistance, structure.getMaxRenderDistance());
             cachedRenderDistance = renderDistance;
         }
         return cachedRenderDistance;
@@ -96,7 +96,7 @@ public class BERenderManager {
                 AABB box = structure.getRenderBoundingBox();
                 if (box == null)
                     continue;
-                box = box.offset(te.getPos());
+                box = box.move(be.getBlockPos());
                 minX = Math.min(box.minX, minX);
                 minY = Math.min(box.minY, minY);
                 minZ = Math.min(box.minZ, minZ);
@@ -108,7 +108,7 @@ public class BERenderManager {
             if (found)
                 cachedRenderBoundingBox = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
             else
-                cachedRenderBoundingBox = new AABB(be.getPos());
+                cachedRenderBoundingBox = new AABB(be.getBlockPos());
             
             requireRenderingBoundingBoxUpdate = false;
         }

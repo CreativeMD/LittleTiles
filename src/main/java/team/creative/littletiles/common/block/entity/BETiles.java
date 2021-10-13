@@ -14,76 +14,74 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.tileentity.AxisAlignedBB;
 import com.creativemd.littletiles.common.tileentity.CreativeWorld;
 import com.creativemd.littletiles.common.tileentity.EntityPlayer;
 import com.creativemd.littletiles.common.tileentity.EnumFacing;
-import com.creativemd.littletiles.common.tileentity.IBlockState;
-import com.creativemd.littletiles.common.tileentity.IOrientatedWorld;
 import com.creativemd.littletiles.common.tileentity.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.LittleGridContext;
 import com.creativemd.littletiles.common.tileentity.LittleTilePosition;
-import com.creativemd.littletiles.common.tileentity.Method;
 import com.creativemd.littletiles.common.tileentity.NBTTagCompound;
 import com.creativemd.littletiles.common.tileentity.NBTTagList;
 import com.creativemd.littletiles.common.tileentity.NetworkManager;
 import com.creativemd.littletiles.common.tileentity.RayTraceResult;
 import com.creativemd.littletiles.common.tileentity.SPacketUpdateTileEntity;
-import com.creativemd.littletiles.common.tileentity.SideOnly;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.SideState;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
-import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.extensions.IForgeBlockEntity;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.block.BERenderManager;
-import team.creative.littletiles.client.render.block.TileEntityRenderManager;
 import team.creative.littletiles.common.api.block.ILittleBlockEntity;
 import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.box.BasicCombiner;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleBoxFace;
+import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
+import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.common.tile.LittleTileContext;
 import team.creative.littletiles.common.tile.parent.BlockParentCollection;
 import team.creative.littletiles.common.tile.parent.IParentCollection;
-import team.creative.littletiles.common.tile.parent.IStructureCollection;
 import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.tile.parent.ParentCollection;
 import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
     
+    private boolean hasLoaded = false;
+    private boolean preventUnload = false;
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
     private LittleGrid grid;
     private BlockParentCollection tiles;
@@ -117,6 +115,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     private boolean isClient() {
         if (level != null)
             return level.isClientSide;
+        return false;
     }
     
     private void init() {
@@ -151,14 +150,14 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return size;
     }
     
-    public static void tickUpdate() {
-        if (!tiles.hasTicking() && !world.isRemote) {
-            customTilesUpdate();
-            System.out.println("Ticking tileentity which shouldn't " + pos);
+    public static void tickUpdate(BETiles be) {
+        if (!be.tiles.hasTicking() && !be.level.isClientSide) {
+            be.customTilesUpdate();
+            System.out.println("Ticking tileentity which shouldn't " + be.getBlockPos());
             return;
         }
         
-        tick();
+        be.tick();
     }
     
     public Iterable<LittleStructure> ticking() {
@@ -170,16 +169,12 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return tiles.loadedStructures(LittleStructureAttribute.TICK_RENDERING);
     }
     
-    public boolean contains(LittleTile tile) {
-        return tiles.contains(tile);
-    }
-    
     public int tilesCount() {
         return tiles.size();
     }
     
     public boolean hasLoaded() {
-        return hasLoaded && world != null && tiles != null;
+        return hasLoaded && level != null && tiles != null;
     }
     
     public void setLoaded() {
@@ -202,28 +197,28 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public BETiles forceSupportAttribute(int attribute) {
-        boolean rendered = tiles.hasRendered() | LittleStructureAttribute.tickRendering(attribute);
-        boolean ticking = tiles.hasTicking() | LittleStructureAttribute.ticking(attribute);
+        boolean rendered = tiles.hasRendered() || LittleStructureAttribute.tickRendering(attribute);
+        boolean ticking = tiles.hasTicking() || LittleStructureAttribute.ticking(attribute);
+        BlockState state = BlockTile.getState(ticking, rendered);
         if (ticking != isTicking() || rendered != isRendered()) {
-            BETiles newTe;
+            BETiles newBE;
             if (rendered)
                 if (ticking)
-                    newTe = new BETilesTickingRendered();
+                    newBE = new BETilesTickingRendered(worldPosition, state);
                 else
-                    newTe = new TileEntityLittleTilesRendered();
+                    newBE = new BETilesRendered(worldPosition, state);
             else if (ticking)
-                newTe = new TileEntityLittleTilesTicking();
+                newBE = new BETilesTicking(worldPosition, state);
             else
-                newTe = new TileEntityLittleTiles();
+                newBE = new BETiles(worldPosition, state);
             
-            newTe.assign(this);
-            newTe.tiles.te = newTe;
+            newBE.assign(this);
+            newBE.tiles.be = newBE;
             
             preventUnload = true;
-            world.setBlockState(pos, BlockTile.getState(ticking, rendered), 20);
-            world.setTileEntity(pos, newTe);
-            preventUnload = true;
-            return newTe;
+            level.setBlock(worldPosition, state, 20);
+            level.setBlockEntity(newBE);
+            return newBE;
         }
         return this;
     }
@@ -233,25 +228,25 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             return;
         boolean rendered = tiles.hasRendered();
         boolean ticking = tiles.hasTicking();
+        BlockState state = BlockTile.getState(ticking, rendered);
         if (ticking != isTicking() || rendered != isRendered()) {
-            TileEntityLittleTiles newTe;
+            BETiles newBE;
             if (rendered)
                 if (ticking)
-                    newTe = new TileEntityLittleTilesTickingRendered();
+                    newBE = new BETilesTickingRendered(worldPosition, state);
                 else
-                    newTe = new TileEntityLittleTilesRendered();
+                    newBE = new BETilesRendered(worldPosition, state);
             else if (ticking)
-                newTe = new TileEntityLittleTilesTicking();
+                newBE = new BETilesTicking(worldPosition, state);
             else
-                newTe = new TileEntityLittleTiles();
+                newBE = new BETiles(worldPosition, state);
             
-            newTe.assign(this);
-            newTe.tiles.te = newTe;
+            newBE.assign(this);
+            newBE.tiles.be = newBE;
             
             preventUnload = true;
-            world.setBlockState(pos, BlockTile.getState(ticking, rendered), 2);
-            world.setTileEntity(pos, newTe);
-            preventUnload = true;
+            level.setBlock(worldPosition, state, 20);
+            level.setBlockEntity(newBE);
         }
     }
     
@@ -278,7 +273,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         sideCache.reset();
         
         if (level != null) {
-            updateBlock();
+            level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
             if (updateNeighbour)
                 updateNeighbour();
             updateLighting();
@@ -356,29 +351,10 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return pass == 0 && tiles != null && tiles.hasRendered();
     }
     
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public double getMaxRenderDistanceSquared() {
-        return render.getMaxRenderDistanceSquared();
-    }
-    
-    @Override
-    public boolean hasFastRenderer() {
-        return false;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public AABB getRenderBoundingBox() {
-        if (!hasLoaded())
-            return super.getRenderBoundingBox();
-        return render.getRenderBoundingBox();
-    }
-    
     public VoxelShape getBlockShape() {
-        int minX = context.size;
-        int minY = context.size;
-        int minZ = context.size;
+        int minX = grid.count;
+        int minY = grid.count;
+        int minZ = grid.count;
         int maxX = 0;
         int maxY = 0;
         int maxZ = 0;
@@ -397,14 +373,14 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     
     /** Used for rendering */
     @OnlyIn(Dist.CLIENT)
-    public boolean shouldSideBeRendered(EnumFacing facing, LittleBoxFace face, LittleTile rendered) {
-        face.ensureContext(context);
+    public boolean shouldSideBeRendered(Facing facing, LittleFace face, LittleTile rendered) {
+        face.ensureContext(grid);
         
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
                 continue;
-            if (pair.value != rendered && (pair.value.doesProvideSolidFace(facing) || pair.value.canBeRenderCombined(rendered)))
-                pair.value.fillFace(face, context);
+            if (pair.value != rendered && (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered)))
+                pair.value.fillFace(pair.key, face, grid);
         }
         
         return !face.isFilled(rendered.isTranslucent());
@@ -417,7 +393,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public List<LittleBox> cutOut(LittleBox box, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> cutting = new ArrayList<>();
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
-            pair.value.getIntersectingBox(box, cutting);
+            pair.value.getIntersectingBoxes(box, cutting);
         return box.cutOut(cutting, cutout, volume);
     }
     
@@ -440,7 +416,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public boolean isSpaceForLittleTile(LittleBox box, Predicate<LittleTile> predicate) {
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             if (predicate != null && !predicate.test(pair.value))
                 continue;
             if (pair.value.intersectsWith(box))
@@ -463,133 +439,36 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         
         if (!tiles.isCompletelyEmpty())
             tiles.clearEverything();
-        context = LittleGridContext.get(nbt);
+        grid = LittleGrid.get(nbt);
         
-        if (nbt.hasKey("tilesCount")) {
-            int count = nbt.getInteger("tilesCount");
-            HashMap<LittleIdentifierRelative, StructureParentCollection> structures = new HashMap<>();
-            for (int i = 0; i < count; i++) {
-                NBTTagCompound tileNBT = new NBTTagCompound();
-                tileNBT = nbt.getCompoundTag("t" + i);
-                sortOldTiles(tileNBT, structures);
-            }
-            for (StructureParentCollection child : structures.values())
-                tiles.addStructure(child.getIndex(), child);
-        } else if (nbt.hasKey("tiles")) {
-            NBTTagList list = nbt.getTagList("tiles", 10);
-            HashMap<LittleIdentifierRelative, StructureParentCollection> structures = new HashMap<>();
-            for (int i = 0; i < list.tagCount(); i++) {
-                NBTTagCompound ltNBT = list.getCompoundTagAt(i);
-                if (ltNBT.hasKey("boxes")) {
-                    LittleTile create = LittleTileRegistry.getTypeFromNBT(ltNBT).createTile();
-                    if (create != null) {
-                        List<NBTTagCompound> nbts = create.extractNBTFromGroup(ltNBT);
-                        for (int j = 0; j < nbts.size(); j++)
-                            sortOldTiles(nbts.get(j), structures);
-                    }
-                } else
-                    sortOldTiles(ltNBT, structures);
-            }
-            for (StructureParentCollection child : structures.values()) {
-                StructureParentCollection.updateStatus(child);
-                tiles.addStructure(child.getIndex(), child);
-            }
-            
-        } else
-            tiles.read(nbt.getCompoundTag("content"));
+        tiles.read(nbt.getCompound("content"));
         
-        if (world != null && !world.isRemote) {
-            updateBlock();
+        if (level != null && !level.isClientSide) {
+            level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
             customTilesUpdate();
         }
-        
-        deleteTempWorld();
     }
     
     protected int[] getIdentifier(LittleBox box) {
         return new int[] { box.minX, box.minY, box.minZ };
     }
     
-    protected void sortOldTiles(NBTTagCompound nbt, HashMap<LittleIdentifierRelative, StructureParentCollection> structures) {
-        LittleTile tile = LittleTileRegistry.loadTile(nbt);
-        
-        LittleIdentifierRelative identifier = null;
-        NBTTagCompound structureNBT = null;
-        int attribute = LittleStructureAttribute.NONE;
-        
-        if (nbt.hasKey("structure", 10)) {
-            NBTTagCompound temp = nbt.getCompoundTag("structure");
-            if (temp.getBoolean("main")) {
-                structureNBT = temp;
-                identifier = new LittleIdentifierRelative(0, 0, 0, context, getIdentifier(tile.getBox()));
-                attribute = LittleStructureRegistry.getStructureType(temp.getString("id")).attribute;
-            } else {
-                identifier = new LittleIdentifierRelative(temp);
-                if (temp.hasKey("attr"))
-                    attribute = LittleStructureAttribute.loadOld(temp.getInteger("attr"));
-                else
-                    attribute = temp.getInteger("type");
-            }
-        } else { // Old
-            if (nbt.getBoolean("isStructure")) {
-                if (nbt.getBoolean("main")) {
-                    structureNBT = nbt;
-                    identifier = new LittleIdentifierRelative(0, 0, 0, context, getIdentifier(tile.getBox()));
-                } else {
-                    if (nbt.hasKey("coX")) {
-                        LittleTilePosition pos = new LittleTilePosition(nbt);
-                        identifier = new LittleIdentifierRelative(getPos().getX() - pos.coord.getX(), getPos().getY() - pos.coord.getY(), getPos().getZ() - pos.coord
-                                .getZ(), context, new int[] { pos.position.x, pos.position.y, pos.position.z });
-                        System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + identifier);
-                    } else
-                        identifier = new LittleIdentifierRelative(nbt);
-                }
-            }
-        }
-        
-        if (identifier == null)
-            tiles.add(tile);
-        else {
-            StructureParentCollection structureList = structures.get(identifier);
-            if (structureList == null) {
-                structures.put(identifier, structureList = new StructureParentCollection(tiles, identifier.generateIndex(pos), attribute));
-                StructureParentCollection.setRelativePos(structureList, identifier.coord);
-            }
-            if (structureNBT != null) {
-                LittleStructure structure = structureList.setStructureNBT(structureNBT);
-                LittleVec vec = tile.getMinVec();
-                for (StructureDirectionalField field : structure.type.directional)
-                    field.move(field.get(structure), context, vec);
-            }
-            structureList.add(tile);
-        }
-    }
-    
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-        super.writeToNBT(nbt);
-        context.set(nbt);
-        nbt.setTag("content", tiles.write());
+    public CompoundTag save(CompoundTag nbt) {
+        super.save(nbt);
+        grid.set(nbt);
+        nbt.put("content", tiles.write());
         return nbt;
     }
     
     @Override
-    public void getDescriptionNBT(NBTTagCompound nbt) {
-        writeToNBT(nbt);
-    }
-    
-    @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-        handleUpdatePacket(net, pkt.getNbtCompound());
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        load(pkt.getTag());
+        updateTiles(false);
         super.onDataPacket(net, pkt);
     }
     
-    public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt) {
-        readFromNBT(nbt);
-        updateTiles(false);
-    }
-    
-    public RayTraceResult rayTrace(EntityPlayer player) {
+    public BlockHitResult rayTrace(Player player) {
         RayTraceResult hit = null;
         
         Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
@@ -599,52 +478,60 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return rayTrace(pos, vec32);
     }
     
-    public RayTraceResult rayTrace(Vec3d pos, Vec3d look) {
-        RayTraceResult hit = null;
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
-            RayTraceResult Temphit = pair.value.rayTrace(context, getPos(), pos, look);
-            if (Temphit != null) {
-                if (hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos)) {
-                    hit = Temphit;
+    public BlockHitResult rayTrace(Vec3 pos, Vec3 look) {
+        BlockHitResult result = null;
+        double distance = 0;
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
+            for (LittleBox box : pair.value) {
+                BlockHitResult temphit = box.rayTrace(grid, getBlockPos(), pos, look);
+                if (temphit != null) {
+                    double tempDistance = temphit.getLocation().distanceToSqr(pos);
+                    if (result == null || distance > tempDistance) {
+                        distance = tempDistance;
+                        result = temphit;
+                    }
                 }
             }
-        }
-        return hit;
+        
+        return result;
     }
     
     public LittleTileContext getFocusedTile(Player player, float partialTickTime) {
         if (!isClient())
             return null;
-        Vec3d pos = player.getPositionEyes(partialTickTime);
-        double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-        Vec3d look = player.getLook(partialTickTime);
-        Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        Vec3 pos = player.getPositionEyes(partialTickTime);
+        double d0 = player.getAbilities()..isCreativeMode ? 5.0F : 4.5F;
+        Vec3 look = player.getLook(partialTickTime);
+        Vec3 vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
         
-        if (world != player.world && world instanceof CreativeWorld) {
-            pos = ((CreativeWorld) world).getOrigin().transformPointToFakeWorld(pos);
-            vec32 = ((CreativeWorld) world).getOrigin().transformPointToFakeWorld(vec32);
+        if (level != player.level && level instanceof CreativeLevel) {
+            pos = ((CreativeLevel) level).getOrigin().transformPointToFakeWorld(pos);
+            vec32 = ((CreativeLevel) level).getOrigin().transformPointToFakeWorld(vec32);
         }
         
         return getFocusedTile(pos, vec32);
     }
     
-    public LittleTileContext getFocusedTile(Vec3d pos, Vec3d look) {
+    public LittleTileContext getFocusedTile(Vec3 pos, Vec3 look) {
         IParentCollection parent = null;
         LittleTile tileFocus = null;
-        HitResult hit = null;
+        LittleBox boxFocus = null;
         double distance = 0;
-        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
-            RayTraceResult Temphit = pair.value.rayTrace(context, getPos(), pos, look);
-            if (Temphit != null) {
-                if (hit == null || distance > Temphit.hitVec.distanceTo(pos)) {
-                    distance = Temphit.hitVec.distanceTo(pos);
-                    hit = Temphit;
-                    parent = pair.key;
-                    tileFocus = pair.value;
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
+            for (LittleBox box : pair.value) {
+                BlockHitResult Temphit = box.rayTrace(grid, getBlockPos(), pos, look);
+                if (Temphit != null) {
+                    double tempDistance = Temphit.getLocation().distanceToSqr(pos);
+                    if (tileFocus == null || distance > tempDistance) {
+                        distance = tempDistance;
+                        parent = pair.key;
+                        tileFocus = pair.value;
+                        boxFocus = box;
+                    }
                 }
             }
-        }
-        return new Pair(parent, tileFocus);
+        
+        return new LittleTileContext(parent, tileFocus, boxFocus);
     }
     
     @Override
@@ -667,7 +554,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public boolean combineTiles(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = BasicCombiner.combine((StructureParentCollection) getStructure(structureIndex));
+        boolean changed = ((StructureParentCollection) getStructure(structureIndex)).combine();
         convertToSmallest();
         if (changed)
             updateTiles();
@@ -677,13 +564,13 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public boolean combineTilesSecretly(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = BasicCombiner.combine((StructureParentCollection) getStructure(structureIndex));
+        boolean changed = ((StructureParentCollection) getStructure(structureIndex)).combine();
         convertToSmallest();
         return changed;
     }
     
     public boolean combineTiles() {
-        boolean changed = BasicCombiner.combine(tiles);
+        boolean changed = tiles.combine();
         
         convertToSmallest();
         if (changed)
@@ -692,13 +579,13 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public boolean combineTilesSecretly() {
-        boolean changed = BasicCombiner.combine(tiles);
+        
+        boolean changed = tiles.combine();
         convertToSmallest();
         return changed;
     }
     
     @Override
-    @Method(modid = ChiselsAndBitsManager.chiselsandbitsID)
     public Object getVoxelBlob(boolean force) throws Exception {
         return ChiselsAndBitsManager.getVoxelBlob(this, force);
     }
@@ -710,24 +597,30 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             return null;
         
         if (realistic) {
-            box = box.expand(0, -context.pixelSize, 0);
-            for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
-                LittleBox tileBox = pair.value.getCollisionBox();
-                if (tileBox != null && tileBox.getBox(context, pos).intersects(box))
-                    return pair.value.getBlockState();
+            box = box.expandTowards(0, -grid.pixelLength, 0);
+            for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
+                if (pair.value.noCollision())
+                    continue;
+                for (LittleBox tileBox : pair.value)
+                    if (tileBox.getBB(grid, getBlockPos()).intersects(box))
+                        return pair.value.getBlock().getState();
             }
             return null;
         }
-        box = box.expand(0, -1, 0);
+        box = box.expandTowards(0, -1, 0);
         LittleTile highest = null;
-        for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
-            if (pair.value.getCollisionBox() == null)
+        LittleBox highestBox = null;
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
+            if (pair.value.noCollision())
                 continue;
-            if ((highest == null || (pair.value.getMaxY() > highest.getMaxY()) && pair.value.getCollisionBox().getBox(context, pos).intersects(box)))
-                highest = pair.value;
+            for (LittleBox tileBox : highest)
+                if ((highest == null || (tileBox.maxY > highestBox.maxY) && tileBox.getBB(grid, getBlockPos()).intersects(box))) {
+                    highest = pair.value;
+                    highestBox = tileBox;
+                }
             
         }
-        return highest != null ? highest.getBlockState() : null;
+        return highest != null ? highest.getBlock().getState() : null;
     }
     
     public boolean isEmpty() {
@@ -735,37 +628,35 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     @Override
-    public void invalidate() {
-        super.invalidate();
+    public void setRemoved() {
+        super.setRemoved();
         if (!preventUnload)
             tiles.unload();
     }
     
     @Override
-    public void onChunkUnload() {
-        super.onChunkUnload();
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
         tiles.unload();
-        if (world.isRemote) {
+        if (level.isClientSide) {
             tiles = null;
             render.chunkUnload();
         }
     }
     
-    @Override
-    public void rotate(Rotation rotationIn) {
-        LittleBlockTransformer.rotateTE(this, RotationUtils.getRotation(rotationIn), RotationUtils.getRotationCount(rotationIn));
+    public void rotate(net.minecraft.world.level.block.Rotation rotation) {
+        LittleBlockTransformer.rotate(this, Rotation.getRotation(rotation), Rotation.getRotationCount(rotation));
         updateTiles();
     }
     
-    @Override
-    public void mirror(Mirror mirrorIn) {
-        LittleBlockTransformer.flipTE(this, RotationUtils.getMirrorAxis(mirrorIn));
+    public void mirror(Mirror mirror) {
+        LittleBlockTransformer.mirror(this, Axis.getMirrorAxis(mirror));
         updateTiles();
     }
     
     @Override
     public String toString() {
-        return pos.toString();
+        return getBlockPos().toString();
     }
     
     public void tick() {
@@ -872,6 +763,107 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         
     }
     
+    public static enum SideState {
+        EMPTY {
+            @Override
+            public boolean doesBlockCollision() {
+                return false;
+            }
+            
+            @Override
+            public boolean doesBlockLight() {
+                return false;
+            }
+            
+            @Override
+            public boolean isFilled() {
+                return false;
+            }
+        },
+        SEETHROUGH {
+            @Override
+            public boolean doesBlockCollision() {
+                return true;
+            }
+            
+            @Override
+            public boolean doesBlockLight() {
+                return false;
+            }
+            
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        },
+        NOCLIP {
+            @Override
+            public boolean doesBlockCollision() {
+                return false;
+            }
+            
+            @Override
+            public boolean doesBlockLight() {
+                return true;
+            }
+            
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        },
+        SEETHROUGH_NOCLIP {
+            @Override
+            public boolean doesBlockCollision() {
+                return false;
+            }
+            
+            @Override
+            public boolean doesBlockLight() {
+                return false;
+            }
+            
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        },
+        SOLID {
+            @Override
+            public boolean doesBlockCollision() {
+                return true;
+            }
+            
+            @Override
+            public boolean doesBlockLight() {
+                return true;
+            }
+            
+            @Override
+            public boolean isFilled() {
+                return true;
+            }
+        };
+        
+        public abstract boolean isFilled();
+        
+        public abstract boolean doesBlockCollision();
+        
+        public abstract boolean doesBlockLight();
+        
+        public static SideState getState(boolean empty, boolean noclip, boolean translucent) {
+            if (empty)
+                return EMPTY;
+            if (noclip && translucent)
+                return SEETHROUGH_NOCLIP;
+            if (noclip)
+                return NOCLIP;
+            if (translucent)
+                return SideState.SEETHROUGH;
+            return SOLID;
+        }
+    }
+    
     public class SideSolidCache {
         
         SideState DOWN;
@@ -927,9 +919,9 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             
             for (Pair<IParentCollection, LittleTile> pair : BETiles.this.tiles.allTiles())
                 if (pair.value.fillInSpaceInaccurate(box, filled)) {
-                    if (!pair.value.doesProvideSolidFace(facing))
+                    if (!pair.value.doesProvideSolidFace())
                         translucent = true;
-                    if (LittleStructureAttribute.noCollision(pair.key.getAttribute()) || pair.value.hasNoCollision())
+                    if (LittleStructureAttribute.noCollision(pair.key.getAttribute()) || pair.value.getBlock().noCollision())
                         noclip = true;
                 }
             
@@ -1000,9 +992,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         }
         
         public boolean isCollisionFullBlock() {
-            adas
-            // TODO Auto-generated method stub
-            return false;
+            return EAST.isFilled() && WEST.isFilled() && UP.isFilled() && DOWN.isFilled() && SOUTH.isFilled() && NORTH.isFilled();
         }
         
     }

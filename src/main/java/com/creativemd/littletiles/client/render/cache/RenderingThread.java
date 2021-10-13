@@ -9,48 +9,48 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
-import com.creativemd.creativecore.common.utils.type.SingletonList;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
-import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
-import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator.Status;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.optifine.shaders.SVertexBuilder;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.mod.OptifineHelper;
+import team.creative.creativecore.common.util.type.SingletonList;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.entity.BETiles;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class RenderingThread extends Thread {
     
     private static final String[] fakeWorldMods = new String[] { "chisel" };
@@ -91,9 +91,9 @@ public class RenderingThread extends Thread {
     }
     
     public static final HashMap<Object, Integer> chunks = new HashMap<>();
-    public static Minecraft mc = Minecraft.getMinecraft();
+    public static Minecraft mc = Minecraft.getInstance();
     
-    public static boolean addCoordToUpdate(TileEntityLittleTiles te) {
+    public static boolean addCoordToUpdate(BETiles te) {
         RenderingThread renderer = getNextThread();
         
         Object chunk;
@@ -199,7 +199,7 @@ public class RenderingThread extends Thread {
                                         if (cube.renderSide(facing)) {
                                             if (cube.getQuad(facing) == null)
                                                 cube.setQuad(facing, CreativeBakedModel
-                                                    .getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
+                                                        .getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
                                         } else
                                             cube.setQuad(facing, null);
                                     }
@@ -290,7 +290,7 @@ public class RenderingThread extends Thread {
                                             if (quads != null && !quads.isEmpty())
                                                 if (smooth)
                                                     CreativeModelPipeline
-                                                        .renderBlockFaceSmooth(renderWorld, state, pos, buffer, layer, quads, afloat, facing, bitset, ambientFace, cube);
+                                                            .renderBlockFaceSmooth(renderWorld, state, pos, buffer, layer, quads, afloat, facing, bitset, ambientFace, cube);
                                                 else
                                                     CreativeModelPipeline.renderBlockFaceFlat(renderWorld, state, pos, buffer, layer, quads, facing, bitset, cube, ambientFace);
                                         }
@@ -419,7 +419,7 @@ public class RenderingThread extends Thread {
         try {
             ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
             return chunk.needsUpdate() || (compileTask != null && compileTask
-                .getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && (compileTask.getStatus() != Status.COMPILING || compileTask.getStatus() != Status.UPLOADING));
+                    .getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && (compileTask.getStatus() != Status.COMPILING || compileTask.getStatus() != Status.UPLOADING));
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
             return false;

@@ -19,7 +19,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
@@ -134,8 +133,8 @@ public final class LittleTile implements Iterable<LittleBox> {
         return boxes.size();
     }
     
-    public void combine() {
-        LittleBoxCombiner.combine(boxes);
+    public boolean combine() {
+        return LittleBoxCombiner.combine(boxes);
     }
     
     public void combineBlockwise(LittleGrid grid) {
@@ -340,7 +339,7 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     public boolean doesProvideSolidFace() {
-        return !isTranslucent() && block.is(Blocks.BARRIER);
+        return !isTranslucent();
     }
     
     public boolean contains(LittleBox other) {
@@ -348,6 +347,10 @@ public final class LittleTile implements Iterable<LittleBox> {
             if (box.equals(other))
                 return true;
         return false;
+    }
+    
+    public boolean noCollision() {
+        return block.noCollision();
     }
     
     // ================Rotating/Mirror================

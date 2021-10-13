@@ -351,9 +351,9 @@ public class BlockParentCollection extends ParentCollection {
     public void add(BlockParentCollection tiles) {
         addAll(tiles);
         tiles.structures.putAll(structures);
-        for (StructureParentCollection list : structures.values()) {
+        for (StructureParentCollection list : structures.values())
             list.setParent(this);
-        }
+        
     }
     
     public void fillUsedIds(BitSet usedIds) {
@@ -374,6 +374,14 @@ public class BlockParentCollection extends ParentCollection {
     
     public boolean isCompletelyEmpty() {
         return super.isEmpty() && structures.isEmpty();
+    }
+    
+    @Override
+    public boolean combine() {
+        boolean result = super.combine();
+        for (StructureParentCollection list : structures.values())
+            result |= list.combine();
+        return result;
     }
     
     @Override

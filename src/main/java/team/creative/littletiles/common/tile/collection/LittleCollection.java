@@ -141,6 +141,13 @@ public class LittleCollection implements Iterable<LittleTile> {
         };
     }
     
+    public boolean combine() {
+        boolean result = false;
+        for (LittleTile tile : content)
+            result |= tile.combine();
+        return result;
+    }
+    
     public void combineBlockwise(LittleGrid grid) {
         for (LittleTile tile : content)
             tile.combineBlockwise(grid);

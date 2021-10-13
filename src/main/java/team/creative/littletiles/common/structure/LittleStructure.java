@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHolder;
@@ -23,7 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.World;
@@ -789,11 +787,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public LittleGroup getPreviews(BlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
-        NBTTagCompound structureNBT = new NBTTagCompound();
+        CompoundTag structureNBT = new CompoundTag();
         this.writeToNBTPreview(structureNBT, pos);
-        LittlePreviews previews = new LittlePreviews(structureNBT, LittleGridContext.getMin());
+        LittleGroup previews = new LittleGroup(structureNBT, LittleGridContext.getMin());
         
-        for (Pair<IStructureTileList, LittleTile> pair : tiles()) {
+        for (Pair<IStructureParentCollection, LittleTile> pair : tiles()) {
             LittlePreview preview = previews.addTile(pair.key, pair.value);
             preview.box.add(new LittleVec(previews.getContext(), pair.key.getPos().subtract(pos)));
         }
@@ -1008,10 +1006,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void renderTick(PoseStack pose, BlockPos pos, double x, double y, double z, float partialTickTime) {}
+    public void renderTick(PoseStack pose, BlockPos pos, float partialTickTime) {}
     
     @OnlyIn(Dist.CLIENT)
-    public double getMaxRenderDistanceSquared() {
+    public double getMaxRenderDistance() {
         return 0;
     }
     
@@ -1041,7 +1039,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.addAll(newBlocks);
         
         for (StructureDirectionalField relative : type.directional)
-            relative.flip(relative.get(this), context, axis, context.rotationCenter);
+            relative.mirror(relative.get(this), context, axis, context.rotationCenter);
     }
     
     @Deprecated
