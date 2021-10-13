@@ -62,6 +62,7 @@ import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConverati
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -79,12 +80,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -107,9 +106,6 @@ import team.creative.littletiles.common.block.BlockTile;
 import team.creative.littletiles.common.block.BlockWater;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.entity.BETilesRendered;
-import team.creative.littletiles.common.block.entity.BETilesTicking;
-import team.creative.littletiles.common.block.entity.BETilesTickingRendered;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.entity.EntitySit;
@@ -173,8 +169,6 @@ public class LittleTiles {
     public static BlockEntityType BE_SIGNALCONVERTER_TYPE;
     public static BlockEntityType BE_TILES_TYPE;
     public static BlockEntityType BE_TILES_TYPE_RENDERED;
-    public static BlockEntityType BE_TILES_TYPE_TICKING;
-    public static BlockEntityType BE_TILES_TYPE_TICKING_RENDERED;
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
@@ -294,15 +288,13 @@ public class LittleTiles {
         LittleStructureRegistry.initStructures();
         LittlePacketTypes.init();
         
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> LittleTilesClient::init);
-        
         ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
-        BE_TILES_TYPE = BlockEntityType.Builder.of(BETiles::new, blockTile).build(null).setRegistryName(MODID, "tiles");
-        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder.of(BETilesRendered::new, blockTileRendered).build(null).setRegistryName(MODID, "tiles_rendered");
-        BE_TILES_TYPE_TICKING = BlockEntityType.Builder.of(BETilesTicking::new, blockTileTicking).build(null).setRegistryName(MODID, "tiles_ticking");
-        BE_TILES_TYPE_TICKING_RENDERED = BlockEntityType.Builder.of(BETilesTickingRendered::new, blockTileTickingRendered).build(null)
-                .setRegistryName(MODID, "tiles_ticking_rendered");
+        BE_TILES_TYPE = BlockEntityType.Builder.of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE, pos, state), blockTile, blockTileTicking).build(null)
+                .setRegistryName(MODID, "tiles");
+        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder
+                .of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state), blockTileRendered, blockTileTickingRendered).build(null)
+                .setRegistryName(MODID, "tiles_rendered");
         BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, signalConverter).build(null).setRegistryName(MODID, "converter");
         
         SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
@@ -590,12 +582,12 @@ public class LittleTiles {
     }
     
     private void client(final FMLClientSetupEvent event) {
-        LittleTilesClient.setup();
+        LittleTilesClient.setup(event);
     }
     
     @SubscribeEvent
     public static void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
-        event.getRegistry().registerAll(BE_TILES_TYPE, BE_TILES_TYPE_TICKING, BE_TILES_TYPE_RENDERED, BE_TILES_TYPE_TICKING_RENDERED, BE_SIGNALCONVERTER_TYPE);
+        event.getRegistry().registerAll(BE_TILES_TYPE, BE_TILES_TYPE_RENDERED, BE_SIGNALCONVERTER_TYPE);
     }
     
     @SubscribeEvent
@@ -652,12 +644,12 @@ public class LittleTiles {
         }));
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-export").executes((x) -> {
-            GuiHandler.openGui("lt-export", new NBTTagCompound(), (EntityPlayer) sender.getCommandSenderEntity());
+            GuiHandler.openGui("lt-export", new CompoundTag(), x.getSource().getPlayerOrException());
             return 0;
         }));
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-import").executes((x) -> {
-            GuiHandler.openGui("lt-import", new NBTTagCompound(), (EntityPlayer) sender.getCommandSenderEntity());
+            GuiHandler.openGui("lt-import", new CompoundTag(), x.getSource().getPlayerOrException());
             return 0;
         }));
         

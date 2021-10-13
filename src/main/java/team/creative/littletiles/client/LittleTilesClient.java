@@ -19,7 +19,6 @@ import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
 import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
-import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.google.common.base.Function;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -105,7 +104,7 @@ public class LittleTilesClient {
         overlay.addMessage(new CompiledActionMessage(message));
     }
     
-    public static void setup() {
+    public static void setup(final FMLClientSetupEvent event) {
         mc.getItemColors().register(new ItemColor() {
             
             @Override
@@ -193,8 +192,6 @@ public class LittleTilesClient {
         CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTickingRendered);
         CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTickingRendered);
         
-        ClientCommandRegistry.register(new DebugCommand());
-        
         // Init overlays
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
         MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
@@ -214,9 +211,6 @@ public class LittleTilesClient {
         });
         
         CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
-    }
-    
-    public static void init(final FMLClientSetupEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(PrimedSizedTnt.class, new IRenderFactory<PrimedSizedTnt>() {
             
             @Override
@@ -242,11 +236,10 @@ public class LittleTilesClient {
         
         blockEntityRenderer = new BETilesRenderer();
         BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_RENDERED, x -> blockEntityRenderer);
-        BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_TICKING_RENDERED, x -> blockEntityRenderer);
         
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
+        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
         CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTickingRendered);
+        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileRendered);
         CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTickingRendered);
         
         CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);

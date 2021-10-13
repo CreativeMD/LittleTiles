@@ -34,6 +34,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -94,10 +95,6 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         super(type, pos, state);
     }
     
-    public BETiles(BlockPos pos, BlockState state) {
-        super(LittleTiles.BE_TILES_TYPE, pos, state);
-    }
-    
     protected void assign(BETiles te) {
         try {
             for (Field field : BETiles.class.getDeclaredFields())
@@ -150,7 +147,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return size;
     }
     
-    public static void tickUpdate(BETiles be) {
+    public static void serverTick(Level level, BlockPos pos, BlockState state, BETiles be) {
         if (!be.tiles.hasTicking() && !be.level.isClientSide) {
             be.customTilesUpdate();
             System.out.println("Ticking tileentity which shouldn't " + be.getBlockPos());
@@ -201,23 +198,12 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         boolean ticking = tiles.hasTicking() || LittleStructureAttribute.ticking(attribute);
         BlockState state = BlockTile.getState(ticking, rendered);
         if (ticking != isTicking() || rendered != isRendered()) {
-            BETiles newBE;
-            if (rendered)
-                if (ticking)
-                    newBE = new BETilesTickingRendered(worldPosition, state);
-                else
-                    newBE = new BETilesRendered(worldPosition, state);
-            else if (ticking)
-                newBE = new BETilesTicking(worldPosition, state);
-            else
-                newBE = new BETiles(worldPosition, state);
-            
-            newBE.assign(this);
-            newBE.tiles.be = newBE;
-            
             preventUnload = true;
             level.setBlock(worldPosition, state, 20);
-            level.setBlockEntity(newBE);
+            BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
+            newBE.assign(this);
+            newBE.tiles.be = newBE;
+            preventUnload = false;
             return newBE;
         }
         return this;
@@ -230,23 +216,12 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         boolean ticking = tiles.hasTicking();
         BlockState state = BlockTile.getState(ticking, rendered);
         if (ticking != isTicking() || rendered != isRendered()) {
-            BETiles newBE;
-            if (rendered)
-                if (ticking)
-                    newBE = new BETilesTickingRendered(worldPosition, state);
-                else
-                    newBE = new BETilesRendered(worldPosition, state);
-            else if (ticking)
-                newBE = new BETilesTicking(worldPosition, state);
-            else
-                newBE = new BETiles(worldPosition, state);
-            
-            newBE.assign(this);
-            newBE.tiles.be = newBE;
-            
             preventUnload = true;
             level.setBlock(worldPosition, state, 20);
-            level.setBlockEntity(newBE);
+            BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
+            newBE.assign(this);
+            newBE.tiles.be = newBE;
+            preventUnload = false;
         }
     }
     
@@ -344,11 +319,6 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     
     public void updateNeighbour() {
         level.updateNeighborsAt(getBlockPos(), getBlockState().getBlock());
-    }
-    
-    @Override
-    public boolean shouldRenderInPass(int pass) {
-        return pass == 0 && tiles != null && tiles.hasRendered();
     }
     
     public VoxelShape getBlockShape() {

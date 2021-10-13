@@ -870,21 +870,15 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         if (rendered)
-            if (ticking)
-                return new BETilesTickingRendered(pos, state);
-            else
-                return new BETilesRendered(pos, state);
-            
-        if (ticking)
-            return new BETilesTicking(pos, state);
+            return new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state);
         return new BETiles(LittleTiles.BE_TILES_TYPE, pos, state);
     }
     
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        
-        adasds
-        return p_152694_.isClientSide ? null : createTickerHelper(p_152696_, BlockEntityType.BREWING_STAND, BrewingStandBlockEntity::serverTick);
+        if (ticking)
+            return level.isClientSide ? null : createTickerHelper(type, rendered ? LittleTiles.BE_TILES_TYPE_RENDERED : LittleTiles.BE_TILES_TYPE, BETiles::serverTick);
+        return null;
     }
     
     @OnlyIn(Dist.CLIENT)
