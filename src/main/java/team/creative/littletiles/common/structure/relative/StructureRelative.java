@@ -1,8 +1,5 @@
 package team.creative.littletiles.common.structure.relative;
 
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.place.PlacePreviewRelative;
-
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -13,6 +10,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 
 public class StructureRelative implements IGridBased {
@@ -76,8 +74,8 @@ public class StructureRelative implements IGridBased {
         return new LittleVecGrid(box.getMinVec(), grid);
     }
     
-    public PlacePreview getPlacePreview(LittleGroup previews, StructureDirectionalField type) {
-        return new PlacePreviewRelative(box, this, type);
+    public LittlePlaceBoxRelative getPlaceBox(LittleGroup previews, StructureDirectionalField type) {
+        return new LittlePlaceBoxRelative(box, this, type);
     }
     
     public void move(LittleVecGrid offset) {

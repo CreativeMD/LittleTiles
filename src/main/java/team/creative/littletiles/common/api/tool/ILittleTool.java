@@ -12,10 +12,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.placement.IMarkMode;
-import team.creative.littletiles.common.placement.MarkMode;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.placement.mark.IMarkMode;
+import team.creative.littletiles.common.placement.mark.MarkMode;
 
 public interface ILittleTool {
     

@@ -3,8 +3,6 @@ package team.creative.littletiles.common.structure.directional;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
@@ -17,6 +15,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public abstract class StructureDirectionalType<T> {
@@ -154,8 +153,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public PlacePreview getPlacePreview(StructureRelative value, LittleGroup previews, StructureDirectionalField field) {
-                return value.getPlacePreview(previews, field);
+            public LittlePlaceBoxRelative getPlaceBox(StructureRelative value, LittleGroup previews, StructureDirectionalField field) {
+                return value.getPlaceBox(previews, field);
             }
             
             @Override
@@ -229,7 +228,7 @@ public abstract class StructureDirectionalType<T> {
         
     }
     
-    public PlacePreview getPlacePreview(T value, LittleGroup group, StructureDirectionalField field) {
+    public LittlePlaceBoxRelative getPlaceBox(T value, LittleGroup group, StructureDirectionalField field) {
         return null;
     }
     

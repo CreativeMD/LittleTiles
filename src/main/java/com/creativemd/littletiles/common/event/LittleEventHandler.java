@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.littletiles.client.event.PickBlockEvent;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
@@ -67,6 +66,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.event.PickBlockEvent;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;

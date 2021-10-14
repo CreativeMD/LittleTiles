@@ -53,7 +53,6 @@ import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -459,17 +458,14 @@ public class LittleTiles {
         LittleTilesClient.setup(event);
     }
     
-    @SubscribeEvent
     public void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
         event.getRegistry().registerAll(BE_TILES_TYPE, BE_TILES_TYPE_RENDERED, BE_SIGNALCONVERTER_TYPE);
     }
     
-    @SubscribeEvent
     public void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(SIZED_TNT_TYPE, SIT_TYPE);
     }
     
-    @SubscribeEvent
     public void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry()
                 .registerAll(new Block[] { CLEAN, FLOOR, GRAINY_BIG, GRAINY, GRAINY_LOW, BRICK, BRICK_BIG, BORDERED, CHISELED, BROKEN_BRICK_BIG, CLAY, STRIPS, GRAVEL, SAND, STONE, CORK, WATER, WHITE_WATER, LAVA, WHITE_LAVA, BLOCK_TILES, BLOCK_TILES_TICKING, BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED, STORAGE_BLOCK, FLOWING_WATER, WHITE_FLOWING_WATER, FLOWING_LAVA, WHITE_FLOWING_LAVA, SINGLE_CABLE, INPUT_ARROW, OUTPUT_ARROW, SIGNAL_CONVERTER });
@@ -479,7 +475,6 @@ public class LittleTiles {
         return new BlockItem(block, new Item.Properties().tab(littleTab)).setRegistryName(block.getRegistryName());
     }
     
-    @SubscribeEvent
     public void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry()
                 .registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));

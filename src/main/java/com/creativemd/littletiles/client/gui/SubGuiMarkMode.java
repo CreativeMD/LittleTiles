@@ -4,7 +4,7 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 
 import net.minecraft.util.text.translation.I18n;
-import team.creative.littletiles.common.placement.MarkMode;
+import team.creative.littletiles.common.placement.mark.MarkMode;
 
 public class SubGuiMarkMode extends SubGui {
     

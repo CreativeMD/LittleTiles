@@ -8,10 +8,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.mojang.math.Vector3f;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
@@ -25,9 +23,9 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
+import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.RangedBitSet;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -852,7 +850,7 @@ public class LittleBox {
         return vec.get(one) >= getMin(one) && vec.get(one) <= getMax(one) && vec.get(two) >= getMin(two) && vec.get(two) <= getMax(two);
     }
     
-    public boolean intersectsWithAxis(LittleGrid context, Axis axis, Vec3d vec) {
+    public boolean intersectsWithAxis(LittleGrid context, Axis axis, Vec3 vec) {
         switch (axis) {
         case X:
             return intersectsWithYZ(context, vec);
@@ -864,17 +862,17 @@ public class LittleBox {
         return false;
     }
     
-    public boolean intersectsWithYZ(LittleGrid context, Vec3d vec) {
+    public boolean intersectsWithYZ(LittleGrid context, Vec3 vec) {
         return vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
                 .toVanillaGrid(this.maxZ);
     }
     
-    public boolean intersectsWithXZ(LittleGrid context, Vec3d vec) {
+    public boolean intersectsWithXZ(LittleGrid context, Vec3 vec) {
         return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
                 .toVanillaGrid(this.maxZ);
     }
     
-    public boolean intersectsWithXY(LittleGrid context, Vec3d vec) {
+    public boolean intersectsWithXY(LittleGrid context, Vec3 vec) {
         return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.y >= context.toVanillaGrid(this.minY) && vec.y < context
                 .toVanillaGrid(this.maxY);
     }
@@ -888,11 +886,24 @@ public class LittleBox {
     }
     
     @Nullable
+    public static Vec3 getIntermediateWithAxisValue(Vec3 first, Vec3 second, Axis axis, double value) {
+        double d0 = first.x - second.x;
+        double d1 = first.y - second.y;
+        double d2 = first.z - second.z;
+        
+        double axisValue = axis.get(d0, d1, d2);
+        
+        if (axisValue * axisValue < VectorFan.EPSILON)
+            return null;
+        
+        double d3 = (value - first.get(axis.toVanilla())) / axisValue;
+        return d3 >= 0.0D && d3 <= 1.0D ? new Vec3(first.x + d0 * d3, first.y + d1 * d3, first.z + d2 * d3) : null;
+    }
+    
+    @Nullable
     protected Vec3 collideWithPlane(LittleGrid context, Axis axis, double value, Vec3 vecA, Vec3 vecB) {
-        AABB.clip(p_82343_, p_82344_, p_82345_, p_82346_)
-        Vec3 vec3 = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
-                .getIntermediateWithXValue(vecB, value);
-        return vec3 != null && intersectsWithAxis(context, axis, vec3) ? vec3 : null;
+        Vec3 result = getIntermediateWithAxisValue(vecA, vecB, axis, value);
+        return result != null && intersectsWithAxis(context, axis, result) ? result : null;
     }
     
     @Nullable
@@ -917,10 +928,10 @@ public class LittleBox {
         return new BlockHitResult(collision.add(blockPos.getX(), blockPos.getY(), blockPos.getZ()), collided.toVanilla(), blockPos, true);
     }
     
-    public Vector3f[] getVecArray(BoxCorner[] corners) {
-        Vector3f[] result = new Vector3f[corners.length];
+    public Vec3f[] getVecArray(BoxCorner[] corners) {
+        Vec3f[] result = new Vec3f[corners.length];
         for (int i = 0; i < result.length; i++)
-            result[i] = new Vector3f(get(corners[i].x), get(corners[i].y), get(corners[i].z));
+            result[i] = new Vec3f(get(corners[i].x), get(corners[i].y), get(corners[i].z));
         return result;
     }
     

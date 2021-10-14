@@ -32,7 +32,6 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.place.PlacePreviewRelativeAxis;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -52,6 +51,7 @@ import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.ValueTimeline;
 import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelativeAxis;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -662,7 +662,7 @@ public class LittleAxisDoor extends LittleDoorBase {
         @Override
         protected PlacePreview getPlacePreview(Object value, StructureDirectionalField type, LittlePreviews previews) {
             if (type.key.equals("axisCenter"))
-                return new PlacePreviewRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, Axis.values()[previews.structureNBT.getInteger("axis")]);
+                return new LittlePlaceBoxRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, Axis.values()[previews.structureNBT.getInteger("axis")]);
             return super.getPlacePreview(value, type, previews);
         }
         

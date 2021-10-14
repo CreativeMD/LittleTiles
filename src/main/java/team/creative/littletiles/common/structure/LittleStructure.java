@@ -88,22 +88,6 @@ import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedul
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
     
-    private static final Iterator<LittleTile> EMPTY_ITERATOR = new Iterator<LittleTile>() {
-        
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-        
-        @Override
-        public LittleTile next() {
-            return null;
-        }
-        
-    };
-    
-    private static final HashMapList<BlockPos, LittleTile> EMPTY_HASHMAPLIST = new HashMapList<>();
-    
     public final LittleStructureType type;
     public final IStructureParentCollection mainBlock;
     private final List<StructureBlockConnector> blocks = new ArrayList<>();

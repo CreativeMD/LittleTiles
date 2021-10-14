@@ -63,9 +63,9 @@ import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
-import team.creative.littletiles.common.placement.IMarkMode;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public class ItemLittleChisel extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {

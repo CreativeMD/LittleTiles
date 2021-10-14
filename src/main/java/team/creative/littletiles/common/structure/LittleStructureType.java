@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +21,8 @@ import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.placement.box.LittlePlaceBox;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
 import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
@@ -142,15 +143,15 @@ public class LittleStructureType {
             group.convertTo(grid);
     }
     
-    public List<PlacePreview> getSpecialTiles(LittleGroup group) {
+    public List<LittlePlaceBox> getSpecialTiles(LittleGroup group) {
         if (directional.isEmpty())
             return new ArrayList<>();
         
-        List<PlacePreview> placePreviews = new ArrayList<>();
+        List<LittlePlaceBox> placePreviews = new ArrayList<>();
         
         for (StructureDirectionalField field : directional) {
             Object value = field.create(group.getStructureTag());
-            PlacePreview tile = getPlacePreview(value, field, group);
+            LittlePlaceBoxRelative tile = getPlaceBox(value, field, group);
             if (tile == null)
                 continue;
             
@@ -162,8 +163,8 @@ public class LittleStructureType {
         return placePreviews;
     }
     
-    protected PlacePreview getPlacePreview(Object value, StructureDirectionalField type, LittleGroup previews) {
-        return type.getPlacePreview(value, previews);
+    protected LittlePlaceBoxRelative getPlaceBox(Object value, StructureDirectionalField type, LittleGroup previews) {
+        return type.getPlaceBox(value, previews);
     }
     
     public LittleGrid getMinContext(LittleGroup group) {

@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.filter.Filter;
-import team.creative.creativecore.common.util.filter.block.BlockFilters.BlocksFilter;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientBlock;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientItem;
@@ -39,10 +38,9 @@ public class BlankOMaticRecipeRegistry {
     public static List<BleachRecipe> getRecipe(ItemStack stack) {
         BlockState state = BlockUtils.getState(stack);
         Block block = state.getBlock();
-        int meta = block.getMetaFromState(state);
         List<BleachRecipe> results = new ArrayList<>();
         for (int i = 0; i < recipes.size(); i++)
-            if (recipes.get(i).is(block, meta))
+            if (recipes.get(i).is(block))
                 results.add(recipes.get(i));
         return results;
     }
@@ -108,7 +106,7 @@ public class BlankOMaticRecipeRegistry {
         }
         
         public boolean is(Block block) {
-            if (filter.test(block))
+            if (filter.is(block))
                 return true;
             
             for (int i = 0; i < results.length; i++) {

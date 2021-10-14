@@ -33,8 +33,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littletiles.common.placement.IMarkMode;
 import team.creative.littletiles.common.placement.PlacementPosition;
+import team.creative.littletiles.common.placement.mark.IMarkMode;
 
 public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMarkMode {
     

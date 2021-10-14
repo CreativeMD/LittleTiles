@@ -9,32 +9,28 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
-import com.creativemd.littletiles.common.tile.math.box.TransformableAxisBox;
-import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.geo.NormalPlane;
-import team.creative.creativecore.common.util.math.geo.Ray2d;
 import team.creative.creativecore.common.util.math.geo.Ray3f;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.utils.IntegerUtils;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.math.vec.VectorUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleRay;
@@ -45,24 +41,24 @@ public class LittleTransformableBox extends LittleBox {
     private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true }, { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
     private static boolean[][] flipMirrorMatrix = new boolean[][] { { true, true, true, true, true, true }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
     
-    private static boolean[][] buildFlipRotationCache() {
-        boolean[][] cache = new boolean[Rotation.values().length][EnumFacing.VALUES.length];
+    protected static boolean[][] buildFlipRotationCache() {
+        boolean[][] cache = new boolean[Rotation.values().length][Facing.values().length];
         AlignedBox box = new AlignedBox();
-        Vector3f center = new Vector3f(0.5F, 0.5F, 0.5F);
+        Vec3f center = new Vec3f(0.5F, 0.5F, 0.5F);
         for (int i = 0; i < cache.length; i++) {
             Rotation rotation = Rotation.values()[i];
             boolean[] flipped = cache[i];
-            for (int j = 0; j < EnumFacing.VALUES.length; j++) {
-                EnumFacing facing = EnumFacing.VALUES[j];
+            for (int j = 0; j < Facing.values().length; j++) {
+                Facing facing = Facing.values()[j];
                 BoxFace face = BoxFace.get(facing);
                 BoxCorner corner = face.getCornerInQuestion(false, false);
                 
-                Vector3f vec = box.getCorner(corner);
+                Vec3f vec = box.getCorner(corner);
                 vec.sub(center);
-                RotationUtils.rotate(vec, rotation);
+                rotation.transform(vec);
                 vec.add(center);
                 
-                EnumFacing rotatedFacing = RotationUtils.rotate(facing, rotation);
+                Facing rotatedFacing = rotation.rotate(facing);
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
                 if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
@@ -75,24 +71,24 @@ public class LittleTransformableBox extends LittleBox {
         return cache;
     }
     
-    private static boolean[][] buildFlipMirrorCache() {
-        boolean[][] cache = new boolean[Axis.values().length][EnumFacing.VALUES.length];
+    protected static boolean[][] buildFlipMirrorCache() {
+        boolean[][] cache = new boolean[Axis.values().length][Facing.values().length];
         AlignedBox box = new AlignedBox();
-        Vector3f center = new Vector3f(0.5F, 0.5F, 0.5F);
+        Vec3f center = new Vec3f(0.5F, 0.5F, 0.5F);
         for (int i = 0; i < cache.length; i++) {
             Axis axis = Axis.values()[i];
             boolean[] flipped = cache[i];
-            for (int j = 0; j < EnumFacing.VALUES.length; j++) {
-                EnumFacing facing = EnumFacing.VALUES[j];
+            for (int j = 0; j < Facing.values().length; j++) {
+                Facing facing = Facing.values()[j];
                 BoxFace face = BoxFace.get(facing);
                 BoxCorner corner = face.getCornerInQuestion(false, false);
                 
-                Vector3f vec = box.getCorner(corner);
+                Vec3f vec = box.getCorner(corner);
                 vec.sub(center);
-                RotationUtils.flip(vec, axis);
+                axis.mirror(vec);
                 vec.add(center);
                 
-                EnumFacing rotatedFacing = RotationUtils.flip(facing, axis);
+                Facing rotatedFacing = axis.mirror(facing);
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
                 if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
@@ -105,16 +101,12 @@ public class LittleTransformableBox extends LittleBox {
         return cache;
     }
     
-    private static final Vector3f ZERO = new Vector3f();
-    private static final int sliceIterations = 2000;
-    private static final int sliceMin = -5000;
-    private static final int sliceMax = 5000;
-    private static final double sliceConvertEPSILON = 0.0001;
+    private static final Vec3f ZERO = new Vec3f();
     
-    private static final int dataStartIndex = 0;
-    private static final int dataEndIndex = 23;
-    private static final int flipStartIndex = 24;
-    private static final int flipEndIndex = 29;
+    protected static final int dataStartIndex = 0;
+    protected static final int dataEndIndex = 23;
+    protected static final int flipStartIndex = 24;
+    protected static final int flipEndIndex = 29;
     
     private int[] data;
     private SoftReference<VectorFanCache> cache;
@@ -124,149 +116,21 @@ public class LittleTransformableBox extends LittleBox {
         this.data = Arrays.copyOfRange(data, 6, data.length);
     }
     
-    public LittleTransformableBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice) {
-        super(minX, minY, minZ, maxX, maxY, maxZ);
-        
-        this.data = new int[1];
-        
-        LittleVec size = getSize();
-        Axis one = RotationUtils.getOne(slice.axis);
-        Axis two = RotationUtils.getTwo(slice.axis);
-        
-        EnumFacing preferedSide = slice.getPreferedSide(size);
-        CornerCache corners = new CornerCache(true);
-        
-        BoxCorner emptyCorner1 = slice.getEmptyCorner();
-        BoxCorner emptyCorner2 = emptyCorner1.flip(slice.axis);
-        
-        Axis axis = preferedSide.getAxis();
-        int direction = preferedSide.getOpposite().getAxisDirection().getOffset();
-        
-        corners.setRelative(emptyCorner1, axis, direction * size.get(axis));
-        corners.setRelative(emptyCorner2, axis, direction * size.get(axis));
-        
-        this.data = corners.getData();
-    }
-    
-    public LittleTransformableBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
-        super(minX, minY, minZ, maxX, maxY, maxZ);
-        
-        this.data = new int[1];
-        
-        Axis one = RotationUtils.getOne(slice.axis);
-        Axis two = RotationUtils.getTwo(slice.axis);
-        
-        Vector3d size = new Vector3d(maxX - minX, maxY - minY, maxZ - minZ);
-        VectorUtils.set(size, Math.abs(startOne - endOne), one);
-        VectorUtils.set(size, Math.abs(startTwo - endTwo), two);
-        
-        EnumFacing preferedSide = slice.getPreferedSide(size);
-        CornerCache corners = new CornerCache(false);
-        
-        int minOne = getMin(one);
-        int minTwo = getMin(two);
-        int maxOne = getMax(one);
-        int maxTwo = getMax(two);
-        
-        Ray2d ray = new Ray2d(one, two, minOne + endOne, minTwo + endTwo, minOne + startOne, minTwo + startTwo);
-        
-        int counter = maxOne;
-        int rayPosOne1 = 0;
-        int rayPosTwo1 = 0;
-        Double distance1 = null;
-        
-        for (int i = 0; i < sliceIterations; i++) {
-            double value = ray.get(one, counter);
-            
-            if ((value <= minTwo || value >= maxTwo) && sliceMin <= value && value < sliceMax) {
-                double tempDistance = Math.abs(value - (int) value);
-                
-                if (distance1 == null || tempDistance < distance1) {
-                    distance1 = tempDistance;
-                    rayPosOne1 = counter;
-                    rayPosTwo1 = (int) Math.round(value);
-                    
-                    if (distance1 <= sliceConvertEPSILON)
-                        break;
-                }
-            }
-            
-            counter++;
-        }
-        
-        counter = minOne;
-        int rayPosOne2 = 0;
-        int rayPosTwo2 = 0;
-        Double distance2 = null;
-        
-        for (int i = 0; i < sliceIterations; i++) {
-            double value = ray.get(one, counter);
-            
-            if ((value <= minTwo || value >= maxTwo) && sliceMin <= value && value < sliceMax) {
-                double tempDistance = Math.abs(value - (int) value);
-                
-                if (distance2 == null || tempDistance < distance2) {
-                    distance2 = tempDistance;
-                    rayPosOne2 = counter;
-                    rayPosTwo2 = (int) Math.round(value);
-                    
-                    if (distance2 <= sliceConvertEPSILON)
-                        break;
-                }
-            }
-            
-            counter--;
-        }
-        
-        int newMinOne = Math.min(rayPosOne1, rayPosOne2);
-        int newMinTwo = Math.min(rayPosTwo1, rayPosTwo2);
-        int newMaxOne = Math.max(rayPosOne1, rayPosOne2);
-        int newMaxTwo = Math.max(rayPosTwo1, rayPosTwo2);
-        
-        for (int i = 0; i < BoxCorner.values().length; i++) {
-            BoxCorner corner = BoxCorner.values()[i];
-            LittleVec vec = get(corner);
-            if (corner.isFacingPositive(one))
-                vec.set(one, newMaxOne);
-            else
-                vec.set(one, newMinOne);
-            
-            if (corner.isFacingPositive(two))
-                vec.set(two, newMaxTwo);
-            else
-                vec.set(two, newMinTwo);
-            
-            corners.setAbsolute(corner, vec);
-        }
-        
-        BoxCorner emptyCorner1 = slice.getEmptyCorner();
-        BoxCorner emptyCorner2 = emptyCorner1.flip(slice.axis);
-        
-        Axis axis = preferedSide.getAxis();
-        int newValue = preferedSide.getAxisDirection() == AxisDirection.POSITIVE ? (axis == one ? newMinOne : newMinTwo) : (axis == one ? newMaxOne : newMaxTwo);
-        
-        corners.setAbsolute(emptyCorner1, axis, newValue);
-        corners.setAbsolute(emptyCorner2, axis, newValue);
-        
-        this.data = corners.getData();
-    }
-    
     public LittleTransformableBox(LittleBox box, int[] data) {
         super(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
         this.data = data;
     }
     
     @Override
-    public TransformableAxisBox getBox(LittleGridContext context, BlockPos offset) {
-        return new TransformableAxisBox(this, context, context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context
-                .toVanillaGrid(minZ) + offset
-                        .getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
+    public TransformableAxisBox getBB(LittleGrid grid, BlockPos offset) {
+        return new TransformableAxisBox(this, grid, grid.toVanillaGrid(minX) + offset.getX(), grid.toVanillaGrid(minY) + offset.getY(), grid.toVanillaGrid(minZ) + offset
+                .getZ(), grid.toVanillaGrid(maxX) + offset.getX(), grid.toVanillaGrid(maxY) + offset.getY(), grid.toVanillaGrid(maxZ) + offset.getZ());
     }
     
     @Override
-    public TransformableAxisBox getBox(LittleGridContext context) {
-        return new TransformableAxisBox(this, context, context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context
-                .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+    public TransformableAxisBox getBB(LittleGrid grid) {
+        return new TransformableAxisBox(this, grid, grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid
+                .toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
     public int getIndicator() {
@@ -282,12 +146,12 @@ public class LittleTransformableBox extends LittleBox {
         return IntegerUtils.bitIs(getIndicator(), flipStartIndex + facing);
     }
     
-    public void setFlipped(EnumFacing facing, boolean value) {
+    public void setFlipped(Facing facing, boolean value) {
         data[0] = IntegerUtils.set(getIndicator(), flipStartIndex + facing.ordinal(), value);
         changed();
     }
     
-    public boolean getFlipped(EnumFacing facing) {
+    public boolean getFlipped(Facing facing) {
         return IntegerUtils.bitIs(getIndicator(), flipStartIndex + facing.ordinal());
     }
     
@@ -312,8 +176,8 @@ public class LittleTransformableBox extends LittleBox {
         return (short) ((data[realIndex] >> 16) & 0xFFFF);
     }
     
-    public Vector3f[] getTiltedCorners() {
-        Vector3f[] corners = new Vector3f[BoxCorner.values().length];
+    public Vec3f[] getTiltedCorners() {
+        Vec3f[] corners = new Vec3f[BoxCorner.values().length];
         int indicator = getIndicator();
         
         int activeBits = 0;
@@ -339,7 +203,7 @@ public class LittleTransformableBox extends LittleBox {
                 activeBits++;
             }
             
-            corners[i] = new Vector3f(x + get(corner.x), y + get(corner.y), z + get(corner.z));
+            corners[i] = new Vec3f(x + get(corner.x), y + get(corner.y), z + get(corner.z));
         }
         
         return corners;
@@ -351,7 +215,7 @@ public class LittleTransformableBox extends LittleBox {
         cache = null;
     }
     
-    private static boolean checkEqual(Vector3f[] corners, LittleVec[] otherCorners, BoxCorner[] toCheck, Axis axis) {
+    private static boolean checkEqual(Vec3f[] corners, LittleVec[] otherCorners, BoxCorner[] toCheck, Axis axis) {
         for (int j = 0; j < toCheck.length; j++) {
             BoxCorner corner = toCheck[j];
             
@@ -374,8 +238,8 @@ public class LittleTransformableBox extends LittleBox {
         return true;
     }
     
-    private static VectorFan createStrip(BoxCorner[] corners, Vector3f[] vec) {
-        Vector3f[] coords = BoxFace.getVecArray(corners, vec);
+    private static VectorFan createStrip(BoxCorner[] corners, Vec3f[] vec) {
+        Vec3f[] coords = BoxFace.getVecArray(corners, vec);
         boolean invalid = false;
         for (int i = 0; i < coords.length - 1; i++) {
             if (coords[i].epsilonEquals(coords[i + 1], VectorFan.EPSILON)) {
@@ -386,13 +250,13 @@ public class LittleTransformableBox extends LittleBox {
         if (invalid) {
             if (coords.length == 3)
                 return null;
-            List<Vector3f> newCoords = new ArrayList<>();
+            List<Vec3f> newCoords = new ArrayList<>();
             for (int i = 0; i < coords.length - 1; i++)
                 if (!coords[i].epsilonEquals(coords[i + 1], VectorFan.EPSILON))
                     newCoords.add(coords[i]);
             if (newCoords.size() < 3)
                 return null;
-            coords = newCoords.toArray(new Vector3f[newCoords.size()]);
+            coords = newCoords.toArray(new Vec3f[newCoords.size()]);
         }
         return new VectorFan(coords);
     }
@@ -405,30 +269,30 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         // Cache axis aligned faces
-        NormalPlane[] planes = new NormalPlane[EnumFacing.VALUES.length];
+        NormalPlane[] planes = new NormalPlane[Facing.values().length];
         for (int i = 0; i < planes.length; i++) {
-            EnumFacing facing = EnumFacing.VALUES[i];
-            Axis axis = facing.getAxis();
+            Facing facing = Facing.values()[i];
+            Axis axis = facing.axis;
             
-            NormalPlane plane = new NormalPlane(new Vector3f(), new Vector3f());
+            NormalPlane plane = new NormalPlane(new Vec3f(), new Vec3f());
             plane.origin.set(0, 0, 0);
-            VectorUtils.set(plane.origin, get(facing), axis);
+            plane.origin.set(axis, get(facing));
             
             plane.normal.set(0, 0, 0);
-            VectorUtils.set(plane.normal, facing.getAxisDirection().getOffset(), axis);
+            plane.normal.set(axis, facing.offset());
             
             planes[i] = plane;
         }
         
         VectorFanCache cache = new VectorFanCache();
         
-        NormalPlane[] tiltedPlanes = new NormalPlane[EnumFacing.VALUES.length * 2]; // Stores all tilted planes to use them for cutting later
+        NormalPlane[] tiltedPlanes = new NormalPlane[Facing.values().length * 2]; // Stores all tilted planes to use them for cutting later
         
         // Tilted strips against axis box
-        Vector3f[] corners = getTiltedCorners();
+        Vec3f[] corners = getTiltedCorners();
         LittleVec[] boxCorners = getCorners();
-        for (int i = 0; i < EnumFacing.VALUES.length; i++) {
-            EnumFacing facing = EnumFacing.VALUES[i];
+        for (int i = 0; i < Facing.values().length; i++) {
+            Facing facing = Facing.values()[i];
             
             BoxFace face = BoxFace.get(facing);
             boolean inverted = getFlipped(facing);
@@ -437,12 +301,12 @@ public class LittleTransformableBox extends LittleBox {
             cache.faces[i] = faceCache;
             
             BoxCorner[] first = face.getTriangleFirst(inverted);
-            Vector3f firstNormal = BoxFace.getTraingleNormal(first, corners);
-            boolean firstSame = checkEqual(corners, boxCorners, first, facing.getAxis());
+            Vec3f firstNormal = BoxFace.getTraingleNormal(first, corners);
+            boolean firstSame = checkEqual(corners, boxCorners, first, facing.axis);
             
             BoxCorner[] second = face.getTriangleSecond(inverted);
-            Vector3f secondNormal = BoxFace.getTraingleNormal(second, corners);
-            boolean secondSame = checkEqual(corners, boxCorners, second, facing.getAxis());
+            Vec3f secondNormal = BoxFace.getTraingleNormal(second, corners);
+            boolean secondSame = checkEqual(corners, boxCorners, second, facing.axis);
             
             if (firstSame && secondSame)
                 continue;
@@ -481,7 +345,7 @@ public class LittleTransformableBox extends LittleBox {
             
             if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
                 for (int j = 0; j < faceCache.tiltedStrip2.count(); j++) {
-                    Vector3f vec = faceCache.tiltedStrip2.get(j);
+                    Vec3f vec = faceCache.tiltedStrip2.get(j);
                     if (BooleanUtils.isTrue(tiltedPlanes[i * 2].isInFront(vec))) {
                         faceCache.convex = false; // If path strips face inwards the axis strip has to be copied and each cut by one plane
                         break;
@@ -491,16 +355,14 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         // Axis strips against transformed box
-        for (int i = 0; i < EnumFacing.VALUES.length; i++) {
-            EnumFacing facing = EnumFacing.VALUES[i];
+        for (int i = 0; i < Facing.values().length; i++) {
+            Facing facing = Facing.values()[i];
             BoxFace face = BoxFace.get(facing);
-            boolean inverted = getFlipped(facing);
             
             VectorFanFaceCache axisFaceCache = cache.faces[i];
             axisFaceCache.axisStrips.add(new VectorFan(getVecArray(face.corners)));
-            NormalPlane plane = planes[i];
             
-            for (int j = 0; j < EnumFacing.VALUES.length; j++) {
+            for (int j = 0; j < Facing.values().length; j++) {
                 VectorFanFaceCache faceCache = cache.faces[j];
                 if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null) {
                     if (tiltedPlanes[j * 2] != null)
@@ -550,11 +412,11 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public int getSmallestContext(LittleGridContext context) {
-        int size = super.getSmallestContext(context);
+    public int getSmallest(LittleGrid grid) {
+        int size = super.getSmallest(grid);
         Iterator<TransformablePoint> points = points();
         while (points.hasNext())
-            size = Math.max(size, context.getMinGrid(points.next().getRelative()));
+            size = Math.max(size, grid.getMinGrid(points.next().getRelative()));
         return size;
     }
     
@@ -594,14 +456,14 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public boolean doesFillEntireBlock(LittleGridContext context) {
+    public boolean doesFillEntireBlock(LittleGrid grid) {
         return false;
     }
     
     @Override
     public LittleBox combineBoxes(LittleBox box) {
         if (box instanceof LittleTransformableBox) {
-            EnumFacing facing = box.sharedBoxFaceWithoutBounds(this);
+            Facing facing = box.sharedBoxFaceWithoutBounds(this);
             
             if (facing == null)
                 return null;
@@ -612,8 +474,8 @@ public class LittleTransformableBox extends LittleBox {
             TransformableVec point = null;
             TransformableVec otherPoint = null;
             
-            Axis one = RotationUtils.getOne(facing.getAxis());
-            Axis two = RotationUtils.getTwo(facing.getAxis());
+            Axis one = facing.one();
+            Axis two = facing.two();
             
             while (points.hasNext() || otherPoints.hasNext()) {
                 
@@ -652,7 +514,7 @@ public class LittleTransformableBox extends LittleBox {
                     return null;
             }
             
-            if (!requestCache().get(facing).equalAxisStrip(((LittleTransformableBox) box).requestCache().get(facing.getOpposite()), facing.getAxis()))
+            if (!requestCache().get(facing).equalAxisStrip(((LittleTransformableBox) box).requestCache().get(facing.opposite()), facing.axis))
                 return null;
             
             CornerCache cornerCache = new CornerCache(false);
@@ -666,7 +528,7 @@ public class LittleTransformableBox extends LittleBox {
             BoxCorner[] corners = BoxCorner.faceCorners(facing);
             for (int i = 0; i < corners.length; i++) {
                 BoxCorner corner = corners[i];
-                BoxCorner otherCorner = corner.flip(facing.getAxis());
+                BoxCorner otherCorner = corner.flip(facing.axis);
                 ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(otherCorner));
                 ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(otherCorner));
                 if (!ray.parallel(ray2))
@@ -715,7 +577,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public boolean isFaceSolid(EnumFacing facing) {
+    public boolean isFaceSolid(Facing facing) {
         return requestCache().get(facing).isCompletelyFilled();
     }
     
@@ -735,7 +597,7 @@ public class LittleTransformableBox extends LittleBox {
             // Build fan cache
             VectorFanCache newCache = new VectorFanCache();
             for (int i = 0; i < newCache.faces.length; i++) {
-                EnumFacing facing = EnumFacing.VALUES[i];
+                Facing facing = Facing.values()[i];
                 BoxFace face = BoxFace.get(facing);
                 VectorFanFaceCache faceCache = new VectorFanFaceCache();
                 faceCache.axisStrips.add(new VectorFan(box.getVecArray(face.corners)));
@@ -753,15 +615,14 @@ public class LittleTransformableBox extends LittleBox {
             VectorFanFaceCache otherFace = cache.faces[i];
             
             if (face.hasAxisStrip() && otherFace.hasAxisStrip()) {
-                EnumFacing facing = EnumFacing.VALUES[i];
-                Axis axis = facing.getAxis();
-                Axis one = RotationUtils.getOne(axis);
-                Axis two = RotationUtils.getTwo(axis);
+                Facing facing = Facing.values()[i];
+                Axis axis = facing.axis;
+                Axis one = facing.one();
+                Axis two = facing.two();
                 
                 for (VectorFan fan : face.axisStrips)
                     for (VectorFan fan2 : otherFace.axisStrips)
-                        if (VectorUtils.get(axis, fan.get(0)) == VectorUtils.get(axis, fan2.get(0)) && fan
-                                .intersect2d(fan2, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE))
+                        if (fan.get(0).get(axis) == fan2.get(0).get(axis) && fan.intersect2d(fan2, one, two, facing.positive))
                             return true;
             }
         }
@@ -797,15 +658,13 @@ public class LittleTransformableBox extends LittleBox {
             
             if (face.hasAxisStrip()) {
                 for (int j = 0; j < shapes.size(); j++) {
-                    EnumFacing facing = EnumFacing.VALUES[i];
-                    Axis axis = facing.getAxis();
-                    
-                    NormalPlane plane = new NormalPlane(new Vector3f(), new Vector3f());
+                    Facing facing = Facing.values()[i];
+                    NormalPlane plane = new NormalPlane(new Vec3f(), new Vec3f());
                     plane.origin.set(0, 0, 0);
-                    VectorUtils.set(plane.origin, get(facing), axis);
+                    plane.origin.set(facing.axis, get(facing));
                     
                     plane.normal.set(0, 0, 0);
-                    VectorUtils.set(plane.normal, facing.getAxisDirection().getOffset(), axis);
+                    plane.normal.set(facing.axis, facing.offset());
                     
                     shapes.get(j).add(plane);
                 }
@@ -816,7 +675,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public void rotateBox(Rotation rotation, LittleVec doubledCenter) {
+    public void rotate(Rotation rotation, LittleVec doubledCenter) {
         CornerCache cache = new CornerCache(false);
         Iterator<TransformableVec> corners = corners();
         while (corners.hasNext()) {
@@ -832,16 +691,16 @@ public class LittleTransformableBox extends LittleBox {
             cache.setAbsolute(vec.corner.rotate(rotation), rotatedVec);
         }
         
-        super.rotateBox(rotation, doubledCenter);
+        super.rotate(rotation, doubledCenter);
         this.data = cache.getData();
         
-        for (int i = 0; i < EnumFacing.VALUES.length; i++)
+        for (int i = 0; i < Facing.values().length; i++)
             if (flipRotationMatrix[rotation.ordinal()][i])
                 setFlipped(i, !getFlipped(i));
     }
     
     @Override
-    public void flipBox(Axis axis, LittleVec doubledCenter) {
+    public void mirror(Axis axis, LittleVec doubledCenter) {
         CornerCache cache = new CornerCache(false);
         Iterator<TransformableVec> corners = corners();
         while (corners.hasNext()) {
@@ -869,11 +728,11 @@ public class LittleTransformableBox extends LittleBox {
             cache.setAbsolute(vec.corner.flip(axis), flippedVec);
         }
         
-        super.flipBox(axis, doubledCenter);
+        super.mirror(axis, doubledCenter);
         
         this.data = cache.getData();
         
-        for (int i = 0; i < EnumFacing.VALUES.length; i++)
+        for (int i = 0; i < Facing.values().length; i++)
             if (flipMirrorMatrix[axis.ordinal()][i])
                 setFlipped(i, !getFlipped(i));
     }
@@ -1004,7 +863,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public LittleBox grow(EnumFacing facing) {
+    public LittleBox grow(Facing facing) {
         LittleBox box = super.grow(facing);
         if (box != null)
             return new LittleTransformableBox(box, data);
@@ -1012,7 +871,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public LittleBox shrink(EnumFacing facing, boolean toLimit) {
+    public LittleBox shrink(Facing facing, boolean toLimit) {
         LittleBox box = super.shrink(facing, toLimit);
         if (box != null)
             return new LittleTransformableBox(box, data);
@@ -1135,46 +994,45 @@ public class LittleTransformableBox extends LittleBox {
                     throw new NoSuchElementException();
                 TransformablePoint toReturn = point.set(corner * 3 + axisIndex, activeBits, Axis.values()[axisIndex], BoxCorner.values()[corner]);
                 findNext();
-                TransformablePoint temp = point;
                 if (!hasNext())
                     point = null;
-                return temp;
+                return toReturn;
             }
             
         };
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGridContext context, AlignedBox cube, Block block, int meta) {
-        return new LittleRenderBoxTransformable(cube, context, this, block, meta);
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderingCube(LittleGrid grid, AlignedBox cube, Block block, int meta) {
+        return new LittleRenderBoxTransformable(cube, grid, this, block, meta);
     }
     
     @Override
-    public RayTraceResult calculateIntercept(LittleGridContext context, BlockPos pos, Vec3d vecA, Vec3d vecB) {
+    public BlockHitResult rayTrace(LittleGrid grid, BlockPos pos, Vec3 vecA, Vec3 vecB) {
         VectorFanCache cache = requestCache();
         
-        Vector3f start = new Vector3f((float) (vecA.x - pos.getX()), (float) (vecA.y - pos.getY()), (float) (vecA.z - pos.getZ()));
-        Vector3f end = new Vector3f((float) (vecB.x - pos.getX()), (float) (vecB.y - pos.getY()), (float) (vecB.z - pos.getZ()));
+        Vec3f start = new Vec3f((float) (vecA.x - pos.getX()), (float) (vecA.y - pos.getY()), (float) (vecA.z - pos.getZ()));
+        Vec3f end = new Vec3f((float) (vecB.x - pos.getX()), (float) (vecB.y - pos.getY()), (float) (vecB.z - pos.getZ()));
         
-        start.scale(context.size);
-        end.scale(context.size);
+        start.scale(grid.count);
+        end.scale(grid.count);
         
         Ray3f ray = new Ray3f(start, end);
         
         vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
         
-        Vec3d collision = null;
-        EnumFacing collided = null;
+        Vec3 collision = null;
+        Facing collided = null;
         
-        for (int i = 0; i < EnumFacing.VALUES.length; i++) {
-            VectorFanFaceCache face = cache.get(EnumFacing.VALUES[i]);
+        for (int i = 0; i < Facing.values().length; i++) {
+            VectorFanFaceCache face = cache.get(Facing.values()[i]);
             for (VectorFan strip : face) {
-                Vec3d temp = strip.calculateIntercept(ray);
+                Vec3 temp = strip.calculateIntercept(ray).toVanilla();
                 if (temp != null)
-                    temp = temp.scale(context.pixelSize);
+                    temp = temp.scale(grid.pixelLength);
                 if (temp != null && isClosest(vecA, collision, temp)) {
-                    collided = EnumFacing.VALUES[i];
+                    collided = Facing.values()[i];
                     collision = temp;
                 }
             }
@@ -1183,7 +1041,7 @@ public class LittleTransformableBox extends LittleBox {
         if (collision == null)
             return null;
         
-        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
+        return new BlockHitResult(collision.add(pos.getX(), pos.getY(), pos.getZ()), collided.toVanilla(), pos, true);
     }
     
     @Override
@@ -1195,16 +1053,16 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     @Nullable
-    public LittleFace generateFace(LittleGridContext context, EnumFacing facing) {
+    public LittleFace generateFace(LittleGrid grid, Facing facing) {
         VectorFanFaceCache faceCache = requestCache().get(facing);
         if (faceCache.isCompletelyFilled())
-            return super.generateFace(context, facing);
+            return super.generateFace(grid, facing);
         if (faceCache.axisStrips.isEmpty())
             return null;
-        Axis one = RotationUtils.getOne(facing.getAxis());
-        Axis two = RotationUtils.getTwo(facing.getAxis());
-        return new LittleFace(this, faceCache.axisStrips, faceCache.tilted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
-                .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+        Axis one = facing.one();
+        Axis two = facing.two();
+        return new LittleFace(this, faceCache.axisStrips, faceCache
+                .tilted(), grid, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
     }
     
     class TransformableVec {
@@ -1475,7 +1333,7 @@ public class LittleTransformableBox extends LittleBox {
         
         VectorFanFaceCache[] faces = new VectorFanFaceCache[6];
         
-        public VectorFanFaceCache get(EnumFacing facing) {
+        public VectorFanFaceCache get(Facing facing) {
             return faces[facing.ordinal()];
         }
         
@@ -1530,7 +1388,7 @@ public class LittleTransformableBox extends LittleBox {
                     return true;
                 
             for (int i = 0; i < centers.size(); i++) {
-                Vector3f center = centers.get(i).getCenter();
+                Vec3f center = centers.get(i).getCenter();
                 for (int j = 0; j < shapes.size(); j++)
                     if (isInside(shapes.get(j), center))
                         return true;
@@ -1538,7 +1396,7 @@ public class LittleTransformableBox extends LittleBox {
             return false;
         }
         
-        public boolean isInside(List<NormalPlane> shape, Vector3f vec) {
+        public boolean isInside(List<NormalPlane> shape, Vec3f vec) {
             for (int i = 0; i < shape.size(); i++)
                 if (!BooleanUtils.isFalse(shape.get(i).isInFront(vec)))
                     return false;
@@ -1555,7 +1413,7 @@ public class LittleTransformableBox extends LittleBox {
             for (int i = 0; i < faces.length; i++)
                 for (VectorFan fan : faces[i])
                     for (int j = 0; j < fan.count(); j++) {
-                        Vector3f vec = fan.get(j);
+                        Vec3f vec = fan.get(j);
                         minX = Math.min(minX, (int) Math.floor(vec.x));
                         minY = Math.min(minY, (int) Math.floor(vec.y));
                         minZ = Math.min(minZ, (int) Math.floor(vec.z));
@@ -1599,11 +1457,10 @@ public class LittleTransformableBox extends LittleBox {
             return !axisStrips.isEmpty();
         }
         
-        public void cutAxisStrip(EnumFacing facing, NormalPlane plane, NormalPlane plane2) {
-            Axis axis = facing.getAxis();
-            Axis one = RotationUtils.getOne(axis);
-            Axis two = RotationUtils.getTwo(axis);
-            boolean inverse = facing.getAxisDirection() == AxisDirection.POSITIVE;
+        public void cutAxisStrip(Facing facing, NormalPlane plane, NormalPlane plane2) {
+            Axis one = facing.one();
+            Axis two = facing.two();
+            boolean inverse = facing.positive;
             
             List<VectorFan> newAxisStrips = new ArrayList<>();
             for (int i = 0; i < axisStrips.size(); i++) {
@@ -1797,10 +1654,10 @@ public class LittleTransformableBox extends LittleBox {
     
     public static class CenterPoint {
         
-        Vector3f vec = new Vector3f();
+        Vec3f vec = new Vec3f();
         int count = 0;
         
-        public void add(Vector3f vec) {
+        public void add(Vec3f vec) {
             this.vec.add(vec);
             count++;
         }
@@ -1810,16 +1667,16 @@ public class LittleTransformableBox extends LittleBox {
                 add(fan.get(i));
         }
         
-        public Vector3f getCenter() {
+        public Vec3f getCenter() {
             float multiplier = 1F / (count);
-            Vector3f result = new Vector3f();
-            result.scale(multiplier, vec);
+            Vec3f result = new Vec3f(vec);
+            result.scale(multiplier);
             return result;
         }
         
         public CenterPoint copy() {
             CenterPoint point = new CenterPoint();
-            point.vec = new Vector3f(vec);
+            point.vec = new Vec3f(vec);
             point.count = count;
             return point;
         }

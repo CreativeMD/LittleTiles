@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.place.PlacePreviewFacing;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,6 +21,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.SurroundingBox;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
@@ -178,7 +178,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
             List<PlacePreview> result = super.getSpecialTiles(previews);
             Facing facing = (Facing) loadDirectional(previews, "facing");
             LittleBox box = previews.getSurroundingBox();
-            result.add(new PlacePreviewFacing(box, facing, ColorUtils.ORANGE));
+            result.add(new LittlePlaceBoxFacing(box, facing, ColorUtils.ORANGE));
             return result;
         }
         

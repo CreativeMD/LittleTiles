@@ -34,9 +34,10 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.creativecore.common.util.type.SingletonList;
 import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
-import team.creative.littletiles.common.block.little.type.LittleBlockRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.IngredientUtils;
@@ -46,21 +47,17 @@ import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
-public final class LittleTile implements Iterable<LittleBox> {
+public final class LittleTile extends LittleElement implements Iterable<LittleBox> {
     
-    private LittleBlock block;
-    public final int color;
     private List<LittleBox> boxes;
     
     public LittleTile(LittleBlock block, int color, LittleBox box) {
-        this.block = block;
-        this.color = color;
+        super(block, color);
         this.boxes = new SingletonList<>(box);
     }
     
     public LittleTile(LittleBlock block, int color, Iterable<LittleBox> boxes) {
-        this.block = block;
-        this.color = color;
+        super(block, color);
         if (boxes instanceof SingletonList)
             this.boxes = new SingletonList<LittleBox>(((SingletonList<LittleBox>) boxes).get(0));
         else {
@@ -71,16 +68,14 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     public LittleTile(LittleBlock block, int color, List<LittleBox> boxes) {
-        this.block = block;
-        this.color = color;
+        super(block, color);
         this.boxes = new ArrayList<>();
         for (LittleBox box : boxes)
             this.boxes.add(box);
     }
     
     public LittleTile(CompoundTag nbt) {
-        this.block = LittleBlockRegistry.get(nbt.getString("b"));
-        this.color = nbt.contains("c") ? nbt.getInt("c") : ColorUtils.WHITE;
+        super(nbt);
         ListTag list = nbt.getList("s", Tag.TAG_INT_ARRAY);
         this.boxes = list.size() == 1 ? new SingletonList(LittleBox.create(list.getIntArray(0))) : new ArrayList<>();
         if (list.size() > 1)
@@ -89,10 +84,6 @@ public final class LittleTile implements Iterable<LittleBox> {
     }
     
     // ================Basics================
-    
-    public LittleBlock getBlock() {
-        return block;
-    }
     
     public void setBlock(Block block) {
         setBlock(LittleBlockRegistry.get(block));

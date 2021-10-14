@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.block.mc;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 
 import net.minecraft.core.Direction;
@@ -28,6 +27,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.common.api.block.ILittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;

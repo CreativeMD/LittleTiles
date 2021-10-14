@@ -40,9 +40,9 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
-import team.creative.littletiles.common.placement.IMarkMode;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.placement.mark.IMarkMode;
 
 public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip {
     

@@ -13,7 +13,6 @@ import com.creativemd.creativecore.common.utils.mc.NBTUtils;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.google.common.base.Charsets;
-import com.google.gson.JsonParser;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -57,8 +56,6 @@ public abstract class LittleStructurePremade extends LittleStructure {
     
     private static LinkedHashMap<String, LittleStructurePremadeEntry> structurePreviews = new LinkedHashMap<>();
     private static List<LittleStructureTypePremade> premadeStructures = new ArrayList<>();
-    
-    private static JsonParser parser = new JsonParser();
     
     public static void reloadPremadeStructures() {
         
