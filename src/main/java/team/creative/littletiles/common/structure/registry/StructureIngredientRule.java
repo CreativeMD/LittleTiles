@@ -1,9 +1,9 @@
 package team.creative.littletiles.common.structure.registry;
 
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public class StructureIngredientRule implements IStructureIngredientRule {
     

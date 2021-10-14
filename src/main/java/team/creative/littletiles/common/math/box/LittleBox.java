@@ -1174,8 +1174,6 @@ public class LittleBox {
         if (identifier < 0)
             return new LittleTransformableBox(array);
         
-        Still needs to be changed, I don't like it
-        
         throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
     }
     

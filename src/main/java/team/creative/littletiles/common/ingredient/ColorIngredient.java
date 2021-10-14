@@ -6,8 +6,8 @@ import net.minecraft.ChatFormatting;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.tile.LittleTile;
 
 public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     

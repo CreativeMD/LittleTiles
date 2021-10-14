@@ -37,6 +37,8 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.particle.LittleParticle;
@@ -45,8 +47,6 @@ import team.creative.littletiles.common.particle.LittleParticleTexture;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
     

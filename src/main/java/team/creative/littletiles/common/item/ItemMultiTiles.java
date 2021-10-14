@@ -13,7 +13,6 @@ import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.google.common.base.Charsets;
 
 import net.minecraft.block.state.IBlockState;
@@ -39,6 +38,7 @@ import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 public class ItemMultiTiles extends Item implements ICreativeRendered, ILittlePlacer {

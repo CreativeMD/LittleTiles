@@ -17,7 +17,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.Lit
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.IMarkMode;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
@@ -53,6 +52,7 @@ import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
+import team.creative.littletiles.common.placement.IMarkMode;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 

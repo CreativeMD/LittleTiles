@@ -25,6 +25,8 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionException.LittleActionExceptionHidden;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
@@ -34,8 +36,6 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public abstract class LittleDoor extends LittleStructure {
     

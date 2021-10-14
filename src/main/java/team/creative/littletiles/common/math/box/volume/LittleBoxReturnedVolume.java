@@ -1,9 +1,9 @@
 package team.creative.littletiles.common.math.box.volume;
 
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.tile.LittleTile;
 
 public class LittleBoxReturnedVolume {
     
@@ -41,7 +41,7 @@ public class LittleBoxReturnedVolume {
     }
     
     public LittleTile createFakeTile(LittleTile tile) {
-        return new LittleTile(tile.block, tile.color, new LittleBox(0, 0, 0, volume, 1, 1));
+        return new LittleTile(tile.getBlock(), tile.color, new LittleBox(0, 0, 0, volume, 1, 1));
     }
     
 }

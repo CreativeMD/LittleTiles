@@ -28,6 +28,8 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
@@ -46,8 +48,6 @@ import team.creative.littletiles.common.structure.type.premade.signal.LittleSign
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalInput.LittleStructureTypeInput;
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalOutput.LittleStructureTypeOutput;
-import team.creative.littletiles.common.tile.group.LittleGroup;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public abstract class LittleStructurePremade extends LittleStructure {
     

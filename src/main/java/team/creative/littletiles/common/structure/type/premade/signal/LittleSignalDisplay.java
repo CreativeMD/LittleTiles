@@ -24,12 +24,12 @@ import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public class LittleSignalDisplay extends LittleStructurePremade {
     

@@ -11,10 +11,10 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public class LittleBlankOMatic extends LittleStructurePremade {
     

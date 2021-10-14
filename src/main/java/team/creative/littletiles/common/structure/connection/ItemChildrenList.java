@@ -2,7 +2,7 @@ package team.creative.littletiles.common.structure.connection;
 
 import java.util.List;
 
-import team.creative.littletiles.common.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class ItemChildrenList extends ChildrenList<LittleGroup> {
     

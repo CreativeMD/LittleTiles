@@ -1,19 +1,16 @@
 package team.creative.littletiles.common.math.box.volume;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import team.creative.creativecore.common.util.type.HashMapInteger;
 import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public class LittleVolumes implements IGridBased {
     
     public LittleGrid grid;
-    private HashMapInteger<LittleVolume> volumes = new HashMapInteger<>();
+    private HashMapInteger<LittleBlockAndColor> volumes = new HashMapInteger<>();
     
     public LittleVolumes(LittleGrid grid) {
         this.grid = grid;
@@ -31,7 +28,7 @@ public class LittleVolumes implements IGridBased {
     }
     
     public void add(LittleVolumes volumes) {
-        adasdkalsk
+        this.volumes.putAll(volumes.volumes);
     }
     
     public void add(LittleGroup group) {
@@ -50,7 +47,7 @@ public class LittleVolumes implements IGridBased {
         if (grid.count < this.grid.count)
             volume *= this.grid.count / grid.count;
         
-        LittleVolume type = new LittleVolume(tile.block, tile.color);
+        LittleBlockAndColor type = new LittleBlockAndColor(tile.getBlock(), tile.color);
         Integer exist = volumes.get(type);
         if (exist == null)
             exist = volume;
@@ -62,9 +59,15 @@ public class LittleVolumes implements IGridBased {
     
     @Override
     public int getSmallest() {
-        adasd
-        // TODO Auto-generated method stub
-        return 0;
+        int smallest = LittleGrid.min().count;
+        for (Integer value : volumes.values()) {
+            double root = Math.cbrt(value);
+            if ((root == Math.floor(root)))
+                smallest = Math.max(smallest, grid.getMinGrid((int) root));
+            else
+                smallest = grid.count;
+        }
+        return smallest;
     }
     
     @Override
@@ -94,14 +97,26 @@ public class LittleVolumes implements IGridBased {
         return false;
     }
     
-    public static class LittleVolume {
+    public static class LittleBlockAndColor {
         
         public final LittleBlock block;
         public final int color;
         
-        public LittleVolume(LittleBlock block, int color) {
+        public LittleBlockAndColor(LittleBlock block, int color) {
             this.block = block;
             this.color = color;
+        }
+        
+        @Override
+        public int hashCode() {
+            return block.hashCode() + color;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof LittleBlockAndColor)
+                return ((LittleBlockAndColor) obj).block == block && ((LittleBlockAndColor) obj).color == color;
+            return super.equals(obj);
         }
         
     }

@@ -24,7 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;

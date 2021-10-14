@@ -18,7 +18,6 @@ import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
 import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -48,12 +47,13 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
-import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import team.creative.littletiles.common.packet.LittleSelectionModePacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered, IItemTooltip {
     

@@ -12,9 +12,9 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public abstract class LittleStructureGuiParser implements IAnimationControl {
     

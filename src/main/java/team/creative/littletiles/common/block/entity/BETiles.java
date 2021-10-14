@@ -43,7 +43,14 @@ import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.common.api.block.ILittleBlockEntity;
-import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.block.little.tile.parent.BlockParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -52,13 +59,6 @@ import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.LittleTileContext;
-import team.creative.littletiles.common.tile.parent.BlockParentCollection;
-import team.creative.littletiles.common.tile.parent.IParentCollection;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.tile.parent.ParentCollection;
-import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
     

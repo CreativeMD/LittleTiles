@@ -21,8 +21,6 @@ import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.IMarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
-import com.creativemd.littletiles.common.util.place.PlacementMode.PreviewMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.place.PlacementPreview;
 
@@ -50,6 +48,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.mode.PlacementMode.PreviewMode;
 
 @SideOnly(Side.CLIENT)
 public class PreviewRenderer {

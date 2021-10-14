@@ -28,9 +28,9 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
     

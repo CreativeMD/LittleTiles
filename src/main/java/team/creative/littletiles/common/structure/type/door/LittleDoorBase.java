@@ -20,9 +20,6 @@ import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.place.Placement;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.core.BlockPos;
@@ -45,9 +42,13 @@ import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.ValueTimeline;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
+import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementResult;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
@@ -65,7 +66,6 @@ import team.creative.littletiles.common.structure.type.door.LittleAxisDoor.Littl
 import team.creative.littletiles.common.structure.type.door.LittleDoorActivator.LittleDoorActivatorParser;
 import team.creative.littletiles.common.structure.type.door.LittleDoorActivator.LittleDoorActivatorType;
 import team.creative.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
 
 public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStructure {
     

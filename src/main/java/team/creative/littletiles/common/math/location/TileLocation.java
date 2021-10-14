@@ -8,17 +8,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.level.CreativeLevel;
-import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.LittleTileContext;
-import team.creative.littletiles.common.tile.parent.IParentCollection;
-import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class TileLocation {
     
@@ -77,7 +76,7 @@ public class TileLocation {
         return nbt;
     }
     
-    public Pair<IParentCollection, LittleTile> find(Level level) throws LittleActionException {
+    public LittleTileContext find(Level level) throws LittleActionException {
         if (levelUUID != null) {
             EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
             if (animation == null)
@@ -93,7 +92,7 @@ public class TileLocation {
                 list = ((BETiles) be).getStructure(index);
             for (LittleTile tile : list)
                 if (tile.contains(box))
-                    return new Pair<>(list, tile);
+                    return new LittleTileContext(list, tile, box);
             throw new LittleActionException.TileNotFoundException();
         }
         throw new LittleActionException.TileEntityNotFoundException();

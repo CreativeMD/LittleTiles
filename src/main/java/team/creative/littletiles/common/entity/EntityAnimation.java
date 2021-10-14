@@ -52,7 +52,8 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.EntityAnimationController;
-import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -63,7 +64,6 @@ import team.creative.littletiles.common.physic.AABBCombiner;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
-import team.creative.littletiles.common.tile.LittleTile;
 
 public class EntityAnimation extends Entity {
     

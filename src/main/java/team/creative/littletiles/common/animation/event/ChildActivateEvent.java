@@ -15,13 +15,13 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.animation.AnimationGuiHandler.AnimationGuiHolder;
+import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
-import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public class ChildActivateEvent extends AnimationEvent {
     

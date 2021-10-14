@@ -3,7 +3,6 @@ package team.creative.littletiles.common.api.tool;
 import java.util.List;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -13,11 +12,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.tile.group.LittleGroup;
 
 public interface ILittlePlacer extends ILittleTool {
     
@@ -69,8 +69,8 @@ public interface ILittlePlacer extends ILittleTool {
     
     public default PlacementMode getPlacementMode(ItemStack stack) {
         if (stack.hasTag())
-            return PlacementMode.getModeOrDefault(stack.getTag().getString("mode"));
-        return PlacementMode.getDefault();
+            return PlacementMode.getMode(stack.getTag().getString("mode"));
+        return PlacementMode.REGISTRY.getDefault();
     }
     
     public default boolean snapToGridByDefault(ItemStack stack) {

@@ -21,9 +21,6 @@ import com.creativemd.littletiles.common.structure.exception.CorruptedConnection
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.place.Placement;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -40,7 +37,10 @@ import team.creative.littletiles.common.animation.AnimationController;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.EntityAnimationController;
+import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementResult;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 

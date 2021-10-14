@@ -1,9 +1,7 @@
 package team.creative.littletiles.common.math.box;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
 
 public class LittleTileCylinder extends LittleBox {
     
@@ -35,20 +33,14 @@ public class LittleTileCylinder extends LittleBox {
     // ================Cylinder================
     
     public int getCenter(Axis axis) {
-        if (axis == RotationUtils.getOne(axis))
+        if (axis == this.axis.one())
             return centerOne;
         return centerTwo;
     }
     
-    public boolean isSolid(EnumFacing facing) {
-        if (facing.getAxis() == axis)
+    public boolean isSolid(Facing facing) {
+        if (facing.axis == axis)
             return false;
-        
-        /*
-         * if(facing.getAxisDirection() == AxisDirection.POSITIVE) Wrong! return
-         * getMax(facing.getAxis()) >= (radius + getCenter(axis)) / 2 + getMin(axis);
-         * return 0 >= (radius + getCenter(axis)) / 2;
-         */
         return false;
     }
 }

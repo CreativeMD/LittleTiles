@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEn
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 
 import io.netty.buffer.ByteBuf;
@@ -32,11 +31,12 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.block.little.tile.parent.ParentTileList;
 import team.creative.littletiles.common.action.LittleActionBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
-import team.creative.littletiles.common.tile.parent.ParentTileList;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public class LittleActionDestroyBoxes extends LittleActionBoxes {
     

@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 
 public class ChiselsAndBitsManager {
     

@@ -11,9 +11,6 @@ import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocati
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.Placement;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,7 +19,10 @@ import net.minecraft.util.math.BlockPos;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementResult;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;

@@ -59,7 +59,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
-import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.item.ItemLittleChisel;
@@ -187,10 +187,6 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemColorHandler(LittleTiles.grabber);
         CreativeCoreClient.registerItemColorHandler(LittleTiles.premade);
         CreativeCoreClient.registerItemColorHandler(LittleTiles.blockIngredient);
-        CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTicking);
-        CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
-        CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTickingRendered);
-        CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTickingRendered);
         
         // Init overlays
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
@@ -242,7 +238,7 @@ public class LittleTilesClient {
         CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_RENDERED);
         CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_TICKING_RENDERED);
         
-        CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
+        CreativeCoreClient.registerBlockItem(LittleTiles.STORAGE_BLOCK);
         
         CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlock, LittleTiles.modid, "colored_block_", BlockLittleDyeable.LittleDyeableType.values());
         CreativeCoreClient

@@ -9,18 +9,18 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.Placement;
-import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.placement.Placement.PlacementBlock;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.tile.LittleTile;
 
 public class PlacePreview {
     

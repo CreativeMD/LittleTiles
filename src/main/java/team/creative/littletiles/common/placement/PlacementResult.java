@@ -5,13 +5,13 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.group.LittleGroup;
-import team.creative.littletiles.common.tile.parent.ParentCollection;
 
 public class PlacementResult {
     

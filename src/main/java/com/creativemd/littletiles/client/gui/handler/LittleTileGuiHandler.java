@@ -1,53 +1,30 @@
 package com.creativemd.littletiles.client.gui.handler;
 
-import com.creativemd.creativecore.common.gui.container.SubContainer;
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.opener.CustomGuiHandler;
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.location.TileLocation;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.math.location.TileLocation;
 
-public abstract class LittleTileGuiHandler extends CustomGuiHandler {
+public abstract class LittleTileGuiHandler extends GuiHandler {
     
-    public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, IParentTileList parent, LittleTile tile) {
-        nbt.setTag("location", new TileLocation(parent, tile).write());
+    public static void openGui(String id, CompoundTag nbt, Player player, LittleTileContext context) {
+        nbt.put("location", new TileLocation(context).write(new CompoundTag()));
         GuiHandler.openGui(id, nbt, player);
     }
     
-    public abstract SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, IParentTileList parent, LittleTile tile);
-    
     @Override
-    public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+    public GuiLayer create(Player player, CompoundTag nbt) {
         try {
-            Pair<IParentTileList, LittleTile> pair = new TileLocation(nbt.getCompoundTag("location")).find(player.world);
-            return getContainer(player, nbt, pair.key, pair.value);
+            return create(player, nbt, new TileLocation(nbt.getCompound("location")).find(player.level));
         } catch (LittleActionException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
     
-    @SideOnly(Side.CLIENT)
-    public abstract SubGui getGui(EntityPlayer player, NBTTagCompound nbt, IParentTileList parent, LittleTile tile);
-    
-    @Override
-    @SideOnly(Side.CLIENT)
-    public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-        try {
-            Pair<IParentTileList, LittleTile> pair = new TileLocation(nbt.getCompoundTag("location")).find(player.world);
-            return getGui(player, nbt, pair.key, pair.value);
-        } catch (LittleActionException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    public abstract GuiLayer create(Player player, CompoundTag nbt, LittleTileContext context);
     
 }

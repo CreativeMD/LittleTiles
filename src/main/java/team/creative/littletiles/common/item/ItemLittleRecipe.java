@@ -49,8 +49,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.tile.LittleTile;
 
 public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCreator {
     

@@ -3,7 +3,6 @@ package team.creative.littletiles.common.config;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -65,7 +64,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToConvertBlockException(ServerPlayer player) {
+        public NotAllowedToConvertBlockException(Player player) {
             super("exception.permission.convert");
             config = LittleTiles.CONFIG.build.get(player);
         }
@@ -80,7 +79,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToEditException(ServerPlayer player) {
+        public NotAllowedToEditException(Player player) {
             super("exception.permission.edit");
             config = LittleTiles.CONFIG.build.get(player);
         }
@@ -96,7 +95,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceException(ServerPlayer player) {
+        public NotAllowedToPlaceException(Player player) {
             super("exception.permission.place");
             config = LittleTiles.CONFIG.build.get(player);
         }
@@ -125,7 +124,7 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceColorException(ServerPlayer player) {
+        public NotAllowedToPlaceColorException(Player player) {
             super("exception.permission.place.color");
             config = LittleTiles.CONFIG.build.get(player);
         }

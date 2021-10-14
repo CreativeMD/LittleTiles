@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
 
@@ -17,7 +16,12 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.block.little.LittleBlockRegistry;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
+import team.creative.littletiles.common.block.little.type.LittleBlockRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
@@ -31,11 +35,7 @@ import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.collection.LittleCollection;
-import team.creative.littletiles.common.tile.group.LittleGroup;
-import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
-import team.creative.littletiles.common.tile.group.LittleGroupHolder;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public class LittlePacketTypes {
     

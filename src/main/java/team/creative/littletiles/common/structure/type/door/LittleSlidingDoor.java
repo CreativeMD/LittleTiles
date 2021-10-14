@@ -22,7 +22,6 @@ import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.Placement;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,6 +33,7 @@ import team.creative.littletiles.common.animation.AnimationKey;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.ValueTimeline;
+import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;

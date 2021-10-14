@@ -50,6 +50,12 @@ import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -65,7 +71,6 @@ import team.creative.littletiles.common.structure.connection.LevelChildrenList;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildFromSubLevelConnection;
 import team.creative.littletiles.common.structure.connection.StructureChildToSubLevelConnection;
-import team.creative.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.MissingBlockException;
@@ -80,12 +85,6 @@ import team.creative.littletiles.common.structure.signal.input.InternalSignalInp
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.group.LittleGroup;
-import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
-import team.creative.littletiles.common.tile.group.LittleGroupHolder;
-import team.creative.littletiles.common.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.tile.parent.StructureParentCollection;
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
     

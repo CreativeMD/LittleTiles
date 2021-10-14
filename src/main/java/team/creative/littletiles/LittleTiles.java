@@ -4,31 +4,10 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.littletiles.CustomGuiHandler;
-import com.creativemd.littletiles.EntityPlayer;
-import com.creativemd.littletiles.IParentTileList;
-import com.creativemd.littletiles.NBTTagCompound;
-import com.creativemd.littletiles.SideOnly;
-import com.creativemd.littletiles.StructureTileList;
-import com.creativemd.littletiles.SubContainer;
-import com.creativemd.littletiles.SubGui;
-import com.creativemd.littletiles.client.gui.SubGuiBlankOMatic;
-import com.creativemd.littletiles.client.gui.SubGuiBuilder;
-import com.creativemd.littletiles.client.gui.SubGuiDiagnose;
-import com.creativemd.littletiles.client.gui.SubGuiExport;
-import com.creativemd.littletiles.client.gui.SubGuiImport;
-import com.creativemd.littletiles.client.gui.SubGuiParticle;
-import com.creativemd.littletiles.client.gui.SubGuiRecipe;
-import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
-import com.creativemd.littletiles.client.gui.SubGuiStorage;
-import com.creativemd.littletiles.client.gui.SubGuiStructureOverview;
-import com.creativemd.littletiles.client.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -44,16 +23,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.command.OpenCommand;
-import com.creativemd.littletiles.common.container.SubContainerBlankOMatic;
-import com.creativemd.littletiles.common.container.SubContainerBuilder;
-import com.creativemd.littletiles.common.container.SubContainerDiagnose;
-import com.creativemd.littletiles.common.container.SubContainerExport;
-import com.creativemd.littletiles.common.container.SubContainerImport;
-import com.creativemd.littletiles.common.container.SubContainerParticle;
-import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
-import com.creativemd.littletiles.common.container.SubContainerStorage;
-import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
-import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.mod.albedo.AlbedoExtension;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
@@ -67,6 +36,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -90,22 +60,23 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
+import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
-import team.creative.littletiles.common.api.tool.ILittlePlacer;
-import team.creative.littletiles.common.api.tool.ILittleTool;
-import team.creative.littletiles.common.block.BlockArrow;
-import team.creative.littletiles.common.block.BlockFlowingLava;
-import team.creative.littletiles.common.block.BlockFlowingWater;
-import team.creative.littletiles.common.block.BlockLava;
-import team.creative.littletiles.common.block.BlockSignalConverter;
-import team.creative.littletiles.common.block.BlockTile;
-import team.creative.littletiles.common.block.BlockWater;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.block.mc.BlockArrow;
+import team.creative.littletiles.common.block.mc.BlockFlowingLava;
+import team.creative.littletiles.common.block.mc.BlockFlowingWater;
+import team.creative.littletiles.common.block.mc.BlockLava;
+import team.creative.littletiles.common.block.mc.BlockSignalConverter;
+import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.block.mc.BlockWater;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.entity.EntitySit;
@@ -151,11 +122,6 @@ import team.creative.littletiles.common.packet.update.NeighborUpdate;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.type.LittleStorage;
-import team.creative.littletiles.common.structure.type.premade.LittleBlankOMatic;
-import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter;
-import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
-import team.creative.littletiles.common.tile.LittleTile;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.NeighborUpdateOrganizer;
 
@@ -253,6 +219,12 @@ public class LittleTiles {
     public LittleTiles() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::client);
+        
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, this::registerBlockEntities);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(EntityType.class, this::registerEntities);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, this::registerBlocks);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, this::registerItems);
+        
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
     }
     
@@ -299,224 +271,128 @@ public class LittleTiles {
         SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
         SIT_TYPE = EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit");
         
-        GuiHandler.registerGuiHandler("littleStorageStructure", new LittleStructureGuiHandler() {
+        GuiHandler.register("littleStorageStructure", new LittleStructureGuiHandler() {
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubGuiStorage((LittleStorage) structure);
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubContainerStorage(player, (LittleStorage) structure);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("blankomatic", new LittleStructureGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubGuiBlankOMatic((LittleBlankOMatic) structure);
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubContainerBlankOMatic(player, (LittleBlankOMatic) structure);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("configure", new CustomGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                ItemStack stack = player.getHeldItemMainhand();
-                if (stack.getItem() instanceof ILittleTool)
-                    return ((ILittleTool) stack.getItem()).getConfigureGUI(player, stack);
-                return null;
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                ItemStack stack = player.getHeldItemMainhand();
-                if (stack.getItem() instanceof ILittleTool)
-                    return ((ILittleTool) stack.getItem()).getConfigureContainer(player, stack);
+            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
+                // TODO Auto-generated method stub
                 return null;
             }
         });
         
-        GuiHandler.registerGuiHandler("configureadvanced", new CustomGuiHandler() {
+        GuiHandler.register("blankomatic", new LittleStructureGuiHandler() {
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                ItemStack stack = player.getHeldItemMainhand();
-                if (stack.getItem() instanceof ILittleTool)
-                    return ((ILittleTool) stack.getItem()).getConfigureGUIAdvanced(player, stack);
-                return null;
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                ItemStack stack = player.getHeldItemMainhand();
-                if (stack.getItem() instanceof ILittleTool)
-                    return ((ILittleTool) stack.getItem()).getConfigureContainerAdvanced(player, stack);
+            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
+                // TODO Auto-generated method stub
                 return null;
             }
         });
         
-        GuiHandler.registerGuiHandler("diagnose", new CustomGuiHandler() {
+        GuiHandler.register("configure", new GuiHandler() {
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                UUID uuid = UUID.fromString(nbt.getString("uuid"));
-                return new SubGuiDiagnose(uuid, WorldAnimationHandler.client.findAnimation(uuid));
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubContainerDiagnose(player);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("lt-import", new CustomGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubGuiImport();
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubContainerImport(player);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("lt-export", new CustomGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubGuiExport();
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubContainerExport(player);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("workbench", new CustomGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubGuiWorkbench();
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubContainerWorkbench(player);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("particle", new LittleStructureGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubGuiParticle((LittleParticleEmitter) structure);
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubContainerParticle(player, (LittleParticleEmitter) structure);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("structureoverview", new LittleTileGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, IParentTileList list, LittleTile tile) {
-                if (list instanceof StructureTileList)
-                    return new SubGuiStructureOverview((StructureTileList) list);
-                return null;
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, IParentTileList list, LittleTile tile) {
-                if (list instanceof StructureTileList)
-                    return new SubContainerStructureOverview(player, (StructureTileList) list);
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
                 return null;
             }
         });
         
-        GuiHandler.registerGuiHandler("structureoverview2", new LittleStructureGuiHandler() {
+        GuiHandler.register("configureadvanced", new GuiHandler() {
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubGuiStructureOverview(structure.mainBlock);
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                return new SubContainerStructureOverview(player, structure.mainBlock);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("grabber", new CustomGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                ItemStack stack = player.getHeldItemMainhand();
-                return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionContext(stack));
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                ItemStack stack = player.getHeldItemMainhand();
-                return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("recipeadvanced", new CustomGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-                ItemStack stack = player.getHeldItemMainhand();
-                if (!((ItemLittleRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
-                    return new SubGuiRecipeAdvancedSelection(stack);
-                return new SubGuiRecipe(stack);
-            }
-            
-            @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-                return new SubContainerRecipeAdvanced(player, player.getHeldItemMainhand());
-            }
-        });
-        
-        GuiHandler.registerGuiHandler("structure_builder", new LittleStructureGuiHandler() {
-            
-            @Override
-            @SideOnly(Side.CLIENT)
-            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                if (structure instanceof LittleStructureBuilder)
-                    return new SubGuiBuilder((LittleStructureBuilder) structure);
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
                 return null;
             }
+        });
+        
+        GuiHandler.register("diagnose", new GuiHandler() {
             
             @Override
-            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-                if (structure instanceof LittleStructureBuilder)
-                    return new SubContainerBuilder(player, (LittleStructureBuilder) structure);
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("lt-import", new GuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("lt-export", new GuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("workbench", new GuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("particle", new LittleStructureGuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("structureoverview", new LittleTileGuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt, LittleTileContext context) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("structureoverview2", new LittleStructureGuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("grabber", new GuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("recipeadvanced", new GuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        
+        GuiHandler.register("structure_builder", new LittleStructureGuiHandler() {
+            
+            @Override
+            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
+                // TODO Auto-generated method stub
                 return null;
             }
         });
@@ -584,17 +460,17 @@ public class LittleTiles {
     }
     
     @SubscribeEvent
-    public static void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
+    public void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
         event.getRegistry().registerAll(BE_TILES_TYPE, BE_TILES_TYPE_RENDERED, BE_SIGNALCONVERTER_TYPE);
     }
     
     @SubscribeEvent
-    public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
+    public void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(SIZED_TNT_TYPE, SIT_TYPE);
     }
     
     @SubscribeEvent
-    public static void registerBlocks(RegistryEvent.Register<Block> event) {
+    public void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry()
                 .registerAll(new Block[] { CLEAN, FLOOR, GRAINY_BIG, GRAINY, GRAINY_LOW, BRICK, BRICK_BIG, BORDERED, CHISELED, BROKEN_BRICK_BIG, CLAY, STRIPS, GRAVEL, SAND, STONE, CORK, WATER, WHITE_WATER, LAVA, WHITE_LAVA, BLOCK_TILES, BLOCK_TILES_TICKING, BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED, STORAGE_BLOCK, FLOWING_WATER, WHITE_FLOWING_WATER, FLOWING_LAVA, WHITE_FLOWING_LAVA, SINGLE_CABLE, INPUT_ARROW, OUTPUT_ARROW, SIGNAL_CONVERTER });
     }
@@ -604,9 +480,9 @@ public class LittleTiles {
     }
     
     @SubscribeEvent
-    public static void registerItems(RegistryEvent.Register<Item> event) {
+    public void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry()
-                .registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(signalConverter));
+                .registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));
     }
     
     private void serverStarting(final FMLServerStartingEvent event) {

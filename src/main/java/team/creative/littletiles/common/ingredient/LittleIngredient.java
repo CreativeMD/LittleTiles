@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
 
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.CompoundTag;
@@ -20,13 +19,14 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
-import team.creative.littletiles.common.block.little.LittleBlockRegistry;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.type.LittleBlockRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.group.LittleGroup;
+import team.creative.littletiles.common.placement.PlacementHelper;
 
 public abstract class LittleIngredient<T extends LittleIngredient> extends LittleIngredientBase<T> {
     
