@@ -14,7 +14,6 @@ import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.container.SubContainerRecipe;
-import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -51,6 +50,7 @@ import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 
 public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCreator {
     

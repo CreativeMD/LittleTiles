@@ -5,42 +5,42 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
-import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
-import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 
-import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.entity.player.Player;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.mc.WorldUtils;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.animation.AnimationController;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.EntityAnimationController;
+import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
@@ -58,7 +58,7 @@ public class DoorController extends EntityAnimationController {
     public int duration;
     public int completeDuration;
     public int interpolation;
-    public EntityPlayer activator;
+    public Player activator;
     public UUIDSupplier supplier;
     
     public boolean noClip;
@@ -133,7 +133,7 @@ public class DoorController extends EntityAnimationController {
     }
     
     @Override
-    public EntityPlayer activator() {
+    public Player activator() {
         return activator;
     }
     
@@ -214,7 +214,7 @@ public class DoorController extends EntityAnimationController {
                 parent.getRenderChunkSuppilier().backToRAM(); //Just doesn't work you cannot get the render data after everything happened
                 
             Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all))
-                .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
+                    .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
             
             LittleDoor newDoor;
             PlacementResult result;
@@ -236,7 +236,7 @@ public class DoorController extends EntityAnimationController {
                 if (!world.isRemote) {
                     WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
                     PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLocation(), parent.getUniqueID()), parent
-                        .getAbsoluteParent(), serverWorld, null);
+                            .getAbsoluteParent(), serverWorld, null);
                 }
                 newDoor.completeAnimation();
             } else {

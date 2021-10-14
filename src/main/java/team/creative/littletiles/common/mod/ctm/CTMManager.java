@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.mod.ctm;
+package team.creative.littletiles.common.mod.ctm;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -8,13 +8,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 public class CTMManager {
     
     public static final String ctmID = "ctm";
     
-    private static boolean isinstalled = Loader.isModLoaded(ctmID);
+    private static boolean isinstalled = ModList.get().isLoaded(ctmID);
     
     public static boolean isInstalled() {
         return isinstalled;

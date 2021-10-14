@@ -3,18 +3,17 @@ package com.creativemd.littletiles.client.mod.optifine;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockStateBase;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour.BlockStateBase;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import team.creative.creativecore.common.util.type.Pair;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.mc.BlockTile;
 
 public class ConnectedTexturesModifier {
     
@@ -35,11 +34,11 @@ public class ConnectedTexturesModifier {
         
     }
     
-    public static boolean matches(Object properties, IBlockAccess world, BlockPos pos, IBlockState state) {
+    public static boolean matches(Object properties, LevelAccessor level, BlockPos pos, BlockState state) {
         try {
-            TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-            if (te != null) {
-                for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+            BETiles be = BlockTile.loadBE(level, pos);
+            if (be != null) {
+                for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
                     if ((Boolean) match.invoke(properties, Block.getStateId(pair.value.getBlockState())))
                         return true;
                 return false;
@@ -51,35 +50,35 @@ public class ConnectedTexturesModifier {
         return false;
     }
     
-    public static boolean matches(Object properties, IBlockAccess world, BlockPos pos, int metadata) {
+    public static boolean matches(Object properties, LevelAccessor level, BlockPos pos, int metadata) {
         try {
-            TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-            if (te != null) {
-                for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+            BETiles be = BlockTile.loadBE(level, pos);
+            if (be != null) {
+                for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
                     if ((Boolean) matchMeta.invoke(properties, Block.getStateId(pair.value.getBlockState()), metadata))
                         return true;
                 return false;
             }
-            return (boolean) matchMeta.invoke(properties, Block.getStateId(world.getBlockState(pos)), metadata);
+            return (boolean) matchMeta.invoke(properties, Block.getStateId(level.getBlockState(pos)), metadata);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return false;
     }
     
-    public static boolean isNeighbour(IBlockAccess world, IBlockState state, BlockPos pos) {
-        TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-        if (te != null) {
+    public static boolean isNeighbour(LevelAccessor level, BlockState state, BlockPos pos) {
+        BETiles be = BlockTile.loadBE(level, pos);
+        if (be != null) {
             Block block = state.getBlock();
             int meta = block.getMetaFromState(state);
-            for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
                 if (pair.value.getBlock() == block && pair.value.getMeta() == meta)
                     return true;
         }
         return false;
     }
     
-    public static boolean isFullCube(IBlockState state) {
+    public static boolean isFullCube(BlockState state) {
         return state.getBlock() instanceof BlockTile;
     }
 }

@@ -11,13 +11,13 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
-import com.creativemd.littletiles.common.util.selection.mode.SelectionMode.SelectionResult;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.placement.selection.SelectionMode;
+import team.creative.littletiles.common.placement.selection.SelectionMode.SelectionResult;
 
 public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
     

@@ -7,38 +7,38 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 
 public abstract class LittleAnimationHandler {
     
-    public final World world;
+    public final Level level;
     
-    public LittleAnimationHandler(World world) {
-        if (world == null)
+    public LittleAnimationHandler(Level level) {
+        if (level == null)
             throw new RuntimeException("Creating handler for empty world!");
         
-        this.world = world;
+        this.level = level;
     }
     
     public List<EntityAnimation> openDoors = new CopyOnWriteArrayList<>();
     
-    public List<EntityAnimation> findAnimations(AxisAlignedBB bb) {
+    public List<EntityAnimation> findAnimations(AABB bb) {
         if (openDoors.isEmpty())
             return Collections.emptyList();
         
         List<EntityAnimation> doors = new ArrayList<>();
         for (EntityAnimation door : openDoors)
-            if (door.getEntityBoundingBox().intersects(bb))
+            if (door.getBoundingBox().intersects(bb))
                 doors.add(door);
         return doors;
     }

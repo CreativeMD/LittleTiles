@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.mod.theoneprobe;
+package team.creative.littletiles.common.mod.theoneprobe;
 
 import mcjty.theoneprobe.api.ITheOneProbe;
 import net.minecraftforge.fml.ModList;

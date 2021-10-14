@@ -1,21 +1,20 @@
-package com.creativemd.littletiles.client.render.world;
+package team.creative.littletiles.client.render.level;
 
 import java.util.LinkedHashMap;
 
-import com.creativemd.creativecore.client.rendering.IRenderChunkSupplier;
-import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.world.IRenderChunkSupplier;
+import team.creative.littletiles.client.render.LittleRenderUtils;
 
 public class LittleRenderChunkSuppilier implements IRenderChunkSupplier {
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public LinkedHashMap<BlockPos, LittleRenderChunk> renderChunks = new LinkedHashMap<>();
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void backToRAM() {
         if (renderChunks == null)
             return;
@@ -23,7 +22,7 @@ public class LittleRenderChunkSuppilier implements IRenderChunkSupplier {
             chunk.backToRAM();
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void unloadRenderCache() {
         if (renderChunks == null)
             return;
@@ -33,10 +32,10 @@ public class LittleRenderChunkSuppilier implements IRenderChunkSupplier {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public LittleRenderChunk getRenderChunk(World world, BlockPos pos) {
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderChunk getRenderChunk(Level level, BlockPos pos) {
         synchronized (renderChunks) {
-            BlockPos renderChunkPos = RenderUtils.getRenderChunkPos(pos);
+            BlockPos renderChunkPos = LittleRenderUtils.getRenderChunkPos(pos);
             LittleRenderChunk chunk = renderChunks.get(renderChunkPos);
             if (chunk == null) {
                 chunk = new LittleRenderChunk(renderChunkPos);

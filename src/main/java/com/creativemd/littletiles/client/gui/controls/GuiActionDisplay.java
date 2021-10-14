@@ -6,9 +6,9 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
-import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
 
 import net.minecraft.client.renderer.GlStateManager;
+import team.creative.littletiles.client.action.CompiledActionMessage;
 
 public class GuiActionDisplay extends GuiControl {
     

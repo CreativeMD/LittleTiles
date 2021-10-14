@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.place.fixed.InsideFixedHandler;
 import com.creativemd.littletiles.common.tile.place.fixed.SecondModeHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -38,6 +37,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 /** This class does all calculate on where to place a block. Used for rendering

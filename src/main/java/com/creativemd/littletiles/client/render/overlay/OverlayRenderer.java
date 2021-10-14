@@ -5,7 +5,6 @@ import org.lwjgl.opengl.GL11;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.littletiles.client.gui.controls.GuiActionDisplay;
-import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -17,6 +16,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.CompiledActionMessage;
 
 @SideOnly(Side.CLIENT)
 public class OverlayRenderer {

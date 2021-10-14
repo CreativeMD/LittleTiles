@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.FakeWorld;
-import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
@@ -16,6 +15,7 @@ import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.entity.EntityAnimation;

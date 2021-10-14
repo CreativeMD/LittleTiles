@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.client.render.world;
+package team.creative.littletiles.client.render.level;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -10,21 +10,23 @@ import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
+import com.creativemd.littletiles.client.render.world.LightChangeEventListener;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
-import net.minecraft.client.renderer.chunk.CompiledChunk;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import team.creative.littletiles.common.block.entity.BETiles;
 
 public class LittleChunkDispatcher {
     
@@ -46,22 +48,22 @@ public class LittleChunkDispatcher {
         }
     }
     
-    private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
+    private static Method setLayerUseMethod = ObfuscationReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
     
-    private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, new String[] { "setTileEntities", "field_181056_j" });
+    private static Field setTileEntities = ObfuscationReflectionHelper.findField(RenderChunk.class, new String[] { "setTileEntities", "field_181056_j" });
     
-    private static Field littleTiles = ReflectionHelper.findField(RenderChunk.class, "littleTiles");
-    private static Field updateQueue = ReflectionHelper.findField(RenderChunk.class, "updateQueue");
-    private static Field dynamicLightUpdate = ReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");
+    private static Field littleTiles = ObfuscationReflectionHelper.findField(RenderChunk.class, "littleTiles");
+    private static Field updateQueue = ObfuscationReflectionHelper.findField(RenderChunk.class, "updateQueue");
+    private static Field dynamicLightUpdate = ObfuscationReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");
     
-    private static Minecraft mc = Minecraft.getMinecraft();
+    private static Minecraft mc = Minecraft.getInstance();
     
-    public static void addTileEntity(List<TileEntityLittleTiles> tiles, TileEntity te) {
-        if (te instanceof TileEntityLittleTiles)
-            tiles.add((TileEntityLittleTiles) te);
+    public static void addTileEntity(List<BETiles> tiles, BlockEntity te) {
+        if (te instanceof BETiles)
+            tiles.add((BETiles) te);
     }
     
-    public static void onDoneRendering(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
+    public static void onDoneRendering(RenderChunk chunk, List<BETiles> tiles) {
         try {
             littleTiles.set(chunk, tiles);
             updateQueue.setInt(chunk, updateQueue.getInt(chunk) + 1);
@@ -71,25 +73,25 @@ public class LittleChunkDispatcher {
         
     }
     
-    public static List<TileEntityLittleTiles> getLittleTE(RenderChunk chunk) {
+    public static List<BETiles> getLittleTE(RenderChunk chunk) {
         try {
-            return (List<TileEntityLittleTiles>) littleTiles.get(chunk);
+            return (List<BETiles>) littleTiles.get(chunk);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return null;
     }
     
-    public static final Field added = ReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
+    public static final Field added = ObfuscationReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
     //public static final Field blockLayerManager = ReflectionHelper.findField(BufferBuilder.class, "blockLayerManager");
     
-    public static void uploadChunk(final BlockRenderLayer layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_) {
+    public static void uploadChunk(final RenderType layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_) {
         try {
             if (added.getBoolean(buffer))
                 return;
             
             if (buffer.getVertexFormat() != null && (layer != BlockRenderLayer.TRANSLUCENT || (compiled
-                .getState() != emptyState && !(compiled.getState() instanceof LittleVertexBufferState)))) {
+                    .getState() != emptyState && !(compiled.getState() instanceof LittleVertexBufferState)))) {
                 List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
                 
                 if (tiles == null || tiles.isEmpty()) {

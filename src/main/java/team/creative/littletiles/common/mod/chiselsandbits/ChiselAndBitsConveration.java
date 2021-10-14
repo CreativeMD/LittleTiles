@@ -1,17 +1,14 @@
-package com.creativemd.littletiles.common.util.converation;
+package team.creative.littletiles.common.mod.chiselsandbits;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -23,18 +20,18 @@ public class ChiselAndBitsConveration {
     @SubscribeEvent
     public static void worldTick(WorldTickEvent event) {
         Level world = event.world;
-        if (!world.isRemote && event.phase == Phase.END) {
+        if (!world.isClientSide && event.phase == Phase.END) {
             LittleGrid chiselContext = LittleGrid.get(ChiselsAndBitsManager.convertingFrom);
             int progress = 0;
             int size = blockEntities.size();
             if (!blockEntities.isEmpty())
                 System.out.println("Attempting to convert " + size + " blocks ...");
             while (!blockEntities.isEmpty()) {
-                TileEntity te = blockEntities.poll();
+                BlockEntity te = blockEntities.poll();
                 List<LittleTile> tiles = ChiselsAndBitsManager.getTiles(te);
                 if (tiles != null && tiles.size() > 0) {
-                    te.getWorld().setBlockState(te.getPos(), BlockTile.getState(false, false));
-                    TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te.getWorld().getTileEntity(te.getPos());
+                    te.getLevel().setBlockAndUpdate(te.getBlockPos(), BlockTile.getState(false, false));
+                    BETiles tileEntity = (BETiles) te.getLevel().getBlockEntity(te.getBlockPos());
                     tileEntity.convertTo(chiselContext);
                     tileEntity.updateTiles((x) -> {
                         x.noneStructureTiles().addAll(tiles);

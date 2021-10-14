@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.client.render.entity;
+package team.creative.littletiles.client.render.level;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -8,16 +8,16 @@ import java.util.LinkedHashMap;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
-import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUploader.NotSupportedException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.common.block.entity.BETiles;
 
 public class LittleRenderChunk {
     
@@ -30,7 +30,7 @@ public class LittleRenderChunk {
     protected ChunkBlockLayerCache[] cachedBuffers = new ChunkBlockLayerCache[BlockRenderLayer.values().length];
     protected boolean[] bufferChanged = new boolean[BlockRenderLayer.values().length];
     
-    private LinkedHashMap<BlockPos, TileEntityLittleTiles> tileEntities = new LinkedHashMap<>();
+    private LinkedHashMap<BlockPos, BETiles> blockEntities = new LinkedHashMap<>();
     /** if one of the blocks has been modified, which requires the chunk cache to be uploaded again */
     private boolean modified = false;
     private boolean complete = false;
@@ -43,25 +43,25 @@ public class LittleRenderChunk {
     
     public int transparencySortedIndex = 0;
     
-    public void addRenderData(TileEntityLittleTiles te) {
-        synchronized (tileEntities) {
-            TileEntityLittleTiles existing = tileEntities.get(te.getPos());
+    public void addRenderData(BETiles te) {
+        synchronized (blockEntities) {
+            BETiles existing = blockEntities.get(te.getBlockPos());
             
             if (existing != null) {
                 if (existing != te) {
                     if (te.isEmpty())
-                        tileEntities.remove(te.getPos());
+                        blockEntities.remove(te.getBlockPos());
                     else
-                        tileEntities.put(te.getPos(), te);
+                        blockEntities.put(te.getBlockPos(), te);
                 } else if (te.isEmpty())
-                    tileEntities.remove(te.getPos());
+                    blockEntities.remove(te.getBlockPos());
                 
                 modified = true;
             } else {
                 if (te.isEmpty())
                     return;
                 
-                tileEntities.put(te.getPos(), te);
+                blockEntities.put(te.getBlockPos(), te);
                 
                 if (complete)
                     modified = true;
@@ -75,7 +75,7 @@ public class LittleRenderChunk {
         }
     }
     
-    private void addRenderDataInternal(TileEntityLittleTiles te) {
+    private void addRenderDataInternal(BETiles te) {
         LayeredRenderBufferCache cache = te.render.getBufferCache();
         for (int i = 0; i < BlockRenderLayer.values().length; i++)
             cachedBuffers[i].add(te.render, cache.get(i));
@@ -117,7 +117,7 @@ public class LittleRenderChunk {
     }
     
     public void uploadBuffer() {
-        synchronized (tileEntities) {
+        synchronized (blockEntities) {
             if (modified) {
                 backToRAM();
                 for (int i = 0; i < vertexBuffers.length; i++) {
@@ -125,7 +125,7 @@ public class LittleRenderChunk {
                     builders[i] = null;
                 }
                 modified = false;
-                for (TileEntityLittleTiles te : tileEntities.values())
+                for (BETiles te : blockEntities.values())
                     addRenderDataInternal(te);
             }
             
@@ -166,13 +166,13 @@ public class LittleRenderChunk {
     }
     
     public void markCompleted() {
-        synchronized (tileEntities) {
+        synchronized (blockEntities) {
             complete = true;
         }
     }
     
     public void backToRAM() {
-        synchronized (tileEntities) {
+        synchronized (blockEntities) {
             for (int j = 0; j < vertexBuffers.length; j++)
                 if (j != BlockRenderLayer.TRANSLUCENT.ordinal() && !cachedBuffers[j].isEmpty()) {
                     if (vertexBuffers[j] == null)
@@ -193,14 +193,14 @@ public class LittleRenderChunk {
     }
     
     public void unload() {
-        synchronized (tileEntities) {
+        synchronized (blockEntities) {
             for (int i = 0; i < vertexBuffers.length; i++) {
                 if (vertexBuffers[i] != null)
                     vertexBuffers[i].deleteGlBuffers();
                 builders[i] = null;
                 cachedBuffers[i].reset();
             }
-            tileEntities.clear();
+            blockEntities.clear();
         }
     }
 }

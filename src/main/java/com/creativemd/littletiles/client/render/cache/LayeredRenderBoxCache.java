@@ -3,12 +3,13 @@ package com.creativemd.littletiles.client.render.cache;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.mod.OptifineHelper;
 
 @SideOnly(Side.CLIENT)
 public class LayeredRenderBoxCache {
@@ -61,7 +62,7 @@ public class LayeredRenderBoxCache {
     }
     
     public void sort() {
-        if (!OptifineHelper.isActive())
+        if (!OptifineHelper.installed())
             return;
         
         for (Iterator iterator = solid.iterator(); iterator.hasNext();) {

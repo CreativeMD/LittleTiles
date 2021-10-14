@@ -24,9 +24,7 @@ import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
-import com.creativemd.littletiles.common.mod.albedo.AlbedoExtension;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
-import com.creativemd.littletiles.common.mod.warpdrive.TileEntityLittleTilesTransformer;
 import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 
 import net.minecraft.ChatFormatting;
@@ -441,13 +439,7 @@ public class LittleTiles {
         
         LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
         
-        if (Loader.isModLoaded("warpdrive"))
-            TileEntityLittleTilesTransformer.init();
-        
         TheOneProbeManager.init();
-        
-        if (Loader.isModLoaded("albedo"))
-            MinecraftForge.EVENT_BUS.register(AlbedoExtension.class);
         
         MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         

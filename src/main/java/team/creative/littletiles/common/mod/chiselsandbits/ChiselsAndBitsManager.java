@@ -1,20 +1,20 @@
-package com.creativemd.littletiles.common.mod.chiselsandbits;
+package team.creative.littletiles.common.mod.chiselsandbits;
 
 import java.util.List;
-
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.fml.ModList;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class ChiselsAndBitsManager {
     
     public static final String chiselsandbitsID = "chiselsandbits";
     
-    private static boolean isinstalled = Loader.isModLoaded(chiselsandbitsID);
+    private static boolean isinstalled = ModList.get().isLoaded(chiselsandbitsID);
     
     public static boolean isInstalled() {
         return isinstalled;
@@ -23,7 +23,7 @@ public class ChiselsAndBitsManager {
     /** Keeping the grid size of C&B variable, maybe it does change some time **/
     public static int convertingFrom = 16;
     
-    public static LittlePreviews getPreviews(ItemStack stack) {
+    public static LittleGroup getPreviews(ItemStack stack) {
         if (isInstalled())
             return ChiselsAndBitsInteractor.getPreviews(stack);
         return null;
@@ -47,7 +47,7 @@ public class ChiselsAndBitsManager {
         return false;
     }
     
-    public static LittlePreviews getPreviews(BlockEntity te) {
+    public static LittleGroup getPreviews(BlockEntity te) {
         if (isInstalled())
             return ChiselsAndBitsInteractor.getPreviews(te);
         return null;

@@ -1,16 +1,16 @@
-package com.creativemd.littletiles.client.tooltip;
+package team.creative.littletiles.client.action;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.client.gui.controls.GuiActionDisplay;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.Font;
+import team.creative.creativecore.client.render.GuiRenderHelper;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 
 public class CompiledActionMessage {
     
@@ -72,11 +72,12 @@ public class CompiledActionMessage {
         }
         
         this.width = tempWidth;
-        this.height = (GuiControl.font.FONT_HEIGHT + 3) * lines.size();
+        this.height = (GuiRenderHelper.getFont().lineHeight + 3) * lines.size();
         this.timestamp = System.currentTimeMillis();
     }
     
-    public void render(GuiRenderHelper helper, float alpha) {
+    public void render(PoseStack pose, float alpha) {
+        Font font = GuiRenderHelper.getFont();
         GlStateManager.pushMatrix();
         int color = ColorUtils.RGBAToInt(255, 255, 255, (int) (alpha * 255));
         for (int i = 0; i < lines.size(); i++) {
@@ -86,16 +87,16 @@ public class CompiledActionMessage {
             for (int j = 0; j < line.objects.size(); j++) {
                 Object obj = line.objects.get(j);
                 if (obj.getClass() == String.class) {
-                    helper.font.drawString((String) obj, 0, 0, color);
-                    GlStateManager.translate(helper.font.getStringWidth((String) obj), 0, 0);
+                    font.drawString((String) obj, 0, 0, color);
+                    GlStateManager.translate(font.getStringWidth((String) obj), 0, 0);
                 } else {
                     ActionMessageObjectType type = ActionMessage.getType(obj);
-                    type.render(obj, helper, color, alpha);
-                    GlStateManager.translate(type.width(obj, helper), 0, 0);
+                    type.render(pose, obj, color, alpha);
+                    GlStateManager.translate(type.width(obj), 0, 0);
                 }
             }
             GlStateManager.popMatrix();
-            GlStateManager.translate(0, GuiControl.font.FONT_HEIGHT + 3, 0);
+            GlStateManager.translate(0, font.lineHeight + 3, 0);
         }
         GlStateManager.popMatrix();
     }
@@ -111,9 +112,9 @@ public class CompiledActionMessage {
             for (int i = 0; i < objects.size(); i++) {
                 Object obj = objects.get(i);
                 if (obj.getClass() == String.class)
-                    lineWidth += GuiRenderHelper.instance.font.getStringWidth((String) obj);
+                    lineWidth += GuiRenderHelper.getFont().getStringWidth((String) obj);
                 else
-                    lineWidth += ActionMessage.getType(obj).width(obj, GuiRenderHelper.instance);
+                    lineWidth += ActionMessage.getType(obj).width(obj);
             }
             this.width = lineWidth;
         }

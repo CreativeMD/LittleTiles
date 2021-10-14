@@ -7,10 +7,10 @@ import java.util.concurrent.Callable;
 import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUploader.NotSupportedException;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 

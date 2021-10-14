@@ -6,59 +6,55 @@ import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
 
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 
-import net.minecraft.block.Block;
+import net.minecraft.CrashReport;
+import net.minecraft.ReportedException;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockStructure;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ReportedException;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameType;
 import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.client.event.HoldLeftClick;
 import team.creative.littletiles.client.event.InputEventHandler;
 import team.creative.littletiles.client.event.LeftClick;
@@ -71,15 +67,15 @@ import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
 @SideOnly(Side.CLIENT)
 public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     
-    private static Minecraft mc = Minecraft.getMinecraft();
+    private static Minecraft mc = Minecraft.getInstance();
     public static RenderAnimation render = new RenderAnimation(mc.getRenderManager());
     
-    public LittleAnimationHandlerClient(World world) {
-        super(world);
+    public LittleAnimationHandlerClient(Level level) {
+        super(level);
     }
     
     public static void renderTick() {
-        float partialTicks = TickUtils.getPartialTickTime();
+        float partialTicks = TickUtils.getDeltaFrameTime(level);
         
         Entity renderViewEntity = mc.getRenderViewEntity();
         if (renderViewEntity == null || WorldAnimationHandler.client == null || WorldAnimationHandler.client.openDoors.isEmpty())
@@ -151,7 +147,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
             double distance = result != null ? pos.distanceTo(result.hitVec) : 0;
             for (EntityAnimation animation : findAnimations(box)) {
                 RayTraceResult tempResult = getTarget(animation.fakeWorld, animation.origin.transformPointToFakeWorld(pos), animation.origin
-                    .transformPointToFakeWorld(look), pos, look);
+                        .transformPointToFakeWorld(look), pos, look);
                 if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
                     continue;
                 double tempDistance = pos.distanceTo(animation.origin.transformPointToWorld(tempResult.hitVec));
@@ -323,7 +319,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         }
         
         if (mc.playerController.getCurrentGameType().isCreative() && LittleAnimationHandlerClient.mc.world.getWorldBorder()
-            .contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos)) {
+                .contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos)) {
             try {
                 blockHitDelayField.setInt(mc.playerController, 5);
             } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -343,8 +339,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
             if (this.stepSoundTickCounter % 4 == 0) {
                 SoundType soundtype = block.getSoundType(iblockstate, world, pos, mc.player);
                 LittleAnimationHandlerClient.mc.getSoundHandler()
-                    .playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype
-                        .getPitch() * 0.5F, world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos));
+                        .playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype
+                                .getPitch() * 0.5F, world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos));
             }
             
             ++this.stepSoundTickCounter;
@@ -533,7 +529,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         double distance = result != null ? pos.distanceTo(result.hitVec) : 0;
         for (EntityAnimation animation : findAnimations(box)) {
             RayTraceResult tempResult = getTarget(animation.fakeWorld, animation.origin.transformPointToFakeWorld(pos), animation.origin
-                .transformPointToFakeWorld(look), pos, look);
+                    .transformPointToFakeWorld(look), pos, look);
             if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
                 continue;
             double tempDistance = pos.distanceTo(animation.origin.transformPointToWorld(tempResult.hitVec));
@@ -562,14 +558,14 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         lastWorldRayTraceResult = null;
         
         RayTraceResult result = getRayTraceResult(player, event
-            .getPartialTicks(), (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK) ? mc.objectMouseOver : null);
+                .getPartialTicks(), (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK) ? mc.objectMouseOver : null);
         
         if (result == null)
             return;
         
         GlStateManager.enableBlend();
         GlStateManager
-            .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.glLineWidth(2.0F);
         GlStateManager.enableTexture2D();
         mc.renderEngine.bindTexture(PreviewRenderer.WHITE_TEXTURE);

@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.client.render.face.IFaceRenderType;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -47,14 +47,14 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
         //this.scale /= scale;
     }
     
-    public VectorFanFaceCache getFaceCache(EnumFacing facing) {
+    public VectorFanFaceCache getFaceCache(Facing facing) {
         if (cache != null)
             return cache.get(facing);
         return null;
     }
     
     @Override
-    public boolean renderSide(EnumFacing facing) {
+    public boolean renderSide(Facing facing) {
         VectorFanFaceCache cache = getFaceCache(facing);
         if (cache == null)
             return false;
@@ -64,7 +64,7 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     }
     
     @Override
-    protected Object getRenderQuads(EnumFacing facing) {
+    protected Object getRenderQuads(Facing facing) {
         if (getType(facing).hasCachedFans())
             return getType(facing).getCachedFans();
         VectorFanFaceCache cache = getFaceCache(facing);
@@ -104,17 +104,17 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     }
     
     @Override
-    protected boolean scaleAndOffsetQuads(EnumFacing facing) {
+    protected boolean scaleAndOffsetQuads(Facing facing) {
         return true;
     }
     
     @Override
-    protected boolean onlyScaleOnceNoOffset(EnumFacing facing) {
+    protected boolean onlyScaleOnceNoOffset(Facing facing) {
         return true;
     }
     
     @Override
-    protected float getOverallScale(EnumFacing facing) {
+    protected float getOverallScale(Facing facing) {
         IFaceRenderType type = getType(facing);
         if (type.hasCachedFans())
             return type.getScale();

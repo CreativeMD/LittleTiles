@@ -35,6 +35,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.optifine.shaders.ShadersRender;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.level.LittleRenderChunk;
 
 public class RenderAnimation extends Render<EntityAnimation> {
     

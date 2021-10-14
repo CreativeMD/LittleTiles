@@ -12,20 +12,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
-import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
-import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
-import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -35,20 +27,26 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.optifine.shaders.SVertexBuilder;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.type.SingletonList;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.block.BlockTile;
+import team.creative.littletiles.client.api.IFakeRenderingBlock;
+import team.creative.littletiles.client.render.LittleRenderUtils;
+import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.mc.BlockTile;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderingThread extends Thread {
@@ -82,7 +80,7 @@ public class RenderingThread extends Thread {
                 
             for (RenderingThread thread : threads)
                 while (thread != null && thread.updateCoords.size() > 0)
-                    thread.updateCoords.poll().te.render.resetRenderingState();
+                    thread.updateCoords.poll().be.render.resetRenderingState();
         }
         threadIndex = 0;
         threads = new ArrayList<>();
@@ -93,28 +91,28 @@ public class RenderingThread extends Thread {
     public static final HashMap<Object, Integer> chunks = new HashMap<>();
     public static Minecraft mc = Minecraft.getInstance();
     
-    public static boolean addCoordToUpdate(BETiles te) {
+    public static boolean addCoordToUpdate(BETiles be) {
         RenderingThread renderer = getNextThread();
         
         Object chunk;
-        if (te.getWorld() instanceof IOrientatedWorld)
-            chunk = RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos());
+        if (be.getLevel() instanceof IOrientatedLevel)
+            chunk = LittleRenderUtils.getRenderChunk((IOrientatedLevel) be.getLevel(), be.getBlockPos());
         else
-            chunk = RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos());
+            chunk = LittleRenderUtils.getRenderChunk(LittleRenderUtils.getViewFrustum(), be.getBlockPos());
         
         if (chunk == null) {
-            System.out.println("Invalid tileentity with no rendering chunk! pos: " + te.getPos() + ", world: " + te.getWorld());
+            System.out.println("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());
             return false;
         }
         
-        if (te.isEmpty()) {
-            int index = te.render.startBuildingCache();
-            te.render.getBoxCache().clear();
-            synchronized (te.render) {
-                te.render.getBufferCache().setEmpty();
+        if (be.isEmpty()) {
+            int index = be.render.startBuildingCache();
+            be.render.getBoxCache().clear();
+            synchronized (be.render) {
+                be.render.getBufferCache().setEmpty();
             }
-            if (!te.render.finishBuildingCache(index, LittleChunkDispatcher.currentRenderState, true))
-                return addCoordToUpdate(te);
+            if (!be.render.finishBuildingCache(index, LittleChunkDispatcher.currentRenderState, true))
+                return addCoordToUpdate(be);
             return false;
         }
         
@@ -124,7 +122,7 @@ public class RenderingThread extends Thread {
                 count = 0;
             RenderingThread.chunks.put(chunk, count + 1);
         }
-        renderer.updateCoords.add(new RenderingData(te, chunk));
+        renderer.updateCoords.add(new RenderingData(be, chunk));
         return true;
     }
     
@@ -153,7 +151,7 @@ public class RenderingThread extends Thread {
     public void run() {
         try {
             while (active) {
-                IBlockAccess world = mc.world;
+                Level world = mc.level;
                 long duration = 0;
                 
                 if (world != null && !updateCoords.isEmpty()) {
@@ -163,22 +161,22 @@ public class RenderingThread extends Thread {
                         if (LittleTilesProfilerOverlay.isActive())
                             duration = System.nanoTime();
                         
-                        if (data.te.isInvalid())
-                            throw new InvalidTileEntityException(data.te.getPos() + "");
+                        if (data.be.isRemoved())
+                            throw new InvalidTileEntityException(data.be.getBlockPos() + "");
                         
-                        data.index = data.te.render.startBuildingCache();
+                        data.index = data.be.render.startBuildingCache();
                         
-                        BlockPos pos = data.te.getPos();
-                        LayeredRenderBoxCache cubeCache = data.te.render.getBoxCache();
+                        BlockPos pos = data.be.getBlockPos();
+                        LayeredRenderBoxCache cubeCache = data.be.render.getBoxCache();
                         
                         if (cubeCache == null)
-                            throw new InvalidTileEntityException(data.te.getPos() + "");
+                            throw new InvalidTileEntityException(data.be.getBlockPos() + "");
                         
-                        if (data.te.getWorld() == null || !data.te.hasLoaded())
+                        if (data.be.getLevel() == null || !data.be.hasLoaded())
                             throw new RenderingException("Tileentity is not loaded yet");
                         
                         for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-                            cubeCache.set(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
+                            cubeCache.set(BlockTile.getRenderingCubes(data.state, data.be, null, layer), layer);
                             
                             List<LittleRenderBox> cubes = cubeCache.get(layer);
                             for (int j = 0; j < cubes.size(); j++) {
@@ -190,7 +188,7 @@ public class RenderingThread extends Thread {
                                     } else
                                         world = data.te.getWorld();
                                     
-                                    IBlockState modelState = cube.getBlockState().getActualState(world, pos);
+                                    BlockState modelState = cube.getBlockState().getActualState(world, pos);
                                     IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
                                     modelState = cube.getModelState(modelState, world, pos);
                                     BlockPos offset = cube.getOffset();
@@ -199,7 +197,7 @@ public class RenderingThread extends Thread {
                                         if (cube.renderSide(facing)) {
                                             if (cube.getQuad(facing) == null)
                                                 cube.setQuad(facing, CreativeBakedModel
-                                                        .getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
+                                                        .getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, Mth.getPositionRandom(pos), false));
                                         } else
                                             cube.setQuad(facing, null);
                                     }
@@ -210,17 +208,17 @@ public class RenderingThread extends Thread {
                         
                         cubeCache.sort();
                         fakeAccess.set(null, null, null);
-                        if (data.te.isInvalid())
-                            throw new InvalidTileEntityException(data.te.getPos() + "");
-                        world = mc.world;
+                        if (data.be.isRemoved())
+                            throw new InvalidTileEntityException(data.be.getBlockPos() + "");
+                        world = mc.level;
                         
                         int renderState = LittleChunkDispatcher.currentRenderState;
-                        LayeredRenderBufferCache layerBuffer = data.te.render.getBufferCache();
+                        LayeredRenderBufferCache layerBuffer = data.be.render.getBufferCache();
                         VertexFormat format = DefaultVertexFormats.BLOCK;
                         try {
-                            World renderWorld = data.te.getWorld();
-                            if (renderWorld instanceof SubWorld && !((SubWorld) renderWorld).shouldRender)
-                                renderWorld = ((SubWorld) renderWorld).getRealWorld();
+                            Level renderWorld = data.be.getLevel();
+                            if (renderWorld instanceof SubLevel && !((SubLevel) renderWorld).shouldRender)
+                                renderWorld = ((SubLevel) renderWorld).getRealLevel();
                             
                             // Render vertex buffer
                             for (int i = 0; i < BlockRenderLayer.values().length; i++) {
@@ -248,9 +246,9 @@ public class RenderingThread extends Thread {
                                         
                                         buffer.setTranslation(-dx, -dy, -dz);
                                     } else {
-                                        int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
-                                        int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
-                                        int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
+                                        int chunkX = Mth.intFloorDiv(pos.getX(), 16);
+                                        int chunkY = Mth.intFloorDiv(pos.getY(), 16);
+                                        int chunkZ = Mth.intFloorDiv(pos.getZ(), 16);
                                         buffer.setTranslation(-chunkX * 16, -chunkY * 16, -chunkZ * 16);
                                     }
                                     
@@ -269,7 +267,7 @@ public class RenderingThread extends Thread {
                                     
                                     for (int j = 0; j < cubes.size(); j++) {
                                         RenderBox cube = cubes.get(j);
-                                        IBlockState state = cube.getBlockState();
+                                        BlockState state = cube.getBlockState();
                                         
                                         if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders()) {
                                             if (state.getBlock() instanceof IFakeRenderingBlock)
@@ -309,11 +307,11 @@ public class RenderingThread extends Thread {
                                     
                                     buffer.finishDrawing();
                                     
-                                    synchronized (data.te.render) {
+                                    synchronized (data.be.render) {
                                         layerBuffer.set(layer.ordinal(), buffer);
                                     }
                                 } else
-                                    synchronized (data.te.render) {
+                                    synchronized (data.be.render) {
                                         layerBuffer.set(layer.ordinal(), null);
                                     }
                             }
@@ -385,7 +383,7 @@ public class RenderingThread extends Thread {
         }
         
         if (data.subWorld)
-            ((LittleRenderChunk) data.chunk).addRenderData(data.te);
+            ((LittleRenderChunk) data.chunk).addRenderData(data.be);
         
         if (complete) {
             if (data.subWorld) {
@@ -442,15 +440,15 @@ public class RenderingThread extends Thread {
     
     private static class RenderingData {
         
-        public final TileEntityLittleTiles te;
-        public final IBlockState state;
+        public final BETiles be;
+        public final BlockState state;
         public final Object chunk;
         public final boolean subWorld;
         public int index;
         
-        public RenderingData(TileEntityLittleTiles te, Object chunk) {
-            this.te = te;
-            this.state = te.getBlockTileState();
+        public RenderingData(BETiles be, Object chunk) {
+            this.be = be;
+            this.state = be.getBlockTileState();
             this.chunk = chunk;
             this.subWorld = !(chunk instanceof RenderChunk);
         }

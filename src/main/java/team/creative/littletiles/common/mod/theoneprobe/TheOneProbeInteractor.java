@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.mod.theoneprobe;
+package team.creative.littletiles.common.mod.theoneprobe;
 
 import mcjty.theoneprobe.api.IBlockDisplayOverride;
 import mcjty.theoneprobe.api.IEntityDisplayOverride;

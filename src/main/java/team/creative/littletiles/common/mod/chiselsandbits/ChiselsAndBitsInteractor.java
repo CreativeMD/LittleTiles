@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.mod.chiselsandbits;
+package team.creative.littletiles.common.mod.chiselsandbits;
 
 import java.util.ArrayList;
 import java.util.Iterator;

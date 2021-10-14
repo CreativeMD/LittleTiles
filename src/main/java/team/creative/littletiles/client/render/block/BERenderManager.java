@@ -3,11 +3,11 @@ package team.creative.littletiles.client.render.block;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
-import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 

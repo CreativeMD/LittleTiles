@@ -1,12 +1,5 @@
 package com.creativemd.littletiles.client.render.tile;
 
-import static team.creative.creativecore.client.render.box.RenderBox.DOWN;
-import static team.creative.creativecore.client.render.box.RenderBox.EAST;
-import static team.creative.creativecore.client.render.box.RenderBox.NORTH;
-import static team.creative.creativecore.client.render.box.RenderBox.SOUTH;
-import static team.creative.creativecore.client.render.box.RenderBox.UP;
-import static team.creative.creativecore.client.render.box.RenderBox.WEST;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -174,7 +167,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     }
     
     @Override
-    public boolean intersectsWithFace(EnumFacing facing, RenderInformationHolder holder, BlockPos offset) {
+    public boolean intersectsWithFace(Facing facing, RenderInformationHolder holder, BlockPos offset) {
         return true;
     }
     

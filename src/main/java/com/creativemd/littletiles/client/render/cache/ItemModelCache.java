@@ -7,25 +7,24 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.MinecraftForgeClient;
+import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.util.math.base.Facing;
 
 public class ItemModelCache {
     
     private static class ItemModelCacheKey {
         
         public ItemStack stack;
-        public EnumFacing facing;
+        public Facing facing;
         
-        public ItemModelCacheKey(ItemStack stack, EnumFacing facing) {
+        public ItemModelCacheKey(ItemStack stack, Facing facing) {
             this.stack = stack;
             this.facing = facing;
         }
@@ -67,7 +66,7 @@ public class ItemModelCache {
         return caches.size();
     }
     
-    public static void cacheModel(ItemStack stack, EnumFacing facing, List<BakedQuad> quads) {
+    public static void cacheModel(ItemStack stack, Facing facing, List<BakedQuad> quads) {
         cacheModel(new ItemModelCacheKey(stack, facing), quads);
     }
     
@@ -77,7 +76,7 @@ public class ItemModelCache {
         }
     }
     
-    public static List<BakedQuad> requestCache(ItemStack stack, EnumFacing facing) {
+    public static List<BakedQuad> requestCache(ItemStack stack, Facing facing) {
         synchronized (caches) {
             ItemModelCacheKey key = new ItemModelCacheKey(stack, facing);
             ItemModelCache cache = caches.get(key);
@@ -92,8 +91,8 @@ public class ItemModelCache {
     public static int timeToExpire = 30000;
     private static int timeToCheck = 200;
     
-    public static void tick(World world) {
-        if (world == null) {
+    public static void tick(Level level) {
+        if (level == null) {
             caches.clear();
             return;
         }
@@ -114,7 +113,7 @@ public class ItemModelCache {
     }
     
     public static RenderingThreadItem thread = new RenderingThreadItem();
-    private static Minecraft mc = Minecraft.getMinecraft();
+    private static Minecraft mc = Minecraft.getInstance();
     
     public static class RenderingThreadItem extends Thread {
         
@@ -126,7 +125,7 @@ public class ItemModelCache {
         
         @Override
         public void run() {
-            IBlockAccess world = mc.world;
+            Level world = mc.level;
             
             if (world != null && !items.isEmpty()) {
                 ItemModelCacheKey data = items.poll();
@@ -134,7 +133,7 @@ public class ItemModelCache {
                 
                 BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
                 cacheModel(data, CreativeBakedModel
-                    .getBlockQuads(renderer.getRenderingCubes(null, null, data.stack), new ArrayList<>(), null, data.facing, null, layer, null, null, 0, data.stack, true));
+                        .getBlockQuads(renderer.getRenderingCubes(null, null, data.stack), new ArrayList<>(), null, data.facing, null, layer, null, null, 0, data.stack, true));
             } else if (world == null)
                 items.clear();
         }
