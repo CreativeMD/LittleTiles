@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.mod.chiselsandbits;
 
 import java.util.List;
 
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -61,6 +62,8 @@ public class ChiselsAndBitsManager {
     }
     
     public static Object getVoxelBlob(TileEntityLittleTiles te, boolean force) throws Exception {
+        if (!LittleTiles.CONFIG.general.allowConverationToChiselsAndBits)
+            throw new Exception("Disabled");
         return ChiselsAndBitsInteractor.getVoxelBlob(te, force);
     }
 }

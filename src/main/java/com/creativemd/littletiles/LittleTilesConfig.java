@@ -87,6 +87,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public int maxDoorDistance = 512;
         
+        @CreativeConfig
+        public boolean allowConverationToChiselsAndBits = true;
+        
     }
     
     public static class NotAllowedToConvertBlockException extends LittleActionException {
@@ -253,6 +256,7 @@ public class LittleTilesConfig {
         @CreativeConfig
         public boolean enhancedResorting = true;
         
+        @Override
         public void configured() {}
         
         @Override
