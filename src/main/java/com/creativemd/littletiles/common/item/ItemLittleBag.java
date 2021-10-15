@@ -94,7 +94,7 @@ public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredien
         for (int i = 0; i < size; i++) {
             NBTTagCompound nbt = list.getCompoundTagAt(i);
             BlockIngredientEntry ingredient = IngredientUtils.loadBlockIngredient(nbt);
-            if (ingredient != null && ingredient.value <= LittleGridContext.getMax().pixelVolume)
+            if (ingredient != null && ingredient.value >= LittleGridContext.getMax().pixelVolume)
                 blocks.add(ingredient);
         }
         ingredients.set(blocks.getClass(), blocks);
