@@ -96,8 +96,8 @@ public class LittleGridContext {
     
     public final int size;
     public final int maxPos;
-    public final int maxTilesPerPlane;
-    public final int maxTilesPerBlock;
+    public final long maxTilesPerPlane;
+    public final long maxTilesPerBlock;
     public final double pixelSize;
     public final double pixelVolume;
     public final boolean isDefault;
@@ -114,8 +114,8 @@ public class LittleGridContext {
         this.pixelSize = 1D / gridSize;
         this.maxPos = gridSize;
         this.maxTilesPerPlane = gridSize * gridSize;
-        this.maxTilesPerBlock = gridSize * gridSize * gridSize;
-        this.pixelVolume = Math.max(Double.MIN_VALUE, 1D / ((long) gridSize * (long) gridSize * gridSize));
+        this.maxTilesPerBlock = (long) gridSize * (long) gridSize * gridSize;
+        this.pixelVolume = Math.max(Double.MIN_VALUE, 1D / maxTilesPerBlock);
         this.isDefault = LittleGridContext.defaultSize == gridSize;
         
         this.minSizes = new int[this.size];

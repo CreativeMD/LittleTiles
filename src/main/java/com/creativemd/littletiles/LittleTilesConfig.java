@@ -197,7 +197,7 @@ public class LittleTilesConfig {
         public void configured() {
             LittleGridContext.loadGrid(minSize, defaultSize, scale, exponent);
             ItemMultiTiles.currentContext = LittleGridContext.get();
-            ItemLittleBag.maxStackSizeOfTiles = ItemLittleBag.maxStackSize * LittleGridContext.get().maxTilesPerBlock;
+            ItemLittleBag.maxStackSizeOfTiles = (int) (ItemLittleBag.maxStackSize * LittleGridContext.get().maxTilesPerBlock);
             LittleStructurePremade.reloadPremadeStructures();
             ItemMultiTiles.reloadExampleStructures();
         }

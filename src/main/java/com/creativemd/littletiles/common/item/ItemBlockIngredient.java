@@ -122,14 +122,14 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
         
         double volume = Math.min(1, ingredient.value);
         LittleGridContext context = LittleGridContext.get();
-        int pixels = (int) (volume * context.maxTilesPerBlock);
+        long pixels = (long) (volume * context.maxTilesPerBlock);
         if (pixels < context.size * context.size)
             cubes.add(new RenderBox(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block, ingredient.meta));
         else {
-            int remainingPixels = pixels;
-            int planes = pixels / context.maxTilesPerPlane;
+            long remainingPixels = pixels;
+            long planes = pixels / context.maxTilesPerPlane;
             remainingPixels -= planes * context.maxTilesPerPlane;
-            int rows = remainingPixels / context.size;
+            long rows = remainingPixels / context.size;
             remainingPixels -= rows * context.size;
             
             float height = (float) (planes * context.pixelSize);
