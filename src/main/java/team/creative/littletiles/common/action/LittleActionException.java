@@ -1,8 +1,7 @@
 package team.creative.littletiles.common.action;
 
-import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
-
 import net.minecraft.client.resources.language.I18n;
+import team.creative.littletiles.common.item.tooltip.ActionMessage;
 
 public class LittleActionException extends Exception {
     

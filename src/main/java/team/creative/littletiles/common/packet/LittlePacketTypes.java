@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
-import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import team.creative.creativecore.common.network.type.NetworkFieldTypeClass;
@@ -23,6 +20,8 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.item.tooltip.ActionMessage;
+import team.creative.littletiles.common.item.tooltip.ActionMessage.ActionMessageObjectType;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;

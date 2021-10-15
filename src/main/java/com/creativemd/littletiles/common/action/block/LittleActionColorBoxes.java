@@ -6,41 +6,39 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
-import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
-import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import team.creative.littletiles.common.action.LittleActions;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
+import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
+import team.creative.littletiles.common.ingredient.ColorIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.LittleInventory;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 
 public class LittleActionColorBoxes extends LittleActionBoxes {
     

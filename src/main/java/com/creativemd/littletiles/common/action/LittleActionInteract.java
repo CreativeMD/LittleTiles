@@ -21,7 +21,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public abstract class LittleActionInteract extends LittleAction {

@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -49,6 +48,8 @@ import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -56,7 +57,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
-import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.SurroundingBox;

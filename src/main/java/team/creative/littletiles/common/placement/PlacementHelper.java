@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.place.fixed.InsideFixedHandler;
 import com.creativemd.littletiles.common.tile.place.fixed.SecondModeHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -30,6 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.TickUtils;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;

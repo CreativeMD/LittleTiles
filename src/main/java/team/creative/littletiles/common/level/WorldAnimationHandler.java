@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
-import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -34,7 +33,8 @@ import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.client.event.HoldLeftClick;
 import team.creative.littletiles.client.event.LeftClick;
 import team.creative.littletiles.client.event.WheelClick;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
 import team.creative.littletiles.server.level.LittleAnimationHandlerServer;
 

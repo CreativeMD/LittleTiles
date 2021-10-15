@@ -10,8 +10,8 @@ import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHa
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
-import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public class AnimationGuiHandler implements IAnimationHandler {

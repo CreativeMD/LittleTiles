@@ -134,8 +134,8 @@ public class LittleVec {
         return new Vec3d(grid.toVanillaGrid(x), grid.toVanillaGrid(y), grid.toVanillaGrid(z));
     }
     
-    public Vector3d getVector(LittleGrid grid) {
-        return new Vector3d(grid.toVanillaGrid(x), grid.toVanillaGrid(y), grid.toVanillaGrid(z));
+    public Vec3d getVector(LittleGrid grid) {
+        return new Vec3d(grid.toVanillaGrid(x), grid.toVanillaGrid(y), grid.toVanillaGrid(z));
     }
     
     public double getPosX(LittleGrid grid) {

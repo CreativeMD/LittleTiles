@@ -291,12 +291,12 @@ public class LittleGroup extends LittleCollection implements IGridBased {
     }
     
     @Override
-    public void combineBlockwise() {
-        super.combineBlockwise();
+    public void combineBlockwise(LittleGrid grid) {
+        super.combineBlockwise(this.grid);
         
         if (hasChildren())
             for (LittleGroup child : children)
-                child.combineBlockwise();
+                child.combineBlockwise(this.grid);
     }
     
     public void advancedScale(int from, int to) {

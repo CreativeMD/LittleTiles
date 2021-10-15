@@ -8,8 +8,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
-import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
@@ -22,15 +20,15 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
-import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
-import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
-import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -60,10 +58,13 @@ import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.network.CreativeNetwork;
+import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -75,10 +76,11 @@ import team.creative.littletiles.common.block.mc.BlockSignalConverter;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.block.mc.BlockWater;
 import team.creative.littletiles.common.config.LittleTilesConfig;
-import team.creative.littletiles.common.entity.EntityAnimation;
 import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
+import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
+import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -97,6 +99,8 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.mod.chiselsandbits.ChiselAndBitsConveration;
+import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
 import team.creative.littletiles.common.packet.LittleBedPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
@@ -118,7 +122,11 @@ import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.type.door.LittleDoor;
+import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.NeighborUpdateOrganizer;
 
@@ -487,9 +495,13 @@ public class LittleTiles {
             Level level = x.getSource().getLevel();
             List<BETiles> blocks = new ArrayList<>();
             
-            for (BlockEntity be : (Set<BlockEntity>) loadedBlockEntities.get(level))
-                if (be instanceof BETiles)
-                    blocks.add((BETiles) be);
+            try {
+                for (BlockEntity be : (Set<BlockEntity>) loadedBlockEntities.get(level))
+                    if (be instanceof BETiles)
+                        blocks.add((BETiles) be);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
             x.getSource().sendSuccess(new TextComponent("Attempting to convert " + blocks.size() + " blocks!"), false);
             int converted = 0;
             int i = 0;
@@ -514,7 +526,84 @@ public class LittleTiles {
             return 0;
         }));
         
-        event.registerServerCommand(new OpenCommand());
+        event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-open").then(Commands.argument("position", BlockPosArgument.blockPos()).executes((x) -> {
+            List<LittleDoor> doors = new ArrayList<>();
+            
+            BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
+            Level level = x.getSource().getLevel();
+            
+            for (LittleDoor door : WorldAnimationHandler.getHandler(level).findAnimations(pos))
+                doors.add(door);
+            
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof BETiles) {
+                for (LittleStructure structure : ((BETiles) blockEntity).loadedStructures()) {
+                    if (structure instanceof LittleDoor) {
+                        try {
+                            structure = ((LittleDoor) structure).getParentDoor();
+                            if (!doors.contains(structure)) {
+                                try {
+                                    structure.load();
+                                    doors.add((LittleDoor) structure);
+                                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                                    x.getSource().sendFailure(new TranslatableComponent("commands.open.notloaded"));
+                                }
+                            }
+                        } catch (LittleActionException e) {}
+                    }
+                }
+            }
+            
+            for (LittleDoor door : doors) {
+                try {
+                    door.activate(DoorActivator.COMMAND, null, null, true);
+                } catch (LittleActionException e) {}
+            }
+            return 0;
+        })).then(Commands.argument("names", StringArrayArgumentType.stringArray()).executes(x -> {
+            List<LittleDoor> doors = new ArrayList<>();
+            
+            BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
+            Level level = x.getSource().getLevel();
+            String[] args = StringArrayArgumentType.getStringArray(x, "names");
+            
+            for (LittleDoor door : WorldAnimationHandler.getHandler(level).findAnimations(pos))
+                if (checkStructureName(door, args))
+                    doors.add(door);
+                
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof BETiles) {
+                for (LittleStructure structure : ((BETiles) blockEntity).loadedStructures()) {
+                    if (structure instanceof LittleDoor) {
+                        try {
+                            structure = ((LittleDoor) structure).getParentDoor();
+                            if (checkStructureName(structure, args) && !doors.contains(structure)) {
+                                try {
+                                    structure.load();
+                                    doors.add((LittleDoor) structure);
+                                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                                    x.getSource().sendFailure(new TranslatableComponent("commands.open.notloaded"));
+                                }
+                            }
+                        } catch (LittleActionException e) {}
+                    }
+                }
+            }
+            
+            for (LittleDoor door : doors) {
+                try {
+                    door.activate(DoorActivator.COMMAND, null, null, true);
+                } catch (LittleActionException e) {}
+            }
+            return 0;
+        })));
+    }
+    
+    protected boolean checkStructureName(LittleStructure structure, String[] args) {
+        for (int i = 0; i < args.length; i++)
+            if (structure.name != null && structure.name.equalsIgnoreCase(args[i]))
+                return true;
+        return false;
     }
     
 }

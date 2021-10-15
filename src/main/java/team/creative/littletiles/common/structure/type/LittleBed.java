@@ -9,8 +9,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
-import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -49,6 +47,8 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
+import team.creative.littletiles.common.gui.controls.GuiTileViewer;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.LittleBedPacket;

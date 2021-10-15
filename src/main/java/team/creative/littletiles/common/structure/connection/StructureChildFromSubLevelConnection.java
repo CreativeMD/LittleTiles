@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.SubLevel;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 

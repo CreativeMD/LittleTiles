@@ -10,7 +10,7 @@ import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 

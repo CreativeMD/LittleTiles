@@ -7,11 +7,7 @@ import javax.annotation.Nullable;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.client.gui.SubGuiScrewdriver;
-import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -28,6 +24,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.gui.SubContainerConfigure;
+import team.creative.littletiles.common.gui.SubGuiScrewdriver;
+import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
 

@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.placement.mark;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,7 +18,7 @@ public interface IMarkMode {
     @OnlyIn(Dist.CLIENT)
     public SubGui getConfigurationGui();
     
-    public void render(double x, double y, double z);
+    public void render(PoseStack pose);
     
     public void move(LittleGrid context, Facing facing);
     

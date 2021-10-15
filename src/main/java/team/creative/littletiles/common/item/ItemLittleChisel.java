@@ -10,21 +10,12 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.client.gui.SubGuiChisel;
-import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
-import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
-import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.shape.LittleShape;
-import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
-import com.creativemd.littletiles.common.util.shape.ShapeSelection;
-import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.block.state.IBlockState;
@@ -53,10 +44,16 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.gui.SubContainerConfigure;
+import team.creative.littletiles.common.gui.SubGuiChisel;
+import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
@@ -67,6 +64,9 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.shape.LittleShape;
+import team.creative.littletiles.common.placement.shape.ShapeRegistry;
+import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public class ItemLittleChisel extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
     

@@ -7,20 +7,11 @@ import javax.annotation.Nullable;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.littletiles.client.gui.SubGuiHammer;
-import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
-import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
-import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
-import com.creativemd.littletiles.common.util.shape.LittleShape;
-import com.creativemd.littletiles.common.util.shape.ShapeRegistry;
-import com.creativemd.littletiles.common.util.shape.ShapeSelection;
-import com.creativemd.littletiles.common.util.tooltip.IItemTooltip;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -37,12 +28,21 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
+import team.creative.littletiles.common.gui.SubContainerConfigure;
+import team.creative.littletiles.common.gui.SubGuiHammer;
+import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.SubGuiGridSelector;
+import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
+import team.creative.littletiles.common.placement.shape.LittleShape;
+import team.creative.littletiles.common.placement.shape.ShapeRegistry;
+import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip {
     

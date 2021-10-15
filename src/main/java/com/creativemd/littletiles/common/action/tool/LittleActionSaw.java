@@ -1,35 +1,33 @@
 package com.creativemd.littletiles.common.action.tool;
 
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.location.TileLocation;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
-import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
-import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.ingredient.BlockIngredient;
+import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
+import team.creative.littletiles.common.ingredient.ColorIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.LittleInventory;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
+import team.creative.littletiles.common.math.location.TileLocation;
 
 public class LittleActionSaw extends LittleActionInteract {
     

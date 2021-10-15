@@ -3,7 +3,6 @@ package team.creative.littletiles.common.structure.type.premade.signal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +15,7 @@ import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;

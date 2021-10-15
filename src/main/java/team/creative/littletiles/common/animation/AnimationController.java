@@ -2,12 +2,11 @@ package team.creative.littletiles.common.animation;
 
 import java.util.HashMap;
 
-import com.creativemd.littletiles.common.util.vec.LittleTransformation;
-
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.creativecore.common.util.type.PairList;
+import team.creative.littletiles.common.math.transformation.LittleTransformation;
 
 public class AnimationController {
     

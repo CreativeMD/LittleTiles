@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 
 public class LittleBlocksUpdatePacket extends CreativePacket {

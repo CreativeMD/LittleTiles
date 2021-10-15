@@ -2,7 +2,6 @@ package team.creative.littletiles.common.animation.event;
 
 import com.creativemd.creativecore.client.sound.EntitySound;
 import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,6 +11,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 

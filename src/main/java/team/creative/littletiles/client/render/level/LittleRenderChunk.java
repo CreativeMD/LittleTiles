@@ -6,10 +6,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
-import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
-import com.creativemd.littletiles.client.render.world.RenderUploader;
-import com.creativemd.littletiles.client.render.world.RenderUploader.NotSupportedException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -17,6 +13,9 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
+import team.creative.littletiles.client.render.cache.ChunkBlockLayerCache;
+import team.creative.littletiles.client.render.cache.LayeredRenderBufferCache;
+import team.creative.littletiles.client.render.level.RenderUploader.NotSupportedException;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 public class LittleRenderChunk {

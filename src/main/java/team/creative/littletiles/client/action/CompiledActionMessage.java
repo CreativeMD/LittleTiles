@@ -3,14 +3,14 @@ package team.creative.littletiles.client.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
-import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.Font;
 import team.creative.creativecore.client.render.GuiRenderHelper;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.item.tooltip.ActionMessage;
+import team.creative.littletiles.common.item.tooltip.ActionMessage.ActionMessageObjectType;
 
 public class CompiledActionMessage {
     

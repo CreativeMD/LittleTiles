@@ -12,8 +12,6 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -55,6 +53,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.transformation.LittleBlockTransformer;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.structure.LittleStructure;

@@ -5,7 +5,7 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {

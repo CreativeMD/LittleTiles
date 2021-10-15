@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.world.level.block.Block;
@@ -28,6 +26,7 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.RangedBitSet;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;

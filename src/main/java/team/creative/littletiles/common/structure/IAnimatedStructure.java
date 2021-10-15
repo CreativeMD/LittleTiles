@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.structure;
 
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 
 public interface IAnimatedStructure {
     

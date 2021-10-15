@@ -3,12 +3,10 @@ package team.creative.littletiles.common.animation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
-import com.creativemd.littletiles.common.entity.DoorController;
-import com.creativemd.littletiles.common.util.vec.LittleTransformation;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.math.transformation.LittleTransformation;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 
 public abstract class EntityAnimationController extends AnimationController {

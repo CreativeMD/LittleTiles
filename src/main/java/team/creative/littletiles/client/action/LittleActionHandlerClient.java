@@ -3,8 +3,6 @@ package team.creative.littletiles.client.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
-
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -21,6 +19,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.ActionEvent.ActionType;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.item.tooltip.ActionMessage;
 import team.creative.littletiles.common.level.LevelHandler;
 
 @OnlyIn(Dist.CLIENT)

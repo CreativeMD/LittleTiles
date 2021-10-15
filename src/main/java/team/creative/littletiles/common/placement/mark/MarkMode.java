@@ -3,7 +3,6 @@ package team.creative.littletiles.common.placement.mark;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.littletiles.client.gui.SubGuiMarkMode;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -16,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.SubGuiMarkMode;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;

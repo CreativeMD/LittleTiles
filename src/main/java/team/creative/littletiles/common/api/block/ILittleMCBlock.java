@@ -2,8 +2,6 @@ package team.creative.littletiles.common.api.block;
 
 import java.util.Random;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -19,7 +17,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.common.block.little.LittleMCBlock;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.common.block.little.registry.LittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;

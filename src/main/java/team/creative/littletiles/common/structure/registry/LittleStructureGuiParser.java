@@ -4,15 +4,15 @@ import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
-import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents.GuiSignalEventsButton;
-import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
+import team.creative.littletiles.common.gui.controls.IAnimationControl;
+import team.creative.littletiles.common.gui.dialogs.SubGuiSignalEvents.GuiSignalEventsButton;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 

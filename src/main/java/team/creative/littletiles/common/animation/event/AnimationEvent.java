@@ -10,8 +10,6 @@ import javax.annotation.Nullable;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.littletiles.client.gui.controls.SubGuiSoundSelector.GuiPickSoundButton;
-import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.CompoundTag;
@@ -22,7 +20,9 @@ import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.EntityAnimationController;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.gui.controls.SubGuiSoundSelector.GuiPickSoundButton;
+import team.creative.littletiles.common.gui.dialogs.SubGuiDoorEvents;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;

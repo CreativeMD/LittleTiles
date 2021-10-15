@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
 import com.creativemd.littletiles.common.block.BlockTile.TEResult;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
@@ -24,8 +23,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.entity.EntityAnimation;
+import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 

@@ -8,9 +8,7 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
-import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.common.block.BlockStorageTile;
-import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.core.BlockPos;
@@ -37,6 +35,8 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.SubContainerStorage;
+import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.math.box.LittleBox;
