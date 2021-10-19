@@ -176,6 +176,22 @@ public class LittleTilesConfig {
         
     }
     
+    public static class AreaTooLarge extends LittleActionException {
+        
+        public LittleBuildingConfig config;
+        
+        public AreaTooLarge(EntityPlayer player) {
+            super("exception.permission.recipe.size");
+            config = LittleTiles.CONFIG.build.get(player);
+        }
+        
+        @Override
+        public String getLocalizedMessage() {
+            return I18n.translateToLocalFormatted(getMessage(), config.recipeBlocksLimit);
+        }
+        
+    }
+    
     public static class Core implements ICreativeConfig {
         
         @CreativeConfig
@@ -216,6 +232,7 @@ public class LittleTilesConfig {
         
         @CreativeConfig
         public boolean useAltWhenFlying = true;
+        
     }
     
     public static class Rendering implements ICreativeConfig {

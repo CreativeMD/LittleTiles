@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -55,7 +56,7 @@ public abstract class SelectionMode {
     
     public abstract void clearSelection(ItemStack stack);
     
-    public abstract LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure);
+    public abstract LittlePreviews getPreviews(World world, EntityPlayer player, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException;
     
     public void saveSelection(ItemStack stack) {}
     

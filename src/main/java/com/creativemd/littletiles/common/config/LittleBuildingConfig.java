@@ -56,4 +56,10 @@ public class LittleBuildingConfig {
     @CreativeConfig
     public int maxPlaceBlocks = 10;
     
+    @CreativeConfig
+    public boolean limitRecipeSize = false;
+    
+    @CreativeConfig
+    public int recipeBlocksLimit = 16;
+    
 }

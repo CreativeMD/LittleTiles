@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.type.Pair;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig.AreaTooLarge;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -169,7 +172,7 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
+    public LittlePreviews getPreviews(World world, EntityPlayer player, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException {
         BlockPos pos = null;
         if (stack.getTagCompound().hasKey("pos1")) {
             int[] array = stack.getTagCompound().getIntArray("pos1");
@@ -190,14 +193,17 @@ public class AreaSelectionMode extends SelectionMode {
         else if (pos2 == null)
             pos2 = pos;
         
-        LittlePreviews previews = getPreviews(world, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
-        
         int minX = Math.min(pos.getX(), pos2.getX());
         int minY = Math.min(pos.getY(), pos2.getY());
         int minZ = Math.min(pos.getZ(), pos2.getZ());
         int maxX = Math.max(pos.getX(), pos2.getX());
         int maxY = Math.max(pos.getY(), pos2.getY());
         int maxZ = Math.max(pos.getZ(), pos2.getZ());
+        
+        if (LittleTiles.CONFIG.build.get(player).limitRecipeSize && (maxX - minX) * (maxY - minY) * (maxZ - minZ) > LittleTiles.CONFIG.build.get(player).recipeBlocksLimit)
+            throw new AreaTooLarge(player);
+        
+        LittlePreviews previews = getPreviews(world, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
         BlockPos center = new BlockPos(minX, minY, minZ);
         
         List<LittleStructure> structures = null;

@@ -13,8 +13,11 @@ import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig.AreaTooLarge;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.container.SubContainerRecipe;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -83,8 +86,11 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
         return new ActionResult(EnumActionResult.PASS, stack);
     }
     
-    public LittlePreviews saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public LittlePreviews saveBlocks(World world, EntityPlayer player, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) throws LittleActionException {
         LittlePreviews previews = new LittlePreviews(LittleGridContext.getMin());
+        
+        if (LittleTiles.CONFIG.build.get(player).limitRecipeSize && (maxX - minX) * (maxY - minY) * (maxZ - minZ) > LittleTiles.CONFIG.build.get(player).recipeBlocksLimit)
+            throw new AreaTooLarge(player);
         
         for (int posX = minX; posX <= maxX; posX++) {
             for (int posY = minY; posY <= maxY; posY++) {
@@ -126,8 +132,12 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
         stack.getTagCompound().removeTag("y");
         stack.getTagCompound().removeTag("z");
         
-        LittlePreview.savePreview(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math
-            .max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
+        try {
+            LittlePreview.savePreview(saveBlocks(world, player, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math
+                .max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
+        } catch (LittleActionException e) {
+            LittleAction.handleExceptionClient(e);
+        }
     }
     
     @Override

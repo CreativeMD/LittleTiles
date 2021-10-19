@@ -2,7 +2,6 @@ package com.creativemd.littletiles.client.gui;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiArraySlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
@@ -10,6 +9,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
@@ -69,7 +69,7 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
         controls.add(new GuiArraySlider("scale", label.width + 5, 100, 100, 14, "", ""));
         updateSlider();
         
-        controls.add((GuiControl) new GuiButton("save", translate("selection.save"), 114, 180, 80) {
+        controls.add(new GuiButton("save", translate("selection.save"), 114, 180, 80) {
             
             @Override
             public void onClicked(int x, int y, int button) {
@@ -78,8 +78,13 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
                 boolean includeCB = ((GuiCheckBox) get("includeCB")).value;
                 boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
                 
-                if (rememberStructure && mode.getPreviews(getPlayer().world, stack, includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
-                    openButtonDialogDialog("Parent structure has to have at least one tile!\nDisable remember structure or adjust your selection.", "ok");
+                try {
+                    if (rememberStructure && mode.getPreviews(getPlayer().world, getPlayer(), stack, includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
+                        openButtonDialogDialog("Parent structure has to have at least one tile!\nDisable remember structure or adjust your selection.", "ok");
+                        return;
+                    }
+                } catch (LittleActionException e) {
+                    openButtonDialogDialog(e.getLocalizedMessage(), translate("gui.ok"));
                     return;
                 }
                 
