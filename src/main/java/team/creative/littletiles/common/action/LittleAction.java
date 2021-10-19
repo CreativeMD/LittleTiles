@@ -41,6 +41,7 @@ import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -133,21 +134,17 @@ public abstract class LittleAction extends CreativePacket {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         
         if (!(blockEntity instanceof BETiles)) {
-            List<LittleTile> tiles = new ArrayList<>();
-            List<LittleTile> chiselTiles = ChiselsAndBitsManager.getTiles(blockEntity);
-            LittleGrid grid = chiselTiles != null ? LittleGrid.get(ChiselsAndBitsManager.convertingFrom) : LittleGrid.defaultGrid();
+            LittleGroup tiles = null;
+            LittleGroup chiselTiles = ChiselsAndBitsManager.getGroup(blockEntity);
             if (chiselTiles != null)
-                tiles.addAll(chiselTiles);
+                tiles = chiselTiles;
             else if (blockEntity == null && shouldConvert) {
                 BlockState state = level.getBlockState(pos);
                 if (isBlockValid(state) && canConvertBlock(player, level, pos, state, affected == null ? 0 : affected.incrementAndGet())) {
                     
-                    grid = LittleGrid.min();
-                    
-                    LittleBox box = new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
-                    
-                    LittleTile tile = new LittleTile(LittleBlockRegistry.get(state.getBlock()), ColorUtils.WHITE, box);
-                    tiles.add(tile);
+                    tiles = new LittleGroup();
+                    LittleBox box = new LittleBox(0, 0, 0, tiles.getGrid().count, tiles.getGrid().count, tiles.getGrid().count);
+                    tiles.add(tiles.getGrid(), new LittleElement(LittleBlockRegistry.get(state.getBlock()), ColorUtils.WHITE), box);
                 } else if (state.getMaterial().isReplaceable()) {
                     if (!level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3))
                         return null;
@@ -158,8 +155,12 @@ public abstract class LittleAction extends CreativePacket {
             if (tiles != null && !tiles.isEmpty()) {
                 level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3);
                 BETiles te = (BETiles) level.getBlockEntity(pos);
-                te.convertTo(grid);
-                te.updateTiles((x) -> x.noneStructureTiles().addAll(tiles));
+                te.convertTo(tiles.getGrid());
+                final LittleGroup toAdd = tiles;
+                te.updateTiles((x) -> {
+                    for (LittleTile tile : toAdd)
+                        x.noneStructureTiles().add(tile);
+                });
                 te.convertToSmallest();
                 blockEntity = te;
             }

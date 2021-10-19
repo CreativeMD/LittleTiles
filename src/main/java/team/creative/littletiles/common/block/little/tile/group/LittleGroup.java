@@ -459,6 +459,10 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         content.add(tile);
     }
     
+    public void combine() {
+        content.combine();
+    }
+    
     public static void advancedScale(LittleGroup group, int from, int to) {
         group.advancedScale(from, to);
     }

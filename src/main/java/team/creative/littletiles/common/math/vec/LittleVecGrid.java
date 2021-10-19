@@ -2,10 +2,9 @@ package team.creative.littletiles.common.math.vec;
 
 import java.security.InvalidParameterException;
 
-import com.mojang.math.Vector3d;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -97,7 +96,7 @@ public class LittleVecGrid implements IGridBased {
         return vec.getVec(grid);
     }
     
-    public Vector3d getVector() {
+    public Vec3 getVector() {
         return vec.getVector(grid);
     }
     

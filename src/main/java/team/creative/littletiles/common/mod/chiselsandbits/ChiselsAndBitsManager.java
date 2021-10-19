@@ -1,13 +1,9 @@
 package team.creative.littletiles.common.mod.chiselsandbits;
 
-import java.util.List;
-
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModList;
-import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class ChiselsAndBitsManager {
@@ -23,9 +19,9 @@ public class ChiselsAndBitsManager {
     /** Keeping the grid size of C&B variable, maybe it does change some time **/
     public static int convertingFrom = 16;
     
-    public static LittleGroup getPreviews(ItemStack stack) {
+    public static LittleGroup getGroup(ItemStack stack) {
         if (isInstalled())
-            return ChiselsAndBitsInteractor.getPreviews(stack);
+            return ChiselsAndBitsInteractor.getGroup(stack);
         return null;
     }
     
@@ -41,25 +37,15 @@ public class ChiselsAndBitsManager {
         return false;
     }
     
-    public static boolean isChiselsAndBitsStructure(BlockEntity te) {
+    public static boolean isChiselsAndBitsStructure(BlockEntity be) {
         if (isInstalled())
-            return ChiselsAndBitsInteractor.isChiselsAndBitsStructure(te);
+            return ChiselsAndBitsInteractor.isChiselsAndBitsStructure(be);
         return false;
     }
     
-    public static LittleGroup getPreviews(BlockEntity te) {
+    public static LittleGroup getGroup(BlockEntity be) {
         if (isInstalled())
-            return ChiselsAndBitsInteractor.getPreviews(te);
+            return ChiselsAndBitsInteractor.getGroup(be);
         return null;
-    }
-    
-    public static List<LittleTile> getTiles(BlockEntity te) {
-        if (isInstalled())
-            return ChiselsAndBitsInteractor.getTiles(te);
-        return null;
-    }
-    
-    public static Object getVoxelBlob(BETiles te, boolean force) throws Exception {
-        return ChiselsAndBitsInteractor.getVoxelBlob(te, force);
     }
 }

@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.type.Pair;
@@ -33,6 +34,13 @@ public class LittleBlockRegistry {
         if (little != null)
             return little;
         return create(null, block);
+    }
+    
+    public static LittleBlock get(BlockState block) {
+        LittleBlock little = blockMap.get(block.getBlock());
+        if (little != null)
+            return little;
+        return create(null, block.getBlock());
     }
     
     private static LittleBlock create(String name, Block block) {

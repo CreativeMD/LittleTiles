@@ -1,155 +1,58 @@
 package team.creative.littletiles.common.mod.chiselsandbits;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.stream.Stream;
 
-import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
-import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.state.IBlockState;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class ChiselsAndBitsInteractor {
     
     public static boolean isChiselsAndBitsStructure(BlockState state) {
-        Block block = state.getBlock();
-        Map blocks = ChiselsAndBits.getBlocks().getConversions();
-        for (Iterator iterator = blocks.values().iterator(); iterator.hasNext();) {
-            Block block2 = (Block) iterator.next();
-            if (block == block2)
-                return true;
-        }
-        return false;
+        return IChiselsAndBitsAPI.getInstance().getConversionManager().getChiseledVariantOf(state).isPresent();
     }
     
     public static boolean isChiselsAndBitsStructure(ItemStack stack) {
-        Block block = Block.getBlockFromItem(stack.getItem());
-        Map blocks = ChiselsAndBits.getBlocks().getConversions();
-        for (Iterator iterator = blocks.values().iterator(); iterator.hasNext();) {
-            Block block2 = (Block) iterator.next();
-            if (block == block2)
-                return true;
-        }
-        return false;
+        return IChiselsAndBitsAPI.getInstance().getConversionManager().getChiseledVariantOf(stack.getItem()).isPresent();
     }
     
-    public static List<LittleTile> getTiles(VoxelBlob blob) {
-        List<LittleTile> tiles = new ArrayList<>();
-        for (int x = 0; x < ChiselsAndBitsManager.convertingFrom; x++) {
-            for (int y = 0; y < ChiselsAndBitsManager.convertingFrom; y++) {
-                for (int z = 0; z < ChiselsAndBitsManager.convertingFrom; z++) {
-                    IBlockState state = ModUtil.getStateById(blob.get(x, y, z));
-                    if (state.getBlock() == Blocks.WATER)
-                        state = LittleTiles.dyeableBlockTransparent.getDefaultState()
-                                .withProperty(BlockLittleDyeableTransparent.VARIANT, BlockLittleDyeableTransparent.LittleDyeableTransparent.WATER);
-                    if (state.getBlock() != Blocks.AIR) {
-                        LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-                        tile.setBox(new LittleBox(new LittleVec(x, y, z)));
-                        tiles.add(tile);
-                    }
-                }
-            }
-        }
-        LittleBoxCombiner.combine(tiles);
-        return tiles;
+    public static LittleGroup getGroup(Stream<IStateEntryInfo> stream) {
+        LittleGroup group = new LittleGroup();
+        LittleGrid grid = LittleGrid.get(ChiselsAndBitsManager.convertingFrom);
+        stream.forEach(state -> {
+            LittleBox box = new LittleBox(new LittleVec(grid, state.getStartPoint()), new LittleVec(grid, state.getEndPoint()));
+            group.add(grid, new LittleElement(LittleBlockRegistry.get(state.getState()), ColorUtils.WHITE), box);
+        });
+        
+        group.combine();
+        return group;
     }
     
-    public static LittlePreviews getPreviews(VoxelBlob blob) {
-        List<LittleTile> tiles = getTiles(blob);
-        LittlePreviews previews = new LittlePreviews(LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
-        for (LittleTile tile : tiles) {
-            previews.addWithoutCheckingPreview(tile.getPreviewTile());
-        }
-        return previews;
-    }
-    
-    public static LittlePreviews getPreviews(ItemStack stack) {
+    public static LittleGroup getGroup(ItemStack stack) {
         if (isChiselsAndBitsStructure(stack))
-            return getPreviews(ModUtil.getBlobFromStack(stack, null));
+            return getGroup(((IMultiStateItem) stack.getItem()).createItemStack(stack).stream());
         return null;
     }
     
-    public static LittlePreviews getPreviews(BlockEntity te) {
-        if (te instanceof TileEntityBlockChiseled)
-            return getPreviews(((TileEntityBlockChiseled) te).getBlob());
+    public static LittleGroup getGroup(BlockEntity te) {
+        if (te instanceof IAreaAccessor)
+            return getGroup(((IAreaAccessor) te).stream());
         return null;
     }
     
     public static boolean isChiselsAndBitsStructure(BlockEntity te) {
-        return te instanceof TileEntityBlockChiseled;
+        return te instanceof IAreaAccessor;
     }
     
-    public static List<LittleTile> getTiles(BlockEntity te) {
-        if (te instanceof TileEntityBlockChiseled)
-            return getTiles(((TileEntityBlockChiseled) te).getBlob());
-        return null;
-    }
-    
-    public static VoxelBlob getVoxelBlob(BETiles te, boolean force) throws Exception {
-        if (te.getContext().size > ChiselsAndBitsManager.convertingFrom)
-            throw new Exception("Invalid grid size of " + te.getContext() + "!");
-        
-        LittleGridContext context = null;
-        try {
-            context = LittleGridContext.get(ChiselsAndBitsManager.convertingFrom);
-            if (context == null)
-                throw new Exception();
-        } catch (Exception e) {
-            throw new Exception("The grid-size 16 is not supported! Base=" + LittleGridContext.minSize + ", Multiplier=" + LittleGridContext.multiplier + ", Scale=" + LittleGridContext.gridSizes.length);
-        }
-        
-        te.convertTo(context);
-        
-        LittleVec vec = new LittleVec(0, 0, 0);
-        VoxelBlob blob = new VoxelBlob();
-        for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
-            LittleTile tile = pair.value;
-            boolean convert;
-            if (tile.getClass() == LittleTile.class)
-                convert = true;
-            else if (force) {
-                if (tile.getClass() == LittleTileColored.class)
-                    convert = true;
-                else
-                    continue;
-            } else
-                throw new Exception("Cannot convert " + tile.getClass() + " tile!");
-            
-            if (convert) {
-                if (!force && tile.getBox().getClass() != LittleBox.class)
-                    throw new Exception("Cannot convert " + tile.getBox().getClass() + " box!");
-                
-                LittleBox box = new LittleBox(0, 0, 0, 0, 0, 0);
-                for (int x = tile.getBox().minX; x < tile.getBox().maxX; x++)
-                    for (int y = tile.getBox().minY; y < tile.getBox().maxY; y++)
-                        for (int z = tile.getBox().minZ; z < tile.getBox().maxZ; z++) {
-                            box.set(x, y, z, x + 1, y + 1, z + 1);
-                            if (tile.getBox().isSolid() || tile.intersectsWith(box))
-                                blob.set(x, y, z, Block.getStateId(tile.getBlockState()));
-                        }
-            }
-        }
-        
-        te.convertToSmallest();
-        
-        return blob;
-    }
 }
