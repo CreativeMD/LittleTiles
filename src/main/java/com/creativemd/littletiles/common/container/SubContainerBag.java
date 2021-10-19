@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
+import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -103,10 +104,16 @@ public class SubContainerBag extends SubContainerHeldItem {
                         boolean containsBlocks = ingredients.contains(BlockIngredient.class);
                         boolean containsColor = ingredients.contains(ColorIngredient.class);
                         
-                        if (bag.add(ingredients) == null) {
+                        LittleIngredients overflow = bag.add(ingredients);
+                        if (overflow == null || (!overflow.contains(BlockIngredient.class) && !overflow.contains(ColorIngredient.class))) {
                             
                             input.setCount(0);
                             ((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
+                            
+                            LittleInventory inventory = new LittleInventory(player);
+                            try {
+                                inventory.give(overflow);
+                            } catch (NotEnoughSpaceException e) {}
                             
                             if (containsBlocks) {
                                 updateSlots();
