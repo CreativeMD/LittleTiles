@@ -115,7 +115,7 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     public HashMapList<BlockPos, LittleBox> generateBlockWise() {
         HashMapList<BlockPos, LittleBox> map = new HashMapList<>();
         for (LittleBox box : this)
-            box.split(grid, pos, map, null);
+            box.split(grid, pos, LittleVec.ZERO, map, null);
         return map;
     }
     

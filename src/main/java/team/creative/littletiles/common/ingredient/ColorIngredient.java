@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 
@@ -251,7 +252,7 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     public static float dyeToBlockPercentage = 4096;
     public static int bottleSize = (int) (dyeToBlockPercentage * 64);
     
-    public static ColorIngredient getColors(LittleTile tile, double volume) {
+    public static ColorIngredient getColors(LittleElement tile, double volume) {
         if (tile.hasColor()) {
             ColorIngredient color = getColors(tile.color);
             color.scale(volume);

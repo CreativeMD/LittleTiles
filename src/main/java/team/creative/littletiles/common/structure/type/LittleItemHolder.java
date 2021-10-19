@@ -45,12 +45,12 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         stack = ItemStack.of(nbt.getCompound("stack"));
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         nbt.put("stack", stack.save(new CompoundTag()));
     }
     
@@ -65,12 +65,12 @@ public class LittleItemHolder extends LittleStructure {
             return InteractionResult.SUCCESS;
         ItemStack mainStack = player.getMainHandItem();
         if (mainStack.isEmpty() && !stack.isEmpty()) {
-            player.replaceItemInInventory(player.getInventory().currentItem, stack.copy());
+            player.replaceItemInInventory(player.getInventory().selected, stack.copy());
             stack = ItemStack.EMPTY;
             updateInput();
             updateStructure();
         } else if (stack.isEmpty()) {
-            player.replaceItemInInventory(player.getInventory().currentItem, ItemStack.EMPTY);
+            player.replaceItemInInventory(player.getInventory().selected, ItemStack.EMPTY);
             stack = mainStack.copy();
             updateInput();
             updateStructure();

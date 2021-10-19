@@ -35,15 +35,15 @@ public abstract class EntityAnimationController extends AnimationController {
             ((IAnimatedStructure) parent.structure).setAnimation(parent);
     }
     
-    public CompoundTag writeToNBT(CompoundTag nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         nbt.putString("id", controllerTypesInv.get(this.getClass()));
-        writeToNBTExtra(nbt);
+        saveExtra(nbt);
         return nbt;
     }
     
-    protected abstract void writeToNBTExtra(CompoundTag nbt);
+    protected abstract void saveExtra(CompoundTag nbt);
     
-    protected abstract void readFromNBT(CompoundTag nbt);
+    protected abstract void load(CompoundTag nbt);
     
     public Player activator() {
         return null;
@@ -71,7 +71,7 @@ public abstract class EntityAnimationController extends AnimationController {
         try {
             EntityAnimationController controller = controllerType.getConstructor().newInstance();
             controller.setParent(animation);
-            controller.readFromNBT(nbt);
+            controller.load(nbt);
             return controller;
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new RuntimeException(e);

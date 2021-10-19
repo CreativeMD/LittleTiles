@@ -32,7 +32,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
     @Override
     public void add(LittleBox box) {
         tempMap.clear();
-        box.split(grid, pos, tempMap, null);
+        box.split(grid, pos, LittleVec.ZERO, tempMap, null);
         for (Entry<BlockPos, ArrayList<LittleBox>> entry : tempMap.entrySet()) {
             List<LittleBox> existingBoxes = blockMap.get(entry.getKey());
             boolean missing = existingBoxes == null;

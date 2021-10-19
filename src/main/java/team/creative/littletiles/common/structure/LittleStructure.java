@@ -151,7 +151,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     // ================Connections================
     
-    public void load() throws CorruptedConnectionException, NotYetConnectedException {
+    public void checkConnections() throws CorruptedConnectionException, NotYetConnectedException {
         for (StructureBlockConnector block : blocks)
             block.connect();
         
@@ -164,7 +164,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         for (StructureChildConnection child : children)
             try {
-                child.getStructure().load();
+                child.getStructure().checkConnections();
             } catch (CorruptedConnectionException e) {
                 throw new MissingChildException(child, e);
             }
@@ -280,7 +280,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public Iterable<BETiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
-        load();
+        checkConnections();
         return new Iterable<BETiles>() {
             
             @Override
@@ -315,7 +315,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public Iterable<IStructureParentCollection> blocksList() throws CorruptedConnectionException, NotYetConnectedException {
-        load();
+        checkConnections();
         return new Iterable<IStructureParentCollection>() {
             
             @Override
@@ -577,12 +577,12 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             return;
         }
         
-        load();
+        checkConnections();
         removeStructure();
     }
     
     public void removeStructure() throws CorruptedConnectionException, NotYetConnectedException {
-        load();
+        checkConnections();
         onStructureDestroyed();
         
         for (StructureChildConnection child : children)
@@ -930,7 +930,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (parent != null)
             return parent.getStructure().getStructureDrop();
         
-        load();
+        checkConnections();
         BlockPos pos = getMinPos(getPos().mutable());
         
         ItemStack stack = new ItemStack(LittleTiles.multiTiles);

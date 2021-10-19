@@ -171,12 +171,12 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         loadSettings(nbt);
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         nbt.putInt("tickDelay", delay);
         nbt.putInt("tickCount", count);
         nbt.putInt("ticker", ticker);

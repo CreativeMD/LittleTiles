@@ -51,10 +51,10 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {}
+    protected void loadExtra(CompoundTag nbt) {}
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {}
+    protected void saveExtra(CompoundTag nbt) {}
     
     @Override
     public void receiveInternalOutputChange(InternalSignalOutput output) {
@@ -135,8 +135,8 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public double getMaxRenderDistanceSquared() {
-        return Math.pow(renderDistance, 2);
+    public double getMaxRenderDistance() {
+        return renderDistance;
     }
     
     @Override

@@ -57,7 +57,7 @@ public class LittleBoxAbsolute implements IGridBased {
     
     public HashMapList<BlockPos, LittleBox> splitted() {
         HashMapList<BlockPos, LittleBox> boxes = new HashMapList<>();
-        box.split(grid, pos, boxes, null);
+        box.split(grid, pos, LittleVec.ZERO, boxes, null);
         return boxes;
     }
     

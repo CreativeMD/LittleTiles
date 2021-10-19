@@ -3,9 +3,8 @@ package team.creative.littletiles.common.ingredient;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
-
 import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.mc.InventoryUtils;
 
 public class StackIngredientEntry {
     

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -28,6 +29,14 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     
     public StackIngredient(List<ItemStack> stacks) {
         stacks.forEach((x) -> content.add(new StackIngredientEntry(x, x.getCount())));
+    }
+    
+    public StackIngredient(Container inventory) {
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (!stack.isEmpty())
+                add(new StackIngredientEntry(stack, stack.getCount())); // Might be bad for performance (for huge inventories)
+        }
     }
     
     public StackIngredient(IItemHandler inventory) {

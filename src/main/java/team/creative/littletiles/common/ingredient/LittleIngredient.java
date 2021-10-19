@@ -1,28 +1,24 @@
 package team.creative.littletiles.common.ingredient;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.oredict.DyeUtils;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -158,8 +154,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             public BlockIngredient extract(LittleGroup previews) {
                 BlockIngredient ingredient = new BlockIngredient();
                 if (previews.containsIngredients())
-                    for (LittlePreview preview : previews)
-                        ingredient.add(preview.getBlockIngredient(previews.getContext()));
+                    for (LittleTile preview : previews)
+                        ingredient.add(preview.getBlockIngredient(previews.getGrid()));
                     
                 if (ingredient.isEmpty())
                     return null;
@@ -169,9 +165,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             @Override
             public BlockIngredient extract(LittleElement tile, double volume) {
                 BlockIngredient ingredient = new BlockIngredient();
-                BlockIngredientEntry entry = tile.getBlockIngredient(LittleGrid.overallDefault());
-                entry.value = volume;
-                ingredient.add(entry);
+                ingredient.add(IngredientUtils.getBlockIngredient(tile.getBlock(), volume));
                 return ingredient;
             }
             
@@ -210,22 +204,14 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
         }, new IngredientConvertionHandler<ColorIngredient>() {
             
-            Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, new String[] { "colorValue", "field_193351_w" });
-            
             @Override
             public ColorIngredient extract(ItemStack stack) {
-                if (DyeUtils.isDye(stack)) {
-                    Optional<EnumDyeColor> optional = DyeUtils.colorFromStack(stack);
-                    if (!optional.isPresent())
-                        return null;
-                    
-                    try {
-                        ColorIngredient color = ColorIngredient.getColors(dyeColor.getInt(optional.get()));
-                        color.scale(LittleTiles.CONFIG.general.dyeVolume);
-                        return color;
-                    } catch (IllegalArgumentException | IllegalAccessException e) {
-                    
-                    }
+                if (stack.getItem() instanceof DyeItem) {
+                    DyeColor dyeColor = ((DyeItem) stack.getItem()).getDyeColor();
+                    float[] rgb = dyeColor.getTextureDiffuseColors();
+                    ColorIngredient color = ColorIngredient.getColors(ColorUtils.rgb(rgb[0], rgb[1], rgb[2]));
+                    color.scale(LittleTiles.CONFIG.general.dyeVolume);
+                    return color;
                 }
                 return null;
             }
@@ -234,8 +220,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             public ColorIngredient extract(LittleGroup previews) {
                 ColorIngredient ingredient = new ColorIngredient();
                 if (previews.containsIngredients())
-                    for (LittlePreview preview : previews)
-                        ingredient.add(ColorIngredient.getColors(previews.getContext(), preview));
+                    for (LittleTile preview : previews)
+                        ingredient.add(ColorIngredient.getColors(previews.getGrid(), preview));
                     
                 if (ingredient.isEmpty())
                     return null;

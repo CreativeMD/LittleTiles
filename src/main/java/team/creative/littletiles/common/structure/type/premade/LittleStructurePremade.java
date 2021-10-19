@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.utils.mc.NBTUtils;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -18,13 +17,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -154,7 +152,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         BlockPos pos = getMinPos(getPos().mutable());
         
         CompoundTag structureNBT = new CompoundTag();
-        this.writeToNBTPreview(structureNBT, pos);
+        this.savePreview(structureNBT, pos);
         
         if (!stack.hasTag())
             stack.setTag(new CompoundTag());
@@ -173,7 +171,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         registerPremadeStructureType("importer", LittleTiles.MODID, LittleImporter.class);
         registerPremadeStructureType("exporter", LittleTiles.MODID, LittleExporter.class);
         registerPremadeStructureType(new LittleStructureTypeParticleEmitter("particle_emitter", "premade", LittleParticleEmitter.class, LittleStructureAttribute.TICKING, LittleTiles.MODID))
-                .addOutput("disabled", 1, SignalMode.TOGGLE, true).setFieldDefault("facing", EnumFacing.UP);
+                .addOutput("disabled", 1, SignalMode.TOGGLE, true).setFieldDefault("facing", Facing.UP);
         registerPremadeStructureType("blankomatic", LittleTiles.MODID, LittleBlankOMatic.class);
         
         registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 1));
@@ -196,21 +194,17 @@ public abstract class LittleStructurePremade extends LittleStructure {
         LittleStructureRegistry.registerGuiParserNotFoundHandler(new LittleStructureGuiParserNotFoundHandler() {
             
             @Override
-            @SideOnly(Side.CLIENT)
             public LittleStructureGuiParser create(LittleStructure structure, GuiParent parent, AnimationGuiHandler handler) {
                 if (structure instanceof LittleStructurePremade)
                     return new LittleStructureGuiParser(parent, handler) {
                         
                         @Override
-                        @SideOnly(Side.CLIENT)
-                        protected void createControls(LittlePreviews previews, LittleStructure structure) {
-                        
-                        }
+                        protected void createControls(LittleGroup previews, LittleStructure structure) {}
                         
                         @Override
-                        protected LittleStructure parseStructure(LittlePreviews previews) {
+                        protected LittleStructure parseStructure(LittleGroup previews) {
                             LittleStructure parsedStructure = structure.type.createStructure(null);
-                            parsedStructure.loadFromNBT(previews.structureNBT);
+                            parsedStructure.load(previews.getStructureTag());
                             return parsedStructure;
                         }
                         

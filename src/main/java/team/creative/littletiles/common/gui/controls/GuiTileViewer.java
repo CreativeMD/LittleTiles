@@ -1,42 +1,39 @@
 package team.creative.littletiles.common.gui.controls;
 
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Vector3d;
 
-import org.lwjgl.input.Keyboard;
-
-import com.creativemd.creativecore.client.rendering.RenderBox;
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
-import com.creativemd.creativecore.common.gui.client.style.Style;
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlEvent;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.SmoothValue;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.math.Vector3d;
 
+import net.java.games.input.Keyboard;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.init.Blocks;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import team.creative.creativecore.client.render.GuiRenderHelper;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.event.GuiControlEvent;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.vec.SmoothValue;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class GuiTileViewer extends GuiParent implements IAnimationControl {
     
     public EntityAnimation animation;
-    public LittleGridContext context;
+    public LittleGrid context;
     public LittleVec size;
     public LittleVec min;
     
@@ -44,7 +41,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
     public SmoothValue offsetX = new SmoothValue(100);
     public SmoothValue offsetY = new SmoothValue(100);
     
-    private EnumFacing viewDirection;
+    private Facing viewDirection;
     
     public boolean visibleAxis = false;
     public boolean visibleNormalAxis = false;
@@ -52,27 +49,27 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
     private Axis normalAxis;
     private Axis axisDirection;
     
-    private EnumFacing xFacing;
-    private EnumFacing yFacing;
-    private EnumFacing zFacing;
+    private Facing xFacing;
+    private Facing yFacing;
+    private Facing zFacing;
     
     public SmoothValue rotX = new SmoothValue(400);
     public SmoothValue rotY = new SmoothValue(400);
     public SmoothValue rotZ = new SmoothValue(400);
     
     private LittleBox box;
-    private LittleGridContext axisContext;
+    private LittleGrid axisContext;
     private boolean even;
     
     public LittleBox getBox() {
         return box;
     }
     
-    public LittleGridContext getAxisContext() {
+    public LittleGrid getAxisContext() {
         return axisContext;
     }
     
-    public void setAxis(LittleBox box, LittleGridContext context) {
+    public void setAxis(LittleBox box, LittleGrid context) {
         this.box = box.copy();
         this.axisContext = context;
         raiseEvent(new GuiTileViewerAxisChangedEvent(this));
@@ -103,8 +100,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
     
     public boolean grabbed = false;
     
-    public GuiTileViewer(String name, int x, int y, int width, int height, LittleGridContext context) {
-        super(name, x, y, width, height);
+    public GuiTileViewer(String name, LittleGrid context) {
+        super(name);
         this.context = context;
         this.marginWidth = 0;
         
@@ -126,11 +123,11 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
         return viewDirection;
     }
     
-    public void setViewDirection(EnumFacing facing) {
+    public void setViewDirection(Facing facing) {
         this.viewDirection = facing;
         updateNormalAxis();
         
-        switch (facing.getOpposite()) {
+        switch (facing.opposite()) {
         case EAST:
             rotX.set(0);
             rotY.set(-90);
@@ -163,68 +160,68 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
             break;
         }
         
-        Vec3i direction = EnumFacing.EAST.getDirectionVec();
+        Vec3i direction = Facing.EAST.getDirectionVec();
         Vector3d vec = new Vector3d(direction.getX(), direction.getY(), direction.getZ());
         
         transform(vec);
         
         if (vec.x != 0)
             if (vec.x < 0)
-                xFacing = EnumFacing.EAST;
+                xFacing = Facing.EAST;
             else
-                xFacing = EnumFacing.WEST;
+                xFacing = Facing.WEST;
         else if (vec.y != 0)
             if (vec.y < 0)
-                yFacing = EnumFacing.EAST;
+                yFacing = Facing.EAST;
             else
-                yFacing = EnumFacing.WEST;
+                yFacing = Facing.WEST;
         else if (vec.z != 0)
             if (vec.z < 0)
-                zFacing = EnumFacing.EAST;
+                zFacing = Facing.EAST;
             else
-                zFacing = EnumFacing.WEST;
+                zFacing = Facing.WEST;
             
-        direction = EnumFacing.UP.getDirectionVec();
+        direction = Facing.UP.getDirectionVec();
         vec = new Vector3d(direction.getX(), direction.getY(), direction.getZ());
         
         transform(vec);
         
         if (vec.x != 0)
             if (vec.x < 0)
-                xFacing = EnumFacing.UP;
+                xFacing = Facing.UP;
             else
-                xFacing = EnumFacing.DOWN;
+                xFacing = Facing.DOWN;
         else if (vec.y != 0)
             if (vec.y < 0)
-                yFacing = EnumFacing.UP;
+                yFacing = Facing.UP;
             else
-                yFacing = EnumFacing.DOWN;
+                yFacing = Facing.DOWN;
         else if (vec.z != 0)
             if (vec.z < 0)
-                zFacing = EnumFacing.UP;
+                zFacing = Facing.UP;
             else
-                zFacing = EnumFacing.DOWN;
+                zFacing = Facing.DOWN;
             
-        direction = EnumFacing.SOUTH.getDirectionVec();
+        direction = Facing.SOUTH.getDirectionVec();
         vec = new Vector3d(direction.getX(), direction.getY(), direction.getZ());
         
         transform(vec);
         
         if (vec.x != 0)
             if (vec.x < 0)
-                xFacing = EnumFacing.SOUTH;
+                xFacing = Facing.SOUTH;
             else
-                xFacing = EnumFacing.NORTH;
+                xFacing = Facing.NORTH;
         else if (vec.y != 0)
             if (vec.y < 0)
-                yFacing = EnumFacing.SOUTH;
+                yFacing = Facing.SOUTH;
             else
-                yFacing = EnumFacing.NORTH;
+                yFacing = Facing.NORTH;
         else if (vec.z != 0)
             if (vec.z < 0)
-                zFacing = EnumFacing.SOUTH;
+                zFacing = Facing.SOUTH;
             else
-                zFacing = EnumFacing.NORTH;
+                zFacing = Facing.NORTH;
     }
     
     public Axis getAxis() {
@@ -296,7 +293,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
         GlStateManager.alphaFunc(516, 0.1F);
         GlStateManager.enableBlend();
         GlStateManager
-            .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         
         GlStateManager.translate(TileEntityRendererDispatcher.staticPlayerX, TileEntityRendererDispatcher.staticPlayerY, TileEntityRendererDispatcher.staticPlayerZ);
         GlStateManager.translate(0, -75, 0);

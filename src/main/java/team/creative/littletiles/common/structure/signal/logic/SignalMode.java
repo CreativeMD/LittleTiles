@@ -162,8 +162,8 @@ public enum SignalMode {
         @Override
         @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-            parent.addControl(new GuiLabel("length:", 0, 43));
-            parent.addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationPulse ? ((GuiSignalModeConfigurationPulse) configuration).length : 10), 40, 41, 50, 12)
+            parent.add(new GuiLabel("length:"));
+            parent.add(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationPulse ? ((GuiSignalModeConfigurationPulse) configuration).length : 10))
                     .setNumbersOnly());
         }
         
@@ -325,8 +325,8 @@ public enum SignalMode {
         @Override
         @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-            parent.addControl(new GuiLabel("length:"));
-            parent.addControl(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10), 40, 41, 50, 12)
+            parent.add(new GuiLabel("length:"));
+            parent.add(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10))
                     .setNumbersOnly());
         }
         

@@ -2,20 +2,19 @@ package team.creative.littletiles.common.structure.registry;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.gui.dialogs.SubGuiSignalEvents.GuiSignalEventsButton;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class LittleStructureGuiParser implements IAnimationControl {
     
     public final GuiParent parent;
@@ -26,28 +25,23 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
         this.handler = handler;
     }
     
-    @SideOnly(Side.CLIENT)
-    public void create(LittlePreviews previews, @Nullable LittleStructure structure) {
+    public void create(LittleGroup previews, @Nullable LittleStructure structure) {
         createControls(previews, structure);
-        parent.controls.add(new GuiSignalEventsButton("signal", 0, 122, previews, structure, getStructureType()));
+        parent.add(new GuiSignalEventsButton("signal", previews, structure, getStructureType()));
         
     }
     
-    @SideOnly(Side.CLIENT)
-    public LittleStructure parse(LittlePreviews previews) {
+    public LittleStructure parse(LittleGroup previews) {
         LittleStructure structure = parseStructure(previews);
         GuiSignalEventsButton button = (GuiSignalEventsButton) parent.get("signal");
         button.setEventsInStructure(structure);
         return structure;
     }
     
-    @SideOnly(Side.CLIENT)
-    protected abstract void createControls(LittlePreviews previews, @Nullable LittleStructure structure);
+    protected abstract void createControls(LittleGroup previews, @Nullable LittleStructure structure);
     
-    @SideOnly(Side.CLIENT)
-    protected abstract LittleStructure parseStructure(LittlePreviews previews);
+    protected abstract LittleStructure parseStructure(LittleGroup previews);
     
-    @SideOnly(Side.CLIENT)
     protected abstract LittleStructureType getStructureType();
     
     public <T extends LittleStructure> T createStructure(Class<T> structureClass, StructureParentCollection parent) {
@@ -58,14 +52,10 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void onLoaded(AnimationPreview animationPreview) {
-        
-    }
+    public void onLoaded(AnimationPreview animationPreview) {}
     
     public static abstract class LittleStructureGuiParserNotFoundHandler {
         
-        @SideOnly(Side.CLIENT)
         public abstract LittleStructureGuiParser create(LittleStructure structure, GuiParent parent, AnimationGuiHandler handler);
         
     }

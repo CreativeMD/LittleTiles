@@ -2,27 +2,24 @@ package team.creative.littletiles.common.structure.type.door;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.AnimationKey;
 import team.creative.littletiles.common.animation.AnimationState;
@@ -30,36 +27,42 @@ import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.ValueTimeline;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
 import team.creative.littletiles.common.gui.controls.GuiLTDistance;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public class LittleSlidingDoor extends LittleDoorBase {
     
-    public LittleSlidingDoor(LittleStructureType type, IStructureTileList mainBlock) {
+    public LittleSlidingDoor(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
     @StructureDirectional
-    public EnumFacing direction;
+    public Facing direction;
     public int moveDistance;
-    public LittleGridContext moveContext;
+    public LittleGrid moveContext;
     
     @Override
-    protected void loadFromNBTExtra(NBTTagCompound nbt) {
-        super.loadFromNBTExtra(nbt);
-        moveDistance = nbt.getInteger("distance");
-        moveContext = LittleGridContext.get(nbt);
+    protected void loadExtra(CompoundTag nbt) {
+        super.loadExtra(nbt);
+        moveDistance = nbt.getInt("distance");
+        moveContext = LittleGrid.get(nbt);
     }
     
     @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
-        super.writeToNBTExtra(nbt);
-        nbt.setInteger("distance", moveDistance);
+    protected void saveExtra(CompoundTag nbt) {
+        super.saveExtra(nbt);
+        nbt.putInt("distance", moveDistance);
         moveContext.set(nbt);
     }
     
@@ -67,7 +70,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
     public DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration) {
         //((LittleSlidingDoor) placement.origin.getStructure()).direction = direction.getOpposite();
         return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), direction.getAxisDirection()
-            .getOffset() * moveContext.toVanillaGrid(moveDistance)), stayAnimated ? null : false, duration, completeDuration, interpolation);
+                .getOffset() * moveContext.toVanillaGrid(moveDistance)), stayAnimated ? null : false, duration, completeDuration, interpolation);
     }
     
     @Override
@@ -242,7 +245,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
             GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
             
             timeline.values.add(AnimationKey.getOffset(direction.getAxis()), ValueTimeline.create(interpolation).addPoint(0, 0D)
-                .addPoint(timeline.duration, direction.getAxisDirection().getOffset() * distance.getDistanceContext().toVanillaGrid(distance.getDistance())));
+                    .addPoint(timeline.duration, direction.getAxisDirection().getOffset() * distance.getDistanceContext().toVanillaGrid(distance.getDistance())));
         }
         
         @Override

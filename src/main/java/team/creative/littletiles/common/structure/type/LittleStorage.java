@@ -3,20 +3,15 @@ package team.creative.littletiles.common.structure.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
-import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.common.block.BlockStorageTile;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -24,11 +19,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.creativecore.common.util.mc.InventoryUtils;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -74,13 +70,13 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         inventorySize = nbt.getInt("inventorySize");
         stackSizeLimit = nbt.getInt("stackSizeLimit");
         numberOfSlots = nbt.getInt("numberOfSlots");
         lastSlotStackSize = nbt.getInt("lastSlot");
         if (nbt.contains("inventory"))
-            inventory = InventoryUtils.loadInventoryBasic(nbt.getCompound("inventory"));
+            inventory = InventoryUtils.load(nbt.getCompound("inventory"));
         else
             inventory = null;
         if (inventory != null)
@@ -90,13 +86,13 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         if (inventory != null) {
             nbt.putInt("inventorySize", inventorySize);
             nbt.putInt("stackSizeLimit", stackSizeLimit);
             nbt.putInt("numberOfSlots", numberOfSlots);
             nbt.putInt("lastSlot", lastSlotStackSize);
-            nbt.setTag("inventory", InventoryUtils.saveInventoryBasic(inventory));
+            nbt.put("inventory", InventoryUtils.save(inventory));
         }
         nbt.putBoolean("invisibleStorage", invisibleStorageTiles);
     }
@@ -117,11 +113,11 @@ public class LittleStorage extends LittleStructure {
     public static int getSizeOfInventory(LittleGroup previews) {
         double size = 0;
         String name = LittleTiles.STORAGE_BLOCK.getRegistryName().toString();
-        for (int i = 0; i < previews.size(); i++) {
-            if (previews.get(i).getBlockName().equals(name))
-                size += previews.get(i).box.getSize().getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
+        for (LittleTile tile : previews) {
+            if (tile.getBlock().blockName().equals(name))
+                size += (tile.getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
         }
-        return (int) size;
+        return size;
     }
     
     public boolean hasPlayerOpened(Player player) {
@@ -201,19 +197,20 @@ public class LittleStorage extends LittleStructure {
         }
         
         @Override
-        public void createControls(LittlePreviews previews, LittleStructure structure) {
-            parent.controls.add(new GuiLabel("space: " + getSizeOfInventory(previews), 5, 0));
+        public void createControls(LittleGroup previews, LittleStructure structure) {
+            parent.add(new GuiLabel("space").setTitle(new TextBuilder().text("space: " + getSizeOfInventory(previews)).build()));
             boolean invisible = false;
             if (structure instanceof LittleStorage)
                 invisible = ((LittleStorage) structure).invisibleStorageTiles;
-            parent.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 18, invisible));
+            parent.add(new GuiCheckBox("invisible", "invisible storage tiles", invisible));
         }
         
         @Override
-        public LittleStorage parseStructure(LittlePreviews previews) {
+        public LittleStorage parseStructure(LittleGroup previews) {
             
             LittleStorage storage = createStructure(LittleStorage.class, null);
             storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
+            
             for (int i = 0; i < previews.size(); i++) {
                 if (previews.get(i).getBlock() instanceof BlockStorageTile)
                     previews.get(i).setInvisibile(storage.invisibleStorageTiles);
@@ -221,13 +218,12 @@ public class LittleStorage extends LittleStructure {
             storage.inventorySize = getSizeOfInventory(previews);
             storage.stackSizeLimit = maxSlotStackSize;
             storage.updateNumberOfSlots();
-            storage.inventory = new InventoryBasic("basic", false, storage.numberOfSlots);
+            storage.inventory = new SimpleContainer(storage.numberOfSlots);
             
             return storage;
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
         protected LittleStructureType getStructureType() {
             return LittleStructureRegistry.getStructureType(LittleStorage.class);
         }
@@ -240,10 +236,10 @@ public class LittleStorage extends LittleStructure {
         }
         
         @Override
-        public void addIngredients(LittlePreviews previews, LittleIngredients ingredients) {
+        public void addIngredients(LittleGroup previews, LittleIngredients ingredients) {
             super.addIngredients(previews, ingredients);
             
-            IInventory inventory = InventoryUtils.loadInventoryBasic(previews.structureNBT.getCompoundTag("inventory"));
+            Container inventory = InventoryUtils.load(previews.getStructureTag().getCompound("inventory"));
             if (inventory != null)
                 ingredients.add(new StackIngredient(inventory));
         }

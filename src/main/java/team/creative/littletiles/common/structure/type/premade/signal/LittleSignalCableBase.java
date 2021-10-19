@@ -110,7 +110,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         int[] result = nbt.getIntArray("faces");
         if (result != null && result.length == getNumberOfConnections() * 3) {
             for (int i = 0; i < faces.length; i++) {
@@ -142,8 +142,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    protected void writeToNBTExtraInternal(CompoundTag nbt, boolean preview) {
-        super.writeToNBTExtraInternal(nbt, preview);
+    protected void saveInternalExtra(CompoundTag nbt, boolean preview) {
+        super.saveInternalExtra(nbt, preview);
         if (!preview && faces != null) {
             int[] result = new int[getNumberOfConnections() * 3];
             for (int i = 0; i < faces.length; i++) {
@@ -164,7 +164,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {}
+    protected void saveExtra(CompoundTag nbt) {}
     
     public abstract Facing getFacing(int index);
     
@@ -204,7 +204,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     public void neighbourChanged() {
         try {
-            load();
+            checkConnections();
             
             if (getLevel().isClientSide)
                 return;
@@ -236,7 +236,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     public Iterator<ISignalStructureBase> connections() {
         try {
-            load();
+            checkConnections();
             return new Iterator<ISignalStructureBase>() {
                 
                 LittleBoxAbsolute box = getSurroundingBox().getAbsoluteBox();
@@ -324,7 +324,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                                     if (parsedSearch.getGrid().count > box.getGrid().count)
                                         toCheck.convertTo(box.getGrid(), parsedSearch.getGrid());
                                     
-                                    if (!parsedSearch.isSpaceForLittleTile(toCheck))
+                                    if (!parsedSearch.isSpaceFor(toCheck))
                                         throw new ConnectionException("No space");
                                 } finally {
                                     parsedSearch.convertToSmallest();
@@ -358,7 +358,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                             if (parsedSearch.getGrid().count > box.getGrid().count)
                                 toCheck.convertTo(box.getGrid(), parsedSearch.getGrid());
                             
-                            if (!parsedSearch.isSpaceForLittleTile(toCheck))
+                            if (!parsedSearch.isSpaceFor(toCheck))
                                 throw new ConnectionException("No space");
                         } finally {
                             parsedSearch.convertToSmallest();
@@ -429,7 +429,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             renderBox.setMin(axis, renderBox.getMin(axis) - distance);
         }
         
-        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.singleCable, axis.ordinal());
+        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.SINGLE_CABLE, axis.ordinal());
         if (!oneSidedRenderer) {
             if (positive)
                 cube.setMax(axis, cube.getMin(axis) + cube.getSize(axis) / 2);
@@ -655,7 +655,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                 if (cubes.isEmpty())
                     return null;
                 for (LittleRenderBox cube : cubes)
-                    cube.color = ColorUtils.toInt(255, 255, 255, 90);
+                    cube.color = ColorUtils.rgba(255, 255, 255, 90);
                 return cubes;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             

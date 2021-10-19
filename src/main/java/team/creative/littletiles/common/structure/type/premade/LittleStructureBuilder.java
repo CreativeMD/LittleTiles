@@ -3,7 +3,6 @@ package team.creative.littletiles.common.structure.type.premade;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import team.creative.creativecore.common.util.mc.InventoryUtils;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
@@ -66,7 +66,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         if (nbt.contains("sizeX"))
             lastSizeX = nbt.getInt("sizeX");
         else
@@ -95,15 +95,15 @@ public class LittleStructureBuilder extends LittleStructurePremade {
             lastBlockState = block.getStateFromMeta(meta);
         } else
             lastBlockState = Blocks.OAK_PLANKS.defaultBlockState();
-        inventory = InventoryUtils.loadInventoryBasic(nbt, 1);
+        inventory = InventoryUtils.load(nbt, 1);
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         nbt.putInt("sizeX", lastSizeX);
         nbt.putInt("sizeY", lastSizeY);
         nbt.putInt("thickness", lastThickness);
-        InventoryUtils.saveInventoryBasic(inventory);
+        InventoryUtils.save(inventory);
         Block block = lastBlockState.getBlock();
         int meta = block.getMetaFromState(lastBlockState);
         nbt.putString("block", block.getRegistryName().toString() + (meta != 0 ? ":" + meta : ""));

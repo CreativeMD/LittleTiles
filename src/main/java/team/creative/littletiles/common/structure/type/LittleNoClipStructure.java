@@ -2,10 +2,6 @@ package team.creative.littletiles.common.structure.type;
 
 import java.util.HashSet;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -13,12 +9,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -37,12 +33,12 @@ public class LittleNoClipStructure extends LittleStructure {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         web = nbt.getBoolean("web");
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         nbt.putBoolean("web", web);
     }
     
@@ -89,25 +85,21 @@ public class LittleNoClipStructure extends LittleStructure {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public void createControls(LittlePreviews previews, LittleStructure structure) {
+        public void createControls(LittleGroup previews, LittleStructure structure) {
             boolean slowness = true;
             if (structure instanceof LittleNoClipStructure)
                 slowness = ((LittleNoClipStructure) structure).web;
-            parent.controls.add(new GuiCheckBox("web", "slowness (cobwebs)", 3, 0, slowness));
+            parent.add(new GuiCheckBox("web", slowness).setTitle("slowness (cobwebs)"));
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public LittleNoClipStructure parseStructure(LittlePreviews previews) {
+        public LittleNoClipStructure parseStructure(LittleGroup previews) {
             LittleNoClipStructure structure = createStructure(LittleNoClipStructure.class, null);
             structure.web = ((GuiCheckBox) parent.get("web")).value;
-            
             return structure;
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
         protected LittleStructureType getStructureType() {
             return LittleStructureRegistry.getStructureType(LittleNoClipStructure.class);
         }

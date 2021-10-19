@@ -5,25 +5,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiListBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal.IConditionConfiguration;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -90,8 +90,7 @@ public class SubGuiSignalEvents extends SubGui {
             if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == type) {
                 String name = child.getStructureName();
                 try {
-                    values
-                        .add(ChatFormatting.BOLD + (type == SignalComponentType.INPUT ? "i" : "o") + i + " " + (name != null ? "(" + name + ") " : "") + "" + ChatFormatting.RESET + ((ISignalComponent) structure)
+                    values.add(ChatFormatting.BOLD + (type == SignalComponentType.INPUT ? "i" : "o") + i + " " + (name != null ? "(" + name + ") " : "") + "" + ChatFormatting.RESET + ((ISignalComponent) structure)
                             .getBandwidth() + "-bit");
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             }
@@ -138,15 +137,17 @@ public class SubGuiSignalEvents extends SubGui {
     public static class GuiSignalEventsButton extends GuiButton {
         
         public SubGuiSignalEvents gui;
-        public LittlePreviews previews;
+        public LittleGroup previews;
         public LittleStructureType type;
         public LittleStructure activator;
         public final List<GuiSignalComponent> inputs;
         public final List<GuiSignalComponent> outputs;
         public List<GuiSignalEvent> events;
         
-        public GuiSignalEventsButton(String name, int x, int y, LittlePreviews previews, LittleStructure structure, LittleStructureType type) {
-            super(name, translate("gui.signal.events"), x, y, 40, 7);
+        public GuiSignalEventsButton(String name, LittleGroup previews, LittleStructure structure, LittleStructureType type) {
+            super(name, null);
+            pressed = x -> openClientLayer(new SubGuiSignalEvents(GuiSignalEventsButton.this));
+            setTranslate("gui.signal.events");
             this.previews = previews;
             this.activator = structure;
             this.type = type;
@@ -194,11 +195,6 @@ public class SubGuiSignalEvents extends SubGui {
             }
             structure.setExternalHandler(map);
         }
-        
-        @Override
-        public void onClicked(int x, int y, int button) {
-            openClientLayer(new SubGuiSignalEvents(this));
-        }
     }
     
     private static class ComponentSearch {
@@ -235,7 +231,7 @@ public class SubGuiSignalEvents extends SubGui {
                     list.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), (ISignalComponent) structure, true, i));
                 else if (includeRelations)
                     gatherInputs(child, child
-                        .getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+                            .getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
             }
         }
         
@@ -267,7 +263,7 @@ public class SubGuiSignalEvents extends SubGui {
                     list.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), (ISignalComponent) structure, true, i));
                 else if (includeRelations)
                     gatherOutputs(child, child
-                        .getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+                            .getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
             }
         }
         

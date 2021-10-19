@@ -4,20 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.creativemd.creativecore.common.world.FakeWorld;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.phys.AABB;
+import team.creative.creativecore.common.level.FakeLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationState;
+import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.transformation.LittleTransformation;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementHelper;
@@ -30,15 +33,15 @@ import team.creative.littletiles.common.structure.type.LittleFixedStructure;
 public class AnimationPreview {
     
     public final EntityAnimation animation;
-    public final LittlePreviews previews;
+    public final LittleGroup previews;
     public final LittleBox entireBox;
-    public final LittleGridContext context;
-    public final AxisAlignedBB box;
+    public final LittleGrid context;
+    public final AABB box;
     
-    public AnimationPreview(LittlePreviews previews) {
+    public AnimationPreview(LittleGroup previews) {
         this.previews = previews;
         BlockPos pos = new BlockPos(0, 75, 0);
-        FakeWorld fakeWorld = FakeWorld.createFakeWorld("animationViewer", true);
+        FakeLevel fakeWorld = FakeLevel.createFakeWorld("animationViewer", true);
         fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
         
         if (!previews.hasStructure()) {
@@ -58,28 +61,22 @@ public class AnimationPreview {
         
         entireBox = previews.getSurroundingBox();
         context = previews.getContext();
-        box = entireBox.getBox(context);
+        box = entireBox.getBB(context);
         
         animation = new EntityAnimation(fakeWorld, fakeWorld, (EntityAnimationController) new EntityAnimationController() {
             
             @Override
-            protected void writeToNBTExtra(NBTTagCompound nbt) {
-            
-            }
+            public void transform(LittleTransformation transformation) {}
             
             @Override
-            protected void readFromNBT(NBTTagCompound nbt) {
-                
-            }
+            protected void saveExtra(CompoundTag nbt) {}
             
             @Override
-            public void transform(LittleTransformation transformation) {
-                
-            }
+            protected void load(CompoundTag nbt) {}
             
         }.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews
-            .getContext()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
-            
+                .getContext()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
+        
     }
     
 }

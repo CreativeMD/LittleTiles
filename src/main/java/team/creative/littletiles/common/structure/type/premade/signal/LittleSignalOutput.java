@@ -3,8 +3,6 @@ package team.creative.littletiles.common.structure.type.premade.signal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,6 +19,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.SurroundingBox;
+import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -52,14 +51,14 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
-        super.loadFromNBTExtra(nbt);
+    protected void loadExtra(CompoundTag nbt) {
+        super.loadExtra(nbt);
         BooleanUtils.intToBool(nbt.getInt("state"), state);
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
-        super.writeToNBTExtra(nbt);
+    protected void saveExtra(CompoundTag nbt) {
+        super.saveExtra(nbt);
         nbt.putInt("state", BooleanUtils.boolToInt(state));
     }
     
@@ -78,7 +77,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
         super.renderFace(facing, grid, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
-        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.outputArrow, facing.ordinal());
+        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.OUTPUT_ARROW, facing.ordinal());
         cube.keepVU = true;
         cube.allowOverlap = true;
         
@@ -174,10 +173,10 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
         }
         
         @Override
-        public List<PlacePreview> getSpecialTiles(LittleGroup previews) {
-            List<PlacePreview> result = super.getSpecialTiles(previews);
-            Facing facing = (Facing) loadDirectional(previews, "facing");
-            LittleBox box = previews.getSurroundingBox();
+        public List<LittlePlaceBox> getSpecialBoxes(LittleGroup group) {
+            List<LittlePlaceBox> result = super.getSpecialBoxes(group);
+            Facing facing = (Facing) loadDirectional(group, "facing");
+            LittleBox box = group.getSurroundingBox();
             result.add(new LittlePlaceBoxFacing(box, facing, ColorUtils.ORANGE));
             return result;
         }

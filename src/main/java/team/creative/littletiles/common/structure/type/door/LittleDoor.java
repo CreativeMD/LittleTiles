@@ -49,14 +49,14 @@ public abstract class LittleDoor extends LittleStructure {
     public boolean opened = false;
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         activateParent = nbt.getBoolean("activateParent");
         disableRightClick = nbt.getBoolean("disableRightClick");
         opened = nbt.getBoolean("opened");
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         nbt.putBoolean("activateParent", activateParent);
         nbt.putBoolean("disableRightClick", disableRightClick);
         nbt.putBoolean("opened", opened);

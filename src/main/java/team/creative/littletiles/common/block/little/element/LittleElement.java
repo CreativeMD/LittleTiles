@@ -24,6 +24,10 @@ public class LittleElement {
         return block;
     }
     
+    public boolean hasColor() {
+        return color != ColorUtils.WHITE;
+    }
+    
     @Override
     public int hashCode() {
         return block.hashCode() + color;

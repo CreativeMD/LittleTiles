@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
 
 public class GuiDirectionIndicator extends GuiIconButton {
     
-    private EnumFacing direction;
+    private Facing direction;
     
-    public GuiDirectionIndicator(String name, int x, int y, EnumFacing facing) {
-        super(name, x, y, 0);
+    public GuiDirectionIndicator(String name, Facing facing) {
+        super(name,);
         setDirection(facing);
     }
     

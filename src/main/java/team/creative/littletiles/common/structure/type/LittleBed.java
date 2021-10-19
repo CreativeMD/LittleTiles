@@ -5,13 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -36,16 +32,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
-import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer;
@@ -78,14 +73,10 @@ public class LittleBed extends LittleStructure {
     public boolean hasBeenActivated;
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
-        
-    }
+    protected void loadExtra(CompoundTag nbt) {}
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
-        
-    }
+    protected void saveExtra(CompoundTag nbt) {}
     
     @Override
     protected Object failedLoadingRelative(CompoundTag nbt, StructureDirectionalField field) {
@@ -314,25 +305,21 @@ public class LittleBed extends LittleStructure {
         
         public LittleBedParser(GuiParent parent, AnimationGuiHandler handler) {
             super(parent, handler);
-        }
-        
-        @SideOnly(Side.CLIENT)
-        @CustomEventSubscribe
-        public void buttonClicked(GuiControlClickEvent event) {
-            GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
-            GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
-            
-            EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
-            
-            LittleSlidingDoorParser.updateDirection(viewer, direction.getOpposite(), relativeDirection);
+            parent.registerEventClick(x -> {
+                GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
+                GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
+                
+                EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
+                
+                LittleSlidingDoorParser.updateDirection(viewer, direction.getOpposite(), relativeDirection);
+            });
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public void createControls(LittlePreviews previews, LittleStructure structure) {
-            GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, previews.getContext());
-            tile.setViewDirection(EnumFacing.UP);
-            parent.addControl(tile);
+        public void createControls(LittleGroup previews, LittleStructure structure) {
+            GuiTileViewer tile = new GuiTileViewer("tileviewer", previews.getGrid());
+            tile.setViewDirection(Facing.UP);
+            parent.add(tile);
             
             LittleVec size = previews.getSize();
             int index = EnumFacing.EAST.getHorizontalIndex();
@@ -342,24 +329,22 @@ public class LittleBed extends LittleStructure {
                 index = ((LittleBed) structure).direction.getHorizontalIndex();
             if (index < 0)
                 index = 0;
-            parent.addControl(new GuiStateButton("direction", index, 110, 0, 37, RotationUtils.getHorizontalFacingNames()));
+            parent.add(new GuiStateButton("direction", index, RotationUtils.getHorizontalFacingNames()));
             
-            GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 0, EnumFacing.UP);
-            parent.addControl(relativeDirection);
-            LittleSlidingDoorParser.updateDirection(tile, EnumFacing.getHorizontal(index).getOpposite(), relativeDirection);
+            GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", Facing.UP);
+            parent.add(relativeDirection);
+            LittleSlidingDoorParser.updateDirection(tile, Facing.getHorizontal(index).getOpposite(), relativeDirection);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public LittleBed parseStructure(LittlePreviews previews) {
-            EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
+        public LittleBed parseStructure(LittleGroup previews) {
+            Facing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
             LittleBed bed = createStructure(LittleBed.class, null);
             bed.direction = direction;
             return bed;
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
         protected LittleStructureType getStructureType() {
             return LittleStructureRegistry.getStructureType(LittleBed.class);
         }

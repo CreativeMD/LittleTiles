@@ -1,10 +1,5 @@
 package team.creative.littletiles.common.structure.type;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
@@ -13,12 +8,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -40,13 +35,13 @@ public class LittleLight extends LittleStructure {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         level = nbt.getInt("level");
         disableRightClick = nbt.getBoolean("disableRightClick");
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         nbt.putInt("level", level);
         nbt.putBoolean("disableRightClick", disableRightClick);
     }
@@ -96,16 +91,13 @@ public class LittleLight extends LittleStructure {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public void createControls(LittlePreviews previews, LittleStructure structure) {
-            parent.addControl(new GuiSteppedSlider("level", 0, 0, 100, 12, structure instanceof LittleLight ? ((LittleLight) structure).level : 15, 0, 15));
-            parent.addControl(new GuiCheckBox("rightclick", CoreControl
-                    .translate("gui.door.rightclick"), 0, 20, structure instanceof LittleLight ? !((LittleLight) structure).disableRightClick : true));
+        public void createControls(LittleGroup previews, LittleStructure structure) {
+            parent.add(new GuiSteppedSlider("level", structure instanceof LittleLight ? ((LittleLight) structure).level : 15, 0, 15));
+            parent.add(new GuiCheckBox("rightclick", structure instanceof LittleLight ? !((LittleLight) structure).disableRightClick : true).setTranslate("gui.door.rightclick"));
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public LittleLight parseStructure(LittlePreviews previews) {
+        public LittleLight parseStructure(LittleGroup previews) {
             LittleLight structure = createStructure(LittleLight.class, null);
             GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("level");
             GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
@@ -115,7 +107,6 @@ public class LittleLight extends LittleStructure {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
         protected LittleStructureType getStructureType() {
             return LittleStructureRegistry.getStructureType(LittleLight.class);
         }

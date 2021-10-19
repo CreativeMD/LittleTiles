@@ -20,14 +20,10 @@ public class LittleWorkbench extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
-        
-    }
+    protected void loadExtra(CompoundTag nbt) {}
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
-        
-    }
+    protected void saveExtra(CompoundTag nbt) {}
     
     @Override
     public boolean canInteract() {

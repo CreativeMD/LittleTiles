@@ -3,11 +3,9 @@ package team.creative.littletiles.common.structure.type.door;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.GuiTimeline;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.GuiTimeline.KeyDeselectedEvent;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.GuiTimeline.KeySelectedEvent;
@@ -15,18 +13,8 @@ import com.creativemd.creativecore.common.gui.controls.gui.timeline.KeyControl;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.TimelineChannel;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.TimelineChannel.TimelineChannelDouble;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.TimelineChannel.TimelineChannelInteger;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiToolTipEvent;
-import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -34,9 +22,14 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.PairList;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.AnimationKey;
 import team.creative.littletiles.common.animation.AnimationState;
@@ -48,10 +41,15 @@ import team.creative.littletiles.common.gui.controls.GuiTileViewer;
 import team.creative.littletiles.common.gui.dialogs.SubGuiDialogAxis.GuiAxisButton;
 import team.creative.littletiles.common.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import team.creative.littletiles.common.gui.dialogs.SubGuiDoorSettings.GuiDoorSettingsButton;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
@@ -327,7 +325,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
             parent.controls.add(new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
             
             parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 93, 50, 10, previews
-                .getContext(), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
+                    .getContext(), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
             
             boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
             boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
@@ -336,9 +334,9 @@ public class LittleAdvancedDoor extends LittleDoorBase {
             parent.controls.add(new GuiDoorSettingsButton("settings", 0, 110, stayAnimated, disableRightClick, noClip, playPlaceSounds));
             parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
             parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 10, 149, 121, 40, 8)
-                .setNumbersOnly());
+                    .setNumbersOnly());
             parent.controls
-                .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
+                    .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
             parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
             updateTimeline();
         }

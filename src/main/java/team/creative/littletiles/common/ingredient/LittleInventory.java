@@ -9,8 +9,11 @@ import javax.annotation.Nullable;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import team.creative.creativecore.common.util.mc.InventoryUtils;
+import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientSupplier;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
@@ -60,8 +63,11 @@ public class LittleInventory implements Iterable<ItemStack> {
                     inventories.add(ingredient);
                     inventoriesId.add(i);
                 }
-            } else if (!onlyIngredientInventories && stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
-                subInventories.add(new LittleInventory(player, stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null)));
+            } else if (!onlyIngredientInventories) {
+                LazyOptional<IItemHandler> optional = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+                if (optional.isPresent())
+                    subInventories.add(new LittleInventory(player, optional.orElse(null)));
+            }
         }
     }
     

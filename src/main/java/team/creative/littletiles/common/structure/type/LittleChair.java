@@ -2,10 +2,6 @@ package team.creative.littletiles.common.structure.type;
 
 import java.util.UUID;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
@@ -14,13 +10,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -43,7 +39,7 @@ public class LittleChair extends LittleStructure {
     }
     
     @Override
-    protected void loadFromNBTExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         if (nbt.contains("sit"))
             sitUUID = UUID.fromString(nbt.getString("sit"));
         else
@@ -51,7 +47,7 @@ public class LittleChair extends LittleStructure {
     }
     
     @Override
-    protected void writeToNBTExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         if (sitUUID != null)
             nbt.putString("sit", sitUUID.toString());
         else
@@ -122,19 +118,14 @@ public class LittleChair extends LittleStructure {
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public void createControls(LittlePreviews previews, LittleStructure structure) {
-            
-        }
+        public void createControls(LittleGroup previews, LittleStructure structure) {}
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public LittleStructure parseStructure(LittlePreviews previews) {
+        public LittleStructure parseStructure(LittleGroup previews) {
             return createStructure(LittleChair.class, null);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
         protected LittleStructureType getStructureType() {
             return LittleStructureRegistry.getStructureType(LittleChair.class);
         }

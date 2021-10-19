@@ -21,8 +21,13 @@ import net.minecraft.world.item.context.DirectionalPlaceContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -67,6 +72,7 @@ import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public abstract class LittleAction extends CreativePacket {
     
@@ -122,7 +128,7 @@ public abstract class LittleAction extends CreativePacket {
                 if (be instanceof BETiles)
                     for (LittleTile tile : previews)
                         for (LittleBox box : tile)
-                            if (!((BETiles) be).isSpaceForLittleTile(box))
+                            if (!((BETiles) be).isSpaceFor(box))
                                 return false;
             }
             return true;
@@ -209,7 +215,7 @@ public abstract class LittleAction extends CreativePacket {
     public static void sendBlockResetToClient(Level level, Player player, BlockPos pos) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (world instanceof CreativeLevel && ((CreativeLevel) world).parent == null)
+        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
         TileEntity te = world.getTileEntity(pos);
         if (te != null)
@@ -248,9 +254,9 @@ public abstract class LittleAction extends CreativePacket {
         if (!(player instanceof ServerPlayer))
             return;
         try {
-            if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+            if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
                 return;
-            sendBlockResetToClient(world, player, structure.blocks());
+            sendBlockResetToClient(level, player, structure.blocks());
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             e.printStackTrace();
         }
@@ -267,11 +273,12 @@ public abstract class LittleAction extends CreativePacket {
         if (player == null || player.level.isClientSide)
             return true;
         
-        if (player.isSpectator() || (!rightClick && (PlayerUtils.getGameType(player) == GameType.ADVENTURE || !player.isAllowEdit())))
+        if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.isAllowEdit())))
             return false;
         
         if (WorldEditEvent != null) {
-            PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, facing, new Vec3(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3(pos));
+            PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, new BlockHitResult(Vec3
+                    .atBottomCenterOf(pos), facing.toVanilla(), pos, true)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing.toVanilla());
             try {
                 if (worldEditInstance == null)
                     loadWorldEditEvent();
@@ -296,28 +303,19 @@ public abstract class LittleAction extends CreativePacket {
         return true;
     }
     
-    public static double getVolume(LittleGrid context, List<PlacePreview> tiles) {
-        double volume = 0;
-        for (PlacePreview preview : tiles)
-            volume += preview.box.getPercentVolume(context);
-        return volume;
-    }
-    
     public static boolean needIngredients(Player player) {
         return !player.isCreative();
     }
     
     public static LittleIngredients getIngredients(IParentCollection parent, LittleTile tile) {
-        LittlePreviews previews = new LittlePreviews(parent.getContext());
-        previews.addTile(parent, tile);
-        return getIngredients(previews);
+        return LittleIngredient.extract(tile, tile.getPercentVolume(parent.getGrid()));
     }
     
     public static LittleIngredients getIngredients(IParentCollection parent, List<LittleTile> tiles) {
-        LittlePreviews previews = new LittlePreviews(parent.getContext());
+        LittleIngredients ingredients = new LittleIngredients();
         for (LittleTile tile : tiles)
-            previews.addTile(parent, tile);
-        return getIngredients(previews);
+            ingredients.add(LittleIngredient.extract(tile, tile.getPercentVolume(parent.getGrid())));
+        return ingredients;
     }
     
     public static LittleIngredients getIngredients(LittleGroup previews) {
@@ -412,11 +410,8 @@ public abstract class LittleAction extends CreativePacket {
     
     public static boolean giveOrDrop(Player player, LittleInventory inventory, ParentCollection parent, List<LittleTile> tiles) {
         if (needIngredients(player) && !tiles.isEmpty()) {
-            LittlePreviews previews = new LittlePreviews(parent.getContext());
-            for (LittleTile tile : tiles)
-                previews.addTile(parent, tile);
             try {
-                checkAndGive(player, inventory, getIngredients(previews));
+                checkAndGive(player, inventory, getIngredients(parent, tiles));
             } catch (NotEnoughIngredientsException e) {
                 e.printStackTrace();
             }
@@ -426,8 +421,8 @@ public abstract class LittleAction extends CreativePacket {
     
     public static List<ItemStack> getInventories(Player player) {
         List<ItemStack> inventories = new ArrayList<>();
-        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-            ItemStack stack = player.inventory.getStackInSlot(i);
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
             if (stack.getItem() instanceof ILittleIngredientInventory)
                 inventories.add(stack);
         }
@@ -438,12 +433,10 @@ public abstract class LittleAction extends CreativePacket {
         Block block = state.getBlock();
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
             return true;
-        if (ColoredLightsManager.isBlockFromColoredBlocks(block))
-            return true;
-        if (block.hasTileEntity(state) || block instanceof BlockSlab)
+        if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
         return state.isNormalCube() || state.isFullCube() || state
-                .isFullBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
+                .isFullBlock() || block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof BlockBreakable;
     }
     
 }

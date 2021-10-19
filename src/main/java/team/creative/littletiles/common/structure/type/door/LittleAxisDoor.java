@@ -5,28 +5,14 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
-import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -34,13 +20,20 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.AnimationKey;
 import team.creative.littletiles.common.animation.AnimationState;
@@ -48,24 +41,31 @@ import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.ValueTimeline;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelativeAxis;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.directional.StructureDirectional;
+import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public class LittleAxisDoor extends LittleDoorBase {
     
-    public LittleAxisDoor(LittleStructureType type, IStructureTileList mainBlock) {
+    public LittleAxisDoor(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
     @Override
-    protected void loadFromNBTExtra(NBTTagCompound nbt) {
-        super.loadFromNBTExtra(nbt);
+    protected void loadExtra(CompoundTag nbt) {
+        super.loadExtra(nbt);
         
         if (nbt.hasKey("ndirection"))
             doorRotation = new DirectionRotation();
@@ -91,14 +91,14 @@ public class LittleAxisDoor extends LittleDoorBase {
                 doubledRelativeAxis = new LittleRelativeDoubledAxis("avec", nbt);
             }
             return new StructureRelative(StructureAbsolute.convertAxisToBox(doubledRelativeAxis.getNonDoubledVec(), doubledRelativeAxis.additional), doubledRelativeAxis
-                .getContext());
+                    .getContext());
         } else
             return super.failedLoadingRelative(nbt, relative);
     }
     
     @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
-        super.writeToNBTExtra(nbt);
+    protected void saveExtra(NBTTagCompound nbt) {
+        super.saveExtra(nbt);
         doorRotation.writeToNBT(nbt);
     }
     
@@ -350,7 +350,7 @@ public class LittleAxisDoor extends LittleDoorBase {
             parent.controls.add(new GuiCheckBox("even", 147, 55, even));
             
             GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(axisContext + ""), 170, 75, 20, 12, LittleGridContext.getNames()
-                .toArray(new String[0]));
+                    .toArray(new String[0]));
             parent.controls.add(contextBox);
             
             doorRotation.onSelected(viewer, typePanel);
@@ -548,14 +548,14 @@ public class LittleAxisDoor extends LittleDoorBase {
         protected DoorController createController(UUIDSupplier supplier, LittleAxisDoor door, int completeDuration, int interpolation) {
             Rotation rotation = getRotation(null, door);
             return new DoorController(supplier, new AnimationState(), new AnimationState()
-                .set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
+                    .set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
         }
         
         @Override
         @SideOnly(Side.CLIENT)
         protected void onSelected(GuiTileViewer viewer, GuiParent parent) {
             parent.addControl(new GuiStateButton("direction", clockwise ? 0 : 1, 0, 0, 70, GuiControl.translate("gui.door.axis.clockwise"), GuiControl
-                .translate("gui.door.axis.counterclockwise")));
+                    .translate("gui.door.axis.counterclockwise")));
         }
         
         @Override
@@ -610,7 +610,7 @@ public class LittleAxisDoor extends LittleDoorBase {
         @Override
         protected DoorController createController(UUIDSupplier supplier, LittleAxisDoor door, int completeDuration, int interpolation) {
             return new DoorController(supplier, new AnimationState()
-                .set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
+                    .set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
         }
         
         @Override
@@ -662,7 +662,8 @@ public class LittleAxisDoor extends LittleDoorBase {
         @Override
         protected PlacePreview getPlacePreview(Object value, StructureDirectionalField type, LittlePreviews previews) {
             if (type.key.equals("axisCenter"))
-                return new LittlePlaceBoxRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, Axis.values()[previews.structureNBT.getInteger("axis")]);
+                return new LittlePlaceBoxRelativeAxis(((StructureRelative) value)
+                        .getBox(), (StructureRelative) value, type, Axis.values()[previews.structureNBT.getInteger("axis")]);
             return super.getPlacePreview(value, type, previews);
         }
         

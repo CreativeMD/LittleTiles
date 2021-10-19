@@ -1,31 +1,30 @@
 package team.creative.littletiles.server.level;
 
-import com.creativemd.creativecore.common.world.CreativeWorld;
-
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {
     
-    public LittleAnimationHandlerServer(World world) {
-        super(world);
+    public LittleAnimationHandlerServer(Level level) {
+        super(level);
     }
     
     public void tick(WorldTickEvent event) {
-        if (event.phase == Phase.END && world == event.world) {
+        if (event.phase == Phase.END && level == event.world) {
             for (EntityAnimation door : openDoors) {
                 
-                if (door.world != world || door.world instanceof CreativeWorld)
+                if (door.level != level || door.level instanceof CreativeLevel)
                     continue;
                 
                 door.onUpdateForReal();
             }
             
             openDoors.removeIf((x) -> {
-                if (x.isDead) {
+                if (x.isRemoved()) {
                     x.markRemoved();
                     return true;
                 }

@@ -1,17 +1,15 @@
 package team.creative.littletiles.common.packet;
 
-import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
-
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.location.StructureLocation;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 
-public class LittleUpdateOutputPacket extends CreativeCorePacket {
+public class LittleUpdateOutputPacket extends CreativePacket {
     
     public StructureLocation location;
     public int index;
@@ -28,27 +26,9 @@ public class LittleUpdateOutputPacket extends CreativeCorePacket {
     }
     
     @Override
-    public void writeBytes(ByteBuf buf) {
-        LittleAction.writeStructureLocation(location, buf);
-        buf.writeInt(index);
-        buf.writeInt(state.length);
-        for (int i = 0; i < state.length; i++)
-            buf.writeBoolean(state[i]);
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        location = LittleAction.readStructureLocation(buf);
-        index = buf.readInt();
-        state = new boolean[buf.readInt()];
-        for (int i = 0; i < state.length; i++)
-            state[i] = buf.readBoolean();
-    }
-    
-    @Override
-    public void executeClient(EntityPlayer player) {
+    public void executeClient(Player player) {
         try {
-            LittleStructure structure = location.find(player.world);
+            LittleStructure structure = location.find(player.level);
             InternalSignalOutput output = structure.getOutput(index);
             BooleanUtils.set(output.getState(), state);
             structure.receiveInternalOutputChange(output);
@@ -56,7 +36,7 @@ public class LittleUpdateOutputPacket extends CreativeCorePacket {
     }
     
     @Override
-    public void executeServer(EntityPlayer player) {
+    public void executeServer(ServerPlayer player) {
         
     }
     

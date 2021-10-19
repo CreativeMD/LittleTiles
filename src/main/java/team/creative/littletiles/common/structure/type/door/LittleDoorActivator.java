@@ -7,34 +7,33 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.util.type.PairList;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.AnimationTimeline;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.LittleStructureType;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 
 public class LittleDoorActivator extends LittleDoor {
@@ -43,20 +42,20 @@ public class LittleDoorActivator extends LittleDoor {
     
     public boolean inMotion = false;
     
-    public LittleDoorActivator(LittleStructureType type, IStructureTileList mainBlock) {
+    public LittleDoorActivator(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
     @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
-        super.writeToNBTExtra(nbt);
-        nbt.setIntArray("activate", toActivate);
-        nbt.setBoolean("inMotion", inMotion);
+    protected void saveExtra(CompoundTag nbt) {
+        super.saveExtra(nbt);
+        nbt.putIntArray("activate", toActivate);
+        nbt.putBoolean("inMotion", inMotion);
     }
     
     @Override
-    protected void loadFromNBTExtra(NBTTagCompound nbt) {
-        super.loadFromNBTExtra(nbt);
+    protected void loadExtra(CompoundTag nbt) {
+        super.loadExtra(nbt);
         toActivate = nbt.getIntArray("activate");
         inMotion = nbt.getBoolean("inMotion");
     }
@@ -161,7 +160,7 @@ public class LittleDoorActivator extends LittleDoor {
         @Override
         public void createControls(LittlePreviews previews, LittleStructure structure) {
             parent.controls.add(new GuiCheckBox("rightclick", CoreControl
-                .translate("gui.door.rightclick"), 50, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
+                    .translate("gui.door.rightclick"), 50, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
             
             GuiScrollBox box = new GuiScrollBox("content", 0, 0, 100, 115);
             parent.controls.add(box);
