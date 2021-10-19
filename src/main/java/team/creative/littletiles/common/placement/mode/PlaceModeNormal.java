@@ -8,9 +8,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlaceModeNormal extends PlacementMode {
@@ -34,18 +33,33 @@ public class PlaceModeNormal extends PlacementMode {
     }
     
     @Override
-    public void placeTile(Placement placement, PlacementBlock block, IParentCollection parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) throws LittleActionException {
-        List<LittleTile> tiles = new ArrayList<>();
-        Pair<IParentCollection, LittleTile> intersecting = null;
-        if (!requiresCollisionTest || (intersecting = block.getTe().intersectingTile(tile.getBox())) == null)
-            tiles.add(tile);
-        else if (this instanceof PlaceModeAll) {
-            if (intersecting.key == parent)
-                System.out.println("Structure is not valid ... some tiles will be left out");
-            else
-                throw new LittleActionException("Could not place all tiles");
-        } else
-            placement.unplaceableTiles.addTile(parent, tile);
-        return tiles;
+    public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
+        if (!context.collisionTest) {
+            context.placeTile(tile);
+            return true;
+        }
+        
+        List<LittleBox> boxes = new ArrayList<>(tile.size());
+        boolean isSpace = true;
+        for (LittleBox box : tile) {
+            if (context.isSpaceFor(box))
+                boxes.add(box);
+            else {
+                context.addUnplaceable(tile, box);
+                isSpace = false;
+            }
+        }
+        
+        if (isSpace) {
+            context.placeTile(tile);
+            return true;
+        } else if (this instanceof PlaceModeAll)
+            throw new LittleActionException("Could not place all tiles");
+        else if (!boxes.isEmpty()) {
+            context.placeTile(tile.copy(boxes));
+            return true;
+        }
+        
+        return false;
     }
 }

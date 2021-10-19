@@ -354,7 +354,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return null;
     }
     
-    public boolean isSpaceForLittleTile(LittleBox box, BiPredicate<IParentCollection, LittleTile> predicate) {
+    public boolean isSpaceFor(LittleBox box, BiPredicate<IParentCollection, LittleTile> predicate) {
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             if (predicate != null && !predicate.test(pair.key, pair.value))
                 continue;
@@ -365,7 +365,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return true;
     }
     
-    public boolean isSpaceForLittleTile(LittleBox box, Predicate<LittleTile> predicate) {
+    public boolean isSpaceFor(LittleBox box, Predicate<LittleTile> predicate) {
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             if (predicate != null && !predicate.test(pair.value))
                 continue;
@@ -376,8 +376,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return true;
     }
     
-    public boolean isSpaceForLittleTile(LittleBox box) {
-        return isSpaceForLittleTile(box, (Predicate<LittleTile>) null);
+    public boolean isSpaceFor(LittleBox box) {
+        return isSpaceFor(box, (Predicate<LittleTile>) null);
     }
     
     @Override
@@ -533,7 +533,6 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public boolean combineTilesSecretly() {
-        
         boolean changed = tiles.combine();
         convertToSmallest();
         return changed;

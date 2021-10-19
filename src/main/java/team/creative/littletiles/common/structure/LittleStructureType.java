@@ -142,7 +142,7 @@ public class LittleStructureType {
             group.convertTo(grid);
     }
     
-    public List<LittlePlaceBox> getSpecialTiles(LittleGroup group) {
+    public List<LittlePlaceBox> getSpecialBoxes(LittleGroup group) {
         if (directional.isEmpty())
             return new ArrayList<>();
         

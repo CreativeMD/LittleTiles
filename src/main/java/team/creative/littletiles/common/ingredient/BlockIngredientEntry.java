@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.ingredient;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.littletiles.common.api.block.LittleBlock;
@@ -45,10 +45,9 @@ public class BlockIngredientEntry {
         return new BlockIngredientEntry(this.block, value);
     }
     
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-        nbt.setString("block", block.getRegistryName().toString());
-        nbt.setInteger("meta", meta);
-        nbt.setDouble("volume", value);
+    public CompoundTag save(CompoundTag nbt) {
+        nbt.putString("block", block.blockName());
+        nbt.putDouble("volume", value);
         return nbt;
     }
     

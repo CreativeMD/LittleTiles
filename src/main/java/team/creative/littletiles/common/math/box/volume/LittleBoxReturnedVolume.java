@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.math.box.volume;
 
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 
@@ -40,8 +39,8 @@ public class LittleBoxReturnedVolume {
         return volume / (double) context.count3d;
     }
     
-    public LittleTile createFakeTile(LittleTile tile) {
-        return new LittleTile(tile.getBlock(), tile.color, new LittleBox(0, 0, 0, volume, 1, 1));
+    public void clear() {
+        volume = 0;
     }
     
 }

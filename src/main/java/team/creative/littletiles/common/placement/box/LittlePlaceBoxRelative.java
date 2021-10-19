@@ -8,7 +8,6 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
@@ -33,9 +32,9 @@ public class LittlePlaceBoxRelative extends LittlePlaceBox {
     }
     
     @Override
-    public void place(Placement placement, PlacementBlock block, LittleStructure structure) throws LittleActionException {
-        relative.setBox(BlockPos.ZERO, box.copy(), block.getGrid());
-        relative.add(block.pos.subtract(structure.getPos()));
+    public void place(Placement placement, LittleGrid grid, BlockPos pos, LittleStructure structure) throws LittleActionException {
+        relative.setBox(BlockPos.ZERO, box.copy(), grid);
+        relative.add(pos.subtract(structure.getPos()));
         relativeType.set(structure, relative);
     }
     

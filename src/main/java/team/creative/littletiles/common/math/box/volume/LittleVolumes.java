@@ -1,5 +1,8 @@
 package team.creative.littletiles.common.math.box.volume;
 
+import java.util.Map.Entry;
+import java.util.Set;
+
 import team.creative.creativecore.common.util.type.HashMapInteger;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -16,6 +19,10 @@ public class LittleVolumes implements IGridBased {
         this.grid = grid;
     }
     
+    public LittleVolumes() {
+        this.grid = LittleGrid.min();
+    }
+    
     @Override
     public LittleGrid getGrid() {
         return grid;
@@ -25,6 +32,15 @@ public class LittleVolumes implements IGridBased {
     public void convertTo(LittleGrid grid) {
         int ratio = grid.count / this.grid.count;
         volumes.scale(ratio);
+    }
+    
+    public void clear() {
+        this.grid = LittleGrid.min();
+        volumes.clear();
+    }
+    
+    public Set<Entry<LittleElement, Integer>> entrySet() {
+        return volumes.entrySet();
     }
     
     public void add(LittleVolumes volumes) {
@@ -37,13 +53,21 @@ public class LittleVolumes implements IGridBased {
             addDirectly(group.getGrid(), tile);
     }
     
+    public void add(LittleGrid grid, LittleElement element, int volume) {
+        minGrid(grid);
+        addDirectly(grid, element, volume);
+    }
+    
     public void add(LittleGrid grid, LittleTile tile) {
         minGrid(grid);
         addDirectly(grid, tile);
     }
     
     private void addDirectly(LittleGrid grid, LittleTile tile) {
-        int volume = tile.getVolume();
+        add(grid, tile, tile.getVolume());
+    }
+    
+    private void addDirectly(LittleGrid grid, LittleElement tile, int volume) {
         if (grid.count < this.grid.count)
             volume *= this.grid.count / grid.count;
         
@@ -95,6 +119,10 @@ public class LittleVolumes implements IGridBased {
             return result;
         }
         return false;
+    }
+    
+    public boolean isEmpty() {
+        return volumes.isEmpty();
     }
     
 }

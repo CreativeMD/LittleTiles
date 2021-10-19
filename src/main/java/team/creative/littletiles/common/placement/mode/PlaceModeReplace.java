@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Set;
 
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlaceModeReplace extends PlacementMode {
@@ -35,17 +35,24 @@ public class PlaceModeReplace extends PlacementMode {
     }
     
     @Override
-    public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
-        if (!requiresCollisionTest)
-            return new ArrayList<>();
-        List<LittleTile> tiles = new ArrayList<>();
-        for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false)) {
-            LittleTile newTile = tile.copy();
-            newTile.setBox(lt.getBox());
-            tiles.add(newTile);
-            placement.removedTiles.addTile(parent, lt);
-        }
-        return tiles;
+    public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
+        if (!context.collisionTest)
+            return false;
+        
+        List<LittleBox> boxes = new ArrayList<>();
+        for (LittleBox box : tile)
+            for (LittleTile lt : LittleActionDestroyBoxes.removeBox(context.getBE(), context.block.getGrid(), box, false)) {
+                for (LittleBox newBox : lt) {
+                    boxes.add(newBox);
+                    
+                }
+                context.addRemoved(lt);
+            }
+        
+        if (boxes.isEmpty())
+            return false;
+        context.placeTile(tile.copy(boxes));
+        return true;
     }
     
 }

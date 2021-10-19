@@ -3,6 +3,7 @@ package team.creative.littletiles.common.placement.box;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTiles;
@@ -11,7 +12,6 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class LittlePlaceBoxFacing extends LittlePlaceBox {
@@ -44,6 +44,6 @@ public class LittlePlaceBoxFacing extends LittlePlaceBox {
     }
     
     @Override
-    public void place(Placement placement, PlacementBlock block, LittleStructure structure) throws LittleActionException {}
+    public void place(Placement placement, LittleGrid grid, BlockPos pos, LittleStructure structure) throws LittleActionException {}
     
 }

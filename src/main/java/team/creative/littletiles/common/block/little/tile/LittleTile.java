@@ -51,6 +51,15 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     private List<LittleBox> boxes;
     
+    public LittleTile(LittleElement element, Iterable<LittleBox> boxes) {
+        this(element.getBlock(), element.color, boxes);
+    }
+    
+    public LittleTile(LittleElement element, LittleBox box) {
+        super(element.getBlock(), element.color);
+        this.boxes = new SingletonList<>(box);
+    }
+    
     public LittleTile(LittleBlock block, int color, LittleBox box) {
         super(block, color);
         this.boxes = new SingletonList<>(box);
@@ -118,6 +127,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             parent.remove(this);
     }
     
+    public void move(LittleVec vec) {
+        for (LittleBox box : boxes)
+            box.add(vec);
+    }
+    
     @Override
     public Iterator<LittleBox> iterator() {
         return boxes.iterator();
@@ -147,6 +161,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         }
     }
     
+    public void split(HashMapList<BlockPos, LittleBox> boxes, BlockPos pos, LittleGrid grid, LittleVec offset, LittleBoxReturnedVolume volume) {
+        for (LittleBox box : boxes)
+            box.split(grid, pos, offset, boxes, volume);
+    }
+    
     public CompoundTag write(CompoundTag nbt) {
         ListTag list = new ListTag();
         for (LittleBox box : boxes)
@@ -166,6 +185,14 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         for (LittleBox box : this.boxes)
             boxes.add(box.copy());
         return new LittleTile(block, color, boxes);
+    }
+    
+    public LittleTile copy(List<LittleBox> boxes) {
+        return new LittleTile(block, color, boxes);
+    }
+    
+    public LittleTile copyEmpty() {
+        return new LittleTile(block, color, new ArrayList<>());
     }
     
     @Override

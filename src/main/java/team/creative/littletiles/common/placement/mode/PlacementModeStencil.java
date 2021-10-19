@@ -1,16 +1,15 @@
 package team.creative.littletiles.common.placement.mode;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeStencil extends PlacementMode {
@@ -35,11 +34,14 @@ public class PlacementModeStencil extends PlacementMode {
     }
     
     @Override
-    public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
-        if (!requiresCollisionTest)
-            return Collections.EMPTY_LIST;
-        for (LittleTile lt : LittleActionDestroyBoxes.removeBox(block.getTe(), block.getContext(), tile.getBox(), false))
-            placement.removedTiles.addTile(parent, lt);
-        return Collections.EMPTY_LIST;
+    public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
+        if (!context.collisionTest)
+            return false;
+        
+        for (LittleBox box : tile)
+            for (LittleTile lt : LittleActionDestroyBoxes.removeBox(context.getBE(), context.block.getGrid(), box, false))
+                context.addRemoved(lt);
+            
+        return false;
     }
 }

@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.grid;
 
+import team.creative.creativecore.common.util.type.RunnableReturn;
+
 public interface IGridBased {
     
     public LittleGrid getGrid();
@@ -26,6 +28,21 @@ public interface IGridBased {
         
         convertToSmallest();
         other.convertToSmallest();
+    }
+    
+    public default boolean sameGridReturn(IGridBased other, RunnableReturn runnable) {
+        if (getGrid() != other.getGrid()) {
+            if (getGrid().count > other.getGrid().count)
+                other.convertTo(getGrid());
+            else
+                convertTo(other.getGrid());
+        }
+        
+        boolean result = runnable.run();
+        
+        convertToSmallest();
+        other.convertToSmallest();
+        return result;
     }
     
     public void convertTo(LittleGrid to);

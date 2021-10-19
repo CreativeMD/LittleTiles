@@ -36,4 +36,8 @@ public class LittleElement {
         return super.equals(obj);
     }
     
+    public boolean is(LittleElement element) {
+        return element.block == block && element.color == color;
+    }
+    
 }

@@ -10,9 +10,7 @@ import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
+import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public abstract class PlacementMode {
@@ -87,7 +85,7 @@ public abstract class PlacementMode {
     
     public abstract List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos);
     
-    public abstract void placeTile(Placement placement, PlacementBlock block, IParentCollection parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) throws LittleActionException;
+    public abstract boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException;
     
     @OnlyIn(Dist.CLIENT)
     public PlacementMode place() {
@@ -106,7 +104,7 @@ public abstract class PlacementMode {
         return false;
     }
     
-    public void prepareBlock(Placement placement, PlacementBlock block, boolean requiresCollisionTest) {}
+    public void prepareBlock(PlacementContext context) {}
     
     public static enum PreviewMode {
         LINES,

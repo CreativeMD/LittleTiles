@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -22,6 +23,26 @@ public class LittleCollection implements Iterable<LittleTile> {
     
     public LittleCollection() {
         
+    }
+    
+    public void add(LittleElement element, Iterable<LittleBox> boxes) {
+        for (LittleTile other : this)
+            if (other.is(element)) {
+                other.add(boxes);
+                return;
+            }
+        
+        content.add(new LittleTile(element, boxes));
+    }
+    
+    public void add(LittleElement element, LittleBox box) {
+        for (LittleTile other : this)
+            if (other.is(element)) {
+                other.add(box);
+                return;
+            }
+        
+        content.add(new LittleTile(element, box));
     }
     
     public void add(LittleTile tile) {

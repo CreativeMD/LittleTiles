@@ -421,7 +421,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     // ================Save and loading================
     
-    public void loadFromNBT(CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         blocks.clear();
         
         // LoadTiles
@@ -478,7 +478,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 }
             }
         }
-        loadFromNBTExtra(nbt);
+        loadExtra(nbt);
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
                 inputs[i].load(nbt);
@@ -491,9 +491,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return field.getDefault();
     }
     
-    protected abstract void loadFromNBTExtra(CompoundTag nbt);
+    protected abstract void loadExtra(CompoundTag nbt);
     
-    public CompoundTag writeToNBTPreview(CompoundTag nbt, BlockPos newCenter) {
+    public CompoundTag savePreview(CompoundTag nbt, BlockPos newCenter) {
         LittleVecGrid vec = new LittleVecGrid(new LittleVec(mainBlock.getGrid(), getPos().subtract(newCenter)), mainBlock.getGrid());
         
         LittleVecGrid inverted = vec.copy();
@@ -506,11 +506,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             field.move(value, inverted);
         }
         
-        writeToNBTExtraInternal(nbt, true);
+        saveInternalExtra(nbt, true);
         return nbt;
     }
     
-    public void writeToNBT(CompoundTag nbt) {
+    public void save(CompoundTag nbt) {
         
         // Save family (parent and children)
         if (parent != null)
@@ -539,10 +539,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             field.save(nbt, value);
         }
         
-        writeToNBTExtraInternal(nbt, false);
+        saveInternalExtra(nbt, false);
     }
     
-    protected void writeToNBTExtraInternal(CompoundTag nbt, boolean preview) {
+    protected void saveInternalExtra(CompoundTag nbt, boolean preview) {
         nbt.putString("id", type.id);
         if (name != null)
             nbt.putString("name", name);
@@ -562,10 +562,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             for (int i = 0; i < outputs.length; i++)
                 nbt.put(outputs[i].component.identifier, outputs[i].write(preview, new CompoundTag()));
             
-        writeToNBTExtra(nbt);
+        saveExtra(nbt);
     }
     
-    protected abstract void writeToNBTExtra(CompoundTag nbt);
+    protected abstract void saveExtra(CompoundTag nbt);
     
     public void unload() {}
     

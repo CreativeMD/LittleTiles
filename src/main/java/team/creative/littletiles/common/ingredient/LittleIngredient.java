@@ -19,8 +19,8 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
@@ -64,7 +64,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 extract(ingredients, child, onlyStructure);
     }
     
-    public static LittleIngredients extract(LittleTile tile, double volume) {
+    public static LittleIngredients extract(LittleElement tile, double volume) {
         LittleIngredients ingredients = new LittleIngredients();
         for (IngredientConvertionHandler handler : converationHandlers)
             ingredients.add(handler.extract(tile, volume));
@@ -167,7 +167,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public BlockIngredient extract(LittleTile tile, double volume) {
+            public BlockIngredient extract(LittleElement tile, double volume) {
                 BlockIngredient ingredient = new BlockIngredient();
                 BlockIngredientEntry entry = tile.getBlockIngredient(LittleGrid.overallDefault());
                 entry.value = volume;
@@ -243,7 +243,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public ColorIngredient extract(LittleTile tile, double volume) {
+            public ColorIngredient extract(LittleElement tile, double volume) {
                 ColorIngredient ingredient = new ColorIngredient();
                 ingredient.add(ColorIngredient.getColors(tile, volume));
                 return ingredient;
@@ -265,7 +265,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         }, new IngredientConvertionHandler<StackIngredient>() {
             
             @Override
-            public StackIngredient extract(LittleTile tile, double volume) {
+            public StackIngredient extract(LittleElement tile, double volume) {
                 return null;
             }
             
@@ -345,7 +345,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         
         public abstract T extract(LittleGroup group);
         
-        public abstract T extract(LittleTile tile, double volume);
+        public abstract T extract(LittleElement tile, double volume);
         
         public boolean requiresExtraHandler() {
             return false;

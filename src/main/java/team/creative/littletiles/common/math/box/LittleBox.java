@@ -326,36 +326,35 @@ public class LittleBox {
         return minX >= 0 && maxX <= context.count && minY >= 0 && maxY <= context.count && minZ >= 0 && maxZ <= context.count;
     }
     
-    public void split(LittleGrid context, BlockPos offset, HashMapList<BlockPos, LittleBox> boxes, @Nullable LittleBoxReturnedVolume volume) {
-        int minOffX = context.toBlockOffset(minX);
-        int minOffY = context.toBlockOffset(minY);
-        int minOffZ = context.toBlockOffset(minZ);
+    public void split(LittleGrid grid, BlockPos offset, LittleVec vec, HashMapList<BlockPos, LittleBox> boxes, @Nullable LittleBoxReturnedVolume volume) {
+        int minOffX = grid.toBlockOffset(minX + vec.x);
+        int minOffY = grid.toBlockOffset(minY + vec.y);
+        int minOffZ = grid.toBlockOffset(minZ + vec.z);
         
-        int maxOffX = context.toBlockOffset(maxX);
-        int maxOffY = context.toBlockOffset(maxY);
-        int maxOffZ = context.toBlockOffset(maxZ);
+        int maxOffX = grid.toBlockOffset(maxX + vec.x);
+        int maxOffY = grid.toBlockOffset(maxY + vec.y);
+        int maxOffZ = grid.toBlockOffset(maxZ + vec.z);
         
         for (int x = minOffX; x <= maxOffX; x++) {
             for (int y = minOffY; y <= maxOffY; y++) {
                 for (int z = minOffZ; z <= maxOffZ; z++) {
-                    int minX = Math.max(this.minX, x * context.count);
-                    int minY = Math.max(this.minY, y * context.count);
-                    int minZ = Math.max(this.minZ, z * context.count);
-                    int maxX = Math.min(this.maxX, x * context.count + context.count);
-                    int maxY = Math.min(this.maxY, y * context.count + context.count);
-                    int maxZ = Math.min(this.maxZ, z * context.count + context.count);
+                    int minX = Math.max(this.minX + vec.x, x * grid.count);
+                    int minY = Math.max(this.minY + vec.y, y * grid.count);
+                    int minZ = Math.max(this.minZ + vec.z, z * grid.count);
+                    int maxX = Math.min(this.maxX + vec.x, x * grid.count + grid.count);
+                    int maxY = Math.min(this.maxY + vec.y, y * grid.count + grid.count);
+                    int maxZ = Math.min(this.maxZ + vec.z, z * grid.count + grid.count);
                     
                     if (maxX > minX && maxY > minY && maxZ > minZ) {
                         
                         BlockPos pos = new BlockPos(x + offset.getX(), y + offset.getY(), z + offset.getZ());
-                        int offsetX = x * context.count;
-                        int offsetY = y * context.count;
-                        int offsetZ = z * context.count;
+                        int offsetX = x * grid.count;
+                        int offsetY = y * grid.count;
+                        int offsetZ = z * grid.count;
                         
-                        LittleBox box = extractBox(minX, minY, minZ, maxX, maxY, maxZ, volume);
+                        LittleBox box = extractBox(minX - vec.x, minY - vec.y, minZ - vec.z, maxX - vec.x, maxY - vec.y, maxZ - vec.z, volume);
                         if (box != null) {
-                            
-                            box.sub(offsetX, offsetY, offsetZ);
+                            box.sub(offsetX - vec.x, offsetY - vec.y, offsetZ - vec.z);
                             boxes.add(pos, box);
                         }
                     }

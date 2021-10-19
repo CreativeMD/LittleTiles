@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-
 import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
-import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
+import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlaceModeFill extends PlacementMode {
@@ -31,32 +29,28 @@ public class PlaceModeFill extends PlacementMode {
     }
     
     @Override
-    public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
-        List<LittleTile> tiles = new ArrayList<>();
-        if (!requiresCollisionTest) {
-            tiles.add(tile);
-            return tiles;
+    public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
+        if (!context.collisionTest) {
+            context.placeTile(tile);
+            return true;
         }
         
         List<LittleBox> cutout = new ArrayList<>();
+        List<LittleBox> boxes = new ArrayList();
         LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
-        List<LittleBox> boxes = block.getTe().cutOut(tile.getBox(), cutout, volume);
-        
-        for (LittleBox box : boxes) {
-            LittleTile newTile = tile.copy();
-            newTile.setBox(box);
-            tiles.add(newTile);
-        }
-        
-        for (LittleBox box : cutout) {
-            LittleTile newTile = tile.copy();
-            newTile.setBox(box);
-            placement.unplaceableTiles.addTile(parent, newTile);
-        }
-        
+        for (LittleBox tileBox : tile)
+            boxes.addAll(context.getBE().cutOut(tileBox, cutout, volume));
+        if (!cutout.isEmpty())
+            for (LittleBox box : boxes)
+                context.addUnplaceable(tile, box);
+            
         if (volume.has())
-            placement.unplaceableTiles.addTile(parent, volume.createFakeTile(tile));
+            context.placement.addRemovedIngredient(context.block, tile, volume);
         
-        return tiles;
+        if (boxes.isEmpty())
+            return false;
+        
+        context.placeTile(tile.copy(boxes));
+        return true;
     }
 }

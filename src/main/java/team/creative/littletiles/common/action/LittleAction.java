@@ -3,49 +3,33 @@ package team.creative.littletiles.common.action;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import com.creativemd.littletiles.common.action.BlockBreakable;
-import com.creativemd.littletiles.common.action.BlockGlass;
-import com.creativemd.littletiles.common.action.BlockSlab;
-import com.creativemd.littletiles.common.action.BlockStainedGlass;
-import com.creativemd.littletiles.common.action.CreativeWorld;
-import com.creativemd.littletiles.common.action.EntityPlayer;
-import com.creativemd.littletiles.common.action.EntityPlayerMP;
-import com.creativemd.littletiles.common.action.IBlockState;
-import com.creativemd.littletiles.common.action.IParentTileList;
-import com.creativemd.littletiles.common.action.LittleGridContext;
-import com.creativemd.littletiles.common.action.LittlePreview;
-import com.creativemd.littletiles.common.action.LittlePreviews;
-import com.creativemd.littletiles.common.action.NBTTagCompound;
-import com.creativemd.littletiles.common.action.SPacketBlockChange;
-import com.creativemd.littletiles.common.action.TileEntity;
-import com.creativemd.littletiles.common.action.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.action.World;
-import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.DirectionalPlaceContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -55,10 +39,19 @@ import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
@@ -66,17 +59,13 @@ import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
 import team.creative.littletiles.common.packet.update.LittleBlockUpdatePacket;
 import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
-import team.creative.littletiles.common.tile.LittleTile;
-import team.creative.littletiles.common.tile.group.LittleGroup;
-import team.creative.littletiles.common.tile.group.LittleGroupAbsolute;
-import team.creative.littletiles.common.tile.parent.IParentCollection;
-import team.creative.littletiles.common.tile.parent.ParentCollection;
 
 public abstract class LittleAction extends CreativePacket {
     
@@ -124,72 +113,70 @@ public abstract class LittleAction extends CreativePacket {
     }
     
     public static boolean canPlaceInside(LittleGroup previews, Level level, BlockPos pos, boolean placeInside) {
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
-        if (block.isReplaceable(world, pos) || block instanceof BlockTile) {
+        if (state.canBeReplaced(new DirectionalPlaceContext(level, pos, Direction.EAST, ItemStack.EMPTY, Direction.EAST)) || block instanceof BlockTile) {
             if (!placeInside) {
-                TileEntity te = world.getTileEntity(pos);
-                if (te instanceof TileEntityLittleTiles) {
-                    TileEntityLittleTiles teTiles = (TileEntityLittleTiles) te;
-                    for (LittlePreview preview : previews.allPreviews())
-                        if (!teTiles.isSpaceForLittleTile(preview.box))
-                            return false;
-                }
+                BlockEntity be = level.getBlockEntity(pos);
+                if (be instanceof BETiles)
+                    for (LittleTile tile : previews)
+                        for (LittleBox box : tile)
+                            if (!((BETiles) be).isSpaceForLittleTile(box))
+                                return false;
             }
             return true;
         }
         return false;
     }
     
-    public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, MutableInt affected, boolean shouldConvert, int attribute) throws LittleActionException {
-        TileEntity tileEntity = world.getTileEntity(pos);
+    public static BETiles loadBE(Player player, Level level, BlockPos pos, MutableInt affected, boolean shouldConvert, int attribute) throws LittleActionException {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         
-        if (!(tileEntity instanceof TileEntityLittleTiles)) {
+        if (!(blockEntity instanceof BETiles)) {
             List<LittleTile> tiles = new ArrayList<>();
-            List<LittleTile> chiselTiles = ChiselsAndBitsManager.getTiles(tileEntity);
-            LittleGridContext context = chiselTiles != null ? LittleGridContext.get(ChiselsAndBitsManager.convertingFrom) : LittleGridContext.get();
+            List<LittleTile> chiselTiles = ChiselsAndBitsManager.getTiles(blockEntity);
+            LittleGrid grid = chiselTiles != null ? LittleGrid.get(ChiselsAndBitsManager.convertingFrom) : LittleGrid.defaultGrid();
             if (chiselTiles != null)
                 tiles.addAll(chiselTiles);
-            else if (tileEntity == null && shouldConvert) {
-                IBlockState state = world.getBlockState(pos);
-                if (isBlockValid(state) && canConvertBlock(player, world, pos, state, affected == null ? 0 : affected.incrementAndGet())) {
+            else if (blockEntity == null && shouldConvert) {
+                BlockState state = level.getBlockState(pos);
+                if (isBlockValid(state) && canConvertBlock(player, level, pos, state, affected == null ? 0 : affected.incrementAndGet())) {
                     
-                    context = LittleGridContext.get(LittleGridContext.minSize);
+                    grid = LittleGrid.min();
                     
-                    LittleBox box = new LittleBox(0, 0, 0, context.maxPos, context.maxPos, context.maxPos);
+                    LittleBox box = new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
                     
-                    LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-                    tile.setBox(box);
+                    LittleTile tile = new LittleTile(LittleBlockRegistry.get(state.getBlock()), ColorUtils.WHITE, box);
                     tiles.add(tile);
                 } else if (state.getMaterial().isReplaceable()) {
-                    if (!world.setBlockState(pos, BlockTile.getState(attribute)))
+                    if (!level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3))
                         return null;
-                    tileEntity = world.getTileEntity(pos);
+                    blockEntity = level.getBlockEntity(pos);
                 }
             }
             
             if (tiles != null && !tiles.isEmpty()) {
-                world.setBlockState(pos, BlockTile.getState(attribute));
-                TileEntityLittleTiles te = (TileEntityLittleTiles) world.getTileEntity(pos);
-                te.convertTo(context);
+                level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3);
+                BETiles te = (BETiles) level.getBlockEntity(pos);
+                te.convertTo(grid);
                 te.updateTiles((x) -> x.noneStructureTiles().addAll(tiles));
                 te.convertToSmallest();
-                tileEntity = te;
+                blockEntity = te;
             }
         }
         
-        if (tileEntity instanceof TileEntityLittleTiles)
-            return (TileEntityLittleTiles) tileEntity;
+        if (blockEntity instanceof BETiles)
+            return (BETiles) blockEntity;
         return null;
     }
     
-    public static void fireBlockBreakEvent(World world, BlockPos pos, EntityPlayer player) throws AreaProtected {
-        if (world.isRemote)
+    public static void fireBlockBreakEvent(Level level, BlockPos pos, Player player) throws AreaProtected {
+        if (level.isClientSide)
             return;
-        BreakEvent event = new BreakEvent(world, pos, world.getBlockState(pos), player);
+        BreakEvent event = new BreakEvent(level, pos, level.getBlockState(pos), player);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
-            sendBlockResetToClient(world, player, pos);
+            sendBlockResetToClient(level, player, pos);
             throw new AreaProtected();
         }
     }
@@ -221,39 +208,39 @@ public abstract class LittleAction extends CreativePacket {
     public static void sendBlockResetToClient(Level level, Player player, BlockPos pos) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+        if (world instanceof CreativeLevel && ((CreativeLevel) world).parent == null)
             return;
         TileEntity te = world.getTileEntity(pos);
         if (te != null)
             sendBlockResetToClient(world, player, te);
         else {
-            if (world instanceof CreativeWorld)
+            if (world instanceof CreativeLevel)
                 PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, pos, null), (EntityPlayerMP) player);
             else
                 ((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(player.world, pos));
         }
     }
     
-    public static void sendBlockResetToClient(Level level, Player player, TileEntity te) {
+    public static void sendBlockResetToClient(Level level, Player player, BlockEntity be) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
-        if (world instanceof CreativeWorld)
-            PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, te.getPos(), te), (EntityPlayerMP) player);
+        if (level instanceof CreativeLevel)
+            PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(level, be.getBlockPos(), be), (ServerPlayer) player);
         else {
-            ((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(player.world, te.getPos()));
-            if (te != null)
-                ((EntityPlayerMP) player).connection.sendPacket(te.getUpdatePacket());
+            ((ServerPlayer) player).connection.sendPacket(new SPacketBlockChange(level, be.getBlockPos()));
+            if (be != null)
+                ((ServerPlayer) player).connection.sendPacket(be.getUpdatePacket());
         }
     }
     
-    public static void sendBlockResetToClient(Level level, Player player, Iterable<TileEntityLittleTiles> tileEntities) {
+    public static void sendBlockResetToClient(Level level, Player player, Iterable<BETiles> tileEntities) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (world instanceof CreativeWorld && ((CreativeWorld) world).parent == null)
+        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
-        PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(world, tileEntities), (EntityPlayerMP) player);
+        PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(level, tileEntities), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, LittleStructure structure) {
@@ -283,7 +270,7 @@ public abstract class LittleAction extends CreativePacket {
             return false;
         
         if (WorldEditEvent != null) {
-            PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, facing, new Vec3d(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3d(pos));
+            PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, facing, new Vec3(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3(pos));
             try {
                 if (worldEditInstance == null)
                     loadWorldEditEvent();
@@ -298,17 +285,17 @@ public abstract class LittleAction extends CreativePacket {
         return !player.getServer().isUnderSpawnProtection((ServerLevel) player.level, pos, player);
     }
     
-    public static boolean isAllowedToPlacePreview(EntityPlayer player, LittlePreview preview) throws LittleActionException {
-        if (preview == null)
+    public static boolean isAllowedToPlacePreview(Player player, LittleTile tile) throws LittleActionException {
+        if (tile == null)
             return true;
         
-        if (preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < LittleTiles.CONFIG.getMinimumTransparency(player))
+        if (tile.hasColor() && ColorUtils.alpha(tile.color) < LittleTiles.CONFIG.getMinimumTransparency(player))
             throw new NotAllowedToPlaceColorException(player);
         
         return true;
     }
     
-    public static double getVolume(LittleGridContext context, List<PlacePreview> tiles) {
+    public static double getVolume(LittleGrid context, List<PlacePreview> tiles) {
         double volume = 0;
         for (PlacePreview preview : tiles)
             volume += preview.box.getPercentVolume(context);

@@ -1,14 +1,14 @@
 package team.creative.littletiles.common.block.little.tile.group;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.grid.IGridBased;
@@ -17,17 +17,23 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.connection.ItemChildrenList;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
-public class LittleGroup extends LittleCollection implements IGridBased {
+public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     protected CompoundTag structure;
+    protected LittleCollection content = new LittleCollection();
     private LittleGroup parent;
     public final ItemChildrenList children;
     private LittleGrid grid;
+    
+    public LittleGroup() {
+        this(null, LittleGrid.min(), Collections.EMPTY_LIST);
+    }
     
     public LittleGroup(CompoundTag structure, LittleGrid grid, List<LittleGroup> children) {
         this.grid = grid;
@@ -183,8 +189,13 @@ public class LittleGroup extends LittleCollection implements IGridBased {
             newChildren.add(group.copy());
         LittleGroup group = new LittleGroup(structure, grid, newChildren);
         for (LittleTile tile : this)
-            group.add(tile.copy());
+            group.content.add(tile.copy());
         return group;
+    }
+    
+    @Override
+    public Iterator<LittleTile> iterator() {
+        return content.iterator();
     }
     
     protected Iterator<LittleTile> allTilesIterator() {
@@ -290,13 +301,12 @@ public class LittleGroup extends LittleCollection implements IGridBased {
         return volume;
     }
     
-    @Override
-    public void combineBlockwise(LittleGrid grid) {
-        super.combineBlockwise(this.grid);
+    public void combineBlockwise() {
+        content.combineBlockwise(this.grid);
         
         if (hasChildren())
             for (LittleGroup child : children)
-                child.combineBlockwise(this.grid);
+                child.combineBlockwise();
     }
     
     public void advancedScale(int from, int to) {
@@ -319,6 +329,18 @@ public class LittleGroup extends LittleCollection implements IGridBased {
             if (!child.isEmptyIncludeChildren())
                 return false;
         return true;
+    }
+    
+    public Iterable<LittleBox> boxes() {
+        return content.boxes();
+    }
+    
+    public boolean isEmpty() {
+        return content.isEmpty();
+    }
+    
+    public int size() {
+        return content.size();
     }
     
     public int totalSize() {
@@ -399,6 +421,44 @@ public class LittleGroup extends LittleCollection implements IGridBased {
         move(new LittleVecGrid(min, grid));
     }
     
+    public List<LittlePlaceBox> getSpecialBoxes() {
+        if (hasStructure())
+            return getStructureType().getSpecialBoxes(this);
+        return Collections.EMPTY_LIST;
+    }
+    
+    public void add(LittleGrid grid, LittleElement element, Iterable<LittleBox> boxes) {
+        if (grid != this.grid) {
+            if (grid.count > this.grid.count)
+                convertTo(grid);
+            else
+                for (LittleBox box : boxes)
+                    box.convertTo(grid, this.grid);
+        }
+        
+        content.add(element, boxes);
+        
+        convertToSmallest();
+    }
+    
+    public void add(LittleGrid grid, LittleElement element, LittleBox box) {
+        if (grid != this.grid) {
+            if (grid.count > this.grid.count)
+                convertTo(grid);
+            else
+                box.convertTo(grid, this.grid);
+        }
+        
+        content.add(element, box);
+        
+        convertToSmallest();
+    }
+    
+    @Deprecated
+    public void addDirectly(LittleTile tile) {
+        content.add(tile);
+    }
+    
     public static void advancedScale(LittleGroup group, int from, int to) {
         group.advancedScale(from, to);
     }
@@ -409,89 +469,13 @@ public class LittleGroup extends LittleCollection implements IGridBased {
     }
     
     @Deprecated
-    public static void setContextSecretly(LittleGroup previews, LittleGrid grid) {
+    public static void setGridSecretly(LittleGroup previews, LittleGrid grid) {
         if (previews.hasStructure())
             previews.getStructureType().advancedScale(previews, grid.count, previews.grid.count);
         previews.grid = grid;
         if (previews.hasChildren())
             for (LittleGroup child : previews.children)
-                setContextSecretly(child, grid);
-    }
-    
-    public static LittlePreviews getChild(LittleGridContext context, NBTTagCompound nbt) {
-        LittlePreviews previews;
-        if (nbt.hasKey("structure"))
-            previews = new LittlePreviews(nbt.getCompoundTag("structure"), context);
-        else
-            previews = new LittlePreviews(context);
-        
-        previews = LittleNBTCompressionTools.readPreviews(previews, nbt.getTagList("tiles", 10));
-        if (nbt.hasKey("children")) {
-            NBTTagList list = nbt.getTagList("children", 10);
-            for (int i = 0; i < list.tagCount(); i++) {
-                NBTTagCompound child = list.getCompoundTagAt(i);
-                previews.addChild(getChild(context, child), child.getBoolean("dynamic"));
-            }
-        }
-        return previews;
-    }
-    
-    public static LittleGroup load(ItemStack stack, boolean allowLowResolution) {
-        if (!stack.hasTag())
-            return new LittleGroup();
-        
-        LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
-        if (stack.getTagCompound().getTag("tiles") instanceof NBTTagInt) {
-            LittlePreviews previews = new LittlePreviews(context);
-            int tiles = stack.getTagCompound().getInteger("tiles");
-            for (int i = 0; i < tiles; i++) {
-                NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-                LittlePreview preview = LittleTileRegistry.loadPreview(nbt);
-                if (preview != null)
-                    previews.previews.add(preview);
-            }
-            
-            if (stack.getTagCompound().hasKey("structure"))
-                return new LittlePreviews(stack.getTagCompound().getCompoundTag("structure"), previews);
-            return previews;
-        } else {
-            if (allowLowResolution && stack.getTagCompound().hasKey("pos")) {
-                LittlePreviews previews = new LittlePreviews(context);
-                NBTTagCompound tileData = new NBTTagCompound();
-                LittleTile tile = new LittleTile(LittleTiles.dyeableBlock, 0);
-                tile.saveTileExtra(tileData);
-                
-                NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
-                for (int i = 0; i < list.tagCount(); i++) {
-                    int[] array = list.getIntArrayAt(i);
-                    previews.previews
-                            .add(new LittlePreview(new LittleBox(array[0] * context.size, array[1] * context.size, array[2] * context.size, array[0] * context.size + context.maxPos, array[1] * context.size + context.maxPos, array[02] * context.size + context.maxPos), tileData));
-                }
-                
-                if (stack.getTagCompound().hasKey("children")) {
-                    list = stack.getTagCompound().getTagList("children", 10);
-                    for (int i = 0; i < list.tagCount(); i++) {
-                        NBTTagCompound child = list.getCompoundTagAt(i);
-                        previews.addChild(getChild(context, child), child.getBoolean("dynamic"));
-                    }
-                }
-                
-                return previews;
-            }
-            LittlePreviews previews = stack.getTagCompound()
-                    .hasKey("structure") ? new LittlePreviews(stack.getTagCompound().getCompoundTag("structure"), context) : new LittlePreviews(context);
-            previews = LittleNBTCompressionTools.readPreviews(previews, stack.getTagCompound().getTagList("tiles", 10));
-            
-            if (stack.getTagCompound().hasKey("children")) {
-                NBTTagList list = stack.getTagCompound().getTagList("children", 10);
-                for (int i = 0; i < list.tagCount(); i++) {
-                    NBTTagCompound child = list.getCompoundTagAt(i);
-                    previews.addChild(getChild(context, child), child.getBoolean("dynamic"));
-                }
-            }
-            
-            return previews;
-        }
+                setGridSecretly(child, grid);
     }
     
 }

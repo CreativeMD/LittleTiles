@@ -24,8 +24,10 @@ import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.ParentTileList;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -263,7 +265,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         
     }
     
-    public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleBox toCut, boolean update) {
+    public static List<LittleTile> removeBox(BETiles be, LittleGrid context, LittleBox toCut, boolean update) {
         if (context != te.getContext()) {
             if (context.size > te.getContext().size)
                 te.convertTo(context);

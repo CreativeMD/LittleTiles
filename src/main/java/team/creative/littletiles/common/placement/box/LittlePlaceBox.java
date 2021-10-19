@@ -3,13 +3,13 @@ package team.creative.littletiles.common.placement.box;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.core.BlockPos;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public abstract class LittlePlaceBox {
@@ -26,7 +26,7 @@ public abstract class LittlePlaceBox {
         return previews;
     }
     
-    public abstract void place(Placement placement, PlacementBlock block, LittleStructure structure) throws LittleActionException;
+    public abstract void place(Placement placement, LittleGrid grid, BlockPos pos, LittleStructure structure) throws LittleActionException;
     
     public void add(LittleVec vec) {
         box.add(vec);

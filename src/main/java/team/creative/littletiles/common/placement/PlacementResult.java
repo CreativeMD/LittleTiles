@@ -24,7 +24,7 @@ public class PlacementResult {
     
     public PlacementResult(BlockPos pos) {
         this.pos = pos;
-        this.placedPreviews = new LittleGroup(LittleGrid.min());
+        this.placedPreviews = new LittleGroup();
         this.placedBoxes = new LittleBoxesSimple(pos, LittleGrid.min());
     }
     
@@ -33,8 +33,8 @@ public class PlacementResult {
             lastPos = parent.getPos();
             blocks.add(parent.getBE());
         }
-        placedPreviews.addTile(parent, tile);
-        placedBoxes.addBox(parent, tile);
+        placedPreviews.add(parent.getGrid(), tile, tile);
+        placedBoxes.addBoxes(parent, tile);
     }
     
 }

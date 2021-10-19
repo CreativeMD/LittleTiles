@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
-import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.Placement.PlacementBlock;
+import team.creative.littletiles.common.placement.PlacementContext;
+import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlaceModeOverwriteAll extends PlaceModeAll {
     
@@ -37,14 +37,16 @@ public class PlaceModeOverwriteAll extends PlaceModeAll {
     }
     
     @Override
-    public void prepareBlock(Placement placement, PlacementBlock block, boolean requiresCollisionTest) {
-        block.getBE().updateTilesSecretly((x) -> {
-            ParentCollection parent = x.noneStructureTiles();
-            for (LittleTile toRemove : parent)
-                placement.removedTiles.addTile(parent, toRemove);
-            parent.clear();
-            
-        });
+    public void prepareBlock(PlacementContext context) {
+        for (LittleTile toRemove : context.getParent())
+            context.addRemoved(toRemove);
+        context.getParent().clear();
+    }
+    
+    @Override
+    public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
+        context.placeTile(tile);
+        return true;
     }
     
 }
