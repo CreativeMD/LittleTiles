@@ -55,7 +55,6 @@ import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.transformation.LittleBlockTransformer;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 
@@ -536,11 +535,6 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         boolean changed = tiles.combine();
         convertToSmallest();
         return changed;
-    }
-    
-    @Override
-    public Object getVoxelBlob(boolean force) throws Exception {
-        return ChiselsAndBitsManager.getVoxelBlob(this, force);
     }
     
     @Override
