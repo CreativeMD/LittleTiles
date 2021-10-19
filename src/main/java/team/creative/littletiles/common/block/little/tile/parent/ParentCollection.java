@@ -5,10 +5,10 @@ import java.util.Iterator;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 
 import net.minecraft.nbt.CompoundTag;
+import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollectionSafe;
-import team.creative.littletiles.common.filter.TileFilter;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -57,7 +57,7 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     
     protected abstract void writeExtra(CompoundTag nbt);
     
-    public Iterable<LittleTile> filter(TileFilters selector) {
+    public Iterable<LittleTile> filter(BiFilter<IParentCollection, LittleTile> selector) {
         return new Iterable<LittleTile>() {
             
             @Override

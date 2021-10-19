@@ -67,7 +67,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     protected void writeExtra(CompoundTag nbt) {
         if (isMain()) {
             CompoundTag structureNBT = new CompoundTag();
-            ((LittleStructure) cache).writeToNBT(structureNBT);
+            ((LittleStructure) cache).save(structureNBT);
             nbt.put("structure", structureNBT);
         } else
             nbt.putIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
@@ -109,7 +109,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     
     public LittleStructure setStructureNBT(CompoundTag nbt) {
         if (this.cache instanceof LittleStructure && ((LittleStructure) this.cache).type.id.equals(nbt.getString("id")))
-            ((LittleStructure) this.cache).loadFromNBT(nbt);
+            ((LittleStructure) this.cache).load(nbt);
         else {
             if (this.cache instanceof LittleStructure)
                 ((LittleStructure) this.cache).unload();
@@ -225,7 +225,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
         LittleStructureType type = LittleStructureRegistry.getStructureType(id);
         if (type != null) {
             LittleStructure structure = type.createStructure(mainBlock);
-            structure.loadFromNBT(nbt);
+            structure.load(nbt);
             
             return structure;
             
@@ -233,7 +233,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
         
         System.out.println("Could not find structureID=" + id);
         LittleStructure structure = new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), mainBlock);
-        structure.loadFromNBT(nbt);
+        structure.load(nbt);
         return structure;
     }
     
