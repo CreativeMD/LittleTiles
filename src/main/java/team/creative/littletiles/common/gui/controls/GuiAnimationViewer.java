@@ -2,29 +2,27 @@ package team.creative.littletiles.common.gui.controls;
 
 import java.lang.reflect.Field;
 
-import javax.vecmath.Vector3d;
-
 import org.lwjgl.util.glu.Project;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
-import com.creativemd.creativecore.common.gui.client.style.Style;
-import com.creativemd.creativecore.common.utils.math.SmoothValue;
-import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.math.Vector3d;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import team.creative.creativecore.client.render.GuiRenderHelper;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.util.math.vec.SmoothValue;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
     
@@ -136,7 +134,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         GlStateManager.alphaFunc(516, 0.1F);
         GlStateManager.enableBlend();
         GlStateManager
-            .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         
         int x = getPixelOffsetX();
         int y = getPixelOffsetY() - 1;

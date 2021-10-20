@@ -3,11 +3,10 @@ package team.creative.littletiles.common.gui.controls;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
-import com.creativemd.creativecore.common.gui.client.style.Style;
+import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.client.renderer.GlStateManager;
+import team.creative.creativecore.client.render.GuiRenderHelper;
+import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.littletiles.client.action.CompiledActionMessage;
 
 public class GuiActionDisplay extends GuiControl {
