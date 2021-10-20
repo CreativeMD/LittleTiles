@@ -1,18 +1,18 @@
 package team.creative.littletiles.common.animation.event;
 
 import com.creativemd.creativecore.client.sound.EntitySound;
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.EntityAnimationController;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 
 public class PlaySoundEvent extends AnimationEvent {
@@ -32,18 +32,18 @@ public class PlaySoundEvent extends AnimationEvent {
     }
     
     @Override
-    protected void write(NBTTagCompound nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         if (sound instanceof SoundEventMissing)
-            nbt.setString("sound", ((SoundEventMissing) sound).location.toString());
+            nbt.putString("sound", ((SoundEventMissing) sound).location.toString());
         else
-            nbt.setString("sound", sound.getRegistryName().toString());
-        nbt.setFloat("volume", volume);
-        nbt.setFloat("pitch", pitch);
-        nbt.setBoolean("opening", opening);
+            nbt.putString("sound", sound.getRegistryName().toString());
+        nbt.putFloat("volume", volume);
+        nbt.putFloat("pitch", pitch);
+        nbt.putBoolean("opening", opening);
     }
     
     @Override
-    protected void read(NBTTagCompound nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         sound = SoundEvent.REGISTRY.getObject(new ResourceLocation(nbt.getString("sound")));
         if (sound == null)
             sound = new SoundEventMissing(new ResourceLocation(nbt.getString("sound")));
@@ -54,19 +54,19 @@ public class PlaySoundEvent extends AnimationEvent {
     
     @Override
     protected boolean run(EntityAnimationController controller) {
-        if (controller.parent.world.isRemote && controller.getAimedState().name.equals(DoorController.openedState) == opening)
+        if (controller.parent.level.isClientSide && controller.getAimedState().name.equals(DoorController.openedState) == opening)
             playSound(controller);
         return true;
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void playSound(EntityAnimationController controller) {
         if (!(sound instanceof SoundEventMissing))
-            GuiControl.playSound(new EntitySound(sound, controller.parent, volume, pitch, SoundCategory.NEUTRAL));
+            GuiControl.playSound(new EntitySound(sound, controller.parent, volume, pitch, SoundSource.NEUTRAL));
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void runGui(AnimationGuiHandler handler) {
         if (opening && !(sound instanceof SoundEventMissing))
             GuiControl.playSound(sound, volume, pitch);

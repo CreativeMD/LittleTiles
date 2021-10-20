@@ -3,8 +3,10 @@ package team.creative.littletiles.common.placement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -53,5 +55,14 @@ public class PlacementPosition extends LittleVecAbsolute {
         double y = getPosY();
         double z = getPosZ();
         return new AABB(x, y, z, x + getGrid().pixelLength, y + getGrid().pixelLength, z + getGrid().pixelLength);
+    }
+    
+    public void mirror(Axis axis, LittleBoxAbsolute box) {
+        box.sameGrid(gridVec, () -> {
+            LittleVec doubledCenter = box.getDoubledCenter(pos);
+            long temp = gridVec.getVec().get(axis) * 2 - doubledCenter.get(axis);
+            gridVec.getVec().set(axis, (int) ((doubledCenter.get(axis) - temp) / 2));
+        });
+        
     }
 }

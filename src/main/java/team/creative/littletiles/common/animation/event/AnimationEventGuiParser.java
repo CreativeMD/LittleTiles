@@ -2,22 +2,21 @@ package team.creative.littletiles.common.animation.event;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public abstract class AnimationEventGuiParser<T extends AnimationEvent> {
     
-    @SideOnly(Side.CLIENT)
-    public abstract void createControls(GuiParent parent, @Nullable T event, LittlePreviews previews);
+    @OnlyIn(Dist.CLIENT)
+    public abstract void createControls(GuiParent parent, @Nullable T event, LittleGroup previews);
     
     @Nullable
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public abstract T parse(GuiParent parent, T event);
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public int getHeight() {
         return 30;
     }

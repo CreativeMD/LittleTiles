@@ -36,7 +36,7 @@ public class StructureUpdate extends CreativePacket {
         try {
             LittleStructure structure = location.find(player.level);
             CompoundTag nbt = new CompoundTag();
-            structure.writeToNBT(nbt);
+            structure.save(nbt);
             LittleTiles.NETWORK.sendToClient(new StructureUpdate(location, nbt), player);
         } catch (LittleActionException e) {}
         

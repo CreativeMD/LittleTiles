@@ -2,9 +2,12 @@ package team.creative.littletiles.common.block.little.tile.group;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -461,6 +464,13 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     public void combine() {
         content.combine();
+    }
+    
+    public Set<BlockPos> getPositions(BlockPos pos) {
+        HashSet<BlockPos> positions = new HashSet<>();
+        for (LittleBox box : allBoxes())
+            positions.add(box.getMinVec().getBlockPos(grid).offset(pos));
+        return positions;
     }
     
     public static void advancedScale(LittleGroup group, int from, int to) {

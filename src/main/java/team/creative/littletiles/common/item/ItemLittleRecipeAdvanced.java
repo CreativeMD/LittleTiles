@@ -50,7 +50,7 @@ import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
-import team.creative.littletiles.common.packet.LittleSelectionModePacket;
+import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
@@ -188,7 +188,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICr
         if (hasLittlePreview(stack))
             return true;
         getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
-        PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos(), true));
+        PacketHandler.sendPacketToServer(new SelectionModePacket(result.getBlockPos(), true));
         return true;
     }
     
@@ -197,7 +197,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICr
         if (hasLittlePreview(stack))
             return true;
         getSelectionMode(stack).onLeftClick(player, stack, result.getBlockPos());
-        PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos(), false));
+        PacketHandler.sendPacketToServer(new SelectionModePacket(result.getBlockPos(), false));
         return true;
     }
     

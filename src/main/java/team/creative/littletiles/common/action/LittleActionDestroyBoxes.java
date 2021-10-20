@@ -1,32 +1,27 @@
-package com.creativemd.littletiles.common.action.block;
+package team.creative.littletiles.common.action;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
-import com.creativemd.littletiles.common.action.block.LittleActionDestroy.StructurePreview;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.action.LittleActionBoxes;
-import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.action.LittleActions;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.littletiles.common.action.LittleActionDestroy.StructurePreview;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.entity.BETiles.BlockEntityInteractor;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.block.little.tile.parent.ParentTileList;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
@@ -37,19 +32,22 @@ import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public class LittleActionDestroyBoxes extends LittleActionBoxes {
     
-    public LittleActionDestroyBoxes(LittleBoxes boxes) {
-        super(boxes);
+    public LittleActionDestroyBoxes(Level level, LittleBoxes boxes) {
+        super(level, boxes);
     }
     
-    public LittleActionDestroyBoxes() {
-        
+    public LittleActionDestroyBoxes(UUID levelUUID, LittleBoxes boxes) {
+        super(levelUUID, boxes);
     }
+    
+    public LittleActionDestroyBoxes() {}
     
     public List<StructurePreview> destroyedStructures;
-    public LittleAbsolutePreviews previews;
+    public LittleGroupAbsolute previews;
     
     private boolean containsStructure(LittleStructure structure) {
         for (StructurePreview structurePreview : destroyedStructures) {
@@ -59,24 +57,24 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         return false;
     }
     
-    public boolean shouldSkipTile(IParentTileList parent, LittleTile tile) {
+    public boolean shouldSkipTile(IParentCollection parent, LittleTile tile) {
         return false;
     }
     
     public boolean doneSomething;
     
-    public LittleIngredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleBox> boxes, boolean simulate, LittleGridContext context) {
+    public LittleIngredients action(Player player, BETiles be, List<LittleBox> boxes, boolean simulate, LittleGrid grid) {
         doneSomething = false;
         
         if (previews == null)
-            previews = new LittleAbsolutePreviews(te.getPos(), context);
+            previews = new LittleGroupAbsolute(be.getBlockPos());
         
         LittleIngredients ingredients = new LittleIngredients();
         
         List<LittleTile> placedTiles = new ArrayList<>();
         List<LittleTile> destroyedTiles = new ArrayList<>();
         
-        for (IParentTileList parent : te.groups()) {
+        for (IParentCollection parent : be.groups()) {
             if (parent.isStructure()) {
                 if (simulate)
                     continue;
@@ -170,8 +168,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                     if (!structure.structure.mainBlock.isRemoved())
                         structure.structure.onLittleTileDestroy();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            te.updateTiles(x -> {
-                ParentTileList parent = x.noneStructureTiles();
+            be.updateTiles(x -> {
+                ParentCollection parent = x.noneStructureTiles();
                 parent.removeAll(destroyedTiles);
                 parent.addAll(placedTiles);
             });
@@ -182,35 +180,35 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
+    public void action(Level world, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException {
         fireBlockBreakEvent(world, pos, player);
         
-        TileEntity tileEntity = loadTe(player, world, pos, null, true, 0);
+        BlockEntity blockEntity = loadBE(player, world, pos, null, true, 0);
         
-        if (tileEntity instanceof TileEntityLittleTiles) {
-            TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+        if (blockEntity instanceof BETiles) {
+            BETiles be = (BETiles) blockEntity;
             
-            if (context != te.getContext()) {
-                if (context.size < te.getContext().size) {
+            if (grid != be.getGrid()) {
+                if (grid.count < be.getGrid().count) {
                     for (LittleBox box : boxes)
-                        box.convertTo(context, te.getContext());
-                    context = te.getContext();
+                        box.convertTo(grid, be.getGrid());
+                    grid = be.getGrid();
                 } else
-                    te.convertTo(context);
+                    be.convertTo(grid);
             }
             
-            if (checkAndGive(player, new LittleInventory(player), action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
-                action(player, (TileEntityLittleTiles) tileEntity, boxes, false, context);
+            if (checkAndGive(player, new LittleInventory(player), action(player, be, boxes, true, grid)))
+                action(player, be, boxes, false, grid);
             
-            ((TileEntityLittleTiles) tileEntity).combineTiles();
+            be.combineTiles();
             
             if (!doneSomething)
-                ((TileEntityLittleTiles) tileEntity).convertBlockToVanilla();
+                be.convertBlockToVanilla();
         }
     }
     
     @Override
-    protected boolean action(EntityPlayer player) throws LittleActionException {
+    public boolean action(Player player) throws LittleActionException {
         destroyedStructures = new ArrayList<>();
         return super.action(player);
     }
@@ -221,7 +219,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public LittleAction revert(EntityPlayer player) {
+    public LittleAction revert(Player player) {
         boolean additionalPreviews = previews != null && previews.size() > 0;
         LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
         if (additionalPreviews) {
@@ -235,11 +233,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     
     public static class LittleActionDestroyBoxesFiltered extends LittleActionDestroyBoxes {
         
-        public TileSelector selector;
+        public BiFilter<IParentCollection, LittleTile> filter;
         
-        public LittleActionDestroyBoxesFiltered(LittleBoxes boxes, TileSelector selector) {
-            super(boxes);
-            this.selector = selector;
+        public LittleActionDestroyBoxesFiltered(Level level, LittleBoxes boxes, BiFilter<IParentCollection, LittleTile> filter) {
+            super(level, boxes);
+            this.filter = filter;
         }
         
         public LittleActionDestroyBoxesFiltered() {
@@ -247,37 +245,25 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         }
         
         @Override
-        public void writeBytes(ByteBuf buf) {
-            super.writeBytes(buf);
-            writeSelector(selector, buf);
-        }
-        
-        @Override
-        public void readBytes(ByteBuf buf) {
-            super.readBytes(buf);
-            selector = readSelector(buf);
-        }
-        
-        @Override
-        public boolean shouldSkipTile(IParentTileList parent, LittleTile tile) {
-            return !selector.is(parent, tile);
+        public boolean shouldSkipTile(IParentCollection parent, LittleTile tile) {
+            return !filter.is(parent, tile);
         }
         
     }
     
-    public static List<LittleTile> removeBox(BETiles be, LittleGrid context, LittleBox toCut, boolean update) {
-        if (context != te.getContext()) {
-            if (context.size > te.getContext().size)
-                te.convertTo(context);
+    public static List<LittleTile> removeBox(BETiles be, LittleGrid grid, LittleBox toCut, boolean update) {
+        if (grid != be.getGrid()) {
+            if (grid.count > be.getGrid().count)
+                be.convertTo(grid);
             else {
-                toCut.convertTo(context, te.getContext());
-                context = te.getContext();
+                toCut.convertTo(grid, be.getGrid());
+                grid = be.getGrid();
             }
         }
         
         List<LittleTile> removed = new ArrayList<>();
         
-        Consumer<TileEntityInteractor> consumer = x -> {
+        Consumer<BlockEntityInteractor> consumer = x -> {
             List<LittleTile> toAdd = new ArrayList<>();
             for (LittleTile tile : x.noneStructureTiles()) {
                 
@@ -320,25 +306,24 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         };
         
         if (update)
-            te.updateTiles(consumer);
+            be.updateTiles(consumer);
         else
-            te.updateTilesSecretly(consumer);
+            be.updateTilesSecretly(consumer);
         return removed;
     }
     
-    public static List<LittleTile> removeBoxes(TileEntityLittleTiles te, LittleGridContext context, List<LittleBox> boxes) {
-        if (context != te.getContext()) {
-            if (context.size > te.getContext().size)
-                te.convertTo(context);
+    public static List<LittleTile> removeBoxes(BETiles be, LittleGrid grid, List<LittleBox> boxes) {
+        if (grid != be.getGrid()) {
+            if (grid.count > be.getGrid().count)
+                be.convertTo(grid);
             else {
-                for (LittleBox box : boxes) {
-                    box.convertTo(context, te.getContext());
-                }
-                context = te.getContext();
+                for (LittleBox box : boxes)
+                    box.convertTo(grid, be.getGrid());
+                grid = be.getGrid();
             }
         }
         List<LittleTile> removed = new ArrayList<>();
-        te.updateTiles(x -> {
+        be.updateTiles(x -> {
             List<LittleTile> toAdd = new ArrayList<>();
             for (Iterator<LittleTile> iterator = x.noneStructureTiles().iterator(); iterator.hasNext();) {
                 LittleTile tile = iterator.next();
@@ -392,7 +377,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public LittleAction flip(Axis axis, LittleBoxAbsolute box) {
+    public LittleAction mirror(Axis axis, LittleBoxAbsolute box) {
         return assignFlip(new LittleActionDestroyBoxes(), axis, box);
     }
 }

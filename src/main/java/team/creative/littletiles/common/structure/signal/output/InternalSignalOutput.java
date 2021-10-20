@@ -7,7 +7,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
-import team.creative.littletiles.common.packet.LittleUpdateOutputPacket;
+import team.creative.littletiles.common.packet.update.OutputUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
 import team.creative.littletiles.common.structure.signal.component.InternalSignal;
@@ -34,7 +34,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
         parent.performInternalOutputChange(this);
         parent.schedule();
         if (syncToClient)
-            PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateOutputPacket(parent.getStructureLocation(), component.index, getState()), getStructureLevel(), parent
+            PacketHandler.sendPacketToTrackingPlayers(new OutputUpdate(parent.getStructureLocation(), component.index, getState()), getStructureLevel(), parent
                     .getPos(), null);
     }
     

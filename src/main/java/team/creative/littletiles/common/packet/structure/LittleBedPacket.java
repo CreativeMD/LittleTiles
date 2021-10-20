@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.packet;
+package team.creative.littletiles.common.packet.structure;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.action.LittleAction;

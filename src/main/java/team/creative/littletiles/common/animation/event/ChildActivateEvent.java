@@ -1,24 +1,24 @@
 package team.creative.littletiles.common.animation.event;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.animation.AnimationGuiHandler.AnimationGuiHolder;
 import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.EntityAnimationController;
-import team.creative.littletiles.common.animation.AnimationGuiHandler.AnimationGuiHolder;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
@@ -37,13 +37,13 @@ public class ChildActivateEvent extends AnimationEvent {
     }
     
     @Override
-    protected void write(NBTTagCompound nbt) {
-        nbt.setInteger("childId", childId);
+    protected void saveExtra(CompoundTag nbt) {
+        nbt.putInt("childId", childId);
     }
     
     @Override
-    protected void read(NBTTagCompound nbt) {
-        childId = nbt.getInteger("childId");
+    protected void loadExtra(CompoundTag nbt) {
+        childId = nbt.getInt("childId");
     }
     
     @Override
@@ -85,8 +85,8 @@ public class ChildActivateEvent extends AnimationEvent {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
+    @OnlyIn(Dist.CLIENT)
+    public void prepareInGui(LittleGroup previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
         if (structure.countChildren() <= childId)
             return;
         try {
@@ -104,9 +104,9 @@ public class ChildActivateEvent extends AnimationEvent {
                 
                 GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {};
                 AnimationGuiHolder holder = new AnimationGuiHolder(previews
-                    .getChild(childId), new AnimationGuiHandler(getTick(), handler), childAnimation == null ? child : childAnimation.structure, childAnimation);
+                        .getChild(childId), new AnimationGuiHandler(getTick(), handler), childAnimation == null ? child : childAnimation.structure, childAnimation);
                 LittleStructureGuiParser parser = LittleStructureRegistry
-                    .getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
+                        .getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
                 parser.create(holder.previews, StructureParentCollection.create(holder.previews.structureNBT, null));
                 if (holder.handler.hasTimeline())
                     handler.subHolders.add(holder);

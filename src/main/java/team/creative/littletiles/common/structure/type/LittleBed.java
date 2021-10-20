@@ -46,7 +46,7 @@ import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.packet.LittleBedPacket;
+import team.creative.littletiles.common.packet.structure.LittleBedPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;

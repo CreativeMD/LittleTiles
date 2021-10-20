@@ -3,9 +3,8 @@ package team.creative.littletiles.common.placement.mode;
 import java.util.List;
 import java.util.Set;
 
-import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-
 import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.math.box.LittleBox;

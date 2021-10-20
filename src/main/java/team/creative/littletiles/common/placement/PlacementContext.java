@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.placement;
 
-import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-
+import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;

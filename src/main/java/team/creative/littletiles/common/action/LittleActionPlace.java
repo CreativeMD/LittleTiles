@@ -1,10 +1,6 @@
 package team.creative.littletiles.common.action;
 
-import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
-import com.creativemd.littletiles.common.action.block.LittlePreviews;
 import com.creativemd.littletiles.common.action.block.SPacketSetSlot;
-import com.creativemd.littletiles.common.action.block.TileEntityLittleTiles;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -15,12 +11,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
-import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPreview;
@@ -36,6 +33,8 @@ public class LittleActionPlace extends LittleAction {
     public transient PlacementResult result;
     @OnlyIn(Dist.CLIENT)
     public transient LittleGroupAbsolute destroyed;
+    
+    public transient boolean toVanilla = true;
     
     public LittleActionPlace() {}
     
@@ -57,9 +56,9 @@ public class LittleActionPlace extends LittleAction {
         
         if (destroyed != null) {
             destroyed.convertToSmallest();
-            return new LittleActions(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, PlacementMode.normal, true));
+            return new LittleActions(new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes), new LittleActionPlace(PlaceAction.ABSOLUTE, new PlacementPreview(preview.levelUUID, destroyed, PlacementMode.normal, preview.position.facing)));
         }
-        return new LittleActionDestroyBoxes(boxes);
+        return new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes);
     }
     
     @Override
@@ -92,7 +91,7 @@ public class LittleActionPlace extends LittleAction {
             PlacementResult placedTiles = placement.place();
             
             if (placedTiles != null) {
-                drainIngredientsAfterPlacing(player, inventory, placedTiles, previews);
+                drainIngredientsAfterPlacing(player, inventory, placedTiles, preview.previews);
                 
                 if (!player.level.isClientSide) {
                     checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
@@ -102,13 +101,11 @@ public class LittleActionPlace extends LittleAction {
                 if (!placement.removedTiles.isEmpty())
                     destroyed = placement.removedTiles.copy();
                 
-                if (toVanilla) {
-                    for (TileEntityLittleTiles te : placedTiles.tileEntities) {
-                        te.convertBlockToVanilla();
-                    }
-                }
-            } else
-                boxes = new LittleBoxesSimple(previews.pos, LittleGridContext.get());
+                if (toVanilla)
+                    for (BETiles be : placedTiles.blocks)
+                        be.convertBlockToVanilla();
+                    
+            }
             
             return placedTiles != null;
         }
@@ -133,7 +130,7 @@ public class LittleActionPlace extends LittleAction {
         
         if (result != null) {
             if (needIngredients(player)) {
-                checkAndGive(player, inventory, getIngredients(placement.removedTiles));
+                checkAndGive(player, inventory, placement.overflow());
                 
                 if (iTile.containsIngredients(stack)) {
                     stack.shrink(1);
@@ -152,10 +149,10 @@ public class LittleActionPlace extends LittleAction {
     }
     
     protected boolean canDrainIngredientsBeforePlacing(Player player, LittleInventory inventory) throws LittleActionException {
-        return canTake(player, inventory, getIngredients(previews));
+        return canTake(player, inventory, getIngredients(preview.previews));
     }
     
-    protected void drainIngredientsAfterPlacing(Player player, LittleInventory inventory, PlacementResult placedTiles, LittlePreviews previews) throws LittleActionException {
+    protected void drainIngredientsAfterPlacing(Player player, LittleInventory inventory, PlacementResult placedTiles, LittleGroup previews) throws LittleActionException {
         LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
         ingredients.add(getIngredients(placedTiles.placedPreviews));
         take(player, inventory, ingredients);

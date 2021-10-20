@@ -10,7 +10,6 @@ import java.util.Set;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
@@ -37,7 +36,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.IntHashMap;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
@@ -60,6 +61,7 @@ import net.minecraftforge.event.world.WorldEvent.Unload;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -215,7 +217,7 @@ public class LittleEventHandler {
         blockTilePrevent.add(player);
     }
     
-    public static boolean consumeBlockTilePrevent(EntityPlayer player, EnumHand hand) {
+    public static boolean consumeBlockTilePrevent(Player player, InteractionHand hand) {
         if (hand == EnumHand.OFF_HAND && recentlyConsumedRightClick)
             return true;
         int index = blockTilePrevent.indexOf(player);

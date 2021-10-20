@@ -132,7 +132,7 @@ public class LittlePacketTypes {
                 return collection;
             }
             
-        }, LittleGroup.class);
+        }, LittleCollection.class);
         
         NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleGroup>() {
             
@@ -164,6 +164,7 @@ public class LittlePacketTypes {
             }
             
             @Override
+            @SuppressWarnings("deprecation")
             protected LittleGroup readContent(FriendlyByteBuf buffer) {
                 int size = buffer.readInt();
                 List<LittleGroup> children = new ArrayList<>(size);
@@ -174,7 +175,7 @@ public class LittlePacketTypes {
                 LittleGroup group = new LittleGroup(buffer.readBoolean() ? buffer.readAnySizeNbt() : null, grid, children);
                 int tileCount = buffer.readInt();
                 for (int i = 0; i < tileCount; i++)
-                    group.add(NetworkFieldTypes.read(LittleTile.class, buffer));
+                    group.addDirectly(NetworkFieldTypes.read(LittleTile.class, buffer));
                 
                 int extensionCount = buffer.readInt();
                 for (int i = 0; i < extensionCount; i++)
@@ -208,7 +209,7 @@ public class LittlePacketTypes {
             
             @Override
             protected PlacementMode readContent(FriendlyByteBuf buffer) {
-                return PlacementMode.getModeOrDefault(buffer.readUtf());
+                return PlacementMode.REGISTRY.get(buffer.readUtf());
             }
             
         }, PlacementMode.class);

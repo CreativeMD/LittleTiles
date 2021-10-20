@@ -3,7 +3,6 @@ package team.creative.littletiles.common.action;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -23,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -38,12 +38,10 @@ import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
-import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -57,7 +55,6 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
@@ -66,9 +63,8 @@ import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
-import team.creative.littletiles.common.packet.update.LittleBlockUpdatePacket;
-import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
+import team.creative.littletiles.common.packet.update.BlockUpdate;
+import team.creative.littletiles.common.packet.update.BlocksUpdate;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -202,14 +198,12 @@ public abstract class LittleAction extends CreativePacket {
     private static Method WorldEditEvent = loadWorldEditEvent();
     private static Object worldEditInstance = null;
     
-    public static void sendEntityResetToClient(Player player, EntityAnimation animation) {
+    public static void sendBlockResetToClient(Level level, Player player, PlacementPreview preview) {
         if (!(player instanceof ServerPlayer))
             return;
-        PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
-    }
-    
-    public static void sendBlockResetToClient(Level level, Player player, PlacementPreview preview) {
-        TODO
+        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
+            return;
+        LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, preview.getPositions()), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, BlockPos pos) {
@@ -217,15 +211,11 @@ public abstract class LittleAction extends CreativePacket {
             return;
         if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
-        TileEntity te = world.getTileEntity(pos);
-        if (te != null)
-            sendBlockResetToClient(world, player, te);
-        else {
-            if (world instanceof CreativeLevel)
-                PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, pos, null), (EntityPlayerMP) player);
-            else
-                ((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(player.world, pos));
-        }
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be != null)
+            sendBlockResetToClient(level, player, be);
+        else
+            LittleTiles.NETWORK.sendToClient(new BlockUpdate(level, pos, be), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, BlockEntity be) {
@@ -233,21 +223,15 @@ public abstract class LittleAction extends CreativePacket {
             return;
         if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
-        if (level instanceof CreativeLevel)
-            PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(level, be.getBlockPos(), be), (ServerPlayer) player);
-        else {
-            ((ServerPlayer) player).connection.sendPacket(new SPacketBlockChange(level, be.getBlockPos()));
-            if (be != null)
-                ((ServerPlayer) player).connection.sendPacket(be.getUpdatePacket());
-        }
+        LittleTiles.NETWORK.sendToClient(new BlockUpdate(level, be.getBlockPos(), be), (ServerPlayer) player);
     }
     
-    public static void sendBlockResetToClient(Level level, Player player, Iterable<BETiles> tileEntities) {
+    public static void sendBlockResetToClient(Level level, Player player, Iterable<BETiles> blockEntities) {
         if (!(player instanceof ServerPlayer))
             return;
         if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
-        PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(level, tileEntities), (ServerPlayer) player);
+        LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, blockEntities), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, LittleStructure structure) {
@@ -263,7 +247,7 @@ public abstract class LittleAction extends CreativePacket {
     }
     
     public static boolean isAllowedToInteract(Player player, EntityAnimation animation, boolean rightClick) {
-        if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.isAllowEdit())))
+        if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.mayBuild())))
             return false;
         
         return true;
@@ -273,7 +257,7 @@ public abstract class LittleAction extends CreativePacket {
         if (player == null || player.level.isClientSide)
             return true;
         
-        if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.isAllowEdit())))
+        if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.mayBuild())))
             return false;
         
         if (WorldEditEvent != null) {
@@ -435,8 +419,7 @@ public abstract class LittleAction extends CreativePacket {
             return true;
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
-        return state.isNormalCube() || state.isFullCube() || state
-                .isFullBlock() || block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof BlockBreakable;
+        return state.isSolidRender(null, null) || block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock;
     }
     
 }

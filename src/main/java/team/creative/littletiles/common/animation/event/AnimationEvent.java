@@ -7,13 +7,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
@@ -21,6 +20,7 @@ import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.controls.SubGuiSoundSelector.GuiPickSoundButton;
 import team.creative.littletiles.common.gui.dialogs.SubGuiDoorEvents;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -81,7 +81,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
         }
     }
     
-    public static AnimationEvent loadFromNBT(CompoundTag nbt) {
+    public static AnimationEvent load(CompoundTag nbt) {
         Class<? extends AnimationEvent> eventClass = getType(nbt.getString("id"));
         if (eventClass == null) {
             System.out.println("Found invalid AnimationEvent type '" + nbt.getString("id") + "'!");
@@ -89,9 +89,9 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
         }
         
         try {
-            AnimationEvent event = eventClass.getConstructor(int.class).newInstance(nbt.getInteger("tick"));
+            AnimationEvent event = eventClass.getConstructor(int.class).newInstance(nbt.getInt("tick"));
             event.activated = nbt.getBoolean("activated");
-            event.read(nbt);
+            event.loadExtra(nbt);
             return event;
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new RuntimeException(e);
@@ -102,8 +102,8 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
         registerAnimationEventType("child", ChildActivateEvent.class, new AnimationEventGuiParser<ChildActivateEvent>() {
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public void createControls(GuiParent parent, @Nullable ChildActivateEvent event, LittlePreviews previews) {
+            @OnlyIn(Dist.CLIENT)
+            public void createControls(GuiParent parent, @Nullable ChildActivateEvent event, LittleGroup previews) {
                 List<Integer> possibleChildren = new ArrayList<>();
                 List<String> children = new ArrayList<>();
                 int i = 0;
@@ -122,7 +122,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
             }
             
             @Override
-            @SideOnly(Side.CLIENT)
+            @OnlyIn(Dist.CLIENT)
             public ChildActivateEvent parse(GuiParent parent, ChildActivateEvent event) {
                 GuiComboBox child = (GuiComboBox) parent.get("child");
                 try {
@@ -139,15 +139,15 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
         registerAnimationEventType("sound-event", PlaySoundEvent.class, new AnimationEventGuiParser<PlaySoundEvent>() {
             
             @Override
-            @SideOnly(Side.CLIENT)
-            public void createControls(GuiParent parent, PlaySoundEvent event, LittlePreviews previews) {
+            @OnlyIn(Dist.CLIENT)
+            public void createControls(GuiParent parent, PlaySoundEvent event, LittleGroup previews) {
                 parent.addControl(new GuiStateButton("opening", event != null ? (event.opening ? 0 : 1) : 0, 37, 0, 40, 7, CoreControl.translate("gui.door.open"), CoreControl
                         .translate("gui.door.close")));
                 parent.addControl(new GuiPickSoundButton("sound", 86, 0, event));
             }
             
             @Override
-            @SideOnly(Side.CLIENT)
+            @OnlyIn(Dist.CLIENT)
             public PlaySoundEvent parse(GuiParent parent, PlaySoundEvent event) {
                 GuiPickSoundButton picker = (GuiPickSoundButton) parent.get("sound");
                 GuiStateButton opening = (GuiStateButton) parent.get("opening");
@@ -162,7 +162,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
             }
             
             @Override
-            @SideOnly(Side.CLIENT)
+            @OnlyIn(Dist.CLIENT)
             public int getHeight() {
                 return 20;
             }
@@ -194,17 +194,17 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
     
     public abstract int getEventDuration(LittleStructure structure);
     
-    public CompoundTag writeToNBT(CompoundTag nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         nbt.putString("id", getId(this.getClass()));
         nbt.putInt("tick", tick);
         nbt.putBoolean("activated", activated);
-        write(nbt);
+        save(nbt);
         return nbt;
     }
     
-    protected abstract void write(CompoundTag nbt);
+    protected abstract void saveExtra(CompoundTag nbt);
     
-    protected abstract void read(CompoundTag nbt);
+    protected abstract void loadExtra(CompoundTag nbt);
     
     public boolean process(EntityAnimationController controller) {
         if (run(controller)) {
@@ -216,13 +216,13 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
     
     protected abstract boolean run(EntityAnimationController controller);
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void runGui(AnimationGuiHandler handler) {
         
     }
     
-    @SideOnly(Side.CLIENT)
-    public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
+    @OnlyIn(Dist.CLIENT)
+    public void prepareInGui(LittleGroup previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
         
     }
     

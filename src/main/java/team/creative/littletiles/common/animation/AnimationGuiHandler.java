@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.mojang.math.Vector3d;
 
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public class AnimationGuiHandler implements IAnimationHandler {
@@ -172,7 +172,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
         Vector3d rotation = state.getRotation();
         
         animation.moveAndRotateAnimation(offset.x - animation.origin.offX() + offX, offset.y - animation.origin.offY() + offY, offset.z - animation.origin
-            .offZ() + offZ, rotation.x - animation.origin.rotX() + rotX, rotation.y - animation.origin.rotY() + -rotY, rotation.z - animation.origin.rotZ() + rotZ);
+                .offZ() + offZ, rotation.x - animation.origin.rotX() + rotX, rotation.y - animation.origin.rotY() + -rotY, rotation.z - animation.origin.rotZ() + rotZ);
     }
     
     public int getMaxDuration() {

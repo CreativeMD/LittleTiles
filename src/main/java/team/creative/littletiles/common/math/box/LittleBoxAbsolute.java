@@ -48,6 +48,16 @@ public class LittleBoxAbsolute implements IGridBased {
         double x = (box.maxX + box.minX) / 2D;
         double y = (box.maxY + box.minY) / 2D;
         double z = (box.maxZ + box.minZ) / 2D;
+        x += grid.toGrid(this.pos.getX() - pos.getX());
+        y += grid.toGrid(this.pos.getY() - pos.getY());
+        z += grid.toGrid(this.pos.getZ() - pos.getZ());
+        return new LittleVec((int) (x * 2), (int) (y * 2), (int) (z * 2));
+    }
+    
+    public LittleVec getDoubledCenter() {
+        double x = (box.maxX + box.minX) / 2D;
+        double y = (box.maxY + box.minY) / 2D;
+        double z = (box.maxZ + box.minZ) / 2D;
         return new LittleVec((int) (x * 2), (int) (y * 2), (int) (z * 2));
     }
     

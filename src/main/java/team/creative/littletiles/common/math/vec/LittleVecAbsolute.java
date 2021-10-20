@@ -88,6 +88,12 @@ public class LittleVecAbsolute implements IGridBased {
         return newVec;
     }
     
+    @Override
+    public void convertToSmallest() {
+        removeInternalBlockOffset();
+        IGridBased.super.convertToSmallest();
+    }
+    
     public void add(LittleVecAbsolute pos) {
         this.pos = this.pos.offset(pos.pos);
         sameGrid(pos, () -> this.gridVec.vec.add(pos.gridVec.vec));

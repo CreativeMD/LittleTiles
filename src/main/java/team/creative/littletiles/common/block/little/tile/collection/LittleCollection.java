@@ -72,6 +72,11 @@ public class LittleCollection implements Iterable<LittleTile> {
     
     protected void removed(LittleTile tile) {}
     
+    public void removeAll(Iterable<LittleTile> tiles) {
+        for (LittleTile tile : tiles)
+            remove(tile);
+    }
+    
     public boolean remove(LittleTile tile) {
         if (content.remove(tile)) {
             removed(tile);

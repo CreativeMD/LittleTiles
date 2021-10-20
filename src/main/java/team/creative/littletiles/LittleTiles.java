@@ -8,12 +8,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
-import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
-import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
-import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
@@ -61,9 +55,15 @@ import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionActivated;
+import team.creative.littletiles.common.action.LittleActionColorBoxes;
+import team.creative.littletiles.common.action.LittleActionDestroy;
+import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
+import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -102,7 +102,6 @@ import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselAndBitsConveration;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
-import team.creative.littletiles.common.packet.LittleBedPacket;
 import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
 import team.creative.littletiles.common.packet.LittleEntityFixControllerPacket;
@@ -111,15 +110,16 @@ import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
 import team.creative.littletiles.common.packet.LittleResetAnimationPacket;
 import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
-import team.creative.littletiles.common.packet.LittleSelectionModePacket;
-import team.creative.littletiles.common.packet.LittleUpdateOutputPacket;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
-import team.creative.littletiles.common.packet.update.LittleBlockUpdatePacket;
-import team.creative.littletiles.common.packet.update.LittleBlocksUpdatePacket;
+import team.creative.littletiles.common.packet.item.SelectionModePacket;
+import team.creative.littletiles.common.packet.structure.LittleBedPacket;
+import team.creative.littletiles.common.packet.update.BlockUpdate;
+import team.creative.littletiles.common.packet.update.BlocksUpdate;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
+import team.creative.littletiles.common.packet.update.OutputUpdate;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -406,23 +406,23 @@ public class LittleTiles {
         
         NETWORK.registerType(RotatePacket.class, RotatePacket::new);
         NETWORK.registerType(MirrorPacket.class, MirrorPacket::new);
+        NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
         
         NETWORK.registerType(StructureUpdate.class, StructureUpdate::new);
         NETWORK.registerType(NeighborUpdate.class, NeighborUpdate::new);
+        NETWORK.registerType(BlockUpdate.class, BlockUpdate::new);
+        NETWORK.registerType(BlocksUpdate.class, BlocksUpdate::new);
+        NETWORK.registerType(OutputUpdate.class, OutputUpdate::new);
         
         CreativeCorePacket.registerPacket(LittleBlockPacket.class);
-        CreativeCorePacket.registerPacket(LittleBlocksUpdatePacket.class);
         CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
         CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
         CreativeCorePacket.registerPacket(LittleBedPacket.class);
         CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class);
-        CreativeCorePacket.registerPacket(LittleSelectionModePacket.class);
-        CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class);
         CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittleEntityFixControllerPacket.class);
         CreativeCorePacket.registerPacket(LittleScrewdriverSelectionPacket.class);
-        CreativeCorePacket.registerPacket(LittleUpdateOutputPacket.class);
         CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
         
         LittleActionRegistry.register(LittleActions.class, LittleActions::new);
@@ -543,7 +543,7 @@ public class LittleTiles {
                             structure = ((LittleDoor) structure).getParentDoor();
                             if (!doors.contains(structure)) {
                                 try {
-                                    structure.load();
+                                    structure.checkConnections();
                                     doors.add((LittleDoor) structure);
                                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
                                     x.getSource().sendFailure(new TranslatableComponent("commands.open.notloaded"));
@@ -579,7 +579,7 @@ public class LittleTiles {
                             structure = ((LittleDoor) structure).getParentDoor();
                             if (checkStructureName(structure, args) && !doors.contains(structure)) {
                                 try {
-                                    structure.load();
+                                    structure.checkConnections();
                                     doors.add((LittleDoor) structure);
                                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
                                     x.getSource().sendFailure(new TranslatableComponent("commands.open.notloaded"));

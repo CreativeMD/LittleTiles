@@ -38,6 +38,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.collision.CollidingPlane;
@@ -71,12 +72,12 @@ public class EntityAnimation extends Entity {
     
     // ================Constructors================
     
-    public EntityAnimation(World worldIn) {
-        super(worldIn);
+    public EntityAnimation(Level level) {
+        super(level);
     }
     
-    public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LocalStructureLocation location) {
-        this(world);
+    public EntityAnimation(Level level, CreativeLevel fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LocalStructureLocation location) {
+        this(level);
         this.structureLocation = location;
         try {
             if (structureLocation == null)
