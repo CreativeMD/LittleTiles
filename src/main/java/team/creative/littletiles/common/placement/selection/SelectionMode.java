@@ -76,7 +76,7 @@ public abstract class SelectionMode {
                     minLtGrid = LittleGrid.max(minLtGrid, ((BETiles) te).getGrid());
             }
             
-            LittleGroup specialPreviews = ChiselsAndBitsManager.getPreviews(te);
+            LittleGroup specialPreviews = ChiselsAndBitsManager.getGroup(te);
             if (specialPreviews != null) {
                 cbBlocks++;
                 cbTiles += specialPreviews.size();

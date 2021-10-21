@@ -98,6 +98,8 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
@@ -509,7 +511,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     public InteractionResult useClient(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
         if (context.isComplete() && !(player.getItemInHand(hand).getItem() instanceof ItemLittleWrench))
-            return new LittleActionActivated(level, pos, player).execute();
+            return new LittleActionActivated(level, pos, player).execute(player);
         return InteractionResult.PASS;
     }
     
@@ -576,7 +578,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     public boolean removedByPlayerClient(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player, 1.0F);
         if (result.isComplete())
-            return new LittleActionDestroy(level, pos, player).execute();
+            return new LittleActionDestroy(level, pos, player).execute(player);
         return false;
     }
     

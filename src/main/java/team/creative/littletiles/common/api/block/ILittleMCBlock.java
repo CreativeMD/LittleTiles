@@ -18,6 +18,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -74,13 +75,13 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public default LittleBlock mirror(Axis axis, LittleVec doubledCenter) {
-        return this;
+    public default BlockState mirror(BlockState state, Axis axis, LittleVec doubledCenter) {
+        return state;
     }
     
     @Override
-    public default LittleBlock rotate(Rotation rotation, LittleVec doubledCenter) {
-        return this;
+    public default BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
+        return state;
     }
     
     @Override
@@ -151,8 +152,8 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public default LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, int color) {
-        return new LittleRenderBox(box.getBox(grid), box, asBlock(), color);
+    public default LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, LittleElement element) {
+        return new LittleRenderBox(grid, box, element);
     }
     
     @Override

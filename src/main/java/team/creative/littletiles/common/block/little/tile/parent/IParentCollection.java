@@ -63,7 +63,7 @@ public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider 
     
     @OnlyIn(value = Dist.CLIENT)
     public default LittleRenderBox getTileRenderingCube(LittleTile tile, LittleBox box, LittleGrid grid) {
-        LittleRenderBox renderBox = box.getRenderingCube(grid, tile.getBlock(), tile.color);
+        LittleRenderBox renderBox = box.getRenderingCube(grid, tile);
         if (renderBox != null && isStructure() && LittleStructureAttribute.emissive(getAttribute()))
             renderBox.emissive = true;
         return renderBox;

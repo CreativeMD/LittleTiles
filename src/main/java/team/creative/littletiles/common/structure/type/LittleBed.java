@@ -8,6 +8,7 @@ import java.util.List;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.datafixers.util.Either;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -19,6 +20,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.InteractionHand;
@@ -46,7 +48,7 @@ import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.packet.structure.LittleBedPacket;
+import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
@@ -148,7 +150,7 @@ public class LittleBed extends LittleStructure {
     
     public static Field littleBed = ReflectionHelper.findField(EntityPlayer.class, "littleBed");;
     
-    public SleepResult trySleep(EntityPlayer player, Vec3d highest) {
+    public Either<Player.BedSleepingProblem, Unit> trySleep(Player player, Vec3d highest) {
         if (!player.world.isRemote) {
             if (player.isPlayerSleeping() || !player.isEntityAlive()) {
                 return EntityPlayer.SleepResult.OTHER_PROBLEM;
@@ -285,8 +287,8 @@ public class LittleBed extends LittleStructure {
             SleepResult enumstatus = trySleep(player, vec);
             if (enumstatus == SleepResult.OK) {
                 player.addStat(StatList.SLEEP_IN_BED);
-                PacketHandler.sendPacketToPlayer(new LittleBedPacket(getStructureLocation()), (EntityPlayerMP) player);
-                PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(getStructureLocation(), player), (EntityPlayerMP) player);
+                PacketHandler.sendPacketToPlayer(new BedUpdate(getStructureLocation()), (EntityPlayerMP) player);
+                PacketHandler.sendPacketToTrackingPlayers(new BedUpdate(getStructureLocation(), player), (EntityPlayerMP) player);
                 return InteractionResult.SUCCESS;
             } else {
                 if (enumstatus == SleepResult.NOT_POSSIBLE_NOW) {

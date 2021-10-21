@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.IntArrayTag;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -27,6 +26,7 @@ import team.creative.creativecore.common.util.math.vec.RangedBitSet;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
@@ -97,23 +97,22 @@ public class LittleBox {
                 .box(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
-    public AABB getSelectionBB(LittleGrid context, BlockPos pos) {
-        return getBB(context, pos);
+    public AABB getSelectionBB(LittleGrid grid, BlockPos pos) {
+        return getBB(grid, pos);
     }
     
-    public AABB getBB(LittleGrid context, BlockPos offset) {
-        return new AABB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context
-                .toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
+    public AABB getBB(LittleGrid grid, BlockPos offset) {
+        return new AABB(grid.toVanillaGrid(minX) + offset.getX(), grid.toVanillaGrid(minY) + offset.getY(), grid.toVanillaGrid(minZ) + offset.getZ(), grid
+                .toVanillaGrid(maxX) + offset.getX(), grid.toVanillaGrid(maxY) + offset.getY(), grid.toVanillaGrid(maxZ) + offset.getZ());
     }
     
-    public AABB getBB(LittleGrid context) {
-        return new AABB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context
-                .toVanillaGrid(maxZ));
+    public AABB getBB(LittleGrid grid) {
+        return new AABB(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
-    public AlignedBox getBox(LittleGrid context) {
-        return new AlignedBox((float) context.toVanillaGrid(minX), (float) context.toVanillaGrid(minY), (float) context.toVanillaGrid(minZ), (float) context
-                .toVanillaGrid(maxX), (float) context.toVanillaGrid(maxY), (float) context.toVanillaGrid(maxZ));
+    public AlignedBox getBox(LittleGrid grid) {
+        return new AlignedBox((float) grid.toVanillaGrid(minX), (float) grid.toVanillaGrid(minY), (float) grid.toVanillaGrid(minZ), (float) grid.toVanillaGrid(maxX), (float) grid
+                .toVanillaGrid(maxY), (float) grid.toVanillaGrid(maxZ));
     }
     
     // ================Save================
@@ -1120,13 +1119,13 @@ public class LittleBox {
     // ================Rendering================
     
     @OnlyIn(value = Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid context, Block block, int color) {
-        return getRenderingCube(context, this.getBox(context), block, color);
+    public LittleRenderBox getRenderingCube(LittleGrid grid) {
+        return new LittleRenderBox(grid, this);
     }
     
     @OnlyIn(value = Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid, AlignedBox cube, Block block, int color) {
-        return new LittleRenderBox(cube, this, block, color);
+    public LittleRenderBox getRenderingCube(LittleGrid grid, LittleElement element) {
+        return new LittleRenderBox(grid, this, element);
     }
     
     // ================Faces================

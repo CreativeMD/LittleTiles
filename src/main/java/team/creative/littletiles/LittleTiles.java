@@ -57,13 +57,13 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
+import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import team.creative.littletiles.common.action.LittleActionDestroy;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
+import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
-import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
-import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -115,7 +115,7 @@ import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
-import team.creative.littletiles.common.packet.structure.LittleBedPacket;
+import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
 import team.creative.littletiles.common.packet.update.BlocksUpdate;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
@@ -404,6 +404,8 @@ public class LittleTiles {
         
         NETWORK.registerType(ActionMessagePacket.class, ActionMessagePacket::new);
         
+        NETWORK.registerType(BedUpdate.class, BedUpdate::new);
+        
         NETWORK.registerType(RotatePacket.class, RotatePacket::new);
         NETWORK.registerType(MirrorPacket.class, MirrorPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
@@ -417,7 +419,6 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleBlockPacket.class);
         CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
         CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
-        CreativeCorePacket.registerPacket(LittleBedPacket.class);
         CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class);
         CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);

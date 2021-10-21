@@ -770,7 +770,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public LittleGroup getPreviews(BlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
         CompoundTag structureNBT = new CompoundTag();
-        this.writeToNBTPreview(structureNBT, pos);
+        this.savePreview(structureNBT, pos);
         
         List<LittleGroup> childrenGroup = new ArrayList<>();
         for (StructureChildConnection child : children.children())
@@ -920,7 +920,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (mainBlock.isRemoved())
             return;
         CompoundTag nbt = new CompoundTag();
-        writeToNBT(nbt);
+        save(nbt);
         LittleTiles.NETWORK.sendToClient(new StructureUpdate(getStructureLocation(), nbt), getLevel(), getPos());
     }
     

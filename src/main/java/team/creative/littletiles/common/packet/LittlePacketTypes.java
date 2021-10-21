@@ -13,7 +13,6 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -99,7 +98,7 @@ public class LittlePacketTypes {
                 buffer.writeInt(content.size());
                 for (LittleBox box : content)
                     buffer.writeVarIntArray(box.getArray());
-                buffer.writeUtf(content.getBlock().blockName());
+                buffer.writeUtf(content.getState().toString());
                 buffer.writeInt(content.color);
             }
             
@@ -109,7 +108,7 @@ public class LittlePacketTypes {
                 List<LittleBox> boxes = new ArrayList<>(size);
                 for (int i = 0; i < size; i++)
                     boxes.add(LittleBox.create(buffer.readVarIntArray()));
-                return new LittleTile(LittleBlockRegistry.get(buffer.readUtf()), buffer.readInt(), boxes);
+                return new LittleTile(buffer.readUtf(), buffer.readInt(), boxes);
             }
             
         }, LittleTile.class);

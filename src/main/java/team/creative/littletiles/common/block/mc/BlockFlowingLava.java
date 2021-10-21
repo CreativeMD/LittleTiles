@@ -1,8 +1,5 @@
 package team.creative.littletiles.common.block.mc;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-
 import net.minecraft.core.Direction;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.InteractionHand;
@@ -13,7 +10,6 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -25,6 +21,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
@@ -51,7 +50,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
-    public BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, net.minecraft.world.level.block.Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
     
@@ -124,7 +123,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
             parent.getTe().updateTiles();
             return InteractionResult.SUCCESS;
         }
-        return ILittleMCBlock.super.use(parent, box, player, hand, result);
+        return ILittleMCBlock.super.use(parent, tile, box, player, hand, result);
     }
     
     @Override
@@ -143,16 +142,13 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
-    public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
-        preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(preview.getMeta()), rotation).ordinal());
+    public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
+        return state.setValue(FACING, rotation.rotate(Facing.get(state.getValue(FACING))).toVanilla());
     }
     
     @Override
-    public void flipPreview(Axis axis, LittlePreview preview, LittleVec doubledCenter) {
-        EnumFacing facing = EnumFacing.getFront(preview.getMeta());
-        if (facing.getAxis() == axis)
-            facing = facing.getOpposite();
-        preview.getTileData().setInteger("meta", facing.ordinal());
+    public BlockState mirror(BlockState state, Axis axis, LittleVec doubledCenter) {
+        return state.setValue(FACING, axis.mirror(state.getValue(FACING)));
     }
     
 }

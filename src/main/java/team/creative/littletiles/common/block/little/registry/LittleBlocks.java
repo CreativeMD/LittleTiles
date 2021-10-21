@@ -16,14 +16,16 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TntBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.filter.block.BlockFilters;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
@@ -117,17 +119,15 @@ public class LittleBlocks {
         
         LittleBlockRegistry.register(BlockFilters.property(BlockStateProperties.AXIS), x -> new LittleMCBlock(x) {
             @Override
-            public LittleBlock rotate(Rotation rotation, LittleVec doubledCenter) {
-                // TODO No idea how this works
-                return super.rotate(rotation, doubledCenter);
+            public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
+                return state.setValue(BlockStateProperties.AXIS, rotation.rotate(Axis.get(state.getValue(BlockStateProperties.AXIS))).toVanilla());
             }
         });
         
         LittleBlockRegistry.register(BlockFilters.property(BlockStateProperties.FACING), x -> new LittleMCBlock(x) {
             @Override
-            public LittleBlock rotate(Rotation rotation, LittleVec doubledCenter) {
-                // TODO No idea how this works
-                return super.rotate(rotation, doubledCenter);
+            public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
+                return state.setValue(BlockStateProperties.FACING, rotation.rotate(Facing.get(state.getValue(BlockStateProperties.FACING))).toVanilla());
             }
         });
     }

@@ -20,9 +20,9 @@ public abstract class LittlePlaceBox {
         this.box = box;
     }
     
-    public List<LittleRenderBox> getRenderBoxes(LittleGrid context) {
+    public List<LittleRenderBox> getRenderBoxes(LittleGrid grid) {
         List<LittleRenderBox> previews = new ArrayList<>();
-        previews.add(box.getRenderingCube(context, null, 0));
+        previews.add(box.getRenderingCube(grid));
         return previews;
     }
     

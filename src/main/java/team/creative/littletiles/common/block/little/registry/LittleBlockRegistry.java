@@ -3,11 +3,15 @@ package team.creative.littletiles.common.block.little.registry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.type.Pair;
@@ -21,6 +25,13 @@ public class LittleBlockRegistry {
     private static final PairList<Filter<Block>, Function<Block, LittleBlock>> blockHandlers = new PairList<>();
     private static final Function<Block, LittleBlock> fallBack = x -> new LittleMCBlock(x);
     private static final List<Function<String, LittleBlock>> specialHandlers = new ArrayList<>();
+    
+    public static LittleBlock getMissing(String name) {
+        LittleBlock little = nameMap.get(name);
+        if (little != null)
+            return little;
+        return create(name, null);
+    }
     
     public static LittleBlock get(String name) {
         LittleBlock little = nameMap.get(name);
@@ -41,6 +52,39 @@ public class LittleBlockRegistry {
         if (little != null)
             return little;
         return create(null, block.getBlock());
+    }
+    
+    public static BlockState loadState(String name) {
+        String[] parts = name.split("[");
+        if (parts.length == 0)
+            return Blocks.AIR.defaultBlockState();
+        ResourceLocation location = new ResourceLocation(parts[0]);
+        Block block = ForgeRegistries.BLOCKS.getValue(location);
+        if (block == null || block instanceof AirBlock)
+            return Blocks.AIR.defaultBlockState();
+        if (parts.length == 1)
+            return block.defaultBlockState();
+        if (parts.length > 2)
+            throw new IllegalArgumentException(name);
+        
+        BlockState state = block.defaultBlockState();
+        String[] properties = parts[1].substring(0, parts[1].length() - 2).split(",");
+        for (int i = 0; i < properties.length; i++) {
+            String[] data = properties[i].split("=");
+            if (data.length != 2)
+                throw new IllegalArgumentException(name);
+            Property<? extends Comparable> property = block.getStateDefinition().getProperty(data[0]);
+            Optional value = property.getValue(data[1]);
+            if (value.isPresent())
+                state = setValue(state, property, value.get());
+            else
+                throw new IllegalArgumentException("Invalid property " + properties[i] + " in " + name);
+        }
+        return state;
+    }
+    
+    private static <T extends Comparable<T>, V extends T> BlockState setValue(BlockState state, Property prop, Object value) {
+        return state.setValue((Property<T>) prop, (V) value);
     }
     
     private static LittleBlock create(String name, Block block) {

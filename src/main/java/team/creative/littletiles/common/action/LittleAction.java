@@ -45,7 +45,6 @@ import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
-import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
@@ -146,7 +145,7 @@ public abstract class LittleAction extends CreativePacket {
                     
                     tiles = new LittleGroup();
                     LittleBox box = new LittleBox(0, 0, 0, tiles.getGrid().count, tiles.getGrid().count, tiles.getGrid().count);
-                    tiles.add(tiles.getGrid(), new LittleElement(LittleBlockRegistry.get(state.getBlock()), ColorUtils.WHITE), box);
+                    tiles.add(tiles.getGrid(), new LittleElement(state, ColorUtils.WHITE), box);
                 } else if (state.getMaterial().isReplaceable()) {
                     if (!level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3))
                         return null;

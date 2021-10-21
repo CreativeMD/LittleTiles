@@ -9,6 +9,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.Placement;
@@ -28,8 +29,7 @@ public class LittlePlaceBoxFacing extends LittlePlaceBox {
     @Override
     public List<LittleRenderBox> getRenderBoxes(LittleGrid grid) {
         List<LittleRenderBox> cubes = new ArrayList<>();
-        LittleRenderBox cube = new LittleRenderBox(box.getBox(grid), box, LittleTiles.CLEAN, 0);
-        cube.setColor(color);
+        LittleRenderBox cube = new LittleRenderBox(grid, box, new LittleElement(LittleTiles.CLEAN.defaultBlockState(), color));
         float thickness = 1 / 32F;
         Axis axis = facing.axis;
         if (facing.positive) {

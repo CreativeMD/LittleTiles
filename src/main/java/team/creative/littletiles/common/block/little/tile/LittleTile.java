@@ -17,8 +17,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -33,9 +34,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.creativecore.common.util.type.SingletonList;
-import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
-import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -52,21 +51,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     private List<LittleBox> boxes;
     
     public LittleTile(LittleElement element, Iterable<LittleBox> boxes) {
-        this(element.getBlock(), element.color, boxes);
-    }
-    
-    public LittleTile(LittleElement element, LittleBox box) {
-        super(element.getBlock(), element.color);
-        this.boxes = new SingletonList<>(box);
-    }
-    
-    public LittleTile(LittleBlock block, int color, LittleBox box) {
-        super(block, color);
-        this.boxes = new SingletonList<>(box);
-    }
-    
-    public LittleTile(LittleBlock block, int color, Iterable<LittleBox> boxes) {
-        super(block, color);
+        super(element);
         if (boxes instanceof SingletonList)
             this.boxes = new SingletonList<LittleBox>(((SingletonList<LittleBox>) boxes).get(0));
         else {
@@ -76,11 +61,36 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         }
     }
     
-    public LittleTile(LittleBlock block, int color, List<LittleBox> boxes) {
-        super(block, color);
-        this.boxes = new ArrayList<>();
-        for (LittleBox box : boxes)
-            this.boxes.add(box);
+    public LittleTile(LittleElement element, LittleBox box) {
+        super(element);
+        this.boxes = new SingletonList<>(box);
+    }
+    
+    public LittleTile(BlockState state, int color, LittleBox box) {
+        super(state, color);
+        this.boxes = new SingletonList<>(box);
+    }
+    
+    public LittleTile(BlockState state, int color, Iterable<LittleBox> boxes) {
+        super(state, color);
+        if (boxes instanceof SingletonList)
+            this.boxes = new SingletonList<LittleBox>(((SingletonList<LittleBox>) boxes).get(0));
+        else {
+            this.boxes = new ArrayList<>();
+            for (LittleBox box : boxes)
+                this.boxes.add(box);
+        }
+    }
+    
+    public LittleTile(BlockState state, int color, List<LittleBox> boxes) {
+        super(state, color);
+        this.boxes = new ArrayList<>(boxes);
+        
+    }
+    
+    public LittleTile(String name, int color, List<LittleBox> boxes) {
+        super(name, color);
+        this.boxes = new ArrayList<>(boxes);
     }
     
     public LittleTile(CompoundTag nbt) {
@@ -93,14 +103,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     // ================Basics================
-    
-    public void setBlock(Block block) {
-        setBlock(LittleBlockRegistry.get(block));
-    }
-    
-    public void setBlock(LittleBlock block) {
-        this.block = block;
-    }
     
     private void prepareExpand() {
         if (boxes instanceof SingletonList) {
@@ -166,7 +168,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             box.split(grid, pos, offset, boxes, volume);
     }
     
-    public CompoundTag write(CompoundTag nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         ListTag list = new ListTag();
         for (LittleBox box : boxes)
             list.add(box.getArrayTag());
@@ -176,7 +178,10 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         else
             nbt.putInt("c", color);
         
-        nbt.putString("b", block.blockName());
+        if (getState().getBlock() instanceof AirBlock)
+            nbt.putString("s", getBlock().blockName());
+        else
+            nbt.putString("s", getState().toString());
         return nbt;
     }
     
@@ -184,15 +189,15 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         List<LittleBox> boxes = new ArrayList<>();
         for (LittleBox box : this.boxes)
             boxes.add(box.copy());
-        return new LittleTile(block, color, boxes);
+        return new LittleTile(this, boxes);
     }
     
     public LittleTile copy(List<LittleBox> boxes) {
-        return new LittleTile(block, color, boxes);
+        return new LittleTile(this, boxes);
     }
     
     public LittleTile copyEmpty() {
-        return new LittleTile(block, color, new ArrayList<>());
+        return new LittleTile(this, new ArrayList<>());
     }
     
     @Override
@@ -210,6 +215,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     // ================Properties================
     
+    @Override
     public boolean hasColor() {
         return ColorUtils.isDefault(color);
     }
@@ -383,13 +389,13 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     public void mirror(Axis axis, LittleVec doubledCenter) {
         for (LittleBox box : boxes)
             box.mirror(axis, doubledCenter);
-        block = block.mirror(axis, doubledCenter);
+        setState(block.mirror(getState(), axis, doubledCenter));
     }
     
     public void rotate(Rotation rotation, LittleVec doubledCenter) {
         for (LittleBox box : boxes)
             box.rotate(rotation, doubledCenter);
-        block = block.rotate(rotation, doubledCenter);
+        setState(block.rotate(getState(), rotation, doubledCenter));
     }
     
     // ================Rendering================

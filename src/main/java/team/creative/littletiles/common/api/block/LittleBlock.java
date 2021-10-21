@@ -20,6 +20,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -38,15 +39,15 @@ public interface LittleBlock {
     
     public ItemStack getStack();
     
+    public String blockName();
+    
     public BlockState getState();
     
     public boolean canBeConvertedToVanilla();
     
-    public String blockName();
+    public BlockState mirror(BlockState state, Axis axis, LittleVec doubledCenter);
     
-    public LittleBlock mirror(Axis axis, LittleVec doubledCenter);
-    
-    public LittleBlock rotate(Rotation rotation, LittleVec doubledCenter);
+    public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter);
     
     public SoundType getSoundType();
     
@@ -74,7 +75,7 @@ public interface LittleBlock {
     
     public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion);
     
-    public LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, int color);
+    public LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, LittleElement element);
     
     public boolean canBeRenderCombined(LittleTile one, LittleTile two);
     

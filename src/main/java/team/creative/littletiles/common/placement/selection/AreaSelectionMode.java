@@ -94,7 +94,7 @@ public class AreaSelectionMode extends SelectionMode {
         int maxY = Math.max(pos.getY(), pos2.getY());
         int maxZ = Math.max(pos.getZ(), pos2.getZ());
         
-        LittleGroup previews = new LittleGroup(LittleGrid.min());
+        LittleGroup previews = new LittleGroup();
         
         boolean includeTE = includeCB || includeLT;
         
@@ -121,7 +121,7 @@ public class AreaSelectionMode extends SelectionMode {
                                             LittleStructure structure = parent.getStructure();
                                             while (structure.getParent() != null)
                                                 structure = structure.getParent().getStructure();
-                                            structure.load();
+                                            structure.checkConnections();
                                             if (!structures.contains(structure)) {
                                                 previews.addChild(structure.getPreviews(center), false);
                                                 structures.add(structure);
@@ -212,7 +212,7 @@ public class AreaSelectionMode extends SelectionMode {
                     LittleStructure structure = animation.structure;
                     while (structure.getParent() != null)
                         structure = structure.getParent().getStructure();
-                    structure.load();
+                    structure.checkConnections();
                     if (!structures.contains(structure)) {
                         previews.addChild(structure.getPreviews(center), false);
                         structures.add(structure);
