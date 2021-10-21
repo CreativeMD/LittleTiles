@@ -6,19 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.place.PlacePreviewFacing;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +21,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -37,6 +29,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.item.ItemLittleWrench;
@@ -44,6 +37,8 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.particle.LittleParticle;
 import team.creative.littletiles.common.particle.LittleParticlePresets;
 import team.creative.littletiles.common.particle.LittleParticleTexture;
+import team.creative.littletiles.common.placement.box.LittlePlaceBox;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
@@ -383,21 +378,20 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         }
         
         @Override
-        public List<PlacePreview> getSpecialTiles(LittlePreviews previews) {
-            List<PlacePreview> result = super.getSpecialTiles(previews);
-            EnumFacing facing = (EnumFacing) loadDirectional(previews, "facing");
-            LittleBox box = previews.getSurroundingBox();
-            result.add(new PlacePreviewFacing(box, facing, ColorUtils.RED));
+        public List<LittlePlaceBox> getSpecialBoxes(LittleGroup group) {
+            List<LittlePlaceBox> result = super.getSpecialBoxes(group);
+            Facing facing = (Facing) loadDirectional(group, "facing");
+            LittleBox box = group.getSurroundingBox();
+            result.add(new LittlePlaceBoxFacing(box, facing, ColorUtils.RED));
             return result;
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public List<RenderBox> getRenderingCubes(LittlePreviews previews) {
+        @OnlyIn(Dist.CLIENT)
+        public List<RenderBox> getRenderingCubes(LittleGroup previews) {
             if (cubes == null) {
-                //float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
                 cubes = new ArrayList<>();
-                cubes.add(new RenderBox(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F, LittleTiles.dyeableBlock).setColor(-13619152));
+                cubes.add(new RenderBox(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F, LittleTiles.CLEAN.defaultBlockState()).setColor(-13619152));
             }
             return cubes;
         }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -77,7 +78,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
         super.renderFace(facing, grid, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
-        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.OUTPUT_ARROW, facing.ordinal());
+        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.OUTPUT_ARROW.defaultBlockState().setValue(BlockStateProperties.FACING, facing.toVanilla()));
         cube.keepVU = true;
         cube.allowOverlap = true;
         
@@ -104,11 +105,11 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
         super.render(box, overallBox, cubes);
         
         AlignedBox structureBox = new AlignedBox(overallBox.getBox(box.getGrid()));
-        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(structureBox, null, LittleTiles.CLEAN, 0).setColor(color);
+        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(structureBox, LittleTiles.CLEAN.defaultBlockState()).setColor(color);
         block.allowOverlap = true;
         cubes.add(block);
         
-        LittleRenderBox cube = new LittleRenderBox(structureBox, null, LittleTiles.CLEAN, 0);
+        LittleRenderBox cube = new LittleRenderBox(structureBox, LittleTiles.CLEAN.defaultBlockState());
         cube.setColor(ColorUtils.ORANGE);
         
         float thickness = cube.getSize(facing.axis) * 0.25F;

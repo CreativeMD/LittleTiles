@@ -71,14 +71,14 @@ public class LittleVolumes implements IGridBased {
         if (grid.count < this.grid.count)
             volume *= this.grid.count / grid.count;
         
-        LittleElement type = new LittleElement(tile.getBlock(), tile.color);
-        Integer exist = volumes.get(type);
-        if (exist == null)
+        Integer exist = volumes.get(tile);
+        if (exist == null) {
             exist = volume;
-        else
+            tile = new LittleElement(tile);
+        } else
             exist += volume;
         
-        volumes.put(type, exist);
+        volumes.put(tile, exist);
     }
     
     @Override

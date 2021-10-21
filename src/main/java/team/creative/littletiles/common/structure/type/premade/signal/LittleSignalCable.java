@@ -7,7 +7,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -45,8 +44,7 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
     public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
         super.render(box, overallBox, cubes);
         
-        AlignedBox structureBox = new AlignedBox(overallBox.getBox(box.getGrid()));
-        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(structureBox, null, LittleTiles.CLEAN, 0).setColor(color);
+        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(box.getGrid(), overallBox, LittleTiles.CLEAN.defaultBlockState()).setColor(color);
         block.allowOverlap = true;
         cubes.add(block);
     }

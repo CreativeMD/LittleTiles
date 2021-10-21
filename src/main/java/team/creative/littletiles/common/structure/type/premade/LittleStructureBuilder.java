@@ -1,27 +1,27 @@
 package team.creative.littletiles.common.structure.type.premade;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.mc.InventoryUtils;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -84,16 +84,9 @@ public class LittleStructureBuilder extends LittleStructurePremade {
         else
             lastGrid = 16;
         lastStructureType = nbt.getString("type");
-        if (nbt.contains("block")) {
-            String[] parts = nbt.getString("block").split(":");
-            Block block = Block.getBlockFromName(parts[0] + ":" + parts[1]);
-            int meta;
-            if (parts.length == 3)
-                meta = Integer.parseInt(parts[2]);
-            else
-                meta = 0;
-            lastBlockState = block.getStateFromMeta(meta);
-        } else
+        if (nbt.contains("state"))
+            lastBlockState = LittleBlockRegistry.loadState(nbt.getString("state"));
+        else
             lastBlockState = Blocks.OAK_PLANKS.defaultBlockState();
         inventory = InventoryUtils.load(nbt, 1);
     }
@@ -104,9 +97,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
         nbt.putInt("sizeY", lastSizeY);
         nbt.putInt("thickness", lastThickness);
         InventoryUtils.save(inventory);
-        Block block = lastBlockState.getBlock();
-        int meta = block.getMetaFromState(lastBlockState);
-        nbt.putString("block", block.getRegistryName().toString() + (meta != 0 ? ":" + meta : ""));
+        nbt.putString("state", lastBlockState.toString());
         nbt.putInt("grid", lastGrid);
         nbt.putString("type", lastStructureType);
     }
@@ -121,15 +112,15 @@ public class LittleStructureBuilder extends LittleStructurePremade {
             this.frameVariableName = frameVariableName;
         }
         
-        public LittlePreviews construct(LittleGridContext context, int width, int height, int thickness, NBTTagCompound tileData) {
-            NBTTagCompound structureNBT = new NBTTagCompound();
-            structureNBT.setString("id", type.id);
-            structureNBT.setIntArray("topRight", new int[] { Float.floatToIntBits(0), Float.floatToIntBits(1), Float.floatToIntBits(1) });
-            structureNBT.setIntArray(frameVariableName, new int[] { thickness, 0, 0, thickness + 1, height, width, context.size });
-            LittlePreviews previews = new LittlePreviews(structureNBT, context);
-            for (int x = 0; x < thickness; x += context.size)
-                for (int y = 0; y < height; y += context.size)
-                    for (int z = 0; z < width; z += context.size)
+        public LittleGroup construct(LittleGrid context, int width, int height, int thickness, CompoundTag tileData) {
+            CompoundTag structureNBT = new CompoundTag();
+            structureNBT.putString("id", type.id);
+            structureNBT.putIntArray("topRight", new int[] { Float.floatToIntBits(0), Float.floatToIntBits(1), Float.floatToIntBits(1) });
+            structureNBT.putIntArray(frameVariableName, new int[] { thickness, 0, 0, thickness + 1, height, width, context.count });
+            LittleGroup previews = new LittleGroup(structureNBT, context, Collections.EMPTY_LIST);
+            for (int x = 0; x < thickness; x += context.count)
+                for (int y = 0; y < height; y += context.count)
+                    for (int z = 0; z < width; z += context.count)
                         previews.addWithoutCheckingPreview(new LittlePreview(new LittleBox(x, y, z, Math.min(x + 16, thickness), Math.min(y + 16, height), Math
                                 .min(z + 16, width)), tileData.copy()));
             return previews;

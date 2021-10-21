@@ -27,9 +27,9 @@ public class LittleShapePolygon extends LittleShape {
     }
     
     public void generatePixels(LittleBoxes boxes, ShapeSelectPos first, ShapeSelectPos second, ShapeSelectPos third) {
-        Vec3d origin = first.pos.getRelative(boxes.pos).getVector(first.getGrid());
-        Vec3d secondVec = second.pos.getRelative(boxes.pos).getVector(second.getGrid());
-        Vec3d thirdVec = third.pos.getRelative(boxes.pos).getVector(third.getGrid());
+        Vec3d origin = first.pos.getRelative(boxes.pos).getVec(first.getGrid());
+        Vec3d secondVec = second.pos.getRelative(boxes.pos).getVec(second.getGrid());
+        Vec3d thirdVec = third.pos.getRelative(boxes.pos).getVec(third.getGrid());
         double contextOffset = first.getGrid().halfPixelLength;
         origin.x += contextOffset;
         origin.y += contextOffset;

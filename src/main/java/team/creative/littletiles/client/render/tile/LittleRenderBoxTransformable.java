@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.client.render.face.IFaceRenderType;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
@@ -21,11 +21,25 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     private float inverseScale;
     public VectorFanCache cache;
     
-    public LittleRenderBoxTransformable(AlignedBox cube, LittleGrid context, LittleTransformableBox box, Block block, int meta) {
-        super(cube, box, block, meta);
+    public LittleRenderBoxTransformable(LittleGrid grid, LittleTransformableBox box) {
+        super(grid, box);
         this.cache = box.requestCache();
-        this.scale = (float) context.pixelLength;
-        this.inverseScale = context.count;
+        this.scale = (float) grid.pixelLength;
+        this.inverseScale = grid.count;
+    }
+    
+    public LittleRenderBoxTransformable(LittleGrid grid, LittleTransformableBox box, BlockState state) {
+        super(grid, box, state);
+        this.cache = box.requestCache();
+        this.scale = (float) grid.pixelLength;
+        this.inverseScale = grid.count;
+    }
+    
+    public LittleRenderBoxTransformable(LittleGrid grid, LittleTransformableBox box, LittleElement element) {
+        super(grid, box, element);
+        this.cache = box.requestCache();
+        this.scale = (float) grid.pixelLength;
+        this.inverseScale = grid.count;
     }
     
     @Override

@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,6 +29,7 @@ import team.creative.creativecore.common.util.math.utils.IntegerUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxTransformable;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
@@ -1003,8 +1004,20 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid, AlignedBox cube, Block block, int meta) {
-        return new LittleRenderBoxTransformable(cube, grid, this, block, meta);
+    public LittleRenderBox getRenderingCube(LittleGrid grid) {
+        return new LittleRenderBoxTransformable(grid, this);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderingCube(LittleGrid grid, BlockState state) {
+        return new LittleRenderBoxTransformable(grid, this, state);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderingCube(LittleGrid grid, LittleElement element) {
+        return new LittleRenderBoxTransformable(grid, this, element);
     }
     
     @Override

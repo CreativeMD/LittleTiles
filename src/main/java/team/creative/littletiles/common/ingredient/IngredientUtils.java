@@ -17,7 +17,7 @@ public class IngredientUtils {
             Block mcBlock = ((LittleMCBlock) block).block;
             for (Pair<Filter<Block>, BlockIngredientRule> pair : IngredientRules.getBlockRules())
                 if (pair.key.is(mcBlock))
-                    return pair.value.getBlockIngredient(mcBlock, value);
+                    return new BlockIngredientEntry(LittleBlockRegistry.get(pair.value.getBlockIngredient(mcBlock)), value);
         }
         return create(block, value);
     }

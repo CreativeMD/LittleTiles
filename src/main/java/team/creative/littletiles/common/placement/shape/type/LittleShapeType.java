@@ -12,6 +12,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 import team.creative.littletiles.common.placement.shape.ShapeSelection.ShapeSelectPos;
@@ -30,10 +31,11 @@ public class LittleShapeType extends LittleShapeSelectable {
                     continue;
                 
                 LittleTile tile = pos.result.tile;
-                for (LittleTile toDestroy : pos.result.be.noneStructureTiles())
-                    if (tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile))
-                        addBox(boxes, selection.inside, selection.getGrid(), pos.result.te.noneStructureTiles(), toDestroy.getBox(), pos.pos.facing);
-                    
+                for (LittleTile toDestroy : pos.result.parent)
+                    if (tile.is(toDestroy))
+                        for (LittleBox box : toDestroy)
+                            addBox(boxes, selection.inside, selection.getGrid(), pos.result.parent, box, pos.pos.facing);
+                        
             } else
                 addBox(boxes, selection.inside, selection.getGrid(), pos.ray.getBlockPos(), pos.pos.facing);
         }

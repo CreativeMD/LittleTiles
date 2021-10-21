@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -1121,6 +1122,11 @@ public class LittleBox {
     @OnlyIn(value = Dist.CLIENT)
     public LittleRenderBox getRenderingCube(LittleGrid grid) {
         return new LittleRenderBox(grid, this);
+    }
+    
+    @OnlyIn(value = Dist.CLIENT)
+    public LittleRenderBox getRenderingCube(LittleGrid grid, BlockState state) {
+        return new LittleRenderBox(grid, this, state);
     }
     
     @OnlyIn(value = Dist.CLIENT)

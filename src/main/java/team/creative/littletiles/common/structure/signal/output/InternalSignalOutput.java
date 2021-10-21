@@ -3,10 +3,9 @@ package team.creative.littletiles.common.structure.signal.output;
 import java.text.ParseException;
 import java.util.Arrays;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
-
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.packet.update.OutputUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
@@ -34,8 +33,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
         parent.performInternalOutputChange(this);
         parent.schedule();
         if (syncToClient)
-            PacketHandler.sendPacketToTrackingPlayers(new OutputUpdate(parent.getStructureLocation(), component.index, getState()), getStructureLevel(), parent
-                    .getPos(), null);
+            LittleTiles.NETWORK.sendToClient(new OutputUpdate(parent.getStructureLocation(), component.index, getState()), getStructureLevel(), parent.getPos());
     }
     
     @Override
