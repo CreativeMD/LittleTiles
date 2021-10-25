@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.structure.registry;
 
+import java.util.function.Supplier;
+
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
@@ -38,9 +40,9 @@ public class StructureIngredientRule implements IStructureIngredientRule {
     };
     
     public final StructureIngredientScaler scale;
-    public final LittleIngredient ingredient;
+    public final Supplier<LittleIngredient> ingredient;
     
-    public StructureIngredientRule(StructureIngredientScaler scale, LittleIngredient ingredient) {
+    public StructureIngredientRule(StructureIngredientScaler scale, Supplier<LittleIngredient> ingredient) {
         this.scale = scale;
         this.ingredient = ingredient;
     }
@@ -49,7 +51,7 @@ public class StructureIngredientRule implements IStructureIngredientRule {
     public void add(LittlePreviews previews, LittleIngredients ingredients) {
         double volume = scale.calculate(previews);
         if (volume > 0) {
-            LittleIngredient toAdd = ingredient.copy();
+            LittleIngredient toAdd = ingredient.get();
             toAdd.scaleAdvanced(volume);
             ingredients.add(toAdd);
         }

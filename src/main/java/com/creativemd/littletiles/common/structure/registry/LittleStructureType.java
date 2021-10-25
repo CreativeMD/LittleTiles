@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.structure.registry;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
@@ -88,7 +89,7 @@ public class LittleStructureType {
         return addOutput(name, bandwidth, defaultMode, false);
     }
     
-    public LittleStructureType addIngredient(StructureIngredientScaler scale, LittleIngredient ingredient) {
+    public LittleStructureType addIngredient(StructureIngredientScaler scale, Supplier<LittleIngredient> ingredient) {
         return addIngredient(new StructureIngredientRule(scale, ingredient));
     }
     

@@ -153,10 +153,10 @@ public class LittleStructureRegistry {
         defaultType = registerStructureType("fixed", "simple", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
         
         registerStructureType("ladder", "simple", LittleLadder.class, LittleStructureAttribute.LADDER, LittleLadderParser.class)
-            .addIngredient(StructureIngredientRule.LONGEST_SIDE, new StackIngredient(new ItemStack(Blocks.LADDER)));
+            .addIngredient(StructureIngredientRule.LONGEST_SIDE, () -> new StackIngredient(new ItemStack(Blocks.LADDER)));
         
         registerStructureType("bed", "simple", LittleBed.class, LittleStructureAttribute.NONE, LittleBedParser.class).addInput("occupied", 1)
-            .addIngredient(StructureIngredientRule.SINGLE, new StackIngredient(new ItemStack(Items.BED)));
+            .addIngredient(StructureIngredientRule.SINGLE, () -> new StackIngredient(new ItemStack(Items.BED)));
         registerStructureType("chair", "simple", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class).addInput("occupied", 1);
         
         registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE).addInput("accessed", 1)
@@ -165,7 +165,7 @@ public class LittleStructureRegistry {
             .addInput("players", 4).addInput("entities", 4);
         
         registerStructureType("light", "simple", LittleLight.class, LittleStructureAttribute.LIGHT_EMITTER, LittleLightStructureParser.class)
-            .addOutput("enabled", 1, SignalMode.TOGGLE, true).addIngredient(new StructureIngredientScalerVolume(8), new StackIngredient(new ItemStack(Items.GLOWSTONE_DUST)));
+            .addOutput("enabled", 1, SignalMode.TOGGLE, true).addIngredient(new StructureIngredientScalerVolume(8), () -> new StackIngredient(new ItemStack(Items.GLOWSTONE_DUST)));
         
         registerStructureType("message", "simple", LittleStructureMessage.class, 0, LittleMessageStructureParser.class).addOutput("message", 1, SignalMode.EQUAL);
         
