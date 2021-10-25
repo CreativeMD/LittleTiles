@@ -3,15 +3,15 @@ package team.creative.littletiles.common.gui.signal;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCounter;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.littletiles.common.gui.signal.GuiSignalController.GuiSignalNodeVirtualInput;
 import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal.IConditionConfiguration;

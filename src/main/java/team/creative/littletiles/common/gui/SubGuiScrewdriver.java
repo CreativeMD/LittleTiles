@@ -3,24 +3,12 @@ package team.creative.littletiles.common.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.util.Color;
-
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.selection.selector.AndSelector;
 import com.creativemd.littletiles.common.util.selection.selector.AnySelector;
 import com.creativemd.littletiles.common.util.selection.selector.NoStructureSelector;
@@ -28,17 +16,26 @@ import com.creativemd.littletiles.common.util.selection.selector.StateSelector;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelectorBlock;
 
-import net.minecraft.block.Block;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.text.TextComponentString;
-import team.creative.littletiles.common.action.LittleActions;
-import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public class SubGuiScrewdriver extends SubGuiConfigure {
     

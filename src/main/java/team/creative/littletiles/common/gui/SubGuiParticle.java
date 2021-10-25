@@ -6,26 +6,25 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.lwjgl.util.Color;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAnalogeSlider;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTranslated;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.particle.LittleParticlePresets;
 import team.creative.littletiles.common.particle.LittleParticleTexture;
 import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter;

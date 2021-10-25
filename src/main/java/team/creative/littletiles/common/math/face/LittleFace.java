@@ -3,13 +3,12 @@ package team.creative.littletiles.common.math.face;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.math.Vector3f;
-
-import net.minecraft.client.renderer.EnumFaceDirection;
-import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
+import net.minecraft.client.renderer.FaceInfo;
+import net.minecraft.client.renderer.FaceInfo.VertexInfo;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
@@ -152,14 +151,14 @@ public class LittleFace {
         
         List<VectorFan> fans = new ArrayList<>(boxes.size());
         for (LittleBox box : boxes) {
-            EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
-            Vector3f[] coords = new Vector3f[4];
+            FaceInfo face = FaceInfo.fromFacing(facing.toVanilla());
+            Vec3f[] coords = new Vec3f[4];
             for (int i = 0; i < coords.length; i++) {
-                VertexInformation info = face.getVertexInformation(i);
-                Vector3f vec = new Vector3f();
-                vec.x = get(box, info.xIndex);
-                vec.y = get(box, info.yIndex);
-                vec.z = get(box, info.zIndex);
+                VertexInfo info = face.getVertexInfo(i);
+                Vec3f vec = new Vec3f();
+                vec.x = get(box, info.xFace);
+                vec.y = get(box, info.yFace);
+                vec.z = get(box, info.zFace);
                 coords[i] = vec;
             }
             fans.add(new VectorFan(coords));

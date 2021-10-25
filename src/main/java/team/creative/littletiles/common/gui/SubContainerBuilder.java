@@ -1,16 +1,15 @@
 package team.creative.littletiles.common.gui;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;

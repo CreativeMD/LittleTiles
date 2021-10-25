@@ -1,26 +1,26 @@
 package team.creative.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import mod.flatcoloredblocks.block.BlockFlatColored;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGrabber;
-import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleGrabber.GrabberMode;
+import team.creative.littletiles.common.item.ItemLittlePaintBrush;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleVanillaBlockPacket extends CreativeCorePacket {
     

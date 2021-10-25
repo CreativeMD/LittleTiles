@@ -1,20 +1,20 @@
 package team.creative.littletiles.common.gui;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
-import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.mc.WorldUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.ingredient.LittleInventory;
+import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;

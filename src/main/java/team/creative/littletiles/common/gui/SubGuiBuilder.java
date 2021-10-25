@@ -4,20 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCounter;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 

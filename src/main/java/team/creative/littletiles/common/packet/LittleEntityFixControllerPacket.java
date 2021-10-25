@@ -8,7 +8,6 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.google.common.base.Predicate;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;

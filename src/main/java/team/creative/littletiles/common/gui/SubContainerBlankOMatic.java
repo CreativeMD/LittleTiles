@@ -8,11 +8,11 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.InventoryBasic;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry;
 import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry.BleachRecipe;
 import team.creative.littletiles.common.structure.type.premade.LittleBlankOMatic;

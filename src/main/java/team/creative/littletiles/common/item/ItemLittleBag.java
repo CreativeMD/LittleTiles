@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -26,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.gui.SubContainerBag;

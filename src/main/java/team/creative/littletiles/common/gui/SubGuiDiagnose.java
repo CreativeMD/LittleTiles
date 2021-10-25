@@ -3,11 +3,11 @@ package team.creative.littletiles.common.gui;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 
 public class SubGuiDiagnose extends SubGui {

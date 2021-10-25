@@ -2,12 +2,12 @@ package team.creative.littletiles.common.gui;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.slots.SlotStackLimit;
-import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.mc.InventoryUtils;
 import team.creative.littletiles.common.structure.type.LittleStorage;
 
 public class SubContainerStorage extends SubContainer {

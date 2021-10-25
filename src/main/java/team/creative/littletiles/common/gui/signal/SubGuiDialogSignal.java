@@ -8,25 +8,24 @@ import java.util.List;
 import java.util.Locale;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
+import net.minecraft.ChatFormatting;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.littletiles.common.gui.signal.GuiSignalController.GeneratePatternException;
-import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponent;
-import team.creative.littletiles.common.structure.registry.LittleStructureType.InternalComponentOutput;
+import team.creative.littletiles.common.structure.LittleStructureType.InternalComponent;
+import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
-import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
 public class SubGuiDialogSignal extends SubGui {
     

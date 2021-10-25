@@ -3,9 +3,9 @@ package team.creative.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.common.item.ItemLittleScrewdriver;
 
 public class LittleScrewdriverSelectionPacket extends CreativeCorePacket {

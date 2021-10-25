@@ -2,30 +2,28 @@ package team.creative.littletiles.common.gui;
 
 import java.util.ArrayList;
 
-import org.lwjgl.util.Color;
-
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxTranslated;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
 import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.item.ItemLittleChisel;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 

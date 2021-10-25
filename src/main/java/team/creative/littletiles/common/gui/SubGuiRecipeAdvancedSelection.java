@@ -2,18 +2,18 @@ package team.creative.littletiles.common.gui;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiArraySlider;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 import team.creative.littletiles.common.placement.selection.SelectionMode;

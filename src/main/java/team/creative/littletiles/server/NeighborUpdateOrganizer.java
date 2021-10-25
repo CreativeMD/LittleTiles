@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.world.SubWorld;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
@@ -23,17 +19,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
 
 public class NeighborUpdateOrganizer {
     
-    private HashMapList<LevelAccessor, BlockPos> positions = new HashMapList<>();
+    private HashMapList<Level, BlockPos> positions = new HashMapList<>();
     
     public NeighborUpdateOrganizer() {
         MinecraftForge.EVENT_BUS.register(this);
     }
     
-    public void add(LevelAccessor level, BlockPos pos) {
+    public void add(Level level, BlockPos pos) {
         if (level instanceof IOrientatedLevel)
             return;
         if (!positions.contains(level, pos))
@@ -43,8 +40,8 @@ public class NeighborUpdateOrganizer {
     @SubscribeEvent
     public void tick(ServerTickEvent event) {
         if (event.phase == Phase.END) {
-            for (Entry<LevelAccessor, ArrayList<BlockPos>> entry : positions.entrySet()) {
-                LevelAccessor level = entry.getKey();
+            for (Entry<Level, ArrayList<BlockPos>> entry : positions.entrySet()) {
+                Level level = entry.getKey();
                 if (level instanceof ServerLevel) {
                     HashMapList<ChunkPos, BlockPos> chunks = new HashMapList<>();
                     for (BlockPos pos : entry.getValue())
@@ -52,27 +49,46 @@ public class NeighborUpdateOrganizer {
                     
                     for (Player player : level.players()) {
                         List<BlockPos> collected = new ArrayList<>();
-                        for (Entry<ChunkPos, ArrayList<BlockPos>> chunk : chunks.entrySet()) {
-                            if (((ServerLevel) level).getPlayerChunkMap().isPlayerWatchingChunk((ServerPlayer) player, chunk.getKey().x, chunk.getKey().z))
+                        for (Entry<ChunkPos, ArrayList<BlockPos>> chunk : chunks.entrySet())
+                            if (checkerboardDistance(chunk.getKey(), (ServerPlayer) player, true) <= player.getServer().getPlayerList().getViewDistance())
                                 collected.addAll(chunk.getValue());
-                        }
-                        
+                            
                         if (!collected.isEmpty())
-                            PacketHandler.sendPacketToPlayer(new NeighborUpdate(world, collected), (EntityPlayerMP) player);
+                            LittleTiles.NETWORK.sendToClient(new NeighborUpdate(level, collected), (ServerPlayer) player);
                     }
                     
                 } else if (level instanceof SubLevel)
-                    PacketHandler.sendPacketToTrackingPlayers(new NeighborUpdate(level, entry.getValue()), ((SubWorld) world).parent, (WorldServer) ((SubWorld) world)
-                            .getRealWorld(), null);
+                    LittleTiles.NETWORK.sendToClientTracking(new NeighborUpdate(level, entry.getValue()), ((SubLevel) level).parent);
             }
             
             positions.clear();
         }
     }
     
+    private static int checkerboardDistance(ChunkPos p_140339_, ServerPlayer p_140340_, boolean p_140341_) {
+        int i;
+        int j;
+        if (p_140341_) {
+            SectionPos sectionpos = p_140340_.getLastSectionPos();
+            i = sectionpos.x();
+            j = sectionpos.z();
+        } else {
+            i = SectionPos.blockToSectionCoord(p_140340_.getBlockX());
+            j = SectionPos.blockToSectionCoord(p_140340_.getBlockZ());
+        }
+        
+        return checkerboardDistance(p_140339_, i, j);
+    }
+    
+    private static int checkerboardDistance(ChunkPos p_140207_, int p_140208_, int p_140209_) {
+        int i = p_140207_.x - p_140208_;
+        int j = p_140207_.z - p_140209_;
+        return Math.max(Math.abs(i), Math.abs(j));
+    }
+    
     @SubscribeEvent
     public void unload(WorldEvent.Unload event) {
-        positions.removeKey(event.getWorld());
+        positions.removeKey((Level) event.getWorld());
     }
     
 }

@@ -1,21 +1,17 @@
 package team.creative.littletiles.common.placement.mark;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiMarkMode;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -28,7 +24,7 @@ public class MarkMode implements IMarkMode {
         if (!preview.previews.isAbsolute()) {
             position.setVecContext(new LittleVecGrid(preview.box.getCenter(), preview.context));
             
-            EnumFacing facing = position.facing;
+            Facing facing = position.facing;
             if (preview.mode.placeInside)
                 facing = facing.getOpposite();
             
@@ -76,8 +72,7 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public SubGui getConfigurationGui() {
+    public GuiConfigure getConfigurationGui() {
         return new SubGuiMarkMode(this);
     }
     
@@ -110,9 +105,9 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void move(LittleGrid context, Facing facing) {
+    public void move(LittleGrid grid, Facing facing) {
         LittleVec vec = new LittleVec(facing);
-        vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
+        vec.scale(Screen.hasControlDown() ? grid.count : 1);
         position.subVec(vec);
     }
     

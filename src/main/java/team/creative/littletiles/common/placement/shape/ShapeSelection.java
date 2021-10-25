@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -33,6 +32,7 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiMarkShapeSelection;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -197,8 +197,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public SubGui getConfigurationGui() {
+    public GuiConfigure getConfigurationGui() {
         return new SubGuiMarkShapeSelection(this);
     }
     

@@ -2,21 +2,19 @@ package team.creative.littletiles.common.gui;
 
 import java.util.ArrayList;
 
-import org.lwjgl.util.Color;
-
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxTranslated;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.api.ILittleEditor;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.placement.shape.LittleShape;

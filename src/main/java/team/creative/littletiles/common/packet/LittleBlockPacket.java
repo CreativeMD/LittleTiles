@@ -2,18 +2,11 @@ package team.creative.littletiles.common.packet;
 
 import java.util.UUID;
 
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -21,27 +14,33 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.TickUtils;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGrabber;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 
 public class LittleBlockPacket extends CreativeCorePacket {
     

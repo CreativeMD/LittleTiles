@@ -1,8 +1,8 @@
 package team.creative.littletiles.common.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
 
 public class SubContainerRecipe extends SubContainerConfigure {
     

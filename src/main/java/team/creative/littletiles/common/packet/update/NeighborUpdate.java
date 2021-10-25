@@ -27,9 +27,7 @@ public class NeighborUpdate extends CreativePacket {
             uuid = ((CreativeLevel) level).parent.getUUID();
     }
     
-    public NeighborUpdate() {
-        
-    }
+    public NeighborUpdate() {}
     
     @Override
     public void executeClient(Player player) {
@@ -53,8 +51,6 @@ public class NeighborUpdate extends CreativePacket {
     }
     
     @Override
-    public void executeServer(ServerPlayer player) {
-        
-    }
+    public void executeServer(ServerPlayer player) {}
     
 }

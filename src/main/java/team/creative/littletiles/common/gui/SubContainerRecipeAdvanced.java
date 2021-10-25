@@ -1,12 +1,12 @@
 package team.creative.littletiles.common.gui;
 
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 

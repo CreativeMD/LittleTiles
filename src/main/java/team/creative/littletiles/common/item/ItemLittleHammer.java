@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
@@ -24,6 +23,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;

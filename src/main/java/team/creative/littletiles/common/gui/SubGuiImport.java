@@ -7,13 +7,13 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 
 public class SubGuiImport extends SubGui {
     

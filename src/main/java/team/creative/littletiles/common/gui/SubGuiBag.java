@@ -2,16 +2,15 @@ package team.creative.littletiles.common.gui;
 
 import com.creativemd.creativecore.common.gui.client.style.ColoredDisplayStyle;
 import com.creativemd.creativecore.common.gui.client.style.DisplayStyle;
-import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
-import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
 import team.creative.littletiles.common.gui.controls.GuiColorProgressBar;
+import team.creative.littletiles.common.ingredient.ColorIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.item.ItemLittleBag;
 
 public class SubGuiBag extends SubGui {

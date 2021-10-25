@@ -3,25 +3,25 @@ package team.creative.littletiles.common.gui;
 import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemListBox;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
-import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
-import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
-import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException;
-import com.creativemd.littletiles.common.util.ingredient.StackIngredient;
-import com.creativemd.littletiles.common.util.ingredient.StackIngredientEntry;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.ingredient.BlockIngredient;
+import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
+import team.creative.littletiles.common.ingredient.ColorIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.LittleInventory;
+import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
+import team.creative.littletiles.common.ingredient.StackIngredient;
+import team.creative.littletiles.common.ingredient.StackIngredientEntry;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 

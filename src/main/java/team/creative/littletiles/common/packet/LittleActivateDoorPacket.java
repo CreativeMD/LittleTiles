@@ -2,24 +2,25 @@ package team.creative.littletiles.common.packet;
 
 import java.util.UUID;
 
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.StillInMotionException;
