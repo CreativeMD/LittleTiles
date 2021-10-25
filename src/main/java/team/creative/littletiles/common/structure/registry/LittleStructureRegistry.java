@@ -5,13 +5,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.creativecore.common.util.type.PairList;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
+import team.creative.littletiles.common.ingredient.ItemIngredient;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
@@ -156,7 +159,7 @@ public class LittleStructureRegistry {
                 .addIngredient(StructureIngredientRule.LONGEST_SIDE, new StackIngredient(new ItemStack(Blocks.LADDER)));
         
         registerStructureType("bed", "simple", LittleBed.class, new LittleAttributeBuilder(), LittleBedParser.class).addInput("occupied", 1)
-                .addIngredient(StructureIngredientRule.SINGLE, new StackIngredient(new ItemStack(Items.BED)));
+                .addIngredient(StructureIngredientRule.SINGLE, new ItemIngredient(CreativeIngredient.parse(ItemTags.BEDS)));
         registerStructureType("chair", "simple", LittleChair.class, new LittleAttributeBuilder(), LittleChairParser.class).addInput("occupied", 1);
         
         registerStructureType(new LittleStorageType("storage", "simple", LittleStorage.class, new LittleAttributeBuilder()).addInput("accessed", 1)

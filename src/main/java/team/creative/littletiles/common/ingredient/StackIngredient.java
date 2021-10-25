@@ -18,9 +18,7 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     private int stackLimit = -1;
     private int maxEntries = -1;
     
-    public StackIngredient() {
-        
-    }
+    public StackIngredient() {}
     
     public StackIngredient(ItemStack... stacks) {
         for (int i = 0; i < stacks.length; i++)

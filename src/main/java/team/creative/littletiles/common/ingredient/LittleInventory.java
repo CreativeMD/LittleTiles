@@ -210,7 +210,6 @@ public class LittleInventory implements Iterable<ItemStack> {
             
             LittleIngredients stackIngredients = LittleIngredient.extractWithoutCount(stack, false);
             if (stackIngredients != null) {
-                
                 int amount = ingredients.getMinimumCount(stackIngredients, stack.getCount());
                 if (amount > -1) {
                     stackIngredients.scale(amount);

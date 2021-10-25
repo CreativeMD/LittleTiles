@@ -2,6 +2,7 @@ package team.creative.littletiles.common.ingredient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
@@ -284,6 +285,54 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                         return true;
                 }
                 
+                return false;
+            }
+            
+        });
+        
+        registerType(ItemIngredient.class, new IngredientOverflowHandler<ItemIngredient>() {
+            
+            @Override
+            public List<ItemStack> handleOverflow(ItemIngredient overflow) throws NotEnoughSpaceException {
+                throw new NotEnoughSpaceException(overflow);
+            }
+        }, new IngredientConvertionHandler<ItemIngredient>() {
+            
+            @Override
+            public ItemIngredient extract(ItemStack stack) {
+                return null;
+            }
+            
+            @Override
+            public ItemIngredient extract(LittleGroup group) {
+                return null;
+            }
+            
+            @Override
+            public ItemIngredient extract(LittleElement tile, double volume) {
+                return null;
+            }
+            
+            @Override
+            public boolean requiresExtraHandler() {
+                return true;
+            }
+            
+            @Override
+            public boolean handleExtra(ItemIngredient ingredient, ItemStack stack, LittleIngredients overflow) {
+                for (Iterator<ItemIngredientEntry> itr = ingredient.iterator(); itr.hasNext();) {
+                    ItemIngredientEntry entry = itr.next();
+                    if (entry.is(stack)) {
+                        int count = Math.min(entry.count, stack.getCount());
+                        stack.shrink(count);
+                        entry.count -= count;
+                        if (entry.isEmpty())
+                            itr.remove();
+                        
+                        if (ingredient.isEmpty())
+                            return true;
+                    }
+                }
                 return false;
             }
             
