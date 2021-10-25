@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.block.mc;
 
 import net.minecraft.core.Direction;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -92,7 +91,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
         LittleBox testBox = new LittleBox(center, 1, 1, 1);
         if (tile.intersectsWith(testBox)) {
             double scale = 0.05;
-            Vec3 vec = new Vec3(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize().scale(scale);
+            Vec3 vec = new Vec3(tile.getState().getValue(BlockStateProperties.FACING).step()).normalize().scale(scale);
             entity.setDeltaMovement(entity.getDeltaMovement().add(vec));
         }
     }
@@ -104,7 +103,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     
     @Override
     public BlockState getFakeState(BlockState state) {
-        return Blocks.FLOWING_LAVA.getDefaultState();
+        return Blocks.LAVA.defaultBlockState();
     }
     
     @Override
@@ -115,12 +114,13 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
         if (hand == InteractionHand.MAIN_HAND && player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingLava) {
-            int meta = tile.getMeta() + 1;
-            if (meta > EnumFacing.VALUES.length)
-                tile.setBlock(LittleTiles.dyeableBlock, still.ordinal());
+            Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
+            int index = facing.ordinal() + 1;
+            if (index >= Direction.values().length)
+                tile.setState(LittleTiles.LAVA.defaultBlockState());
             else
-                tile.setMeta(meta);
-            parent.getTe().updateTiles();
+                tile.setState(tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]));
+            parent.getBE().updateTiles();
             return InteractionResult.SUCCESS;
         }
         return ILittleMCBlock.super.use(parent, tile, box, player, hand, result);

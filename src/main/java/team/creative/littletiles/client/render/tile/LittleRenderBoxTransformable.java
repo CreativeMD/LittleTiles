@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.client.render.face.IFaceRenderType;
@@ -112,7 +113,7 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     }
     
     @Override
-    protected void setupPreviewRendering(double x, double y, double z) {
+    protected void setupPreviewRendering(PoseStack stack) {
         GlStateManager.translate(x, y, z);
         GlStateManager.scale(scale, scale, scale);
     }

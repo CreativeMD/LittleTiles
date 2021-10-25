@@ -112,6 +112,7 @@ import team.creative.littletiles.common.packet.LittleResetAnimationPacket;
 import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
+import team.creative.littletiles.common.packet.item.ConfigurePacket;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
@@ -409,6 +410,7 @@ public class LittleTiles {
         NETWORK.registerType(RotatePacket.class, RotatePacket::new);
         NETWORK.registerType(MirrorPacket.class, MirrorPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
+        NETWORK.registerType(ConfigurePacket.class, ConfigurePacket::new);
         
         NETWORK.registerType(StructureUpdate.class, StructureUpdate::new);
         NETWORK.registerType(NeighborUpdate.class, NeighborUpdate::new);

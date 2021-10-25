@@ -8,9 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -95,7 +95,7 @@ public interface ILittlePlacer extends ILittleTool {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public default List<LittleRenderBox> getPositingCubes(Level level, BlockPos pos, ItemStack stack) {
+    public default List<RenderBox> getPositingCubes(Level level, BlockPos pos, ItemStack stack) {
         if (stack.hasTag() && stack.getTag().contains("structure")) {
             LittleStructureType type = LittleStructureRegistry.getStructureType(stack.getTag().getCompound("structure").getString("id"));
             if (type != null)

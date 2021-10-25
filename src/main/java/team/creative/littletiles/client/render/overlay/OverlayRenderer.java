@@ -1,19 +1,19 @@
 package team.creative.littletiles.client.render.overlay;
 
 import org.lwjgl.opengl.GL11;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.GuiRenderHelper;
+import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.CompiledActionMessage;
 import team.creative.littletiles.common.gui.controls.GuiActionDisplay;
@@ -21,7 +21,7 @@ import team.creative.littletiles.common.gui.controls.GuiActionDisplay;
 @SideOnly(Side.CLIENT)
 public class OverlayRenderer {
     
-    private static Minecraft mc = Minecraft.getMinecraft();
+    private static Minecraft mc = Minecraft.getInstance();
     protected static ScaledResolution scaledResolution;
     
     private OverlayGui gui = new OverlayGui();
@@ -103,7 +103,7 @@ public class OverlayRenderer {
         public void positionControl(GuiControl control) {
             if (scaledResolution != null)
                 positionControl(control, scaledResolution.getScaledWidth() - LittleTilesClient.overlay.gui.getContentOffset() * 2, scaledResolution
-                    .getScaledHeight() - LittleTilesClient.overlay.gui.getContentOffset() * 2);
+                        .getScaledHeight() - LittleTilesClient.overlay.gui.getContentOffset() * 2);
         }
     }
     

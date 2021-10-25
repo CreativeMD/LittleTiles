@@ -4,25 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackCollector;
-import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.api.ILittleIngredientSupplier;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
-import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackCollector;
+import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackSelector;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.common.api.ingredient.ILittleIngredientSupplier;
+import team.creative.littletiles.common.ingredient.BlockIngredient;
+import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
 
 public class LittleSubGuiUtils {
     
@@ -95,7 +96,7 @@ public class LittleSubGuiUtils {
         
     }
     
-    public static StackCollector getCollector(EntityPlayer player) {
+    public static StackCollector getCollector(Player player) {
         if (player.isCreative())
             return new GuiStackSelectorAll.CreativeCollector(new LittleBlockSelector());
         return new LittleBlockCollector(new LittleBlockSelector());

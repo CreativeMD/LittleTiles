@@ -35,6 +35,7 @@ import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.ItemModelCache;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
 import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -44,7 +45,7 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 public class ItemMultiTiles extends Item implements ICreativeRendered, ILittlePlacer {
     
     public static PlacementMode currentMode = PlacementMode.getDefault();
-    public static LittleGridContext currentContext;
+    public static LittleGrid currentContext;
     
     public ItemMultiTiles() {
         hasSubtypes = true;

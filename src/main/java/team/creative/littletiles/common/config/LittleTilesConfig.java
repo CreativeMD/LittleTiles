@@ -44,7 +44,7 @@ public class LittleTilesConfig {
     }
     
     public boolean canEditBlock(Player player, BlockState state, BlockPos pos) {
-        return state.getBlock().getHarvestLevel(state) <= build.get(player).harvestLevelBlock;
+        return build.get(player).harvestLevelBlock.is(state.getBlock());
     }
     
     public boolean isTransparencyRestricted(Player player) {

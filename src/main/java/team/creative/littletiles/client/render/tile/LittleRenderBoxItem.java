@@ -16,7 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.client.render.model.CreativeBakedQuad;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -34,7 +33,8 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     public final LittleItemHolder structure;
     
     public LittleRenderBoxItem(LittleItemHolder structure, AlignedBox cube, LittleBox box) {
-        super(cube, box, Blocks.AIR, 0);
+        super(cube);
+        this.box = box;
         this.structure = structure;
         this.allowOverlap = true;
         this.keepVU = true;

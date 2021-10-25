@@ -1,9 +1,6 @@
 package team.creative.littletiles.common.gui.configure;
 
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.selection.selector.AnySelector;
@@ -12,15 +9,18 @@ import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelectorBlock;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleSubGuiUtils;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 
 public abstract class SubGuiGridSelector extends SubGuiConfigure {
     
-    public LittleGridContext context;
+    public LittleGrid context;
     public boolean activeFilter;
     public TileSelector selector;
     

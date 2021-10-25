@@ -4,20 +4,20 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.creativecore.common.utils.type.PairList;
-import com.creativemd.littletiles.LittleTiles;
 import com.google.common.base.Strings;
-import com.mojang.realmsclient.gui.ChatFormatting;
+import com.mojang.blaze3d.platform.GlStateManager;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.creativecore.common.mod.OptifineHelper;
+import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.PairList;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.ItemModelCache;
 import team.creative.littletiles.client.render.cache.RenderingThread;
 
@@ -35,7 +35,7 @@ public class LittleTilesProfilerOverlay {
     private static long averageDuration;
     
     private static DecimalFormat df = new DecimalFormat("0.##");
-    private static Minecraft mc = Minecraft.getMinecraft();
+    private static Minecraft mc = Minecraft.getInstance();
     
     public static boolean isActive() {
         return showDebugInfo;

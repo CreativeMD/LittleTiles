@@ -2,8 +2,7 @@ package team.creative.littletiles.client.render.overlay;
 
 import java.util.function.BooleanSupplier;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
-
+import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayPositionType;
 
 public class OverlayControl {

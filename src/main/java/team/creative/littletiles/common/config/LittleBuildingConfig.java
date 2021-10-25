@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.config;
 
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.converation.ConfigTypeConveration;
 
@@ -15,7 +17,7 @@ public class LittleBuildingConfig {
         minimumTransparency = 0;
         limitEditBlocks = true;
         limitPlaceBlocks = true;
-        harvestLevelBlock = 0;
+        harvestLevelBlock = HarvestLevel.WOOD;
         maxAffectedBlocks = 0;
         maxEditBlocks = 0;
         maxPlaceBlocks = 0;
@@ -27,7 +29,7 @@ public class LittleBuildingConfig {
         minimumTransparency = survival ? 255 : 0;
         limitEditBlocks = survival;
         limitPlaceBlocks = survival;
-        harvestLevelBlock = survival ? 1 : 4;
+        harvestLevelBlock = survival ? HarvestLevel.STONE : HarvestLevel.DIAMOND;
     }
     
     @CreativeConfig
@@ -37,7 +39,7 @@ public class LittleBuildingConfig {
     public int maxAffectedBlocks = 2;
     
     @CreativeConfig
-    public int harvestLevelBlock;
+    public HarvestLevel harvestLevelBlock;
     
     @CreativeConfig
     public boolean editUnbreakable;
@@ -55,5 +57,35 @@ public class LittleBuildingConfig {
     public boolean limitPlaceBlocks;
     @CreativeConfig
     public int maxPlaceBlocks = 10;
+    
+    public static enum HarvestLevel {
+        
+        DIAMOND {
+            @Override
+            public boolean is(Block block) {
+                return true;
+            }
+        },
+        IRON {
+            @Override
+            public boolean is(Block block) {
+                return BlockTags.NEEDS_IRON_TOOL.contains(block) || !BlockTags.NEEDS_DIAMOND_TOOL.contains(block);
+            }
+        },
+        STONE {
+            @Override
+            public boolean is(Block block) {
+                return BlockTags.NEEDS_STONE_TOOL.contains(block) || (!BlockTags.NEEDS_IRON_TOOL.contains(block) && !BlockTags.NEEDS_DIAMOND_TOOL.contains(block));
+            }
+        },
+        WOOD {
+            @Override
+            public boolean is(Block block) {
+                return !BlockTags.NEEDS_STONE_TOOL.contains(block) && !BlockTags.NEEDS_IRON_TOOL.contains(block) && !BlockTags.NEEDS_DIAMOND_TOOL.contains(block);
+            }
+        };
+        
+        public abstract boolean is(Block block);
+    }
     
 }

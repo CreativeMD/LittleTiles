@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.api.tool;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -9,8 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubContainerConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
@@ -25,22 +25,16 @@ public interface ILittleTool {
     
     public void flip(Player player, ItemStack stack, Axis axis, boolean client);
     
-    @OnlyIn(Dist.CLIENT)
-    public default SubGuiConfigure getConfigureGUI(Player player, ItemStack stack) {
+    public default void configured(ItemStack stack, CompoundTag nbt) {
+        stack.setTag(nbt);
+    }
+    
+    public default GuiConfigure getConfigure(Player player, ItemStack stack) {
         return null;
     }
     
-    public default SubContainerConfigure getConfigureContainer(Player player, ItemStack stack) {
-        return new SubContainerConfigure(player, stack);
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public default SubGuiConfigure getConfigureGUIAdvanced(Player player, ItemStack stack) {
+    public default GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
         return null;
-    }
-    
-    public default SubContainerConfigure getConfigureContainerAdvanced(Player player, ItemStack stack) {
-        return new SubContainerConfigure(player, stack);
     }
     
     public default boolean sendTransformationUpdate() {
