@@ -112,7 +112,8 @@ public class SubContainerBag extends SubContainerHeldItem {
                             
                             LittleInventory inventory = new LittleInventory(player);
                             try {
-                                inventory.give(overflow);
+                                if (overflow != null)
+                                    inventory.give(overflow);
                             } catch (NotEnoughSpaceException e) {}
                             
                             if (containsBlocks) {
