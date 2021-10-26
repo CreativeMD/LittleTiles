@@ -41,6 +41,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.util.math.collision.CollidingPlane;
 import team.creative.creativecore.common.util.math.collision.CollidingPlane.PushCache;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
@@ -204,11 +205,11 @@ public class EntityAnimation extends Entity {
         setCenter(new StructureAbsolute(axis, additional));
     }
     
-    public void setParentWorld(World world) {
-        this.enteredAsChild = this.world instanceof CreativeWorld && !(world instanceof CreativeWorld);
-        this.world = world;
-        if (fakeWorld instanceof SubWorld)
-            ((SubWorld) fakeWorld).parentWorld = world;
+    public void setParentLevel(Level level) {
+        this.enteredAsChild = this.level instanceof CreativeLevel && !(level instanceof CreativeLevel);
+        this.level = level;
+        if (fakeWorld instanceof SubLevel)
+            ((SubLevel) fakeWorld).parentLevel = level;
         this.fakeWorld.setOrigin(center.rotationCenter);
         this.origin = this.fakeWorld.getOrigin();
         hasOriginChanged = true;

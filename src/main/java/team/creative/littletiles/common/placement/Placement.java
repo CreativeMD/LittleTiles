@@ -2,6 +2,7 @@ package team.creative.littletiles.common.placement;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -281,12 +282,21 @@ public class Placement {
     private void updateRelations(PlacementStructurePreview preview) {
         for (int i = 0; i < preview.children.size(); i++) {
             PlacementStructurePreview child = preview.children.get(i);
-            if (preview.getStructure() != null && child.getStructure() != null) {
-                preview.getStructure().updateChildConnection(i, child.getStructure(), child.dynamic);
-                child.getStructure().updateParentConnection(i, preview.getStructure(), child.dynamic);
+            if (preview.isStructure() && child.isStructure()) {
+                preview.getStructure().children.connectToChild(i, child.getStructure());
+                child.getStructure().children.connectToParentAsChild(i, preview.getStructure());
             }
             
             updateRelations(child);
+        }
+        
+        for (Entry<String, PlacementStructurePreview> pair : preview.extensions.entrySet()) {
+            if (preview.isStructure() && pair.getValue().isStructure()) {
+                preview.getStructure().children.connectToExtension(pair.getValue().extension, pair.getValue().getStructure());
+                pair.getValue().getStructure().children.connectToParentAsExtension(preview.getStructure());
+            }
+            
+            updateRelations(pair.getValue());
         }
     }
     
@@ -306,7 +316,7 @@ public class Placement {
             structure.addChild(createStructureTree(structure, child, null));
         
         for (Entry<String, LittleGroup> pair : previews.children.extensionEntries())
-            structure.addChild(createStructureTree(structure, pair.getValue(), pair.getKey()));
+            structure.addExtension(pair.getKey(), createStructureTree(structure, pair.getValue(), pair.getKey()));
         
         return structure;
     }
@@ -558,6 +568,9 @@ public class Placement {
         public final String extension;
         private int structureIndex = -1;
         
+        List<PlacementStructurePreview> children = new ArrayList<>();
+        HashMap<String, PlacementStructurePreview> extensions = new HashMap<>();
+        
         public PlacementStructurePreview(PlacementStructurePreview parent, LittleGroup previews, String extension) {
             this.index = structures.size();
             structures.add(this);
@@ -585,10 +598,12 @@ public class Placement {
             return previews.hasStructure();
         }
         
-        List<PlacementStructurePreview> children = new ArrayList<>();
-        
         public void addChild(PlacementStructurePreview child) {
             children.add(child);
+        }
+        
+        public void addExtension(String key, PlacementStructurePreview child) {
+            extensions.put(key, child);
         }
         
         public void place(StructureParentCollection parent) {

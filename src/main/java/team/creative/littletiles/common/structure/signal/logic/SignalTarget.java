@@ -135,10 +135,9 @@ public abstract class SignalTarget {
         
         @Override
         public ISignalComponent getTarget(LittleStructure structure) {
-            if (child < structure.countChildren())
-                try {
-                    return subTarget.getTarget(structure.getChild(child).getStructure());
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            try {
+                return subTarget.getTarget(structure.children.getChild(child).getStructure());
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             return null;
         }
         

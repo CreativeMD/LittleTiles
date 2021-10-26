@@ -6,17 +6,14 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class ItemChildrenList extends ChildrenList<LittleGroup> {
     
-    private final LittleGroup parent;
-    
     public ItemChildrenList(LittleGroup parent, List<LittleGroup> children) {
         super(children);
         this.parent = parent;
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     protected void added(LittleGroup child) {
-        LittleGroup.setGroupParent(child, parent);
+        child.children.parent = parent;
     }
     
 }

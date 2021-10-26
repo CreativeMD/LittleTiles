@@ -53,7 +53,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     }
     
     public ISignalStructureComponent getOutput() throws CorruptedConnectionException, NotYetConnectedException {
-        StructureChildConnection connection = structure.getChild(index);
+        StructureChildConnection connection = structure.children.getChild(index);
         LittleStructure output = connection.getStructure();
         if (output instanceof LittleSignalOutput)
             return (ISignalStructureComponent) output;

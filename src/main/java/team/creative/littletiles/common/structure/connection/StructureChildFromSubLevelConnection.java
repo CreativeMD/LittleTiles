@@ -19,8 +19,8 @@ public class StructureChildFromSubLevelConnection extends StructureChildConnecti
     }
     
     @Override
-    public CompoundTag writeToNBT(CompoundTag nbt) {
-        nbt = super.writeToNBT(nbt);
+    public CompoundTag save(CompoundTag nbt) {
+        nbt = super.save(nbt);
         nbt.putBoolean("subWorld", true);
         return nbt;
     }

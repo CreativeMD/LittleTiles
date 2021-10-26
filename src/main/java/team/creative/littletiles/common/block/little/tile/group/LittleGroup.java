@@ -33,7 +33,6 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     protected CompoundTag structure;
     protected LittleCollection content = new LittleCollection();
-    private LittleGroup parent;
     public final ItemChildrenList children;
     private LittleGrid grid;
     
@@ -49,11 +48,11 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     public LittleGroup getParent() {
-        return parent;
+        return children.getParent();
     }
     
     public boolean hasParent() {
-        return parent != null;
+        return children.hasParent();
     }
     
     public boolean hasChildren() {
@@ -67,7 +66,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     public boolean hasStructureIncludeChildren() {
         if (hasStructure())
             return true;
-        for (LittleGroup child : children)
+        for (LittleGroup child : children.all())
             if (child.hasStructureIncludeChildren())
                 return true;
         return false;
@@ -96,7 +95,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     public boolean transformable() {
-        for (LittleGroup child : children)
+        for (LittleGroup child : children.all())
             if (!child.transformable())
                 return false;
         return true;
@@ -121,7 +120,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             getStructureType().move(this, vec);
         
         if (hasChildren())
-            for (LittleGroup child : children)
+            for (LittleGroup child : children.all())
                 child.move(vec);
     }
     
@@ -136,7 +135,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             getStructureType().mirror(this, getGrid(), axis, doubledCenter);
         
         if (hasChildren())
-            for (LittleGroup child : children)
+            for (LittleGroup child : children.all())
                 child.mirror(axis, doubledCenter);
     }
     
@@ -151,7 +150,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             getStructureType().rotate(this, getGrid(), rotation, doubledCenter);
         
         if (hasChildren())
-            for (LittleGroup child : children)
+            for (LittleGroup child : children.all())
                 child.rotate(rotation, doubledCenter);
     }
     
@@ -172,7 +171,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         
         size = context.count;
         if (hasChildren())
-            for (LittleGroup child : children)
+            for (LittleGroup child : children.all())
                 size = Math.max(child.getSmallest(), size);
         return size;
     }
@@ -184,7 +183,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
                 tile.convertTo(this.grid, to);
             
         if (hasChildren())
-            for (LittleGroup child : children)
+            for (LittleGroup child : children.all())
                 child.convertTo(to);
         this.grid = to;
     }
@@ -209,7 +208,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             return new Iterator<LittleTile>() {
                 
                 public Iterator<LittleTile> subIterator = iterator();
-                public Iterator<LittleGroup> children = LittleGroup.this.children.iterator();
+                public Iterator<LittleGroup> children = LittleGroup.this.children.iteratorAll();
                 
                 @Override
                 public boolean hasNext() {
@@ -289,7 +288,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     public double getVolumeIncludingChildren() {
         double volume = getVolume();
-        for (LittleGroup child : children)
+        for (LittleGroup child : children.all())
             volume += child.getVolumeIncludingChildren();
         return volume;
     }
@@ -302,7 +301,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     public LittleVolumes getVolumesIncludingChildren() {
         LittleVolumes volume = getVolumes();
-        for (LittleGroup child : children)
+        for (LittleGroup child : children.all())
             volume.add(child.getVolumesIncludingChildren());
         return volume;
     }
@@ -311,7 +310,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         content.combineBlockwise(this.grid);
         
         if (hasChildren())
-            for (LittleGroup child : children)
+            for (LittleGroup child : children.all())
                 child.combineBlockwise();
     }
     
@@ -323,7 +322,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             getStructureType().advancedScale(this, from, to);
         
         if (hasChildren())
-            for (LittleGroup child : children)
+            for (LittleGroup child : children.all())
                 child.advancedScale(from, to);
     }
     
@@ -331,7 +330,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         if (!isEmpty())
             return false;
         
-        for (LittleGroup child : children)
+        for (LittleGroup child : children.all())
             if (!child.isEmptyIncludeChildren())
                 return false;
         return true;
@@ -353,7 +352,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         if (!hasChildren())
             return size();
         int size = size();
-        for (LittleGroup child : children)
+        for (LittleGroup child : children.all())
             size += child.totalSize();
         return size;
     }
@@ -481,17 +480,12 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     @Deprecated
-    public static void setGroupParent(LittleGroup group, LittleGroup parent) {
-        group.parent = parent;
-    }
-    
-    @Deprecated
     public static void setGridSecretly(LittleGroup previews, LittleGrid grid) {
         if (previews.hasStructure())
             previews.getStructureType().advancedScale(previews, grid.count, previews.grid.count);
         previews.grid = grid;
         if (previews.hasChildren())
-            for (LittleGroup child : previews.children)
+            for (LittleGroup child : previews.children.all())
                 setGridSecretly(child, grid);
     }
     

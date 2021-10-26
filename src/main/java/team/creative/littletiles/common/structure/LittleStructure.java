@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.event.LittleEventHandler;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.RenderType;
@@ -19,8 +18,6 @@ import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -37,7 +34,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
@@ -63,12 +59,9 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
-import team.creative.littletiles.common.structure.connection.ChildrenList;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.LevelChildrenList;
 import team.creative.littletiles.common.structure.connection.StructureChildConnection;
-import team.creative.littletiles.common.structure.connection.StructureChildFromSubLevelConnection;
-import team.creative.littletiles.common.structure.connection.StructureChildToSubLevelConnection;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.MissingBlockException;
@@ -92,8 +85,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public String name;
     
-    private StructureChildConnection parent;
-    protected LevelChildrenList children;
+    public final LevelChildrenList children = new LevelChildrenList(this);
     
     private HashMap<Integer, SignalExternalOutputHandler> externalHandler;
     private final InternalSignalInput[] inputs;
@@ -149,18 +141,26 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     // ================Connections================
     
+    public boolean hasParent() {
+        return children.hasParent();
+    }
+    
+    public StructureChildConnection getParent() {
+        return children.getParent();
+    }
+    
     public void checkConnections() throws CorruptedConnectionException, NotYetConnectedException {
         for (StructureBlockConnector block : blocks)
             block.connect();
         
         try {
-            if (parent != null)
-                parent.checkConnection();
+            if (hasParent())
+                getParent().checkConnection();
         } catch (CorruptedConnectionException e) {
-            throw new MissingParentException(parent, e);
+            throw new MissingParentException(getParent(), e);
         }
         
-        for (StructureChildConnection child : children)
+        for (StructureChildConnection child : children.all())
             try {
                 child.getStructure().checkConnections();
             } catch (CorruptedConnectionException e) {
@@ -188,87 +188,15 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public boolean isChildOf(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
         if (structure == this)
             return true;
-        if (parent != null)
-            return parent.getStructure().isChildOf(structure);
+        if (hasParent())
+            return getParent().getStructure().isChildOf(structure);
         return false;
     }
     
-    public void removeParent() {
-        if (!parent.dynamic)
-            throw new RuntimeException("Cannot remove non dynamic child");
-        parent = null;
-    }
-    
-    public void updateChildConnection(int i, LittleStructure child, boolean dynamic) {
-        Level level = getLevel();
-        Level childLevel = child.getLevel();
-        
-        StructureChildConnection connector;
-        if (childLevel == level)
-            connector = new StructureChildConnection(this, false, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute());
-        else if (childLevel instanceof SubLevel && ((SubLevel) childLevel).parent != null)
-            connector = new StructureChildToSubLevelConnection(this, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child
-                    .getAttribute(), ((SubLevel) childLevel).parent.getUUID());
-        else
-            throw new RuntimeException("Invalid connection between to structures!");
-        
-        children.set(connector);
-    }
-    
-    public void updateParentConnection(int i, LittleStructure parent, boolean dynamic) {
-        Level level = getLevel();
-        Level parentLevel = parent.getLevel();
-        
-        StructureChildConnection connector;
-        if (parentLevel == level)
-            connector = new StructureChildConnection(this, true, dynamic, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
-        else if (level instanceof SubLevel && ((SubLevel) level).parent != null)
-            connector = new StructureChildFromSubLevelConnection(this, dynamic, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
-        else
-            throw new RuntimeException("Invalid connection between to structures!");
-        
-        this.parent = connector;
-    }
-    
-    public StructureChildConnection generateConnection(ILevelPositionProvider parent) {
-        Level level = getLevel();
-        Level parentLevel = parent.getLevel();
-        
-        StructureChildConnection connector;
-        if (parentLevel == level)
-            connector = new StructureChildConnection(parent, true, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this.getAttribute());
-        else if (level instanceof SubLevel && ((SubLevel) level).parent != null)
-            connector = new StructureChildToSubLevelConnection(parent, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this
-                    .getAttribute(), ((SubLevel) level).parent.getUUID());
-        else
-            throw new RuntimeException("Invalid connection between to structures!");
-        return connector;
-    }
-    
-    public void removeDynamicChild(int i) throws CorruptedConnectionException, NotYetConnectedException {
-        children.remove(i);
-    }
-    
-    public StructureChildConnection getParent() {
-        return parent;
-    }
-    
     public LittleStructure findTopStructure() throws CorruptedConnectionException, NotYetConnectedException {
-        if (parent != null)
-            return parent.getStructure().findTopStructure();
+        if (hasParent())
+            return getParent().getStructure().findTopStructure();
         return this;
-    }
-    
-    public int countChildren() {
-        return children.size();
-    }
-    
-    public Iterable<StructureChildConnection> getChildren() {
-        return children;
-    }
-    
-    public StructureChildConnection getChild(int index) throws CorruptedConnectionException, NotYetConnectedException {
-        return children.get(index);
     }
     
     // ================Tiles================
@@ -387,7 +315,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     protected HashMapList<BlockPos, IStructureParentCollection> collectAllBlocksListSameWorld(HashMapList<BlockPos, IStructureParentCollection> map) throws CorruptedConnectionException, NotYetConnectedException {
         for (IStructureParentCollection list : blocksList())
             map.add(list.getPos(), list);
-        for (StructureChildConnection child : children)
+        for (StructureChildConnection child : children.all())
             if (!child.isLinkToAnotherWorld())
                 child.getStructure().collectAllBlocksListSameWorld(map);
         return map;
@@ -409,7 +337,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public void notifyAfterPlaced() {
         afterPlaced();
-        for (StructureChildConnection child : children)
+        for (StructureChildConnection child : children.all())
             try {
                 child.getStructure().notifyAfterPlaced();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
@@ -423,39 +351,19 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.clear();
         
         // LoadTiles
-        if (nbt.contains("blocks")) {
+        if (nbt.contains("b")) {
             blocks.clear();
-            int[] array = nbt.getIntArray("blocks");
+            int[] array = nbt.getIntArray("b");
             for (int i = 0; i + 2 < array.length; i += 3)
                 blocks.add(new StructureBlockConnector(new BlockPos(array[i], array[i + 1], array[i + 2])));
         }
         
-        if (nbt.contains("name"))
-            name = nbt.getString("name");
+        if (nbt.contains("n"))
+            name = nbt.getString("n");
         else
             name = null;
         
-        // Load family (parent and children)        
-        if (nbt.contains("parent"))
-            parent = StructureChildConnection.loadFromNBT(this, nbt.getCompound("parent"), true);
-        else
-            parent = null;
-        
-        if (nbt.contains("children")) {
-            
-            ListTag list = nbt.getList("children", 10);
-            children = new ChildrenList();
-            for (int i = 0; i < list.size(); i++)
-                children.set(StructureChildConnection.loadFromNBT(this, list.getCompound(i), false));
-            
-            if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
-                for (StructureChildConnection child : children)
-                    if (child instanceof StructureChildToSubWorldConnection && ((StructureChildToSubWorldConnection) child).entityUUID
-                            .equals(((IAnimatedStructure) this).getAnimation().getUUID()))
-                        throw new RuntimeException("Something went wrong during loading!");
-                    
-        } else
-            children = new ChildrenList();
+        children.load(nbt);
         
         for (StructureDirectionalField field : type.directional) {
             if (nbt.contains(field.saveKey))
@@ -464,8 +372,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 field.set(this, failedLoadingRelative(nbt, field));
         }
         
-        if (nbt.contains("signal")) {
-            ListTag list = nbt.getList("signal", 10);
+        if (nbt.contains("s")) {
+            ListTag list = nbt.getList("s", 10);
             externalHandler = new HashMap<>();
             for (int i = 0; i < list.size(); i++) {
                 try {
@@ -509,20 +417,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void save(CompoundTag nbt) {
+        children.save(nbt);
         
-        // Save family (parent and children)
-        if (parent != null)
-            nbt.put("parent", parent.writeToNBT(new CompoundTag()));
-        
-        if (children != null && !children.isEmpty()) {
-            ListTag list = new ListTag();
-            for (StructureChildConnection child : children)
-                list.add(child.writeToNBT(new CompoundTag()));
-            
-            nbt.put("children", list);
-        }
-        
-        // Save blocks
         int[] array = new int[blocks.size() * 3];
         for (int i = 0; i < blocks.size(); i++) {
             StructureBlockConnector block = blocks.get(i);
@@ -530,7 +426,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             array[i * 3 + 1] = block.pos.getY();
             array[i * 3 + 2] = block.pos.getZ();
         }
-        nbt.putIntArray("blocks", array);
+        nbt.putIntArray("b", array);
         
         for (StructureDirectionalField field : type.directional) {
             Object value = field.get(this);
@@ -543,15 +439,15 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     protected void saveInternalExtra(CompoundTag nbt, boolean preview) {
         nbt.putString("id", type.id);
         if (name != null)
-            nbt.putString("name", name);
+            nbt.putString("n", name);
         else
-            nbt.remove("name");
+            nbt.remove("n");
         
         if (externalHandler != null && !externalHandler.isEmpty()) {
             ListTag list = new ListTag();
             for (SignalExternalOutputHandler handler : externalHandler.values())
                 list.add(handler.write(preview));
-            nbt.put("signal", list);
+            nbt.put("s", list);
         }
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
@@ -570,8 +466,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Destroy====================
     
     public void onLittleTileDestroy() throws CorruptedConnectionException, NotYetConnectedException {
-        if (parent != null) {
-            parent.getStructure().onLittleTileDestroy();
+        if (hasParent()) {
+            getParent().getStructure().onLittleTileDestroy();
             return;
         }
         
@@ -583,7 +479,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         checkConnections();
         onStructureDestroyed();
         
-        for (StructureChildConnection child : children)
+        for (StructureChildConnection child : children.all())
             child.destroyStructure();
         
         if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
@@ -597,7 +493,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void callStructureDestroyedToSameWorld() {
-        for (StructureChildConnection child : children)
+        for (StructureChildConnection child : children.all())
             if (!child.isLinkToAnotherWorld())
                 try {
                     child.getStructure().callStructureDestroyedToSameWorld();
@@ -620,7 +516,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             public Iterator<ISignalStructureComponent> iterator() {
                 return new Iterator<ISignalStructureComponent>() {
                     
-                    Iterator<StructureChildConnection> iterator = children.iterator();
+                    Iterator<StructureChildConnection> iterator = children.iteratorAll();
                     ISignalStructureComponent next;
                     
                     @Override
@@ -658,7 +554,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             public Iterator<ISignalStructureComponent> iterator() {
                 return new Iterator<ISignalStructureComponent>() {
                     
-                    Iterator<StructureChildConnection> iterator = children.iterator();
+                    Iterator<StructureChildConnection> iterator = children.iteratorAll();
                     ISignalStructureComponent next;
                     
                     @Override
@@ -691,9 +587,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     @Override
     public void notifyChange() {
-        if (parent != null)
+        if (hasParent())
             try {
-                parent.getStructure().processSignalChanges();
+                getParent().getStructure().processSignalChanges();
                 return;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         processSignalChanges();
@@ -706,7 +602,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (outputs != null)
             for (int i = 0; i < outputs.length; i++)
                 outputs[i].update();
-        for (StructureChildConnection child : children)
+        for (StructureChildConnection child : children.all())
             try {
                 child.getStructure().processSignalChanges();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
@@ -776,10 +672,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         LittleGroup previews = new LittleGroup(structureNBT, LittleGrid.min(), childrenGroup);
         
-        for (Pair<IStructureParentCollection, LittleTile> pair : tiles()) {
-            LittlePreview preview = previews.addTile(pair.key, pair.value);
-            preview.box.add(new LittleVec(previews.getContext(), pair.key.getPos().subtract(pos)));
-        }
+        for (Pair<IStructureParentCollection, LittleTile> pair : tiles())
+            LittleGroupAbsolute.add(previews, pos, pair.key, pair.value);
         
         for (Entry<String, StructureChildConnection> entry : children.extensionEntries())
             previews.children.addExtension(entry.getKey(), entry.getValue().getStructure().getPreviews(pos));
@@ -805,10 +699,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             
         LittleGroup previews = new LittleGroup(structureNBT, LittleGrid.min(), childrenGroup);
         
-        for (Pair<IStructureParentCollection, LittleTile> pair : tiles()) {
-            LittlePreview preview = previews.addTile(pair.key, pair.value);
-            preview.box.add(new LittleVec(previews.getContext(), pair.key.getPos().subtract(pos)));
-        }
+        for (Pair<IStructureParentCollection, LittleTile> pair : tiles())
+            LittleGroupAbsolute.add(previews, pos, pair.key, pair.value);
         
         for (Entry<String, StructureChildConnection> entry : children.extensionEntries())
             if (entry.getValue().isLinkToAnotherWorld())
@@ -826,7 +718,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             pos.set(Math.min(pos.getX(), tePos.getX()), Math.min(pos.getY(), tePos.getY()), Math.min(pos.getZ(), tePos.getZ()));
         }
         
-        for (StructureChildConnection child : children)
+        for (StructureChildConnection child : children.all())
             child.getStructure().getMinPos(pos);
         
         return pos;
@@ -835,22 +727,22 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Transform & Transfer====================
     
     public void transferChildrenToAnimation(EntityAnimation animation) throws CorruptedConnectionException, NotYetConnectedException {
-        for (StructureChildConnection child : children) {
+        for (StructureChildConnection child : children.all()) {
             LittleStructure childStructure = child.getStructure();
             if (child.isLinkToAnotherWorld()) {
                 EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
                 int l1 = subAnimation.chunkCoordX;
                 int i2 = subAnimation.chunkCoordZ;
-                World world = getWorld();
+                Level level = getLevel();
                 if (subAnimation.addedToChunk) {
-                    Chunk chunk = world.getChunkFromChunkCoords(l1, i2);
+                    LevelChunk chunk = level.getChunk(l1, i2);
                     if (chunk != null)
                         chunk.removeEntity(subAnimation);
                     subAnimation.addedToChunk = false;
                 }
-                world.loadedEntityList.remove(subAnimation);
-                subAnimation.setParentWorld(animation.fakeWorld);
-                animation.fakeWorld.spawnEntity(subAnimation);
+                level.loadedEntityList.remove(subAnimation);
+                subAnimation.setParentLevel(animation.fakeWorld);
+                animation.fakeWorld.addFreshEntity(subAnimation);
                 subAnimation.updateTickState();
                 
                 childStructure.updateParentConnection(child.childId, this, child.dynamic);
@@ -862,22 +754,22 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void transferChildrenFromAnimation(EntityAnimation animation) throws CorruptedConnectionException, NotYetConnectedException {
-        World parentWorld = animation.fakeWorld.getParent();
-        for (StructureChildConnection child : children) {
+        Level parentLevel = animation.fakeWorld.getParent();
+        for (StructureChildConnection child : children.all()) {
             LittleStructure childStructure = child.getStructure();
             if (child.isLinkToAnotherWorld()) {
                 EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
                 int l1 = subAnimation.chunkCoordX;
                 int i2 = subAnimation.chunkCoordZ;
                 if (subAnimation.addedToChunk) {
-                    Chunk chunk = animation.fakeWorld.getChunkFromChunkCoords(l1, i2);
+                    LevelChunk chunk = animation.fakeWorld.getChunk(l1, i2);
                     if (chunk != null)
                         chunk.removeEntity(subAnimation);
                     subAnimation.addedToChunk = false;
                 }
                 animation.fakeWorld.loadedEntityList.remove(subAnimation);
-                subAnimation.setParentWorld(parentWorld);
-                parentWorld.spawnEntity(subAnimation);
+                subAnimation.setParentLevel(parentLevel);
+                parentLevel.addFreshEntity(subAnimation);
                 subAnimation.updateTickState();
             } else
                 childStructure.transferChildrenFromAnimation(animation);
@@ -925,8 +817,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Extra====================
     
     public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
-        if (parent != null)
-            return parent.getStructure().getStructureDrop();
+        if (hasParent())
+            return findTopStructure().getStructureDrop();
         
         checkConnections();
         BlockPos pos = getMinPos(getPos().mutable());

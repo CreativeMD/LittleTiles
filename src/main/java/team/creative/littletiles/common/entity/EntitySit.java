@@ -34,8 +34,8 @@ public class EntitySit extends Entity implements ILevelPositionProvider {
         entityData.set(CHAIRX, (float) x);
         entityData.set(CHAIRY, (float) y);
         entityData.set(CHAIRZ, (float) z);
-        this.temp = chair.generateConnection(this);
-        entityData.set(CONNECTION, temp.writeToNBT(new CompoundTag()));
+        this.temp = chair.children.generateConnection(this);
+        entityData.set(CONNECTION, temp.save(new CompoundTag()));
         setPos(x, y, z);
     }
     
@@ -52,7 +52,7 @@ public class EntitySit extends Entity implements ILevelPositionProvider {
     @Override
     public void tick() {
         super.tick();
-        StructureChildConnection connection = StructureChildConnection.loadFromNBT(this, entityData.get(CONNECTION), false);
+        StructureChildConnection connection = StructureChildConnection.load(this, entityData.get(CONNECTION), false);
         if (!level.isClientSide && !isVehicle()) {
             try {
                 

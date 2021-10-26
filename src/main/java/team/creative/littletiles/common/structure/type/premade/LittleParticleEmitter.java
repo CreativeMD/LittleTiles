@@ -12,7 +12,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -28,7 +27,7 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
@@ -77,7 +76,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTile tile, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide)
             LittleStructureGuiHandler.openGui("particle", new CompoundTag(), player, this);
         return InteractionResult.SUCCESS;
@@ -184,7 +183,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     public static class ParticleSettings {
         
         public float gravity = 0;
-        public int color = ColorUtils.toInt(20, 20, 20, 255);
+        public int color = ColorUtils.rgba(20, 20, 20, 255);
         public int lifetime = 40;
         public int lifetimeDeviation = 5;
         public float startSize = 0.4F;

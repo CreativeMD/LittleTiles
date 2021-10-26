@@ -1,14 +1,13 @@
 package team.creative.littletiles.common.structure.type.premade;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
-
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -16,9 +15,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.InventoryUtils;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -60,7 +61,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTile tile, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         LittleStructureGuiHandler.openGui("structure_builder", new CompoundTag(), player, this);
         return InteractionResult.SUCCESS;
     }
@@ -112,17 +113,19 @@ public class LittleStructureBuilder extends LittleStructurePremade {
             this.frameVariableName = frameVariableName;
         }
         
-        public LittleGroup construct(LittleGrid context, int width, int height, int thickness, CompoundTag tileData) {
+        @SuppressWarnings("deprecation")
+        public LittleGroup construct(LittleGrid context, int width, int height, int thickness, String block) {
             CompoundTag structureNBT = new CompoundTag();
             structureNBT.putString("id", type.id);
             structureNBT.putIntArray("topRight", new int[] { Float.floatToIntBits(0), Float.floatToIntBits(1), Float.floatToIntBits(1) });
             structureNBT.putIntArray(frameVariableName, new int[] { thickness, 0, 0, thickness + 1, height, width, context.count });
             LittleGroup previews = new LittleGroup(structureNBT, context, Collections.EMPTY_LIST);
+            List<LittleBox> boxes = new ArrayList<>();
             for (int x = 0; x < thickness; x += context.count)
                 for (int y = 0; y < height; y += context.count)
                     for (int z = 0; z < width; z += context.count)
-                        previews.addWithoutCheckingPreview(new LittlePreview(new LittleBox(x, y, z, Math.min(x + 16, thickness), Math.min(y + 16, height), Math
-                                .min(z + 16, width)), tileData.copy()));
+                        boxes.add(new LittleBox(x, y, z, Math.min(x + 16, thickness), Math.min(y + 16, height), Math.min(z + 16, width)));
+            previews.addDirectly(new LittleTile(block, ColorUtils.WHITE, boxes));
             return previews;
         }
         

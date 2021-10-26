@@ -25,12 +25,11 @@ public class SignalUtils {
     }
     
     public static ISignalStructureComponent getExternalInput(LittleStructure structure, int id) {
-        if (id >= 0 && id < structure.countChildren())
-            try {
-                LittleStructure child = structure.getChild(id).getStructure();
-                if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getComponentType() == SignalComponentType.INPUT)
-                    return (ISignalStructureComponent) child;
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        try {
+            LittleStructure child = structure.children.getChild(id).getStructure();
+            if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getComponentType() == SignalComponentType.INPUT)
+                return (ISignalStructureComponent) child;
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         return null;
     }
     
@@ -47,12 +46,11 @@ public class SignalUtils {
     }
     
     public static ISignalStructureComponent getExternalOutput(LittleStructure structure, int id) {
-        if (id >= 0 && id < structure.countChildren())
-            try {
-                LittleStructure child = structure.getChild(id).getStructure();
-                if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getComponentType() == SignalComponentType.OUTPUT)
-                    return (ISignalStructureComponent) child;
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        try {
+            LittleStructure child = structure.children.getChild(id).getStructure();
+            if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getComponentType() == SignalComponentType.OUTPUT)
+                return (ISignalStructureComponent) child;
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         return null;
     }
     

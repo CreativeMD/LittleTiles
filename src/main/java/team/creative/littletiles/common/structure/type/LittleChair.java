@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -15,11 +14,10 @@ import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.EntitySit;
-import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -75,8 +73,8 @@ public class LittleChair extends LittleStructure {
             for (Entity entity : level.loadedEntityList)
                 if (entity.getUUID().equals(sitUUID) && entity instanceof EntitySit) {
                     EntitySit sit = (EntitySit) entity;
-                    StructureChildConnection temp = this.generateConnection(sit);
-                    sit.getEntityData().set(EntitySit.CONNECTION, temp.writeToNBT(new CompoundTag()));
+                    StructureChildConnection temp = this.children.generateConnection(sit);
+                    sit.getEntityData().set(EntitySit.CONNECTION, temp.save(new CompoundTag()));
                     break;
                 }
         }
@@ -88,7 +86,7 @@ public class LittleChair extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTile tile, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide) {
             if (this.player != null)
                 return InteractionResult.SUCCESS;

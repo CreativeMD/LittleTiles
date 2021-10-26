@@ -26,8 +26,8 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
     }
     
     @Override
-    public CompoundTag writeToNBT(CompoundTag nbt) {
-        nbt = super.writeToNBT(nbt);
+    public CompoundTag save(CompoundTag nbt) {
+        nbt = super.save(nbt);
         nbt.putString("entity", entityUUID.toString());
         return nbt;
     }
@@ -51,7 +51,7 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
         EntityAnimation animation = WorldAnimationHandler.getHandler(super.getLevel()).findAnimation(entityUUID);
         if (animation != null)
             animation.markRemoved();
-        for (StructureChildConnection child : getStructure().getChildren())
+        for (StructureChildConnection child : getStructure().children.all())
             child.destroyStructure();
     }
     

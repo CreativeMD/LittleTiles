@@ -24,21 +24,21 @@ public class StructureChildConnection implements IStructureConnection {
     public final ILevelPositionProvider parent;
     public final boolean isChild;
     public final int childId;
-    public final boolean dynamic;
+    public final boolean extension;
     
     private final int structureIndex;
     private final int attribute;
     private final BlockPos relativePos;
     private BETiles cachedBE;
     
-    public StructureChildConnection(ILevelPositionProvider parent, boolean isChild, boolean dynamic, int childId, BlockPos relative, int index, int attribute) {
+    public StructureChildConnection(ILevelPositionProvider parent, boolean isChild, boolean extension, int childId, BlockPos relative, int index, int attribute) {
         this.parent = parent;
         this.isChild = isChild;
         this.childId = childId;
         this.structureIndex = index;
         this.attribute = attribute;
         this.relativePos = relative;
-        this.dynamic = dynamic;
+        this.extension = extension;
     }
     
     public StructureChildConnection(ILevelPositionProvider parent, boolean isChild, CompoundTag nbt) {
@@ -47,7 +47,7 @@ public class StructureChildConnection implements IStructureConnection {
         this.childId = nbt.getInt("child");
         this.attribute = nbt.getInt("type");
         this.structureIndex = nbt.getInt("index");
-        this.dynamic = nbt.getBoolean("dynamic");
+        this.extension = nbt.getBoolean("extension");
         int[] array = nbt.getIntArray("coord");
         if (array.length == 3)
             relativePos = new BlockPos(array[0], array[1], array[2]);
@@ -63,13 +63,13 @@ public class StructureChildConnection implements IStructureConnection {
         return childId;
     }
     
-    public CompoundTag writeToNBT(CompoundTag nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         nbt.putInt("child", childId);
         nbt.putIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
         nbt.putInt("type", attribute);
         nbt.putInt("index", structureIndex);
-        if (dynamic)
-            nbt.putBoolean("dynamic", dynamic);
+        if (extension)
+            nbt.putBoolean("extension", extension);
         return nbt;
     }
     
@@ -136,7 +136,7 @@ public class StructureChildConnection implements IStructureConnection {
         return attribute;
     }
     
-    public static StructureChildConnection loadFromNBT(ILevelPositionProvider structure, CompoundTag nbt, boolean isChild) {
+    public static StructureChildConnection load(ILevelPositionProvider structure, CompoundTag nbt, boolean isChild) {
         if (nbt.contains("entity"))
             return new StructureChildToSubLevelConnection(structure, nbt);
         else if (nbt.getBoolean("subWorld"))

@@ -72,4 +72,18 @@ public class LittleGroupAbsolute implements IGridBased {
         return new LittleGroupAbsolute(pos, group.copy());
     }
     
+    @SuppressWarnings("deprecation")
+    public static void add(LittleGroup group, BlockPos pos, IParentCollection parent, LittleTile tile) {
+        tile = tile.copy();
+        
+        if (group.getGrid() != parent.getGrid())
+            if (group.getGrid().count > parent.getGrid().count)
+                tile.convertTo(parent.getGrid(), group.getGrid());
+            else
+                group.convertTo(parent.getGrid());
+            
+        tile.move(new LittleVec(group.getGrid(), parent.getPos().subtract(pos)));
+        group.addDirectly(tile);
+    }
+    
 }
