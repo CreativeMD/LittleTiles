@@ -3,7 +3,6 @@ package team.creative.littletiles.common.action;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.EnumHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -35,12 +34,10 @@ public class LittleActionActivated extends LittleActionInteract {
     
     @Override
     protected boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
-        if (parent.isStructure())
-            return parent.getStructure().onBlockActivated(world, tile, pos, player, EnumHand.MAIN_HAND, player
-                    .getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this);
+        if (context.parent.isStructure())
+            return context.parent.getStructure().use(level, context, player, hit);
         
-        if (tile.onBlockActivated(parent, player, EnumHand.MAIN_HAND, player
-                .getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this))
+        if (context.tile.use(context.parent, context.box, pos, player, hit))
             return true;
         return false;
     }

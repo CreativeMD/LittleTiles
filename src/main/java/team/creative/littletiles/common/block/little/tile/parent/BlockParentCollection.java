@@ -31,7 +31,7 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     @Override
-    protected void readExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         structures.clear();
         ListTag list = nbt.getList("children", 10);
         for (int i = 0; i < list.size(); i++) {
@@ -42,10 +42,10 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     @Override
-    protected void writeExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         ListTag list = new ListTag();
         for (StructureParentCollection child : structures.values())
-            list.add(child.write());
+            list.add(child.save());
         nbt.put("children", list);
     }
     

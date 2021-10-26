@@ -38,13 +38,13 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
     }
     
     public static BlockIngredientEntry loadIngredient(ItemStack stack) {
-        if (stack.hasTagCompound())
-            return IngredientUtils.loadBlockIngredient(stack.getTagCompound());
+        if (stack.hasTag())
+            return IngredientUtils.loadBlockIngredient(stack.getTag());
         return null;
     }
     
     public static void saveIngredient(ItemStack stack, BlockIngredientEntry entry) {
-        entry.writeToNBT(stack.getTagCompound());
+        entry.save(stack.getTag());
     }
     
     @Override

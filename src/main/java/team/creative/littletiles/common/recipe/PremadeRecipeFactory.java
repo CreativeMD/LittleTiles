@@ -2,19 +2,18 @@ package team.creative.littletiles.common.recipe;
 
 import java.util.Map;
 
-import com.creativemd.littletiles.LittleTiles;
 import com.google.gson.JsonObject;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.JsonUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IRecipeFactory;
 import net.minecraftforge.common.crafting.JsonContext;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import team.creative.littletiles.LittleTiles;
 
 public class PremadeRecipeFactory implements IRecipeFactory {
     
@@ -25,7 +24,7 @@ public class PremadeRecipeFactory implements IRecipeFactory {
         
         if (shapedCrafting == null)
             shapedCrafting = ((Map<ResourceLocation, IRecipeFactory>) ReflectionHelper.getPrivateValue(CraftingHelper.class, null, "recipes"))
-                .get(new ResourceLocation("minecraft", "crafting_shaped"));
+                    .get(new ResourceLocation("minecraft", "crafting_shaped"));
         
         ShapedRecipes recipe = (ShapedRecipes) shapedCrafting.parse(context, json);
         

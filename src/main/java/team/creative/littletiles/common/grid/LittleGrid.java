@@ -50,6 +50,14 @@ public class LittleGrid {
         names = Collections.unmodifiableList(names);
     }
     
+    public static int getScale() {
+        return scale;
+    }
+    
+    public static int getExponent() {
+        return exponent;
+    }
+    
     public static List<String> names() {
         return names;
     }

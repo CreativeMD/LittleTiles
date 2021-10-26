@@ -3,7 +3,6 @@ package team.creative.littletiles.common.api.block;
 import java.util.Random;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -124,7 +123,7 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public default InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
+    public default InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
         return InteractionResult.PASS;
     }
     

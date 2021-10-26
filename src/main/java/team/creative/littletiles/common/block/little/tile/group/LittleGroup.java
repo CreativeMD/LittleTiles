@@ -5,10 +5,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -490,6 +493,48 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         if (previews.hasChildren())
             for (LittleGroup child : previews.children)
                 setGridSecretly(child, grid);
+    }
+    
+    public static LittleGroup load(CompoundTag nbt) {
+        ListTag list = nbt.getList("c", Tag.TAG_COMPOUND);
+        List<LittleGroup> children = new ArrayList<>(list.size());
+        for (int i = 0; i < list.size(); i++)
+            children.add(load(list.getCompound(i)));
+        
+        CompoundTag structure = nbt.getCompound("s");
+        if (structure.isEmpty())
+            structure = null;
+        LittleGrid grid = LittleGrid.get(nbt);
+        LittleGroup group = new LittleGroup(structure, grid, children);
+        LittleCollection.load(group.content, nbt.getList("t", Tag.TAG_COMPOUND));
+        
+        list = nbt.getList("e", Tag.TAG_COMPOUND);
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag child = list.getCompound(i);
+            group.children.addExtension(child.getString("i"), load(child));
+        }
+        return group;
+    }
+    
+    public static CompoundTag save(LittleGroup group) {
+        CompoundTag nbt = new CompoundTag();
+        if (group.hasStructure())
+            nbt.put("s", group.getStructureTag());
+        nbt.put("t", LittleCollection.save(group.content));
+        group.grid.set(nbt);
+        ListTag list = new ListTag();
+        for (LittleGroup child : group.children.children())
+            list.add(save(child));
+        nbt.put("c", list);
+        
+        list = new ListTag();
+        for (Entry<String, LittleGroup> entry : group.children.extensionEntries()) {
+            CompoundTag childNbt = save(entry.getValue());
+            childNbt.putString("i", entry.getKey());
+            list.add(childNbt);
+        }
+        nbt.put("e", list);
+        return nbt;
     }
     
 }

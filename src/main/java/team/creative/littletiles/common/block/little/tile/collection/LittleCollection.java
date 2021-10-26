@@ -3,8 +3,18 @@ package team.creative.littletiles.common.block.little.tile.collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -189,6 +199,52 @@ public class LittleCollection implements Iterable<LittleTile> {
     
     public LittleTile first() {
         return content.get(0);
+    }
+    
+    @SuppressWarnings("deprecation")
+    public static void load(LittleCollection collection, ListTag list) {
+        collection.clear();
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag nbt = list.getCompound(i);
+            String name = nbt.getString("s");
+            BlockState state = LittleBlockRegistry.loadState(name);
+            LittleBlock block;
+            if (state.getBlock() instanceof AirBlock)
+                block = LittleBlockRegistry.getMissing(name);
+            else
+                block = LittleBlockRegistry.get(state);
+            ListTag boxes = nbt.getList("b", Tag.TAG_INT_ARRAY);
+            List<LittleBox> tileBoxes = null;
+            for (int j = 0; j < boxes.size(); j++) {
+                int[] data = boxes.getIntArray(j);
+                if (data.length == 1) {
+                    tileBoxes = new ArrayList<>();
+                    collection.content.add(new LittleTile(state, block, data[0], tileBoxes));
+                } else
+                    tileBoxes.add(LittleBox.create(data));
+            }
+        }
+    }
+    
+    public static ListTag save(LittleCollection collection) {
+        HashMapList<String, LittleTile> sorted = new HashMapList<>();
+        
+        for (LittleTile tile : collection)
+            sorted.add(tile.getBlockName(), tile);
+        
+        ListTag list = new ListTag();
+        for (Entry<String, ArrayList<LittleTile>> entry : sorted.entrySet()) {
+            CompoundTag nbt = new CompoundTag();
+            nbt.putString("s", entry.getKey());
+            ListTag boxes = new ListTag();
+            for (LittleTile tile : entry.getValue()) {
+                boxes.add(new IntArrayTag(new int[] { tile.color }));
+                for (LittleBox box : tile)
+                    boxes.add(box.getArrayTag());
+            }
+            nbt.put("b", boxes);
+        }
+        return list;
     }
     
 }

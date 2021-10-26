@@ -8,7 +8,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour.BlockStateBase;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -25,9 +25,9 @@ public class ConnectedTexturesModifier {
     static {
         try {
             connectedProperties = Class.forName("net.optifine.ConnectedProperties");
-            match = ReflectionHelper.findMethod(connectedProperties, "matchesBlockId", "matchesBlockId", int.class);
-            matchMeta = ReflectionHelper.findMethod(connectedProperties, "matchesBlock", "matchesBlock", int.class, int.class);
-            getBlockID = ReflectionHelper.findMethod(BlockStateBase.class, "getBlockId", "getBlockId");
+            match = ObfuscationReflectionHelper.findMethod(connectedProperties, "matchesBlockId", int.class);
+            matchMeta = ObfuscationReflectionHelper.findMethod(connectedProperties, "matchesBlock", int.class, int.class);
+            getBlockID = ObfuscationReflectionHelper.findMethod(BlockStateBase.class, "getBlockId");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -39,7 +39,7 @@ public class ConnectedTexturesModifier {
             BETiles be = BlockTile.loadBE(level, pos);
             if (be != null) {
                 for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
-                    if ((Boolean) match.invoke(properties, Block.getStateId(pair.value.getBlockState())))
+                    if ((Boolean) match.invoke(properties, Block.getId(pair.value.getState())))
                         return true;
                 return false;
             }
@@ -55,11 +55,11 @@ public class ConnectedTexturesModifier {
             BETiles be = BlockTile.loadBE(level, pos);
             if (be != null) {
                 for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
-                    if ((Boolean) matchMeta.invoke(properties, Block.getStateId(pair.value.getBlockState()), metadata))
+                    if ((Boolean) matchMeta.invoke(properties, Block.getId(pair.value.getState()), metadata))
                         return true;
                 return false;
             }
-            return (boolean) matchMeta.invoke(properties, Block.getStateId(level.getBlockState(pos)), metadata);
+            return (boolean) matchMeta.invoke(properties, Block.getId(level.getBlockState(pos)), metadata);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -68,13 +68,10 @@ public class ConnectedTexturesModifier {
     
     public static boolean isNeighbour(LevelAccessor level, BlockState state, BlockPos pos) {
         BETiles be = BlockTile.loadBE(level, pos);
-        if (be != null) {
-            Block block = state.getBlock();
-            int meta = block.getMetaFromState(state);
+        if (be != null)
             for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
-                if (pair.value.getBlock() == block && pair.value.getMeta() == meta)
+                if (state == pair.getValue().getState())
                     return true;
-        }
         return false;
     }
     

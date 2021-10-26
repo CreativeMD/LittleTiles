@@ -40,7 +40,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     
     public StructureParentCollection(BlockParentCollection parent, CompoundTag nbt) {
         this.parent = parent;
-        read(nbt);
+        load(nbt);
     }
     
     public void setParent(BlockParentCollection parent) {
@@ -48,7 +48,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     @Override
-    protected void readExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         if (nbt.contains("structure")) {
             CompoundTag structureNBT = nbt.getCompound("structure");
             cache = create(structureNBT, this);
@@ -64,7 +64,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     @Override
-    protected void writeExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt) {
         if (isMain()) {
             CompoundTag structureNBT = new CompoundTag();
             ((LittleStructure) cache).save(structureNBT);

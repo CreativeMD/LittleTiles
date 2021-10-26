@@ -3,8 +3,6 @@ package team.creative.littletiles.common.placement.shape.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,6 +16,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
@@ -38,7 +37,6 @@ public class LittleShapeSphere extends LittleShape {
             return;
         }
         
-        LittleVec center = size.calculateCenter();
         LittleVec invCenter = size.calculateInvertedCenter();
         invCenter.invert();
         
@@ -107,7 +105,7 @@ public class LittleShapeSphere extends LittleShape {
         
         boxes.combineBoxesBlocks();
         
-        if (lowResolution && boxes.size() > LittlePreview.lowResolutionMode) {
+        if (lowResolution && boxes.size() > PlacementHelper.LOW_RESOLUTION_COUNT) {
             boxes.clear();
             boxes.add(box);
         }

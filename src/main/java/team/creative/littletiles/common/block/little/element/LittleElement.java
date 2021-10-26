@@ -24,6 +24,13 @@ public class LittleElement {
         this.color = color;
     }
     
+    @Deprecated
+    public LittleElement(BlockState state, LittleBlock block, int color) {
+        this.state = state;
+        this.block = block;
+        this.color = color;
+    }
+    
     public LittleElement(CompoundTag nbt) {
         this(nbt.getString("s"), nbt.contains("c") ? nbt.getInt("c") : ColorUtils.WHITE);
     }
@@ -67,7 +74,7 @@ public class LittleElement {
     }
     
     public boolean is(LittleElement element) {
-        return element.state == state && element.color == color;
+        return element.state == state && element.block == block && element.color == color;
     }
     
 }

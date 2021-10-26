@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.RenderType;
@@ -19,7 +18,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -52,13 +50,13 @@ import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -796,7 +794,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public LittleGroup getPreviewsSameWorldOnly(BlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
         CompoundTag structureNBT = new CompoundTag();
-        this.writeToNBTPreview(structureNBT, pos);
+        this.savePreview(structureNBT, pos);
         
         List<LittleGroup> childrenGroup = new ArrayList<>();
         for (StructureChildConnection child : children.children())
@@ -934,9 +932,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         BlockPos pos = getMinPos(getPos().mutable());
         
         ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-        LittlePreviews previews = getPreviews(pos);
-        
-        LittlePreview.savePreview(previews, stack);
+        stack.setTag(LittleGroup.save(getPreviews(pos)));
         
         if (name != null) {
             CompoundTag display = new CompoundTag();
@@ -950,7 +946,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return false;
     }
     
-    public InteractionResult use(Level level, LittleTile tile, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         return InteractionResult.PASS;
     }
     

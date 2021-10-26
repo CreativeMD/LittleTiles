@@ -7,6 +7,8 @@ import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -134,6 +136,11 @@ public class SurroundingBox {
     
     public AABB getAABB() {
         return new AABB(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
+    }
+    
+    public VoxelShape getShape() {
+        return Shapes
+                .box(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
     public double getPercentVolume() {

@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.block.little.element.LittleElement;
-import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -32,7 +31,7 @@ public class ChiselsAndBitsInteractor {
         LittleGrid grid = LittleGrid.get(ChiselsAndBitsManager.convertingFrom);
         stream.forEach(state -> {
             LittleBox box = new LittleBox(new LittleVec(grid, state.getStartPoint()), new LittleVec(grid, state.getEndPoint()));
-            group.add(grid, new LittleElement(LittleBlockRegistry.get(state.getState()), ColorUtils.WHITE), box);
+            group.add(grid, new LittleElement(state.getState(), ColorUtils.WHITE), box);
         });
         
         group.combine();

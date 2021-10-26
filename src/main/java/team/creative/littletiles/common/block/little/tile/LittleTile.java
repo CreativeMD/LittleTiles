@@ -8,11 +8,6 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntArrayTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -34,6 +29,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.creativecore.common.util.type.SingletonList;
+import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
@@ -71,6 +67,12 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         this.boxes = new SingletonList<>(box);
     }
     
+    @Deprecated
+    public LittleTile(BlockState state, LittleBlock block, int color, List<LittleBox> boxes) {
+        super(state, block, color);
+        this.boxes = boxes;
+    }
+    
     public LittleTile(BlockState state, int color, Iterable<LittleBox> boxes) {
         super(state, color);
         if (boxes instanceof SingletonList)
@@ -91,15 +93,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     public LittleTile(String name, int color, List<LittleBox> boxes) {
         super(name, color);
         this.boxes = new ArrayList<>(boxes);
-    }
-    
-    public LittleTile(CompoundTag nbt) {
-        super(nbt);
-        ListTag list = nbt.getList("s", Tag.TAG_INT_ARRAY);
-        this.boxes = list.size() == 1 ? new SingletonList(LittleBox.create(list.getIntArray(0))) : new ArrayList<>();
-        if (list.size() > 1)
-            for (Tag tag : list)
-                this.boxes.add(LittleBox.create(((IntArrayTag) tag).getAsIntArray()));
     }
     
     // ================Basics================
@@ -168,21 +161,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             box.split(grid, pos, offset, boxes, volume);
     }
     
-    public CompoundTag save(CompoundTag nbt) {
-        ListTag list = new ListTag();
-        for (LittleBox box : boxes)
-            list.add(box.getArrayTag());
-        nbt.put("s", list);
-        if (ColorUtils.isDefault(color))
-            nbt.remove("c");
-        else
-            nbt.putInt("c", color);
-        
+    public String getBlockName() {
         if (getState().getBlock() instanceof AirBlock)
-            nbt.putString("s", getBlock().blockName());
+            return getBlock().blockName();
         else
-            nbt.putString("s", getState().toString());
-        return nbt;
+            return getState().toString();
     }
     
     public LittleTile copy() {
@@ -429,8 +412,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.canInteract();
     }
     
-    public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-        return block.use(parent, this, box, player, hand, result);
+    public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, BlockHitResult result) {
+        return block.use(parent, this, box, player, result);
     }
     
     public int getLightValue() {

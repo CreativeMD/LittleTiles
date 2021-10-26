@@ -56,15 +56,15 @@ public class LittleBlocks {
             }
             
             @Override
-            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
-                ItemStack heldItem = player.getItemInHand(hand);
+            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
+                ItemStack heldItem = player.getMainHandItem();
                 if (heldItem.is(Items.FLINT_AND_STEEL) || heldItem.is(Items.FIRE_CHARGE)) {
                     if (!parent.isClient())
                         explodeBox(parent, box, player, false);
                     parent.getBE().updateTiles(x -> tile.remove(x.get(parent), box));
                     
                     if (heldItem.getItem() == Items.FLINT_AND_STEEL)
-                        heldItem.hurtAndBreak(1, player, (x) -> x.broadcastBreakEvent(hand));
+                        heldItem.hurtAndBreak(1, player, (x) -> x.broadcastBreakEvent(InteractionHand.MAIN_HAND));
                     else if (!player.isCreative())
                         heldItem.shrink(1);
                     
@@ -106,7 +106,7 @@ public class LittleBlocks {
             
             @Override
             @SuppressWarnings("deprecation")
-            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
+            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
                 if (parent.isClient())
                     return InteractionResult.SUCCESS;
                 

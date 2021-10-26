@@ -1,22 +1,15 @@
 package team.creative.littletiles.common.math.box;
 
-import javax.annotation.Nullable;
-
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-import com.mojang.math.Vector3f;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.NormalPlane;
 import team.creative.creativecore.common.util.math.geo.Ray3f;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.math.vec.VectorUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanFaceCache;
@@ -76,7 +69,18 @@ public class TransformableAxisBox extends AABB {
     }
     
     @Override
-    public TransformableAxisBox expand(double x, double y, double z) {
+    public AABB inflate(double x, double y, double z) {
+        double d0 = this.minX - x;
+        double d1 = this.minY - y;
+        double d2 = this.minZ - z;
+        double d3 = this.maxX + x;
+        double d4 = this.maxY + y;
+        double d5 = this.maxZ + z;
+        return new TransformableAxisBox(box, grid, d0, d1, d2, d3, d4, d5);
+    }
+    
+    @Override
+    public TransformableAxisBox expandTowards(double x, double y, double z) {
         double d0 = this.minX;
         double d1 = this.minY;
         double d2 = this.minZ;
@@ -106,17 +110,6 @@ public class TransformableAxisBox extends AABB {
     }
     
     @Override
-    public AxisAlignedBB grow(double x, double y, double z) {
-        double d0 = this.minX - x;
-        double d1 = this.minY - y;
-        double d2 = this.minZ - z;
-        double d3 = this.maxX + x;
-        double d4 = this.maxY + y;
-        double d5 = this.maxZ + z;
-        return new TransformableAxisBox(box, grid, d0, d1, d2, d3, d4, d5);
-    }
-    
-    @Override
     public TransformableAxisBox intersect(AABB p_191500_1_) {
         double d0 = Math.max(this.minX, p_191500_1_.minX);
         double d1 = Math.max(this.minY, p_191500_1_.minY);
@@ -128,28 +121,14 @@ public class TransformableAxisBox extends AABB {
     }
     
     @Override
-    public AABB offset(double x, double y, double z) {
+    public AABB move(double x, double y, double z) {
         return new TransformableAxisBox(box, grid, this.minX + x, this.minY + y, this.minZ + z, this.maxX + x, this.maxY + y, this.maxZ + z);
     }
     
     @Override
-    public AABB offset(BlockPos pos) {
+    public AABB move(BlockPos pos) {
         return new TransformableAxisBox(box, grid, this.minX + pos.getX(), this.minY + pos.getY(), this.minZ + pos.getZ(), this.maxX + pos.getX(), this.maxY + pos
                 .getY(), this.maxZ + pos.getZ());
-    }
-    
-    @Override
-    public double calculateYOffsetStepUp(AABB other, AABB otherY, double offset) {
-        double newOffset = calculateYOffset(otherY, offset);
-        if (offset > 0) {
-            if (newOffset < offset)
-                return newOffset / 2;
-        } else {
-            if (newOffset > offset)
-                return newOffset / 2;
-        }
-        
-        return newOffset;
     }
     
     public VectorFanFaceCache getFaceCache(Facing facing) {
@@ -164,34 +143,32 @@ public class TransformableAxisBox extends AABB {
             return offset;
         
         boolean positive = offset > 0;
-        EnumFacing direction = EnumFacing.getFacingFromAxis(positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
+        Facing direction = Facing.get(axis, positive);
         
-        Axis one = RotationUtils.getOne(axis);
-        Axis two = RotationUtils.getTwo(axis);
+        Axis one = axis.one();
+        Axis two = axis.two();
         float minOne = (float) getMin(other, one);
         minOne -= Math.floor(getMin(one));
-        minOne *= context.size;
+        minOne *= grid.count;
         float minTwo = (float) getMin(other, two);
         minTwo -= Math.floor(getMin(two));
-        minTwo *= context.size;
+        minTwo *= grid.count;
         float maxOne = (float) getMax(other, one);
         maxOne -= Math.floor(getMin(one));
-        maxOne *= context.size;
+        maxOne *= grid.count;
         float maxTwo = (float) getMax(other, two);
         maxTwo -= Math.floor(getMin(two));
-        maxTwo *= context.size;
+        maxTwo *= grid.count;
         
         float otherAxis = (float) (offset > 0 ? getMax(other, axis) : getMin(other, axis));
         otherAxis -= Math.floor(getMin(axis));
-        otherAxis *= context.size;
+        otherAxis *= grid.count;
         
-        NormalPlane[] cuttingPlanes = new NormalPlane[] { new NormalPlane(one, minOne, EnumFacing
-                .getFacingFromAxis(AxisDirection.NEGATIVE, one)), new NormalPlane(two, minTwo, EnumFacing
-                        .getFacingFromAxis(AxisDirection.NEGATIVE, two)), new NormalPlane(one, maxOne, EnumFacing
-                                .getFacingFromAxis(AxisDirection.POSITIVE, one)), new NormalPlane(two, maxTwo, EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE, two)) };
+        NormalPlane[] cuttingPlanes = new NormalPlane[] { new NormalPlane(one, minOne, Facing.get(one, false)), new NormalPlane(two, minTwo, Facing
+                .get(two, false)), new NormalPlane(one, maxOne, Facing.get(one, true)), new NormalPlane(two, maxTwo, Facing.get(two, true)) };
         
         VectorFan tempFan = new VectorFan(null);
-        VectorFanFaceCache front = getFaceCache(direction.getOpposite());
+        VectorFanFaceCache front = getFaceCache(direction.opposite());
         if (front.hasAxisStrip()) {
             for (VectorFan vectorFan : front.axisStrips) {
                 tempFan.set(vectorFan);
@@ -213,12 +190,12 @@ public class TransformableAxisBox extends AABB {
             }
         }
         
-        Ray3f ray = new Ray3f(new Vector3f(), direction);
-        VectorUtils.set(ray.origin, otherAxis, axis);
+        Ray3f ray = new Ray3f(new Vec3f(), direction);
+        ray.origin.set(axis, otherAxis);
         float distance = Float.POSITIVE_INFINITY;
         
-        for (int i = 0; i < EnumFacing.VALUES.length; i++) {
-            EnumFacing facing = EnumFacing.VALUES[i];
+        for (int i = 0; i < Facing.values().length; i++) {
+            Facing facing = Facing.values()[i];
             if (facing == direction)
                 continue;
             
@@ -233,8 +210,8 @@ public class TransformableAxisBox extends AABB {
                     continue;
                 
                 for (int j = 0; j < tempFan.count(); j++) {
-                    Vector3f vec = tempFan.get(j);
-                    float tempDistance = positive ? VectorUtils.get(axis, vec) - otherAxis : otherAxis - VectorUtils.get(axis, vec);
+                    Vec3f vec = tempFan.get(j);
+                    float tempDistance = positive ? vec.get(axis) - otherAxis : otherAxis - vec.get(axis);
                     
                     if (tempDistance < 0 && !OrientatedBoundingBox.equals(tempDistance, 0))
                         return offset;
@@ -248,7 +225,7 @@ public class TransformableAxisBox extends AABB {
         if (Double.isInfinite(distance))
             return offset;
         
-        distance *= context.pixelSize;
+        distance *= grid.pixelLength;
         
         if (offset > 0.0D) {
             if (distance < offset)
@@ -262,53 +239,61 @@ public class TransformableAxisBox extends AABB {
         return offset;
     }
     
-    private static Vector3f[] reverse(Vector3f[] array) {
-        Vector3f[] b = new Vector3f[array.length];
-        int j = array.length;
-        for (int i = 0; i < array.length; i++) {
-            b[j - 1] = array[i];
-            j = j - 1;
-        }
-        return b;
-    }
-    
-    @Override
-    public double calculateXOffset(AABB other, double offsetX) {
-        return calculateOffset(other, Axis.X, offsetX);
-    }
-    
-    @Override
-    public double calculateYOffset(AABB other, double offsetY) {
-        return calculateOffset(other, Axis.Y, offsetY);
-    }
-    
-    @Override
-    public double calculateZOffset(AABB other, double offsetZ) {
-        return calculateOffset(other, Axis.Z, offsetZ);
-    }
-    
-    @Nullable
-    protected Vec3d collideWithPlane(Axis axis, double value, Vec3d vecA, Vec3d vecB) {
-        Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
-                .getIntermediateWithXValue(vecB, value);
-        return vec3d != null && intersectsWithAxis(axis, vec3d) ? vec3d : null;
-    }
-    
-    public boolean intersectsWithAxis(Axis axis, Vec3d vec) {
+    public double getMin(Axis axis) {
         switch (axis) {
         case X:
-            return intersectsWithYZ(vec);
+            return minX;
         case Y:
-            return intersectsWithXZ(vec);
+            return minY;
         case Z:
-            return intersectsWithXY(vec);
+            return minZ;
+        default:
+            return 0;
         }
-        return false;
+    }
+    
+    public double getMax(Axis axis) {
+        switch (axis) {
+        case X:
+            return maxX;
+        case Y:
+            return maxY;
+        case Z:
+            return maxZ;
+        default:
+            return 0;
+        }
     }
     
     @Override
     public String toString() {
         return "tbb[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
+    }
+    
+    public static double getMin(AABB bb, Axis axis) {
+        switch (axis) {
+        case X:
+            return bb.minX;
+        case Y:
+            return bb.minY;
+        case Z:
+            return bb.minZ;
+        default:
+            return 0;
+        }
+    }
+    
+    public static double getMax(AABB bb, Axis axis) {
+        switch (axis) {
+        case X:
+            return bb.maxX;
+        case Y:
+            return bb.maxY;
+        case Z:
+            return bb.maxZ;
+        default:
+            return 0;
+        }
     }
     
 }

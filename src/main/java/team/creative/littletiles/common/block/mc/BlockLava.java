@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.block.mc;
 
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
@@ -40,8 +39,8 @@ public class BlockLava extends Block implements ILittleMCBlock {
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, InteractionHand hand, BlockHitResult result) {
-        if (hand == InteractionHand.MAIN_HAND && player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
+        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
             if (this == LittleTiles.LAVA)
                 tile.setState(LittleTiles.FLOWING_LAVA.defaultBlockState());
             else
@@ -49,7 +48,7 @@ public class BlockLava extends Block implements ILittleMCBlock {
             parent.getBE().updateTiles();
             return InteractionResult.SUCCESS;
         }
-        return ILittleMCBlock.super.use(parent, tile, box, player, hand, result);
+        return ILittleMCBlock.super.use(parent, tile, box, player, result);
     }
     
 }

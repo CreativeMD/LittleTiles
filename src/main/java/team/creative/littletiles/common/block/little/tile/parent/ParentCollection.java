@@ -2,12 +2,12 @@ package team.creative.littletiles.common.block.little.tile.parent;
 
 import java.util.Iterator;
 
-import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
-
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollectionSafe;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -40,22 +40,22 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
             collisionChecks--;
     }
     
-    public void read(CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         this.clear();
-        this.addAll(LittleNBTCompressionTools.readTiles(nbt.getList("tiles", 10)));
-        readExtra(nbt);
+        LittleCollection.load(this, nbt.getList("tiles", Tag.TAG_COMPOUND));
+        loadExtra(nbt);
     }
     
-    protected abstract void readExtra(CompoundTag nbt);
+    protected abstract void loadExtra(CompoundTag nbt);
     
-    public CompoundTag write() {
+    public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
-        nbt.setTag("tiles", LittleNBTCompressionTools.writeTiles(this));
-        writeExtra(nbt);
+        nbt.put("tiles", LittleCollection.save(this));
+        saveExtra(nbt);
         return nbt;
     }
     
-    protected abstract void writeExtra(CompoundTag nbt);
+    protected abstract void saveExtra(CompoundTag nbt);
     
     public Iterable<LittleTile> filter(BiFilter<IParentCollection, LittleTile> selector) {
         return new Iterable<LittleTile>() {

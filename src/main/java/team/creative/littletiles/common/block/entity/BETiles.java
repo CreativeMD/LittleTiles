@@ -390,7 +390,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             tiles.clearEverything();
         grid = LittleGrid.get(nbt);
         
-        tiles.read(nbt.getCompound("content"));
+        tiles.load(nbt.getCompound("content"));
         
         if (level != null && !level.isClientSide) {
             level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
@@ -406,7 +406,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public CompoundTag save(CompoundTag nbt) {
         super.save(nbt);
         grid.set(nbt);
-        nbt.put("content", tiles.write());
+        nbt.put("content", tiles.save());
         return nbt;
     }
     

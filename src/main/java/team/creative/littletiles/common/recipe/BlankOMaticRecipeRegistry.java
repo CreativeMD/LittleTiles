@@ -3,23 +3,19 @@ package team.creative.littletiles.common.recipe;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorMaterial;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable.LittleDyeableType;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable2.LittleDyeableType2;
-
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import team.creative.creativecore.common.util.filter.Filter;
+import team.creative.creativecore.common.util.filter.block.BlockFilters;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientBlock;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientItem;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientItemStack;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.filter.BlockFilter;
 
 public class BlankOMaticRecipeRegistry {
     
@@ -36,8 +32,7 @@ public class BlankOMaticRecipeRegistry {
     }
     
     public static List<BleachRecipe> getRecipe(ItemStack stack) {
-        BlockState state = BlockUtils.getState(stack);
-        Block block = state.getBlock();
+        Block block = Block.byItem(stack.getItem());
         List<BleachRecipe> results = new ArrayList<>();
         for (int i = 0; i < recipes.size(); i++)
             if (recipes.get(i).is(block))
@@ -65,21 +60,19 @@ public class BlankOMaticRecipeRegistry {
         
         registerBleacher(new CreativeIngredientItem(Items.SUGAR), 1);
         
-        registerBleachRecipe(new BleachRecipe(new BlockFilter(Blocks.COBBLESTONE), 1, LittleTiles.dyeableBlock.get(LittleDyeableType.GRAINY), LittleTiles.dyeableBlock
-                .get(LittleDyeableType.GRAINY_BIG)));
-        registerBleachRecipe(new BleachRecipe(new BlockFilter(Blocks.COBBLESTONE), 2, LittleTiles.dyeableBlock.get(LittleDyeableType.GRAINY_LOW)));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 1, LittleTiles.GRAINY.defaultBlockState(), LittleTiles.GRAINY_BIG.defaultBlockState()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 2, LittleTiles.GRAINY_LOW.defaultBlockState()));
         
-        registerBleachRecipe(new BleachRecipe(new BlockFilter(Blocks.STONE), 1, LittleTiles.dyeableBlock2.get(LittleDyeableType2.GRAVEL), LittleTiles.dyeableBlock2
-                .get(LittleDyeableType2.SAND), LittleTiles.dyeableBlock2.get(LittleDyeableType2.STONE), LittleTiles.dyeableBlock.get(LittleDyeableType.CLAY)));
-        registerBleachRecipe(new BleachRecipe(new BlockFilter(Blocks.STONE), 2, LittleTiles.dyeableBlock2.get(LittleDyeableType2.CORK)));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 1, LittleTiles.GRAVEL.defaultBlockState(), LittleTiles.SAND.defaultBlockState(), LittleTiles.STONE
+                .defaultBlockState(), LittleTiles.CLAY.defaultBlockState()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 2, LittleTiles.CORK.defaultBlockState()));
         
-        BlocksFilter selector = new BlocksFilter(Blocks.STONE_BRICKS, Blocks.BRICKS);
-        registerBleachRecipe(new BleachRecipe(selector, 1, LittleTiles.dyeableBlock.get(LittleDyeableType.BRICK), LittleTiles.dyeableBlock
-                .get(LittleDyeableType.BRICK_BIG), LittleTiles.dyeableBlock.get(LittleDyeableType.BROKEN_BRICK_BIG), LittleTiles.dyeableBlock
-                        .get(LittleDyeableType.CHISELED), LittleTiles.dyeableBlock.get(LittleDyeableType.STRIPS)));
-        registerBleachRecipe(new BleachRecipe(selector, 2, LittleTiles.dyeableBlock.get(LittleDyeableType.BORDERED), LittleTiles.dyeableBlock.get(LittleDyeableType.FLOOR)));
+        Filter<Block> filter = BlockFilters.blocks(Blocks.STONE_BRICKS, Blocks.BRICKS);
+        registerBleachRecipe(new BleachRecipe(filter, 1, LittleTiles.BRICK.defaultBlockState(), LittleTiles.BRICK_BIG.defaultBlockState(), LittleTiles.BROKEN_BRICK_BIG
+                .defaultBlockState(), LittleTiles.CHISELED.defaultBlockState(), LittleTiles.STRIPS.defaultBlockState()));
+        registerBleachRecipe(new BleachRecipe(filter, 2, LittleTiles.BORDERED.defaultBlockState(), LittleTiles.FLOOR.defaultBlockState()));
         
-        registerBleachRecipe(new BleachRecipe(new BlockSelectorMaterial(Material.ROCK), 4, LittleTiles.dyeableBlock.get(LittleDyeableType.CLEAN)));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.material(Material.STONE), 4, LittleTiles.CLEAN.defaultBlockState()));
     }
     
     public static class BleachVolume {
@@ -111,17 +104,17 @@ public class BlankOMaticRecipeRegistry {
             
             for (int i = 0; i < results.length; i++) {
                 BlockState state = results[i];
-                if (state.getBlock() == block && state.getBlock().getMetaFromState(state) == meta)
+                if (state.getBlock() == block)
                     return true;
             }
             return false;
         }
         
         public boolean isResult(ItemStack stack) {
-            BlockState otherState = BlockUtils.getState(stack);
+            Block other = Block.byItem(stack.getItem());
             for (int i = 0; i < results.length; i++) {
                 BlockState state = results[i];
-                if (state.getBlock() == otherState.getBlock() && state.getBlock().getMetaFromState(state) == otherState.getBlock().getMetaFromState(otherState))
+                if (state.getBlock() == other)
                     return true;
             }
             return false;

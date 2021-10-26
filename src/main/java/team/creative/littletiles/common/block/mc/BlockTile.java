@@ -88,9 +88,11 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.face.CachedFaceRenderType;
 import team.creative.creativecore.client.render.face.FaceRenderType;
 import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionDestroy;
@@ -275,10 +277,13 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         BETiles be = loadBE(level, pos);
         if (be != null) {
             for (IParentCollection parent : be.groups()) {
-                boolean canInteract = parent.isStructure() && parent.getStructure().canInteract(level, pos);
-                for (LittleTile tile : parent)
-                    if (canInteract || tile.canInteract())
-                        shape = Shapes.or(shape, tile.getShapes(parent));
+                try {
+                    boolean canInteract = parent.isStructure() && parent.getStructure().canInteract();
+                    for (LittleTile tile : parent)
+                        if (canInteract || tile.canInteract())
+                            shape = Shapes.or(shape, tile.getShapes(parent));
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                
             }
         }
         
@@ -290,7 +295,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
         // get Selection shape and it's also used for some other stuff I don't know (only works on client side) TODO CHECK if that is the case
         LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, mc.player);
         if (tileContext.isComplete()) {
-            if (selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(mc.player)))
+            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode(mc.player)))
                 return tileContext.parent.getBE().getBlockShape();
             if (LittleTiles.CONFIG.rendering.highlightStructureBox && tileContext.parent.isStructure())
                 try {
@@ -298,7 +303,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             return tileContext.tile.getShapes(tileContext.parent);
         }
-        return shape;
+        return Shapes.empty();
     }
     
     @Override
@@ -393,9 +398,8 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     
     @Override
     public boolean canHarvestBlock(BlockState state, BlockGetter world, BlockPos pos, Player player) {
-        if (state.getMaterial().isToolNotRequired()) {
+        if (!state.requiresCorrectToolForDrops())
             return true;
-        }
         
         ItemStack stack = player.getHeldItemMainhand();
         String tool = state.getBlock().getHarvestTool(state);
@@ -614,7 +618,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     public ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
-            if (selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(player))) {
+            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode(player))) {
                 ItemStack drop = new ItemStack(LittleTiles.multiTiles);
                 LittlePreview.saveTiles(world, result.te.getContext(), result.te, drop);
                 return drop;
@@ -623,7 +627,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
                 try {
                     return result.parent.getStructure().getStructureDrop();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            return result.tile.getDrop(result.te.getContext());
+            return result.tile.getDrop(result.parent.getGrid());
         }
         return ItemStack.EMPTY;
     }
@@ -862,7 +866,7 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     }
     
     @OnlyIn(Dist.CLIENT)
-    private static void updateRenderer(BETiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderBox cube, LittleBoxFace face) {
+    private static void updateRenderer(BETiles tileEntity, Facing facing, HashMap<Facing, Boolean> neighbors, HashMap<Facing, BETiles> neighborsTiles, RenderBox cube, LittleFace face) {
         if (face == null) {
             cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
             return;
@@ -897,8 +901,8 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public List<? extends RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-        if (te instanceof TileEntityLittleTiles)
+    public List<? extends RenderBox> getRenderingCubes(BlockState state, BlockEntity te, ItemStack stack) {
+        if (te instanceof BETiles)
             return Collections.emptyList();
         return getRenderingCubes(state, te, stack, MinecraftForgeClient.getRenderLayer());
     }
@@ -944,11 +948,11 @@ public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFa
                 return cachedCubes;
             }
             
-            for (Pair<IParentTileList, LittleTile> pair : tileEntity.allTiles()) {
+            for (Pair<IParentCollection, LittleTile> pair : tileEntity.allTiles()) {
                 LittleTile tile = pair.value;
                 if (tile.shouldBeRenderedInLayer(layer)) {
                     // Check for sides which does not need to be rendered
-                    LittleRenderBox cube = pair.key.getTileRenderingCube(tile, ((TileEntityLittleTiles) te).getContext(), layer);
+                    LittleRenderBox cube = pair.key.getTileRenderingCube(tile, ((BETiles) te).getContext(), layer);
                     if (cube == null)
                         continue;
                     for (int k = 0; k < EnumFacing.VALUES.length; k++) {
