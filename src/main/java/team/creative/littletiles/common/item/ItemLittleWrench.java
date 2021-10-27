@@ -27,8 +27,8 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
-import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
 
 public class ItemLittleWrench extends Item {
     
@@ -54,9 +54,9 @@ public class ItemLittleWrench extends Item {
                     if (result.isComplete() && result.parent.isStructure())
                         LittleTileGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.parent, result.tile);
                     else
-                        PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH));
+                        PacketHandler.sendPacketToServer(new BlockPacket(world, pos, player, BlockPacketAction.WRENCH));
                 } else
-                    PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH_INFO));
+                    PacketHandler.sendPacketToServer(new BlockPacket(world, pos, player, BlockPacketAction.WRENCH_INFO));
             }
             return EnumActionResult.SUCCESS;
         }

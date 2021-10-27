@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.particle;
+package team.creative.littletiles.common.entity.particle;
 
 import java.util.Random;
 

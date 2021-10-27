@@ -4,62 +4,62 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.gui.SubContainerConfigure;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiChisel;
-import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
-import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
-import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
+import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket.VanillaBlockAction;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
@@ -73,89 +73,70 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     public static ShapeSelection selection;
     
     public ItemLittleChisel() {
-        setCreativeTab(LittleTiles.littleTab);
-        hasSubtypes = true;
-        setMaxStackSize(1);
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
     }
     
     @Override
-    public float getDestroySpeed(ItemStack stack, IBlockState state) {
+    public boolean isComplex() {
+        return true;
+    }
+    
+    @Override
+    public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
-        tooltip.add("shape: " + shape.getKey());
-        shape.addExtraInformation(stack.getTagCompound(), tooltip);
-        LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
-        tooltip.add(TooltipUtils.printRGB(preview.hasColor() ? preview.getColor() : ColorUtils.WHITE));
+        tooltip.add(new TranslatableComponent("gui.shape").append(": ").append(new TranslatableComponent(shape.getKey())));
+        shape.addExtraInformation(stack.getTag(), tooltip);
+        tooltip.add(new TextComponent(TooltipUtils.printColor(getPreview(stack).color)));
     }
     
     @Override
-    public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
+    public boolean canDestroyBlockInCreative(Level level, BlockPos pos, ItemStack stack, Player player) {
         return false;
     }
     
     public static LittleShape getShape(ItemStack stack) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        return ShapeRegistry.getShape(stack.getTagCompound().getString("shape"));
+        return ShapeRegistry.getShape(stack.getOrCreateTag().getString("shape"));
     }
     
     public static void setShape(ItemStack stack, LittleShape shape) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        stack.getTagCompound().setString("shape", shape.getKey());
+        stack.getOrCreateTag().putString("shape", shape.getKey());
     }
     
-    public static LittlePreview getPreview(ItemStack stack) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
+    public static LittleElement getPreview(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("preview"))
+            return new LittleElement(stack.getOrCreateTagElement("element"));
         
-        if (stack.getTagCompound().hasKey("preview"))
-            return LittleTileRegistry.loadPreview(stack.getTagCompound().getCompoundTag("preview"));
-        
-        IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
-        LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound()
-                .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-        
-        LittleGridContext context = LittleGridContext.get();
-        tile.setBox(new LittleBox(0, 0, 0, context.size, context.size, context.size));
-        LittlePreview preview = tile.getPreviewTile();
-        setPreview(stack, preview);
-        return preview;
+        LittleElement element = new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
+        setPreview(stack, element);
+        return element;
     }
     
-    public static void setPreview(ItemStack stack, LittlePreview preview) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        NBTTagCompound nbt = new NBTTagCompound();
-        preview.writeToNBT(nbt);
-        stack.getTagCompound().setTag("preview", nbt);
+    public static void setPreview(ItemStack stack, LittleElement element) {
+        element.save(stack.getOrCreateTagElement("element"));
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+    @OnlyIn(Dist.CLIENT)
+    public List<RenderBox> getRenderingCubes(BlockState state, BlockEntity te, ItemStack stack) {
         return Collections.emptyList();
     }
     
-    @SideOnly(Side.CLIENT)
-    public static IBakedModel model;
+    @OnlyIn(Dist.CLIENT)
+    public static BakedModel model;
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         GlStateManager.pushMatrix();
         
         if (model == null)
-            model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
+            model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.MODID + ":chisel_background", "inventory"));
         ForgeHooksClient
                 .handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
         
@@ -200,44 +181,36 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    public boolean hasLittlePreview(ItemStack stack) {
+    public boolean hasTiles(ItemStack stack) {
         return true;
     }
     
-    @SideOnly(Side.CLIENT)
-    private static EntityPlayer getPlayer() {
-        return Minecraft.getMinecraft().player;
+    @OnlyIn(Dist.CLIENT)
+    private static Player getPlayer() {
+        return Minecraft.getInstance().player;
     }
     
     @Override
-    public LittleAbsolutePreviews getLittlePreview(ItemStack stack) {
+    public LittleGroupAbsolute getTiles(ItemStack stack) {
         return null;
     }
     
     @Override
-    public LittleAbsolutePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution) {
+    public LittleGroupAbsolute getTiles(ItemStack stack, boolean allowLowResolution) {
         if (selection != null) {
             LittleBoxes boxes = selection.getBoxes(allowLowResolution);
-            
-            LittleAbsolutePreviews previews = new LittleAbsolutePreviews(boxes.pos, boxes.context);
-            
-            LittlePreview preview = getPreview(stack);
-            for (LittleBox box : boxes.all()) {
-                LittlePreview newPreview = preview.copy();
-                newPreview.box = box.copy();
-                previews.addWithoutCheckingPreview(newPreview);
-            }
-            
+            LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos, boxes.grid);
+            previews.add(getPreview(stack), boxes);
             return previews;
         }
         return null;
     }
     
     @Override
-    public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {}
+    public void saveTiles(ItemStack stack, LittleGroupAbsolute group) {}
     
     @Override
-    public void rotate(EntityPlayer player, ItemStack stack, Rotation rotation, boolean client) {
+    public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
         if (client && selection != null)
             selection.rotate(player, stack, rotation);
         else
@@ -245,66 +218,66 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    public void flip(EntityPlayer player, ItemStack stack, Axis axis, boolean client) {
+    public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
         if (client && selection != null)
-            selection.flip(player, stack, axis);
+            selection.mirror(player, stack, axis);
         else
-            new ShapeSelection(stack, false).flip(player, stack, axis);
+            new ShapeSelection(stack, false).mirror(player, stack, axis);
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public float getPreviewAlphaFactor() {
         return 0.4F;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void tick(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+    @OnlyIn(Dist.CLIENT)
+    public void tick(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (selection == null)
             selection = new ShapeSelection(stack, false);
         selection.setLast(player, stack, getPosition(position, result, currentMode), result);
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public boolean shouldCache() {
         return false;
     }
     
     @Override
-    public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
+    public void onDeselect(Level level, ItemStack stack, Player player) {
         selection = null;
     }
     
-    protected static PlacementPosition getPosition(PlacementPosition position, RayTraceResult result, PlacementMode mode) {
+    protected static PlacementPosition getPosition(PlacementPosition position, BlockHitResult result, PlacementMode mode) {
         position = position.copy();
         
-        EnumFacing facing = position.facing;
+        Facing facing = position.facing;
         if (mode.placeInside)
-            facing = facing.getOpposite();
-        if (facing.getAxisDirection() == AxisDirection.NEGATIVE)
+            facing = facing.opposite();
+        if (!facing.positive)
             position.getVec().add(facing);
         
         return position;
     }
     
     @Override
-    public void onClickAir(EntityPlayer player, ItemStack stack) {
+    public void onClickAir(Player player, ItemStack stack) {
         if (selection != null)
             selection.click(player);
     }
     
     @Override
-    public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+    public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (selection != null)
             selection.click(player);
         return false;
     }
     
     @Override
-    public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
-        if (LittleAction.isUsingSecondMode(player)) {
+    public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        if (LittleActionHandlerClient.isUsingSecondMode(player)) {
             selection = null;
             PreviewRenderer.marked = null;
         } else if (selection != null)
@@ -313,28 +286,22 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
-        IBlockState state = world.getBlockState(result.getBlockPos());
+    @OnlyIn(Dist.CLIENT)
+    public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        BlockState state = level.getBlockState(result.getBlockPos());
         if (LittleAction.isBlockValid(state)) {
-            PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
+            LittleTiles.NETWORK.sendToServer(new VanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
             return true;
         } else if (state.getBlock() instanceof BlockTile) {
-            PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.CHISEL, new NBTTagCompound()));
+            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.CHISEL, new CompoundTag()));
             return true;
         }
         return false;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+    public GuiConfigure getConfigure(Player player, ItemStack stack) {
         return new SubGuiChisel(stack);
-    }
-    
-    @Override
-    public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
-        return new SubContainerConfigure(player, stack);
     }
     
     public static PlacementMode currentMode = PlacementMode.fill;
@@ -345,8 +312,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
         return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, currentMode) {
             
             @Override
@@ -360,8 +326,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public IMarkMode onMark(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result, PlacementPreview previews) {
+    @OnlyIn(Dist.CLIENT)
+    public IMarkMode onMark(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result, PlacementPreview previews) {
         if (selection != null)
             selection.toggleMark();
         return selection;
@@ -373,13 +339,13 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    public LittleGridContext getPositionContext(ItemStack stack) {
+    public LittleGrid getPositionGrid(ItemStack stack) {
         return ItemMultiTiles.currentContext;
     }
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getDisplayName(), LittleTilesClient.mark
-                .getDisplayName(), LittleTilesClient.configure.getDisplayName(), LittleTilesClient.configureAdvanced.getDisplayName() };
+        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
+                .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
     }
 }

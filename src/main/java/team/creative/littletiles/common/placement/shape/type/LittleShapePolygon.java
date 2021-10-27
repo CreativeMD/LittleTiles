@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -100,9 +101,7 @@ public class LittleShapePolygon extends LittleShape {
     }
     
     @Override
-    public void addExtraInformation(CompoundTag nbt, List<String> list) {
-        
-    }
+    public void addExtraInformation(CompoundTag nbt, List<Component> list) {}
     
     @Override
     @OnlyIn(Dist.CLIENT)

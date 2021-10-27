@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -71,8 +73,8 @@ public class LittleShapePyramid extends LittleShape {
     }
     
     @Override
-    public void addExtraInformation(CompoundTag nbt, List<String> list) {
-        list.add("facing: " + getFacing(nbt).name().toLowerCase());
+    public void addExtraInformation(CompoundTag nbt, List<Component> list) {
+        list.add(new TranslatableComponent("gui.facing").append(": ").append(new TranslatableComponent("gui.direction." + getFacing(nbt).name().toLowerCase())));
     }
     
     @Override

@@ -45,10 +45,10 @@ import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
 import team.creative.littletiles.common.gui.configure.SubGuiGridSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
-import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
+import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
+import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket.VanillaBlockAction;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
@@ -201,9 +201,9 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
         TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
         if (tileEntity instanceof TileEntityLittleTiles)
-            PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
+            PacketHandler.sendPacketToServer(new BlockPacket(world, result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
         else
-            PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
+            PacketHandler.sendPacketToServer(new VanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
         return true;
     }
     

@@ -23,7 +23,7 @@ public interface ILittleTool {
     
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client);
     
-    public void flip(Player player, ItemStack stack, Axis axis, boolean client);
+    public void mirror(Player player, ItemStack stack, Axis axis, boolean client);
     
     public default void configured(ItemStack stack, CompoundTag nbt) {
         stack.setTag(nbt);

@@ -66,6 +66,19 @@ public class LittleElement {
         return block.hashCode() + color;
     }
     
+    public String getBlockName() {
+        if (getState().getBlock() instanceof AirBlock)
+            return getBlock().blockName();
+        else
+            return getState().toString();
+    }
+    
+    public CompoundTag save(CompoundTag nbt) {
+        nbt.putString("s", getBlockName());
+        nbt.putInt("c", color);
+        return nbt;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof LittleElement)

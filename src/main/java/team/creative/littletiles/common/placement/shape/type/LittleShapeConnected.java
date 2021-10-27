@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,7 +46,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
     }
     
     @Override
-    public void addExtraInformation(CompoundTag nbt, List<String> list) {}
+    public void addExtraInformation(CompoundTag nbt, List<Component> list) {}
     
     @Override
     @OnlyIn(Dist.CLIENT)

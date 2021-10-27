@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
@@ -203,7 +205,7 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         return content.toString();
     }
     
-    public static String printVolume(double volume, boolean extended) {
+    public static Component printVolume(double volume, boolean extended) {
         String text = "";
         int fullBlocks = (int) volume;
         int pixels = (int) Math.ceil(((volume - fullBlocks) * LittleGrid.defaultGrid().count3d));
@@ -218,6 +220,6 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
                     .translate("volume.unit.small.multiple")) : LanguageUtils.translate("volume.unit.small.short"));
         }
         
-        return text;
+        return new TextComponent(text);
     }
 }

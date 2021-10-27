@@ -3,6 +3,7 @@ package team.creative.littletiles.common.placement.shape;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -48,7 +49,7 @@ public abstract class LittleShape {
         return false;
     }
     
-    public abstract void addExtraInformation(CompoundTag nbt, List<String> list);
+    public abstract void addExtraInformation(CompoundTag nbt, List<Component> list);
     
     @OnlyIn(Dist.CLIENT)
     public abstract List<GuiControl> getCustomSettings(CompoundTag nbt, LittleGrid grid);

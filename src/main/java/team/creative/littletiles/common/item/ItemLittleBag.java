@@ -1,34 +1,20 @@
 package team.creative.littletiles.common.item;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import com.creativemd.creativecore.common.gui.container.SubContainer;
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AirBlock;
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.common.gui.SubContainerBag;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiBag;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -37,7 +23,7 @@ import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 
-public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredientInventory {
+public class ItemLittleBag extends Item implements GuiHandler, ILittleIngredientInventory {
     
     public static int colorUnitMaximum = 10000000;
     public static int inventoryWidth = 6;
@@ -47,38 +33,31 @@ public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredien
     public static int maxStackSizeOfTiles;
     
     public ItemLittleBag() {
-        setCreativeTab(LittleTiles.littleTab);
-        setMaxStackSize(1);
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-        
+    public boolean isComplex() {
+        return true;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
+    public GuiLayer create(Player player, CompoundTag nbt) {
         return new SubGuiBag(stack);
     }
     
     @Override
-    public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-        return new SubContainerBag(player, stack, player.inventory.currentItem);
-    }
-    
-    @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        if (!world.isRemote)
-            GuiHandler.openGuiItem(player, world);
-        return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        if (hand != InteractionHand.MAIN_HAND)
+            return InteractionResultHolder.fail(player.getItemInHand(hand));
+        if (!level.isClientSide)
+            GuiHandler.openItemGui(player, hand, new CompoundTag());
+        return InteractionResultHolder.success(player.getItemInHand(hand));
     }
     
     @Override
     public LittleIngredients getInventory(ItemStack stack) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
+        CompoundTag nbt = stack.getOrCreateTag();
         
         LittleIngredients ingredients = new LittleIngredients() {
             
@@ -90,21 +69,17 @@ public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredien
         };
         BlockIngredient blocks = new BlockIngredient().setLimits(inventorySize, maxStackSize);
         
-        NBTTagList list = stack.getTagCompound().getTagList("inv", 10);
-        int size = Math.min(inventorySize, list.tagCount());
+        ListTag list = nbt.getList("inv", Tag.TAG_COMPOUND);
+        int size = Math.min(inventorySize, list.size());
         for (int i = 0; i < size; i++) {
-            NBTTagCompound nbt = list.getCompoundTagAt(i);
-            BlockIngredientEntry ingredient = IngredientUtils.loadBlockIngredient(nbt);
-            if (ingredient != null && ingredient.value >= LittleGridContext.getMax().pixelVolume)
+            CompoundTag blockNBT = list.getCompound(i);
+            BlockIngredientEntry ingredient = IngredientUtils.loadBlockIngredient(blockNBT);
+            if (ingredient != null && ingredient.value >= LittleGrid.getMax().pixelVolume)
                 blocks.add(ingredient);
         }
         ingredients.set(blocks.getClass(), blocks);
         
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        ColorIngredient color = new ColorIngredient(stack.getTagCompound().getInteger("black"), stack.getTagCompound().getInteger("cyan"), stack.getTagCompound()
-                .getInteger("magenta"), stack.getTagCompound().getInteger("yellow"));
+        ColorIngredient color = new ColorIngredient(nbt.getInt("black"), nbt.getInt("cyan"), nbt.getInt("magenta"), nbt.getInt("yellow"));
         color.setLimit(colorUnitMaximum);
         ingredients.set(color.getClass(), color);
         return ingredients;
@@ -112,27 +87,26 @@ public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredien
     
     @Override
     public void setInventory(ItemStack stack, LittleIngredients ingredients, LittleInventory inventory) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
+        CompoundTag nbt = stack.getOrCreateTag();
         
-        NBTTagList list = new NBTTagList();
+        ListTag list = new ListTag();
         int i = 0;
         for (BlockIngredientEntry ingredient : ingredients.get(BlockIngredient.class).getContent()) {
-            if (ingredient.block instanceof BlockAir && ingredient.value < LittleGridContext.getMax().pixelVolume)
+            if (ingredient.block instanceof AirBlock && ingredient.value < LittleGrid.getMax().pixelVolume)
                 continue;
             if (i >= inventorySize)
                 break;
-            list.appendTag(ingredient.writeToNBT(new NBTTagCompound()));
+            list.add(ingredient.save(new CompoundTag()));
             i++;
         }
         
-        stack.getTagCompound().setTag("inv", list);
+        nbt.put("inv", list);
         
         ColorIngredient color = ingredients.get(ColorIngredient.class);
-        stack.getTagCompound().setInteger("black", color.black);
-        stack.getTagCompound().setInteger("cyan", color.cyan);
-        stack.getTagCompound().setInteger("magenta", color.magenta);
-        stack.getTagCompound().setInteger("yellow", color.yellow);
+        nbt.putInt("black", color.black);
+        nbt.putInt("cyan", color.cyan);
+        nbt.putInt("magenta", color.magenta);
+        nbt.putInt("yellow", color.yellow);
     }
     
 }

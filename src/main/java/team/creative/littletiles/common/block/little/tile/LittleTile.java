@@ -8,11 +8,11 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
@@ -161,11 +161,10 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             box.split(grid, pos, offset, boxes, volume);
     }
     
-    public String getBlockName() {
-        if (getState().getBlock() instanceof AirBlock)
-            return getBlock().blockName();
-        else
-            return getState().toString();
+    @Override
+    @Deprecated
+    public CompoundTag save(CompoundTag nbt) {
+        return super.save(nbt);
     }
     
     public LittleTile copy() {

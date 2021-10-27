@@ -11,7 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -22,29 +22,29 @@ public interface ILittlePlacer extends ILittleTool {
     
     public boolean hasTiles(ItemStack stack);
     
-    public LittleGroup getTiles(ItemStack stack);
+    public LittleGroupAbsolute getTiles(ItemStack stack);
     
-    public default LittleGroup getTiles(ItemStack stack, boolean allowLowResolution) {
+    public default LittleGroupAbsolute getTiles(ItemStack stack, boolean allowLowResolution) {
         return getTiles(stack);
     }
     
-    public void saveTiles(ItemStack stack, LittleGroup group);
+    public void saveTiles(ItemStack stack, LittleGroupAbsolute group);
     
     @Override
     public default void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        LittleGroup group = getTiles(stack, false);
+        LittleGroupAbsolute group = getTiles(stack, false);
         if (group.isEmpty())
             return;
-        group.rotate(rotation, group.getGrid().rotationCenter);
+        group.group.rotate(rotation, group.getGrid().rotationCenter);
         saveTiles(stack, group);
     }
     
     @Override
-    public default void flip(Player player, ItemStack stack, Axis axis, boolean client) {
-        LittleGroup group = getTiles(stack, false);
+    public default void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
+        LittleGroupAbsolute group = getTiles(stack, false);
         if (group.isEmpty())
             return;
-        group.mirror(axis, group.getGrid().rotationCenter);
+        group.group.mirror(axis, group.getGrid().rotationCenter);
         saveTiles(stack, group);
     }
     

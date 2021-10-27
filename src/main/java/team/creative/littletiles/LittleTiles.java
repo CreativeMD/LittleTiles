@@ -102,7 +102,6 @@ import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselAndBitsConveration;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
-import team.creative.littletiles.common.packet.LittleBlockPacket;
 import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
 import team.creative.littletiles.common.packet.LittleEntityFixControllerPacket;
 import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
@@ -110,8 +109,9 @@ import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
 import team.creative.littletiles.common.packet.LittleResetAnimationPacket;
 import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
+import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
 import team.creative.littletiles.common.packet.item.ConfigurePacket;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
@@ -214,7 +214,7 @@ public class LittleTiles {
     public static EntityType<PrimedSizedTnt> SIZED_TNT_TYPE;
     public static EntityType<EntitySit> SIT_TYPE;
     
-    public static CreativeModeTab littleTab = new CreativeModeTab("littletiles") {
+    public static CreativeModeTab LITTLE_TAB = new CreativeModeTab("littletiles") {
         
         @Override
         public ItemStack makeIcon() {
@@ -404,6 +404,8 @@ public class LittleTiles {
         });
         
         NETWORK.registerType(ActionMessagePacket.class, ActionMessagePacket::new);
+        NETWORK.registerType(VanillaBlockPacket.class, VanillaBlockPacket::new);
+        NETWORK.registerType(BlockPacket.class, BlockPacket::new);
         
         NETWORK.registerType(BedUpdate.class, BedUpdate::new);
         
@@ -418,10 +420,8 @@ public class LittleTiles {
         NETWORK.registerType(BlocksUpdate.class, BlocksUpdate::new);
         NETWORK.registerType(OutputUpdate.class, OutputUpdate::new);
         
-        CreativeCorePacket.registerPacket(LittleBlockPacket.class);
         CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
         CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
-        CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class);
         CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittleEntityFixControllerPacket.class);
@@ -475,7 +475,7 @@ public class LittleTiles {
     }
     
     private static Item createItem(Block block) {
-        return new BlockItem(block, new Item.Properties().tab(littleTab)).setRegistryName(block.getRegistryName());
+        return new BlockItem(block, new Item.Properties().tab(LITTLE_TAB)).setRegistryName(block.getRegistryName());
     }
     
     public void registerItems(RegistryEvent.Register<Item> event) {

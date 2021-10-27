@@ -2,18 +2,18 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.core.NonNullList;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
@@ -27,10 +27,8 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
     public ColorIngredientType type;
     
     public ItemColorIngredient(ColorIngredientType type) {
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
         this.type = type;
-        hasSubtypes = true;
-        setCreativeTab(LittleTiles.littleTab);
-        setMaxStackSize(1);
     }
     
     public static ItemStack generateItemStack(ColorIngredientType type, int value) {
@@ -62,10 +60,20 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         return stack;
     }
     
+    @Override
+    public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
+        return false;
+    }
+    
+    @Override
+    public boolean overrideOtherStackedOnMe(ItemStack me, ItemStack other, Slot p_150894_, ClickAction action, Player player, SlotAccess slot) {
+        return false;
+    }
+    
     public ColorIngredient loadIngredient(ItemStack stack) {
-        if (stack.hasTagCompound()) {
+        if (stack.hasTag()) {
             ColorIngredient ingredient = new ColorIngredient();
-            type.setIngredient(ingredient, stack.getTagCompound().getInteger("value"));
+            type.setIngredient(ingredient, stack.getTag().getInt("value"));
             
             switch (type) {
             case black:
@@ -89,20 +97,19 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
     }
     
     public void saveIngredient(ItemStack stack, ColorIngredient color) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        stack.getTagCompound().setInteger("value", type.getIngredient(color));
+        stack.getOrCreateTag().putInt("value", type.getIngredient(color));
     }
     
     @Override
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-        
+    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {}
+    
+    @Override
+    public boolean isComplex() {
+        return true;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn) {
         ColorIngredient entry = loadIngredient(stack);
         if (entry != null)
             tooltip.add(type.print(entry));
@@ -134,11 +141,11 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             saveIngredient(stack, color);
             double stateSize = (double) ColorIngredient.bottleSize / states;
             int state = Math.min(5, (int) (type.getIngredient(color) / stateSize));
-            stack.setItemDamage(state);
+            stack.setDamageValue(state);
             return;
         }
         
-        stack.setTagCompound(null);
+        stack.setTag(null);
         stack.setCount(0);
     }
     
@@ -160,8 +167,8 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             }
             
             @Override
-            public String print(ColorIngredient ingredient) {
-                return ingredient.getBlackDescription();
+            public Component print(ColorIngredient ingredient) {
+                return new TextComponent(ingredient.getBlackDescription());
             }
         },
         cyan {
@@ -176,8 +183,8 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             }
             
             @Override
-            public String print(ColorIngredient ingredient) {
-                return ingredient.getCyanDescription();
+            public Component print(ColorIngredient ingredient) {
+                return new TextComponent(ingredient.getCyanDescription());
             }
         },
         magenta {
@@ -192,8 +199,8 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             }
             
             @Override
-            public String print(ColorIngredient ingredient) {
-                return ingredient.getMagentaDescription();
+            public Component print(ColorIngredient ingredient) {
+                return new TextComponent(ingredient.getMagentaDescription());
             }
         },
         yellow {
@@ -208,8 +215,8 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             }
             
             @Override
-            public String print(ColorIngredient ingredient) {
-                return ingredient.getYellowDescription();
+            public Component print(ColorIngredient ingredient) {
+                return new TextComponent(ingredient.getYellowDescription());
             }
         };
         
@@ -217,7 +224,7 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         
         public abstract void setIngredient(ColorIngredient ingredient, int value);
         
-        public abstract String print(ColorIngredient ingredient);
+        public abstract Component print(ColorIngredient ingredient);
         
         public static ColorIngredientType getType(String type) {
             switch (type.toLowerCase()) {

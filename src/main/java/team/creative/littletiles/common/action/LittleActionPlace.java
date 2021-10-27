@@ -1,10 +1,6 @@
 package team.creative.littletiles.common.action;
 
-import com.creativemd.littletiles.common.action.block.SPacketSetSlot;
-
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -75,11 +71,8 @@ public class LittleActionPlace extends LittleAction {
             if (PlacementHelper.getLittleInterface(stack) != null) {
                 PlacementResult tiles = placeTile(player, stack, preview);
                 
-                if (!player.level.isClientSide) {
-                    ServerPlayer playerMP = (ServerPlayer) player;
-                    Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);
-                    playerMP.connection.sendPacket(new SPacketSetSlot(playerMP.openContainer.windowId, slot.slotNumber, playerMP.inventory.getCurrentItem()));
-                }
+                if (!player.level.isClientSide)
+                    player.inventoryMenu.broadcastChanges();
                 return tiles != null;
             }
             return false;

@@ -5,6 +5,8 @@ import java.util.List;
 
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -82,8 +84,8 @@ public class LittleShapeInnerCorner extends LittleShape {
     }
     
     @Override
-    public void addExtraInformation(CompoundTag nbt, List<String> list) {
-        list.add("second-type: " + nbt.getBoolean("second"));
+    public void addExtraInformation(CompoundTag nbt, List<Component> list) {
+        list.add(new TranslatableComponent("gui.box.transformable.second").append(": ").append(new TranslatableComponent("gui." + nbt.getBoolean("second"))));
     }
     
     @Override

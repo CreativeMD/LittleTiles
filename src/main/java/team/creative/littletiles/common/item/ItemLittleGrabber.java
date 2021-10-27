@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
@@ -34,46 +32,65 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleSubGuiUtils;
 import team.creative.littletiles.common.gui.SubContainerConfigure;
 import team.creative.littletiles.common.gui.SubGuiGrabber;
-import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket;
-import team.creative.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
+import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket.VanillaBlockAction;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -81,38 +98,40 @@ import team.creative.littletiles.common.placement.mode.PlacementMode;
 public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
     
     public ItemLittleGrabber() {
-        setCreativeTab(LittleTiles.littleTab);
-        hasSubtypes = true;
-        setMaxStackSize(1);
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
     }
     
     @Override
-    public float getDestroySpeed(ItemStack stack, IBlockState state) {
+    public boolean isComplex() {
+        return true;
+    }
+    
+    @Override
+    public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-        getMode(stack).addExtraInformation(stack.getTagCompound(), tooltip);
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        getMode(stack).addExtraInformation(stack.getTag(), tooltip);
     }
     
     @Override
-    public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
+    public boolean canDestroyBlockInCreative(Level leve, BlockPos pos, ItemStack stack, Player player) {
         return false;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+    @OnlyIn(Dist.CLIENT)
+    public List<RenderBox> getRenderingCubes(BlockState state, BlockEntity te, ItemStack stack) {
         return getMode(stack).getRenderingCubes(stack);
     }
     
-    @SideOnly(Side.CLIENT)
-    public static IBakedModel model;
+    @OnlyIn(Dist.CLIENT)
+    public static BakedModel model;
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
         Minecraft mc = Minecraft.getMinecraft();
         GlStateManager.pushMatrix();
@@ -167,18 +186,18 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     }
     
     @Override
-    public boolean hasLittlePreview(ItemStack stack) {
+    public boolean hasTiles(ItemStack stack) {
         return true;
     }
     
     @Override
-    public LittlePreviews getLittlePreview(ItemStack stack) {
-        return getMode(stack).getPreviews(stack);
+    public LittleGroupAbsolute getTiles(ItemStack stack) {
+        return getMode(stack).getTiles(stack);
     }
     
     @Override
-    public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-        getMode(stack).setPreviews(previews, stack);
+    public void saveTiles(ItemStack stack, LittleGroupAbsolute previews) {
+        getMode(stack).setTiles(previews, stack);
     }
     
     @Override
@@ -187,27 +206,27 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void onClickAir(EntityPlayer player, ItemStack stack) {
+    @OnlyIn(Dist.CLIENT)
+    public void onClickAir(Player player, ItemStack stack) {
         getMode(stack).onClickBlock(null, player, stack, null);
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
-        getMode(stack).onClickBlock(world, player, stack, result);
+    @OnlyIn(Dist.CLIENT)
+    public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        getMode(stack).onClickBlock(level, player, stack, result);
         return true;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
-        return getMode(stack).onRightClick(world, player, stack, result);
+    @OnlyIn(Dist.CLIENT)
+    public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        return getMode(stack).onRightClick(level, player, stack, result);
     }
     
     @Override
-    public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
-        return getMode(stack).onMouseWheelClickBlock(world, player, stack, result);
+    public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        return getMode(stack).onMouseWheelClickBlock(level, player, stack, result);
     }
     
     @Override
@@ -216,19 +235,12 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-        return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionContext(stack));
+    public GuiConfigure getConfigure(Player player, ItemStack stack) {
+        return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionGrid(stack));
     }
     
     @Override
-    public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
-        return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
-    }
-    
-    @Override
-    @SideOnly(Side.CLIENT)
-    public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
         return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
@@ -241,7 +253,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     }
     
     @Override
-    public LittleGridContext getPositionContext(ItemStack stack) {
+    public LittleGrid getPositionGrid(ItemStack stack) {
         return ItemMultiTiles.currentContext;
     }
     
@@ -253,20 +265,14 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     }
     
     public static GrabberMode getMode(ItemStack stack) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        GrabberMode mode = GrabberMode.modes.get(stack.getTagCompound().getString("mode"));
+        GrabberMode mode = GrabberMode.modes.get(stack.getOrCreateTag().getString("mode"));
         if (mode != null)
             return mode;
         return GrabberMode.defaultMode;
     }
     
     public static void setMode(ItemStack stack, GrabberMode mode) {
-        if (!stack.hasTagCompound())
-            stack.setTagCompound(new NBTTagCompound());
-        
-        stack.getTagCompound().setString("mode", mode.name);
+        stack.getOrCreateTag().putString("mode", mode.name);
     }
     
     public static GrabberMode[] getModes() {
@@ -284,7 +290,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getDisplayName(), LittleTilesClient.configureAdvanced.getDisplayName() };
+        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced
+                .getTranslatedKeyMessage() };
     }
     
     public static abstract class GrabberMode {
@@ -306,49 +313,41 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
             modes.put(name, this);
         }
         
-        public void addExtraInformation(NBTTagCompound nbt, List<String> tooltip) {
-            
-        }
+        public void addExtraInformation(CompoundTag nbt, List<Component> tooltip) {}
         
         public String getLocalizedName() {
-            return I18n.translateToLocal(title);
+            return LanguageUtils.translate(title);
         }
         
-        @SideOnly(Side.CLIENT)
-        public void onClickBlock(@Nullable World world, EntityPlayer player, ItemStack stack, @Nullable RayTraceResult result) {
-            
-        }
+        @OnlyIn(Dist.CLIENT)
+        public void onClickBlock(@Nullable Level level, Player player, ItemStack stack, @Nullable BlockHitResult result) {}
         
-        @SideOnly(Side.CLIENT)
-        public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+        @OnlyIn(Dist.CLIENT)
+        public boolean onRightClick(Level level, Player player, ItemStack stack, BlockHitResult result) {
             return true;
         }
         
-        @SideOnly(Side.CLIENT)
-        public abstract boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result);
+        @OnlyIn(Dist.CLIENT)
+        public abstract boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result);
         
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public abstract List<RenderBox> getRenderingCubes(ItemStack stack);
         
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public abstract boolean renderBlockSeparately(ItemStack stack);
         
-        @SideOnly(Side.CLIENT)
-        public abstract SubGuiGrabber getGui(EntityPlayer player, ItemStack stack, LittleGridContext context);
+        @OnlyIn(Dist.CLIENT)
+        public abstract GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid);
         
-        public abstract SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack);
+        public abstract LittleGroupAbsolute getTiles(ItemStack stack);
         
-        public abstract LittlePreviews getPreviews(ItemStack stack);
+        public abstract void setTiles(LittleGroupAbsolute previews, ItemStack stack);
         
-        public abstract void setPreviews(LittlePreviews previews, ItemStack stack);
+        public abstract LittleElement getSeparateRenderingPreview(ItemStack stack);
         
-        public LittlePreview getSeparateRenderingPreview(ItemStack stack) {
-            return getPreviews(stack).get(0);
-        }
+        public abstract void vanillaBlockAction(Level level, ItemStack stack, BlockPos pos, BlockState state);
         
-        public abstract void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state);
-        
-        public abstract void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, BlockPos pos, NBTTagCompound nbt);
+        public abstract void littleBlockAction(Level level, BETiles be, LittleTileContext context, ItemStack stack, BlockPos pos, CompoundTag nbt);
         
     }
     
@@ -359,95 +358,72 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
-            IBlockState state = world.getBlockState(result.getBlockPos());
+        @OnlyIn(Dist.CLIENT)
+        public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
+            BlockState state = level.getBlockState(result.getBlockPos());
             if (LittleAction.isBlockValid(state)) {
-                PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
+                LittleTiles.NETWORK.sendToServer(new VanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
                 return true;
             } else if (state.getBlock() instanceof BlockTile) {
-                NBTTagCompound nbt = new NBTTagCompound();
-                nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
-                PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
+                CompoundTag nbt = new CompoundTag();
+                nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode(player));
+                LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
                 return true;
             }
             return false;
         }
         
-        public LittleGridContext getContext(ItemStack stack) {
-            return LittleGridContext.get(stack.getTagCompound());
+        public LittleGrid getGrid(ItemStack stack) {
+            return LittleGrid.get(stack.getTag());
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public List<RenderBox> getRenderingCubes(ItemStack stack) {
             return Collections.emptyList();
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public boolean renderBlockSeparately(ItemStack stack) {
             return true;
         }
         
         @Override
-        public LittlePreviews getPreviews(ItemStack stack) {
-            LittlePreviews previews = new LittlePreviews(getContext(stack));
-            previews.addWithoutCheckingPreview(getPreview(stack));
-            return previews;
+        public void vanillaBlockAction(Level level, ItemStack stack, BlockPos pos, BlockState state) {
+            if (LittleAction.isBlockValid(state))
+                setElement(stack, new LittleElement(state, ColorUtils.WHITE));
         }
         
         @Override
-        public void setPreviews(LittlePreviews previews, ItemStack stack) {
-            setPreview(stack, previews.get(0));
+        public void littleBlockAction(Level level, BETiles be, LittleTileContext context, ItemStack stack, BlockPos pos, CompoundTag nbt) {
+            if (LittleAction.isBlockValid(context.tile.getState()))
+                setElement(stack, new LittleElement(context.tile.getState(), ColorUtils.WHITE));
         }
         
         @Override
-        public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state) {
-            LittlePreview oldPreview = getPreview(stack);
-            LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-            tile.setBox(oldPreview.box);
-            setPreview(stack, tile.getPreviewTile());
+        public LittleElement getSeparateRenderingPreview(ItemStack stack) {
+            return getElement(stack);
         }
         
-        @Override
-        public void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, BlockPos pos, NBTTagCompound nbt) {
-            LittlePreview oldPreview = getPreview(stack);
-            LittlePreview preview = tile.getPreviewTile();
-            preview.box = oldPreview.box;
-            setPreview(stack, preview);
+        public static LittleElement getElement(ItemStack stack) {
+            if (stack.getOrCreateTag().contains("element"))
+                return new LittleElement(stack.getOrCreateTagElement("element"));
+            LittleElement element = new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
+            setElement(stack, element);
+            return element;
         }
         
-        public static LittlePreview getPreview(ItemStack stack) {
-            if (!stack.hasTagCompound())
-                stack.setTagCompound(new NBTTagCompound());
-            
-            if (stack.getTagCompound().hasKey("preview"))
-                return getPreview(stack.getTagCompound());
-            
-            LittlePreview preview = getPreview(stack.getTagCompound()); // Old way
-            setPreview(stack, preview);
-            return preview;
+        public static LittleElement getElement(CompoundTag nbt) {
+            if (nbt.contains("element"))
+                return new LittleElement(nbt.getCompound("element"));
+            LittleElement element = new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
+            nbt.put("element", element.save(new CompoundTag()));
+            return element;
         }
         
-        public static LittlePreview getPreview(NBTTagCompound nbt) {
-            if (nbt.hasKey("preview"))
-                return LittleTileRegistry.loadPreview(nbt.getCompoundTag("preview"));
-            
-            IBlockState state = nbt.hasKey("state") ? Block.getStateById(nbt.getInteger("state")) : Blocks.STONE.getDefaultState();
-            LittleTile tile = nbt.hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), nbt
-                    .getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-            tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
-            return tile.getPreviewTile();
-        }
-        
-        public static void setPreview(ItemStack stack, LittlePreview preview) {
-            if (!stack.hasTagCompound())
-                stack.setTagCompound(new NBTTagCompound());
-            
-            NBTTagCompound nbt = new NBTTagCompound();
-            preview.writeToNBT(nbt);
-            stack.getTagCompound().setTag("preview", nbt);
+        public static void setElement(ItemStack stack, LittleElement element) {
+            element.save(stack.getOrCreateTagElement("element"));
         }
     }
     
@@ -458,8 +434,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public SubGuiGrabber getGui(EntityPlayer player, ItemStack stack, LittleGridContext context) {
+        public GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid) {
             return new SubGuiGrabber(this, stack, 140, 140, context) {
                 public LittleVec size;
                 public boolean isColored = false;
@@ -569,16 +544,30 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
         @Override
-        public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
-            return new SubContainerConfigure(player, stack);
+        public void addExtraInformation(CompoundTag nbt, List<Component> tooltip) {
+            super.addExtraInformation(nbt, tooltip);
+            tooltip.add(new TextComponent(TooltipUtils.printColor(ItemLittleGrabber.SimpleMode.getElement(nbt).color)));
         }
         
         @Override
-        public void addExtraInformation(NBTTagCompound nbt, List<String> tooltip) {
-            super.addExtraInformation(nbt, tooltip);
-            LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(nbt);
-            tooltip.add(TooltipUtils.printRGB(preview.hasColor() ? preview.getColor() : ColorUtils.WHITE));
+        public LittleGroupAbsolute getTiles(ItemStack stack) {
+            LittleGroupAbsolute group = new LittleGroupAbsolute(pos, grid)
         }
+        
+        public static LittleBox getBox(ItemStack stack) {
+            if (stack.getOrCreateTag().contains("box"))
+                return LittleBox.create(stack.getTag().getIntArray("box"));
+            LittleBox box = new LittleBox(0, 0, 0, 1, 1, 1);
+            setBox(stack, box);
+            return box;
+        }
+        
+        public static void setBox(ItemStack stack, LittleBox box) {
+            stack.getOrCreateTag().putIntArray("box", box.getArray());
+        }
+        
+        @Override
+        public void setTiles(LittleGroupAbsolute previews, ItemStack stack) {}
         
     }
     
@@ -589,32 +578,20 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
-            IBlockState state = world.getBlockState(result.getBlockPos());
+        @OnlyIn(Dist.CLIENT)
+        public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
+            BlockState state = level.getBlockState(result.getBlockPos());
             if (state.getBlock() instanceof BlockTile) {
-                NBTTagCompound nbt = new NBTTagCompound();
-                nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
-                // nbt.setBoolean("add", GuiScreen.isCtrlKeyDown());
-                PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
+                CompoundTag nbt = new CompoundTag();
+                nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode(player));
+                LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
                 return true;
             }
             return false;
         }
         
         @Override
-        public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state) {
-            /* LittleTile tile = new LittleTileBlock(state.getBlock(),
-             * state.getBlock().getMetaFromState(state)); tile.box = new
-             * LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos,
-             * LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
-             * List<LittleTilePreview> previews = new ArrayList<>();
-             * previews.add(tile.getPreviewTile()); PlacePreviewMode.setPreview(stack,
-             * previews); */
-        }
-        
-        @Override
-        public void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, BlockPos pos, NBTTagCompound nbt) {
+        public void littleBlockAction(Level level, BETiles be, LittleTileContext context, ItemStack stack, BlockPos pos, CompoundTag nbt) {
             LittlePreviews previews = new LittlePreviews(te.getContext());
             if (nbt.getBoolean("secondMode")) {
                 for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
@@ -667,21 +644,21 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public List<RenderBox> getRenderingCubes(ItemStack stack) {
             return LittlePreview.getCubesForStackRendering(stack);
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public boolean renderBlockSeparately(ItemStack stack) {
             return false;
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
-        public SubGuiGrabber getGui(EntityPlayer player, ItemStack stack, LittleGridContext context) {
-            return new SubGuiGrabber(this, stack, 140, 140, context) {
+        @OnlyIn(Dist.CLIENT)
+        public GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid) {
+            return new SubGuiGrabber(this, stack, 140, 140, grid) {
                 
                 @Override
                 public void saveConfiguration() {
@@ -689,11 +666,6 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                 }
                 
             };
-        }
-        
-        @Override
-        public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
-            return new SubContainerConfigure(player, stack);
         }
         
         @Override
@@ -715,7 +687,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public SubGuiGrabber getGui(EntityPlayer player, ItemStack stack, LittleGridContext context) {
             return new SubGuiGrabber(this, stack, 140, 140, context) {
                 

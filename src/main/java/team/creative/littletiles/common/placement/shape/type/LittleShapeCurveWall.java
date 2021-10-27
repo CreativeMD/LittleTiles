@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -102,23 +104,23 @@ public class LittleShapeCurveWall extends LittleShape {
     }
     
     @Override
-    public void addExtraInformation(CompoundTag nbt, List<String> list) {
-        list.add("interpolation: " + interpolationTypes[nbt.getInt("interpolation")]);
+    public void addExtraInformation(CompoundTag nbt, List<Component> list) {
+        list.add(new TranslatableComponent("gui.interpolation").append(": ").append(new TranslatableComponent("gui." + interpolationTypes[nbt.getInt("interpolation")])));
         
         int facing = nbt.getInt("direction");
-        String text = "facing: ";
+        String text;
         switch (facing) {
-        case 0:
-            text += "y";
-            break;
         case 1:
-            text += "x";
+            text = "x";
             break;
         case 2:
-            text += "z";
+            text = "z";
+            break;
+        default:
+            text = "y";
             break;
         }
-        list.add(text);
+        list.add(new TranslatableComponent("gui.facing").append(": ").append(new TranslatableComponent("gui.axis." + text)));
     }
     
     @Override

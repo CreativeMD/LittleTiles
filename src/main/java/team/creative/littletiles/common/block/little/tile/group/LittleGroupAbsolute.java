@@ -2,10 +2,12 @@ package team.creative.littletiles.common.block.little.tile.group;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
@@ -19,8 +21,12 @@ public class LittleGroupAbsolute implements IGridBased {
         this.group = group;
     }
     
+    public LittleGroupAbsolute(BlockPos pos, LittleGrid grid) {
+        this(pos, new LittleGroup(null, grid, null));
+    }
+    
     public LittleGroupAbsolute(BlockPos pos) {
-        this(pos, new LittleGroup(null, LittleGrid.min(), null));
+        this(pos, LittleGrid.min());
     }
     
     @Override
@@ -48,6 +54,10 @@ public class LittleGroupAbsolute implements IGridBased {
     
     public LittleStructureType getStructureType() {
         return group.getStructureType();
+    }
+    
+    public void add(LittleElement element, LittleBoxes boxes) {
+        addDirectly(new LittleTile(element, boxes.all()));
     }
     
     public void add(IParentCollection parent, LittleTile tile) {

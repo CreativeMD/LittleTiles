@@ -48,8 +48,8 @@ import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
 import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.packet.LittleBlockPacket;
-import team.creative.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -125,7 +125,7 @@ public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICr
         if (state.getBlock() instanceof BlockTile) {
             NBTTagCompound nbt = new NBTTagCompound();
             nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
-            PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.RECIPE, nbt));
+            PacketHandler.sendPacketToServer(new BlockPacket(world, result.getBlockPos(), player, BlockPacketAction.RECIPE, nbt));
             return true;
         }
         return true;
