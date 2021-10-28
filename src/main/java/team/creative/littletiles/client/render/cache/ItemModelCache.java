@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -131,7 +131,7 @@ public class ItemModelCache {
                 ItemModelCacheKey data = items.poll();
                 ICreativeRendered renderer = (ICreativeRendered) data.stack.getItem();
                 
-                BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+                RenderType layer = MinecraftForgeClient.getRenderLayer();
                 cacheModel(data, CreativeBakedModel
                         .getBlockQuads(renderer.getRenderingCubes(null, null, data.stack), new ArrayList<>(), null, data.facing, null, layer, null, null, 0, data.stack, true));
             } else if (world == null)

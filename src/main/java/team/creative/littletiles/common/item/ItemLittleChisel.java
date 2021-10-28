@@ -48,6 +48,7 @@ import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -122,7 +123,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public List<RenderBox> getRenderingCubes(BlockState state, BlockEntity te, ItemStack stack) {
+    public List<RenderBox> getRenderingBoxes(BlockState state, BlockEntity te, ItemStack stack) {
         return Collections.emptyList();
     }
     
@@ -191,23 +192,23 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    public LittleGroupAbsolute getTiles(ItemStack stack) {
+    public LittleGroup getTiles(ItemStack stack) {
         return null;
     }
     
     @Override
-    public LittleGroupAbsolute getTiles(ItemStack stack, boolean allowLowResolution) {
+    public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
         if (selection != null) {
             LittleBoxes boxes = selection.getBoxes(allowLowResolution);
             LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos, boxes.grid);
             previews.add(getPreview(stack), boxes);
-            return previews;
+            return new PlacementPreview(level, previews, getPlacementMode(stack), selection.getFirst().pos.facing);
         }
         return null;
     }
     
     @Override
-    public void saveTiles(ItemStack stack, LittleGroupAbsolute group) {}
+    public void saveTiles(ItemStack stack, LittleGroup group) {}
     
     @Override
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {

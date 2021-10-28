@@ -47,6 +47,18 @@ public class PlacementPreview {
         this.position = position;
     }
     
+    public PlacementPreview(Level level, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
+        if (level instanceof CreativeLevel)
+            this.levelUUID = ((CreativeLevel) level).parent.getUUID();
+        else
+            this.levelUUID = null;
+        this.previews = previews.group;
+        if (this.previews.hasStructureIncludeChildren() && mode.canPlaceStructures())
+            mode = PlacementMode.getStructureDefault();
+        this.mode = mode;
+        this.position = new PlacementPosition(previews.pos, new LittleVecGrid(), facing);
+    }
+    
     public PlacementPreview(UUID levelUUID, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
         this.levelUUID = levelUUID;
         this.previews = previews.group;

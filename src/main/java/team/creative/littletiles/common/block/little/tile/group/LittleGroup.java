@@ -12,6 +12,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -37,7 +40,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     private LittleGrid grid;
     
     public LittleGroup() {
-        this(null, LittleGrid.min(), Collections.EMPTY_LIST);
+        this(LittleGrid.min());
     }
     
     public LittleGroup(CompoundTag structure, LittleGrid grid, List<LittleGroup> children) {
@@ -45,6 +48,10 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         this.structure = structure;
         this.children = new ItemChildrenList(this, children);
         convertToSmallest();
+    }
+    
+    public LittleGroup(LittleGrid grid) {
+        this(null, grid, Collections.EMPTY_LIST);
     }
     
     public LittleGroup getParent() {
@@ -473,6 +480,11 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         for (LittleBox box : allBoxes())
             positions.add(box.getMinVec().getBlockPos(grid).offset(pos));
         return positions;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public List<RenderBox> getRenderingBoxes() {
+        
     }
     
     public static void advancedScale(LittleGroup group, int from, int to) {

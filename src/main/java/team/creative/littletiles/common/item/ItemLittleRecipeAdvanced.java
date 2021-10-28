@@ -23,6 +23,8 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -58,15 +60,19 @@ import team.creative.littletiles.common.placement.selection.SelectionMode;
 public class ItemLittleRecipeAdvanced extends Item implements ILittlePlacer, ICreativeRendered, IItemTooltip {
     
     public ItemLittleRecipeAdvanced() {
-        setCreativeTab(LittleTiles.littleTab);
-        hasSubtypes = true;
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
     }
     
     @Override
-    public String getItemStackDisplayName(ItemStack stack) {
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure") && stack.getTagCompound().getCompoundTag("structure").hasKey("name"))
-            return stack.getTagCompound().getCompoundTag("structure").getString("name");
-        return super.getItemStackDisplayName(stack);
+    public boolean isComplex() {
+        return true;
+    }
+    
+    @Override
+    public Component getName(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("structure") && stack.getOrCreateTagElement("structure").contains("name"))
+            return new TextComponent(stack.getOrCreateTag().getCompound("structure").getString("name"));
+        return super.getName(stack);
     }
     
     @Override

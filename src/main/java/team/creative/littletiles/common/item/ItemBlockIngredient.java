@@ -128,7 +128,7 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
     }
     
     @Override
-    public List<? extends RenderBox> getRenderingCubes(BlockState state, BlockEntity te, ItemStack stack) {
+    public List<? extends RenderBox> getRenderingBoxes(BlockState state, BlockEntity te, ItemStack stack) {
         List<RenderBox> cubes = new ArrayList<>();
         BlockIngredientEntry ingredient = loadIngredient(stack);
         if (ingredient == null)

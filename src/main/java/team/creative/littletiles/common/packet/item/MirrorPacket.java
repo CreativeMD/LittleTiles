@@ -28,7 +28,7 @@ public class MirrorPacket extends CreativePacket {
     public void execute(Player player) {
         ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ILittleTool)
-            ((ILittleTool) stack.getItem()).flip(player, stack, axis, player.level.isClientSide);
+            ((ILittleTool) stack.getItem()).mirror(player, stack, axis, player.level.isClientSide);
     }
     
     @Override

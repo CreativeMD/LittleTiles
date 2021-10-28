@@ -7,11 +7,11 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
-import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleGrabber;
 import team.creative.littletiles.common.item.ItemLittleGrabber.GrabberMode;
 
-public abstract class SubGuiGrabber extends SubGuiConfigure {
+public abstract class SubGuiGrabber extends GuiConfigure {
     
     public final GrabberMode mode;
     public final int index;

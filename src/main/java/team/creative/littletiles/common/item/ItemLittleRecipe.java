@@ -7,9 +7,6 @@ import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.creativecore.common.gui.container.SubContainer;
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -17,56 +14,68 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.ItemModelCache;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.gui.SubContainerRecipe;
 import team.creative.littletiles.common.gui.SubGuiRecipe;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 
-public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCreator {
+public class ItemLittleRecipe extends Item implements ICreativeRendered, GuiHandler {
     
     public ItemLittleRecipe() {
-        setCreativeTab(LittleTiles.littleTab);
-        hasSubtypes = true;
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
     }
     
     @Override
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {}
+    public boolean isComplex() {
+        return true;
+    }
     
     @Override
-    public String getItemStackDisplayName(ItemStack stack) {
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure") && stack.getTagCompound().getCompoundTag("structure").hasKey("name"))
-            return stack.getTagCompound().getCompoundTag("structure").getString("name");
-        return super.getItemStackDisplayName(stack);
+    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {}
+    
+    @Override
+    public Component getName(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("structure") && stack.getOrCreateTagElement("structure").contains("name"))
+            return new TextComponent(stack.getOrCreateTag().getCompound("structure").getString("name"));
+        return super.getName(stack);
     }
     
     @Override
@@ -176,33 +185,27 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-        return new SubGuiRecipe(stack);
+    public GuiLayer create(Player player, CompoundTag nbt) {
+        return new SubGuiRecipe(player.getMainHandItem());
     }
     
     @Override
-    public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-        return new SubContainerRecipe(player, stack);
-    }
-    
-    @Override
-    @SideOnly(Side.CLIENT)
-    public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-        if (stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
+    @OnlyIn(Dist.CLIENT)
+    public List<RenderBox> getRenderingBoxes(BlockState state, BlockEntity be, ItemStack stack) {
+        if (stack.hasTag() && !stack.getTag().contains("x"))
             return LittlePreview.getCubesForStackRendering(stack);
         return new ArrayList<RenderBox>();
     }
     
     public ModelResourceLocation getBackgroundLocation() {
-        return new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory");
+        return new ModelResourceLocation(LittleTiles.MODID + ":recipe_background", "inventory");
     }
     
-    @SideOnly(Side.CLIENT)
-    public static IBakedModel model;
+    @OnlyIn(Dist.CLIENT)
+    public static BakedModel model;
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
         Minecraft mc = Minecraft.getMinecraft();
         GlStateManager.pushMatrix();
@@ -229,14 +232,14 @@ public class ItemLittleRecipe extends Item implements ICreativeRendered, IGuiCre
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+    @OnlyIn(Dist.CLIENT)
+    public void saveCachedModel(Facing facing, RenderType layer, List<BakedQuad> cachedQuads, BlockState state, BlockEntity be, ItemStack stack, boolean threaded) {
         ItemModelCache.cacheModel(stack, facing, cachedQuads);
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+    @OnlyIn(Dist.CLIENT)
+    public List<BakedQuad> getCachedModel(Facing facing, RenderType layer, BlockState state, BlockEntity be, ItemStack stack, boolean threaded) {
         return ItemModelCache.requestCache(stack, facing);
     }
 }

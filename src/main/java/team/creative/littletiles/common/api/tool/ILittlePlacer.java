@@ -11,9 +11,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.placement.PlacementPosition;
+import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
@@ -22,29 +24,27 @@ public interface ILittlePlacer extends ILittleTool {
     
     public boolean hasTiles(ItemStack stack);
     
-    public LittleGroupAbsolute getTiles(ItemStack stack);
+    public LittleGroup getTiles(ItemStack stack);
     
-    public default LittleGroupAbsolute getTiles(ItemStack stack, boolean allowLowResolution) {
-        return getTiles(stack);
-    }
+    public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution);
     
-    public void saveTiles(ItemStack stack, LittleGroupAbsolute group);
+    public void saveTiles(ItemStack stack, LittleGroup group);
     
     @Override
     public default void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        LittleGroupAbsolute group = getTiles(stack, false);
-        if (group.isEmpty())
+        LittleGroup group = getTiles(stack);
+        if (group == null || group.isEmpty())
             return;
-        group.group.rotate(rotation, group.getGrid().rotationCenter);
+        group.rotate(rotation, group.getGrid().rotationCenter);
         saveTiles(stack, group);
     }
     
     @Override
     public default void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
-        LittleGroupAbsolute group = getTiles(stack, false);
-        if (group.isEmpty())
+        LittleGroup group = getTiles(stack);
+        if (group == null || group.isEmpty())
             return;
-        group.group.mirror(axis, group.getGrid().rotationCenter);
+        group.mirror(axis, group.getGrid().rotationCenter);
         saveTiles(stack, group);
     }
     

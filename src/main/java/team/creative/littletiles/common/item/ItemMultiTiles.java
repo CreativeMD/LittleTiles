@@ -200,7 +200,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittlePl
         public ItemStack stack;
         
         public String getFileName() {
-            return "assets/" + LittleTiles.modid + "/example/" + name().toLowerCase() + ".struct";
+            return "assets/" + LittleTiles.MODID + "/example/" + name().toLowerCase() + ".struct";
         }
         
     }
