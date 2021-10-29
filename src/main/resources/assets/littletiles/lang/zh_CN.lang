@@ -89,6 +89,7 @@ exception.pattern.circular=循环引用
 exception.pattern.novalidchildren=断开子级
 exception.permission.convert=不能编辑超过 %s 个方块
 exception.permission.area-protected=保护区
+exception.permission.recipe.size=配方面积过大(最多允许 %s 个方块)
 
 color.unit.black=黑色
 color.unit.cyan=青色
@@ -183,8 +184,7 @@ shape.curve=选区类型：曲线
 shape.curvewall=选区类型：弧形墙
 shape.cylinder=选区类型：圆柱体
 shape.sphere=选区类型：球体
-shape.pyramid=选区类型：金字塔
-shape.magic_wand=选区类型：魔杖
+shape.pyramid=选区类型：金字塔 #shape.magic_wand=选区类型：魔杖
 #蓝图结构设置
 structure.none.name=无
 structure.fixed.name=固定
@@ -206,8 +206,8 @@ structure.category.simple=简易
 structure.category.door=门
 
 gui.save=保存
-gui.clear =清除
-gui.door.duration=持续时间
+
+gui.door.duration=持续时间 #gui.clear=清除
 gui.door.stayAnimated=保持动画
 gui.door.stayAnimatedTooltip=仅在必要时使用，它会影响你的FPS
 gui.door.children=子级
@@ -268,6 +268,8 @@ gui.frame_builder.height=高度:
 gui.frame_builder.thickness=厚度:
 gui.frame_builder.craft=制图
 gui.frame_builder.failed=缺少蓝图
+
+gui.ok=Okay
 
 animation.event.child.name=激活子级
 animation.event.sound-event.name=播放声音事件
