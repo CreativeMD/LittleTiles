@@ -8,8 +8,8 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.item.ItemLittleGrabber;
-import team.creative.littletiles.common.item.ItemLittleGrabber.GrabberMode;
+import team.creative.littletiles.common.item.ItemLittleGlove;
+import team.creative.littletiles.common.item.ItemLittleGlove.GrabberMode;
 
 public abstract class SubGuiGrabber extends GuiConfigure {
     
@@ -21,21 +21,21 @@ public abstract class SubGuiGrabber extends GuiConfigure {
     public SubGuiGrabber(GrabberMode mode, ItemStack stack, int width, int height, LittleGridContext context) {
         super(width, height, stack);
         this.mode = mode;
-        this.modes = ItemLittleGrabber.getModes();
-        this.index = ItemLittleGrabber.indexOf(mode);
+        this.modes = ItemLittleGlove.getModes();
+        this.index = ItemLittleGlove.indexOf(mode);
         this.context = context;
     }
     
     @Override
     public void onClosed() {
         super.onClosed();
-        ItemLittleGrabber.setMode(stack, mode);
+        ItemLittleGlove.setMode(stack, mode);
         saveConfiguration();
         sendPacketToServer(stack.getTagCompound());
     }
     
     public void openNewGui(GrabberMode mode) {
-        ItemLittleGrabber.setMode(stack, mode);
+        ItemLittleGlove.setMode(stack, mode);
         GuiHandler.openGui("grabber", new NBTTagCompound(), getPlayer());
     }
     

@@ -23,7 +23,7 @@ import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.ingredient.StackIngredientEntry;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 
 public class SubGuiWorkbench extends SubGui {
     
@@ -47,7 +47,7 @@ public class SubGuiWorkbench extends SubGui {
                 listBox.clear();
                 
                 if (!stack1.isEmpty()) {
-                    if (stack1.getItem() instanceof ItemLittleRecipe || stack1.getItem() instanceof ItemLittleRecipeAdvanced) {
+                    if (stack1.getItem() instanceof ItemLittleRecipe || stack1.getItem() instanceof ItemLittleBlueprint) {
                         LittlePreviews previews = LittlePreview.getPreview(stack1);
                         
                         EntityPlayer player = getPlayer();

@@ -2,14 +2,13 @@ package team.creative.littletiles.common.animation.physic;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-
 import team.creative.creativecore.common.util.math.box.BoxUtils;
+import team.creative.creativecore.common.util.math.box.OBB;
 
 public class AABBCombiner {
     
     public final double deviation;
-    public final List<OrientatedBoundingBox> boxes;
+    public final List<OBB> boxes;
     
     private boolean finished = false;
     private int i = -1;
@@ -20,7 +19,7 @@ public class AABBCombiner {
     /** in nano seconds */
     public long workingTime = 30000;
     
-    public AABBCombiner(List<OrientatedBoundingBox> boxes, double deviation) {
+    public AABBCombiner(List<OBB> boxes, double deviation) {
         this.boxes = boxes;
         this.deviation = deviation;
     }
@@ -44,7 +43,7 @@ public class AABBCombiner {
             while (j < boxes.size()) {
                 if (!skipThrough) {
                     if (i != j) {
-                        OrientatedBoundingBox box = combineBoxes(boxes.get(i), boxes.get(j), deviation);
+                        OBB box = combineBoxes(boxes.get(i), boxes.get(j), deviation);
                         if (box != null) {
                             if (i > j) {
                                 boxes.remove(i);
@@ -77,7 +76,7 @@ public class AABBCombiner {
         finished = true;
     }
     
-    public static OrientatedBoundingBox combineBoxes(OrientatedBoundingBox box1, OrientatedBoundingBox box2, double deviation) {
+    public static OBB combineBoxes(OBB box1, OBB box2, double deviation) {
         if (deviation == 0) {
             boolean x = box1.minX == box2.minX && box1.maxX == box2.maxX;
             boolean y = box1.minY == box2.minY && box1.maxY == box2.maxY;
@@ -88,15 +87,15 @@ public class AABBCombiner {
             }
             if (x && y) {
                 if (box1.maxZ >= box2.minZ && box1.minZ <= box2.maxZ)
-                    return new OrientatedBoundingBox(box1.origin, box1.minX, box1.minY, Math.min(box1.minZ, box2.minZ), box1.maxX, box1.maxY, Math.max(box1.maxZ, box2.maxZ));
+                    return new OBB(box1.origin, box1.minX, box1.minY, Math.min(box1.minZ, box2.minZ), box1.maxX, box1.maxY, Math.max(box1.maxZ, box2.maxZ));
             }
             if (x && z) {
                 if (box1.maxY >= box2.minY && box1.minY <= box2.maxY)
-                    return new OrientatedBoundingBox(box1.origin, box1.minX, Math.min(box1.minY, box2.minY), box1.minZ, box1.maxX, Math.max(box1.maxY, box2.maxY), box1.maxZ);
+                    return new OBB(box1.origin, box1.minX, Math.min(box1.minY, box2.minY), box1.minZ, box1.maxX, Math.max(box1.maxY, box2.maxY), box1.maxZ);
             }
             if (y && z) {
                 if (box1.maxX >= box2.minX && box1.minX <= box2.maxX)
-                    return new OrientatedBoundingBox(box1.origin, Math.min(box1.minX, box2.minX), box1.minY, box1.minZ, Math.max(box1.maxX, box2.maxX), box1.maxY, box1.maxZ);
+                    return new OBB(box1.origin, Math.min(box1.minX, box2.minX), box1.minY, box1.minZ, Math.max(box1.maxX, box2.maxX), box1.maxY, box1.maxZ);
             }
             return null;
         } else {
@@ -120,8 +119,8 @@ public class AABBCombiner {
         }
     }
     
-    public static OrientatedBoundingBox sumBox(OrientatedBoundingBox box1, OrientatedBoundingBox box2) {
-        return new OrientatedBoundingBox(box1.origin, Math.min(box1.minX, box2.minX), Math.min(box1.minY, box2.minY), Math.min(box1.minZ, box2.minZ), Math
-                .max(box1.maxX, box2.maxX), Math.max(box1.maxY, box2.maxY), Math.max(box1.maxZ, box2.maxZ));
+    public static OBB sumBox(OBB box1, OBB box2) {
+        return new OBB(box1.origin, Math.min(box1.minX, box2.minX), Math.min(box1.minY, box2.minY), Math.min(box1.minZ, box2.minZ), Math.max(box1.maxX, box2.maxX), Math
+                .max(box1.maxY, box2.maxY), Math.max(box1.maxZ, box2.maxZ));
     }
 }

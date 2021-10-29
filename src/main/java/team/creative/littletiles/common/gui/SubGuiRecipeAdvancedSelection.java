@@ -15,7 +15,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 import team.creative.littletiles.common.placement.selection.SelectionMode.SelectionResult;
 
@@ -34,7 +34,7 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
     
     @Override
     public void createControls() {
-        SelectionMode mode = ItemLittleRecipeAdvanced.getSelectionMode(stack);
+        SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
         GuiComboBox box = new GuiComboBox("selection_mode", 0, 0, 100, translate(SelectionMode.names()));
         box.select(mode.name);
         controls.add(box);

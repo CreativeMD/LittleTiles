@@ -17,7 +17,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 
 public class SubGuiBuilder extends SubGui {
@@ -57,7 +57,7 @@ public class SubGuiBuilder extends SubGui {
             
             @Override
             public void onClicked(int x, int y, int button) {
-                if ((getPlayer().isCreative() && builder.inventory.getStackInSlot(0).isEmpty()) || ItemLittleRecipeAdvanced.isRecipe(builder.inventory.getStackInSlot(0).getItem())) {
+                if ((getPlayer().isCreative() && builder.inventory.getStackInSlot(0).isEmpty()) || ItemLittleBlueprint.isRecipe(builder.inventory.getStackInSlot(0).getItem())) {
                     get("failed").visible = false;
                     NBTTagCompound nbt = new NBTTagCompound();
                     GuiCounter width = (GuiCounter) get("width");

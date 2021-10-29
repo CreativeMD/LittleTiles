@@ -216,7 +216,7 @@ public class WorldAnimationHandler {
             return true;
         
         for (int i = 0; i < boxes.size(); i++)
-            if (!(boxes.get(i) instanceof CreativeAxisAlignedBB))
+            if (!(boxes.get(i) instanceof CreativeAABB))
                 return false;
         return true;
     }

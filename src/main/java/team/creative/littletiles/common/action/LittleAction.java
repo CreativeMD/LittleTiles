@@ -351,7 +351,7 @@ public abstract class LittleAction extends CreativePacket {
         
         String id = ItemPremadeStructure.getPremadeId(toDrain);
         for (ItemStack stack : inventory) {
-            if (stack.getItem() == LittleTiles.premade && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
+            if (stack.getItem() == LittleTiles.PREMADE && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
                 stack.shrink(1);
                 return true;
             }

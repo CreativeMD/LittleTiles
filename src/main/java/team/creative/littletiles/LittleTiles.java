@@ -8,12 +8,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.action.block.LittleActionReplace;
-import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
-import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 
 import net.minecraft.ChatFormatting;
@@ -62,6 +56,7 @@ import team.creative.littletiles.common.action.LittleActionDestroy;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
@@ -86,15 +81,13 @@ import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
 import team.creative.littletiles.common.item.ItemLittleBag;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemLittleChisel;
-import team.creative.littletiles.common.item.ItemLittleGrabber;
+import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittleHammer;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
-import team.creative.littletiles.common.item.ItemLittleRecipe;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
 import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleScrewdriver;
-import team.creative.littletiles.common.item.ItemLittleUtilityKnife;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
@@ -189,20 +182,17 @@ public class LittleTiles {
     
     public static Block SIGNAL_CONVERTER = new BlockSignalConverter().setRegistryName("signal_converter");
     
-    public static Item hammer;
-    public static Item recipe;
-    public static Item recipeAdvanced;
-    public static Item multiTiles;
-    public static Item saw;
-    public static Item container;
-    public static Item wrench;
-    public static Item screwdriver;
-    public static Item chisel;
-    public static Item colorTube;
-    public static Item rubberMallet;
-    public static Item utilityKnife;
-    public static Item grabber;
-    public static Item premade;
+    public static Item HAMMER;
+    public static Item BLUEPRINT;
+    public static Item ITEM_TILES;
+    public static Item SAW;
+    public static Item BAG;
+    public static Item WRENCH;
+    public static Item SCREWDRIVER;
+    public static Item CHISEL;
+    public static Item PAINT_BRUSH;
+    public static Item GLOVE;
+    public static Item PREMADE;
     
     public static Item blockIngredient;
     
@@ -218,7 +208,7 @@ public class LittleTiles {
         
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(hammer);
+            return new ItemStack(HAMMER);
         }
     };
     
@@ -240,19 +230,17 @@ public class LittleTiles {
         BLOCK_TILES_RENDERED = new BlockTile(Material.STONE, false, true).setRegistryName("tiles_rendered");
         BLOCK_TILES_TICKING_RENDERED = new BlockTile(Material.STONE, true, true).setRegistryName("tiles_ticking_rendered");
         
-        hammer = new ItemLittleHammer().setRegistryName("hammer");
-        recipe = new ItemLittleRecipe().setRegistryName("recipe");
-        recipeAdvanced = new ItemLittleRecipeAdvanced().setRegistryName("recipeadvanced");
-        multiTiles = new ItemMultiTiles().setRegistryName("multiTiles");
-        saw = new ItemLittleSaw().setRegistryName("saw");
-        container = new ItemLittleBag().setRegistryName("container");
-        wrench = new ItemLittleWrench().setRegistryName("wrench");
-        screwdriver = new ItemLittleScrewdriver().setRegistryName("screwdriver");
-        chisel = new ItemLittleChisel().setRegistryName("chisel");
-        colorTube = new ItemLittlePaintBrush().setRegistryName("paint_brush");
-        utilityKnife = new ItemLittleUtilityKnife().setRegistryName("utility_knife");
-        grabber = new ItemLittleGrabber().setRegistryName("grabber");
-        premade = new ItemPremadeStructure().setRegistryName("premade");
+        HAMMER = new ItemLittleHammer().setRegistryName("hammer");
+        BLUEPRINT = new ItemLittleBlueprint().setRegistryName("blueprint");
+        ITEM_TILES = new ItemMultiTiles().setRegistryName("tiles");
+        SAW = new ItemLittleSaw().setRegistryName("saw");
+        BAG = new ItemLittleBag().setRegistryName("bag");
+        WRENCH = new ItemLittleWrench().setRegistryName("wrench");
+        SCREWDRIVER = new ItemLittleScrewdriver().setRegistryName("screwdriver");
+        CHISEL = new ItemLittleChisel().setRegistryName("chisel");
+        PAINT_BRUSH = new ItemLittlePaintBrush().setRegistryName("paint_brush");
+        GLOVE = new ItemLittleGlove().setRegistryName("glove");
+        PREMADE = new ItemPremadeStructure().setRegistryName("premade");
         
         blockIngredient = new ItemBlockIngredient().setRegistryName("blockingredient");
         
@@ -429,13 +417,12 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
         
         LittleActionRegistry.register(LittleActions.class, LittleActions::new);
+        LittleActionRegistry.register(LittleActionPlace.class, LittleActionPlace::new);
         
         LittleAction.registerLittleAction("act", LittleActionActivated.class);
         LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);
         LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class, LittleActionDestroyBoxesFiltered.class);
         LittleAction.registerLittleAction("des", LittleActionDestroy.class);
-        LittleAction.registerLittleAction("plR", LittleActionPlaceStack.class);
-        LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class, LittleActionPlaceAbsolutePremade.class);
         
         LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
         
@@ -480,7 +467,7 @@ public class LittleTiles {
     
     public void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry()
-                .registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));
+                .registerAll(HAMMER, BLUEPRINT, SAW, BAG, WRENCH, SCREWDRIVER, CHISEL, PAINT_BRUSH, ITEM_TILES, GLOVE, PREMADE, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));
     }
     
     private void serverStarting(final FMLServerStartingEvent event) {

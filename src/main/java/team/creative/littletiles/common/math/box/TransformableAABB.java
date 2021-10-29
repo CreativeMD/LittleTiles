@@ -1,11 +1,11 @@
 package team.creative.littletiles.common.math.box;
 
-import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.CreativeAABB;
+import team.creative.creativecore.common.util.math.box.OBB;
 import team.creative.creativecore.common.util.math.geo.NormalPlane;
 import team.creative.creativecore.common.util.math.geo.Ray3f;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
@@ -14,32 +14,32 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanFaceCache;
 
-public class TransformableAxisBox extends AABB {
+public class TransformableAABB extends CreativeAABB {
     
     private LittleGrid grid;
     private LittleBox box;
     
-    public TransformableAxisBox(LittleBox box, LittleGrid grid, double x1, double y1, double z1, double x2, double y2, double z2) {
+    public TransformableAABB(LittleBox box, LittleGrid grid, double x1, double y1, double z1, double x2, double y2, double z2) {
         super(x1, y1, z1, x2, y2, z2);
         this.box = box;
         this.grid = grid;
     }
     
     @Override
-    public TransformableAxisBox setMaxY(double y2) {
-        return new TransformableAxisBox(box, grid, this.minX, this.minY, this.minZ, this.maxX, y2, this.maxZ);
+    public TransformableAABB setMaxY(double y2) {
+        return new TransformableAABB(box, grid, this.minX, this.minY, this.minZ, this.maxX, y2, this.maxZ);
     }
     
     @Override
     public boolean equals(Object object) {
-        if (object.getClass() == TransformableAxisBox.class) {
-            return ((TransformableAxisBox) object).minX == this.minX && ((TransformableAxisBox) object).minY == this.minY && ((TransformableAxisBox) object).minZ == this.minZ && ((TransformableAxisBox) object).maxX == this.maxX && ((TransformableAxisBox) object).maxY == this.maxY && ((TransformableAxisBox) object).maxZ == this.maxZ && ((TransformableAxisBox) object).grid == this.grid && ((TransformableAxisBox) object).box == this.box;
+        if (object.getClass() == TransformableAABB.class) {
+            return ((TransformableAABB) object).minX == this.minX && ((TransformableAABB) object).minY == this.minY && ((TransformableAABB) object).minZ == this.minZ && ((TransformableAABB) object).maxX == this.maxX && ((TransformableAABB) object).maxY == this.maxY && ((TransformableAABB) object).maxZ == this.maxZ && ((TransformableAABB) object).grid == this.grid && ((TransformableAABB) object).box == this.box;
         }
         return false;
     }
     
     @Override
-    public TransformableAxisBox contract(double p_191195_1_, double p_191195_3_, double p_191195_5_) {
+    public TransformableAABB contract(double p_191195_1_, double p_191195_3_, double p_191195_5_) {
         double d0 = this.minX;
         double d1 = this.minY;
         double d2 = this.minZ;
@@ -65,7 +65,7 @@ public class TransformableAxisBox extends AABB {
             d5 -= p_191195_5_;
         }
         
-        return new TransformableAxisBox(box, grid, d0, d1, d2, d3, d4, d5);
+        return new TransformableAABB(box, grid, d0, d1, d2, d3, d4, d5);
     }
     
     @Override
@@ -76,11 +76,11 @@ public class TransformableAxisBox extends AABB {
         double d3 = this.maxX + x;
         double d4 = this.maxY + y;
         double d5 = this.maxZ + z;
-        return new TransformableAxisBox(box, grid, d0, d1, d2, d3, d4, d5);
+        return new TransformableAABB(box, grid, d0, d1, d2, d3, d4, d5);
     }
     
     @Override
-    public TransformableAxisBox expandTowards(double x, double y, double z) {
+    public TransformableAABB expandTowards(double x, double y, double z) {
         double d0 = this.minX;
         double d1 = this.minY;
         double d2 = this.minZ;
@@ -106,28 +106,28 @@ public class TransformableAxisBox extends AABB {
             d5 += z;
         }
         
-        return new TransformableAxisBox(box, grid, d0, d1, d2, d3, d4, d5);
+        return new TransformableAABB(box, grid, d0, d1, d2, d3, d4, d5);
     }
     
     @Override
-    public TransformableAxisBox intersect(AABB p_191500_1_) {
+    public TransformableAABB intersect(AABB p_191500_1_) {
         double d0 = Math.max(this.minX, p_191500_1_.minX);
         double d1 = Math.max(this.minY, p_191500_1_.minY);
         double d2 = Math.max(this.minZ, p_191500_1_.minZ);
         double d3 = Math.min(this.maxX, p_191500_1_.maxX);
         double d4 = Math.min(this.maxY, p_191500_1_.maxY);
         double d5 = Math.min(this.maxZ, p_191500_1_.maxZ);
-        return new TransformableAxisBox(box, grid, d0, d1, d2, d3, d4, d5);
+        return new TransformableAABB(box, grid, d0, d1, d2, d3, d4, d5);
     }
     
     @Override
     public AABB move(double x, double y, double z) {
-        return new TransformableAxisBox(box, grid, this.minX + x, this.minY + y, this.minZ + z, this.maxX + x, this.maxY + y, this.maxZ + z);
+        return new TransformableAABB(box, grid, this.minX + x, this.minY + y, this.minZ + z, this.maxX + x, this.maxY + y, this.maxZ + z);
     }
     
     @Override
     public AABB move(BlockPos pos) {
-        return new TransformableAxisBox(box, grid, this.minX + pos.getX(), this.minY + pos.getY(), this.minZ + pos.getZ(), this.maxX + pos.getX(), this.maxY + pos
+        return new TransformableAABB(box, grid, this.minX + pos.getX(), this.minY + pos.getY(), this.minZ + pos.getZ(), this.maxX + pos.getX(), this.maxY + pos
                 .getY(), this.maxZ + pos.getZ());
     }
     
@@ -213,7 +213,7 @@ public class TransformableAxisBox extends AABB {
                     Vec3f vec = tempFan.get(j);
                     float tempDistance = positive ? vec.get(axis) - otherAxis : otherAxis - vec.get(axis);
                     
-                    if (tempDistance < 0 && !OrientatedBoundingBox.equals(tempDistance, 0))
+                    if (tempDistance < 0 && !OBB.equals(tempDistance, 0))
                         return offset;
                     
                     if (tempDistance < distance)
@@ -239,61 +239,9 @@ public class TransformableAxisBox extends AABB {
         return offset;
     }
     
-    public double getMin(Axis axis) {
-        switch (axis) {
-        case X:
-            return minX;
-        case Y:
-            return minY;
-        case Z:
-            return minZ;
-        default:
-            return 0;
-        }
-    }
-    
-    public double getMax(Axis axis) {
-        switch (axis) {
-        case X:
-            return maxX;
-        case Y:
-            return maxY;
-        case Z:
-            return maxZ;
-        default:
-            return 0;
-        }
-    }
-    
     @Override
     public String toString() {
         return "tbb[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
-    }
-    
-    public static double getMin(AABB bb, Axis axis) {
-        switch (axis) {
-        case X:
-            return bb.minX;
-        case Y:
-            return bb.minY;
-        case Z:
-            return bb.minZ;
-        default:
-            return 0;
-        }
-    }
-    
-    public static double getMax(AABB bb, Axis axis) {
-        switch (axis) {
-        case X:
-            return bb.maxX;
-        case Y:
-            return bb.maxY;
-        case Z:
-            return bb.maxZ;
-        default:
-            return 0;
-        }
     }
     
 }

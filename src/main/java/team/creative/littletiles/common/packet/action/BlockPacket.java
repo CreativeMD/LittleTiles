@@ -30,7 +30,7 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.item.ItemLittleChisel;
-import team.creative.littletiles.common.item.ItemLittleGrabber;
+import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -70,7 +70,7 @@ public class BlockPacket extends CreativePacket {
             
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
-                ItemLittleGrabber.getMode(stack).littleBlockAction(level, be, context, stack, pos, nbt);
+                ItemLittleGlove.getMode(stack).littleBlockAction(level, be, context, stack, pos, nbt);
             }
         },
         WRENCH(true) {

@@ -10,7 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 
@@ -31,7 +31,7 @@ public class SubContainerBuilder extends SubContainer {
     
     @Override
     public void onPacketReceive(NBTTagCompound nbt) {
-        if ((player.isCreative() && builder.inventory.getStackInSlot(0).isEmpty()) || ItemLittleRecipeAdvanced.isRecipe(builder.inventory.getStackInSlot(0).getItem())) {
+        if ((player.isCreative() && builder.inventory.getStackInSlot(0).isEmpty()) || ItemLittleBlueprint.isRecipe(builder.inventory.getStackInSlot(0).getItem())) {
             int width = nbt.getInteger("width");
             int height = nbt.getInteger("height");
             int thickness = nbt.getInteger("thickness");

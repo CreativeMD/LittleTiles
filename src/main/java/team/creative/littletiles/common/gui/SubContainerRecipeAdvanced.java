@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 
 public class SubContainerRecipeAdvanced extends SubContainerRecipe {
@@ -19,7 +19,7 @@ public class SubContainerRecipeAdvanced extends SubContainerRecipe {
     @Override
     public void onPacketReceive(NBTTagCompound nbt) {
         if (nbt.getBoolean("save_selection")) {
-            SelectionMode mode = ItemLittleRecipeAdvanced.getSelectionMode(stack);
+            SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
             LittlePreviews previews = mode.getPreviews(player.world, stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt
                 .getBoolean("remember_structure"));
             
@@ -36,7 +36,7 @@ public class SubContainerRecipeAdvanced extends SubContainerRecipe {
             
             previews.removeOffset();
             
-            ((ItemLittleRecipeAdvanced) stack.getItem()).saveLittlePreview(stack, previews);
+            ((ItemLittleBlueprint) stack.getItem()).saveLittlePreview(stack, previews);
             mode.clearSelection(stack);
             
             sendNBTToGui(stack.getTagCompound());

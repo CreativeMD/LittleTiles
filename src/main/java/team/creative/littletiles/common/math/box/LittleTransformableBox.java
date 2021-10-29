@@ -122,14 +122,14 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public TransformableAxisBox getBB(LittleGrid grid, BlockPos offset) {
-        return new TransformableAxisBox(this, grid, grid.toVanillaGrid(minX) + offset.getX(), grid.toVanillaGrid(minY) + offset.getY(), grid.toVanillaGrid(minZ) + offset
-                .getZ(), grid.toVanillaGrid(maxX) + offset.getX(), grid.toVanillaGrid(maxY) + offset.getY(), grid.toVanillaGrid(maxZ) + offset.getZ());
+    public TransformableAABB getBB(LittleGrid grid, BlockPos offset) {
+        return new TransformableAABB(this, grid, grid.toVanillaGrid(minX) + offset.getX(), grid.toVanillaGrid(minY) + offset.getY(), grid.toVanillaGrid(minZ) + offset.getZ(), grid
+                .toVanillaGrid(maxX) + offset.getX(), grid.toVanillaGrid(maxY) + offset.getY(), grid.toVanillaGrid(maxZ) + offset.getZ());
     }
     
     @Override
-    public TransformableAxisBox getBB(LittleGrid grid) {
-        return new TransformableAxisBox(this, grid, grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid
+    public TransformableAABB getBB(LittleGrid grid) {
+        return new TransformableAABB(this, grid, grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid
                 .toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
@@ -528,20 +528,20 @@ public class LittleTransformableBox extends LittleBox {
             BoxCorner[] corners = BoxCorner.faceCorners(facing);
             for (int i = 0; i < corners.length; i++) {
                 BoxCorner corner = corners[i];
-                BoxCorner otherCorner = corner.flip(facing.axis);
+                BoxCorner otherCorner = corner.mirror(facing.axis);
                 ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(otherCorner));
                 ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(otherCorner));
                 if (!ray.parallel(ray2))
                     return null;
                 
                 if (ray.direction.x == 0 && ray.direction.y == 0 && ray.direction.z == 0) {
-                    BoxCorner newCorner = otherCorner.flip(one);
+                    BoxCorner newCorner = otherCorner.mirror(one);
                     ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(newCorner));
                     ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(newCorner));
                     if (!ray.parallel(ray2))
                         return null;
                     
-                    newCorner = otherCorner.flip(two);
+                    newCorner = otherCorner.mirror(two);
                     ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(newCorner));
                     ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(newCorner));
                     if (!ray.parallel(ray2))
@@ -725,7 +725,7 @@ public class LittleTransformableBox extends LittleBox {
             flippedVec.x = (int) ((tempX + doubledCenter.x) / 2);
             flippedVec.y = (int) ((tempY + doubledCenter.y) / 2);
             flippedVec.z = (int) ((tempZ + doubledCenter.z) / 2);
-            cache.setAbsolute(vec.corner.flip(axis), flippedVec);
+            cache.setAbsolute(vec.corner.mirror(axis), flippedVec);
         }
         
         super.mirror(axis, doubledCenter);

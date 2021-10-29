@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.client.render.world.IRenderChunkSupplier;
+import team.creative.creativecore.client.render.level.IRenderChunkSupplier;
 import team.creative.littletiles.client.render.LittleRenderUtils;
 
 public class LittleRenderChunkSuppilier implements IRenderChunkSupplier {

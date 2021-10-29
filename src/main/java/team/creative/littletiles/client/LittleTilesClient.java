@@ -62,10 +62,10 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.gui.controls.GuiAxisIndicatorControl;
 import team.creative.littletiles.common.item.ItemLittleChisel;
-import team.creative.littletiles.common.item.ItemLittleGrabber;
+import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.tooltip.ActionMessage;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 
@@ -200,9 +200,9 @@ public class LittleTilesClient {
             public void onResourceManagerReload(IResourceManager resourceManager) {
                 LittleChunkDispatcher.currentRenderState++;
                 ItemLittleChisel.model = null;
-                ItemLittleGrabber.model = null;
+                ItemLittleGlove.model = null;
                 ItemLittleRecipe.model = null;
-                ItemLittleRecipeAdvanced.model = null;
+                ItemLittleBlueprint.model = null;
             }
         });
         

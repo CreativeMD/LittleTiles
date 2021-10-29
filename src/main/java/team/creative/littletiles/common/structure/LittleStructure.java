@@ -823,7 +823,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         checkConnections();
         BlockPos pos = getMinPos(getPos().mutable());
         
-        ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+        ItemStack stack = new ItemStack(LittleTiles.ITEM_TILES);
         stack.setTag(LittleGroup.save(getPreviews(pos)));
         
         if (name != null) {

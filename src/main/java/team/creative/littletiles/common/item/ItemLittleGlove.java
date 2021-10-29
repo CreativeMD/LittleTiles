@@ -87,9 +87,9 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
-public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
+public class ItemLittleGlove extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
     
-    public ItemLittleGrabber() {
+    public ItemLittleGlove() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
     }
     
@@ -233,7 +233,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
     
     @Override
     public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionGrid(stack));
+        return ItemLittleGlove.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionGrid(stack));
     }
     
     @Override
@@ -444,7 +444,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                 public void createControls() {
                     super.createControls();
                     LittleGridContext oldContext = LittleGridContext.get(stack.getTagCompound());
-                    LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
+                    LittlePreview preview = ItemLittleGlove.SimpleMode.getPreview(stack);
                     preview.convertTo(oldContext, context);
                     if (preview.box.minX == preview.box.maxX)
                         preview.box.maxX++;
@@ -484,7 +484,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                         tile.setBox(new LittleBox(0, 0, 0, context.size, context.size, context.size));
                         return tile.getPreviewTile();
                     } else
-                        return ItemLittleGrabber.SimpleMode.getPreview(stack);
+                        return ItemLittleGlove.SimpleMode.getPreview(stack);
                 }
                 
                 public void updateLabel() {
@@ -547,7 +547,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
         @Override
         public void addExtraInformation(CompoundTag nbt, List<Component> tooltip) {
             super.addExtraInformation(nbt, tooltip);
-            tooltip.add(new TextComponent(TooltipUtils.printColor(ItemLittleGrabber.SimpleMode.getElement(nbt).color)));
+            tooltip.add(new TextComponent(TooltipUtils.printColor(ItemLittleGlove.SimpleMode.getElement(nbt).color)));
         }
         
         @Override
@@ -675,7 +675,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                 
                 @Override
                 public void createControls() {
-                    LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
+                    LittlePreview preview = ItemLittleGlove.SimpleMode.getPreview(stack);
                     
                     Color color = ColorUtils.IntToRGBA(preview.getColor());
                     controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
@@ -696,7 +696,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
                         tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
                         return tile.getPreviewTile();
                     } else
-                        return ItemLittleGrabber.SimpleMode.getPreview(stack);
+                        return ItemLittleGlove.SimpleMode.getPreview(stack);
                 }
                 
                 @Override

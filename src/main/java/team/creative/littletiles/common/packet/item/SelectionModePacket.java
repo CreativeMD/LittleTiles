@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 
 public class SelectionModePacket extends CreativePacket {
     
@@ -29,11 +29,11 @@ public class SelectionModePacket extends CreativePacket {
     @Override
     public void executeServer(ServerPlayer player) {
         ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() instanceof ItemLittleRecipeAdvanced)
+        if (stack.getItem() instanceof ItemLittleBlueprint)
             if (rightClick)
-                ItemLittleRecipeAdvanced.getSelectionMode(stack).onRightClick(player, stack, pos);
+                ItemLittleBlueprint.getSelectionMode(stack).onRightClick(player, stack, pos);
             else
-                ItemLittleRecipeAdvanced.getSelectionMode(stack).onLeftClick(player, stack, pos);
+                ItemLittleBlueprint.getSelectionMode(stack).onLeftClick(player, stack, pos);
     }
     
 }

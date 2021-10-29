@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 
 public class SubContainerImport extends SubContainer {
     
@@ -29,7 +29,7 @@ public class SubContainerImport extends SubContainer {
     @Override
     public void onPacketReceive(NBTTagCompound nbt) {
         ItemStack stack = slot.getStackInSlot(0);
-        if (stack.getItem() instanceof ItemLittleRecipe || stack.getItem() instanceof ItemLittleRecipeAdvanced || (getPlayer().capabilities.isCreativeMode && stack.isEmpty())) {
+        if (stack.getItem() instanceof ItemLittleRecipe || stack.getItem() instanceof ItemLittleBlueprint || (getPlayer().capabilities.isCreativeMode && stack.isEmpty())) {
             ItemStack newStack = StructureStringUtils.importStructure(nbt);
             if (stack.getItem() instanceof ItemLittleRecipe) {
                 stack.setTagCompound(newStack.getTagCompound());

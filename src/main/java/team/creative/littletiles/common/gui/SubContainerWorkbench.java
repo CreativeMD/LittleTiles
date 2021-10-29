@@ -16,7 +16,7 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
 import team.creative.littletiles.common.item.ItemLittleRecipe;
-import team.creative.littletiles.common.item.ItemLittleRecipeAdvanced;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.placement.PlacementHelper;
 
@@ -49,10 +49,10 @@ public class SubContainerWorkbench extends SubContainer {
         ItemStack stack1 = basic.getStackInSlot(0);
         ItemStack stack2 = basic.getStackInSlot(1);
         if (!stack1.isEmpty()) {
-            if (stack1.getItem() instanceof ItemLittleRecipe || stack1.getItem() instanceof ItemLittleRecipeAdvanced) {
+            if (stack1.getItem() instanceof ItemLittleRecipe || stack1.getItem() instanceof ItemLittleBlueprint) {
                 if (stack1.hasTagCompound() && !stack1.getTagCompound().hasKey("x")) {
                     
-                    if (stack2.getItem() instanceof ItemLittleRecipe || stack2.getItem() instanceof ItemLittleRecipeAdvanced) {
+                    if (stack2.getItem() instanceof ItemLittleRecipe || stack2.getItem() instanceof ItemLittleBlueprint) {
                         if (stack2.hasTagCompound() && !stack2.getTagCompound().hasKey("x") && stack1.getTagCompound().hasKey("structure"))
                             stack2.getTagCompound().setTag("structure", stack1.getTagCompound().getTag("structure"));
                     } else {
@@ -81,7 +81,7 @@ public class SubContainerWorkbench extends SubContainer {
                 }
             } else {
                 ILittlePlacer tile = PlacementHelper.getLittleInterface(stack1);
-                if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemLittleRecipe || stack2.getItem() instanceof ItemLittleRecipeAdvanced))
+                if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemLittleRecipe || stack2.getItem() instanceof ItemLittleBlueprint))
                     stack2.setTagCompound(stack1.getTagCompound().copy());
             }
         }
