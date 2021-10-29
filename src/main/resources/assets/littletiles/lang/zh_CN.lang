@@ -1,5 +1,6 @@
+#工具
 item.LTHammer.name=锤子
-item.LTMultiTiles.name=复合结构
+item.LTMultiTiles.name=LT结构(未命名)
 item.LTRecipe.name=配方图纸
 item.LTSaw.name=锯子
 item.LTContainer.name=收纳袋
@@ -11,48 +12,48 @@ item.LTColorTube.name=画笔
 item.LTUtilityKnife.name=工具刀
 item.LTGrabber.name=手套
 item.LTRecipeAdvanced.name=蓝图
-item.LTColorBottleBlack.name=瓶装染料（黑色）
-item.LTColorBottleCyan.name=瓶装染料（青色）
-item.LTColorBottleMagenta.name=瓶装染料（洋红色）
-item.LTColorBottleYellow.name=瓶装染料（黄色）
-
+item.LTColorBottleBlack.name=瓶装染料(黑色)
+item.LTColorBottleCyan.name=瓶装染料(青色)
+item.LTColorBottleMagenta.name=瓶装染料(品红色)
+item.LTColorBottleYellow.name=瓶装染料(黄色)
+#LT基础方块
 tile.LTParticleBlock.name=粒子效果块
-tile.LTColoredBlock.clean.name=染色方块（清澈）
-tile.LTColoredBlock.floor.name=染色方块（基底）
-tile.LTColoredBlock.grainy_big.name=染色方块（大纹理）
-tile.LTColoredBlock.grainy.name=染色方块（正常纹理）
-tile.LTColoredBlock.grainy_low.name=染色方块（低纹理）
-tile.LTColoredBlock.brick.name=染色方块（砖块）
-tile.LTColoredBlock.bordered.name=染色方块（邻接）
-tile.LTColoredBlock.brick_big.name=染色方块（大石砖）
-tile.LTColoredBlock.structured.name=染色方块（錾制石砖）
-tile.LTColoredBlock.broken_brick_big.name=染色方块（大裂石砖）
-tile.LTColoredBlock.clay.name=染色方块（黏土）
-tile.LTColoredBlock.light_clean.name=染色方块（照明清澈）
+tile.LTColoredBlock.clean.name=染色方块(清澈)
+tile.LTColoredBlock.floor.name=染色方块(基底)
+tile.LTColoredBlock.grainy_big.name=染色方块(大纹理)
+tile.LTColoredBlock.grainy.name=染色方块(正常纹理)
+tile.LTColoredBlock.grainy_low.name=染色方块(低纹理)
+tile.LTColoredBlock.brick.name=染色方块(砖块)
+tile.LTColoredBlock.bordered.name=染色方块(邻接)
+tile.LTColoredBlock.brick_big.name=染色方块(大石砖)
+tile.LTColoredBlock.structured.name=染色方块(錾制石砖)
+tile.LTColoredBlock.broken_brick_big.name=染色方块(大裂石砖)
+tile.LTColoredBlock.clay.name=染色方块(黏土)
+tile.LTColoredBlock.light_clean.name=染色方块(照明清澈)
 tile.LTColoredBlock.plank.name=染色木板
 tile.LTColoredBlock.lava.name=岩浆方块
-tile.LTColoredBlock.white_lava.name=岩浆方块（白色）
-tile.LTColoredBlock2.gravel.name=染色方块（砾石）
-tile.LTColoredBlock2.sand.name=染色方块（砂子）
-tile.LTColoredBlock2.stone.name=染色方块（原石）
-tile.LTColoredBlock2.wood.name=染色方块（原木）
-tile.LTColoredBlock2.white_opaque_water.name=不透明水（白色）
-
-tile.LTTransparentColoredBlock.clean.name=染色方块（清澈）
-tile.LTTransparentColoredBlock.thick.name=染色方块（浓）
-tile.LTTransparentColoredBlock.thin.name=染色方块（淡）
-tile.LTTransparentColoredBlock.thinner.name=染色方块（较淡）
-tile.LTTransparentColoredBlock.thinnest.name=染色方块（最淡）
+tile.LTColoredBlock.white_lava.name=岩浆方块(白色)
+tile.LTColoredBlock2.gravel.name=染色方块(砾石)
+tile.LTColoredBlock2.sand.name=染色方块(砂纹)
+tile.LTColoredBlock2.stone.name=染色方块(石纹)
+tile.LTColoredBlock2.wood.name=染色方块(木纹)
+tile.LTColoredBlock2.white_opaque_water.name=不透明水(白色)
+#LT透明染色方块
+tile.LTTransparentColoredBlock.clean.name=染色方块(清澈)
+tile.LTTransparentColoredBlock.thick.name=染色方块(浓)
+tile.LTTransparentColoredBlock.thin.name=染色方块(淡)
+tile.LTTransparentColoredBlock.thinner.name=染色方块(较淡)
+tile.LTTransparentColoredBlock.thinnest.name=染色方块(最淡)
 tile.LTTransparentColoredBlock.water.name=水方块
-tile.LTTransparentColoredBlock.white_water.name=水方块（白色）
-
+tile.LTTransparentColoredBlock.white_water.name=水方块(白色)
+#信号方块
 tile.LTStorageBlockTile.name=储存方块
 tile.signal_converter.name=信号转换器
-
-key.categories.littletiles=LittleTiles（LT小方块）设置
-key.little.flip=镜向
+#按键设置
+key.categories.littletiles=LittleTiles(LT小方块)设置
+key.little.flip=镜向预览
 key.little.mark=编辑位置
-key.little.config.item=工具设置UI
+key.little.config.item=工具设置
 key.little.config=高级设置
 key.rotatedown=向下旋转
 key.rotateleft=向左旋转
@@ -60,9 +61,9 @@ key.rotateright=向右旋转
 key.rotateup=向上旋转
 key.little.redo=重做
 key.little.undo=撤消
-
-itemGroup.littletiles=LittleTiles（LT小方块）
-
+#分类标签名
+itemGroup.littletiles=LittleTiles(LT小方块)
+#手套模式
 grabber.mode.pixel=体素模式
 grabber.mode.place_preview=配方模式
 grabber.mode.replace=替换模式
@@ -74,28 +75,29 @@ action.entity.notfound=未找到实体
 action.structure.notloaded=结构尚未加载
 action.revert.notavailable=行为无法复原
 
-exception.ingredient.missing=没有足够的材料
-exception.ingredient.space=没有足够的空间
+exception.ingredient.missing=没有足够的材料(请检查收纳袋)
+exception.ingredient.space=没有足够的空间(请检查选区有没有重叠)
 exception.permission.edit=不允许编辑超过%s的方块
 exception.permission.place.color=没有权限放置透明度低于%s的方块
 exception.permission.place=不能放置%s以上的方块
 exception.permission.density=只允许 %s 个小方块在一个方块中
-exception.door.notloaded=无法与门互动（并非所有方块都已加载）
-exception.door.brokenparent=无法与门互动（已断开与父级的连接）
-exception.door.brokenchild=无法与门互动（已断开与子级的连接）
+exception.door.notloaded=无法与门互动(部分方块加载失败)
+exception.door.brokenparent=无法与门互动(已断开与父级的连接)
+exception.door.brokenchild=无法与门互动(已断开与子级的连接)
 exception.door.notenoughspace=有其他方块挡住了
 exception.pattern.empty=空
 exception.pattern.circular=循环引用 
 exception.pattern.novalidchildren=断开子级
 exception.permission.convert=不能编辑超过 %s 个方块
-exception.permission.area-protected=保护区
+exception.permission.area-protected=区域被保护
+exception.permission.recipe.size=配方区域太大 (最多允许 %s 方块)
 
 color.unit.black=黑色
 color.unit.cyan=青色
 color.unit.magenta=品红
 color.unit.yellow=黄色
-color.unit.single=染料
-color.unit.multiple=染料
+color.unit.single=器件
+color.unit.multiple=器件
 
 volume.unit.big.single=方块
 volume.unit.big.multiple=方块
@@ -110,15 +112,15 @@ placement.mode.default=默认模式
 placement.mode.default.tooltip=只有在目标区域中的所有要放置的方块都有空间时才能放置
 placement.mode.placestructure=可以放置结构
 placement.mode.fill=填充模式
-placement.mode.fill.tooltip=如果方块不存在，会尝试填充方块
+placement.mode.fill.tooltip=如果方块不存在,会尝试填充方块
 placement.mode.all=所有模式
 placement.mode.all.tooltip=只有在所有要放置的方块都有空间的情况下才能放置
 placement.mode.overwrite=覆盖模式
-placement.mode.overwrite.tooltip=将放置所有方块并移除重叠部分，\n不会移除结构方块
+placement.mode.overwrite.tooltip=将放置所有方块并移除重叠部分,\n不会移除结构方块
 placement.mode.overwriteall=覆盖所有模式
 placement.mode.overwriteall.tooltip=将放置所有小方块并删除整个方块。\n不会移除结构方块
 placement.mode.replace=替换模式
-placement.mode.replace.tooltip=只会将方块放在重叠的部分，\n不会移除结构方块
+placement.mode.replace.tooltip=只会将方块放在重叠的部分,\n不会移除结构方块
 placement.mode.stencil=模具模式
 placement.mode.stencil.tooltip=将删除重叠空间中的所有方块。\n不要放置任何东西
 placement.mode.colorize=染色模式
@@ -128,63 +130,62 @@ placement.mode.colorize.tooltip=将为重叠空间的所有方块上色。\n不�
 markmode.gui.allowlowresolution=低分辨率
 markmode.gui.switchpos=切换位置
 
-commands.open.usage=在给定坐标处打开所有门
+commands.open.usage=打开给定坐标处的所有LT门
 commands.open.notloaded=结构未加载
-commands.open.tovanilla=如果可能的话，将所有已加载的 LT方块 转换为 MC方块
+commands.open.tovanilla=如果可能的话,将所有已加载的 LT方块 转换为 MC方块
 
 item.LTPremade.workbench.name=工作台
-item.LTPremade.importer.name=输入台
-item.LTPremade.exporter.name=输出台
-item.LTPremade.blankomatic.name=O形电气化工具（空白）
+item.LTPremade.importer.name=导入台
+item.LTPremade.exporter.name=导出台
+item.LTPremade.blankomatic.name=O形电气化工具(空白)
 
-item.LTPremade.single_cable1.name=单芯电缆 (1-bit)
-item.LTPremade.single_cable4.name=单芯电缆 (4-bit)
-item.LTPremade.single_cable16.name=单芯电缆 (16-bit)
+item.LTPremade.single_cable1.name=单芯电缆(1-bit)
+item.LTPremade.single_cable4.name=单芯电缆(4-bit)
+item.LTPremade.single_cable16.name=单芯电缆(16-bit)
 
-item.LTPremade.single_input1.name=单向输入 (1-bit)
-item.LTPremade.single_input4.name=单向输入 (4-bit)
-item.LTPremade.single_input16.name=单向输入 (16-bit)
+item.LTPremade.single_input1.name=单向输入(1-bit)
+item.LTPremade.single_input4.name=单向输入(4-bit)
+item.LTPremade.single_input16.name=单向输入(16-bit)
 
-item.LTPremade.single_output1.name=单向输出 (1-bit)
-item.LTPremade.single_output4.name=单向输出 (4-bit)
-item.LTPremade.single_output16.name=单向输出 (16-bit)
+item.LTPremade.single_output1.name=单向输出(1-bit)
+item.LTPremade.single_output4.name=单向输出(4-bit)
+item.LTPremade.single_output16.name=单向输出(16-bit)
 
 item.LTPremade.particle_emitter.name=粒子发射器
-item.LTPremade.signal_display_16.name=信号显示器 (16 bit)
+item.LTPremade.signal_display_16.name=信号显示器(16-bit)
 item.LTPremade.item_holder.name=物品架
 item.LTPremade.structure_builder.name=结构生成器
 
-selection.clear =清除
+selection.clear=清除
 selection.dialog.clear=是否确实要清除所有内容？
 selection.structure.name=结构名称
-selection.structure.tiles=结构要素
-selection.structure.tile=结构要素
+selection.structure.tiles=结构组件
+selection.structure.tile=结构元件
 selection.include.vanilla=常规方块
 selection.include.cb=C&B 方块
 selection.include.lt=LittleTiles 方块
 selection.include.structure=记住结构
-selection.mode.area.pos.first=已选择第一个位置 [%s,%s,%s]
-selection.mode.area.pos.second=已选择第二个位置 [%s,%s,%s]
+selection.mode.area.pos.first=已确定选区第一点 [%s,%s,%s]
+selection.mode.area.pos.second=已确定选区第二点 [%s,%s,%s]
 selection.save=保存
-selection.scale=比例
+selection.scale=精细度
 mode.selection.area=区域
 #选区类型
-shape.tile=选区类型：结构要素
-shape.type=选区类型：结构材料类型
-shape.box=选区类型：长方体
-shape.connected=选区类型：相连的结构区块
-shape.slice=选区类型：斜面
-shape.inner_corner=选区类型：内斜角
-shape.outer_corner=选区类型：外斜角
-shape.polygon=选区类型：体素多边形
-shape.wall=选区类型：墙面
-shape.pillar=选区类型：柱形
-shape.curve=选区类型：曲线
-shape.curvewall=选区类型：弧形墙
-shape.cylinder=选区类型：圆柱体
-shape.sphere=选区类型：球体
-shape.pyramid=选区类型：金字塔
-shape.magic_wand=选区类型：魔杖
+shape.tile=选区类型:横截面
+shape.type=选区类型:材料类型(相同ID)
+shape.box=选区类型:长方体
+shape.connected=选区类型:相连的结构区块(相同ID)
+shape.slice=选区类型:斜面
+shape.inner_corner=选区类型:阴角
+shape.outer_corner=选区类型:阳角
+shape.polygon=选区类型:体素多边形
+shape.wall=选区类型:墙面
+shape.pillar=选区类型:柱形
+shape.curve=选区类型:曲线
+shape.curvewall=选区类型:弧形墙
+shape.cylinder=选区类型:圆柱体
+shape.sphere=选区类型:球体
+shape.pyramid=选区类型:金字塔
 #蓝图结构设置
 structure.none.name=无
 structure.fixed.name=固定
@@ -195,29 +196,29 @@ structure.storage.name=贮存
 structure.noclip.name=穿透
 structure.door.name=转轴门
 structure.slidingDoor.name=推拉门
-structure.advancedDoor.name=门（高级）
-structure.doorActivator.name=门（触发器）
+structure.advancedDoor.name=门(高级)
+structure.doorActivator.name=门(触发器)
 structure.light.name=光照
 structure.message.name=信息
 structure.item_holder.name=物品架
-structure.little_frame.name=框架
+structure.little_frame.name=小画
 #蓝图结构类别
 structure.category.simple=简易
 structure.category.door=门
 
 gui.save=保存
-gui.clear =清除
+
 gui.door.duration=持续时间
 gui.door.stayAnimated=保持动画
-gui.door.stayAnimatedTooltip=仅在必要时使用，它会影响你的FPS
+gui.door.stayAnimatedTooltip=§c仅在必要时使用,它会影响你的帧数(FPS)
 gui.door.children=子级
 gui.door.events=事件
 gui.door.settings=设置
 gui.door.noClip=穿透
-gui.door.playPlaceSounds=播放放置声音
+gui.door.playPlaceSounds=播放放置音效
 gui.door.useInternalOutput=监听信号
 gui.door.rightclick=允许右键单击
-gui.door.pick-sound=拾取声音
+gui.door.pick-sound=拾取音效
 gui.door.open=开启中...
 gui.door.close=关闭中...
 gui.sound.volume=音量
@@ -227,10 +228,10 @@ gui.color.rightclick=右键单击提取
 gui.signal.events=信号
 gui.door.axis.clockwise=向右转
 gui.door.axis.counterclockwise=向左转
-
+#粒子设置
 gui.particle.count=计数
 gui.particle.per=每
-gui.particle.tick=tick(s)
+gui.particle.tick=tick(s)刻
 gui.particle.size=尺寸
 gui.particle.preset=预设
 gui.particle.texture=纹理材质
@@ -269,6 +270,8 @@ gui.frame_builder.thickness=厚度:
 gui.frame_builder.craft=制图
 gui.frame_builder.failed=缺少蓝图
 
+gui.ok=确认
+
 animation.event.child.name=激活子级
 animation.event.sound-event.name=播放声音事件
 
@@ -279,48 +282,48 @@ signal.mode.threshold=阈值
 signal.mode.stabilizer=稳定器
 signal.mode.extender=延长器
 
-config.littletiles.building.invertStickToGrid.comment=启用或禁用第二种模式时，结构是否粘贴到mc网格
+config.littletiles.building.invertStickToGrid.comment=启用或禁用“模式二”时,结构是否吸附到mc方块边缘
 config.littletiles.building.maxSavedActions.comment=最大可还原步数
-config.littletiles.building.useALTForEverything.comment=如果长按“ ALT ”（默认：潜行），则会激活第二种模式。
-config.littletiles.building.useAltWhenFlying.comment=当飞行而不是潜行时按“ ALT ”以激活第二种模式。
+config.littletiles.building.useALTForEverything.comment=如果长按“ ALT ”(默认在潜行时),则会激活“模式二”
+config.littletiles.building.useAltWhenFlying.comment=当飞行而不是潜行时按“ ALT ”以激活 “模式二”
 
-config.littletiles.rendering.hideParticleBlock.comment=粒子块是否可见
+config.littletiles.rendering.hideParticleBlock.comment=粒子方块是否可见
 config.littletiles.rendering.renderingThreadCount.comment=渲染方块的线程数
-config.littletiles.rendering.highlightStructureBox.comment=是否为结构渲染其自己的选择框还是整体结构的选择框
-config.littletiles.rendering.previewLines.comment=设置为 true 时，将使用线条来渲染预览
-config.littletiles.rendering.enableRandomDisplayTick.comment=设置为 true , 沙子、砾石和红石矿石将生成粒子（也支持其他mod）
-config.littletiles.rendering.useQuadCache.comment=显着增加了RAM使用率，但减少了重新渲染时间。仅在useCubeCache为true时有效（需要重新启动世界）
-config.littletiles.rendering.useCubeCache.comment=显着增加了RAM使用率，但减少了重新渲染时间。 （需要重新启动世界）
+config.littletiles.rendering.highlightStructureBox.comment=是否为LT结构渲染其自身的选择框还是整体结构的选择框
+config.littletiles.rendering.previewLines.comment=设置为true时,将使用线条来渲染预览
+config.littletiles.rendering.enableRandomDisplayTick.comment=设置为 true时, 沙子、砾石和红石矿石将生成粒子(支持其他mod)
+config.littletiles.rendering.useQuadCache.comment=以增加RAM(运行内存)使用率为代价,减少重新渲染时间。仅在UseCubeCache为true时有效(需重启世界)
+config.littletiles.rendering.useCubeCache.comment=显着增加了RAM(运行内存)使用率,但减少了重新渲染时间。(需重启世界)
 config.littletiles.rendering.uploadToVBODirectly.comment=用于平滑门的放置
 
-config.littletiles.general.allowFlowingWater.comment=如果禁用，则无法使用水桶来改变水流
-config.littletiles.general.allowFlowingLava.comment=如果禁用，则无法使用锹更改熔岩流
-config.littletiles.general.storagePerPixel.comment=默认网格中的每个体素为一个项目堆栈（堆栈大小为1）留出空间.\n一个插槽最多64个体素
-config.littletiles.general.enableBed.comment=是否应该允许玩家在LT床上睡觉。
-config.littletiles.general.enableAnimationCollision.comment=是否开启推动实体动画（对性能产生影响）
-config.littletiles.general.enableCollisionMotion.comment=通过动画移动实体时，将其应用于实体
-#设置（生存模式)
-config.littletiles.survival.limitAffectedBlocks.comment=是否限制 MC方块 的 转化数量
-config.littletiles.survival.maxAffectedBlocks.comment=一次可转换的 MC方块 的 最大数量
-config.littletiles.survival.limitEditBlocks.comment=生存模式下，玩家可以破坏或着色的数量上限
-config.littletiles.survival.maxEditBlocks.comment=如果启用了编辑/删除限制，则仅影响范围
+config.littletiles.general.allowFlowingWater.comment=如果禁用,则无法使用水桶来改变水流
+config.littletiles.general.allowFlowingLava.comment=如果禁用,则无法使用锹更改熔岩流
+config.littletiles.general.storagePerPixel.comment=默认网格中的每个体素为一个项目堆栈(堆栈大小为1)留出空间.\n一个插槽最多64个体素
+config.littletiles.general.enableBed.comment=是否允许玩家在LT床(结构)上睡觉。
+config.littletiles.general.enableAnimationCollision.comment=是否开启推动实体动画(对性能产生影响)
+config.littletiles.general.enableCollisionMotion.comment=通过动画移动实体时,将其应用于实体
+#设置(生存模式)
+config.littletiles.survival.limitAffectedBlocks.comment=是否限制 MC方块 的转化数量
+config.littletiles.survival.maxAffectedBlocks.comment=一次可转换的 MC方块 的最大数量
+config.littletiles.survival.limitEditBlocks.comment=生存模式下,玩家可以破坏或着色的数量上限
+config.littletiles.survival.maxEditBlocks.comment=如果启用了编辑/删除限制,则仅影响范围
 config.littletiles.survival.harvestLevelBlock.comment=0: 任何, 1: 原石, 2: 铁, 3: 钻石
-config.littletiles.survival.editUnbreakable.comment=是否可在生存模式下编辑牢不可破的方块（基岩）
-config.littletiles.survival.limitPlaceBlocks.comment=生存模式下，玩家可以放置的数量上限
+config.littletiles.survival.editUnbreakable.comment=是否可在生存模式下编辑牢不可破的方块(基岩)
+config.littletiles.survival.limitPlaceBlocks.comment=生存模式下,玩家可以放置的数量上限
 config.littletiles.survival.maxPlaceBlocks.comment=仅在启用位置限制的情况下影响范围
-config.littletiles.survival.minimumTransparency.comment=如果最小值小于255，则将启用透明度
-config.littletiles.survival.dyeVolume.comment=用一种染料可以绘制多少方块\n假如小方块具有完全相同的颜色
-#设置（创造模式)
-config.littletiles.creative.limitAffectedBlocks.comment=是否限制 MC方块 的 转化数量
-config.littletiles.creative.maxAffectedBlocks.comment=一次可转换的 MC方块 的 最大数量
-config.littletiles.creative.limitEditBlocks.comment=生存模式下，玩家可以破坏或着色的数量上限
-config.littletiles.creative.maxEditBlocks.comment=如果启用了编辑/删除限制，则仅影响范围
+config.littletiles.survival.minimumTransparency.comment=如果最小值小于255,则将启用透明度
+config.littletiles.survival.dyeVolume.comment=一种染料可上色的面积上限(单位：MC方块)\n假如小方块具有完全相同的颜色
+#设置(创造模式)
+config.littletiles.creative.limitAffectedBlocks.comment=是否限制 MC方块 的转化数量
+config.littletiles.creative.maxAffectedBlocks.comment=一次可转换的 MC方块 的最大数量
+config.littletiles.creative.limitEditBlocks.comment=生存模式下,玩家可以破坏或着色的数量上限
+config.littletiles.creative.maxEditBlocks.comment=如果启用了编辑/删除限制,则仅影响范围
 config.littletiles.creative.harvestLevelBlock.comment=0: 任何, 1: 原石, 2: 铁, 3: 钻石
-config.littletiles.creative.editUnbreakable.comment=是否可在生存模式下编辑牢不可破的方块（基岩）
-config.littletiles.creative.limitPlaceBlocks.comment=生存模式下，玩家可以放置的数量上限
+config.littletiles.creative.editUnbreakable.comment=是否可在生存模式下编辑牢不可破的方块(基岩)
+config.littletiles.creative.limitPlaceBlocks.comment=生存模式下,玩家可以放置的数量上限
 config.littletiles.creative.maxPlaceBlocks.comment=仅在启用位置限制的情况下影响范围
-config.littletiles.creative.minimumTransparency.comment=如果最小值小于255，则将启用透明度
-config.littletiles.creative.dyeVolume.comment=用一种染料可以绘制多少方块\n假如小方块具有完全相同的颜色
+config.littletiles.creative.minimumTransparency.comment=如果最小值小于255,则将启用透明度
+config.littletiles.creative.dyeVolume.comment=一种染料可上色的面积上限(单位：MC方块)\n假如小方块具有完全相同的颜色
 #工具提示说明
 littletiles.chisel.tooltip=%s\n'%s' 拾取材料\n按住'CTRL'然后右键以固定当前选区\n准心移动超过边缘可以扩展选区\n再次右键确定\n'%s' 编辑选区范围\n'%s' 配置工具\n'%s' 配置网格大小和过滤器
 littletiles.grabber.tooltip=%s\n配方模式下'鼠标中键'拾取形状/ 结构\n'%s' 配置工具\n'%s' 配置小方块大小和过滤器
