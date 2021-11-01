@@ -89,6 +89,7 @@ exception.pattern.empty=空
 exception.pattern.circular=循环引用 
 exception.pattern.novalidchildren=断开子级
 exception.permission.convert=不能编辑超过 %s 个方块
+
 exception.permission.area-protected=区域被保护
 exception.permission.recipe.size=配方区域太大 (最多允许 %s 方块)
 
@@ -186,6 +187,7 @@ shape.curvewall=选区类型:弧形墙
 shape.cylinder=选区类型:圆柱体
 shape.sphere=选区类型:球体
 shape.pyramid=选区类型:金字塔
+
 #蓝图结构设置
 structure.none.name=无
 structure.fixed.name=固定
@@ -209,6 +211,7 @@ structure.category.door=门
 gui.save=保存
 
 gui.door.duration=持续时间
+
 gui.door.stayAnimated=保持动画
 gui.door.stayAnimatedTooltip=§c仅在必要时使用,它会影响你的帧数(FPS)
 gui.door.children=子级
