@@ -59,4 +59,9 @@ public class LittleRenderToolBackground extends LittleRenderTool {
         }
     }
     
+    @Override
+    public void reload() {
+        model = null;
+    }
+    
 }

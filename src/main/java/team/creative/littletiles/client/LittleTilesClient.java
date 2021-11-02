@@ -25,13 +25,14 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -75,11 +76,9 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAxisIndicatorControl;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
-import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
-import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.item.tooltip.ActionMessage;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
@@ -273,15 +272,17 @@ public class LittleTilesClient {
         
         overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis", 0, 0), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
         
-        IReloadableResourceManager reloadableResourceManager = (IReloadableResourceManager) mc.getResourceManager();
-        reloadableResourceManager.registerReloadListener(new IResourceManagerReloadListener() {
+        ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
+        reloadableResourceManager.registerReloadListener(new SimplePreparableReloadListener() {
+            
             @Override
-            public void onResourceManagerReload(IResourceManager resourceManager) {
+            protected void apply(Object p_10793_, ResourceManager p_10794_, ProfilerFiller p_10795_) {
                 LittleChunkDispatcher.currentRenderState++;
-                ItemLittleChisel.model = null;
-                ItemLittleGlove.model = null;
-                ItemLittleRecipe.model = null;
-                ItemLittleBlueprint.model = null;
+            }
+            
+            @Override
+            protected Object prepare(ResourceManager p_10796_, ProfilerFiller p_10797_) {
+                return null;
             }
         });
         
