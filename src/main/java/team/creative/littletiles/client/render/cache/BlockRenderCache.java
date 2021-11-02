@@ -3,9 +3,9 @@ package team.creative.littletiles.client.render.cache;
 import java.nio.ByteBuffer;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.client.renderer.RenderType;
 import team.creative.littletiles.client.render.block.BERenderManager;
 
 public class BlockRenderCache {
@@ -22,7 +22,7 @@ public class BlockRenderCache {
         this.length = cache.length();
         this.vertexCount = cache.vertexCount();
         this.buffer = buffer;
-        if (layer != BlockRenderLayer.TRANSLUCENT.ordinal()) {
+        if (layer != RenderType.translucent().ordinal()) {
             this.link = new BufferLink(buffer, length, vertexCount);
             manager.getBufferCache().setUploaded(link, layer);
         }

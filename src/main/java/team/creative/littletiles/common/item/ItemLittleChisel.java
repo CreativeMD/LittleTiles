@@ -1,21 +1,10 @@
 package team.creative.littletiles.common.item;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -27,15 +16,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -69,7 +53,7 @@ import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
-public class ItemLittleChisel extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
+public class ItemLittleChisel extends Item implements ILittlePlacer, IItemTooltip {
     
     public static ShapeSelection selection;
     
@@ -122,73 +106,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<RenderBox> getRenderingBoxes(BlockState state, BlockEntity te, ItemStack stack) {
-        return Collections.emptyList();
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public static BakedModel model;
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
-        Minecraft mc = Minecraft.getInstance();
-        GlStateManager.pushMatrix();
-        
-        if (model == null)
-            model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.MODID + ":chisel_background", "inventory"));
-        ForgeHooksClient
-                .handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
-        
-        mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
-        
-        if (cameraTransformType == TransformType.GUI) {
-            GlStateManager.translate(0.1, 0.1, 0);
-            GlStateManager.scale(0.7, 0.7, 0.7);
-            
-            LittlePreview preview = getPreview(stack);
-            ItemStack blockStack = new ItemStack(preview.getBlock(), 1, preview.getMeta());
-            IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
-            if (!(model instanceof CreativeBakedModel))
-                ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-            
-            GlStateManager.disableDepth();
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-            
-            try {
-                if (model.isBuiltInRenderer()) {
-                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    GlStateManager.enableRescaleNormal();
-                    TileEntityItemStackRenderer.instance.renderByItem(blockStack);
-                } else {
-                    Color color = preview.hasColor() ? ColorUtils.IntToRGBA(preview.getColor()) : ColorUtils.IntToRGBA(ColorUtils.WHITE);
-                    color.setAlpha(255);
-                    ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_191967_a", IBakedModel.class, int.class, ItemStack.class)
-                            .invoke(mc.getRenderItem(), model, preview.hasColor() ? ColorUtils.RGBAToInt(color) : -1, blockStack);
-                }
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            
-            GlStateManager.popMatrix();
-            
-            GlStateManager.enableDepth();
-        }
-        
-        GlStateManager.popMatrix();
-        
-    }
-    
-    @Override
     public boolean hasTiles(ItemStack stack) {
         return true;
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    private static Player getPlayer() {
-        return Minecraft.getInstance().player;
     }
     
     @Override

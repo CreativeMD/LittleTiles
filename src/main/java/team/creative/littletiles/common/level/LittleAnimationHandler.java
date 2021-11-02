@@ -6,28 +6,30 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import team.creative.creativecore.common.util.math.box.OBB;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 
-public abstract class LittleAnimationHandler {
-    
-    public final Level level;
+public abstract class LittleAnimationHandler extends LevelHandler {
     
     public LittleAnimationHandler(Level level) {
-        if (level == null)
-            throw new RuntimeException("Creating handler for empty world!");
-        
-        this.level = level;
+        super(level);
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+    
+    @Override
+    public void unload() {
+        super.unload();
+        openDoors.clear();
+        MinecraftForge.EVENT_BUS.unregister(this);
     }
     
     public List<EntityAnimation> openDoors = new CopyOnWriteArrayList<>();
@@ -47,11 +49,11 @@ public abstract class LittleAnimationHandler {
         if (openDoors.isEmpty())
             return Collections.emptyList();
         
-        AxisAlignedBB box = new AxisAlignedBB(pos);
+        AABB box = new AABB(pos);
         
         List<LittleDoor> doors = new ArrayList<>();
         for (EntityAnimation door : openDoors)
-            if (door.structure instanceof LittleDoor && door.getEntityBoundingBox().intersects(box) && !doors.contains(door.structure))
+            if (door.structure instanceof LittleDoor && door.getBoundingBox().intersects(box) && !doors.contains(door.structure))
                 try {
                     doors.add(((LittleDoor) door.structure).getParentDoor());
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
@@ -60,7 +62,7 @@ public abstract class LittleAnimationHandler {
     
     public EntityAnimation findAnimation(UUID uuid) {
         for (EntityAnimation animation : openDoors) {
-            if (animation.getUniqueID().equals(uuid))
+            if (animation.getUUID().equals(uuid))
                 return animation;
         }
         return null;
@@ -72,17 +74,7 @@ public abstract class LittleAnimationHandler {
     
     public void chunkUnload(ChunkEvent.Unload event) {
         openDoors.removeIf((x) -> {
-            if (x.isDead) {
-                x.markRemoved();
-                return true;
-            }
-            return false;
-        });
-    }
-    
-    public void worldUnload(WorldEvent.Unload event) {
-        openDoors.removeIf((x) -> {
-            if (x.world == event.getWorld()) {
+            if (x.isRemoved()) {
                 x.markRemoved();
                 return true;
             }
@@ -91,13 +83,13 @@ public abstract class LittleAnimationHandler {
     }
     
     public void worldCollision(GetCollisionBoxesEvent event) {
-        AxisAlignedBB box = event.getAabb();
+        AABB box = event.getAabb();
         for (EntityAnimation animation : findAnimations(box)) {
             if (animation.noCollision || animation.controller.noClip())
                 continue;
             
-            OrientatedBoundingBox newAlignedBox = animation.origin.getOrientatedBox(box);
-            for (OrientatedBoundingBox bb : animation.worldCollisionBoxes) {
+            OBB newAlignedBox = animation.origin.getOrientatedBox(box);
+            for (OBB bb : animation.worldCollisionBoxes) {
                 if (bb.intersects(newAlignedBox))
                     event.getCollisionBoxesList().add(bb);
             }

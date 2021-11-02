@@ -2,7 +2,7 @@ package team.creative.littletiles.common.ingredient.rules;
 
 import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.util.filter.Filter;
-import team.creative.creativecore.common.util.filter.block.BlockFilters;
+import team.creative.creativecore.common.util.filter.premade.BlockFilters;
 import team.creative.creativecore.common.util.type.PairList;
 import team.creative.littletiles.LittleTiles;
 

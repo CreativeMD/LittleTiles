@@ -1,18 +1,8 @@
 package team.creative.littletiles.common.item;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -21,19 +11,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
-import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.ICreativeRendered;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
-import team.creative.littletiles.client.render.cache.ItemModelCache;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
@@ -52,7 +36,7 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 
-public class ItemLittleBlueprint extends Item implements ILittlePlacer, ICreativeRendered, IItemTooltip {
+public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemTooltip {
     
     public ItemLittleBlueprint() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
@@ -65,7 +49,8 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, ICreativ
     
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("content") && stack.getOrCreateTagElement("content").contains("structure") && stack.getOrCreateTagElement("structure").contains("name"))
+        if (stack.getOrCreateTag().contains("content") && stack.getOrCreateTagElement("content").contains("structure") && stack.getOrCreateTagElement("content")
+                .getCompound("structure").contains("name"))
             return new TextComponent(stack.getOrCreateTagElement("content").getCompound("structure").getString("name"));
         return super.getName(stack);
     }
@@ -121,52 +106,6 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, ICreativ
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<RenderBox> getRenderingBoxes(BlockState state, BlockEntity te, ItemStack stack) {
-        if (hasTiles(stack))
-            return getTiles(stack).getRenderingBoxes();
-        return new ArrayList<RenderBox>();
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public static BakedModel model;
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
-        Minecraft mc = Minecraft.getMinecraft();
-        GlStateManager.pushMatrix();
-        
-        if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || !stack.getTagCompound().hasKey("tiles")) {
-            if (cameraTransformType == TransformType.GUI)
-                GlStateManager.disableDepth();
-            if (model == null)
-                model = mc.getRenderItem().getItemModelMesher().getModelManager()
-                        .getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
-            ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-            
-            mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
-            
-            if (cameraTransformType == TransformType.GUI)
-                GlStateManager.enableDepth();
-        }
-        GlStateManager.popMatrix();
-        
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void saveCachedModel(Facing facing, RenderType layer, List<BakedQuad> cachedQuads, BlockState state, BlockEntity be, ItemStack stack, boolean threaded) {
-        ItemModelCache.cacheModel(stack, facing, cachedQuads);
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<BakedQuad> getCachedModel(Facing facing, RenderType layer, BlockState state, BlockEntity be, ItemStack stack, boolean threaded) {
-        return ItemModelCache.requestCache(stack, facing);
-    }
-    
-    @Override
     public boolean containsIngredients(ItemStack stack) {
         return false;
     }
@@ -216,14 +155,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, ICreativ
     
     @Override
     public LittleVec getCachedSize(ItemStack stack) {
-        if (stack.getTag().contains("size"))
-            return LittlePreview.getSize(stack);
-        return null;
+        return LittleGroup.getSize(stack);
     }
     
     @Override
     public LittleVec getCachedOffset(ItemStack stack) {
-        return LittlePreview.getOffset(stack);
+        return LittleGroup.getOffset(stack);
     }
     
     @Override

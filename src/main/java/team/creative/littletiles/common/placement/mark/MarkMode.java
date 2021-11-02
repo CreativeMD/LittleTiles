@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.placement.mark;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -26,7 +27,7 @@ public class MarkMode implements IMarkMode {
             
             Facing facing = position.facing;
             if (preview.mode.placeInside)
-                facing = facing.getOpposite();
+                facing = facing.opposite();
             
             LittleVec center = preview.size.calculateCenter();
             LittleVec centerInv = preview.size.calculateInvertedCenter();
@@ -82,7 +83,7 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void render(double x, double y, double z) {
+    public void render(PoseStack pose) {
         GlStateManager.enableBlend();
         GlStateManager
                 .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

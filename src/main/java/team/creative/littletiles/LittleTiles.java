@@ -101,11 +101,11 @@ import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
 import team.creative.littletiles.common.packet.LittleResetAnimationPacket;
-import team.creative.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
 import team.creative.littletiles.common.packet.item.ConfigurePacket;
+import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
@@ -123,6 +123,8 @@ import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.NeighborUpdateOrganizer;
+import team.creative.littletiles.server.level.LevelHandlersServer;
+import team.creative.littletiles.server.level.LittleAnimationHandlerServer;
 
 @Mod(value = LittleTiles.MODID)
 public class LittleTiles {
@@ -136,6 +138,7 @@ public class LittleTiles {
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
+    public static final LevelHandlersServer LEVEL_HANDLERS = new LevelHandlersServer();
     
     public static Block BLOCK_TILES;
     public static Block BLOCK_TILES_TICKING;
@@ -194,12 +197,12 @@ public class LittleTiles {
     public static Item GLOVE;
     public static Item PREMADE;
     
-    public static Item blockIngredient;
+    public static Item BLOCK_INGREDIENT;
     
-    public static Item blackColorIngredient;
-    public static Item cyanColorIngredient;
-    public static Item magentaColorIngredient;
-    public static Item yellowColorIngredient;
+    public static Item BLACK_COLOR;
+    public static Item CYAN_COLOR;
+    public static Item MAGENTA_COLOR;
+    public static Item YELLOW_COLOR;
     
     public static EntityType<PrimedSizedTnt> SIZED_TNT_TYPE;
     public static EntityType<EntitySit> SIT_TYPE;
@@ -242,12 +245,12 @@ public class LittleTiles {
         GLOVE = new ItemLittleGlove().setRegistryName("glove");
         PREMADE = new ItemPremadeStructure().setRegistryName("premade");
         
-        blockIngredient = new ItemBlockIngredient().setRegistryName("blockingredient");
+        BLOCK_INGREDIENT = new ItemBlockIngredient().setRegistryName("blockingredient");
         
-        blackColorIngredient = new ItemColorIngredient(ColorIngredientType.black).setRegistryName("bottle_black");
-        cyanColorIngredient = new ItemColorIngredient(ColorIngredientType.cyan).setRegistryName("bottle_cyan");
-        magentaColorIngredient = new ItemColorIngredient(ColorIngredientType.magenta).setRegistryName("bottle_magenta");
-        yellowColorIngredient = new ItemColorIngredient(ColorIngredientType.yellow).setRegistryName("bottle_yellow");
+        BLOCK_INGREDIENT = new ItemColorIngredient(ColorIngredientType.black).setRegistryName("bottle_black");
+        CYAN_COLOR = new ItemColorIngredient(ColorIngredientType.cyan).setRegistryName("bottle_cyan");
+        MAGENTA_COLOR = new ItemColorIngredient(ColorIngredientType.magenta).setRegistryName("bottle_magenta");
+        YELLOW_COLOR = new ItemColorIngredient(ColorIngredientType.yellow).setRegistryName("bottle_yellow");
         
         IngredientRules.loadRules();
         LittleStructureRegistry.initStructures();
@@ -401,6 +404,7 @@ public class LittleTiles {
         NETWORK.registerType(MirrorPacket.class, MirrorPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
         NETWORK.registerType(ConfigurePacket.class, ConfigurePacket::new);
+        NETWORK.registerType(ScrewdriverSelectionPacket.class, ScrewdriverSelectionPacket::new);
         
         NETWORK.registerType(StructureUpdate.class, StructureUpdate::new);
         NETWORK.registerType(NeighborUpdate.class, NeighborUpdate::new);
@@ -413,7 +417,6 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittleEntityFixControllerPacket.class);
-        CreativeCorePacket.registerPacket(LittleScrewdriverSelectionPacket.class);
         CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
         
         LittleActionRegistry.register(LittleActions.class, LittleActions::new);
@@ -442,6 +445,8 @@ public class LittleTiles {
         MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
         MinecraftForge.EVENT_BUS.register(EntitySizeHandler.class);
+        
+        LEVEL_HANDLERS.register(LittleAnimationHandlerServer::new);
     }
     
     private void client(final FMLClientSetupEvent event) {
@@ -467,7 +472,7 @@ public class LittleTiles {
     
     public void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry()
-                .registerAll(HAMMER, BLUEPRINT, SAW, BAG, WRENCH, SCREWDRIVER, CHISEL, PAINT_BRUSH, ITEM_TILES, GLOVE, PREMADE, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));
+                .registerAll(HAMMER, BLUEPRINT, SAW, BAG, WRENCH, SCREWDRIVER, CHISEL, PAINT_BRUSH, ITEM_TILES, GLOVE, PREMADE, BLOCK_INGREDIENT, BLOCK_INGREDIENT, CYAN_COLOR, MAGENTA_COLOR, YELLOW_COLOR, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));
     }
     
     private void serverStarting(final FMLServerStartingEvent event) {

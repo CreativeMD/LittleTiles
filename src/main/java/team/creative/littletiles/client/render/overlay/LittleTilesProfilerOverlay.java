@@ -18,8 +18,8 @@ import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.creativecore.common.util.type.PairList;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.render.cache.ItemModelCache;
 import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.item.ItemModelCache;
 
 public class LittleTilesProfilerOverlay {
     

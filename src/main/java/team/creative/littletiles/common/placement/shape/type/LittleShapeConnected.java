@@ -22,6 +22,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -38,7 +39,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         for (ShapeSelectPos pos : selection) {
             if (pos.result.isComplete()) {
-                ConnectedBlock block = new ConnectedBlock(pos.result.be, pos.result.tile, selection.getGrid());
+                ConnectedBlock block = new ConnectedBlock(pos.result.parent.getBE(), pos.result, selection.getGrid());
                 boxes = block.start(boxes, pos.result.tile, selection.inside ? null : pos.pos.facing);
             } else
                 addBox(boxes, selection.inside, selection.getGrid(), pos.ray.getBlockPos(), pos.pos.facing);
@@ -73,7 +74,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
         private final LittleGrid aimedContext;
         private ConnectedBlock[] neighborCache = new ConnectedBlock[6];
         
-        public ConnectedBlock(BETiles be, LittleTile startTile, LittleGrid aimedContext) {
+        public ConnectedBlock(BETiles be, LittleTileContext startTile, LittleGrid aimedContext) {
             parent = be;
             potential = new ArrayList<>();
             this.aimedContext = aimedContext;

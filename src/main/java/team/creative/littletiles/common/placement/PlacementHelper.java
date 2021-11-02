@@ -19,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.TickUtils;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
@@ -147,7 +148,7 @@ public class PlacementHelper {
         
         PlacementPosition result = new PlacementPosition(pos, getHitVec(moving, context, canBePlacedInsideBlock).getVecGrid(), Facing.get(moving.getDirection()));
         
-        if (tile instanceof ILittlePlacer && stack != null && (LittleAction.isUsingSecondMode(player) != ((ILittlePlacer) tile).snapToGridByDefault(stack))) {
+        if (tile instanceof ILittlePlacer && stack != null && (LittleActionHandlerClient.isUsingSecondMode(player) != ((ILittlePlacer) tile).snapToGridByDefault(stack))) {
             Vec3d position = player.getPositionEyes(TickUtils.getPartialTickTime());
             double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
             Vec3d temp = player.getLook(TickUtils.getPartialTickTime());
@@ -188,10 +189,6 @@ public class PlacementHelper {
             }
         }
         return result;
-    }
-    
-    public static PlacementPreview getAbsolutePreviews(Level level, LittleGroup previews, BlockPos pos, PlacementMode mode) {
-        return new PlacementPreview(level, previews, mode, previews.getSurroundingBox(), true, pos, null, null);
     }
     
     /** @param hit

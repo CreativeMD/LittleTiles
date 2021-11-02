@@ -4,9 +4,7 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
@@ -27,19 +25,6 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
     
     public LittlePlacedAnimationPacket() {
         
-    }
-    
-    @Override
-    public void writeBytes(ByteBuf buf) {
-        LittleAction.writeStructureLocation(location, buf);
-        writeString(buf, previousAnimation.toString());
-        
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        location = LittleAction.readStructureLocation(buf);
-        previousAnimation = UUID.fromString(readString(buf));
     }
     
     @Override

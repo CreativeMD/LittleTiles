@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -9,7 +8,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
@@ -19,16 +17,8 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.item.ItemBlock;
@@ -42,15 +32,11 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
@@ -87,7 +73,7 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
-public class ItemLittleGlove extends Item implements ICreativeRendered, ILittlePlacer, IItemTooltip {
+public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip {
     
     public ItemLittleGlove() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
@@ -111,70 +97,6 @@ public class ItemLittleGlove extends Item implements ICreativeRendered, ILittleP
     @Override
     public boolean canDestroyBlockInCreative(Level leve, BlockPos pos, ItemStack stack, Player player) {
         return false;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<RenderBox> getRenderingBoxes(BlockState state, BlockEntity te, ItemStack stack) {
-        return getMode(stack).getRenderingBoxes(stack);
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public static BakedModel model;
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
-        Minecraft mc = Minecraft.getMinecraft();
-        GlStateManager.pushMatrix();
-        
-        model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
-        ForgeHooksClient
-                .handleCameraTransforms(model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
-        
-        mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
-        
-        if (cameraTransformType == TransformType.GUI) {
-            GlStateManager.translate(0.1, 0.1, 0);
-            GlStateManager.scale(0.7, 0.7, 0.7);
-            
-            GrabberMode mode = getMode(stack);
-            if (mode.renderBlockSeparately(stack)) {
-                LittlePreview preview = mode.getSeparateRenderingPreview(stack);
-                ItemStack blockStack = new ItemStack(preview.getBlock(), 1, preview.getMeta());
-                model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
-                if (!(model instanceof CreativeBakedModel))
-                    ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-                
-                GlStateManager.disableDepth();
-                GlStateManager.pushMatrix();
-                GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-                
-                try {
-                    if (model.isBuiltInRenderer()) {
-                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                        GlStateManager.enableRescaleNormal();
-                        TileEntityItemStackRenderer.instance.renderByItem(blockStack);
-                    } else {
-                        Color color = preview.hasColor() ? ColorUtils.IntToRGBA(preview.getColor()) : ColorUtils.IntToRGBA(ColorUtils.WHITE);
-                        color.setAlpha(255);
-                        ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_191967_a", IBakedModel.class, int.class, ItemStack.class)
-                                .invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
-                    }
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-                
-                GlStateManager.popMatrix();
-                
-            }
-            
-            GlStateManager.enableDepth();
-            
-        }
-        
-        GlStateManager.popMatrix();
-        
     }
     
     @Override

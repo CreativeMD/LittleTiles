@@ -35,16 +35,16 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         ItemStack stack;
         switch (type) {
         case black:
-            stack = new ItemStack(LittleTiles.blackColorIngredient);
+            stack = new ItemStack(LittleTiles.BLACK_COLOR);
             break;
         case cyan:
-            stack = new ItemStack(LittleTiles.cyanColorIngredient);
+            stack = new ItemStack(LittleTiles.CYAN_COLOR);
             break;
         case magenta:
-            stack = new ItemStack(LittleTiles.magentaColorIngredient);
+            stack = new ItemStack(LittleTiles.MAGENTA_COLOR);
             break;
         case yellow:
-            stack = new ItemStack(LittleTiles.yellowColorIngredient);
+            stack = new ItemStack(LittleTiles.YELLOW_COLOR);
             break;
         default:
             stack = ItemStack.EMPTY;

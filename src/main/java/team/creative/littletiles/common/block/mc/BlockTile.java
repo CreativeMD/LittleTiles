@@ -116,7 +116,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.type.LittleBed;
 import team.creative.littletiles.server.LittleTilesServer;
 
-public class BlockTile extends BaseEntityBlock implements ICreativeRendered, IFacade {
+public class BlockTile extends BaseEntityBlock implements IFacade {
     
     private static boolean loadingBlockEntityFromWorld = false;
     public static Minecraft mc = Minecraft.getInstance(); // Note that doesn't work

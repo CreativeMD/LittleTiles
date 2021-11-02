@@ -57,7 +57,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             group.getStructureType().addIngredients(group, ingredients);
         
         if (group.hasChildren())
-            for (LittleGroup child : group.children)
+            for (LittleGroup child : group.children.all())
                 extract(ingredients, child, onlyStructure);
     }
     
@@ -130,7 +130,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                     }
                     
                     if (volume > 0) {
-                        ItemStack stack = new ItemStack(LittleTiles.blockIngredient);
+                        ItemStack stack = new ItemStack(LittleTiles.BLOCK_INGREDIENT);
                         stack.setTag(new CompoundTag());
                         ItemBlockIngredient.saveIngredient(stack, entry);
                         stacks.add(stack);
@@ -178,25 +178,25 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 LittleIngredients ingredients = new LittleIngredients(overflow);
                 List<ItemStack> stacks = new ArrayList<>();
                 if (overflow.black > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.blackColorIngredient);
+                    ItemStack stack = new ItemStack(LittleTiles.BLACK_COLOR);
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.cyan > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.cyanColorIngredient);
+                    ItemStack stack = new ItemStack(LittleTiles.CYAN_COLOR);
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.magenta > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.magentaColorIngredient);
+                    ItemStack stack = new ItemStack(LittleTiles.MAGENTA_COLOR);
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.yellow > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.yellowColorIngredient);
+                    ItemStack stack = new ItemStack(LittleTiles.YELLOW_COLOR);
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);

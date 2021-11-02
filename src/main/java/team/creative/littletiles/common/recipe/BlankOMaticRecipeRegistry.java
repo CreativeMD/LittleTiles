@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import team.creative.creativecore.common.util.filter.Filter;
-import team.creative.creativecore.common.util.filter.block.BlockFilters;
+import team.creative.creativecore.common.util.filter.premade.BlockFilters;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientBlock;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientItem;

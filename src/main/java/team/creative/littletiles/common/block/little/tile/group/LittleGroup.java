@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -483,7 +484,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public List<RenderBox> getRenderingBoxes() {
+    public List<RenderBox> getRenderingBoxes(boolean translucent) {
         
     }
     
@@ -540,7 +541,60 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             list.add(childNbt);
         }
         nbt.put("e", list);
+        
+        save min, count, size and translucent
         return nbt;
+    }
+    
+    public static LittleVec getSize(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("size"))
+            return new LittleVec("size", stack.getTag());
+        return null;
+    }
+    
+    public static LittleVec getOffset(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("min"))
+            return new LittleVec("min", stack.getTag());
+        return null;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static void shrinkCubesToOneBlock(List<? extends RenderBox> cubes) {
+        float minX = Float.POSITIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        float minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        float maxZ = Float.NEGATIVE_INFINITY;
+        for (RenderBox box : cubes) {
+            minX = Math.min(minX, box.minX);
+            minY = Math.min(minY, box.minY);
+            minZ = Math.min(minZ, box.minZ);
+            maxX = Math.max(maxX, box.maxX);
+            maxY = Math.max(maxY, box.maxY);
+            maxZ = Math.max(maxZ, box.maxZ);
+        }
+        float scale = 1;
+        float sizeX = maxX - minX;
+        if (sizeX > 1)
+            scale = Math.min(scale, 1 / sizeX);
+        float sizeY = maxY - minY;
+        if (sizeY > 1)
+            scale = Math.min(scale, 1 / sizeY);
+        float sizeZ = maxZ - minZ;
+        if (sizeZ > 1)
+            scale = Math.min(scale, 1 / sizeZ);
+        float offsetX = -minX;
+        float offsetY = -minY;
+        float offsetZ = -minZ;
+        float offsetX2 = (1 - sizeX * scale) * 0.5F;
+        float offsetY2 = (1 - sizeY * scale) * 0.5F;
+        float offsetZ2 = (1 - sizeZ * scale) * 0.5F;
+        for (RenderBox box : cubes) {
+            box.add(offsetX, offsetY, offsetZ);
+            box.scale(scale);
+            box.add(offsetX2, offsetY2, offsetZ2);
+        }
     }
     
 }

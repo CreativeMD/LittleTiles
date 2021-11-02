@@ -6,18 +6,15 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.mojang.math.Vector3f;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.client.render.model.CreativeBakedQuad;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -44,10 +41,10 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, BlockState state, IBakedModel blockModel, Facing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
         if (facing != structure.facing)
             return Collections.EMPTY_LIST;
-        IBakedModel bakedmodel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(structure.stack, null, null);
+        IBakedModel bakedmodel = Minecraft.getInstance().getRenderItem().getItemModelWithOverrides(structure.stack, null, null);
         List<BakedQuad> blockQuads = new ArrayList<>(bakedmodel.getQuads(null, null, 0L));
         
-        for (EnumFacing face : EnumFacing.values()) {
+        for (Facing face : Facing.values()) {
             List<BakedQuad> newQuads = bakedmodel.getQuads(null, face, 0L);
             blockQuads.addAll(newQuads);
         }
@@ -89,7 +86,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         
         if (rotation != null)
             for (int i = 0; i < rotationSteps; i++)
-                RotationUtils.rotate(topRight, rotation);
+                rotation.transform(topRight);
         if (structure.topRight.x != 0 && structure.topRight.x == topRight.x)
             flipX = true;
         if (structure.topRight.y != 0 && structure.topRight.y != topRight.y)
@@ -98,7 +95,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
             flipZ = true;
         
         float scale;
-        switch (structure.facing.getAxis()) {
+        switch (structure.facing.axis) {
         case X:
             scale = Math.min(getSize(Axis.Y), getSize(Axis.Z));
             break;
@@ -121,19 +118,18 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         
         List<BakedQuad> quads = new ArrayList<>();
         for (int i = 0; i < blockQuads.size(); i++) {
-            int[] originalData = blockQuads.get(i).getVertexData();
+            int[] originalData = blockQuads.get(i).getVertices();
             CreativeBakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, defaultColor, overrideTint, null);
             
             for (int k = 0; k < 4; k++) {
                 int index = k * quad.getFormat().getIntegerSize();
-                Vector3f vec = new Vector3f(Float.intBitsToFloat(originalData[index]), Float.intBitsToFloat(originalData[index + 1]), Float
-                        .intBitsToFloat(originalData[index + 2]));
+                Vec3f vec = new Vec3f(Float.intBitsToFloat(originalData[index]), Float.intBitsToFloat(originalData[index + 1]), Float.intBitsToFloat(originalData[index + 2]));
                 
                 vec.sub(center);
                 
                 if (rotation != null)
                     for (int j = 0; j < rotationSteps; j++)
-                        RotationUtils.rotate(vec, rotation);
+                        rotation.transform(vec);
                 if (flipX)
                     vec.x = -vec.x;
                 if (flipY)
@@ -153,12 +149,12 @@ public class LittleRenderBoxItem extends LittleRenderBox {
                 int newIndex = index;
                 if (reverse)
                     newIndex = (3 - k) * quad.getFormat().getIntegerSize();
-                quad.getVertexData()[newIndex] = Float.floatToIntBits(vec.x + offset.getX());
-                quad.getVertexData()[newIndex + 1] = Float.floatToIntBits(vec.y + offset.getY());
-                quad.getVertexData()[newIndex + 2] = Float.floatToIntBits(vec.z + offset.getZ());
+                quad.getVertices()[newIndex] = Float.floatToIntBits(vec.x + offset.getX());
+                quad.getVertices()[newIndex + 1] = Float.floatToIntBits(vec.y + offset.getY());
+                quad.getVertices()[newIndex + 2] = Float.floatToIntBits(vec.z + offset.getZ());
                 if (reverse)
                     for (int j = 3; j < quad.getFormat().getIntegerSize(); j++)
-                        quad.getVertexData()[newIndex + j] = originalData[index + j];
+                        quad.getVertices()[newIndex + j] = originalData[index + j];
             }
             quads.add(quad);
         }

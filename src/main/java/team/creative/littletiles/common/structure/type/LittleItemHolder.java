@@ -2,12 +2,9 @@ package team.creative.littletiles.common.structure.type;
 
 import java.util.List;
 
-import com.mojang.math.Vector3f;
-
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -16,12 +13,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxItem;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
@@ -36,7 +33,7 @@ public class LittleItemHolder extends LittleStructure {
     public Facing facing;
     
     @StructureDirectional
-    public Vector3f topRight;
+    public Vec3f topRight;
     
     public ItemStack stack;
     
@@ -60,7 +57,7 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTile tile, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (level.isClientSide)
             return InteractionResult.SUCCESS;
         ItemStack mainStack = player.getMainHandItem();

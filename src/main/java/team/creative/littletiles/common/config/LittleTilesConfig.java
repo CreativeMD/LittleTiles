@@ -178,6 +178,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public boolean showTooltip = true;
         
+        @CreativeConfig
+        public int itemCacheDuration = 5000;
+        
         @Override
         public void configured(Dist side) {
             RenderingThread.initThreads(renderingThreadCount);

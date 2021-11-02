@@ -1,47 +1,62 @@
 package team.creative.littletiles.common.level;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.creativecore.common.util.type.HashMapList;
 
 public abstract class LevelHandlers {
     
-    private LinkedHashMap<Class<? extends LevelHandler>, LevelHandlerInstance> handlers = new LinkedHashMap<>();
+    private List<Function<Level, LevelHandler>> factories = new ArrayList<>();
+    private HashMapList<Level, LevelHandler> handlers = new HashMapList<>();
+    public final boolean client;
     
-    public <T extends LevelHandler> void register(Class<T> clazz, Function<Level, T> function) {
-        handlers.put(clazz, new LevelHandlerInstance<>(function));
+    public LevelHandlers(boolean client) {
+        this.client = client;
+        MinecraftForge.EVENT_BUS.register(this);
     }
     
-    protected void loadLevel(Level level) {
-        for (LevelHandlerInstance instance : handlers.values())
-            instance.load(level);
+    public void register(Function<Level, LevelHandler> function) {
+        factories.add(function);
     }
     
-    protected void unloadLevel() {
-        for (LevelHandlerInstance instance : handlers.values())
-            instance.unload();
+    protected void load(Level level) {
+        List<LevelHandler> levelHandlers = handlers.removeKey(level);
+        if (levelHandlers != null)
+            throw new RuntimeException("This should not happen");
+        
+        List<LevelHandler> newHandlers = new ArrayList<>(factories.size());
+        for (Function<Level, LevelHandler> func : factories)
+            newHandlers.add(func.apply(level));
+        handlers.add(level, newHandlers);
+        for (LevelHandler handler : newHandlers)
+            handler.load();
     }
     
-    private static class LevelHandlerInstance<T extends LevelHandler> {
-        
-        public final Function<Level, T> factory;
-        public T instance;
-        
-        public LevelHandlerInstance(Function<Level, T> factory) {
-            this.factory = factory;
-        }
-        
-        public void load(Level level) {
-            this.instance = factory.apply(level);
-            this.instance.load();
-        }
-        
-        public void unload() {
-            instance.unload();
-            instance = null;
-        }
-        
+    protected void unload(Level level) {
+        List<LevelHandler> levelHandlers = handlers.removeKey(level);
+        if (levelHandlers != null)
+            for (LevelHandler handler : levelHandlers)
+                handler.unload();
+    }
+    
+    @SubscribeEvent
+    public void load(WorldEvent.Load event) {
+        if (event.getWorld().isClientSide() != client)
+            return;
+        load((Level) event.getWorld());
+    }
+    
+    @SubscribeEvent
+    public void unload(WorldEvent.Unload event) {
+        if (event.getWorld().isClientSide() != client)
+            return;
+        unload((Level) event.getWorld());
     }
     
 }

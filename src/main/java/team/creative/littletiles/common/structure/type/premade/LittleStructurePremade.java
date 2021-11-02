@@ -103,7 +103,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         return type;
     }
     
-    public static LittlePreviews getPreviews(String id) {
+    public static LittleGroup getPreviews(String id) {
         LittleStructurePremadeEntry type = getStructurePremadeEntry(id);
         if (type != null)
             return type.previews;

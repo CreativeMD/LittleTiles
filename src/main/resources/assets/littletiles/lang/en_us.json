@@ -21,5 +21,10 @@
 	"gui.facing": "facing",
 	"gui.box.transformable.second": "second-type",
 	"gui.true": "true",
-	"gui.false": "false"
+	"gui.false": "false",
+	"gui.click.left": "left-click",
+	"gui.click.right": "right-click",
+	
+	"gui.tile.count": "tiles",
+	"gui.structure": "structure"
 }

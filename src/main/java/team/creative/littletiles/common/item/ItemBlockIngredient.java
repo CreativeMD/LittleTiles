@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.NonNullList;
@@ -15,20 +14,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.ICreativeRendered;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 
-public class ItemBlockIngredient extends Item implements ICreativeRendered, ILittleIngredientInventory {
+public class ItemBlockIngredient extends Item implements ILittleIngredientInventory {
     
     public ItemBlockIngredient() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
@@ -125,41 +119,6 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
             
         stack.setTag(null);
         stack.setCount(0);
-    }
-    
-    @Override
-    public List<? extends RenderBox> getRenderingBoxes(BlockState state, BlockEntity te, ItemStack stack) {
-        List<RenderBox> cubes = new ArrayList<>();
-        BlockIngredientEntry ingredient = loadIngredient(stack);
-        if (ingredient == null)
-            return null;
-        
-        double volume = Math.min(1, ingredient.value);
-        LittleGrid context = LittleGrid.defaultGrid();
-        int pixels = (int) (volume * context.count3d);
-        if (pixels < context.count * context.count)
-            cubes.add(new RenderBox(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block.getState()));
-        else {
-            int remainingPixels = pixels;
-            int planes = pixels / context.count2d;
-            remainingPixels -= planes * context.count2d;
-            int rows = remainingPixels / context.count;
-            remainingPixels -= rows * context.count;
-            
-            float height = (float) (planes * context.pixelLength);
-            
-            if (planes > 0)
-                cubes.add(new RenderBox(0.0F, 0.0F, 0.0F, 1.0F, height, 1.0F, ingredient.block.getState()));
-            
-            float width = (float) (rows * context.pixelLength);
-            
-            if (rows > 0)
-                cubes.add(new RenderBox(0.0F, height, 0.0F, 1.0F, height + (float) context.pixelLength, width, ingredient.block.getState()));
-            
-            if (remainingPixels > 0)
-                cubes.add(new RenderBox(0.0F, height, width, 1.0F, height + (float) context.pixelLength, width + (float) context.pixelLength, ingredient.block.getState()));
-        }
-        return cubes;
     }
     
     @Override
