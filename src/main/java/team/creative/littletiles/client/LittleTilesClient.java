@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -34,6 +35,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.ModelLoader;
@@ -50,6 +52,7 @@ import net.minecraftforge.fmlclient.registry.RenderingRegistry;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.command.ClientCommandRegistry;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.CreativeRenderBlock;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
@@ -71,7 +74,6 @@ import team.creative.littletiles.client.render.overlay.TooltipOverlay;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAxisIndicatorControl;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -287,13 +289,8 @@ public class LittleTilesClient {
         });
         
         CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
-        RenderingRegistry.registerEntityRenderingHandler(PrimedSizedTnt.class, new IRenderFactory<PrimedSizedTnt>() {
-            
-            @Override
-            public Render<? super PrimedSizedTnt> createRenderFor(RenderManager manager) {
-                return new RenderSizedTNTPrimed(manager);
-            }
-        });
+        
+        EntityRenderers.register(LittleTiles.SIZED_TNT_TYPE, RenderSizedTNTPrimed::new);
         
         RenderingRegistry.registerEntityRenderingHandler(EntityAnimation.class, new IRenderFactory<EntityAnimation>() {
             
@@ -313,10 +310,14 @@ public class LittleTilesClient {
         blockEntityRenderer = new BETilesRenderer();
         BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_RENDERED, x -> blockEntityRenderer);
         
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES);
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_TICKING);
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_RENDERED);
-        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.BLOCK_TILES_TICKING_RENDERED);
+        CreativeCoreClient.registerBlocks(new CreativeRenderBlock() {
+            
+            @Override
+            public List<? extends RenderBox> getBoxes(BlockState state) {
+                return Collections.EMPTY_LIST;
+            }
+            
+        }, LittleTiles.BLOCK_TILES, LittleTiles.BLOCK_TILES_TICKING, LittleTiles.BLOCK_TILES_RENDERED, LittleTiles.BLOCK_TILES_TICKING_RENDERED);
         
         CreativeCoreClient.registerBlockItem(LittleTiles.STORAGE_BLOCK);
         
