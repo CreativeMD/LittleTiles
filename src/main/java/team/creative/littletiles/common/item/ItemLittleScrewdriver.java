@@ -65,11 +65,6 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     @Override
-    public boolean canDestroyBlockInCreative(Level level, BlockPos pos, ItemStack stack, Player player) {
-        return false;
-    }
-    
-    @Override
     public GuiConfigure getConfigure(Player player, ItemStack stack) {
         return new SubGuiScrewdriver(stack);
     }

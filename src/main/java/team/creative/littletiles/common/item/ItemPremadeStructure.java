@@ -108,6 +108,11 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     }
     
     @Override
+    public LittleGroup getLow(ItemStack stack) {
+        return getTiles(stack);
+    }
+    
+    @Override
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
         String id = getPremadeId(stack);
         LittleGroup previews = getPreviews(id);
@@ -129,7 +134,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     
     @Override
     public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
-        return new PlacementPreview(level, getTiles(stack), PlacementMode.all, position);
+        return PlacementPreview.relative(level, stack, position, allowLowResolution);
     }
     
     @Override

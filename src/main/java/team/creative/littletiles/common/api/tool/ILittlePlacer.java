@@ -26,7 +26,15 @@ public interface ILittlePlacer extends ILittleTool {
     
     public LittleGroup getTiles(ItemStack stack);
     
-    public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution);
+    public LittleGroup getLow(ItemStack stack);
+    
+    public default LittleGroup get(ItemStack stack, boolean low) {
+        if (low)
+            return getLow(stack);
+        return getTiles(stack);
+    }
+    
+    public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean low);
     
     public void saveTiles(ItemStack stack, LittleGroup group);
     

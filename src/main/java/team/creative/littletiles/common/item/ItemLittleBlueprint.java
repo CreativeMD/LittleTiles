@@ -3,7 +3,6 @@ package team.creative.littletiles.common.item;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -66,8 +65,13 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
+    public LittleGroup getLow(ItemStack stack) {
+        return LittleGroup.loadLow(stack.getOrCreateTagElement("content"));
+    }
+    
+    @Override
     public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
-        return new PlacementPreview(level, getTiles(stack), getPlacementMode(stack), position);
+        return PlacementPreview.relative(level, stack, position, allowLowResolution);
     }
     
     @Override
@@ -88,17 +92,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
-    public boolean canDestroyBlockInCreative(Level level, BlockPos pos, ItemStack stack, Player player) {
-        return false;
-    }
-    
-    @Override
     @OnlyIn(Dist.CLIENT)
     public boolean onMouseWheelClickBlock(Level world, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         BlockState state = world.getBlockState(result.getBlockPos());
         if (state.getBlock() instanceof BlockTile) {
             CompoundTag nbt = new CompoundTag();
-            nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode(player));
+            nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
             LittleTiles.NETWORK.sendToServer(new BlockPacket(world, result.getBlockPos(), player, BlockPacketAction.RECIPE, nbt));
             return true;
         }

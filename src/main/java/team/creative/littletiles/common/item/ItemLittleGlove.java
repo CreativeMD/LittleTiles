@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,7 +35,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
@@ -95,11 +93,6 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public boolean canDestroyBlockInCreative(Level leve, BlockPos pos, ItemStack stack, Player player) {
-        return false;
-    }
-    
-    @Override
     public boolean hasTiles(ItemStack stack) {
         return getMode(stack).hasTiles(stack);
     }
@@ -110,8 +103,13 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
+    public LittleGroup getLow(ItemStack stack) {
+        return getTiles(stack);
+    }
+    
+    @Override
     public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
-        return new PlacementPreview(level, getTiles(stack), getPlacementMode(stack), position);
+        return PlacementPreview.relative(level, stack, position, allowLowResolution);
     }
     
     @Override
@@ -250,9 +248,6 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         public abstract boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result);
         
         @OnlyIn(Dist.CLIENT)
-        public abstract List<RenderBox> getRenderingBoxes(ItemStack stack);
-        
-        @OnlyIn(Dist.CLIENT)
         public abstract boolean renderBlockSeparately(ItemStack stack);
         
         @OnlyIn(Dist.CLIENT)
@@ -289,7 +284,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
                 return true;
             } else if (state.getBlock() instanceof BlockTile) {
                 CompoundTag nbt = new CompoundTag();
-                nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode(player));
+                nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
                 LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
                 return true;
             }
@@ -298,12 +293,6 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         public LittleGrid getGrid(ItemStack stack) {
             return LittleGrid.get(stack.getTag());
-        }
-        
-        @Override
-        @OnlyIn(Dist.CLIENT)
-        public List<RenderBox> getRenderingBoxes(ItemStack stack) {
-            return Collections.EMPTY_LIST;
         }
         
         @Override
@@ -509,7 +498,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
             BlockState state = level.getBlockState(result.getBlockPos());
             if (state.getBlock() instanceof BlockTile) {
                 CompoundTag nbt = new CompoundTag();
-                nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode(player));
+                nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
                 LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
                 return true;
             }
@@ -547,12 +536,6 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
             nbt.putInt("ox", pos.getX());
             nbt.putInt("oy", pos.getY());
             nbt.putInt("oz", pos.getZ());
-        }
-        
-        @Override
-        @OnlyIn(Dist.CLIENT)
-        public List<RenderBox> getRenderingBoxes(ItemStack stack) {
-            return getPreviews(stack).getRenderingBoxes();
         }
         
         @Override

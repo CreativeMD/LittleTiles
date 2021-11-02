@@ -159,4 +159,8 @@ public class LittleBoxAbsolute implements IGridBased {
         }
         return newBox;
     }
+    
+    public LittleBoxAbsolute copy() {
+        return new LittleBoxAbsolute(pos, box.copy(), grid);
+    }
 }

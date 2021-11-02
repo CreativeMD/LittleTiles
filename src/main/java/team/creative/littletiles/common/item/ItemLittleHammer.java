@@ -2,7 +2,6 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -101,7 +100,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     @Override
     @OnlyIn(Dist.CLIENT)
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        if (LittleActionHandlerClient.isUsingSecondMode(player)) {
+        if (LittleActionHandlerClient.isUsingSecondMode()) {
             selection = null;
             PreviewRenderer.marked = null;
         } else if (selection != null)
@@ -112,11 +111,6 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
                     new LittleActionDestroyBoxes(selection.getBoxes(false)).execute();
                 selection = null;
             }
-        return false;
-    }
-    
-    @Override
-    public boolean canDestroyBlockInCreative(Level level, BlockPos pos, ItemStack stack, Player player) {
         return false;
     }
     

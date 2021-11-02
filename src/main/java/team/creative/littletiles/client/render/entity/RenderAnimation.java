@@ -4,46 +4,49 @@ import java.util.Iterator;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.culling.ICamera;
-import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.optifine.shaders.ShadersRender;
+import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
-import team.creative.littletiles.client.render.world.LittleRenderChunkSuppilier;
+import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
 
-public class RenderAnimation extends Render<EntityAnimation> {
+public class RenderAnimation extends EntityRenderer<EntityAnimation> {
     
-    public static Minecraft mc = Minecraft.getMinecraft();
+    public static Minecraft mc = Minecraft.getInstance();
     public static final VertexBufferUploader uploader = new VertexBufferUploader();
     
-    public RenderAnimation(RenderManager renderManager) {
-        super(renderManager);
+    protected EntityRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
     
     @Override
@@ -212,8 +215,8 @@ public class RenderAnimation extends Render<EntityAnimation> {
     
     public void render(TileEntityLittleTiles tileentityIn, float partialTicks, int destroyStage) {
         if (tileentityIn
-            .getDistanceSq(TileEntityRendererDispatcher.instance.entityX, TileEntityRendererDispatcher.instance.entityY, TileEntityRendererDispatcher.instance.entityZ) < tileentityIn
-                .getMaxRenderDistanceSquared()) {
+                .getDistanceSq(TileEntityRendererDispatcher.instance.entityX, TileEntityRendererDispatcher.instance.entityY, TileEntityRendererDispatcher.instance.entityZ) < tileentityIn
+                        .getMaxRenderDistanceSquared()) {
             if (!tileentityIn.hasFastRenderer()) {
                 RenderHelper.enableStandardItemLighting();
                 int i = tileentityIn.getWorld().getCombinedLight(tileentityIn.getPos(), 0);
@@ -227,10 +230,10 @@ public class RenderAnimation extends Render<EntityAnimation> {
         }
     }
     
-    public void renderBlockLayer(LittleRenderChunkSuppilier suppilier, BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2) {
+    public void renderBlockLayer(LittleRenderChunkSuppilier suppilier, RenderType layer, EntityAnimation entity, float f, float f1, float f2) {
         
-        if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-            ShadersRender.preRenderChunkLayer(layer);
+        if (OptifineHelper.isShaders())
+            OptifineHelper.preRenderChunkLayer(layer);
         
         synchronized (suppilier.renderChunks) {
             for (LittleRenderChunk chunk : suppilier.renderChunks.values()) {
@@ -280,13 +283,13 @@ public class RenderAnimation extends Render<EntityAnimation> {
             }
         }
         
-        if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-            ShadersRender.postRenderChunkLayer(layer);
+        if (OptifineHelper.isShaders())
+            OptifineHelper.postRenderChunkLayer(layer);
     }
     
     @Override
-    protected ResourceLocation getEntityTexture(EntityAnimation entity) {
-        return TextureMap.LOCATION_BLOCKS_TEXTURE;
+    public ResourceLocation getTextureLocation(EntityAnimation animation) {
+        return InventoryMenu.BLOCK_ATLAS;
     }
     
     public static BlockPos getRenderChunkPos(BlockPos blockPos) {

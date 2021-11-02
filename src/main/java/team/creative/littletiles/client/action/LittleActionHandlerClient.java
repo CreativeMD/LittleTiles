@@ -52,19 +52,19 @@ public class LittleActionHandlerClient extends LevelHandler {
         lastActions.add(0, action);
     }
     
-    public static boolean canUseUndoOrRedo(Player player) {
-        GameType type = PlayerUtils.getGameType(player);
+    public static boolean canUseUndoOrRedo() {
+        GameType type = PlayerUtils.getGameType(mc.player);
         return type == GameType.CREATIVE || type == GameType.SURVIVAL;
     }
     
-    public static boolean isUsingSecondMode(Player player) {
-        if (player == null)
+    public static boolean isUsingSecondMode() {
+        if (mc.player == null)
             return false;
         if (LittleTiles.CONFIG.building.useALTForEverything)
             return Screen.hasAltDown();
         if (LittleTiles.CONFIG.building.useAltWhenFlying)
-            return player.getAbilities().flying ? Screen.hasAltDown() : player.isCrouching();
-        return player.isCrouching();
+            return mc.player.getAbilities().flying ? Screen.hasAltDown() : mc.player.isCrouching();
+        return mc.player.isCrouching();
     }
     
     public boolean execute(LittleAction action) {
@@ -90,7 +90,7 @@ public class LittleActionHandlerClient extends LevelHandler {
         if (lastActions.size() > index) {
             Player player = mc.player;
             
-            if (!canUseUndoOrRedo(player))
+            if (!canUseUndoOrRedo())
                 return false;
             
             LittleAction reverted = lastActions.get(index).revert(player);
@@ -114,7 +114,7 @@ public class LittleActionHandlerClient extends LevelHandler {
         if (index > 0 && index <= lastActions.size()) {
             Player player = mc.player;
             
-            if (!canUseUndoOrRedo(player))
+            if (!canUseUndoOrRedo())
                 return false;
             
             index--;

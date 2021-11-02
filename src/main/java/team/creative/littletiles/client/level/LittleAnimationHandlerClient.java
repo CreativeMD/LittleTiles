@@ -37,9 +37,12 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -68,7 +71,7 @@ import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
 public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     
     private static Minecraft mc = Minecraft.getInstance();
-    public static RenderAnimation render = new RenderAnimation(mc.getRenderManager());
+    public static RenderAnimation render = new RenderAnimation(mc.get());
     
     public LittleAnimationHandlerClient(Level level) {
         super(level);
@@ -138,7 +141,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
             Vec3d look = player.getLook(partialTicks);
             look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
             
-            AxisAlignedBB box = new AxisAlignedBB(pos, target != null ? target.hitVec : look);
+            AABB box = new AABB(pos, target != null ? target.hitVec : look);
             World world = player.world;
             
             EntityAnimation pointedEntity = null;
@@ -189,7 +192,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         if (InputEventHandler.onPickBlock(target, player, world))
             return;
         
-        IBlockState state = world.getBlockState(target.getBlockPos());
+        BlockState state = world.getBlockState(target.getBlockPos());
         
         if (state.getBlock().isAir(state, world, target.getBlockPos()))
             return;

@@ -61,8 +61,13 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     @Override
+    public LittleGroup getLow(ItemStack stack) {
+        return LittleGroup.loadLow(stack.getOrCreateTag());
+    }
+    
+    @Override
     public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
-        return new PlacementPreview(level, getTiles(stack), getPlacementMode(stack), position);
+        return PlacementPreview.relative(level, stack, position, allowLowResolution);
     }
     
     @Override

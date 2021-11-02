@@ -3,7 +3,6 @@ package team.creative.littletiles.client.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.Font;
@@ -78,27 +77,25 @@ public class CompiledActionMessage {
     
     public void render(PoseStack pose, float alpha) {
         Font font = GuiRenderHelper.getFont();
-        GlStateManager.pushMatrix();
-        int color = ColorUtils.RGBAToInt(255, 255, 255, (int) (alpha * 255));
+        pose.pushPose();
+        int color = ColorUtils.rgba(255, 255, 255, (int) (alpha * 255));
         for (int i = 0; i < lines.size(); i++) {
             ActionLine line = lines.get(i);
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(-line.width / 2, 0, 0);
+            pose.translate(-line.width / 2, 0, 0);
             for (int j = 0; j < line.objects.size(); j++) {
                 Object obj = line.objects.get(j);
                 if (obj.getClass() == String.class) {
-                    font.drawString((String) obj, 0, 0, color);
-                    GlStateManager.translate(font.getStringWidth((String) obj), 0, 0);
+                    font.draw(pose, (String) obj, 0, 0, color);
+                    pose.translate(font.width((String) obj), 0, 0);
                 } else {
                     ActionMessageObjectType type = ActionMessage.getType(obj);
                     type.render(pose, obj, color, alpha);
-                    GlStateManager.translate(type.width(obj), 0, 0);
+                    pose.translate(type.width(obj), 0, 0);
                 }
             }
-            GlStateManager.popMatrix();
-            GlStateManager.translate(0, font.lineHeight + 3, 0);
+            pose.translate(0, font.lineHeight + 3, 0);
         }
-        GlStateManager.popMatrix();
+        pose.popPose();
     }
     
     public class ActionLine {
@@ -112,7 +109,7 @@ public class CompiledActionMessage {
             for (int i = 0; i < objects.size(); i++) {
                 Object obj = objects.get(i);
                 if (obj.getClass() == String.class)
-                    lineWidth += GuiRenderHelper.getFont().getStringWidth((String) obj);
+                    lineWidth += GuiRenderHelper.getFont().width((String) obj);
                 else
                     lineWidth += ActionMessage.getType(obj).width(obj);
             }

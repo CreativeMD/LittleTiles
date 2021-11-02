@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.World;
@@ -33,12 +34,14 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -60,37 +63,75 @@ public class PreviewRenderer {
     
     public static IMarkMode marked;
     
-    public static boolean isCentered(Player player, ItemStack stack, ILittlePlacer iTile) {
+    public static boolean isCentered(ItemStack stack, ILittlePlacer iTile) {
         if (iTile.snapToGridByDefault(stack))
-            return LittleAction.isUsingSecondMode(player) && marked == null;
-        return LittleTiles.CONFIG.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
+            return LittleActionHandlerClient.isUsingSecondMode() && marked == null;
+        return LittleTiles.CONFIG.building.invertStickToGrid == LittleActionHandlerClient.isUsingSecondMode() || marked != null;
     }
     
-    public static boolean isFixed(Player player, ItemStack stack, ILittlePlacer iTile) {
+    public static boolean isFixed(ItemStack stack, ILittlePlacer iTile) {
         if (iTile.snapToGridByDefault(stack))
-            return !LittleAction.isUsingSecondMode(player) && marked == null;
-        return LittleTiles.CONFIG.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
+            return !LittleActionHandlerClient.isUsingSecondMode() && marked == null;
+        return LittleTiles.CONFIG.building.invertStickToGrid != LittleActionHandlerClient.isUsingSecondMode() && marked == null;
     }
     
-    public static void handleUndoAndRedo(Player player) {
+    public static void handleUndoAndRedo() {
         while (LittleTilesClient.undo.consumeClick()) {
             try {
-                if (LittleAction.canUseUndoOrRedo(player))
-                    LittleAction.undo();
+                if (LittleActionHandlerClient.canUseUndoOrRedo())
+                    LittleActionHandlerClient.undo();
             } catch (LittleActionException e) {
-                LittleAction.handleExceptionClient(e);
+                LittleActionHandlerClient.handleException(e);
             }
         }
         
         while (LittleTilesClient.redo.consumeClick()) {
             try {
-                if (LittleAction.canUseUndoOrRedo(player))
-                    LittleAction.redo();
+                if (LittleActionHandlerClient.canUseUndoOrRedo())
+                    LittleActionHandlerClient.redo();
             } catch (LittleActionException e) {
-                LittleAction.handleExceptionClient(e);
+                LittleActionHandlerClient.handleException(e);
             }
         }
     }
+    
+    /** @param centered
+     *            if the previews should be centered
+     * @param facing
+     *            if centered is true it will be used to apply the offset
+     * @param fixed
+     *            if the previews should keep it's original boxes */
+    public static PlacementPreview getPreviews(Level level, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
+        
+        LittleGroup tiles = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews.copy() : null;
+        if (tiles == null && iTile != null)
+            tiles = iTile.getTiles(stack, allowLowResolution);
+        
+        PlacementPreview result = getPreviews(level, tiles, iTile.getTilesGrid(stack), stack, position, centered, fixed, allowLowResolution, mode);
+        
+        if (result != null) {
+            if (stack.getTag() == null) {
+                lastCached = null;
+                lastPreviews = null;
+            } else {
+                lastLowResolution = allowLowResolution;
+                lastCached = stack.getTag().copy();
+                lastPreviews = tiles.copy();
+            }
+        }
+        return result;
+    }
+    
+    public static void removeCache() {
+        lastCached = null;
+        lastPreviews = null;
+        lastLowResolution = false;
+    }
+    
+    private static boolean lastLowResolution;
+    private static CompoundTag lastCached;
+    private static LittleGroup lastPreviews;
     
     @SubscribeEvent
     public void unload(WorldEvent.Unload event) {
@@ -181,7 +222,7 @@ public class PreviewRenderer {
     }
     
     public void processMarkKey(Player player, ILittleTool iTile, ItemStack stack, PlacementPreview preview) {
-        while (LittleTilesClient.mark.isPressed()) {
+        while (LittleTilesClient.mark.consumeClick()) {
             if (marked == null) {
                 marked = iTile.onMark(player, stack, PlacementHelper
                         .getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack), mc.objectMouseOver, preview);
@@ -212,31 +253,29 @@ public class PreviewRenderer {
         while (LittleTilesClient.flip.consumeClick())
             processFlipKey(mc.player, stack);
         
-        boolean repeated = marked != null;
-        
         // Rotate Block
-        while (LittleTilesClient.up.consumeClick(repeated)) {
+        while (LittleTilesClient.up.consumeClick()) {
             if (marked != null)
-                marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? Facing.UP : Facing.EAST);
+                marked.move(context, LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST);
             else
                 processRotateKey(mc.player, Rotation.Z_CLOCKWISE, stack);
         }
         
-        while (LittleTilesClient.down.consumeClick(repeated)) {
+        while (LittleTilesClient.down.consumeClick()) {
             if (marked != null)
-                marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? Facing.DOWN : Facing.WEST);
+                marked.move(context, LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST);
             else
                 processRotateKey(mc.player, Rotation.Z_COUNTER_CLOCKWISE, stack);
         }
         
-        while (LittleTilesClient.right.consumeClick(repeated)) {
+        while (LittleTilesClient.right.consumeClick()) {
             if (marked != null)
                 marked.move(context, Facing.SOUTH);
             else
                 processRotateKey(mc.player, Rotation.Y_COUNTER_CLOCKWISE, stack);
         }
         
-        while (LittleTilesClient.left.consumeClick(repeated)) {
+        while (LittleTilesClient.left.consumeClick()) {
             if (marked != null)
                 marked.move(context, Facing.NORTH);
             else

@@ -3,7 +3,6 @@ package team.creative.littletiles.common.item;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -77,11 +76,6 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
-    public boolean canDestroyBlockInCreative(Level level, BlockPos pos, ItemStack stack, Player player) {
-        return false;
-    }
-    
-    @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
     }
@@ -137,7 +131,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     @Override
     @OnlyIn(Dist.CLIENT)
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        if (LittleActionHandlerClient.isUsingSecondMode(player)) {
+        if (LittleActionHandlerClient.isUsingSecondMode()) {
             selection = null;
             PreviewRenderer.marked = null;
         } else if (selection != null)

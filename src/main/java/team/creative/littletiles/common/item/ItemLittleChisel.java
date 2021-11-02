@@ -5,7 +5,6 @@ import java.util.List;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -79,11 +78,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
         tooltip.add(new TextComponent(TooltipUtils.printColor(getPreview(stack).color)));
     }
     
-    @Override
-    public boolean canDestroyBlockInCreative(Level level, BlockPos pos, ItemStack stack, Player player) {
-        return false;
-    }
-    
     public static LittleShape getShape(ItemStack stack) {
         return ShapeRegistry.getShape(stack.getOrCreateTag().getString("shape"));
     }
@@ -116,12 +110,17 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
+    public LittleGroup getLow(ItemStack stack) {
+        return null;
+    }
+    
+    @Override
     public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
         if (selection != null) {
             LittleBoxes boxes = selection.getBoxes(allowLowResolution);
             LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos, boxes.grid);
             previews.add(getPreview(stack), boxes);
-            return new PlacementPreview(level, previews, getPlacementMode(stack), selection.getFirst().pos.facing);
+            return PlacementPreview.absolute(level, stack, previews, selection.getFirst().pos.facing);
         }
         return null;
     }
@@ -197,7 +196,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        if (LittleActionHandlerClient.isUsingSecondMode(player)) {
+        if (LittleActionHandlerClient.isUsingSecondMode()) {
             selection = null;
             PreviewRenderer.marked = null;
         } else if (selection != null)

@@ -7,6 +7,8 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -80,6 +82,13 @@ public class LittleGroupAbsolute implements IGridBased {
     
     public LittleGroupAbsolute copy() {
         return new LittleGroupAbsolute(pos, group.copy());
+    }
+    
+    public LittleBoxAbsolute getBox() {
+        LittleVec vec = group.getSize();
+        LittleVec min = group.getMinVec();
+        vec.add(min);
+        return new LittleBoxAbsolute(pos, new LittleBox(min, vec), getGrid());
     }
     
     @SuppressWarnings("deprecation")

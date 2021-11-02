@@ -502,6 +502,10 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
                 setGridSecretly(child, grid);
     }
     
+    public static LittleGroup loadLow(CompoundTag nbt) {
+        
+    }
+    
     public static LittleGroup load(CompoundTag nbt) {
         ListTag list = nbt.getList("c", Tag.TAG_COMPOUND);
         List<LittleGroup> children = new ArrayList<>(list.size());
