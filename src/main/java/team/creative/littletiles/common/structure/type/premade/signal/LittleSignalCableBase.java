@@ -36,7 +36,7 @@ import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -578,8 +578,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         public final int bandwidth;
         public final int numberOfConnections;
         
-        public LittleStructureTypeNetwork(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth, int numberOfConnections) {
-            super(id, category, structureClass, attribute | LittleStructureAttribute.NEIGHBOR_LISTENER, modid);
+        public LittleStructureTypeNetwork(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid, int bandwidth, int numberOfConnections) {
+            super(id, category, structureClass, attribute.neighborListener(), modid);
             this.bandwidth = bandwidth;
             this.numberOfConnections = numberOfConnections;
         }

@@ -122,12 +122,12 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     
     @Override
     public LittleVec getCachedSize(ItemStack stack) {
-        return LittleGroup.getSize(stack);
+        return LittleGroup.getSize(stack.getOrCreateTag());
     }
     
     @Override
-    public LittleVec getCachedOffset(ItemStack stack) {
-        return LittleGroup.getOffset(stack);
+    public LittleVec getCachedMin(ItemStack stack) {
+        return LittleGroup.getMin(stack.getOrCreateTag());
     }
     
     public static void reloadExampleStructures() {

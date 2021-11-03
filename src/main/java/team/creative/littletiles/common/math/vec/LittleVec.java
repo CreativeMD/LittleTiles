@@ -210,7 +210,7 @@ public class LittleVec {
         return new LittleVec(x, y, z);
     }
     
-    public void writeToNBT(String name, CompoundTag nbt) {
+    public void save(String name, CompoundTag nbt) {
         nbt.putIntArray(name, new int[] { x, y, z });
     }
     

@@ -899,14 +899,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
             cube.setType(facing, FaceRenderType.OUTSIDE_NOT_RENDERD);
     }
     
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<? extends RenderBox> getRenderingCubes(BlockState state, BlockEntity te, ItemStack stack) {
-        if (te instanceof BETiles)
-            return Collections.emptyList();
-        return getRenderingCubes(state, te, stack, MinecraftForgeClient.getRenderLayer());
-    }
-    
     @OnlyIn(Dist.CLIENT)
     public static List<LittleRenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
         ArrayList<LittleRenderBox> cubes = new ArrayList<>();
@@ -983,7 +975,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
             
             for (LittleStructure structure : tileEntity.loadedStructures(LittleStructureAttribute.EXTRA_RENDERING)) {
                 try {
-                    structure.load();
+                    structure.checkConnections();
                     structure.getRenderingCubes(tileEntity.getPos(), layer, cubes);
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
@@ -1055,7 +1047,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
         if (te != null) {
             BlockState lookingFor = CTMManager.isInstalled() ? CTMManager.getCorrectStateOrigin(level, connection) : level.getBlockState(connection);
             for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
-                if (pair.value.getBlock() == lookingFor.getBlock()) //TODO MIGHT LOOK FOR BLOCKSTATE INSTEAD
+                if (pair.value.getState() == lookingFor)
                     return lookingFor;
         }
         return this.defaultBlockState();

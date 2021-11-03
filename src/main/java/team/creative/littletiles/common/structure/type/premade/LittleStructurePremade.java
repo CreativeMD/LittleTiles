@@ -8,28 +8,22 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
-import com.creativemd.creativecore.common.utils.mc.NBTUtils;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.google.common.base.Charsets;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.mc.NBTUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -63,20 +57,20 @@ public abstract class LittleStructurePremade extends LittleStructure {
         for (LittleStructureTypePremade type : premadeStructures) {
             try {
                 ItemStack stack = type.createItemStackEmpty();
-                NBTTagCompound structureNBT = new NBTTagCompound();
-                structureNBT.setString("id", type.id);
-                NBTTagCompound nbt = JsonToNBT.getTagFromJson(IOUtils
+                CompoundTag structureNBT = new CompoundTag();
+                structureNBT.putString("id", type.id);
+                CompoundTag nbt = TagParser.parseTag(IOUtils
                         .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
-                NBTTagCompound originalNBT = nbt.hasKey("structure") ? nbt.getCompoundTag("structure") : null;
-                nbt.setTag("structure", structureNBT);
+                CompoundTag originalNBT = nbt.contains("structure") ? nbt.getCompound("structure") : null;
+                nbt.put("structure", structureNBT);
                 if (originalNBT != null)
                     NBTUtils.mergeNotOverwrite(structureNBT, originalNBT);
-                stack.setTagCompound(nbt);
-                LittlePreviews previews = LittlePreview.getPreview(stack);
+                stack.setTag(nbt);
+                LittleGroup previews = LittleGroup.load(stack.getOrCreateTag());
                 
-                NBTTagCompound stackNBT = new NBTTagCompound();
-                stackNBT.setTag("structure", structureNBT);
-                stack.setTagCompound(stackNBT);
+                CompoundTag stackNBT = new CompoundTag();
+                stackNBT.put("structure", structureNBT);
+                stack.setTag(stackNBT);
                 
                 structurePreviews.put(type.id, new LittleStructurePremadeEntry(previews, stack));
                 System.out.println("Loaded " + type.id + " model");
@@ -88,10 +82,10 @@ public abstract class LittleStructurePremade extends LittleStructure {
     }
     
     public static LittleStructureTypePremade registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure) {
-        return registerPremadeStructureType(id, modid, classStructure, LittleStructureAttribute.NONE);
+        return registerPremadeStructureType(id, modid, classStructure, new LittleAttributeBuilder());
     }
     
-    public static LittleStructureTypePremade registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {
+    public static LittleStructureTypePremade registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, LittleAttributeBuilder attribute) {
         LittleStructureTypePremade type = (LittleStructureTypePremade) LittleStructureRegistry
                 .registerStructureType(new LittleStructureTypePremade(id, "premade", classStructure, attribute, modid), null);
         premadeStructures.add(type);
@@ -148,7 +142,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
     public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
         ItemStack stack = getPremadeStack(type.id).copy();
         
-        load();
+        checkConnections();
         BlockPos pos = getMinPos(getPos().mutable());
         
         CompoundTag structureNBT = new CompoundTag();
@@ -170,23 +164,32 @@ public abstract class LittleStructurePremade extends LittleStructure {
         registerPremadeStructureType("workbench", LittleTiles.MODID, LittleWorkbench.class);
         registerPremadeStructureType("importer", LittleTiles.MODID, LittleImporter.class);
         registerPremadeStructureType("exporter", LittleTiles.MODID, LittleExporter.class);
-        registerPremadeStructureType(new LittleStructureTypeParticleEmitter("particle_emitter", "premade", LittleParticleEmitter.class, LittleStructureAttribute.TICKING, LittleTiles.MODID))
-                .addOutput("disabled", 1, SignalMode.TOGGLE, true).setFieldDefault("facing", Facing.UP);
+        registerPremadeStructureType(new LittleStructureTypeParticleEmitter("particle_emitter", "premade", LittleParticleEmitter.class, new LittleAttributeBuilder()
+                .ticking(), LittleTiles.MODID)).addOutput("disabled", 1, SignalMode.TOGGLE, true).setFieldDefault("facing", Facing.UP);
         registerPremadeStructureType("blankomatic", LittleTiles.MODID, LittleBlankOMatic.class);
         
-        registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 1));
-        registerPremadeStructureType(new LittleStructureTypeCable("single_cable4", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 4));
-        registerPremadeStructureType(new LittleStructureTypeCable("single_cable16", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 16));
+        registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 1));
+        registerPremadeStructureType(new LittleStructureTypeCable("single_cable4", "premade", LittleSignalCable.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 4));
+        registerPremadeStructureType(new LittleStructureTypeCable("single_cable16", "premade", LittleSignalCable.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 16));
         
-        registerPremadeStructureType(new LittleStructureTypeOutput("single_output1", "premade", LittleSignalOutput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 1));
-        registerPremadeStructureType(new LittleStructureTypeOutput("single_output4", "premade", LittleSignalOutput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 4));
-        registerPremadeStructureType(new LittleStructureTypeOutput("single_output16", "premade", LittleSignalOutput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 16));
+        registerPremadeStructureType(new LittleStructureTypeOutput("single_output1", "premade", LittleSignalOutput.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 1));
+        registerPremadeStructureType(new LittleStructureTypeOutput("single_output4", "premade", LittleSignalOutput.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 4));
+        registerPremadeStructureType(new LittleStructureTypeOutput("single_output16", "premade", LittleSignalOutput.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 16));
         
-        registerPremadeStructureType(new LittleStructureTypeInput("single_input1", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 1));
-        registerPremadeStructureType(new LittleStructureTypeInput("single_input4", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 4));
-        registerPremadeStructureType(new LittleStructureTypeInput("single_input16", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.MODID, 16));
+        registerPremadeStructureType(new LittleStructureTypeInput("single_input1", "premade", LittleSignalInput.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 1));
+        registerPremadeStructureType(new LittleStructureTypeInput("single_input4", "premade", LittleSignalInput.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 4));
+        registerPremadeStructureType(new LittleStructureTypeInput("single_input16", "premade", LittleSignalInput.class, new LittleAttributeBuilder()
+                .extraRendering(), LittleTiles.MODID, 16));
         
-        registerPremadeStructureType("signal_display_16", LittleTiles.MODID, LittleSignalDisplay.class, LittleStructureAttribute.TICK_RENDERING)
+        registerPremadeStructureType("signal_display_16", LittleTiles.MODID, LittleSignalDisplay.class, new LittleAttributeBuilder().tickRendering())
                 .addOutput("pixels", 16, SignalMode.EQUAL, true);
         
         registerPremadeStructureType("structure_builder", LittleTiles.MODID, LittleStructureBuilder.class);
@@ -225,22 +228,22 @@ public abstract class LittleStructurePremade extends LittleStructure {
         public boolean showInCreativeTab = true;
         public boolean snapToGrid = true;
         
-        public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
-            super(id, category, structureClass, LittleStructureAttribute.PREMADE | attribute);
+        public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid) {
+            super(id, category, structureClass, attribute.premade());
             this.modid = modid;
         }
         
         public ItemStack createItemStackEmpty() {
-            return new ItemStack(LittleTiles.premade);
+            return new ItemStack(LittleTiles.PREMADE);
         }
         
         public ItemStack createItemStack() {
             ItemStack stack = createItemStackEmpty();
-            NBTTagCompound structureNBT = new NBTTagCompound();
-            structureNBT.setString("id", id);
-            NBTTagCompound stackNBT = new NBTTagCompound();
-            stackNBT.setTag("structure", structureNBT);
-            stack.setTagCompound(stackNBT);
+            CompoundTag structureNBT = new CompoundTag();
+            structureNBT.putString("id", id);
+            CompoundTag stackNBT = new CompoundTag();
+            stackNBT.put("structure", structureNBT);
+            stack.setTag(stackNBT);
             return stack;
         }
         
@@ -252,11 +255,6 @@ public abstract class LittleStructurePremade extends LittleStructure {
         public LittleStructureTypePremade setNotSnapToGrid() {
             this.snapToGrid = false;
             return this;
-        }
-        
-        @OnlyIn(Dist.CLIENT)
-        public List<RenderBox> getRenderingCubes(LittleGroup previews) {
-            return null;
         }
         
         @Override

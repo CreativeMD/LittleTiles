@@ -39,6 +39,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 
@@ -372,7 +373,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         @OnlyIn(Dist.CLIENT)
         public List<RenderBox> cubes;
         
-        public LittleStructureTypeParticleEmitter(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
+        public LittleStructureTypeParticleEmitter(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid) {
             super(id, category, structureClass, attribute, modid);
         }
         

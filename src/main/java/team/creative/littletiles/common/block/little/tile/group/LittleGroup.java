@@ -12,12 +12,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -27,6 +28,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -484,8 +486,40 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     @OnlyIn(Dist.CLIENT)
+    public boolean hasTranslucentBlocks() {
+        if (hasTranslucentBlocks())
+            return true;
+        if (hasStructure() && getStructureType().hasTranslucentItemPreview(this))
+            return true;
+        for (LittleGroup child : children.all())
+            if (child.hasTranslucentBlocks())
+                return true;
+        return false;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
     public List<RenderBox> getRenderingBoxes(boolean translucent) {
-        
+        List<RenderBox> boxes = new ArrayList<>();
+        addRenderingBoxes(boxes, translucent);
+        return boxes;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    protected void addRenderingBoxes(List<RenderBox> boxes, boolean translucent) {
+        for (LittleTile tile : content)
+            if (tile.isTranslucent())
+                tile.addRenderingBoxes(grid, boxes);
+        if (hasStructure()) {
+            List<RenderBox> structureBoxes = getStructureType().getItemPreview(this, translucent);
+            if (structureBoxes != null)
+                boxes.addAll(structureBoxes);
+        }
+        for (LittleGroup child : children.all())
+            child.addRenderingBoxes(boxes, translucent);
+    }
+    
+    public boolean isVolumeEqual(LittleGroup previews) {
+        return getVolumes().equals(previews.getVolumes());
     }
     
     public static void advancedScale(LittleGroup group, int from, int to) {
@@ -503,7 +537,15 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     public static LittleGroup loadLow(CompoundTag nbt) {
-        
+        if (nbt.getInt("count") > PlacementHelper.LOW_RESOLUTION_COUNT) {
+            LittleGroup group = new LittleGroup(LittleGrid.get(nbt));
+            LittleVec max = getSize(nbt);
+            LittleVec min = getMin(nbt);
+            max.add(min);
+            group.addDirectly(new LittleTile(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE, new LittleBox(min, max)));
+            return group;
+        }
+        return load(nbt);
     }
     
     public static LittleGroup load(CompoundTag nbt) {
@@ -519,15 +561,13 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         LittleGroup group = new LittleGroup(structure, grid, children);
         LittleCollection.load(group.content, nbt.getList("t", Tag.TAG_COMPOUND));
         
-        list = nbt.getList("e", Tag.TAG_COMPOUND);
-        for (int i = 0; i < list.size(); i++) {
-            CompoundTag child = list.getCompound(i);
-            group.children.addExtension(child.getString("i"), load(child));
-        }
+        CompoundTag extensions = nbt.getCompound("e");
+        for (String id : extensions.getAllKeys())
+            group.children.addExtension(id, load(extensions.getCompound(id)));
         return group;
     }
     
-    public static CompoundTag save(LittleGroup group) {
+    public static CompoundTag saveChild(LittleGroup group) {
         CompoundTag nbt = new CompoundTag();
         if (group.hasStructure())
             nbt.put("s", group.getStructureTag());
@@ -535,30 +575,37 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         group.grid.set(nbt);
         ListTag list = new ListTag();
         for (LittleGroup child : group.children.children())
-            list.add(save(child));
+            list.add(saveChild(child));
         nbt.put("c", list);
         
-        list = new ListTag();
-        for (Entry<String, LittleGroup> entry : group.children.extensionEntries()) {
-            CompoundTag childNbt = save(entry.getValue());
-            childNbt.putString("i", entry.getKey());
-            list.add(childNbt);
-        }
-        nbt.put("e", list);
+        CompoundTag extensions = new CompoundTag();
+        for (Entry<String, LittleGroup> entry : group.children.extensionEntries())
+            extensions.put(entry.getKey(), saveChild(entry.getValue()));
         
-        save min, count, size and translucent
+        nbt.put("e", extensions);
         return nbt;
     }
     
-    public static LittleVec getSize(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("size"))
-            return new LittleVec("size", stack.getTag());
+    public static CompoundTag save(LittleGroup group) {
+        CompoundTag nbt = saveChild(group);
+        
+        group.getSize().save("size", nbt);
+        group.getMinVec().save("min", nbt);
+        nbt.putInt("count", group.totalSize());
+        if (group.hasTranslucentBlocks())
+            nbt.putBoolean("translucent", true);
+        return nbt;
+    }
+    
+    public static LittleVec getSize(CompoundTag nbt) {
+        if (nbt.contains("size"))
+            return new LittleVec("size", nbt);
         return null;
     }
     
-    public static LittleVec getOffset(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("min"))
-            return new LittleVec("min", stack.getTag());
+    public static LittleVec getMin(CompoundTag nbt) {
+        if (nbt.contains("min"))
+            return new LittleVec("min", nbt);
         return null;
     }
     

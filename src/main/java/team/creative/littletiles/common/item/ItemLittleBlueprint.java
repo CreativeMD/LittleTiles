@@ -154,12 +154,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public LittleVec getCachedSize(ItemStack stack) {
-        return LittleGroup.getSize(stack);
+        return LittleGroup.getSize(stack.getOrCreateTag());
     }
     
     @Override
-    public LittleVec getCachedOffset(ItemStack stack) {
-        return LittleGroup.getOffset(stack);
+    public LittleVec getCachedMin(ItemStack stack) {
+        return LittleGroup.getMin(stack.getOrCreateTag());
     }
     
     @Override

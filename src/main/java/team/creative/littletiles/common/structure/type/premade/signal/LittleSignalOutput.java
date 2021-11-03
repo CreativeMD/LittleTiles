@@ -23,6 +23,7 @@ import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -169,7 +170,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     
     public static class LittleStructureTypeOutput extends LittleStructureTypeNetwork {
         
-        public LittleStructureTypeOutput(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
+        public LittleStructureTypeOutput(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid, int bandwidth) {
             super(id, category, structureClass, attribute, modid, bandwidth, 1);
         }
         
@@ -184,7 +185,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public List<RenderBox> getRenderingCubes(LittleGroup previews) {
+        public List<RenderBox> getItemPreview(LittleGroup previews, boolean translucent) {
             List<RenderBox> cubes = new ArrayList<>();
             float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
             cubes = new ArrayList<>();

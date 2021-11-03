@@ -177,6 +177,13 @@ public class LittleCollection implements Iterable<LittleTile> {
         };
     }
     
+    public boolean hasTranslucentBlocks() {
+        for (LittleTile tile : content)
+            if (tile.isTranslucent())
+                return true;
+        return false;
+    }
+    
     public boolean combine() {
         boolean result = false;
         for (LittleTile tile : content)

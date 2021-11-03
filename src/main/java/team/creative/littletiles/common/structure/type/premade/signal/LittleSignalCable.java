@@ -14,6 +14,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.network.ISignalStructureTransmitter;
@@ -51,13 +52,13 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
     
     public static class LittleStructureTypeCable extends LittleStructureTypeNetwork {
         
-        public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
+        public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid, int bandwidth) {
             super(id, category, structureClass, attribute, modid, bandwidth, 6);
         }
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public List<RenderBox> getRenderingCubes(LittleGroup previews) {
+        public List<RenderBox> getItemPreview(LittleGroup previews, boolean translucent) {
             List<RenderBox> cubes = new ArrayList<>();
             int color = getColor(previews);
             float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);

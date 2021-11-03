@@ -238,6 +238,16 @@ public class LittleStructureType {
         }
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public List<RenderBox> getItemPreview(LittleGroup previews, boolean translucent) {
+        return null;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public boolean hasTranslucentItemPreview(LittleGroup previews) {
+        return false;
+    }
+    
     public static class InternalComponent {
         
         public final String identifier;

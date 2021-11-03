@@ -98,7 +98,7 @@ public interface ILittlePlacer extends ILittleTool {
      * 
      * @param stack
      * @return */
-    public default LittleVec getCachedOffset(ItemStack stack) {
+    public default LittleVec getCachedMin(ItemStack stack) {
         return null;
     }
     

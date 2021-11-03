@@ -23,6 +23,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -68,6 +69,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     @Deprecated
+    @SuppressWarnings("deprecation")
     public LittleTile(BlockState state, LittleBlock block, int color, List<LittleBox> boxes) {
         super(state, block, color);
         this.boxes = boxes;
@@ -385,6 +387,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     @OnlyIn(Dist.CLIENT)
     public boolean canBeRenderCombined(LittleTile tile) {
         return block.canBeRenderCombined(this, tile);
+    }
+    
+    public void addRenderingBoxes(LittleGrid grid, List<RenderBox> boxes) {
+        for (LittleBox box : this.boxes)
+            boxes.add(box.getRenderingCube(grid));
     }
     
     // ================Sound================

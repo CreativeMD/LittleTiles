@@ -86,7 +86,8 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderTick(PoseStack pose, BlockPos pos, double x, double y, double z, float partialTickTime) {
+    public void renderTick(PoseStack pose, BlockPos pos, float partialTickTime) {
+        super.renderTick(pose, pos, partialTickTime);
         if (textureId == -1)
             updateTexture();
         
