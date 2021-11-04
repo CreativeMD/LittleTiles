@@ -209,7 +209,7 @@ public class LittleTilesClient {
                 LittleGroup previews = ((ItemPremadeStructure) stack.getItem()).getTiles(stack);
                 if (previews == null)
                     return Collections.EMPTY_LIST;
-                List<RenderBox> cubes = premade.getRenderingCubes(previews);
+                List<RenderBox> cubes = premade.getItemPreview(previews, layer == Sheets.translucentCullBlockSheet());
                 if (cubes == null) {
                     cubes = previews.getRenderingBoxes(layer == Sheets.translucentCullBlockSheet());
                     LittleGroup.shrinkCubesToOneBlock(cubes);

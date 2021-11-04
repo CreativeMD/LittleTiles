@@ -5,7 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -18,15 +20,27 @@ import team.creative.littletiles.client.render.level.LittleRenderChunk;
 public class LittleRenderUtils {
     
     public static final RenderType[] BLOCK_LAYERS = new RenderType[] { RenderType.solid(), RenderType.cutoutMipped(), RenderType.cutout(), RenderType.translucent() };
+    public static final int TRANSLUCENT = 3;
+    
+    public static RenderType layer(int layer) {
+        return BLOCK_LAYERS[layer];
+    }
+    
+    public static int id(RenderType layer) {
+        for (int i = 0; i < BLOCK_LAYERS.length; i++)
+            if (BLOCK_LAYERS[i] == layer)
+                return i;
+        return -1;
+    }
     
     // ViewFrustum
-    private static Field viewFrustumField;
+    private static Field viewAreaField;
     
-    public static ViewFrustum getViewFrustum() {
-        if (viewFrustumField == null)
-            viewFrustumField = ObfuscationReflectionHelper.findField(RenderGlobal.class, new String[] { "viewFrustum", "field_175008_n" });
+    public static ViewArea getViewArea() {
+        if (viewAreaField == null)
+            viewAreaField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "f_109469_");
         try {
-            return (ViewFrustum) viewFrustumField.get(mc.renderGlobal);
+            return (ViewArea) viewAreaField.get(mc.levelRenderer);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -42,11 +56,11 @@ public class LittleRenderUtils {
         return new BlockPos(i, j, k);
     }
     
-    private static Method getRenderChunk = ObfuscationReflectionHelper.findMethod(ViewFrustum.class, "getRenderChunk", "func_178161_a", BlockPos.class);
+    private static Method getRenderChunk = ObfuscationReflectionHelper.findMethod(ViewArea.class, "m_110866_", BlockPos.class);
     
-    public static RenderChunk getRenderChunk(ViewFrustum frustum, BlockPos pos) {
+    public static RenderChunk getRenderChunk(ViewArea view, BlockPos pos) {
         try {
-            return (RenderChunk) getRenderChunk.invoke(frustum, pos);
+            return (RenderChunk) getRenderChunk.invoke(view, pos);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }

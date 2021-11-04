@@ -24,7 +24,8 @@
 	"gui.false": "false",
 	"gui.click.left": "left-click",
 	"gui.click.right": "right-click",
-	
+	"gui.paste": "Paste",
+	"gui.import": "Import",
 	"gui.tile.count": "tiles",
 	"gui.structure": "structure"
 }

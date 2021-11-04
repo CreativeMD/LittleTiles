@@ -8,20 +8,20 @@ import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.VertexBufferUploader;
-import net.minecraft.client.renderer.culling.ICamera;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -31,6 +31,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.optifine.shaders.ShadersRender;
@@ -39,41 +40,42 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.block.entity.BETiles;
 
 public class RenderAnimation extends EntityRenderer<EntityAnimation> {
     
     public static Minecraft mc = Minecraft.getInstance();
     public static final VertexBufferUploader uploader = new VertexBufferUploader();
     
-    protected EntityRenderer(EntityRendererProvider.Context context) {
+    protected RenderAnimation(EntityRendererProvider.Context context) {
         super(context);
     }
     
     @Override
-    public boolean shouldRender(EntityAnimation livingEntity, ICamera camera, double camX, double camY, double camZ) {
-        AxisAlignedBB axisalignedbb = livingEntity.getRenderBoundingBox().grow(0.5D);
+    public boolean shouldRender(EntityAnimation animation, Frustum frustum, double camX, double camY, double camZ) {
+        AABB axisalignedbb = animation.getBoundingBox().grow(0.5D);
         
         if (axisalignedbb.hasNaN() || axisalignedbb.getAverageEdgeLength() == 0.0D)
-            axisalignedbb = new AxisAlignedBB(livingEntity.posX - 2.0D, livingEntity.posY - 2.0D, livingEntity.posZ - 2.0D, livingEntity.posX + 2.0D, livingEntity.posY + 2.0D, livingEntity.posZ + 2.0D);
+            axisalignedbb = new AABB(animation.posX - 2.0D, animation.posY - 2.0D, animation.posZ - 2.0D, animation.posX + 2.0D, animation.posY + 2.0D, animation.posZ + 2.0D);
         
         double d0 = (axisalignedbb.minX + axisalignedbb.maxX) / 2 - camX;
         double d1 = (axisalignedbb.minY + axisalignedbb.maxY) / 2 - camY;
         double d2 = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2 - camZ;
         double d3 = d0 * d0 + d1 * d1 + d2 * d2;
         
-        return livingEntity.isInRangeToRenderDist(d3) && (livingEntity.ignoreFrustumCheck || camera.isBoundingBoxInFrustum(axisalignedbb));
+        return EntityAnimation.isInRangeToRenderDist(d3) && (EntityAnimation.ignoreFrustumCheck || frustum.isVisible(axisalignedbb));
     }
     
     @Override
-    public void doRender(EntityAnimation entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        super.doRender(entity, x, y, z, entityYaw, partialTicks);
+    public void render(EntityAnimation animation, float p_114486_, float p_114487_, PoseStack pose, MultiBufferSource buffer, int p_114490_) {
+        super.render(animation, p_114486_, p_114487_, pose, buffer, p_114490_);
         
         boolean first = MinecraftForgeClient.getRenderPass() == 0 || MinecraftForgeClient.getRenderPass() == -1;
         
-        if (entity.isDead)
+        if (animation.isDead)
             return;
         
-        LittleRenderChunkSuppilier suppilier = entity.getRenderChunkSuppilier();
+        LittleRenderChunkSuppilier suppilier = animation.getRenderChunkSuppilier();
         
         if (first) {
             synchronized (suppilier.renderChunks) {
@@ -85,7 +87,7 @@ public class RenderAnimation extends EntityRenderer<EntityAnimation> {
         
         GlStateManager.pushMatrix();
         
-        entity.origin.setupRendering(entity, partialTicks);
+        animation.origin.setupRendering(animation, partialTicks);
         
         LittleGridContext context = entity.center.inBlockOffset.getContext();
         
@@ -213,7 +215,7 @@ public class RenderAnimation extends EntityRenderer<EntityAnimation> {
         }
     }
     
-    public void render(TileEntityLittleTiles tileentityIn, float partialTicks, int destroyStage) {
+    public void render(BETiles tileentityIn, float partialTicks, int destroyStage) {
         if (tileentityIn
                 .getDistanceSq(TileEntityRendererDispatcher.instance.entityX, TileEntityRendererDispatcher.instance.entityY, TileEntityRendererDispatcher.instance.entityZ) < tileentityIn
                         .getMaxRenderDistanceSquared()) {

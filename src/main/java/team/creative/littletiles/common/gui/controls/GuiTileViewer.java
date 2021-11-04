@@ -230,8 +230,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
     
     public void setViewAxis(Axis axis) {
         this.axisDirection = axis;
-        setViewDirection(EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE, axisDirection));
-        
+        setViewDirection(Facing.get(axisDirection, true);
     }
     
     @Override

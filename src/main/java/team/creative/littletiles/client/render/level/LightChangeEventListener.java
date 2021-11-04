@@ -1,19 +1,18 @@
 package team.creative.littletiles.client.render.level;
 
-import com.creativemd.littletiles.common.block.BlockTile;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.block.mc.BlockTile;
 
 @SideOnly(Side.CLIENT)
 public class LightChangeEventListener implements IWorldEventListener {

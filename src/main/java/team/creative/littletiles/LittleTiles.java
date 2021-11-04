@@ -76,6 +76,8 @@ import team.creative.littletiles.common.entity.EntitySizeHandler;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
+import team.creative.littletiles.common.gui.premade.GuiExport;
+import team.creative.littletiles.common.gui.premade.GuiImport;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -105,9 +107,9 @@ import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
 import team.creative.littletiles.common.packet.item.ConfigurePacket;
-import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
+import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
@@ -317,8 +319,7 @@ public class LittleTiles {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
-                return null;
+                return new GuiImport();
             }
         });
         
@@ -326,8 +327,7 @@ public class LittleTiles {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
-                return null;
+                return new GuiExport();
             }
         });
         
@@ -421,8 +421,8 @@ public class LittleTiles {
         
         LittleActionRegistry.register(LittleActions.class, LittleActions::new);
         LittleActionRegistry.register(LittleActionPlace.class, LittleActionPlace::new);
+        LittleActionRegistry.register(LittleActionActivated.class, LittleActionActivated::new);
         
-        LittleAction.registerLittleAction("act", LittleActionActivated.class);
         LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);
         LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class, LittleActionDestroyBoxesFiltered.class);
         LittleAction.registerLittleAction("des", LittleActionDestroy.class);

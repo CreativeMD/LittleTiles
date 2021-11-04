@@ -4,19 +4,20 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.RenderType;
+import team.creative.creativecore.client.render.model.BufferBuilderUtils;
 import team.creative.littletiles.client.render.block.BERenderManager;
 
 public class ChunkBlockLayerCache {
     
-    private final int layer;
+    private final RenderType layer;
     private int totalSize;
     private List<BlockRenderCache> caches = new ArrayList<>();
     private int expanded = 0;
     
-    public ChunkBlockLayerCache(int layer) {
+    public ChunkBlockLayerCache(RenderType layer) {
         this.layer = layer;
     }
     

@@ -56,7 +56,7 @@ public class PrimedSizedTnt extends PrimedTnt {
     
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
-        size.writeToNBT("size", tag);
+        size.save("size", tag);
         grid.set(tag);
         super.addAdditionalSaveData(tag);
     }

@@ -2,33 +2,29 @@ package team.creative.littletiles.client.render.cache;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.level.RenderUploader.NotSupportedException;
 
 public class ChunkBlockLayerManager {
     
-    public static final Field blockLayerManager = ReflectionHelper.findField(VertexBuffer.class, "blockLayerManager");
+    public static final Field blockLayerManager = ObfuscationReflectionHelper.findField(VertexBuffer.class, "blockLayerManager");
     
-    private final RenderChunk chunk;
-    private final BlockRenderLayer layer;
     private final VertexBuffer buffer;
     
     private ChunkBlockLayerCache cache;
     private ChunkBlockLayerCache uploaded;
     
-    public ChunkBlockLayerManager(RenderChunk chunk, BlockRenderLayer layer) {
-        this.chunk = chunk;
-        this.layer = layer;
-        this.buffer = chunk.getVertexBufferByLayer(layer.ordinal());
+    public ChunkBlockLayerManager(RenderChunk chunk, RenderType layer) {
+        this.buffer = chunk.getBuffer(layer);
         try {
             blockLayerManager.set(buffer, this);
         } catch (IllegalArgumentException | IllegalAccessException e) {}
@@ -52,15 +48,15 @@ public class ChunkBlockLayerManager {
     public void backToRAM() {
         if (uploaded == null)
             return;
-        Callable<Boolean> run = () -> {
+        Supplier<Boolean> run = () -> {
             synchronized (this) {
-                if (Minecraft.getMinecraft().world == null || uploaded == null || RenderUploader.getBufferId(buffer) == -1) {
+                if (Minecraft.getInstance().level == null || uploaded == null || RenderUploader.getBufferId(buffer) == -1) {
                     if (uploaded != null)
                         uploaded.discard();
                     uploaded = null;
                     return false;
                 }
-                buffer.bindBuffer();
+                buffer.bind();
                 try {
                     ByteBuffer uploadedData = RenderUploader.glMapBufferRange(uploaded.totalSize());
                     if (uploadedData != null)
@@ -71,15 +67,15 @@ public class ChunkBlockLayerManager {
                 } catch (NotSupportedException e) {
                     e.printStackTrace();
                 }
-                buffer.unbindBuffer();
+                VertexBuffer.unbind();
                 return true;
             }
         };
         try {
-            if (Minecraft.getMinecraft().isCallingFromMinecraftThread())
-                run.call();
+            if (Minecraft.getInstance().isSameThread())
+                run.get();
             else {
-                ListenableFuture<Boolean> future = Minecraft.getMinecraft().addScheduledTask(run);
+                CompletableFuture<Boolean> future = Minecraft.getInstance().submit(run);
                 future.get();
             }
         } catch (Exception e1) {

@@ -94,8 +94,8 @@ public class EntityAnimation extends Entity {
         
         this.absolutePreviewPos = absolutePreviewPos;
         setFakeWorld(fakeWorld);
-        this.entityUniqueID = uuid;
-        this.cachedUniqueIdString = this.entityUniqueID.toString();
+        this.uuid = uuid;
+        this.stringUUID = this.uuid.toString();
         
         setCenter(center);
         
@@ -119,8 +119,8 @@ public class EntityAnimation extends Entity {
     }
     
     public Entity getAbsoluteParent() {
-        if (world instanceof SubWorld)
-            return ((EntityAnimation) ((SubWorld) world).parent).getAbsoluteParent();
+        if (level instanceof SubLevel)
+            return ((EntityAnimation) ((SubLevel) level).parent).getAbsoluteParent();
         return this;
     }
     

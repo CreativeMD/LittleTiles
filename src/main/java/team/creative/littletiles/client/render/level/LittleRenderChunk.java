@@ -5,14 +5,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
+import team.creative.creativecore.client.render.model.BufferBuilderUtils;
+import team.creative.littletiles.client.render.LittleRenderUtils;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerCache;
 import team.creative.littletiles.client.render.cache.LayeredRenderBufferCache;
 import team.creative.littletiles.client.render.level.RenderUploader.NotSupportedException;
@@ -23,11 +25,11 @@ public class LittleRenderChunk {
     protected int lastRenderIndex = LittleChunkDispatcher.currentRenderState;
     
     public final BlockPos pos;
-    protected final VertexBuffer[] vertexBuffers = new VertexBuffer[BlockRenderLayer.values().length];
-    protected BufferBuilder[] builders = new BufferBuilder[BlockRenderLayer.values().length];
+    protected final VertexBuffer[] vertexBuffers = new VertexBuffer[LittleRenderUtils.BLOCK_LAYERS.length];
+    protected BufferBuilder[] builders = new BufferBuilder[LittleRenderUtils.BLOCK_LAYERS.length];
     
-    protected ChunkBlockLayerCache[] cachedBuffers = new ChunkBlockLayerCache[BlockRenderLayer.values().length];
-    protected boolean[] bufferChanged = new boolean[BlockRenderLayer.values().length];
+    protected ChunkBlockLayerCache[] cachedBuffers = new ChunkBlockLayerCache[LittleRenderUtils.BLOCK_LAYERS.length];
+    protected boolean[] bufferChanged = new boolean[LittleRenderUtils.BLOCK_LAYERS.length];
     
     private LinkedHashMap<BlockPos, BETiles> blockEntities = new LinkedHashMap<>();
     /** if one of the blocks has been modified, which requires the chunk cache to be uploaded again */
@@ -76,7 +78,7 @@ public class LittleRenderChunk {
     
     private void addRenderDataInternal(BETiles te) {
         LayeredRenderBufferCache cache = te.render.getBufferCache();
-        for (int i = 0; i < BlockRenderLayer.values().length; i++)
+        for (int i = 0; i < LittleRenderUtils.BLOCK_LAYERS.length; i++)
             cachedBuffers[i].add(te.render, cache.get(i));
     }
     
@@ -86,7 +88,7 @@ public class LittleRenderChunk {
         
         this.transparencySortedIndex = index;
         
-        int translucentIndex = BlockRenderLayer.TRANSLUCENT.ordinal();
+        int translucentIndex = LittleRenderUtils.TRANSLUCENT;
         
         BufferBuilder builder = builders[translucentIndex];
         if (builder != null) {
@@ -102,12 +104,12 @@ public class LittleRenderChunk {
         for (int i = 0; i < cachedBuffers.length; i++) {
             if (cachedBuffers[i].expanded() > (builders[i] != null ? BufferBuilderUtils.getBufferSizeByte(builders[i]) : 0)) {
                 if (builders[i] == null) {
-                    BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() + cachedBuffers[i].expanded());
-                    tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
+                    BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormat.BLOCK.getVertexSize() + cachedBuffers[i].expanded());
+                    tempBuffer.begin(7, DefaultVertexFormat.BLOCK);
                     tempBuffer.setTranslation(pos.getX(), pos.getY(), pos.getZ());
                     builders[i] = tempBuffer;
                 } else
-                    BufferBuilderUtils.ensureTotalSize(builders[i], builders[i].getVertexFormat().getNextOffset() + cachedBuffers[i].expanded());
+                    BufferBuilderUtils.ensureTotalSize(builders[i], builders[i].getVertexFormat().getVertexSize() + cachedBuffers[i].expanded());
                 cachedBuffers[i].fillBuilder(builders[i]);
                 bufferChanged[i] = true;
             }
@@ -133,7 +135,7 @@ public class LittleRenderChunk {
             for (int i = 0; i < bufferChanged.length; i++) {
                 if (bufferChanged[i]) {
                     if (vertexBuffers[i] == null)
-                        vertexBuffers[i] = new VertexBuffer(DefaultVertexFormats.BLOCK);
+                        vertexBuffers[i] = new VertexBuffer(DefaultVertexFormat.BLOCK);
                     int vertexCount = builders[i].getVertexCount();
                     builders[i].getByteBuffer().rewind();
                     builders[i].getByteBuffer().limit(BufferBuilderUtils.getBufferSizeByte(builders[i]));

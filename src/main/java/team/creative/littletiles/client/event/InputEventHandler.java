@@ -17,14 +17,13 @@ public class InputEventHandler {
     
     private static Minecraft mc = Minecraft.getInstance();
     
-    private static final Method sendClickBlockToControllerMethod = ObfuscationReflectionHelper
-            .findMethod(Minecraft.class, "sendClickBlockToController", "func_147115_a", boolean.class);
+    private static final Method continueAttackMethod = ObfuscationReflectionHelper.findMethod(Minecraft.class, "m_91386_", boolean.class);
     
     public static void onHoldClick(boolean leftClick) {
         try {
             HoldLeftClick event = new HoldLeftClick(mc.level, mc.player, leftClick);
             MinecraftForge.EVENT_BUS.post(event);
-            sendClickBlockToControllerMethod.invoke(mc, event.getLeftClickResult());
+            continueAttackMethod.invoke(mc, event.getLeftClickResult());
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }

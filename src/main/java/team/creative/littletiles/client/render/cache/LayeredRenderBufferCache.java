@@ -3,23 +3,23 @@ package team.creative.littletiles.client.render.cache;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.RenderBox;
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.RenderType;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.BufferBuilderUtils;
+import team.creative.littletiles.client.render.LittleRenderUtils;
 
-@SideOnly(Side.CLIENT)
 public class LayeredRenderBufferCache {
     
-    private IRenderDataCache[] queue = new IRenderDataCache[BlockRenderLayer.values().length];
-    private BufferLink[] uploaded = new BufferLink[BlockRenderLayer.values().length];
+    private IRenderDataCache[] queue = new IRenderDataCache[LittleRenderUtils.BLOCK_LAYERS.length];
+    private BufferLink[] uploaded = new BufferLink[LittleRenderUtils.BLOCK_LAYERS.length];
     
-    public LayeredRenderBufferCache() {
-        
+    public LayeredRenderBufferCache() {}
+    
+    public IRenderDataCache get(RenderType layer) {
+        return get(LittleRenderUtils.id(layer));
     }
     
     public IRenderDataCache get(int layer) {
@@ -28,20 +28,23 @@ public class LayeredRenderBufferCache {
         return queue[layer];
     }
     
-    public synchronized void setEmptyIfEqual(BufferLink link, int layer) {
-        if (uploaded[layer] == link)
-            uploaded[layer] = null;
+    public synchronized void setEmptyIfEqual(BufferLink link, RenderType layer) {
+        int id = LittleRenderUtils.id(layer);
+        if (uploaded[id] == link)
+            uploaded[id] = null;
     }
     
-    public synchronized void setUploaded(BufferLink link, int layer) {
-        queue[layer] = null;
-        uploaded[layer] = link;
+    public synchronized void setUploaded(BufferLink link, RenderType layer) {
+        int id = LittleRenderUtils.id(layer);
+        queue[id] = null;
+        uploaded[id] = link;
     }
     
-    public synchronized void set(int layer, BufferBuilder buffer) {
+    public synchronized void set(RenderType layer, BufferBuilder buffer) {
+        int id = LittleRenderUtils.id(layer);
         if (buffer == null)
-            uploaded[layer] = null;
-        queue[layer] = buffer != null ? new BufferBuilderWrapper(buffer) : null;
+            uploaded[id] = null;
+        queue[id] = buffer != null ? new BufferBuilderWrapper(buffer) : null;
     }
     
     public synchronized void setEmpty() {
@@ -53,7 +56,7 @@ public class LayeredRenderBufferCache {
     
     public synchronized void combine(LayeredRenderBufferCache cache) {
         for (int i = 0; i < queue.length; i++)
-            if (i == BlockRenderLayer.TRANSLUCENT.ordinal())
+            if (i == LittleRenderUtils.TRANSLUCENT)
                 queue[i] = combine(i, get(i), cache.get(i));
             else
                 uploaded[i] = combine(i, get(i), cache.get(i));
@@ -102,7 +105,7 @@ public class LayeredRenderBufferCache {
         int size = 1;
         for (RenderBox cube : cubes)
             size += cube.countQuads();
-        return new BufferBuilder(format.getNextOffset() * size);
+        return new BufferBuilder(format.getVertexSize() * size);
     }
     
     public static class ByteBufferWrapper implements IRenderDataCache {
@@ -142,7 +145,7 @@ public class LayeredRenderBufferCache {
         
         @Override
         public ByteBuffer byteBuffer() {
-            return builder.getByteBuffer();
+            return BufferBuilderUtils.getBuffer(builder);
         }
         
         @Override
@@ -152,7 +155,7 @@ public class LayeredRenderBufferCache {
         
         @Override
         public int vertexCount() {
-            return builder.getVertexCount();
+            return BufferBuilderUtils.getVertexCount(builder);
         }
         
     }

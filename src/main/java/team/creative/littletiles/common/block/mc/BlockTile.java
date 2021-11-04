@@ -99,6 +99,7 @@ import team.creative.littletiles.common.action.LittleActionDestroy;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
@@ -108,6 +109,7 @@ import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.mod.ctm.CTMManager;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
@@ -295,7 +297,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
         // get Selection shape and it's also used for some other stuff I don't know (only works on client side) TODO CHECK if that is the case
         LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, mc.player);
         if (tileContext.isComplete()) {
-            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode(mc.player)))
+            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode()))
                 return tileContext.parent.getBE().getBlockShape();
             if (LittleTiles.CONFIG.rendering.highlightStructureBox && tileContext.parent.isStructure())
                 try {
@@ -308,7 +310,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
     
     @Override
     public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
-        asds
+        //TODO requires some more work
         return false;
     }
     
@@ -347,13 +349,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
         return Direction.SOUTH;
     }
     
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean hasCustomBreakingProgress(BlockState state) {
-        return false;
-    }
-    
-    @Override
+    /*@Override
     public MaterialColor getMapColor(BlockGetter level, BlockPos pos) {
         // TODO Needs custom state? Not sure if this is even possible
         BETiles te = loadBE(level, pos);
@@ -372,7 +368,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
                 return tile.getBlock().getState().getMapColor(level, pos);
         }
         return super.defaultMaterialColor();
-    }
+    }*/
     
     @Override
     public Optional<Vec3> getRespawnPosition(BlockState state, EntityType<?> type, LevelReader level, BlockPos pos, float orientation, @Nullable LivingEntity entity) {
@@ -394,25 +390,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
                             return true;
         }
         return false;
-    }
-    
-    @Override
-    public boolean canHarvestBlock(BlockState state, BlockGetter world, BlockPos pos, Player player) {
-        if (!state.requiresCorrectToolForDrops())
-            return true;
-        
-        ItemStack stack = player.getHeldItemMainhand();
-        String tool = state.getBlock().getHarvestTool(state);
-        if (stack.isEmpty() || tool == null) {
-            return player.canHarvestBlock(state);
-        }
-        
-        int toolLevel = stack.getItem().getHarvestLevel(stack, tool, player, state);
-        if (toolLevel < 0) {
-            return player.canHarvestBlock(state);
-        }
-        
-        return toolLevel >= state.getBlock().getHarvestLevel(state);
     }
     
     @Override
@@ -618,9 +595,12 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
     public ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
-            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode(player))) {
-                ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-                LittlePreview.saveTiles(world, result.te.getContext(), result.te, drop);
+            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode())) {
+                ItemStack drop = new ItemStack(LittleTiles.ITEM_TILES);
+                LittleGroup group = new LittleGroup(result.parent.getGrid());
+                for (LittleTile tile : result.parent)
+                    group.add(result.parent.getGrid(), tile, tile);
+                drop.setTag(LittleGroup.save(group));
                 return drop;
             }
             if (result.parent.isStructure())
@@ -683,69 +663,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
             return true;
         }
         return false;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean addHitEffects(IBlockState oldstate, World worldObj, RayTraceResult target, net.minecraft.client.particle.ParticleManager manager) {
-        TEResult result = loadTeAndTile(worldObj, target.getBlockPos(), mc.player);
-        if (result.isComplete()) {
-            IBlockState state = result.tile.getBlockState();
-            BlockPos pos = target.getBlockPos();
-            int i = pos.getX();
-            int j = pos.getY();
-            int k = pos.getZ();
-            float f = 0.1F;
-            AxisAlignedBB axisalignedbb = result.tile.getSelectedBox(BlockPos.ORIGIN, result.te.getContext());
-            double d0 = i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
-            double d1 = j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
-            double d2 = k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
-            EnumFacing side = target.sideHit;
-            if (side == EnumFacing.DOWN)
-                d1 = j + axisalignedbb.minY - 0.10000000149011612D;
-            
-            if (side == EnumFacing.UP)
-                d1 = j + axisalignedbb.maxY + 0.10000000149011612D;
-            
-            if (side == EnumFacing.NORTH)
-                d2 = k + axisalignedbb.minZ - 0.10000000149011612D;
-            
-            if (side == EnumFacing.SOUTH)
-                d2 = k + axisalignedbb.maxZ + 0.10000000149011612D;
-            
-            if (side == EnumFacing.WEST)
-                d0 = i + axisalignedbb.minX - 0.10000000149011612D;
-            
-            if (side == EnumFacing.EAST)
-                d0 = i + axisalignedbb.maxX + 0.10000000149011612D;
-            
-            ((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos)
-                    .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
-        }
-        return true;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean addDestroyEffects(World world, BlockPos pos, net.minecraft.client.particle.ParticleManager manager) {
-        TEResult result = loadTeAndTile(world, pos, mc.player);
-        if (result.isComplete()) {
-            IBlockState state = result.tile.getBlockState();
-            int i = 4;
-            
-            for (int j = 0; j < 1; ++j) {
-                for (int k = 0; k < 1; ++k) {
-                    for (int l = 0; l < 1; ++l) {
-                        double d0 = pos.getX() + (j + 0.5D) / 4.0D;
-                        double d1 = pos.getY() + (k + 0.5D) / 4.0D;
-                        double d2 = pos.getZ() + (l + 0.5D) / 4.0D;
-                        manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK
-                                .getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
-                    }
-                }
-            }
-        }
-        return true;
     }
     
     @OnlyIn(Dist.CLIENT)

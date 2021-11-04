@@ -6,13 +6,12 @@ import java.lang.reflect.Method;
 import java.nio.FloatBuffer;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
@@ -22,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import team.creative.creativecore.client.render.model.BufferBuilderUtils;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerCache;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerManager;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
@@ -31,8 +31,8 @@ public class LittleChunkDispatcher {
     
     public static int currentRenderState = Integer.MIN_VALUE;
     
-    public static void onReloadRenderers(RenderGlobal renderGlobal) {
-        if (mc.renderGlobal == renderGlobal) {
+    public static void onReloadRenderers(LevelRenderer levelRenderer) {
+        if (mc.levelRenderer == levelRenderer) {
             currentRenderState++;
             if (mc.world != null)
                 mc.world.addEventListener(new LightChangeEventListener());

@@ -2,10 +2,10 @@ package team.creative.littletiles.client.render.cache;
 
 import java.nio.ByteBuffer;
 
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import net.minecraft.client.renderer.RenderType;
+import team.creative.creativecore.client.render.model.BufferBuilderUtils;
 import team.creative.littletiles.client.render.block.BERenderManager;
 
 public class BlockRenderCache {
@@ -17,12 +17,12 @@ public class BlockRenderCache {
     public ByteBuffer buffer;
     public BufferLink link;
     
-    public BlockRenderCache(BERenderManager manager, int layer, IRenderDataCache cache, ByteBuffer buffer) {
+    public BlockRenderCache(BERenderManager manager, RenderType layer, IRenderDataCache cache, ByteBuffer buffer) {
         this.manager = manager;
         this.length = cache.length();
         this.vertexCount = cache.vertexCount();
         this.buffer = buffer;
-        if (layer != RenderType.translucent().ordinal()) {
+        if (layer != RenderType.translucent()) {
             this.link = new BufferLink(buffer, length, vertexCount);
             manager.getBufferCache().setUploaded(link, layer);
         }
