@@ -1211,7 +1211,7 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     protected void fillAdvanced(LittleBoxFace face) {
-        List<VectorFan> axis = requestCache().get(face.facing).axisStrips;
+        List<VectorFan> axis = requestCache().get(face.facing.getOpposite()).axisStrips;
         if (axis != null && !axis.isEmpty())
             face.cut(axis);
     }

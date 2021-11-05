@@ -6,6 +6,7 @@ import java.util.List;
 import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -121,7 +122,14 @@ public class LittleBoxFace {
     public void cut(List<VectorFan> fans) {
         if (toCut == null)
             toCut = new ArrayList<>();
-        toCut.addAll(fans);
+        Axis axis = RotationUtils.getThird(one, two);
+        for (VectorFan fan : fans) {
+            fan = fan.copy();
+            for (int i = 0; i < fan.count(); i++)
+                VectorUtils.set(fan.get(i), oldOrigin, axis);
+            toCut.add(fan);
+        }
+        
     }
     
     public List<VectorFan> generateFans() {
@@ -184,7 +192,7 @@ public class LittleBoxFace {
         
         List<VectorFan> result = new ArrayList<>();
         for (VectorFan fan : fans)
-            result.addAll(fan.cut2d(toCut, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE, false));
+            result.addAll(fan.cut2d(toCut, one, two, facing.getAxisDirection() != AxisDirection.POSITIVE, false));
         if (tiltedFans != null)
             for (VectorFan fan : tiltedFans)
                 result.add(fan);
