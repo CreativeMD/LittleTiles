@@ -30,7 +30,6 @@ import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManage
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
@@ -436,12 +435,6 @@ public abstract class LittleAction extends CreativeCorePacket {
     
     private static Method WorldEditEvent = loadWorldEditEvent();
     private static Object worldEditInstance = null;
-    
-    public static void sendEntityResetToClient(EntityPlayer player, EntityAnimation animation) {
-        if (!(player instanceof EntityPlayerMP))
-            return;
-        PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
-    }
     
     public static void sendBlockResetToClient(World world, EntityPlayer player, BlockPos pos) {
         if (!(player instanceof EntityPlayerMP))

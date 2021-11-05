@@ -597,9 +597,7 @@ public class EntityAnimation extends Entity {
     private boolean addedDoor;
     
     @Override
-    public void onUpdate() {
-        
-    }
+    public void onUpdate() {}
     
     public void onUpdateForReal() {
         if (fakeWorld == null && !world.isRemote)
@@ -730,7 +728,6 @@ public class EntityAnimation extends Entity {
     
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-        
         return true;
     }
     

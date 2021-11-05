@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.packet;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
@@ -11,17 +10,12 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor.StillInMotionException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleActivateDoorPacket extends CreativeCorePacket {
     
@@ -35,9 +29,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
         this.uuid = uuid;
     }
     
-    public LittleActivateDoorPacket() {
-        
-    }
+    public LittleActivateDoorPacket() {}
     
     @Override
     public void writeBytes(ByteBuf buf) {
@@ -54,22 +46,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void executeClient(EntityPlayer player) { // Note it does not take care of synchronization, just sends an activation to the client, only used for already animated doors		
-        try {
-            LittleStructure structure = location.find(player.world);
-            if (structure instanceof LittleDoor) {
-                LittleDoor door = (LittleDoor) structure;
-                door.activate(activator, null, uuid, false);
-            }
-            
-        } catch (StillInMotionException e) {
-            PacketHandler.sendPacketToServer(new LittleEntityFixControllerPacket(uuid, new NBTTagCompound()));
-        } catch (LittleActionException e) {
-            PacketHandler.sendPacketToServer(new LittleUpdateStructurePacket(location, new NBTTagCompound()));
-        }
-        
-    }
+    public void executeClient(EntityPlayer player) {}
     
     @Override
     public void executeServer(EntityPlayer player) {
@@ -84,16 +61,9 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
                 if (world instanceof SubWorld)
                     animation = (EntityAnimation) ((SubWorld) world).parent;
                 
-                door.activate(activator, player, uuid, true);
+                door.activate(activator, player, uuid);
             }
-        } catch (LittleActionException e) {
-            if (animation != null)
-                PacketHandler
-                    .sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
-            else
-                PacketHandler.sendPacketToPlayer(new LittleResetAnimationPacket(uuid), (EntityPlayerMP) player);
-            
-        }
+        } catch (LittleActionException e) {}
     }
     
 }

@@ -13,12 +13,11 @@ import com.creativemd.littletiles.client.event.LeftClick;
 import com.creativemd.littletiles.client.event.WheelClick;
 import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
+import com.creativemd.littletiles.common.packet.LittleAnimationDataPacket;
 import com.creativemd.littletiles.server.world.LittleAnimationHandlerServer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -129,11 +128,8 @@ public class WorldAnimationHandler {
     
     @SubscribeEvent
     public static void trackEntity(StartTracking event) {
-        if (event.getTarget() instanceof EntityAnimation && ((EntityAnimation) event.getTarget()).controller.activator() != event.getEntityPlayer()) {
-            EntityAnimation animation = (EntityAnimation) event.getTarget();
-            PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation
-                .writeToNBT(new NBTTagCompound()), animation.enteredAsChild), (EntityPlayerMP) event.getEntityPlayer());
-        }
+        if (event.getTarget() instanceof EntityAnimation)
+            PacketHandler.sendPacketToPlayer(new LittleAnimationDataPacket((EntityAnimation) event.getTarget()), (EntityPlayerMP) event.getEntityPlayer());
     }
     
     @SubscribeEvent

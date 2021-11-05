@@ -1,21 +1,13 @@
 package com.creativemd.littletiles.common.entity;
 
-import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.creativecore.common.world.CreativeWorld;
-import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
-import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
-import com.creativemd.littletiles.client.render.world.RenderUploader;
-import com.creativemd.littletiles.client.render.world.RenderUtils;
-import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
+import com.creativemd.littletiles.common.packet.LittleAnimationDestroyPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationController;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
@@ -25,31 +17,19 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementResult;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
-import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 
 public class DoorController extends EntityAnimationController {
-    
-    protected boolean placedOnServer = false;
-    protected boolean isWaitingForApprove = false;
-    protected int ticksToWait = -1;
-    protected static final int waitTimeApprove = 300;
-    protected Boolean placed = null;
     
     public static final String openedState = "opened";
     public static final String closedState = "closed";
@@ -64,9 +44,7 @@ public class DoorController extends EntityAnimationController {
     
     protected boolean modifiedTransition;
     
-    public DoorController() {
-        
-    }
+    public DoorController() {}
     
     public DoorController(UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
         this.supplier = supplier;
@@ -136,14 +114,7 @@ public class DoorController extends EntityAnimationController {
         return activator;
     }
     
-    public void markWaitingForApprove() {
-        isWaitingForApprove = true;
-    }
-    
     public boolean activate() {
-        if (placed != null)
-            return false;
-        
         boolean isOpen = currentState.name.equals(openedState);
         if (!isChanging()) {
             startTransition(isOpen ? closedState : openedState);
@@ -154,18 +125,6 @@ public class DoorController extends EntityAnimationController {
     
     @Override
     public AnimationState tick() {
-        if (parent.world.isRemote && placed != null) {
-            if (isWaitingForApprove) {
-                if (ticksToWait < 0)
-                    ticksToWait = waitTimeApprove;
-                else if (ticksToWait == 0)
-                    parent.isDead = true;
-                else
-                    ticksToWait--;
-            } else
-                place();
-        }
-        
         if (isChanging()) {
             try {
                 parent.structure.load();
@@ -191,27 +150,23 @@ public class DoorController extends EntityAnimationController {
     public void endTransition() {
         super.endTransition();
         ((LittleDoor) parent.structure).finishAnimation(parent);
-        if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
-            if (isWaitingForApprove)
-                placed = false;
-            else
-                place();
-        } else
+        if (turnBack != null && turnBack == currentState.name.equals(openedState))
+            place();
+        else
             ((LittleDoor) parent.structure).completeAnimation();
     }
     
     public void place() {
         try {
-            parent.structure.load();
-            
             World world = parent.world;
+            
+            if (world.isRemote)
+                return;
+            parent.structure.load();
             LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
             
             parent.structure.callStructureDestroyedToSameWorld();
             
-            if (world.isRemote)
-                parent.getRenderChunkSuppilier().backToRAM(); //Just doesn't work you cannot get the render data after everything happened
-                
             Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all))
                 .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
             
@@ -220,9 +175,6 @@ public class DoorController extends EntityAnimationController {
             if ((result = placement.tryPlace()) != null) {
                 
                 newDoor = (LittleDoor) result.parentStructure;
-                if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)
-                    newDoor.waitingForApproval = true;
-                
                 newDoor.transferChildrenFromAnimation(parent);
                 
                 if (parent.structure.getParent() != null) {
@@ -232,61 +184,17 @@ public class DoorController extends EntityAnimationController {
                     parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor, dynamic);
                 }
                 
-                if (!world.isRemote) {
-                    WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
-                    PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLocation(), parent.getUniqueID()), parent
-                        .getAbsoluteParent(), serverWorld, null);
-                }
+                PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(parent.getUniqueID(), true), parent, world, null);
                 newDoor.completeAnimation();
             } else {
                 parent.markRemoved();
-                if (!world.isRemote)
-                    WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
+                WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
                 return;
             }
             
             parent.markRemoved();
             
-            if (world.isRemote) {
-                boolean subWorld = world instanceof IOrientatedWorld;
-                HashMapList<Object, TileEntityLittleTiles> chunks = new HashMapList<>();
-                if (subWorld)
-                    for (TileEntityLittleTiles te : result.tileEntities)
-                        chunks.add(RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()), te);
-                else
-                    for (TileEntityLittleTiles te : result.tileEntities)
-                        chunks.add(RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos()), te);
-                    
-                if (subWorld)
-                    for (Object chunk : chunks.keySet())
-                        ((LittleRenderChunk) chunk).backToRAM();
-                else
-                    for (Object chunk : chunks.keySet()) {
-                        for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-                            VertexBuffer buffer = ((RenderChunk) chunk).getVertexBufferByLayer(i);
-                            if (buffer == null)
-                                continue;
-                            ChunkBlockLayerManager manager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(buffer);
-                            if (manager != null)
-                                manager.backToRAM();
-                        }
-                        
-                    }
-                
-                for (Entry<Object, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet()) {
-                    for (TileEntityLittleTiles te : entry.getValue()) {
-                        TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
-                        if (oldTE instanceof TileEntityLittleTiles)
-                            te.render.getBufferCache().combine(((TileEntityLittleTiles) oldTE).render.getBufferCache());
-                    }
-                }
-                
-                if (!subWorld)
-                    for (Entry<Object, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
-                        RenderUploader.uploadRenderData((RenderChunk) entry.getKey(), entry.getValue());
-                placed = true;
-            }
-        } catch (CorruptedConnectionException | NotYetConnectedException | IllegalArgumentException | IllegalAccessException e) {
+        } catch (CorruptedConnectionException | NotYetConnectedException | IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
@@ -360,16 +268,6 @@ public class DoorController extends EntityAnimationController {
         byte turnBackData = nbt.getByte("turnBack");
         turnBack = turnBackData == 0 ? null : (turnBackData > 0 ? true : false);
         noClip = nbt.getBoolean("noClip");
-    }
-    
-    @Override
-    public void onServerApproves() {
-        isWaitingForApprove = false;
-    }
-    
-    @Override
-    public void onServerPlaces() {
-        placedOnServer = true;
     }
     
     @Override

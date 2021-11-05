@@ -85,7 +85,7 @@ public class OpenCommand extends CommandBase {
         
         for (LittleDoor door : doors) {
             try {
-                door.activate(DoorActivator.COMMAND, null, null, true);
+                door.activate(DoorActivator.COMMAND, null, null);
             } catch (LittleActionException e) {}
         }
         

@@ -87,4 +87,12 @@ public class ChunkBlockLayerManager {
         }
     }
     
+    public static ChunkBlockLayerManager get(VertexBuffer buffer) {
+        try {
+            return (ChunkBlockLayerManager) blockLayerManager.get(buffer);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
 }

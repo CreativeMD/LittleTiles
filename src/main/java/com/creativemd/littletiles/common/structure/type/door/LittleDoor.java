@@ -43,7 +43,6 @@ public abstract class LittleDoor extends LittleStructure {
     }
     
     public boolean activateParent = false;
-    public boolean waitingForApproval = false;
     public boolean disableRightClick = false;
     public boolean opened = false;
     
@@ -61,12 +60,9 @@ public abstract class LittleDoor extends LittleStructure {
         nbt.setBoolean("opened", opened);
     }
     
-    public EntityAnimation activate(DoorActivator activator, @Nullable EntityPlayer player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
+    public EntityAnimation activate(DoorActivator activator, @Nullable EntityPlayer player, @Nullable UUID uuid) throws LittleActionException {
         if (mainBlock.isRemoved())
             throw new LittleActionException("Structure does not exist");
-        
-        if (waitingForApproval)
-            throw new LittleActionExceptionHidden("Door has not been approved yet!");
         
         if (activator == DoorActivator.RIGHTCLICK && disableRightClick)
             throw new LittleActionExceptionHidden("Door is locked!");
@@ -76,7 +72,7 @@ public abstract class LittleDoor extends LittleStructure {
         if (activateParent && getParent() != null) {
             LittleStructure parentStructure = getParent().getStructure();
             if (parentStructure instanceof LittleDoor)
-                return ((LittleDoor) parentStructure).activate(activator, player, uuid, sendUpdate);
+                return ((LittleDoor) parentStructure).activate(activator, player, uuid);
             throw new LittleActionException("Invalid parent");
         }
         
@@ -99,11 +95,9 @@ public abstract class LittleDoor extends LittleStructure {
         if (activator != DoorActivator.SIGNAL && !getWorld().isRemote)
             getOutput(0).toggle();
         
-        if (sendUpdate) {
-            if (getWorld().isRemote)
-                sendActivationToServer(activator, player, uuid);
-            else
-                sendActivationToClient(activator, player, uuid);
+        if (getWorld().isRemote) {
+            sendActivationToServer(activator, player, uuid);
+            return null;
         }
         
         return openDoor(player, new UUIDSupplier(uuid), false);
@@ -111,34 +105,21 @@ public abstract class LittleDoor extends LittleStructure {
     
     @Override
     public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-        activate(DoorActivator.RIGHTCLICK, playerIn, null, true);
+        activate(DoorActivator.RIGHTCLICK, playerIn, null);
         action.preventInteraction = true;
         return true;
     }
     
-    public void startAnimation(EntityAnimation animation) {
-        
-    }
+    public void startAnimation(EntityAnimation animation) {}
     
-    public void beforeTick(EntityAnimation animation, int tick) {
-        
-    }
+    public void beforeTick(EntityAnimation animation, int tick) {}
     
-    public void afterTick(EntityAnimation animation, int tick) {
-        
-    }
+    public void afterTick(EntityAnimation animation, int tick) {}
     
-    public void finishAnimation(EntityAnimation animation) {
-        
-    }
+    public void finishAnimation(EntityAnimation animation) {}
     
     public void sendActivationToServer(DoorActivator type, EntityPlayer activator, UUID uuid) {
         PacketHandler.sendPacketToServer(new LittleActivateDoorPacket(type, getStructureLocation(), uuid));
-    }
-    
-    public void sendActivationToClient(DoorActivator type, EntityPlayer activator, UUID uuid) {
-        PacketHandler
-            .sendPacketToTrackingPlayers(new LittleActivateDoorPacket(type, getStructureLocation(), uuid), getWorld(), getPos(), activator != null ? (x) -> x != activator : null);
     }
     
     public abstract int getCompleteDuration();
@@ -166,9 +147,7 @@ public abstract class LittleDoor extends LittleStructure {
     
     public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, boolean tickOnce) throws LittleActionException;
     
-    public void onChildComplete(LittleDoor door, int childId) {
-        
-    }
+    public void onChildComplete(LittleDoor door, int childId) {}
     
     public void completeAnimation() {
         if (activateParent && getParent() != null) {
@@ -191,7 +170,7 @@ public abstract class LittleDoor extends LittleStructure {
         if (output.component.identifier.equals("state"))
             if (opened != output.getState()[0] && !isInMotion())
                 try {
-                    activate(DoorActivator.SIGNAL, null, null, true);
+                    activate(DoorActivator.SIGNAL, null, null);
                 } catch (LittleActionException e) {}
     }
     

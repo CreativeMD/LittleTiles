@@ -13,6 +13,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
@@ -23,6 +24,7 @@ import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.packet.LittleAnimationControllerPacket;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
@@ -213,9 +215,6 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         
         controller.activator = player;
         
-        if (world.isRemote)
-            controller.markWaitingForApprove();
-        
         fakeWorld.preventNeighborUpdate = false;
         
         LittleDoorBase newDoor = (LittleDoorBase) result.parentStructure;
@@ -249,6 +248,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             ((DoorController) animation.controller).activate();
             if (tickOnce)
                 animation.onUpdateForReal();
+            PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationControllerPacket(animation), animation, getWorld(), null);
             return animation;
         }
         

@@ -215,10 +215,8 @@ public class LittleBlockPacket extends CreativeCorePacket {
             if (animation == null)
                 return;
             
-            if (!LittleAction.isAllowedToInteract(player, animation, action.rightClick)) {
-                LittleAction.sendEntityResetToClient(player, animation);
+            if (!LittleAction.isAllowedToInteract(player, animation, action.rightClick))
                 return;
-            }
             
             world = animation.fakeWorld;
             pos = animation.origin.transformPointToFakeWorld(pos);

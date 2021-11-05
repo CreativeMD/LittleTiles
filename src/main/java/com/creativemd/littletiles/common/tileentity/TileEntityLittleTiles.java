@@ -49,8 +49,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
@@ -85,6 +83,20 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             tiles.te = this;
             if (isClientSide())
                 render.setTe(this);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public void fakeAssign(TileEntityLittleTiles te) {
+        try {
+            TileEntityRenderManager manager = render;
+            for (Field field : TileEntityLittleTiles.class.getDeclaredFields())
+                if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
+                    field.set(this, field.get(te));
+            tiles.te = this;
+            render = manager;
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -568,18 +580,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     }
     
     @Override
-    public void getDescriptionNBT(NBTTagCompound nbt) {
-        writeToNBT(nbt);
-    }
-    
-    @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-        handleUpdatePacket(net, pkt.getNbtCompound());
-        super.onDataPacket(net, pkt);
-    }
-    
-    public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt) {
-        readFromNBT(nbt);
+    public void handleUpdateTag(NBTTagCompound tag) {
+        super.handleUpdateTag(tag);
         updateTiles(false);
     }
     

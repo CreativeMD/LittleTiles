@@ -113,10 +113,8 @@ public abstract class LittleActionInteract extends LittleAction {
             if (animation == null)
                 onEntityNotFound();
             
-            if (!isAllowedToInteract(player, animation, isRightClick())) {
-                sendEntityResetToClient(player, animation);
+            if (!isAllowedToInteract(player, animation, isRightClick()))
                 return false;
-            }
             
             world = animation.fakeWorld;
             if (!transformedCoordinates) {

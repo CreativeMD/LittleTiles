@@ -96,18 +96,17 @@ import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mod.warpdrive.TileEntityLittleTilesTransformer;
 import com.creativemd.littletiles.common.packet.LittleActionMessagePacket;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
+import com.creativemd.littletiles.common.packet.LittleAnimationControllerPacket;
+import com.creativemd.littletiles.common.packet.LittleAnimationDataPacket;
+import com.creativemd.littletiles.common.packet.LittleAnimationDestroyPacket;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleCancelClickThrough;
 import com.creativemd.littletiles.common.packet.LittleConsumeRightClickEvent;
-import com.creativemd.littletiles.common.packet.LittleEntityFixControllerPacket;
-import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
-import com.creativemd.littletiles.common.packet.LittleResetAnimationPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
@@ -565,20 +564,20 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleFlipPacket.class);
         CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class);
         CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
-        CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
         CreativeCorePacket.registerPacket(LittleBedPacket.class);
         CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class);
         CreativeCorePacket.registerPacket(LittleSelectionModePacket.class);
         CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class);
-        CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
-        CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
         CreativeCorePacket.registerPacket(LittleActionMessagePacket.class);
         CreativeCorePacket.registerPacket(LittleUpdateStructurePacket.class);
-        CreativeCorePacket.registerPacket(LittleEntityFixControllerPacket.class);
         CreativeCorePacket.registerPacket(LittleScrewdriverSelectionPacket.class);
         CreativeCorePacket.registerPacket(LittleUpdateOutputPacket.class);
         CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
         CreativeCorePacket.registerPacket(LittleCancelClickThrough.class);
+        
+        CreativeCorePacket.registerPacket(LittleAnimationControllerPacket.class);
+        CreativeCorePacket.registerPacket(LittleAnimationDestroyPacket.class);
+        CreativeCorePacket.registerPacket(LittleAnimationDataPacket.class);
         
         LittleAction.registerLittleAction("com", LittleActionCombined.class);
         

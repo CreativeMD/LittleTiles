@@ -15,21 +15,23 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class LittleEntityRequestPacket extends CreativeCorePacket {
-    
-    public LittleEntityRequestPacket() {
-        
-    }
+public class LittleAnimationDataPacket extends CreativeCorePacket {
     
     public UUID uuid;
     public NBTTagCompound nbt;
     public boolean enteredAsChild;
     
-    public LittleEntityRequestPacket(UUID uuid, NBTTagCompound nbt, boolean enteredAsChild) {
+    public LittleAnimationDataPacket(UUID uuid, NBTTagCompound nbt, boolean enteredAsChild) {
         this.uuid = uuid;
         this.nbt = nbt;
         this.enteredAsChild = enteredAsChild;
     }
+    
+    public LittleAnimationDataPacket(EntityAnimation animation) {
+        this(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), animation.enteredAsChild);
+    }
+    
+    public LittleAnimationDataPacket() {}
     
     @Override
     public void writeBytes(ByteBuf buf) {
@@ -84,16 +86,10 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
     @Override
     public void executeServer(EntityPlayer player) {
         EntityAnimation animation = WorldAnimationHandler.findAnimation(false, uuid);
-        if (animation != null) {
-            PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation
-                .writeToNBT(new NBTTagCompound()), animation.enteredAsChild), (EntityPlayerMP) player);
-            System.out.println("Sending back request packet");
-        } else {
-            System.out.println("Send back delete packet");
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setBoolean("animationHasBeenRemoved", true);
-            PacketHandler.sendPacketToPlayer(new LittleEntityFixControllerPacket(uuid, nbt), (EntityPlayerMP) player);
-        }
+        if (animation != null)
+            PacketHandler.sendPacketToPlayer(new LittleAnimationDataPacket(animation), (EntityPlayerMP) player);
+        else
+            PacketHandler.sendPacketToPlayer(new LittleAnimationDestroyPacket(uuid, false), (EntityPlayerMP) player);
     }
     
 }
