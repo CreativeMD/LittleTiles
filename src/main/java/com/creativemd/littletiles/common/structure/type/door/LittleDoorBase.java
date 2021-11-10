@@ -248,7 +248,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             ((DoorController) animation.controller).activate();
             if (tickOnce)
                 animation.onUpdateForReal();
-            PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationControllerPacket(animation), animation, getWorld(), null);
+            PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationControllerPacket(animation), animation, null);
             return animation;
         }
         
@@ -312,7 +312,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
     
     @Override
     public void destroyAnimation() {
-        animation.markRemoved();
+        animation.destroyAndNotify();
     }
     
     public static void initDoors() {

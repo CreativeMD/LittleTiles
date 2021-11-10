@@ -107,7 +107,6 @@ public class LittleAnimationDestroyPacket extends CreativeCorePacket {
                 if (!subWorld)
                     for (Entry<Object, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
                         RenderUploader.uploadRenderData((RenderChunk) entry.getKey(), entry.getValue());
-                System.out.println("Downloaded " + chunks.sizeOfValues());
             }
         } catch (Exception e) {
             e.printStackTrace();

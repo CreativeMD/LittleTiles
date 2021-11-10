@@ -180,10 +180,8 @@ public class LittleTilesClient extends LittleTilesServer {
                     if (animation == null) {
                         animation = new EntityAnimation(mc.world);
                         animation.setUniqueId(uuid);
-                    } else {
+                    } else
                         animation.spawnedInWorld = true;
-                        animation.controller.onServerApproves();
-                    }
                     
                     if (animation != null) {
                         animation.setEntityId(entityIdField.getInt(input));

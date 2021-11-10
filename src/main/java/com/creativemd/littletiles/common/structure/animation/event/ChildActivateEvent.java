@@ -48,6 +48,8 @@ public class ChildActivateEvent extends AnimationEvent {
     
     @Override
     protected boolean run(EntityAnimationController controller) {
+        if (controller.parent.world.isRemote)
+            return true;
         LittleStructure structure = controller.parent.structure;
         
         try {
@@ -59,10 +61,7 @@ public class ChildActivateEvent extends AnimationEvent {
             if (!door.canOpenDoor(null))
                 return true;
             
-            EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, true);
-            if (childAnimation != null)
-                childAnimation.controller.onServerApproves();
-            
+            door.openDoor(null, ((DoorController) controller).supplier, true);
         } catch (LittleActionException e) {
             e.printStackTrace();
         }

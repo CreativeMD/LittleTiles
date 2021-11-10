@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
@@ -27,6 +28,7 @@ import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
+import com.creativemd.littletiles.common.packet.LittleAnimationDestroyPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -151,6 +153,13 @@ public class EntityAnimation extends Entity implements INoPushEntity {
         if (!addedDoor) {
             WorldAnimationHandler.getHandler(world).createDoor(this);
             addedDoor = true;
+        }
+    }
+    
+    public void destroyAndNotify() {
+        if (world.isRemote) {
+            PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(getUniqueID(), false), this, null);
+            markRemoved();
         }
     }
     

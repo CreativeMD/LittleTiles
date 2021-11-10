@@ -184,7 +184,7 @@ public class DoorController extends EntityAnimationController {
                     parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor, dynamic);
                 }
                 
-                PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(parent.getUniqueID(), true), parent, world, null);
+                PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(parent.getUniqueID(), true), parent, null);
                 newDoor.completeAnimation();
             } else {
                 parent.markRemoved();

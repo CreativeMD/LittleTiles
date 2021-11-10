@@ -40,7 +40,7 @@ public class StructureChildFromSubWorldConnection extends StructureChildConnecti
     @Override
     public void destroyStructure() {
         SubWorld fakeWorld = (SubWorld) parent.getWorld();
-        ((EntityAnimation) fakeWorld.parent).markRemoved();
+        ((EntityAnimation) fakeWorld.parent).destroyAndNotify();
         parent.onStructureDestroyed();
     }
     

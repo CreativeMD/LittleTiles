@@ -51,7 +51,7 @@ public class StructureChildToSubWorldConnection extends StructureChildConnection
         getStructure().onStructureDestroyed();
         EntityAnimation animation = WorldAnimationHandler.getHandler(super.getWorld()).findAnimation(entityUUID);
         if (animation != null)
-            animation.markRemoved();
+            animation.destroyAndNotify();
         for (StructureChildConnection child : getStructure().getChildren())
             child.destroyStructure();
     }

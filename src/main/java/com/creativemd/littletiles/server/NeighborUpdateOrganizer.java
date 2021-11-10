@@ -59,8 +59,7 @@ public class NeighborUpdateOrganizer {
                     }
                     
                 } else if (world instanceof SubWorld)
-                    PacketHandler.sendPacketToTrackingPlayers(new LittleNeighborUpdatePacket(world, entry.getValue()), ((SubWorld) world).parent, (WorldServer) ((SubWorld) world)
-                        .getRealWorld(), null);
+                    PacketHandler.sendPacketToTrackingPlayers(new LittleNeighborUpdatePacket(world, entry.getValue()), ((SubWorld) world).parent, null);
             }
             
             positions.clear();
