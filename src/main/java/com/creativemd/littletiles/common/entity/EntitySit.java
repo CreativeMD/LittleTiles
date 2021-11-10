@@ -18,7 +18,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class EntitySit extends Entity implements IWorldPositionProvider {
+public class EntitySit extends Entity implements IWorldPositionProvider, INoPushEntity {
     
     public static final DataParameter<NBTTagCompound> CONNECTION = EntityDataManager.createKey(EntitySit.class, DataSerializers.COMPOUND_TAG);
     public static final DataParameter<Float> CHAIRX = EntityDataManager.createKey(EntitySit.class, DataSerializers.FLOAT);

@@ -65,9 +65,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class EntityAnimation extends Entity {
+public class EntityAnimation extends Entity implements INoPushEntity {
     
-    protected static final Predicate<Entity> noAnimation = (x) -> !(x instanceof EntityAnimation);
+    protected static final Predicate<Entity> noAnimation = (x) -> !(x.getLowestRidingEntity() instanceof INoPushEntity);
     
     // ================Constructors================
     
