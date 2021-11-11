@@ -79,26 +79,26 @@ public abstract class LittleDoor extends LittleStructure {
         if (isInMotion())
             throw new StillInMotionException();
         
-        if (!canOpenDoor(player)) {
-            if (player != null)
-                player.sendStatusMessage(new TextComponentTranslation("exception.door.notenoughspace"), true);
-            throw new LittleActionException("Cannot open door");
-        }
-        
         if (uuid == null)
             if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
                 uuid = ((IAnimatedStructure) this).getAnimation().getUniqueID();
             else
                 uuid = UUID.randomUUID();
             
-        opened = !opened;
-        if (activator != DoorActivator.SIGNAL && !getWorld().isRemote)
-            getOutput(0).toggle();
-        
         if (getWorld().isRemote) {
             sendActivationToServer(activator, player, uuid);
             return null;
         }
+        
+        if (!canOpenDoor(player)) {
+            if (player != null)
+                player.sendStatusMessage(new TextComponentTranslation("exception.door.notenoughspace"), true);
+            throw new LittleActionException("Cannot open door");
+        }
+        
+        opened = !opened;
+        if (activator != DoorActivator.SIGNAL && !getWorld().isRemote)
+            getOutput(0).toggle();
         
         return openDoor(player, new UUIDSupplier(uuid), false);
     }

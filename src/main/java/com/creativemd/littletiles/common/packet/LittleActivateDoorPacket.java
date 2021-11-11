@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 public class LittleActivateDoorPacket extends CreativeCorePacket {
@@ -63,7 +64,9 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
                 
                 door.activate(activator, player, uuid);
             }
-        } catch (LittleActionException e) {}
+        } catch (LittleActionException e) {
+            player.sendMessage(new TextComponentString(e.getLocalizedMessage()));
+        }
     }
     
 }
