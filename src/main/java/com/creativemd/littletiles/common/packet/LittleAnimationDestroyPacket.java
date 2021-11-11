@@ -90,13 +90,12 @@ public class LittleAnimationDestroyPacket extends CreativeCorePacket {
                     for (TileEntityLittleTiles oldTe : entry.getValue()) {
                         TileEntity newTE = world.getTileEntity(oldTe.getPos());
                         if (newTE instanceof TileEntityLittleTiles) {
-                            ((TileEntityLittleTiles) newTE).render.getBufferCache().combine(oldTe.render.getBufferCache());
+                            ((TileEntityLittleTiles) newTE).render.getBufferCache().additional(oldTe.render.getBufferCache());
                             newBlocks.add((TileEntityLittleTiles) newTE);
                         } else {
                             world.setBlockState(oldTe.getPos(), BlockTile.getState(oldTe));
                             newTE = world.getTileEntity(oldTe.getPos());
-                            ((TileEntityLittleTiles) newTE).fakeAssign(oldTe);
-                            ((TileEntityLittleTiles) newTE).render.getBufferCache().combine(oldTe.render.getBufferCache());
+                            ((TileEntityLittleTiles) newTE).render.getBufferCache().additional(oldTe.render.getBufferCache());
                             newBlocks.add((TileEntityLittleTiles) newTE);
                         }
                     }

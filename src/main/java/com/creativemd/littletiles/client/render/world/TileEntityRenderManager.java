@@ -61,6 +61,18 @@ public class TileEntityRenderManager {
         }
     }
     
+    public boolean hasAdditional() {
+        return bufferCache.hasAdditional();
+    }
+    
+    public void beforeClientReceivesUpdate() {
+        bufferCache.beforeUpdate();
+    }
+    
+    public void afterClientReceivesUpdate() {
+        bufferCache.afterUpdate();
+    }
+    
     public void tilesChanged() {
         requireRenderingBoundingBoxUpdate = true;
         cachedRenderDistance = 0;

@@ -49,16 +49,16 @@ public class LittleRenderChunk {
             
             if (existing != null) {
                 if (existing != te) {
-                    if (te.isEmpty())
+                    if (te.isRenderingEmpty())
                         tileEntities.remove(te.getPos());
                     else
                         tileEntities.put(te.getPos(), te);
-                } else if (te.isEmpty())
+                } else if (te.isRenderingEmpty())
                     tileEntities.remove(te.getPos());
                 
                 modified = true;
             } else {
-                if (te.isEmpty())
+                if (te.isRenderingEmpty())
                     return;
                 
                 tileEntities.put(te.getPos(), te);

@@ -18,13 +18,16 @@ public class LayeredRenderBufferCache {
     private IRenderDataCache[] queue = new IRenderDataCache[BlockRenderLayer.values().length];
     private BufferLink[] uploaded = new BufferLink[BlockRenderLayer.values().length];
     
-    public LayeredRenderBufferCache() {
-        
-    }
+    private boolean beforeUpdate = false;
+    private IRenderDataCache[] additional = null;
+    
+    public LayeredRenderBufferCache() {}
     
     public IRenderDataCache get(int layer) {
         if (queue[layer] == null)
             return uploaded[layer];
+        if (additional != null && layer != BlockRenderLayer.TRANSLUCENT.ordinal())
+            return combine(layer, queue[layer], additional[layer]);
         return queue[layer];
     }
     
@@ -39,9 +42,11 @@ public class LayeredRenderBufferCache {
     }
     
     public synchronized void set(int layer, BufferBuilder buffer) {
-        if (buffer == null)
+        if (buffer == null && additional == null)
             uploaded[layer] = null;
         queue[layer] = buffer != null ? new BufferBuilderWrapper(buffer) : null;
+        if (layer == BlockRenderLayer.TRANSLUCENT.ordinal() && !beforeUpdate && additional != null && additional[layer] != null)
+            queue[layer] = combine(layer, queue[layer], additional[layer]);
     }
     
     public synchronized void setEmpty() {
@@ -51,12 +56,28 @@ public class LayeredRenderBufferCache {
         }
     }
     
-    public synchronized void combine(LayeredRenderBufferCache cache) {
+    public boolean hasAdditional() {
+        return additional != null;
+    }
+    
+    public void beforeUpdate() {
+        beforeUpdate = true;
+    }
+    
+    public void afterUpdate() {
+        beforeUpdate = false;
+        additional = null;
+    }
+    
+    public synchronized void additional(LayeredRenderBufferCache cache) {
+        additional = new IRenderDataCache[queue.length];
+        for (int i = 0; i < additional.length; i++)
+            additional[i] = cache.get(i);
         for (int i = 0; i < queue.length; i++)
             if (i == BlockRenderLayer.TRANSLUCENT.ordinal())
-                queue[i] = combine(i, get(i), cache.get(i));
+                queue[i] = combine(i, get(i), additional[i]);
             else
-                uploaded[i] = combine(i, get(i), cache.get(i));
+                uploaded[i] = combine(i, get(i), additional[i]);
     }
     
     private BufferLink combine(int layer, IRenderDataCache first, IRenderDataCache second) {

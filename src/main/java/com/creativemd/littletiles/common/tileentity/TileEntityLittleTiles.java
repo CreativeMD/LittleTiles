@@ -88,20 +88,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         }
     }
     
-    @SideOnly(Side.CLIENT)
-    public void fakeAssign(TileEntityLittleTiles te) {
-        try {
-            TileEntityRenderManager manager = render;
-            for (Field field : TileEntityLittleTiles.class.getDeclaredFields())
-                if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
-                    field.set(this, field.get(te));
-            tiles.te = this;
-            render = manager;
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-    
     private void init() {
         tiles = new TileList(this, isClientSide());
         if (isClientSide())
@@ -581,8 +567,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     
     @Override
     public void handleUpdateTag(NBTTagCompound tag) {
+        if (isClientSide())
+            render.beforeClientReceivesUpdate();
         super.handleUpdateTag(tag);
         updateTiles(false);
+        if (isClientSide())
+            render.afterClientReceivesUpdate();
     }
     
     public RayTraceResult rayTrace(EntityPlayer player) {
@@ -724,6 +714,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             
         }
         return highest != null ? highest.getBlockState() : null;
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public boolean isRenderingEmpty() {
+        return tiles.isCompletelyEmpty() && !render.hasAdditional();
     }
     
     public boolean isEmpty() {

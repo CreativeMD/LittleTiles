@@ -107,7 +107,7 @@ public class RenderingThread extends Thread {
             return false;
         }
         
-        if (te.isEmpty()) {
+        if (te.isRenderingEmpty()) {
             int index = te.render.startBuildingCache();
             te.render.getBoxCache().clear();
             synchronized (te.render) {
