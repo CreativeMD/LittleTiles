@@ -337,7 +337,7 @@ public class RenderingThread extends Thread {
                     } catch (Exception e) {
                         if (!(e instanceof RenderingException))
                             e.printStackTrace();
-                        updateCoords.add(data);
+                        //updateCoords.add(data);
                     } catch (OutOfMemoryError error) {
                         updateCoords.add(data);
                         error.printStackTrace();
