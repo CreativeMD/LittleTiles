@@ -66,10 +66,12 @@ public class TileEntityRenderManager {
     }
     
     public void beforeClientReceivesUpdate() {
-        bufferCache.clearAdditional();
+        bufferCache.beforeUpdate();
     }
     
-    public void afterClientReceivesUpdate() {}
+    public void afterClientReceivesUpdate() {
+        bufferCache.afterUpdate();
+    }
     
     public void tilesChanged() {
         requireRenderingBoundingBoxUpdate = true;
