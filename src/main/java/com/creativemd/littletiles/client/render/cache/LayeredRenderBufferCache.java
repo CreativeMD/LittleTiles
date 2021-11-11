@@ -70,14 +70,19 @@ public class LayeredRenderBufferCache {
     }
     
     public synchronized void additional(LayeredRenderBufferCache cache) {
-        additional = new IRenderDataCache[queue.length];
-        for (int i = 0; i < additional.length; i++)
-            additional[i] = cache.get(i);
-        for (int i = 0; i < queue.length; i++)
+        boolean already = additional != null;
+        if (!already)
+            additional = new IRenderDataCache[queue.length];
+        
+        for (int i = 0; i < additional.length; i++) {
+            IRenderDataCache aCache = cache.get(i);
+            additional[i] = already ? combine(i, additional[i], aCache) : aCache;
+            
             if (i == BlockRenderLayer.TRANSLUCENT.ordinal())
-                queue[i] = combine(i, get(i), additional[i]);
+                queue[i] = combine(i, get(i), aCache);
             else
-                uploaded[i] = combine(i, get(i), additional[i]);
+                uploaded[i] = combine(i, get(i), aCache);
+        }
     }
     
     private BufferLink combine(int layer, IRenderDataCache first, IRenderDataCache second) {

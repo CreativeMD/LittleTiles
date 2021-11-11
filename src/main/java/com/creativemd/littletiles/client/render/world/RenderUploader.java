@@ -105,15 +105,13 @@ public class RenderUploader {
                             uploadBuffer.unbindBuffer();
                             
                             toUpload = ByteBuffer
-                                .allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + cache.expanded() + DefaultVertexFormats.BLOCK.getNextOffset());
+                                .allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + cache.expanded());
                             if (vanillaBuffer != null)
                                 toUpload.put(vanillaBuffer);
                             
                             cache.fillBuffer(toUpload);
                         }
                         
-                        uploadBuffer.deleteGlBuffers();
-                        bufferIdField.setInt(uploadBuffer, OpenGlHelper.glGenBuffers());
                         toUpload.position(0);
                         uploadBuffer.bufferData(toUpload);
                         if (compiled != CompiledChunk.DUMMY)
@@ -134,12 +132,7 @@ public class RenderUploader {
             if (arbVboField.getBoolean(null)) {
                 System.out.println("Using arb buffers ...");
                 ARBBufferObject.glGetBufferSubDataARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0, result);
-            }
-            //return ARBVertexBufferObject.glMapBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, ARBVertexBufferObject.GL_READ_ONLY_ARB, length, null);
-            //else if (GLContext.getCapabilities().OpenGL30)
-            //return GL30.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, 0, length, GL30.GL_MAP_READ_BIT, null);
-            //else if (OpenGlHelper.useVbo())
-            else
+            } else
                 GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0, result);
             return result;
         } catch (IllegalArgumentException | IllegalAccessException | IllegalStateException e) {

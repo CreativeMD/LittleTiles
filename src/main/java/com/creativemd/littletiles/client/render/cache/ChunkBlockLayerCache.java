@@ -85,7 +85,6 @@ public class ChunkBlockLayerCache {
                     }
                 } catch (IllegalArgumentException e) {}
             }
-            
         }
     }
     

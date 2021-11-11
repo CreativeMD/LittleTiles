@@ -163,8 +163,10 @@ public class LittleChunkDispatcher {
                     VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());
                     if (layer != BlockRenderLayer.TRANSLUCENT && vertexBuffer != null) {
                         ChunkBlockLayerManager manager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
-                        if (manager == null)
+                        if (manager == null) {
                             manager = new ChunkBlockLayerManager(chunk, layer);
+                            ChunkBlockLayerManager.blockLayerManager.set(vertexBuffer, manager);
+                        }
                         
                         manager.set(cache);
                     }
