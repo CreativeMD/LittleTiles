@@ -1106,9 +1106,12 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         }
         
         public TileEntityLittleTiles getTileEntity() throws CorruptedConnectionException, NotYetConnectedException {
-            if (cachedTe != null && !cachedTe.isInvalid())
-                return cachedTe;
-            
+            if (cachedTe != null)
+                if (cachedTe.isInvalid())
+                    cachedTe = null;
+                else
+                    return cachedTe;
+                
             World world = getWorld();
             
             BlockPos absoluteCoord = getAbsolutePos();
