@@ -566,11 +566,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     }
     
     @Override
-    public void handleUpdateTag(NBTTagCompound tag) {
+    public void handleUpdate(NBTTagCompound nbt, boolean chunkUpdate) {
         if (isClientSide())
             render.beforeClientReceivesUpdate();
-        super.handleUpdateTag(tag);
-        updateTiles(false);
+        
+        readFromNBT(nbt);
+        if (!chunkUpdate)
+            updateTiles(false);
+        
         if (isClientSide())
             render.afterClientReceivesUpdate();
     }

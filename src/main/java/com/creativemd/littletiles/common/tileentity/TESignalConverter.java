@@ -52,6 +52,11 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
     }
     
     @Override
+    public void handleUpdate(NBTTagCompound nbt, boolean chunkUpdate) {
+        readFromNBT(nbt);
+    }
+    
+    @Override
     public int getBandwidth() {
         return 4;
     }
