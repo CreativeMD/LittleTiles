@@ -162,6 +162,7 @@ public class DoorController extends EntityAnimationController {
             
             if (world.isRemote)
                 return;
+            
             parent.structure.load();
             LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
             
@@ -185,14 +186,13 @@ public class DoorController extends EntityAnimationController {
                 }
                 
                 PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(parent.getUniqueID(), true), parent, null);
+                parent.markRemoved();
                 newDoor.completeAnimation();
             } else {
-                parent.markRemoved();
+                parent.destroyAndNotify();
                 WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
                 return;
             }
-            
-            parent.markRemoved();
             
         } catch (CorruptedConnectionException | NotYetConnectedException | IllegalArgumentException e) {
             e.printStackTrace();
