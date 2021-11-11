@@ -196,8 +196,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         World world = lastWorldRayTraceResult;
         EntityPlayer player = event.player;
         
-        if (InputEventHandler.onPickBlock(target, player, world))
+        if (InputEventHandler.onPickBlock(target, player, world)) {
+            event.setCanceled(true);
             return;
+        }
         
         IBlockState state = world.getBlockState(target.getBlockPos());
         
