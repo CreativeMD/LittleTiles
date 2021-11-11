@@ -25,6 +25,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleAnimationControllerPacket;
+import com.creativemd.littletiles.common.packet.LittleAnimationDataPacket;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
@@ -264,7 +265,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         
         EntityAnimation animation = place(getWorld(), fakeWorld, player, placement, uuid, absolute, tickOnce);
         
-        boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
+        boolean sendUpdate = !world.isRemote;
+        EntityAnimation topAnimation = world instanceof WorldServer ? null : (EntityAnimation) fakeWorld.getTopEntity();
         
         for (Entry<BlockPos, ArrayList<IStructureTileList>> entry : blocks.entrySet()) {
             if (entry.getValue().isEmpty())
@@ -275,7 +277,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
                     x.get(list).remove();
             });
             if (sendUpdate)
-                ((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
+                if (topAnimation == null)
+                    ((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
+                else
+                    PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDataPacket(topAnimation), topAnimation, null);
+                
         }
         
         return animation;

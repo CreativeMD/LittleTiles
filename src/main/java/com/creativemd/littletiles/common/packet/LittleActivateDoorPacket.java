@@ -65,7 +65,8 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
                 door.activate(activator, player, uuid);
             }
         } catch (LittleActionException e) {
-            player.sendMessage(new TextComponentString(e.getLocalizedMessage()));
+            if (!e.isHidden())
+                player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
         }
     }
     
