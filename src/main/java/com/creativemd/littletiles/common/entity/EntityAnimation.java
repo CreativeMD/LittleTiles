@@ -157,7 +157,7 @@ public class EntityAnimation extends Entity implements INoPushEntity {
     }
     
     public void destroyAndNotify() {
-        if (world.isRemote) {
+        if (!world.isRemote) {
             PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(getUniqueID(), false), this, null);
             markRemoved();
         }
