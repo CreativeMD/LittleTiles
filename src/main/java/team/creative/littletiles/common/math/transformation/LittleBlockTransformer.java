@@ -22,10 +22,10 @@ public class LittleBlockTransformer {
             if (parent.isStructure()) {
                 if (parent.isMain()) {
                     try {
-                        parent.getStructure().flipForWarpDrive(grid, axis);
+                        parent.getStructure().mirrorForWarpDrive(grid, axis);
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 } else
-                    ((StructureParentCollection) parent).flipForWarpDrive(axis);
+                    ((StructureParentCollection) parent).mirrorForWarpDrive(axis);
             }
             for (LittleTile tile : parent)
                 mirrorTile(grid, tile, axis);

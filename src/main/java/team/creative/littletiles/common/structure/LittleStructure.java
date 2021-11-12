@@ -24,7 +24,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
@@ -38,7 +37,6 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
@@ -60,14 +58,13 @@ import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
-import team.creative.littletiles.common.structure.connection.LevelChildrenList;
-import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.block.StructureBlockConnector;
+import team.creative.littletiles.common.structure.connection.children.LevelChildrenList;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
-import team.creative.littletiles.common.structure.exception.MissingBlockException;
 import team.creative.littletiles.common.structure.exception.MissingChildException;
 import team.creative.littletiles.common.structure.exception.MissingParentException;
-import team.creative.littletiles.common.structure.exception.MissingStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
@@ -202,7 +199,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ================Tiles================
     
     public void addBlock(StructureParentCollection block) {
-        blocks.add(new StructureBlockConnector(block.getPos().subtract(getPos())));
+        blocks.add(new StructureBlockConnector(this, block.getPos().subtract(getPos())));
     }
     
     public Iterable<BETiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
@@ -355,7 +352,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             blocks.clear();
             int[] array = nbt.getIntArray("b");
             for (int i = 0; i + 2 < array.length; i += 3)
-                blocks.add(new StructureBlockConnector(new BlockPos(array[i], array[i + 1], array[i + 2])));
+                blocks.add(new StructureBlockConnector(this, new BlockPos(array[i], array[i + 1], array[i + 2])));
         }
         
         if (nbt.contains("n"))
@@ -913,10 +910,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Mods====================
     
     @Deprecated
-    public void flipForWarpDrive(LittleGrid context, Axis axis) {
+    public void mirrorForWarpDrive(LittleGrid context, Axis axis) {
         List<StructureBlockConnector> newBlocks = new ArrayList<>(blocks.size());
         for (StructureBlockConnector block : blocks)
-            newBlocks.add(new StructureBlockConnector(axis.mirror(block.pos)));
+            newBlocks.add(new StructureBlockConnector(this, axis.mirror(block.pos)));
         
         blocks.clear();
         blocks.addAll(newBlocks);
@@ -932,7 +929,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             BlockPos pos = block.pos;
             for (int rotationStep = 0; rotationStep < steps; rotationStep++)
                 pos = rotation.transform(pos);
-            newBlocks.add(new StructureBlockConnector(pos));
+            newBlocks.add(new StructureBlockConnector(this, pos));
         }
         
         blocks.clear();
@@ -940,66 +937,6 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         for (StructureDirectionalField relative : type.directional)
             relative.rotate(relative.get(this), context, rotation, context.rotationCenter);
-    }
-    
-    public class StructureBlockConnector {
-        
-        public final BlockPos pos;
-        private BETiles cachedBE;
-        
-        public StructureBlockConnector(BlockPos pos) {
-            this.pos = pos;
-        }
-        
-        public BlockPos getAbsolutePos() {
-            return getPos().offset(pos);
-        }
-        
-        public BETiles getBlockEntity() throws CorruptedConnectionException, NotYetConnectedException {
-            if (cachedBE != null && !cachedBE.isRemoved())
-                return cachedBE;
-            
-            Level level = getLevel();
-            
-            BlockPos absoluteCoord = getAbsolutePos();
-            LevelChunk chunk = level.getChunkAt(absoluteCoord);
-            if (WorldUtils.checkIfChunkExists(chunk)) {
-                BlockEntity be = level.getBlockEntity(absoluteCoord);
-                if (be instanceof BETiles)
-                    return cachedBE = (BETiles) be;
-                else
-                    throw new MissingBlockException(absoluteCoord);
-            } else
-                throw new NotYetConnectedException();
-        }
-        
-        public void connect() throws CorruptedConnectionException, NotYetConnectedException {
-            BETiles be = getBlockEntity();
-            if (!be.hasLoaded())
-                throw new NotYetConnectedException();
-            IStructureParentCollection structure = be.getStructure(getIndex());
-            if (structure == null)
-                throw new MissingStructureException(be.getBlockPos());
-        }
-        
-        public IStructureParentCollection getList() throws CorruptedConnectionException, NotYetConnectedException {
-            BETiles be = getBlockEntity();
-            if (!be.hasLoaded())
-                throw new NotYetConnectedException();
-            IStructureParentCollection structure = be.getStructure(getIndex());
-            if (structure != null)
-                return structure;
-            throw new MissingStructureException(be.getBlockPos());
-        }
-        
-        public int count() throws CorruptedConnectionException, NotYetConnectedException {
-            return getList().size();
-        }
-        
-        public void remove() throws CorruptedConnectionException, NotYetConnectedException {
-            getBlockEntity().updateTiles((x) -> x.removeStructure(getIndex()));
-        }
-        
     }
     
     public String info() {

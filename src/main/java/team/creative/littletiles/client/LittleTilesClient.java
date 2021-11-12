@@ -1,10 +1,8 @@
 package team.creative.littletiles.client;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -12,7 +10,6 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHel
 import com.creativemd.littletiles.common.block.BlockLittleDyeable;
 import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
 import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
-import com.google.common.base.Function;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -28,7 +25,6 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -42,10 +38,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.network.internal.FMLMessage.EntitySpawnMessage;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import net.minecraftforge.fmlclient.registry.IRenderFactory;
 import net.minecraftforge.fmlclient.registry.RenderingRegistry;
@@ -83,20 +76,11 @@ import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.item.tooltip.ActionMessage;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleTilesClient {
-    
-    private static Field entityUUIDField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "entityUUID");
-    private static Field entityIdField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "entityId");
-    private static Field rawXField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "rawX");
-    private static Field rawYField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "rawY");
-    private static Field rawZField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "rawZ");
-    private static Field scaledYawField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "scaledYaw");
-    private static Field scaledPitchField = ObfuscationReflectionHelper.findField(ClientboundAddEntityPacket.class, "scaledPitch");
     
     public static final Minecraft mc = Minecraft.getInstance();
     
@@ -160,41 +144,6 @@ public class LittleTilesClient {
         ClientRegistry.registerKeyBinding(redo);
         
         LEVEL_HANDLERS.register(LittleAnimationHandlerClient::new);
-        
-        EntityRegistry.instance().lookupModSpawn(EntityAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>() {
-            @Override
-            public Entity apply(EntitySpawnMessage input) {
-                try {
-                    UUID uuid = (UUID) entityUUIDField.get(input);
-                    EntityAnimation animation = WorldAnimationHandler.getHandlerClient().findAnimation(uuid);
-                    boolean alreadyExisted = animation != null;
-                    if (animation == null) {
-                        animation = new EntityAnimation(mc.world);
-                        animation.setUniqueId(uuid);
-                    } else {
-                        animation.spawnedInWorld = true;
-                        animation.controller.onServerApproves();
-                    }
-                    
-                    if (animation != null) {
-                        animation.setEntityId(entityIdField.getInt(input));
-                        double rawX = rawXField.getDouble(input);
-                        double rawY = rawYField.getDouble(input);
-                        double rawZ = rawZField.getDouble(input);
-                        float scaledYaw = scaledYawField.getFloat(input);
-                        float scaledPitch = scaledPitchField.getFloat(input);
-                        if (!alreadyExisted)
-                            animation.setInitialPosition(rawX, rawY, rawZ);
-                    }
-                    
-                    return animation;
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-                
-            }
-            
-        }, false);
         
         CreativeCoreClient.registerItem(new LittleRenderToolBig(), LittleTiles.ITEM_TILES);
         CreativeCoreClient.registerItem(new LittleRenderToolBig() {

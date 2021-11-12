@@ -5,11 +5,14 @@ import java.util.HashMap;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.math.transformation.LittleTransformation;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 
 public abstract class EntityAnimationController extends AnimationController {
+    
+    public static final NamedTypeRegistry<Class<? extends EntityAnimationController>> REGISTRY = new NamedTypeRegistry<>();
     
     private static HashMap<String, Class<? extends EntityAnimationController>> controllerTypes = new HashMap<>();
     private static HashMap<Class<? extends EntityAnimationController>, String> controllerTypesInv = new HashMap<>();

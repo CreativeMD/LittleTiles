@@ -16,7 +16,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;

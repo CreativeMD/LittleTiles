@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.structure.exception;
 
-import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 
 public class MissingParentException extends CorruptedConnectionException {
     

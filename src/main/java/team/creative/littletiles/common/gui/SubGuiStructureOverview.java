@@ -11,7 +11,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.IStructureConnection;
-import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 
 public class SubGuiStructureOverview extends SubGui {

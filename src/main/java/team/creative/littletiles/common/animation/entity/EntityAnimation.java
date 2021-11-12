@@ -194,9 +194,7 @@ public class EntityAnimation extends Entity {
         this.center = center;
         this.fakeWorld.setOrigin(center.rotationCenter);
         this.origin = this.fakeWorld.getOrigin();
-        if (fakeWorld.loadedEntityList.isEmpty())
-            return;
-        for (Entity entity : fakeWorld.loadedEntityList)
+        for (Entity entity : fakeWorld.loadedEntities())
             if (entity instanceof EntityAnimation)
                 ((ChildVecOrigin) ((EntityAnimation) entity).origin).parent = this.origin;
     }

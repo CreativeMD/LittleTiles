@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection.children;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.SubLevel;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 

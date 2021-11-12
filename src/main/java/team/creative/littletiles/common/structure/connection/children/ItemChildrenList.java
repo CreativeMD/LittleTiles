@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection.children;
 
 import java.util.List;
 

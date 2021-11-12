@@ -198,7 +198,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     @Deprecated
-    public void flipForWarpDrive(Axis axis) {
+    public void mirrorForWarpDrive(Axis axis) {
         relativePos = axis.mirror(relativePos);
     }
     

@@ -28,6 +28,8 @@ public class LittleStructureAttribute {
     public static final int LISTENER_MASK = 0b00000000_11111111_00000000_00000000;
     public static final int NON_ACTIVE_MASK = 0b00000000_11111111_00000000_11111111;
     
+    public static final int INVALID = -1;
+    
     public static boolean ladder(int attribute) {
         return (attribute & LADDER) != 0;
     }

@@ -88,6 +88,7 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.face.CachedFaceRenderType;
 import team.creative.creativecore.client.render.face.FaceRenderType;
 import team.creative.creativecore.client.render.model.ICreativeRendered;
+import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.Pair;
@@ -96,6 +97,7 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionDestroy;
+import team.creative.littletiles.common.api.block.LittlePhysicBlock;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -118,7 +120,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.type.LittleBed;
 import team.creative.littletiles.server.LittleTilesServer;
 
-public class BlockTile extends BaseEntityBlock implements IFacade {
+public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicBlock {
     
     private static boolean loadingBlockEntityFromWorld = false;
     public static Minecraft mc = Minecraft.getInstance(); // Note that doesn't work
@@ -968,6 +970,23 @@ public class BlockTile extends BaseEntityBlock implements IFacade {
                     return lookingFor;
         }
         return this.defaultBlockState();
+    }
+    
+    @Override
+    public double bound(CreativeLevel level, BlockPos pos, Facing facing) {
+        BETiles te = loadBE(level, pos);
+        if (te != null) {
+            int value = facing.positive ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+            for (Pair<IParentCollection, LittleTile> pair : te.allTiles()) {
+                for (LittleBox box : pair.value)
+                    value = facing.positive ? Math.max(value, box.get(facing)) : Math.min(value, box.get(facing));
+                
+                if (facing.positive ? te.getGrid().count == value : value == 0)
+                    break;
+            }
+            return pos.get(facing.axis.toVanilla()) + te.getGrid().toVanillaGrid(value);
+        }
+        return (facing.positive ? 0 : 1) + pos.get(facing.axis.toVanilla()); // most inward value possible
     }
     
 }

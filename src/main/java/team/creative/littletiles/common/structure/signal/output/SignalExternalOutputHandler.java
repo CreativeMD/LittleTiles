@@ -8,7 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;

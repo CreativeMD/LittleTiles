@@ -16,7 +16,7 @@ import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
-import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.type.LittleChair;

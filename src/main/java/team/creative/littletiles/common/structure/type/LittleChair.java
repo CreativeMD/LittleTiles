@@ -21,7 +21,7 @@ import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.connection.StructureChildConnection;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;

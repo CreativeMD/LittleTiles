@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection.children;
 
 import java.security.InvalidParameterException;
 
@@ -12,6 +12,8 @@ import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
+import team.creative.littletiles.common.structure.connection.IStructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
 import team.creative.littletiles.common.structure.exception.MissingBlockException;

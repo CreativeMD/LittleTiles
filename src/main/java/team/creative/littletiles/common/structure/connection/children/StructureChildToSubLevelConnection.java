@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.connection;
+package team.creative.littletiles.common.structure.connection.children;
 
 import java.util.UUID;
 
@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
