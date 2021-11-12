@@ -286,6 +286,35 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         blocks.add(new StructureBlockConnector(block.getPos().subtract(getPos())));
     }
     
+    public Iterable<BlockPos> positions() {
+        return new Iterable<BlockPos>() {
+            
+            @Override
+            public Iterator<BlockPos> iterator() {
+                
+                return new Iterator<BlockPos>() {
+                    
+                    boolean first = true;
+                    Iterator<StructureBlockConnector> iterator = blocks.iterator();
+                    
+                    @Override
+                    public boolean hasNext() {
+                        return first || iterator.hasNext();
+                    }
+                    
+                    @Override
+                    public BlockPos next() {
+                        if (first) {
+                            first = false;
+                            return mainBlock.getPos();
+                        }
+                        return iterator.next().getAbsolutePos();
+                    }
+                };
+            }
+        };
+    }
+    
     public Iterable<TileEntityLittleTiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
         load();
         return new Iterable<TileEntityLittleTiles>() {

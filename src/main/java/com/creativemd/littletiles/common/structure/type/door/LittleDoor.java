@@ -132,6 +132,10 @@ public abstract class LittleDoor extends LittleStructure {
         if (isInMotion())
             return false;
         
+        for (BlockPos pos : positions())
+            if (pos.getY() < 0 || pos.getY() >= 256)
+                return false;
+            
         for (LittleDoor door : collectDoorsToCheck())
             if (!door.canOpenDoor(player))
                 return false;
