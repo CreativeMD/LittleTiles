@@ -64,6 +64,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     
     protected final TileEntityInteractor interactor = new TileEntityInteractor();
     protected TileList tiles;
+    private boolean unloaded = false;
     private boolean preventUnload = true;
     protected LittleGridContext context = LittleGridContext.getMin();
     
@@ -197,6 +198,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             preventUnload = true;
             world.setBlockState(pos, BlockTile.getState(ticking, rendered), 20);
             world.setTileEntity(pos, newTe);
+            invalidate();
             preventUnload = true;
             return newTe;
         }
@@ -226,6 +228,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             preventUnload = true;
             world.setBlockState(pos, BlockTile.getState(ticking, rendered), 2);
             world.setTileEntity(pos, newTe);
+            invalidate();
             preventUnload = true;
         }
     }
@@ -735,8 +738,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             tiles.unload();
     }
     
+    public boolean unloaded() {
+        return unloaded;
+    }
+    
     @Override
     public void onChunkUnload() {
+        unloaded = true;
         super.onChunkUnload();
         tiles.unload();
         if (world.isRemote) {

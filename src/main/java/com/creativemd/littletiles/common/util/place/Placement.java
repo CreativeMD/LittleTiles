@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.util.place;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,6 +34,7 @@ import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
 
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -214,7 +214,7 @@ public class Placement {
         
         result.parentStructure = origin.isStructure() ? origin.getStructure() : null;
         
-        HashSet<BlockPos> blocksToUpdate = new HashSet<>(blocks.keySet());
+        LittleNeighborUpdateCollector neighbor = new LittleNeighborUpdateCollector(world, blocks.keySet());
         
         for (Iterator iterator = blocks.values().iterator(); iterator.hasNext();) {
             PlacementBlock block = (PlacementBlock) iterator.next();
@@ -238,25 +238,7 @@ public class Placement {
         if (origin.isStructure())
             origin.getStructure().notifyAfterPlaced();
         
-        HashSet<BlockPos> blocksToNotify = new HashSet<>();
-        for (BlockPos pos : blocksToUpdate) {
-            for (int i = 0; i < 6; i++) {
-                BlockPos neighbour = pos.offset(EnumFacing.VALUES[i]);
-                if (!blocksToNotify.contains(neighbour) && !blocksToUpdate.contains(neighbour))
-                    blocksToNotify.add(neighbour);
-            }
-            
-            TileEntity te = world.getTileEntity(pos);
-            if (te instanceof TileEntityLittleTiles)
-                ((TileEntityLittleTiles) te).updateTiles(false);
-            //world.getBlockState(pos).neighborChanged(world, pos, LittleTiles.blockTileNoTicking, this.pos);
-        }
-        
-        for (BlockPos pos : blocksToNotify) {
-            IBlockState state = world.getBlockState(pos);
-            if (state.getBlock() instanceof BlockTile)
-                state.neighborChanged(world, pos, LittleTiles.blockTileNoTicking, this.pos);
-        }
+        neighbor.process();
         
         if (playSounds)
             for (int i = 0; i < soundsToBePlayed.size(); i++)

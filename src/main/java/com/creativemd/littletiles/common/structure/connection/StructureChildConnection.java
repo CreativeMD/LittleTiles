@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.connection.StructureLink;
+import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -75,9 +76,9 @@ public class StructureChildConnection implements IStructureConnection {
         return nbt;
     }
     
-    public void destroyStructure() throws CorruptedConnectionException, NotYetConnectedException {
+    public void destroyStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         if (!isChild())
-            getStructure().removeStructure();
+            getStructure().removeStructure(neighbor);
     }
     
     public EntityAnimation getAnimation() {
@@ -105,7 +106,7 @@ public class StructureChildConnection implements IStructureConnection {
     }
     
     protected TileEntityLittleTiles getTileEntity() throws CorruptedConnectionException, NotYetConnectedException {
-        if (cachedTe != null && !cachedTe.isInvalid())
+        if (cachedTe != null && !cachedTe.isInvalid() && !cachedTe.unloaded())
             return cachedTe;
         
         if (relativePos == null)

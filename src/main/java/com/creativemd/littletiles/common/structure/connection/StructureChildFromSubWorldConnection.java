@@ -4,6 +4,7 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -38,7 +39,7 @@ public class StructureChildFromSubWorldConnection extends StructureChildConnecti
     }
     
     @Override
-    public void destroyStructure() {
+    public void destroyStructure(LittleNeighborUpdateCollector neighbor) {
         SubWorld fakeWorld = (SubWorld) parent.getWorld();
         ((EntityAnimation) fakeWorld.parent).destroyAndNotify();
         parent.onStructureDestroyed();
