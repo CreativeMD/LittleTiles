@@ -61,6 +61,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
+import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -639,22 +640,27 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         }
         
         load();
-        removeStructure();
+        LittleNeighborUpdateCollector neighbor = new LittleNeighborUpdateCollector(getWorld());
+        removeStructure(neighbor);
+        neighbor.process();
     }
     
-    public void removeStructure() throws CorruptedConnectionException, NotYetConnectedException {
+    public void removeStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         load();
         onStructureDestroyed();
         
         for (StructureChildConnection child : children)
-            child.destroyStructure();
+            child.destroyStructure(neighbor);
         
         if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
             ((IAnimatedStructure) this).destroyAnimation();
         else {
-            mainBlock.getTe().updateTiles((x) -> x.removeStructure(getIndex()));
-            for (StructureBlockConnector block : blocks)
+            neighbor.add(mainBlock.getPos());
+            for (StructureBlockConnector block : blocks) {
+                neighbor.add(block.getAbsolutePos());
                 block.remove();
+            }
+            mainBlock.getTe().updateTilesSecretly((x) -> x.removeStructure(getIndex()));
         }
         
     }
@@ -896,10 +902,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     }
     
     public MutableBlockPos getMinPos(MutableBlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
-        for (StructureBlockConnector block : blocks) {
-            BlockPos tePos = block.getAbsolutePos();
+        for (BlockPos tePos : positions())
             pos.setPos(Math.min(pos.getX(), tePos.getX()), Math.min(pos.getY(), tePos.getY()), Math.min(pos.getZ(), tePos.getZ()));
-        }
         
         for (StructureChildConnection child : children)
             child.getStructure().getMinPos(pos);
