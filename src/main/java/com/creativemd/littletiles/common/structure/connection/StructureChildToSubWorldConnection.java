@@ -6,7 +6,6 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.MissingAnimationException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -48,15 +47,13 @@ public class StructureChildToSubWorldConnection extends StructureChildConnection
     }
     
     @Override
-    public void destroyStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
+    public void destroyStructure() throws CorruptedConnectionException, NotYetConnectedException {
         getStructure().onStructureDestroyed();
         EntityAnimation animation = WorldAnimationHandler.getHandler(super.getWorld()).findAnimation(entityUUID);
         if (animation != null)
             animation.destroyAndNotify();
-        neighbor = new LittleNeighborUpdateCollector(animation.fakeWorld);
         for (StructureChildConnection child : getStructure().getChildren())
-            child.destroyStructure(neighbor);
-        neighbor.process();
+            child.destroyStructure();
     }
     
     @Override
