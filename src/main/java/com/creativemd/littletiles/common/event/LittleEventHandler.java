@@ -70,11 +70,9 @@ import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
@@ -136,7 +134,9 @@ public class LittleEventHandler {
                 
                 if (stack.getItem() instanceof ILittleTool) {
                     if (((ILittleTool) stack.getItem())
-                        .onClickBlock(event.getWorld(), event.getEntityPlayer(), stack, new PlacementPosition(ray, ((ILittleTool) stack.getItem()).getPositionContext(stack)), ray))
+                        .onClickBlock(event.getWorld(), event
+                            .getEntityPlayer(), stack, new PlacementPosition(ray, ((ILittleTool) stack.getItem()).getPositionContext(stack)), ray) && LittleTilesClient.INTERACTION
+                                .start(false))
                         event.setCanceled(true);
                     tool = (ILittleTool) stack.getItem();
                     lastSelectedItem = stack;
@@ -212,49 +212,8 @@ public class LittleEventHandler {
             event.setNewSpeed(0);
     }
     
-    static List<EntityPlayer> blockTilePrevent = new ArrayList<>();
-    static boolean recentlyConsumedRightClick = false;
-    
-    public static void addBlockTilePrevent(EntityPlayer player) {
-        blockTilePrevent.add(player);
-    }
-    
-    public static boolean consumeBlockTilePrevent(EntityPlayer player, EnumHand hand) {
-        if (hand == EnumHand.OFF_HAND && recentlyConsumedRightClick)
-            return true;
-        int index = blockTilePrevent.indexOf(player);
-        if (index == -1) {
-            recentlyConsumedRightClick = false;
-            return false;
-        }
-        blockTilePrevent.remove(index);
-        recentlyConsumedRightClick = true;
-        return true;
-    }
-    
-    @SubscribeEvent
-    public void onInteractAir(RightClickEmpty event) {
-        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
-            event.setCanceled(true);
-            return;
-        }
-    }
-    
-    @SubscribeEvent
-    public void onInteractEntity(EntityInteractSpecific event) {
-        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
-            event.setCanceled(true);
-            return;
-        }
-    }
-    
     @SubscribeEvent
     public void onInteract(RightClickBlock event) {
-        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
-            event.setCanceled(true);
-            return;
-        }
-        
         ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
         
         if (stack.getItem() instanceof ILittleTool) {
@@ -311,7 +270,7 @@ public class LittleEventHandler {
             PlacementPosition position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
             if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver) && iTile instanceof ILittlePlacer && ((ILittlePlacer) iTile)
                 .hasLittlePreview(stack)) {
-                if (!stack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, stack)) {
+                if (player.canPlayerEdit(pos.offset(facing), facing, stack) && LittleTilesClient.INTERACTION.start(true)) {
                     PlacementMode mode = ((ILittlePlacer) iTile).getPlacementMode(stack).place();
                     new LittleActionPlaceStack(((ILittlePlacer) iTile).getLittlePreview(stack, false), position, PreviewRenderer
                         .isCentered(player, stack, (ILittlePlacer) iTile), PreviewRenderer.isFixed(player, stack, (ILittlePlacer) iTile), mode).execute();
@@ -346,8 +305,6 @@ public class LittleEventHandler {
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        
-        blockTilePrevent.remove(event.player);
     }
     
     @SubscribeEvent

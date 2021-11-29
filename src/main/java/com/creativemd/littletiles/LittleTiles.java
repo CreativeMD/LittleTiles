@@ -103,9 +103,8 @@ import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleCancelClickThrough;
-import com.creativemd.littletiles.common.packet.LittleConsumeRightClickEvent;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
+import com.creativemd.littletiles.common.packet.LittleInteractionPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
@@ -133,6 +132,7 @@ import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.creativemd.littletiles.server.NeighborUpdateOrganizer;
+import com.creativemd.littletiles.server.interact.LittleInteractionHandlerServer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -572,8 +572,7 @@ public class LittleTiles {
         CreativeCorePacket.registerPacket(LittleUpdateStructurePacket.class);
         CreativeCorePacket.registerPacket(LittleScrewdriverSelectionPacket.class);
         CreativeCorePacket.registerPacket(LittleUpdateOutputPacket.class);
-        CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
-        CreativeCorePacket.registerPacket(LittleCancelClickThrough.class);
+        CreativeCorePacket.registerPacket(LittleInteractionPacket.class);
         
         CreativeCorePacket.registerPacket(LittleAnimationControllerPacket.class);
         CreativeCorePacket.registerPacket(LittleAnimationDestroyPacket.class);
@@ -601,8 +600,6 @@ public class LittleTiles {
         EntityRegistry.registerModEntity(new ResourceLocation(modid, "sit"), EntitySit.class, "sit", 1, this, 250, 250, true);
         EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
         
-        LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
-        
         proxy.loadSidePost();
         
         if (Loader.isModLoaded("warpdrive"))
@@ -617,6 +614,9 @@ public class LittleTiles {
             MinecraftForge.EVENT_BUS.register(LuxExtension.class);
         
         MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
+        
+        LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
+        LittleTilesServer.INTERACTION = new LittleInteractionHandlerServer();
         
     }
     

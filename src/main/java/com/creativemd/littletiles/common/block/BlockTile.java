@@ -16,6 +16,7 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
@@ -455,7 +456,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     @SideOnly(Side.CLIENT)
     public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
         TEResult result = loadTeAndTile(worldIn, pos, playerIn);
-        if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench))
+        if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) && LittleTilesClient.INTERACTION.start(true))
             return new LittleActionActivated(worldIn, pos, playerIn).execute();
         return false;
     }

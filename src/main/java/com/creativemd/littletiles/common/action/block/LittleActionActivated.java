@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.action.block;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
-import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -49,21 +48,6 @@ public class LittleActionActivated extends LittleActionInteract {
             .getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this))
             return true;
         return false;
-    }
-    
-    @Override
-    protected boolean action(EntityPlayer player) throws LittleActionException {
-        boolean result;
-        try {
-            result = super.action(player);
-        } catch (LittleActionException e) {
-            if (!player.world.isRemote)
-                LittleEventHandler.addBlockTilePrevent(player);
-            throw e;
-        }
-        if (!player.world.isRemote)
-            LittleEventHandler.addBlockTilePrevent(player);
-        return result;
     }
     
     @Override
