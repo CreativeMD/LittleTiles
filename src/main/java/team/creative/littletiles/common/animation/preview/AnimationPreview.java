@@ -5,27 +5,26 @@ import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.level.FakeLevel;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.transformation.LittleTransformation;
 import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.PlacementHelper;
+import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
-import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
@@ -35,7 +34,7 @@ public class AnimationPreview {
     public final EntityAnimation animation;
     public final LittleGroup previews;
     public final LittleBox entireBox;
-    public final LittleGrid context;
+    public final LittleGrid grid;
     public final AABB box;
     
     public AnimationPreview(LittleGroup previews) {
@@ -45,12 +44,12 @@ public class AnimationPreview {
         fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
         
         if (!previews.hasStructure()) {
-            NBTTagCompound nbt = new NBTTagCompound();
-            new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), null).writeToNBT(nbt);
-            previews = new LittlePreviews(nbt, previews);
+            CompoundTag nbt = new CompoundTag();
+            new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), null).save(nbt);
+            previews = new LittleGroup(nbt, previews);
         }
         
-        Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, pos, PlacementMode.all));
+        Placement placement = new Placement(null, PlacementPreview.absolute(fakeWorld, null, new LittleGroupAbsolute(pos, previews), Facing.EAST));
         List<PlacePreview> placePreviews = new ArrayList<>();
         PlacementResult result = null;
         try {
@@ -60,8 +59,8 @@ public class AnimationPreview {
         }
         
         entireBox = previews.getSurroundingBox();
-        context = previews.getContext();
-        box = entireBox.getBB(context);
+        grid = previews.getGrid();
+        box = entireBox.getBB(grid);
         
         animation = new EntityAnimation(fakeWorld, fakeWorld, (EntityAnimationController) new EntityAnimationController() {
             
@@ -75,7 +74,7 @@ public class AnimationPreview {
             protected void load(CompoundTag nbt) {}
             
         }.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews
-                .getContext()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
+                .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
         
     }
     

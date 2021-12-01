@@ -162,7 +162,7 @@ public abstract class LittleDoor extends LittleStructure {
         return this;
     }
     
-    public abstract EntityAnimation openDoor(@Nullable Player player, UUIDSupplier uuid, boolean tickOnce) throws LittleActionException;
+    public abstract EntityAnimation openDoor(@Nullable Player player, boolean tickOnce) throws LittleActionException;
     
     public void onChildComplete(LittleDoor door, int childId) {
         

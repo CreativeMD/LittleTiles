@@ -16,4 +16,10 @@ public class ItemChildrenList extends ChildrenList<LittleGroup> {
         child.children.parent = parent;
     }
     
+    public LittleGroup getChild(int child) {
+        if (child >= 0 && child < sizeChildren())
+            return getChildDirectly(child);
+        return null;
+    }
+    
 }

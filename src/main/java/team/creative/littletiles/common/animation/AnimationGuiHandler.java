@@ -6,11 +6,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.mojang.math.Vector3d;
 
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
@@ -108,7 +108,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
         return tick;
     }
     
-    public void tick(LittlePreviews previews, LittleStructure structure, EntityAnimation animation) {
+    public void tick(LittleGroup previews, LittleStructure structure, EntityAnimation animation) {
         if (timeline == null)
             return;
         
@@ -208,13 +208,13 @@ public class AnimationGuiHandler implements IAnimationHandler {
     
     public static class AnimationGuiHolder {
         
-        public final LittlePreviews previews;
+        public final LittleGroup previews;
         public final AnimationGuiHandler handler;
         public final LittleStructure structure;
         @Nullable
         public final EntityAnimation animation;
         
-        public AnimationGuiHolder(LittlePreviews previews, AnimationGuiHandler handler, LittleStructure structure, @Nullable EntityAnimation animation) {
+        public AnimationGuiHolder(LittleGroup previews, AnimationGuiHandler handler, LittleStructure structure, @Nullable EntityAnimation animation) {
             this.previews = previews;
             this.handler = handler;
             this.structure = structure;

@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.animation.event;
 
-import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -9,7 +7,6 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.AnimationGuiHandler.AnimationGuiHolder;
-import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -51,7 +48,7 @@ public class ChildActivateEvent extends AnimationEvent {
         LittleStructure structure = controller.parent.structure;
         
         try {
-            StructureChildConnection connector = structure.getChild(childId);
+            StructureChildConnection connector = structure.children.getChild(childId);
             if (!(connector.getStructure() instanceof LittleDoor))
                 return true;
             LittleDoor door = (LittleDoor) connector.getStructure();
@@ -59,7 +56,7 @@ public class ChildActivateEvent extends AnimationEvent {
             if (!door.canOpenDoor(null))
                 return true;
             
-            EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, true);
+            EntityAnimation childAnimation = door.openDoor(null, true);
             if (childAnimation != null)
                 childAnimation.controller.onServerApproves();
             
@@ -73,7 +70,7 @@ public class ChildActivateEvent extends AnimationEvent {
     public int getEventDuration(LittleStructure structure) {
         
         try {
-            StructureChildConnection connector = structure.getChild(childId);
+            StructureChildConnection connector = structure.children.getChild(childId);
             LittleStructure childStructure = connector.getStructure();
             if (childStructure instanceof LittleDoor) {
                 LittleDoor door = (LittleDoor) childStructure;
@@ -87,27 +84,27 @@ public class ChildActivateEvent extends AnimationEvent {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void prepareInGui(LittleGroup previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
-        if (structure.countChildren() <= childId)
+        if (!structure.children.hasChild(childId))
             return;
         try {
-            StructureChildConnection connector = structure.getChild(childId);
+            StructureChildConnection connector = structure.children.getChild(childId);
             LittleStructure childStructure = connector.getStructure();
             if (childStructure instanceof LittleDoor) {
                 LittleDoor child = (LittleDoor) childStructure;
                 EntityAnimation childAnimation;
                 if (!connector.isLinkToAnotherWorld())
-                    childAnimation = child.openDoor(null, new UUIDSupplier(), false);
+                    childAnimation = child.openDoor(null, false);
                 else if (child instanceof IAnimatedStructure)
                     childAnimation = ((IAnimatedStructure) child).getAnimation();
                 else
                     childAnimation = null;
                 
-                GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {};
-                AnimationGuiHolder holder = new AnimationGuiHolder(previews
+                GuiParent parent = new GuiParent("temp");
+                AnimationGuiHolder holder = new AnimationGuiHolder(previews.children
                         .getChild(childId), new AnimationGuiHandler(getTick(), handler), childAnimation == null ? child : childAnimation.structure, childAnimation);
                 LittleStructureGuiParser parser = LittleStructureRegistry
                         .getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
-                parser.create(holder.previews, StructureParentCollection.create(holder.previews.structureNBT, null));
+                parser.create(holder.previews, StructureParentCollection.create(holder.previews.getStructureTag(), null));
                 if (holder.handler.hasTimeline())
                     handler.subHolders.add(holder);
             }

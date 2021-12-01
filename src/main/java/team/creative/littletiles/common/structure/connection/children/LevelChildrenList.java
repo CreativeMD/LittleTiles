@@ -162,6 +162,10 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
         return connector;
     }
     
+    public boolean hasChild(int child) {
+        return child >= 0 && child < sizeChildren();
+    }
+    
     public StructureChildConnection getChild(int child) throws CorruptedConnectionException, NotYetConnectedException {
         if (child >= 0 && child < sizeChildren())
             return getChildDirectly(child);

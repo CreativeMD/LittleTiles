@@ -20,6 +20,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.entity.player.Player;
+import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.WorldUtils;
@@ -55,7 +56,6 @@ public class DoorController extends EntityAnimationController {
     public int completeDuration;
     public int interpolation;
     public Player activator;
-    public UUIDSupplier supplier;
     
     public boolean noClip;
     
@@ -65,9 +65,7 @@ public class DoorController extends EntityAnimationController {
         
     }
     
-    public DoorController(UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
-        this.supplier = supplier;
-        
+    public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
         this.turnBack = turnBack;
         this.duration = duration;
         this.completeDuration = completeDuration;
@@ -83,9 +81,7 @@ public class DoorController extends EntityAnimationController {
         stretchTransitions();
     }
     
-    public DoorController(UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close, int interpolation) {
-        this.supplier = supplier;
-        
+    public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close, int interpolation) {
         this.turnBack = turnBack;
         this.duration = duration;
         this.completeDuration = completeDuration;
@@ -112,8 +108,8 @@ public class DoorController extends EntityAnimationController {
         return super.addTransition(from, to, animation);
     }
     
-    public DoorController(UUIDSupplier supplier, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
-        this(supplier, new AnimationState(), opened, turnBack, duration, completeDuration, interpolation);
+    public DoorController(AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
+        this(new AnimationState(), opened, turnBack, duration, completeDuration, interpolation);
     }
     
     protected void stretchTransitions() {
@@ -151,12 +147,12 @@ public class DoorController extends EntityAnimationController {
     
     @Override
     public AnimationState tick() {
-        if (parent.world.isRemote && placed != null) {
+        if (parent.level.isClientSide && placed != null) {
             if (isWaitingForApprove) {
                 if (ticksToWait < 0)
                     ticksToWait = waitTimeApprove;
                 else if (ticksToWait == 0)
-                    parent.isDead = true;
+                    parent.kill();
                 else
                     ticksToWait--;
             } else
@@ -165,7 +161,7 @@ public class DoorController extends EntityAnimationController {
         
         if (isChanging()) {
             try {
-                parent.structure.load();
+                parent.structure.checkConnections();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 return currentState.state;
             }
@@ -199,7 +195,7 @@ public class DoorController extends EntityAnimationController {
     
     public void place() {
         try {
-            parent.structure.load();
+            parent.structure.checkConnections();
             
             World world = parent.world;
             LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
@@ -245,7 +241,7 @@ public class DoorController extends EntityAnimationController {
             parent.markRemoved();
             
             if (world.isRemote) {
-                boolean subWorld = world instanceof IOrientatedWorld;
+                boolean subWorld = world instanceof IOrientatedLevel;
                 HashMapList<Object, TileEntityLittleTiles> chunks = new HashMapList<>();
                 if (subWorld)
                     for (TileEntityLittleTiles te : result.tileEntities)
