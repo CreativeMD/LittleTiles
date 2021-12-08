@@ -49,11 +49,11 @@ public class PlacementPosition extends LittleAbsoluteVec {
         this.contextVec = pos.getVecContext();
     }
     
-    public AxisAlignedBB getBox() {
+    public AxisAlignedBB getBox(LittleGridContext context) {
         double x = getPosX();
         double y = getPosY();
         double z = getPosZ();
-        return new AxisAlignedBB(x, y, z, x + getContext().pixelSize, y + getContext().pixelSize, z + getContext().pixelSize);
+        return new AxisAlignedBB(x, y, z, x + context.pixelSize, y + context.pixelSize, z + context.pixelSize);
     }
     
     public void subVec(LittleVec vec) {

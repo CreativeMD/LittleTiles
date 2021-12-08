@@ -16,9 +16,9 @@ public interface IMarkMode {
     @SideOnly(Side.CLIENT)
     public SubGui getConfigurationGui();
     
-    public void render(double x, double y, double z);
+    public void render(LittleGridContext positionContext, double x, double y, double z);
     
-    public void move(LittleGridContext context, EnumFacing facing);
+    public void move(LittleGridContext positionContext, EnumFacing facing);
     
     public void done();
     

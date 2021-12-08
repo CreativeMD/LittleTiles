@@ -81,14 +81,17 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void render(double x, double y, double z) {
+    public void render(LittleGridContext positionContext, double x, double y, double z) {
         GlStateManager.enableBlend();
         GlStateManager
             .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
-        AxisAlignedBB box = position.getBox().grow(0.002).offset(-x, -y, -z);
+        double posX = position.getPosX();
+        double posY = position.getPosY();
+        double posZ = position.getPosZ();
+        AxisAlignedBB box = new AxisAlignedBB(x, y, z, x + positionContext.pixelSize, y + positionContext.pixelSize, z + positionContext.pixelSize).grow(0.002).offset(-x, -y, -z);
         
         GlStateManager.glLineWidth(4.0F);
         RenderGlobal.drawSelectionBoundingBox(box, 0.0F, 0.0F, 0.0F, 1F);
@@ -104,15 +107,13 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void move(LittleGridContext context, EnumFacing facing) {
+    public void move(LittleGridContext positionContext, EnumFacing facing) {
         LittleVec vec = new LittleVec(facing);
-        vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
-        position.subVec(vec);
+        vec.scale(GuiScreen.isCtrlKeyDown() ? positionContext.size : 1);
+        position.sub(new LittleVecContext(vec, positionContext));
     }
     
     @Override
-    public void done() {
-        
-    }
+    public void done() {}
     
 }

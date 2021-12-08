@@ -119,7 +119,7 @@ public class PreviewRenderer {
                 double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
                 double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
                 
-                processRotateKeys(stack, position.getContext());
+                processRotateKeys(stack, ((ILittleTool) stack.getItem()).getPositionContext(stack));
                 
                 ((ILittleTool) stack.getItem()).tick(player, stack, position, mc.objectMouseOver);
                 
@@ -174,7 +174,7 @@ public class PreviewRenderer {
                 
                 ((ILittleTool) stack.getItem()).render(player, stack, x, y, z);
                 if (marked != null)
-                    marked.render(x, y, z);
+                    marked.render(((ILittleTool) stack.getItem()).getPositionContext(stack), x, y, z);
             } else
                 marked = null;
         }
