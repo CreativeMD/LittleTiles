@@ -19,7 +19,6 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -69,10 +68,6 @@ public class LittleLight extends LittleStructure {
             World world = getWorld();
             try {
                 tryAttributeChangeForBlocks();
-                for (IStructureTileList list : blocksList()) {
-                    IBlockState state = world.getBlockState(list.getPos());
-                    world.notifyBlockUpdate(list.getPos(), state, state, 2);
-                }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
     }

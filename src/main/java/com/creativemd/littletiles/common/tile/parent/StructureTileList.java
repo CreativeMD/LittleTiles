@@ -102,6 +102,7 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     @Override
     public void setAttribute(int attribute) {
         this.attribute = attribute;
+        getTe().updateTiles(false);
     }
     
     @Override

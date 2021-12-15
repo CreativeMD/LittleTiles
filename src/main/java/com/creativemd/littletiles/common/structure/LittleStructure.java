@@ -436,8 +436,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     /** takes name of stack and connects the structure to its children (does so recursively)
      * 
-     * @param stack
-     */
+     * @param stack */
     public void placedStructure(@Nullable ItemStack stack) {
         NBTTagCompound nbt;
         if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
