@@ -165,15 +165,13 @@ public class DoorController extends EntityAnimationController {
             
             parent.structure.load();
             LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
-            
-            parent.structure.callStructureDestroyedToSameWorld();
-            
             Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all))
                 .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
             
             LittleDoor newDoor;
             PlacementResult result;
             if ((result = placement.tryPlace()) != null) {
+                parent.structure.callStructureDestroyedToSameWorld();
                 
                 newDoor = (LittleDoor) result.parentStructure;
                 newDoor.transferChildrenFromAnimation(parent);
@@ -188,11 +186,12 @@ public class DoorController extends EntityAnimationController {
                 PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(parent.getUniqueID(), true), parent, null);
                 parent.markRemoved();
                 newDoor.completeAnimation();
-            } else {
+            } else if (parent.structure.getParent() == null) {
                 parent.destroyAndNotify();
                 WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
                 return;
-            }
+            } else
+                ((LittleDoor) parent.structure).completeAnimation();
             
         } catch (CorruptedConnectionException | NotYetConnectedException | IllegalArgumentException e) {
             e.printStackTrace();
