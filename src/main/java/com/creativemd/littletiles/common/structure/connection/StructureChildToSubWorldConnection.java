@@ -53,7 +53,7 @@ public class StructureChildToSubWorldConnection extends StructureChildConnection
         EntityAnimation animation = WorldAnimationHandler.getHandler(super.getWorld()).findAnimation(entityUUID);
         if (animation != null)
             animation.destroyAndNotify();
-        neighbor = new LittleNeighborUpdateCollector(animation.fakeWorld);
+        neighbor = animation != null ? new LittleNeighborUpdateCollector(animation.fakeWorld) : LittleNeighborUpdateCollector.EMPTY;
         for (StructureChildConnection child : getStructure().getChildren())
             child.destroyStructure(neighbor);
         neighbor.process();

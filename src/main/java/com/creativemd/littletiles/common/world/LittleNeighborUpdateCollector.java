@@ -12,6 +12,24 @@ import net.minecraft.world.World;
 
 public class LittleNeighborUpdateCollector extends NeighborUpdateCollector {
     
+    public static final LittleNeighborUpdateCollector EMPTY = new LittleNeighborUpdateCollector(null) {
+        
+        @Override
+        public void add(BlockPos pos) {}
+        
+        @Override
+        public void add(TileEntity te) {}
+        
+        @Override
+        public void add(Collection<BlockPos> positions) {}
+        
+        @Override
+        protected void processPosition(BlockPos pos, HashSet<BlockPos> notifiedBlocks) {}
+        
+        @Override
+        public void process() {}
+    };
+    
     public LittleNeighborUpdateCollector(World world, Collection<BlockPos> positions) {
         super(world, positions);
     }
