@@ -1194,7 +1194,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                 infos.add("a" + i + ":" + BooleanUtils.print(inputs[i].getState()));
         for (ISignalStructureComponent component : inputs())
             try {
-                infos.add("i" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+                infos.add("i" + component.getId() + ":" + BooleanUtils.print(component.getState()) + component.getNetwork());
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("i" + component.getId() + ":broken");
             }
@@ -1203,7 +1203,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                 infos.add("b" + i + ":" + BooleanUtils.print(outputs[i].getState()));
         for (ISignalStructureComponent component : outputs())
             try {
-                infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+                infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()) + component.getNetwork());
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("o" + component.getId() + ":broken");
             }

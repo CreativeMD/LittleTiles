@@ -4,5 +4,6 @@ public enum SignalComponentType {
     TRANSMITTER,
     INPUT,
     OUTPUT,
-    IOSPECIAL;
+    IOSPECIAL,
+    INVALID;
 }

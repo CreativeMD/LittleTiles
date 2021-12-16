@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.structure.exception.CorruptedConnection
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.schedule.ISignalSchedulable;
 
 import net.minecraft.world.World;
@@ -20,6 +21,7 @@ public class SignalNetwork implements ISignalSchedulable {
     private final boolean[] state;
     private boolean changed = false;
     private boolean forceUpdate = false;
+    private boolean containsUnloadedComponents = false;
     private List<ISignalStructureTransmitter> transmitters = new ArrayList<>();
     /** are outputs of the network's perspective as they are inputs of machines (receive signals) */
     private List<ISignalStructureComponent> inputs = new ArrayList<>();
@@ -33,6 +35,10 @@ public class SignalNetwork implements ISignalSchedulable {
     
     public List<ISignalStructureComponent> getOutputs() {
         return outputs;
+    }
+    
+    public boolean requiresResearch() {
+        return containsUnloadedComponents;
     }
     
     @Override
@@ -137,6 +143,9 @@ public class SignalNetwork implements ISignalSchedulable {
     }
     
     public void add(ISignalStructureBase base) {
+        if (base.getType() == SignalComponentType.INVALID)
+            containsUnloadedComponents = true;
+        
         if (base.getNetwork() == this)
             return;
         
@@ -213,6 +222,11 @@ public class SignalNetwork implements ISignalSchedulable {
             return false;
         }
         return false;
+    }
+    
+    @Override
+    public String toString() {
+        return Integer.toHexString(hashCode());
     }
     
     @Override

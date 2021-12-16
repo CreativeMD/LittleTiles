@@ -172,6 +172,13 @@ public class TESignalConverter extends TileEntityCreative implements ISignalStru
         }
     }
     
+    @Override
+    public void unload(EnumFacing facing, ISignalStructureBase base) {
+        int index = indexOf(base);
+        if (index != -1)
+            connections.remove(index);
+    }
+    
     public class SignalConnection {
         
         public final EnumFacing facing;
