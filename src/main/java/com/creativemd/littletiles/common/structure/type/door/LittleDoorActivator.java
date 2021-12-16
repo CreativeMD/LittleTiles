@@ -80,6 +80,7 @@ public class LittleDoorActivator extends LittleDoor {
                 continue;
             child.openDoor(player, uuid, tickOnce);
         }
+        updateStructure();
         return null;
     }
     
@@ -136,6 +137,7 @@ public class LittleDoorActivator extends LittleDoor {
         inMotion = checkChildrenInMotion();
         if (!inMotion)
             completeAnimation();
+        updateStructure();
     }
     
     public static class LittleDoorActivatorParser extends LittleStructureGuiParser {
