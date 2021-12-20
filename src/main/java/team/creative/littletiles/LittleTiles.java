@@ -37,12 +37,12 @@ import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.network.CreativeNetwork;
@@ -475,7 +475,7 @@ public class LittleTiles {
                 .registerAll(HAMMER, BLUEPRINT, SAW, BAG, WRENCH, SCREWDRIVER, CHISEL, PAINT_BRUSH, ITEM_TILES, GLOVE, PREMADE, BLOCK_INGREDIENT, BLOCK_INGREDIENT, CYAN_COLOR, MAGENTA_COLOR, YELLOW_COLOR, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));
     }
     
-    private void serverStarting(final FMLServerStartingEvent event) {
+    private void serverStarting(final ServerStartingEvent event) {
         Field loadedBlockEntities = ObfuscationReflectionHelper.findField(Level.class, "f_46434_");
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
             x.getSource()

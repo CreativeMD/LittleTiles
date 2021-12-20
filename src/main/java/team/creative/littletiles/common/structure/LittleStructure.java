@@ -37,8 +37,8 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.type.HashMapList;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
@@ -322,8 +322,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     /** takes name of stack and connects the structure to its children (does so recursively)
      * 
-     * @param stack
-     */
+     * @param stack */
     public void placedStructure(@Nullable ItemStack stack) {
         CompoundTag nbt;
         if (name == null && stack != null && (nbt = stack.getTagElement("display")) != null && nbt.contains("Name", 8))

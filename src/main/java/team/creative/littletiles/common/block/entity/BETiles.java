@@ -37,7 +37,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.common.api.block.ILittleBlockEntity;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
