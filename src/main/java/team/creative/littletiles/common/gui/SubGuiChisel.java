@@ -43,7 +43,7 @@ public class SubGuiChisel extends SubGuiConfigure {
         LittlePreview preview = ItemLittleChisel.getPreview(stack);
         Color color = ColorUtils.IntToRGBA(preview.getColor());
         controls.add(new GuiColorPicker("picker", 2, 2, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
-        GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 75, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+        GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 75, 112, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         
         selector.setSelectedForce(preview.getBlockStack());
         controls.add(selector);

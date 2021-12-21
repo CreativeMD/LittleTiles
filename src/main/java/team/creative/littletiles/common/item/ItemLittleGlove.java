@@ -55,7 +55,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.LittleSubGuiUtils;
+import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.SubGuiGrabber;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
@@ -379,7 +379,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
                     label.avatarSize = 32;
                     controls.add(label);
                     
-                    GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+                    GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
                     selector.setSelectedForce(preview.getBlockStack());
                     controls.add(selector);
                     
@@ -586,7 +586,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
                     controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
                             .getMinimumTransparency(getPlayer())));
                     
-                    GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+                    GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
                     selector.setSelectedForce(preview.getBlockStack());
                     controls.add(selector);
                     super.createControls();

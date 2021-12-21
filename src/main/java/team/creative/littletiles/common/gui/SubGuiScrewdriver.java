@@ -52,7 +52,7 @@ public class SubGuiScrewdriver extends SubGuiConfigure {
             stack.setTagCompound(new NBTTagCompound());
         
         controls.add(new GuiCheckBox("any", "any", 5, 8, false));
-        GuiStackSelectorAll selector = new GuiStackSelectorAll("filter", 40, 5, 130, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+        GuiStackSelectorAll selector = new GuiStackSelectorAll("filter", 40, 5, 130, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         if (lastSelectedSearchStack != null)
             selector.setSelectedForce(lastSelectedSearchStack);
         controls.add(selector);
@@ -62,7 +62,7 @@ public class SubGuiScrewdriver extends SubGuiConfigure {
         
         controls.add(new GuiCheckBox("replace", "Replace with", 5, 73, false));
         
-        selector = new GuiStackSelectorAll("replacement", 40, 87, 130, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+        selector = new GuiStackSelectorAll("replacement", 40, 87, 130, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         if (lastSelectedReplaceStack != null)
             selector.setSelectedForce(lastSelectedReplaceStack);
         controls.add(selector);

@@ -13,7 +13,7 @@ import team.creative.littletiles.common.filter.TileFilters;
 import team.creative.littletiles.common.filter.TileFilters.TileBlockFilter;
 import team.creative.littletiles.common.filter.TileFilters.TileBlockStateFilter;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.LittleSubGuiUtils;
+import team.creative.littletiles.common.gui.LittleGuiUtils;
 
 public abstract class GuiGridSelector extends GuiConfigure {
     
@@ -54,7 +54,7 @@ public abstract class GuiGridSelector extends GuiConfigure {
         
         add(new GuiCheckBox("any", selector == null || !activeFilter).setTranslate("gui.any"));
         
-        GuiStackSelector guiSelector = new GuiStackSelector("filter", getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
+        GuiStackSelector guiSelector = new GuiStackSelector("filter", getPlayer(), LittleGuiUtils.getCollector(getPlayer()));
         if (selector instanceof TileBlockStateFilter stateFilter)
             guiSelector.setSelectedForce(new ItemStack(stateFilter.state.getBlock()));
         else if (selector instanceof TileBlockFilter blockFilter)

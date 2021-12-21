@@ -49,7 +49,7 @@ public class SubGuiBuilder extends SubGui {
         controls.add(box);
         controls.add(new GuiStateButton("grid", LittleGridContext.getNames().indexOf(builder.lastGrid + ""), 145, 38, 20, 12, LittleGridContext.getNames()
             .toArray(new String[0])));
-        GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 38, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+        GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 38, 112, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         selector.setSelectedForce(new ItemStack(builder.lastBlockState.getBlock(), 1, builder.lastBlockState.getBlock().getMetaFromState(builder.lastBlockState)));
         controls.add(selector);
         controls.add(new GuiLabel("failed", translate("gui.frame_builder.failed"), 90, 20, ColorUtils.RED).setVisible(false));

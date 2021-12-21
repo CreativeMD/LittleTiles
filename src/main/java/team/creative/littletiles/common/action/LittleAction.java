@@ -412,13 +412,18 @@ public abstract class LittleAction extends CreativePacket {
         return inventories;
     }
     
-    public static boolean isBlockValid(BlockState state) {
-        Block block = state.getBlock();
-        if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
-            return true;
+    public static boolean isBlockValid(Block block) {
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
-        return state.isSolidRender(null, null) || block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock;
+        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock;
+    }
+    
+    public static boolean isBlockValid(BlockState state) {
+        if (isBlockValid(state.getBlock()))
+            return true;
+        if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
+            return true;
+        return state.isSolidRender(null, null);
     }
     
 }
