@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -24,7 +22,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiRecipe;
 import team.creative.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -131,12 +129,13 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
-                ItemMultiTiles.currentContext = context;
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
+                ItemMultiTiles.currentContext = grid;
                 ItemMultiTiles.currentMode = mode;
+                return nbt;
             }
             
         };

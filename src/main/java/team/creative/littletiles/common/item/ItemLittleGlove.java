@@ -41,7 +41,6 @@ import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
-import team.creative.creativecore.common.util.type.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
@@ -58,7 +57,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.SubGuiGrabber;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -158,12 +157,13 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
-                ItemMultiTiles.currentContext = context;
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
+                ItemMultiTiles.currentContext = grid;
                 ItemMultiTiles.currentMode = mode;
+                return grid;
             }
             
         };

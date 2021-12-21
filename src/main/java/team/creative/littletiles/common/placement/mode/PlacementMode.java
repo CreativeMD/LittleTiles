@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -19,7 +21,7 @@ public abstract class PlacementMode {
      * cannot be placed entirely. **/
     public static final PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS, false);
     
-    public static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(normal);
+    private static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(normal);
     
     /** Tries to fill in the tiles where it is possible. **/
     public static final PlacementMode fill = new PlaceModeFill("placement.mode.fill", PreviewMode.PREVIEWS);
@@ -42,8 +44,14 @@ public abstract class PlacementMode {
     /** Will not place anything but just remove the shape, basically like replace without the placing part **/
     public static final PlacementMode colorize = new PlacementModeColorize("placement.mode.colorize", PreviewMode.LINES);
     
+    private static final TextMapBuilder<PlacementMode> map = new TextMapBuilder<>();
+    
     public static PlacementMode getStructureDefault() {
         return PlacementMode.all;
+    }
+    
+    public static PlacementMode getDefault() {
+        return REGISTRY.getDefault();
     }
     
     public static PlacementMode getMode(String name) {
@@ -55,6 +63,15 @@ public abstract class PlacementMode {
         if (mode.canPlaceStructures() || !structure)
             return mode;
         return getStructureDefault();
+    }
+    
+    public void register(String id, PlacementMode handler) {
+        REGISTRY.register(id, handler);
+        map.addComponent(handler, new TranslatableComponent(handler.name));
+    }
+    
+    public static TextMapBuilder<PlacementMode> map() {
+        return map;
     }
     
     static {

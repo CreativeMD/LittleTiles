@@ -3,6 +3,7 @@ package team.creative.littletiles.common.item;
 import java.util.HashMap;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -18,7 +19,7 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -52,12 +53,13 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemLittleChisel.currentMode) {
+        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, ItemLittleChisel.currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
                 ItemLittleChisel.currentMode = mode;
-                ItemMultiTiles.currentContext = context;
+                ItemMultiTiles.currentContext = grid;
+                return nbt;
             }
         };
     }

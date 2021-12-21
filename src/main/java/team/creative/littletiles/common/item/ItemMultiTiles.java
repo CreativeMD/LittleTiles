@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import com.google.common.base.Charsets;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -22,7 +23,7 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
@@ -31,7 +32,7 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 
 public class ItemMultiTiles extends Item implements ILittlePlacer {
     
-    public static PlacementMode currentMode = PlacementMode.REGISTRY.getDefault();
+    public static PlacementMode currentMode = PlacementMode.getDefault();
     public static LittleGrid currentContext;
     
     public ItemMultiTiles() {
@@ -99,12 +100,13 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGrid grid, PlacementMode mode) {
-                ItemMultiTiles.currentContext = context;
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
+                ItemMultiTiles.currentContext = grid;
                 ItemMultiTiles.currentMode = mode;
+                return nbt;
             }
             
         };

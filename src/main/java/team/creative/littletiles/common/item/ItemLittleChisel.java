@@ -2,8 +2,6 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -37,7 +35,7 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiChisel;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -232,14 +230,15 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, currentMode) {
+        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
                 currentMode = mode;
                 if (selection != null)
-                    selection.convertTo(context);
-                ItemMultiTiles.currentContext = context;
+                    selection.convertTo(grid);
+                ItemMultiTiles.currentContext = grid;
+                return nbt;
             }
         };
     }
