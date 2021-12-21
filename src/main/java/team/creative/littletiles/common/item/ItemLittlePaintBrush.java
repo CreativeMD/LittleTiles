@@ -21,6 +21,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -34,10 +35,12 @@ import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiColorTube;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiGridSelector;
+import team.creative.littletiles.common.gui.configure.GuiGridSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -185,14 +188,15 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
+        return new GuiGridSelector(stack, ItemMultiTiles.currentContext, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {
                 ItemLittleHammer.setFilter(activeFilter, selector);
                 if (selection != null)
-                    selection.convertTo(context);
-                ItemMultiTiles.currentContext = context;
+                    selection.convertTo(grid);
+                ItemMultiTiles.currentContext = grid;
+                return nbt;
             }
         };
     }

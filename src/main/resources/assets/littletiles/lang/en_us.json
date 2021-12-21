@@ -27,5 +27,6 @@
 	"gui.paste": "Paste",
 	"gui.import": "Import",
 	"gui.tile.count": "tiles",
-	"gui.structure": "structure"
+	"gui.structure": "structure",
+	"gui.any": "any"
 }

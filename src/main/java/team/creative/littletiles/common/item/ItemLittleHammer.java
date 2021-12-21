@@ -13,14 +13,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
-import team.creative.creativecore.common.util.filter.Filter;
+import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
@@ -32,10 +31,12 @@ import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiHammer;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiGridSelector;
+import team.creative.littletiles.common.gui.configure.GuiGridSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -48,19 +49,19 @@ import team.creative.littletiles.common.placement.shape.ShapeSelection;
 public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip, GuiHandler {
     
     private static boolean activeFilter = false;
-    private static Filter<Block> currentFilter = null;
+    private static BiFilter<IParentCollection, LittleTile> currentFilter = null;
     public static ShapeSelection selection;
     
     public static boolean isFiltered() {
         return activeFilter;
     }
     
-    public static void setFilter(boolean active, Filter<Block> filter) {
+    public static void setFilter(boolean active, BiFilter<IParentCollection, LittleTile> filter) {
         activeFilter = active;
         currentFilter = filter;
     }
     
-    public static Filter<Block> getFilter() {
+    public static BiFilter<IParentCollection, LittleTile> getFilter() {
         return currentFilter;
     }
     
@@ -167,14 +168,15 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     @Override
     @OnlyIn(Dist.CLIENT)
     public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
+        return new GuiGridSelector(stack, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {
                 setFilter(activeFilter, selector);
                 if (selection != null)
-                    selection.convertTo(context);
-                ItemMultiTiles.currentContext = context;
+                    selection.convertTo(grid);
+                ItemMultiTiles.currentContext = grid;
+                return nbt;
             }
         };
     }
