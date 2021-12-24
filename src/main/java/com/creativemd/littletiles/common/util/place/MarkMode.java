@@ -108,7 +108,7 @@ public class MarkMode implements IMarkMode {
     
     @Override
     public void move(LittleGridContext positionContext, EnumFacing facing) {
-        LittleVec vec = new LittleVec(facing);
+        LittleVec vec = new LittleVec(facing.getOpposite());
         vec.scale(GuiScreen.isCtrlKeyDown() ? positionContext.size : 1);
         position.sub(new LittleVecContext(vec, positionContext));
     }
