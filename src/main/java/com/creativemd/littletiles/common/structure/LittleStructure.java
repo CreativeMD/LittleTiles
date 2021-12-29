@@ -35,6 +35,7 @@ import com.creativemd.littletiles.common.structure.exception.MissingChildExcepti
 import com.creativemd.littletiles.common.structure.exception.MissingParentException;
 import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+import com.creativemd.littletiles.common.structure.exception.RemovedStructureException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
@@ -160,6 +161,9 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     // ================Connections================
     
     public void load() throws CorruptedConnectionException, NotYetConnectedException {
+        if (mainBlock.isRemoved())
+            throw new RemovedStructureException();
+        
         for (StructureBlockConnector block : blocks)
             block.connect();
         

@@ -253,6 +253,9 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             return animation;
         }
         
+        if (mainBlock.isRemoved())
+            return null;
+        
         LittleAbsolutePreviews previews = getDoorPreviews();
         World world = getWorld();
         SubWorld fakeWorld = SubWorld.createFakeWorld(world);
