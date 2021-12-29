@@ -518,7 +518,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     public void unload(EnumFacing facing, ISignalStructureBase base) {
         int index = getIndex(facing);
         if (faces[index] != null)
-            faces[index].connection.unload(facing, base);
+            faces[index].connection = null;
     }
     
     public class LittleConnectionFace {
@@ -532,10 +532,11 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         public LittleConnectionFace() {}
         
         public void disconnect(EnumFacing facing) {
-            if (connection != null)
+            if (connection != null) {
                 connection.disconnect(facing.getOpposite(), LittleSignalCableBase.this);
-            if (hasNetwork())
-                getNetwork().remove(connection);
+                if (hasNetwork())
+                    getNetwork().remove(connection);
+            }
             connection = null;
             updateStructure();
         }
