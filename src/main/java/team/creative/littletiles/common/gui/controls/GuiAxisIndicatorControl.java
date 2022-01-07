@@ -1,27 +1,25 @@
 package team.creative.littletiles.common.gui.controls;
 
-import org.lwjgl.util.Color;
-
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
-import com.creativemd.creativecore.common.gui.client.style.Style;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.common.action.LittleAction;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.entity.Entity;
+import team.creative.creativecore.client.render.GuiRenderHelper;
+import team.creative.creativecore.common.gui.GuiChildControl;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.util.math.geo.Rect;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.common.action.LittleAction;
 
 public class GuiAxisIndicatorControl extends GuiControl {
     
-    public GuiAxisIndicatorControl(String name, int x, int y) {
-        super(name, x, y, 30, 30);
+    public GuiAxisIndicatorControl(String name) {
+        super(name, 30, 30);
     }
     
     @Override
-    protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
-        
+    protected void renderContent(PoseStack matrix, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
         GlStateManager.translate(width / 2D, height / 2D, 0);
         
         float partialTicks = mc.getRenderPartialTicks();

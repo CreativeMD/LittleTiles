@@ -14,7 +14,6 @@ import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.util.text.TextListBuilder;
-import team.creative.littletiles.common.gui.SubContainerExport;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.placement.PlacementHelper;
 
@@ -40,7 +39,7 @@ public class GuiExport extends GuiLayer {
     }
     
     public void updateTextfield() {
-        ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
+        ItemStack stack = ((GuiExport) container).slot.getStackInSlot(0);
         if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemLittleBlueprint)) {
             GuiComboBox box = (GuiComboBox) get("type");
             if (box.getIndex() == 0)

@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;

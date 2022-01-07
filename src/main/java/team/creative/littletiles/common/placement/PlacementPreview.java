@@ -80,6 +80,10 @@ public class PlacementPreview {
         return level;
     }
     
+    public static PlacementPreview load(UUID levelUUID, LittleGroup previews, PlacementMode mode, PlacementPosition position, LittleBoxAbsolute box) {
+        return new PlacementPreview(levelUUID, previews, mode, position, box);
+    }
+    
     @OnlyIn(Dist.CLIENT)
     public static PlacementPreview absolute(Level level, ItemStack stack, LittleGroupAbsolute previews, Facing facing) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);

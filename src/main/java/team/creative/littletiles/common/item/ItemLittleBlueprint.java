@@ -79,7 +79,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        if (!((ItemLittleBlueprint) stack.getItem()).hasLittlePreview(stack))
+        if (!((ItemLittleBlueprint) stack.getItem()).hasTiles(stack))
             return new SubGuiRecipeAdvancedSelection(stack);
         return new SubGuiRecipe(stack);
     }

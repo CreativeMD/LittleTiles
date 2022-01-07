@@ -4,12 +4,11 @@ import java.lang.reflect.Field;
 
 import org.lwjgl.util.glu.Project;
 
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.math.Vector3d;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -17,17 +16,19 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import team.creative.creativecore.client.render.GuiRenderHelper;
 import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
     
     public EntityAnimation animation;
-    public LittleGridContext context;
+    public LittleGrid grid;
     public LittleVec min;
     
     public SmoothValue rotX = new SmoothValue(200);
@@ -36,27 +37,16 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     public SmoothValue distance = new SmoothValue(200);
     
     public boolean grabbed = false;
-    public int grabX;
-    public int grabY;
+    public double grabX;
+    public double grabY;
     
-    public GuiAnimationViewer(String name, int x, int y, int width, int height) {
-        super(name, x, y, width, height);
-        this.marginWidth = 0;
+    public GuiAnimationViewer(String name) {
+        super(name);
     }
     
     @Override
-    public boolean hasMouseOverEffect() {
-        return false;
-    }
-    
-    @Override
-    public boolean canOverlap() {
-        return false;
-    }
-    
-    @Override
-    public void mouseMove(int x, int y, int button) {
-        super.mouseMove(x, y, button);
+    public void mouseMoved(Rect rect, double x, double y) {
+        super.mouseMoved(rect, x, y);
         if (grabbed) {
             rotY.set(rotY.aimed() + x - grabX);
             rotX.set(rotX.aimed() + y - grabY);
@@ -66,7 +56,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     }
     
     @Override
-    public boolean mousePressed(int x, int y, int button) {
+    public boolean mouseClicked(Rect rect, double x, double y, int button) {
         if (button == 0) {
             grabbed = true;
             grabX = x;
@@ -77,14 +67,14 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     }
     
     @Override
-    public void mouseReleased(int x, int y, int button) {
+    public void mouseReleased(Rect rect, double x, double y, int button) {
         if (button == 0)
             grabbed = false;
     }
     
     @Override
-    public boolean mouseScrolled(int x, int y, int scrolled) {
-        distance.set(Math.max(distance.aimed() + scrolled * -(GuiScreen.isCtrlKeyDown() ? 5 : 1), 0));
+    public boolean mouseScrolled(Rect rect, double x, double y, double scrolled) {
+        distance.set(Math.max(distance.aimed() + scrolled * -(Screen.hasControlDown() ? 5 : 1), 0));
         return true;
     }
     
@@ -94,7 +84,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     
     public static void makeLightBright() {
         try {
-            EntityRenderer renderer = Minecraft.getMinecraft().entityRenderer;
+            EntityRenderer renderer = Minecraft.getInstance().entityRenderer;
             
             int[] lightmapColors = (int[]) lightmapColorsField.get(renderer);
             for (int i = 0; i < 256; ++i)
@@ -194,8 +184,8 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     @Override
     public void onLoaded(AnimationPreview animationPreview) {
         this.animation = animationPreview.animation;
-        this.distance.setStart(animationPreview.context.toVanillaGrid(animationPreview.entireBox.getLongestSide()) / 2D + 2);
-        this.context = animationPreview.context;
+        this.distance.setStart(animationPreview.grid.toVanillaGrid(animationPreview.entireBox.getLongestSide()) / 2D + 2);
+        this.grid = animationPreview.grid;
         this.min = animationPreview.entireBox.getMinVec();
     }
 }

@@ -12,7 +12,7 @@ public class GuiDirectionIndicator extends GuiIconButton {
     private Facing direction;
     
     public GuiDirectionIndicator(String name, Facing facing) {
-        super(name,);
+        super(name);
         setDirection(facing);
     }
     
