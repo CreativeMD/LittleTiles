@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -34,12 +35,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import net.minecraftforge.fmlclient.registry.IRenderFactory;
 import net.minecraftforge.fmlclient.registry.RenderingRegistry;
 import team.creative.creativecore.client.CreativeCoreClient;
@@ -49,7 +50,6 @@ import team.creative.creativecore.client.render.model.CreativeRenderBlock;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.action.CompiledActionMessage;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
@@ -75,7 +75,6 @@ import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
-import team.creative.littletiles.common.item.tooltip.ActionMessage;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
 
@@ -102,8 +101,8 @@ public class LittleTilesClient {
     
     public static OverlayRenderer overlay;
     
-    public static void displayActionMessage(ActionMessage message) {
-        overlay.addMessage(new CompiledActionMessage(message));
+    public static void displayActionMessage(List<Component> message) {
+        overlay.addMessage(message);
     }
     
     public static void setup(final FMLClientSetupEvent event) {
@@ -221,7 +220,7 @@ public class LittleTilesClient {
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
         MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
         
-        overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis", 0, 0), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
+        overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
         
         ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
         reloadableResourceManager.registerReloadListener(new SimplePreparableReloadListener() {

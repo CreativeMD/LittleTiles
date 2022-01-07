@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
@@ -19,7 +20,6 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.ActionEvent.ActionType;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.item.tooltip.ActionMessage;
 import team.creative.littletiles.common.level.LevelHandler;
 
 @OnlyIn(Dist.CLIENT)
@@ -140,7 +140,7 @@ public class LittleActionHandlerClient extends LevelHandler {
         if (e.isHidden())
             return;
         
-        ActionMessage message = e.getActionMessage();
+        List<Component> message = e.getActionMessage();
         if (message != null)
             LittleTilesClient.displayActionMessage(message);
         else

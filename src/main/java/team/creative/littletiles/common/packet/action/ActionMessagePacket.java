@@ -1,24 +1,24 @@
 package team.creative.littletiles.common.packet.action;
 
+import java.util.List;
+
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.item.tooltip.ActionMessage;
 
 public class ActionMessagePacket extends CreativePacket {
     
-    public ActionMessage message;
+    public List<Component> message;
     
-    public ActionMessagePacket(ActionMessage message) {
+    public ActionMessagePacket(List<Component> message) {
         this.message = message;
     }
     
-    public ActionMessagePacket() {
-        
-    }
+    public ActionMessagePacket() {}
     
     @Override
     @OnlyIn(Dist.CLIENT)
@@ -27,8 +27,6 @@ public class ActionMessagePacket extends CreativePacket {
     }
     
     @Override
-    public void executeServer(ServerPlayer player) {
-        
-    }
+    public void executeServer(ServerPlayer player) {}
     
 }
