@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import team.creative.creativecore.common.util.math.interpolation.HermiteInterpolation.Tension;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.PairList;
 
 public abstract class ValueTimeline {
     

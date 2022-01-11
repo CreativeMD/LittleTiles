@@ -3,6 +3,7 @@ package team.creative.littletiles.common.block.little.registry;
 import java.util.Random;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -51,6 +52,11 @@ public class LittleMissingBlock implements LittleBlock {
     
     @Override
     public boolean is(Block block) {
+        return false;
+    }
+    
+    @Override
+    public boolean is(Tag<Block> tag) {
         return false;
     }
     

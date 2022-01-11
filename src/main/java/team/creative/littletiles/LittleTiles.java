@@ -18,6 +18,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
@@ -186,6 +188,8 @@ public class LittleTiles {
     public static Block OUTPUT_ARROW = new BlockArrow().setRegistryName("arrow_output");
     
     public static Block SIGNAL_CONVERTER = new BlockSignalConverter().setRegistryName("signal_converter");
+    
+    public static Tag<Block> STORAGE_BLOCKS;
     
     public static Item HAMMER;
     public static Item BLUEPRINT;
@@ -447,6 +451,8 @@ public class LittleTiles {
         MinecraftForge.EVENT_BUS.register(EntitySizeHandler.class);
         
         LEVEL_HANDLERS.register(LittleAnimationHandlerServer::new);
+        
+        STORAGE_BLOCKS = BlockTags.createOptional(new ResourceLocation(MODID, "storage_blocks"));
     }
     
     private void client(final FMLClientSetupEvent event) {

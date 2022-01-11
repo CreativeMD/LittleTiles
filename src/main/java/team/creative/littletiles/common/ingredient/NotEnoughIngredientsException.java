@@ -3,6 +3,7 @@ package team.creative.littletiles.common.ingredient;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.item.tooltip.ActionMessage;
@@ -41,7 +42,7 @@ public class NotEnoughIngredientsException extends LittleActionException {
     }
     
     @Override
-    public ActionMessage getActionMessage() {
+    public List<Component> getActionMessage() {
         String message = getLocalizedMessage() + "\n";
         List objects = new ArrayList();
         for (LittleIngredient ingredient : ingredients)

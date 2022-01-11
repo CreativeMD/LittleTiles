@@ -3,8 +3,8 @@ package team.creative.littletiles.common.animation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.PairList;
 
 public class AnimationTimeline {
     

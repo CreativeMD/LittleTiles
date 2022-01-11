@@ -3,6 +3,7 @@ package team.creative.littletiles.common.api.block;
 import java.util.Random;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -41,6 +42,11 @@ public interface ILittleMCBlock extends LittleBlock {
     @Override
     public default boolean is(ItemStack stack) {
         return Block.byItem(stack.getItem()) == asBlock();
+    }
+    
+    @Override
+    public default boolean is(Tag<Block> tag) {
+        return tag.contains(asBlock());
     }
     
     @Override

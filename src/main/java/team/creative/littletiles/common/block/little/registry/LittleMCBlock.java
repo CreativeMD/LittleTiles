@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Random;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -68,6 +69,11 @@ public class LittleMCBlock implements LittleBlock {
     @Override
     public boolean is(Block block) {
         return this.block == block;
+    }
+    
+    @Override
+    public boolean is(Tag<Block> tag) {
+        return tag.contains(block);
     }
     
     @Override

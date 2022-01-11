@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.list.Pair;
 
 public abstract class AnimationKey {
     

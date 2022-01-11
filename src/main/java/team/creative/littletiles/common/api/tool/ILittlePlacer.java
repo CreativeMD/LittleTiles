@@ -77,7 +77,7 @@ public interface ILittlePlacer extends ILittleTool {
     public default PlacementMode getPlacementMode(ItemStack stack) {
         if (stack.hasTag())
             return PlacementMode.getMode(stack.getTag().getString("mode"));
-        return PlacementMode.REGISTRY.getDefault();
+        return PlacementMode.getDefault();
     }
     
     public default boolean snapToGridByDefault(ItemStack stack) {

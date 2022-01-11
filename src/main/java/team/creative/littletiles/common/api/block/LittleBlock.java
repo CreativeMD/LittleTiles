@@ -5,6 +5,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -33,6 +34,8 @@ public interface LittleBlock {
     public boolean is(ItemStack stack);
     
     public boolean is(Block block);
+    
+    public boolean is(Tag<Block> tag);
     
     public boolean noCollision();
     

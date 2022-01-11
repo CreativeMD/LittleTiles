@@ -3,16 +3,9 @@ package team.creative.littletiles.common.structure.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
-import com.creativemd.littletiles.common.block.BlockStorageTile;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.Container;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -23,19 +16,20 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.InventoryUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubContainerStorage;
+import team.creative.littletiles.common.gui.GuiStorage;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.StackIngredient;
-import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -46,7 +40,7 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 
 public class LittleStorage extends LittleStructure {
     
-    private List<SubContainerStorage> openContainers = new ArrayList<SubContainerStorage>();
+    private List<GuiStorage> openContainers = new ArrayList<GuiStorage>();
     
     public static int maxSlotStackSize = 64;
     
@@ -101,11 +95,9 @@ public class LittleStorage extends LittleStructure {
     public void onStructureDestroyed() {
         super.onStructureDestroyed();
         if (!getLevel().isClientSide) {
-            for (SubContainerStorage container : openContainers) {
+            for (GuiStorage container : openContainers) {
                 container.storage = null;
-                NBTTagCompound nbt = new NBTTagCompound();
-                PacketHandler.sendPacketToPlayer(new GuiLayerPacket(nbt, container.getLayerID(), true), (EntityPlayerMP) container.player);
-                container.closeLayer(nbt, true);
+                container.closeThisLayer();
             }
         }
     }
@@ -113,15 +105,14 @@ public class LittleStorage extends LittleStructure {
     public static int getSizeOfInventory(LittleGroup previews) {
         double size = 0;
         String name = LittleTiles.STORAGE_BLOCK.getRegistryName().toString();
-        for (LittleTile tile : previews) {
+        for (LittleTile tile : previews)
             if (tile.getBlock().blockName().equals(name))
-                size += (tile.getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
-        }
-        return size;
+                size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
+        return (int) size;
     }
     
     public boolean hasPlayerOpened(Player player) {
-        for (SubContainerStorage container : openContainers)
+        for (GuiStorage container : openContainers)
             if (container.getPlayer() == player)
                 return true;
         return false;
@@ -133,7 +124,7 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTile tile, LittleBox box, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide && !hasPlayerOpened(player))
             LittleStructureGuiHandler.openGui("littleStorageStructure", new CompoundTag(), player, this);
         return InteractionResult.SUCCESS;
@@ -161,12 +152,12 @@ public class LittleStorage extends LittleStructure {
         getInput(1).updateState(BooleanUtils.toBits(filled, 16));
     }
     
-    public void openContainer(SubContainerStorage container) {
+    public void openContainer(GuiStorage container) {
         openContainers.add(container);
         updateInput();
     }
     
-    public void closeContainer(SubContainerStorage container) {
+    public void closeContainer(GuiStorage container) {
         openContainers.remove(container);
         updateInput();
         onInventoryChanged();
@@ -207,14 +198,13 @@ public class LittleStorage extends LittleStructure {
         
         @Override
         public LittleStorage parseStructure(LittleGroup previews) {
-            
             LittleStorage storage = createStructure(LittleStorage.class, null);
             storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
             
-            for (int i = 0; i < previews.size(); i++) {
-                if (previews.get(i).getBlock() instanceof BlockStorageTile)
-                    previews.get(i).setInvisibile(storage.invisibleStorageTiles);
-            }
+            for (LittleTile tile : previews)
+                if (tile.getBlock().is(LittleTiles.STORAGE_BLOCKS))
+                    tile.color = ColorUtils.setAlpha(tile.color, 0);
+                
             storage.inventorySize = getSizeOfInventory(previews);
             storage.stackSizeLimit = maxSlotStackSize;
             storage.updateNumberOfSlots();

@@ -14,7 +14,7 @@ import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.model.CreativeBakedModel;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LevelAwareHandler;
 
