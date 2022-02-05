@@ -34,9 +34,9 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiHammer;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.GuiGridSelector;
+import team.creative.littletiles.common.gui.tool.GuiHammer;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -138,7 +138,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new SubGuiHammer(stack);
+        return new GuiHammer(stack);
     }
     
     @Override
@@ -182,7 +182,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     public static LittleShape getShape(ItemStack stack) {
-        return ShapeRegistry.getShape(stack.getOrCreateTag().getString("shape"));
+        return ShapeRegistry.REGISTRY.get(stack.getOrCreateTag().getString("shape"));
     }
     
     @Override
@@ -192,7 +192,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getLocalizedName(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.configure
+        return new Object[] { getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.configure
                 .getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
     }
 }
