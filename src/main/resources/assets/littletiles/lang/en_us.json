@@ -29,5 +29,6 @@
 	"gui.tile.count": "tiles",
 	"gui.structure": "structure",
 	"gui.any": "any",
-	"gui.export.data": "data"
+	"gui.export.data": "data",
+	"dialog.invalid_grid": "Invalid grid size '%s'"
 }
