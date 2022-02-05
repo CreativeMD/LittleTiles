@@ -2,11 +2,10 @@ package team.creative.littletiles.common.placement.shape;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.placement.shape.type.LittleShapeBox;
 import team.creative.littletiles.common.placement.shape.type.LittleShapeConnected;
 import team.creative.littletiles.common.placement.shape.type.LittleShapeCurve;
@@ -25,58 +24,39 @@ import team.creative.littletiles.common.placement.shape.type.LittleShapeWall;
 
 public class ShapeRegistry {
     
-    private static LinkedHashMap<String, LittleShape> shapes = new LinkedHashMap<>();
+    public static final LittleShape TILE_SHAPE = new LittleShapeTile();
+    public static final LittleShape DEFAULT_SHAPE = new LittleShapeBox();
+    public static final NamedHandlerRegistry<LittleShape> REGISTRY = new NamedHandlerRegistry<LittleShape>(TILE_SHAPE);
+    private static final HashMapList<ShapeType, String> SHAPE_TYPES = new HashMapList<>();
+    private static final List<LittleShape> NO_TILE_LIST = new ArrayList<>();
+    private static final List<LittleShape> PLACING_LIST = new ArrayList<>();
     
-    private static HashMapList<ShapeType, String> shapeTypeLists = new HashMapList<>();
-    private static List<String> noTileList = new ArrayList<>();
-    private static List<String> placingList = new ArrayList<>();
-    
-    private static LittleShape defaultShape;
-    public static LittleShape tileShape;
-    
-    public static Collection<LittleShape> shapes() {
-        return shapes.values();
+    public static Collection<LittleShape> notTileShapes() {
+        return NO_TILE_LIST;
     }
     
-    public static Collection<String> allShapeNames() {
-        return shapes.keySet();
-    }
-    
-    public static Collection<String> notTileShapeNames() {
-        return noTileList;
-    }
-    
-    public static Collection<String> placingShapeNames() {
-        return placingList;
+    public static Collection<LittleShape> placingShapes() {
+        return PLACING_LIST;
     }
     
     public static LittleShape registerShape(String id, LittleShape shape, ShapeType type) {
-        shapes.put(id, shape);
-        shapeTypeLists.add(type, id);
+        REGISTRY.register(id, shape);
+        SHAPE_TYPES.add(type, id);
         if (type != ShapeType.DEFAULT_SELECTOR)
-            noTileList.add(id);
-        placingList.clear();
-        placingList.addAll(shapeTypeLists.tryGet(ShapeType.SHAPE));
-        placingList.addAll(shapeTypeLists.tryGet(ShapeType.DEFAULT_SELECTOR));
-        placingList.addAll(shapeTypeLists.tryGet(ShapeType.SELECTOR));
+            NO_TILE_LIST.add(shape);
+        if (type == ShapeType.SELECTOR || type == ShapeType.SHAPE || type == ShapeType.DEFAULT_SELECTOR)
+            PLACING_LIST.add(shape);
         return shape;
     }
     
-    public static LittleShape getShape(String name) {
-        return shapes.getOrDefault(name, defaultShape);
-    }
-    
-    public static String getShapeName(LittleShape shape) {
-        for (Entry<String, LittleShape> entry : shapes.entrySet())
-            if (entry.getValue() == shape)
-                return entry.getKey();
-        return null;
+    public static LittleShape get(String name) {
+        return REGISTRY.get(name);
     }
     
     static {
-        tileShape = registerShape("tile", new LittleShapeTile(), ShapeType.DEFAULT_SELECTOR);
+        registerShape("tile", TILE_SHAPE, ShapeType.DEFAULT_SELECTOR);
         registerShape("type", new LittleShapeType(), ShapeType.SELECTOR);
-        defaultShape = registerShape("box", new LittleShapeBox(), ShapeType.SHAPE);
+        registerShape("box", DEFAULT_SHAPE, ShapeType.SHAPE);
         registerShape("connected", new LittleShapeConnected(), ShapeType.SELECTOR);
         
         registerShape("slice", new LittleShapeSlice(), ShapeType.SHAPE);
