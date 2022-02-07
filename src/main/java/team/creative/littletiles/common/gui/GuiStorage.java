@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.util.mc.InventoryUtils;
+import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.littletiles.common.structure.type.LittleStorage;
 
 public class GuiStorage extends GuiLayer {

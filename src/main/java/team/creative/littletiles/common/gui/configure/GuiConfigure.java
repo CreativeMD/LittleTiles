@@ -1,24 +1,30 @@
 package team.creative.littletiles.common.gui.configure;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.littletiles.LittleTiles;
+import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.packet.item.ConfigurePacket;
+import team.creative.littletiles.common.api.tool.ILittleTool;
 
 public abstract class GuiConfigure extends GuiLayer {
     
-    public ItemStack stack;
+    public ContainerSlotView tool;
+    public final GuiSyncLocal<CompoundTag> SAVE_CONFIG = getSyncHolder().register("save_config", nbt -> {
+        if (tool.get().getItem() instanceof ILittleTool) {
+            ((ILittleTool) tool.get().getItem()).configured(tool.get(), nbt);
+            tool.changed();
+        }
+    });
     
-    public GuiConfigure(String name, int width, int height, ItemStack stack) {
+    public GuiConfigure(String name, int width, int height, ContainerSlotView tool) {
         super(name, width, height);
-        this.stack = stack;
+        this.tool = tool;
     }
     
-    public GuiConfigure(String name, ItemStack stack) {
+    public GuiConfigure(String name, ContainerSlotView tool) {
         super(name);
-        this.stack = stack;
+        this.tool = tool;
     }
     
     public abstract CompoundTag saveConfiguration(CompoundTag nbt);
@@ -36,9 +42,11 @@ public abstract class GuiConfigure extends GuiLayer {
     
     @Override
     public void closed() {
-        if (isClient())
-            LittleTiles.NETWORK.sendToServer(new ConfigurePacket(stack, saveConfiguration(new CompoundTag())));
-        
+        if (isClient()) {
+            CompoundTag nbt = saveConfiguration(new CompoundTag());
+            if (nbt != null)
+                SAVE_CONFIG.send(nbt);
+        }
         super.closed();
     }
     

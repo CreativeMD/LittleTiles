@@ -49,7 +49,7 @@ public class PlacementHelper {
     }
     
     public static LittleVec getInternalOffset(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles, LittleGrid original) {
-        LittleVec offset = iTile.getCachedOffset(stack);
+        LittleVec offset = iTile.getCachedMin(stack);
         if (offset != null) {
             if (tiles.getGrid() != original)
                 offset.convertTo(original, tiles.getGrid());

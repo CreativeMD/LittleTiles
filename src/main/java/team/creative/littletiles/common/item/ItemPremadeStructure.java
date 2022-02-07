@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.NBTUtils;
@@ -52,8 +53,8 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, ItemLittleChisel.currentMode) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemLittleChisel.currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {

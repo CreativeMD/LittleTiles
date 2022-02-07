@@ -8,7 +8,6 @@ import java.awt.datatransfer.Transferable;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
@@ -33,7 +32,7 @@ public class GuiImport extends GuiLayer {
     public GuiTextfield textfield;
     public Container importSlot = new SimpleContainer(1);
     
-    public GuiSyncLocal<Tag> IMPORT_DATA = getSyncHolder().register("import_data", (nbt) -> {
+    public GuiSyncLocal<CompoundTag> IMPORT_DATA = getSyncHolder().register("import_data", (nbt) -> {
         ItemStack stack = importSlot.getItem(0);
         if (stack.getItem() instanceof ItemLittleBlueprint || (getPlayer().isCreative() && stack.isEmpty())) {
             // TODO Import

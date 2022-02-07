@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.mc.WorldUtils;
+import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -67,7 +67,7 @@ public class LittleActionDestroy extends LittleActionInteract {
                 structure.load();
                 structurePreview = new StructurePreview(structure);
                 if (needIngredients(player) && !player.world.isRemote)
-                    WorldUtils.dropItem(world, structure.getStructureDrop(), pos);
+                    LevelUtils.dropItem(world, structure.getStructureDrop(), pos);
                 structure.onLittleTileDestroy();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {

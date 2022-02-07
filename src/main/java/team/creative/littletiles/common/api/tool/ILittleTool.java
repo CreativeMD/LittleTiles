@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -29,11 +30,11 @@ public interface ILittleTool {
         stack.setTag(nbt);
     }
     
-    public default GuiConfigure getConfigure(Player player, ItemStack stack) {
+    public default GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         return null;
     }
     
-    public default GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
+    public default GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
         return null;
     }
     

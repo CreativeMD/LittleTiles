@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -43,7 +44,7 @@ public class ItemLittleBag extends Item implements GuiHandler, ILittleIngredient
     
     @Override
     public GuiLayer create(Player player, CompoundTag nbt) {
-        return new SubGuiBag(stack);
+        return new SubGuiBag(ContainerSlotView.mainHand(player));
     }
     
     @Override

@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -238,8 +239,8 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new GuiChisel(stack);
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return new GuiChisel(view);
     }
     
     public static PlacementMode currentMode = PlacementMode.fill;
@@ -250,8 +251,8 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, currentMode) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentContext, currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {

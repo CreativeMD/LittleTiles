@@ -14,7 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import team.creative.creativecore.common.util.mc.WorldUtils;
+import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.gui.controls.SlotControlBlockIngredient;
@@ -23,10 +23,7 @@ import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
-import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
-import team.creative.littletiles.common.item.ItemColorIngredient;
-import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
 import team.creative.littletiles.common.item.ItemLittleBag;
 
 public class SubContainerBag extends SubContainerHeldItem {
@@ -204,34 +201,9 @@ public class SubContainerBag extends SubContainerHeldItem {
     public void onClosed() {
         ItemStack stack = ((SlotControl) get("input0")).slot.getStack();
         if (!stack.isEmpty())
-            WorldUtils.dropItem(player, stack);
+            LevelUtils.dropItem(player, stack);
         if (player instanceof EntityPlayerMP)
             ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
-    }
-    
-    @Override
-    public void onPacketReceive(NBTTagCompound nbt) {
-        if (nbt.getBoolean("color")) {
-            ColorIngredientType type = ColorIngredientType.getType(nbt.getString("type"));
-            ColorIngredient color = bag.get(ColorIngredient.class);
-            if (color != null && !color.isEmpty()) {
-                int amount = Math.min(type.getIngredient(color), ColorIngredient.bottleSize);
-                if (amount > 0) {
-                    type.setIngredient(color, type.getIngredient(color) - amount);
-                    
-                    LittleInventory inventory = new LittleInventory(player);
-                    ItemStack colorStack = ItemColorIngredient.generateItemStack(type, amount);
-                    if (!inventory.addStack(colorStack))
-                        WorldUtils.dropItem(player, colorStack);
-                    
-                    ((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
-                    if (player instanceof EntityPlayerMP)
-                        ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
-                    onTick();
-                    reloadControls();
-                }
-            }
-        }
     }
     
 }

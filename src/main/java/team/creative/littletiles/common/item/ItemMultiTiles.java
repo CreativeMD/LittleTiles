@@ -18,6 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -108,8 +109,8 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {

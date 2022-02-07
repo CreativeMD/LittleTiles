@@ -20,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
@@ -133,12 +134,12 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public GuiLayer create(Player player, CompoundTag nbt) {
-        return getConfigure(player, player.getMainHandItem());
+        return getConfigure(player, ContainerSlotView.mainHand(player));
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new GuiHammer(stack);
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return new GuiHammer(view);
     }
     
     @Override
@@ -167,8 +168,8 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new GuiGridSelector(stack, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiGridSelector(view, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {

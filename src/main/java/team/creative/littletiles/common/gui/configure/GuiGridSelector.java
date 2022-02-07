@@ -7,6 +7,7 @@ import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapp
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.filter.TileFilters;
@@ -21,8 +22,8 @@ public abstract class GuiGridSelector extends GuiConfigure {
     public boolean activeFilter;
     public BiFilter<IParentCollection, LittleTile> selector;
     
-    public GuiGridSelector(ItemStack stack, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> selector) {
-        super("grid-selector", 200, 140, stack);
+    public GuiGridSelector(ContainerSlotView view, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> selector) {
+        super("grid-selector", 200, 140, view);
         this.grid = grid;
         this.activeFilter = activeFilter;
         this.selector = selector;

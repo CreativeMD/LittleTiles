@@ -68,6 +68,10 @@ public class LittleGrid {
         return names;
     }
     
+    public static LittleGrid[] getGrids() {
+        return grids;
+    }
+    
     public static TextMapBuilder<LittleGrid> mapBuilder() {
         return map;
     }
@@ -151,6 +155,10 @@ public class LittleGrid {
             nbt.putInt("grid", count);
         else
             nbt.remove("grid");
+    }
+    
+    public int getIndex() {
+        return index;
     }
     
     public int getMinGrid(int value) {

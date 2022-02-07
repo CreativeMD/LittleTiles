@@ -23,7 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.mc.WorldUtils;
+import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
@@ -234,7 +234,7 @@ public class DoorController extends EntityAnimationController {
             } else {
                 parent.markRemoved();
                 if (!world.isRemote)
-                    WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
+                    LevelUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
                 return;
             }
             

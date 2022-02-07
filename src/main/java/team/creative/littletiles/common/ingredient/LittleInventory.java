@@ -12,8 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import team.creative.creativecore.common.util.mc.InventoryUtils;
-import team.creative.creativecore.common.util.mc.WorldUtils;
+import team.creative.creativecore.common.util.inventory.InventoryUtils;
+import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientSupplier;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
@@ -150,7 +150,7 @@ public class LittleInventory implements Iterable<ItemStack> {
                 throw new NotEnoughSpaceException(new StackIngredient(toDrop));
             
             if (!simulate && !player.level.isClientSide)
-                WorldUtils.dropItem(player, toDrop);
+                LevelUtils.dropItem(player, toDrop);
         }
     }
     

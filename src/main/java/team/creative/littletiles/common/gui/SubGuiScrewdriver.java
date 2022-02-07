@@ -3,7 +3,6 @@ package team.creative.littletiles.common.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
@@ -23,7 +22,9 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
@@ -32,18 +33,18 @@ import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
-public class SubGuiScrewdriver extends SubGuiConfigure {
+public class SubGuiScrewdriver extends GuiConfigure {
     
     public static ItemStack lastSelectedSearchStack;
     public static ItemStack lastSelectedReplaceStack;
     
-    public SubGuiScrewdriver(ItemStack stack) {
-        super(200, 205, stack);
+    public SubGuiScrewdriver(ContainerSlotView view) {
+        super("screwdriver", 200, 205, view);
     }
     
     @Override

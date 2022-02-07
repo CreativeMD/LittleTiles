@@ -26,12 +26,18 @@
 	"gui.click.right": "right-click",
 	"gui.paste": "Paste",
 	"gui.import": "Import",
+	"gui.blocks": "blocks",
 	"gui.tile.count": "tiles",
+	"gui.grid": "grid",
 	"gui.structure": "structure",
 	"gui.any": "any",
 	"gui.export.data": "data",
 	"dialog.invalid_grid": "Invalid grid size '%s'",
 	"gui.more": "more",
 	
-	"markmode.gui.allowlowresolution": "Allow Low Resolution"
+	"markmode.gui.allowlowresolution": "Allow Low Resolution",
+	"selection.include.vanilla": "Include Vanilla Blocks",
+	"selection.include.structure": "Remember Structures",
+	"selection.scale": "scale",
+	"selection.no_tiles": "Parent structure has to have at least one tile!\nDisable remember structure or adjust your selection."
 }

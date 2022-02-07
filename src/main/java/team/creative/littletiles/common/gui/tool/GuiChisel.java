@@ -10,25 +10,22 @@ import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
 import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
 import team.creative.creativecore.common.gui.controls.simple.GuiShowItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.element.LittleElement.NotBlockException;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 
-public class GuiChisel extends GuiConfigure {
+public class GuiChisel extends GuiConfigureTool {
     
-    public GuiChisel(ItemStack stack) {
-        super("chisel", 140, 180, stack);
-        this.stack = stack;
+    public GuiChisel(ContainerSlotView view) {
+        super("chisel", 140, 180, view);
         registerEventChanged(x -> {
             if (x.control.is("shape"))
                 onChange();
@@ -38,13 +35,9 @@ public class GuiChisel extends GuiConfigure {
         flow = GuiFlow.STACK_Y;
     }
     
-    public LittleGrid getGrid() {
-        return ((ILittlePlacer) stack.getItem()).getPositionGrid(stack);
-    }
-    
     @Override
     public void create() {
-        LittleElement element = ItemLittleChisel.getElement(stack);
+        LittleElement element = ItemLittleChisel.getElement(tool.get());
         Color color = new Color(element.color);
         add(new GuiColorPicker("picker", color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
         
@@ -56,7 +49,7 @@ public class GuiChisel extends GuiConfigure {
         add(selector);
         GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>()
                 .addComponent(ShapeRegistry.placingShapes(), x -> new TranslatableComponent(x.getTranslatableName())));
-        box.select(ItemLittleChisel.getShape(stack));
+        box.select(ItemLittleChisel.getShape(tool.get()));
         add(box);
         add(new GuiScrollY("settings").setExpandable());
         onChange();
@@ -69,7 +62,7 @@ public class GuiChisel extends GuiConfigure {
         GuiScrollY scroll = (GuiScrollY) get("settings");
         
         scroll.clear();
-        for (GuiControl control : box.getSelected(ShapeRegistry.DEFAULT_SHAPE).getCustomSettings(stack.getTag(), getGrid()))
+        for (GuiControl control : box.getSelected(ShapeRegistry.DEFAULT_SHAPE).getCustomSettings(tool.get().getTag(), getGrid()))
             scroll.add(control);
     }
     
@@ -82,7 +75,7 @@ public class GuiChisel extends GuiConfigure {
         try {
             element = LittleElement.of(selected, picker.color.toInt());
         } catch (NotBlockException e) {
-            element = new LittleElement(ItemLittleChisel.getElement(stack), picker.color.toInt());
+            element = new LittleElement(ItemLittleChisel.getElement(tool.get()), picker.color.toInt());
         }
         
         ((GuiShowItem) get("preview")).stack = ItemMultiTiles.of(element);
@@ -102,7 +95,7 @@ public class GuiChisel extends GuiConfigure {
         try {
             element = LittleElement.of(selected, picker.color.toInt());
         } catch (NotBlockException e) {
-            element = new LittleElement(ItemLittleChisel.getElement(stack), picker.color.toInt());
+            element = new LittleElement(ItemLittleChisel.getElement(tool.get()), picker.color.toInt());
         }
         
         ItemLittleChisel.setElement(nbt, element);

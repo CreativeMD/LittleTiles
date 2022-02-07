@@ -22,6 +22,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -101,8 +102,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new GuiPaintBrush(stack);
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return new GuiPaintBrush(view);
     }
     
     public static LittleShape getShape(ItemStack stack) {
@@ -184,8 +185,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new GuiGridSelector(stack, ItemMultiTiles.currentContext, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiGridSelector(view, ItemMultiTiles.currentContext, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {

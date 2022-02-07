@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
@@ -35,9 +34,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
@@ -151,19 +152,19 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return ItemLittleGlove.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionGrid(stack));
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return ItemLittleGlove.getMode(view.get()).getGui(player, view, ((ILittlePlacer) view.get().getItem()).getPositionGrid(view.get()));
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new GuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
                 ItemMultiTiles.currentContext = grid;
                 ItemMultiTiles.currentMode = mode;
-                return grid;
+                return null;
             }
             
         };
@@ -251,7 +252,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         public abstract boolean renderBlockSeparately(ItemStack stack);
         
         @OnlyIn(Dist.CLIENT)
-        public abstract GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid);
+        public abstract GuiConfigure getGui(Player player, ContainerSlotView view, LittleGrid grid);
         
         public boolean hasTiles(ItemStack stack) {
             return true;

@@ -7,7 +7,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.util.mc.InventoryUtils;
+import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;

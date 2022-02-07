@@ -2,10 +2,10 @@ package team.creative.littletiles.common.gui.configure;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -15,8 +15,8 @@ public abstract class GuiModeSelector extends GuiConfigure {
     public LittleGrid grid;
     public PlacementMode mode;
     
-    public GuiModeSelector(ItemStack stack, LittleGrid grid, PlacementMode mode) {
-        super("mode-selector", 150, 150, stack);
+    public GuiModeSelector(ContainerSlotView view, LittleGrid grid, PlacementMode mode) {
+        super("mode-selector", 150, 150, view);
         this.grid = grid;
         this.mode = mode;
         registerEventChanged(x -> {

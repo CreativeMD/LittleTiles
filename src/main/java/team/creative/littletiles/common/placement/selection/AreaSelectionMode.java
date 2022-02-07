@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -34,10 +34,6 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public class AreaSelectionMode extends SelectionMode {
-    
-    public AreaSelectionMode() {
-        super("area");
-    }
     
     @Override
     public SelectionResult generateResult(Level level, ItemStack stack) {
@@ -67,26 +63,26 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public void onLeftClick(Player player, ItemStack stack, BlockPos pos) {
+    public void leftClick(Player player, ItemStack stack, BlockPos pos) {
         stack.getTag().putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
             player.sendMessage(new TranslatableComponent("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
     }
     
     @Override
-    public void onRightClick(Player player, ItemStack stack, BlockPos pos) {
+    public void rightClick(Player player, ItemStack stack, BlockPos pos) {
         stack.getTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
             player.sendMessage(new TranslatableComponent("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
     }
     
     @Override
-    public void clearSelection(ItemStack stack) {
+    public void clear(ItemStack stack) {
         stack.getTag().remove("pos1");
         stack.getTag().remove("pos2");
     }
     
-    public LittleGroup getPreviews(Level world, BlockPos pos, BlockPos pos2, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
+    public LittleGroup getGroup(Level world, BlockPos pos, BlockPos pos2, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
         int minX = Math.min(pos.getX(), pos2.getX());
         int minY = Math.min(pos.getY(), pos2.getY());
         int minZ = Math.min(pos.getZ(), pos2.getZ());
@@ -171,7 +167,7 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public LittleGroup getPreviews(Level level, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
+    public LittleGroup getGroup(Level level, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
         BlockPos pos = null;
         if (stack.getTag().contains("pos1")) {
             int[] array = stack.getTag().getIntArray("pos1");
@@ -192,7 +188,7 @@ public class AreaSelectionMode extends SelectionMode {
         else if (pos2 == null)
             pos2 = pos;
         
-        LittleGroup previews = getPreviews(level, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
+        LittleGroup previews = getGroup(level, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
         
         int minX = Math.min(pos.getX(), pos2.getX());
         int minY = Math.min(pos.getY(), pos2.getY());
