@@ -50,8 +50,8 @@ import team.creative.creativecore.client.render.model.CreativeRenderBlock;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
-import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import team.creative.littletiles.client.render.item.LittleRenderToolBackground;
@@ -101,6 +101,8 @@ public class LittleTilesClient {
     
     public static OverlayRenderer overlay;
     
+    public static LittleActionHandlerClient ACTION_HANDLER;
+    
     public static void displayActionMessage(List<Component> message) {
         overlay.addMessage(message);
     }
@@ -116,6 +118,8 @@ public class LittleTilesClient {
         
         MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
         MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
+        
+        LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
         
         up = new KeyMapping("key.rotateup", GLFW.GLFW_KEY_UP, "key.categories.littletiles");
         down = new KeyMapping("key.rotatedown", GLFW.GLFW_KEY_DOWN, "key.categories.littletiles");
@@ -141,8 +145,6 @@ public class LittleTilesClient {
         
         ClientRegistry.registerKeyBinding(undo);
         ClientRegistry.registerKeyBinding(redo);
-        
-        LEVEL_HANDLERS.register(LittleAnimationHandlerClient::new);
         
         CreativeCoreClient.registerItem(new LittleRenderToolBig(), LittleTiles.ITEM_TILES);
         CreativeCoreClient.registerItem(new LittleRenderToolBig() {
@@ -175,7 +177,7 @@ public class LittleTilesClient {
             }
         }, LittleTiles.GLOVE);
         CreativeCoreClient.registerItem(new LittleRenderToolPreview(new ResourceLocation(LittleTiles.MODID, "chisel_background"), stack -> ItemLittleChisel
-                .getPreview(stack)), LittleTiles.CHISEL);
+                .getElement(stack)), LittleTiles.CHISEL);
         CreativeCoreClient.registerItem(new LittleRenderToolBackground(new ResourceLocation(LittleTiles.MODID, "blueprint_background")), LittleTiles.BLUEPRINT);
         
         CreativeCoreClient.registerItem(new CreativeRenderItem() {

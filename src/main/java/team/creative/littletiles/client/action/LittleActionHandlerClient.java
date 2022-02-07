@@ -26,6 +26,33 @@ import team.creative.littletiles.common.level.LevelHandler;
 public class LittleActionHandlerClient extends LevelHandler {
     
     private static final Minecraft mc = Minecraft.getInstance();
+    
+    public static boolean canUseUndoOrRedo() {
+        GameType type = PlayerUtils.getGameType(mc.player);
+        return type == GameType.CREATIVE || type == GameType.SURVIVAL;
+    }
+    
+    public static boolean isUsingSecondMode() {
+        if (mc.player == null)
+            return false;
+        if (LittleTiles.CONFIG.building.useALTForEverything)
+            return Screen.hasAltDown();
+        if (LittleTiles.CONFIG.building.useAltWhenFlying)
+            return mc.player.getAbilities().flying ? Screen.hasAltDown() : mc.player.isCrouching();
+        return mc.player.isCrouching();
+    }
+    
+    public static void handleException(LittleActionException e) {
+        if (e.isHidden())
+            return;
+        
+        List<Component> message = e.getActionMessage();
+        if (message != null)
+            LittleTilesClient.displayActionMessage(message);
+        else
+            mc.player.sendMessage(new TextComponent(e.getLocalizedMessage()), Util.NIL_UUID);
+    }
+    
     private List<LittleAction> lastActions = new ArrayList<>();
     private int index = 0;
     
@@ -50,21 +77,6 @@ public class LittleActionHandlerClient extends LevelHandler {
             lastActions.remove(LittleTiles.CONFIG.building.maxSavedActions - 1);
         
         lastActions.add(0, action);
-    }
-    
-    public static boolean canUseUndoOrRedo() {
-        GameType type = PlayerUtils.getGameType(mc.player);
-        return type == GameType.CREATIVE || type == GameType.SURVIVAL;
-    }
-    
-    public static boolean isUsingSecondMode() {
-        if (mc.player == null)
-            return false;
-        if (LittleTiles.CONFIG.building.useALTForEverything)
-            return Screen.hasAltDown();
-        if (LittleTiles.CONFIG.building.useAltWhenFlying)
-            return mc.player.getAbilities().flying ? Screen.hasAltDown() : mc.player.isCrouching();
-        return mc.player.isCrouching();
     }
     
     public boolean execute(LittleAction action) {
@@ -136,14 +148,4 @@ public class LittleActionHandlerClient extends LevelHandler {
         return false;
     }
     
-    public static void handleException(LittleActionException e) {
-        if (e.isHidden())
-            return;
-        
-        List<Component> message = e.getActionMessage();
-        if (message != null)
-            LittleTilesClient.displayActionMessage(message);
-        else
-            mc.player.sendMessage(new TextComponent(e.getLocalizedMessage()), Util.NIL_UUID);
-    }
 }
