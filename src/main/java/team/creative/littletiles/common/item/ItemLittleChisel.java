@@ -33,9 +33,9 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiChisel;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiChisel;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -73,28 +73,49 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
         LittleShape shape = getShape(stack);
         tooltip.add(new TranslatableComponent("gui.shape").append(": ").append(new TranslatableComponent(shape.getKey())));
         shape.addExtraInformation(stack.getTag(), tooltip);
-        tooltip.add(new TextComponent(TooltipUtils.printColor(getPreview(stack).color)));
+        tooltip.add(new TextComponent(TooltipUtils.printColor(getElement(stack).color)));
     }
     
     public static LittleShape getShape(ItemStack stack) {
-        return ShapeRegistry.getShape(stack.getOrCreateTag().getString("shape"));
+        return getShape(stack.getOrCreateTag());
+    }
+    
+    public static LittleShape getShape(CompoundTag nbt) {
+        return ShapeRegistry.REGISTRY.get(nbt.getString("shape"));
     }
     
     public static void setShape(ItemStack stack, LittleShape shape) {
-        stack.getOrCreateTag().putString("shape", shape.getKey());
+        setShape(stack.getOrCreateTag(), shape);
     }
     
-    public static LittleElement getPreview(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("preview"))
+    public static void setShape(CompoundTag nbt, LittleShape shape) {
+        nbt.putString("shape", shape.getKey());
+    }
+    
+    public static LittleElement getElement(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("element"))
             return new LittleElement(stack.getOrCreateTagElement("element"));
         
         LittleElement element = new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
-        setPreview(stack, element);
+        setElement(stack, element);
         return element;
     }
     
-    public static void setPreview(ItemStack stack, LittleElement element) {
+    public static LittleElement getElement(CompoundTag nbt) {
+        if (nbt.contains("element"))
+            return new LittleElement(nbt.getCompound("element"));
+        
+        return new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
+    }
+    
+    public static void setElement(ItemStack stack, LittleElement element) {
         element.save(stack.getOrCreateTagElement("element"));
+    }
+    
+    public static void setElement(CompoundTag nbt, LittleElement element) {
+        CompoundTag tag = new CompoundTag();
+        element.save(tag);
+        nbt.put("element", tag);
     }
     
     @Override
@@ -117,7 +138,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
         if (selection != null) {
             LittleBoxes boxes = selection.getBoxes(allowLowResolution);
             LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos, boxes.grid);
-            previews.add(getPreview(stack), boxes);
+            previews.add(getElement(stack), boxes);
             return PlacementPreview.absolute(level, stack, previews, selection.getFirst().pos.facing);
         }
         return null;
@@ -218,7 +239,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new SubGuiChisel(stack);
+        return new GuiChisel(stack);
     }
     
     public static PlacementMode currentMode = PlacementMode.fill;
@@ -263,7 +284,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
+        return new Object[] { getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
                 .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
     }
 }

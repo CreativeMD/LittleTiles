@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.math.LittleUtils;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleGrid {
@@ -210,6 +211,10 @@ public class LittleGrid {
     @Override
     public String toString() {
         return "" + count;
+    }
+    
+    public LittleBox box() {
+        return new LittleBox(0, 0, 0, count, count, count);
     }
     
 }

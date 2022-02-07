@@ -1,13 +1,22 @@
 package team.creative.littletiles.common.block.little.element;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 
 public class LittleElement {
+    
+    public static LittleElement of(ItemStack stack, int color) throws NotBlockException {
+        Block block = Block.byItem(stack.getItem());
+        if (block != null && !(block instanceof AirBlock))
+            return new LittleElement(block.defaultBlockState(), color);
+        throw new NotBlockException();
+    }
     
     private BlockState state;
     protected LittleBlock block;
@@ -17,6 +26,12 @@ public class LittleElement {
         this.state = element.state;
         this.block = element.block;
         this.color = element.color;
+    }
+    
+    public LittleElement(LittleElement element, int color) {
+        this.state = element.state;
+        this.block = element.block;
+        this.color = color;
     }
     
     public LittleElement(BlockState state, int color) {
@@ -89,5 +104,7 @@ public class LittleElement {
     public boolean is(LittleElement element) {
         return element.state == state && element.block == block && element.color == color;
     }
+    
+    public static class NotBlockException extends Exception {}
     
 }

@@ -20,6 +20,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
@@ -31,6 +32,14 @@ import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 public class ItemMultiTiles extends Item implements ILittlePlacer {
+    
+    public static ItemStack of(LittleElement element) {
+        ItemStack stack = new ItemStack(LittleTiles.ITEM_TILES);
+        LittleGroup group = new LittleGroup();
+        group.add(LittleGrid.min(), element, LittleGrid.min().box());
+        stack.setTag(LittleGroup.save(group));
+        return stack;
+    }
     
     public static PlacementMode currentMode = PlacementMode.getDefault();
     public static LittleGrid currentContext;
