@@ -49,6 +49,7 @@ import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionActivated;
@@ -62,6 +63,7 @@ import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -80,6 +82,7 @@ import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
 import team.creative.littletiles.common.gui.premade.GuiExport;
 import team.creative.littletiles.common.gui.premade.GuiImport;
+import team.creative.littletiles.common.gui.tool.GuiBag;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -273,7 +276,7 @@ public class LittleTiles {
         SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
         SIT_TYPE = EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit");
         
-        GuiHandler.register("littleStorageStructure", new LittleStructureGuiHandler() {
+        GuiHandler.register("storage", new LittleStructureGuiHandler() {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
@@ -295,7 +298,8 @@ public class LittleTiles {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
+                if (player.getMainHandItem().getItem() instanceof ILittleTool)
+                    return ((ILittleTool) player.getMainHandItem().getItem()).getConfigure(player, ContainerSlotView.mainHand(player));
                 return null;
             }
         });
@@ -304,7 +308,8 @@ public class LittleTiles {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
+                if (player.getMainHandItem().getItem() instanceof ILittleTool)
+                    return ((ILittleTool) player.getMainHandItem().getItem()).getConfigureAdvanced(player, ContainerSlotView.mainHand(player));
                 return null;
             }
         });
@@ -383,8 +388,7 @@ public class LittleTiles {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
-                return null;
+                return new GuiBag(ContainerSlotView.mainHand(player));
             }
         });
         

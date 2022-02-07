@@ -39,5 +39,7 @@
 	"selection.include.vanilla": "Include Vanilla Blocks",
 	"selection.include.structure": "Remember Structures",
 	"selection.scale": "scale",
-	"selection.no_tiles": "Parent structure has to have at least one tile!\nDisable remember structure or adjust your selection."
+	"selection.no_tiles": "Parent structure has to have at least one tile!\nDisable remember structure or adjust your selection.",
+	
+	"gui.noclip.slowness": "Slowness (codweb)"
 }

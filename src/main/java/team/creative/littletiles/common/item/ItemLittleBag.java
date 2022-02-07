@@ -16,7 +16,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiBag;
+import team.creative.littletiles.common.gui.tool.GuiBag;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
@@ -44,7 +44,7 @@ public class ItemLittleBag extends Item implements GuiHandler, ILittleIngredient
     
     @Override
     public GuiLayer create(Player player, CompoundTag nbt) {
-        return new SubGuiBag(ContainerSlotView.mainHand(player));
+        return new GuiBag(ContainerSlotView.mainHand(player));
     }
     
     @Override

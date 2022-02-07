@@ -126,7 +126,7 @@ public class LittleStorage extends LittleStructure {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide && !hasPlayerOpened(player))
-            LittleStructureGuiHandler.openGui("littleStorageStructure", new CompoundTag(), player, this);
+            LittleStructureGuiHandler.openGui("storage", new CompoundTag(), player, this);
         return InteractionResult.SUCCESS;
     }
     
