@@ -31,5 +31,7 @@
 	"gui.any": "any",
 	"gui.export.data": "data",
 	"dialog.invalid_grid": "Invalid grid size '%s'",
-	"gui.more": "more"
+	"gui.more": "more",
+	
+	"markmode.gui.allowlowresolution": "Allow Low Resolution"
 }

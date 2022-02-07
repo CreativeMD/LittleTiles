@@ -16,6 +16,11 @@ public abstract class GuiConfigure extends GuiLayer {
         this.stack = stack;
     }
     
+    public GuiConfigure(String name, ItemStack stack) {
+        super(name);
+        this.stack = stack;
+    }
+    
     public abstract CompoundTag saveConfiguration(CompoundTag nbt);
     
     @Override

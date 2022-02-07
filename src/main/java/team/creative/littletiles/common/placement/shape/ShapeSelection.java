@@ -31,7 +31,7 @@ import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiMarkShapeSelection;
+import team.creative.littletiles.common.gui.GuiMarkShapeSelection;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -198,7 +198,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     @Override
     public GuiConfigure getConfigurationGui() {
-        return new SubGuiMarkShapeSelection(this);
+        return new GuiMarkShapeSelection(this);
     }
     
     @Override
