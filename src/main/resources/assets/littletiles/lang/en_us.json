@@ -32,10 +32,18 @@
 	"gui.structure": "structure",
 	"gui.any": "any",
 	"gui.export.data": "data",
-	"dialog.invalid_grid": "Invalid grid size '%s'",
+	"gui.remove": "remove",
 	"gui.more": "more",
+	"gui.replace_with": "replace with",
+	"gui.colorize": "colorize",
+	"gui.undo": "undo",
+	"gui.redo": "redo",
+	"gui.run": "run",
+	
+	"dialog.invalid_grid": "Invalid grid size '%s'",
 	
 	"markmode.gui.allowlowresolution": "Allow Low Resolution",
+	
 	"selection.include.vanilla": "Include Vanilla Blocks",
 	"selection.include.structure": "Remember Structures",
 	"selection.scale": "scale",

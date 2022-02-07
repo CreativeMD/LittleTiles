@@ -22,8 +22,8 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiScrewdriver;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiScrewdriver;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -67,7 +67,7 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     
     @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new SubGuiScrewdriver(view);
+        return new GuiScrewdriver(view);
     }
     
     @Override

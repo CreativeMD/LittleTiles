@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui;
+package team.creative.littletiles.common.gui.tool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,100 +15,88 @@ import com.creativemd.littletiles.common.util.selection.selector.StateSelector;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelectorBlock;
 
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
+import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
-public class SubGuiScrewdriver extends GuiConfigure {
+public class GuiScrewdriver extends GuiConfigure {
     
     public static ItemStack lastSelectedSearchStack;
     public static ItemStack lastSelectedReplaceStack;
     
-    public SubGuiScrewdriver(ContainerSlotView view) {
+    public GuiScrewdriver(ContainerSlotView view) {
         super("screwdriver", 200, 205, view);
+        flow = GuiFlow.STACK_Y;
     }
     
     @Override
-    public void createControls() {
-        if (stack.getTagCompound() == null)
-            stack.setTagCompound(new NBTTagCompound());
+    public void create() {
+        tool.get().getOrCreateTag();
         
-        controls.add(new GuiCheckBox("any", "any", 5, 8, false));
-        GuiStackSelectorAll selector = new GuiStackSelectorAll("filter", 40, 5, 130, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
+        add(new GuiCheckBox("any", false).setTranslate("gui.any"));
+        GuiStackSelector selector = new GuiStackSelector("filter", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         if (lastSelectedSearchStack != null)
             selector.setSelectedForce(lastSelectedSearchStack);
-        controls.add(selector);
-        controls.add(new GuiCheckBox("meta", "Metadata", 40, 48, true));
+        add(selector.setExpandableX());
         
-        controls.add(new GuiCheckBox("remove", "Remove", 5, 60, false));
+        add(new GuiCheckBox("remove", false).setTranslate("gui.remove"));
         
-        controls.add(new GuiCheckBox("replace", "Replace with", 5, 73, false));
+        add(new GuiCheckBox("replace", false).setTranslate("gui.replace_with"));
         
-        selector = new GuiStackSelectorAll("replacement", 40, 87, 130, getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
+        selector = new GuiStackSelector("replacement", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         if (lastSelectedReplaceStack != null)
             selector.setSelectedForce(lastSelectedReplaceStack);
-        controls.add(selector);
-        controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
-        controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 133, true));
+        add(selector.setExpandableX());
         
         Color color = new Color(255, 255, 255, 255);
-        controls.add(new GuiCheckBox("colorize", "Colorize", 5, 146, false));
+        add(new GuiCheckBox("colorize", false).setTranslate("gui.colorize"));
         
-        controls.add(new GuiColorPicker("picker", 5, 160, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
+        add(new GuiColorPicker("picker", color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())).setExpandableX());
         
-        controls.add(new GuiButton("undo", "undo", 150, 135, 40) {
-            
-            @Override
-            public void onClicked(int x, int y, int button) {
-                try {
-                    LittleAction.undo();
-                } catch (LittleActionException e) {
-                    getPlayer().sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
-                }
+        GuiLeftRightBox actions = new GuiLeftRightBox().addLeft(new GuiButton("undo", x -> {
+            try {
+                LittleTilesClient.ACTION_HANDLER.undo();
+            } catch (LittleActionException e) {
+                getPlayer().sendMessage(new TextComponent(e.getLocalizedMessage()), Util.NIL_UUID);
             }
-        });
-        
-        controls.add(new GuiButton("redo", "redo", 150, 155, 40) {
-            
-            @Override
-            public void onClicked(int x, int y, int button) {
-                try {
-                    LittleAction.redo();
-                } catch (LittleActionException e) {
-                    getPlayer().sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
-                }
+        }).setTranslate("gui.undo")).addLeft(new GuiButton("redo", x -> {
+            try {
+                LittleTilesClient.ACTION_HANDLER.redo();
+            } catch (LittleActionException e) {
+                getPlayer().sendMessage(new TextComponent(e.getLocalizedMessage()), Util.NIL_UUID);
             }
-        });
-        
-        controls.add(new GuiButton("run", "Do it!", 150, 175, 40) {
-            
-            @Override
-            public void onClicked(int x, int y, int button) {
-                LittleAction action = getDesiredAction();
-                if (action != null)
-                    if (action.execute())
-                        playSound(SoundEvents.BLOCK_LEVER_CLICK);
-            }
-        });
+        }).setTranslate("gui.redo")).addRight(new GuiButton("run", x -> {
+            LittleAction action = getDesiredAction();
+            if (action != null)
+                if (LittleTilesClient.ACTION_HANDLER.execute(action))
+                    playSound(SoundEvents.LEVER_CLICK);
+        }).setTranslate("gui.run"));
+        add(actions);
     }
     
     public LittleAction getDesiredAction() {
@@ -125,7 +113,7 @@ public class SubGuiScrewdriver extends GuiConfigure {
         if (((GuiCheckBox) get("any")).value)
             selector = new AnySelector();
         else {
-            GuiStackSelectorAll filter = (GuiStackSelectorAll) get("filter");
+            GuiStackSelector filter = (GuiStackSelector) get("filter");
             ItemStack stackFilter = filter.getSelected();
             Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
             boolean meta = ((GuiCheckBox) get("meta")).value;
@@ -185,15 +173,11 @@ public class SubGuiScrewdriver extends GuiConfigure {
     }
     
     @Override
-    public void closeGui() {
-        super.closeGui();
-        lastSelectedSearchStack = ((GuiStackSelectorAll) get("filter")).getSelected();
-        lastSelectedReplaceStack = ((GuiStackSelectorAll) get("replacement")).getSelected();
+    public CompoundTag saveConfiguration(CompoundTag nbt) {
+        if (isClient()) {
+            lastSelectedSearchStack = ((GuiStackSelector) get("filter")).getSelected();
+            lastSelectedReplaceStack = ((GuiStackSelector) get("replacement")).getSelected();
+        }
+        return null;
     }
-    
-    @Override
-    public void saveConfiguration() {
-        
-    }
-    
 }
