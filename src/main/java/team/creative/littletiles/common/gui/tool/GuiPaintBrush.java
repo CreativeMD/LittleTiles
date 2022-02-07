@@ -58,7 +58,7 @@ public class GuiPaintBrush extends GuiConfigure {
         nbt.putInt("color", picker.color.toInt());
         if (shape != null)
             shape.saveCustomSettings(scroll, nbt, getGrid());
-        return null;
+        return nbt;
     }
     
     public void onChange() {
