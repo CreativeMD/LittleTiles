@@ -38,9 +38,9 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiColorTube;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.GuiGridSelector;
+import team.creative.littletiles.common.gui.tool.GuiPaintBrush;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -102,14 +102,11 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new SubGuiColorTube(stack);
+        return new GuiPaintBrush(stack);
     }
     
     public static LittleShape getShape(ItemStack stack) {
-        String shape = stack.getOrCreateTag().getString("shape");
-        if (shape.equals("tile") || shape.equals(""))
-            return ShapeRegistry.tileShape;
-        return ShapeRegistry.getShape(shape);
+        return ShapeRegistry.REGISTRY.get(stack.getOrCreateTag().getString("shape"));
     }
     
     @Override
@@ -203,7 +200,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getLocalizedName(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
+        return new Object[] { getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
                 .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
     }
 }

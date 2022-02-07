@@ -1,0 +1,73 @@
+package team.creative.littletiles.common.gui.tool;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.Align;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
+import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
+import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.creativecore.common.util.type.Color;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.api.tool.ILittleEditor;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
+import team.creative.littletiles.common.item.ItemLittlePaintBrush;
+import team.creative.littletiles.common.placement.shape.LittleShape;
+import team.creative.littletiles.common.placement.shape.ShapeRegistry;
+
+public class GuiPaintBrush extends GuiConfigure {
+    
+    public GuiPaintBrush(ItemStack stack) {
+        super("paintbrush", 140, 173, stack);
+        registerEventChanged(x -> {
+            if (x.control.is("shape"))
+                onChange();
+        });
+        flow = GuiFlow.STACK_Y;
+        align = Align.STRETCH;
+    }
+    
+    public LittleGrid getGrid() {
+        return ((ILittleEditor) stack.getItem()).getPositionGrid(stack);
+    }
+    
+    @Override
+    public void create() {
+        Color color = new Color(ItemLittlePaintBrush.getColor(stack));
+        add(new GuiColorPicker("picker", color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
+        GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>()
+                .addComponent(ShapeRegistry.REGISTRY.values(), x -> new TranslatableComponent(x.getTranslatableName())));
+        add(box);
+        box.select(ItemLittlePaintBrush.getShape(stack));
+        add(new GuiScrollY("settings").setExpandable());
+        onChange();
+    }
+    
+    @Override
+    public CompoundTag saveConfiguration(CompoundTag nbt) {
+        GuiComboBoxMapped<LittleShape> box = (GuiComboBoxMapped<LittleShape>) get("shape");
+        GuiScrollY scroll = (GuiScrollY) get("settings");
+        LittleShape shape = box.getSelected(ShapeRegistry.DEFAULT_SHAPE);
+        
+        nbt.putString("shape", shape == null ? "tile" : shape.getKey());
+        GuiColorPicker picker = (GuiColorPicker) get("picker");
+        nbt.putInt("color", picker.color.toInt());
+        if (shape != null)
+            shape.saveCustomSettings(scroll, nbt, getGrid());
+        return null;
+    }
+    
+    public void onChange() {
+        GuiComboBoxMapped<LittleShape> box = (GuiComboBoxMapped<LittleShape>) get("shape");
+        GuiScrollY scroll = (GuiScrollY) get("settings");
+        
+        scroll.clear();
+        for (GuiControl control : box.getSelected(ShapeRegistry.TILE_SHAPE).getCustomSettings(stack.getTag(), getGrid()))
+            scroll.add(control);
+    }
+    
+}

@@ -30,5 +30,6 @@
 	"gui.structure": "structure",
 	"gui.any": "any",
 	"gui.export.data": "data",
-	"dialog.invalid_grid": "Invalid grid size '%s'"
+	"dialog.invalid_grid": "Invalid grid size '%s'",
+	"gui.more": "more"
 }
