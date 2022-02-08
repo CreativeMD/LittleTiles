@@ -138,9 +138,10 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (ItemLittleHammer.isFiltered())
-                    new LittleActionColorBoxesFiltered(selection.getBoxes(false), getColor(stack), false, ItemLittleHammer.getFilter()).execute();
+                    LittleTilesClient.ACTION_HANDLER
+                            .execute(new LittleActionColorBoxesFiltered(level, selection.getBoxes(false), getColor(stack), false, ItemLittleHammer.getFilter()));
                 else
-                    new LittleActionColorBoxes(selection.getBoxes(false), getColor(stack), false).execute();
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, selection.getBoxes(false), getColor(stack), false));
                 selection = null;
             }
         return false;

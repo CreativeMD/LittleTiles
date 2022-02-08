@@ -108,9 +108,9 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (isFiltered())
-                    new LittleActionDestroyBoxesFiltered(selection.getBoxes(false), getFilter()).execute();
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxesFiltered(level, selection.getBoxes(false), getFilter()));
                 else
-                    new LittleActionDestroyBoxes(selection.getBoxes(false)).execute();
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxes(level, selection.getBoxes(false)));
                 selection = null;
             }
         return false;
