@@ -63,7 +63,7 @@ public class BlockPacket extends CreativePacket {
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
                 if (LittleAction.isBlockValid(context.tile.getState()))
-                    ItemLittleChisel.setPreview(stack, new LittleElement(context.tile.getState(), ColorUtils.WHITE));
+                    ItemLittleChisel.setElement(stack, new LittleElement(context.tile.getState(), ColorUtils.WHITE));
             }
         },
         GRABBER(false) {
@@ -177,10 +177,8 @@ public class BlockPacket extends CreativePacket {
             if (animation == null)
                 return;
             
-            if (!LittleAction.isAllowedToInteract(player, animation, action.rightClick)) {
-                LittleAction.sendEntityResetToClient(player, animation);
+            if (!LittleAction.isAllowedToInteract(player, animation, action.rightClick))
                 return;
-            }
             
             level = animation.fakeWorld;
             pos = animation.origin.transformPointToFakeWorld(pos);

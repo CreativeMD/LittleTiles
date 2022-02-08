@@ -23,6 +23,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -207,7 +208,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced
+        return new Object[] { new TranslatableComponent(getMode(stack).title), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced
                 .getTranslatedKeyMessage() };
     }
     

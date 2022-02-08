@@ -23,7 +23,7 @@ public class VanillaBlockPacket extends CreativePacket {
             @Override
             public void action(Level level, Player player, BlockPos pos, BlockState state) {
                 if (LittleAction.isBlockValid(state))
-                    ItemLittleChisel.setPreview(player.getMainHandItem(), new LittleElement(state, ColorUtils.WHITE));
+                    ItemLittleChisel.setElement(player.getMainHandItem(), new LittleElement(state, ColorUtils.WHITE));
             }
             
         },
