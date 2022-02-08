@@ -20,9 +20,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
@@ -41,8 +38,6 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fmlclient.registry.IRenderFactory;
-import net.minecraftforge.fmlclient.registry.RenderingRegistry;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.command.ClientCommandRegistry;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -58,13 +53,13 @@ import team.creative.littletiles.client.render.item.LittleRenderToolBackground;
 import team.creative.littletiles.client.render.item.LittleRenderToolBig;
 import team.creative.littletiles.client.render.item.LittleRenderToolPreview;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.OverlayControl;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayPositionType;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.render.overlay.TooltipOverlay;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -118,6 +113,7 @@ public class LittleTilesClient {
         
         MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
         MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
+        MinecraftForge.EVENT_BUS.register(new LittleClientEventHandler());
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
         
@@ -241,21 +237,6 @@ public class LittleTilesClient {
         CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
         
         EntityRenderers.register(LittleTiles.SIZED_TNT_TYPE, RenderSizedTNTPrimed::new);
-        
-        RenderingRegistry.registerEntityRenderingHandler(EntityAnimation.class, new IRenderFactory<EntityAnimation>() {
-            
-            @Override
-            public Render<? super EntityAnimation> createRenderFor(RenderManager manager) {
-                return new Render<EntityAnimation>(manager) {
-                    
-                    @Override
-                    protected ResourceLocation getEntityTexture(EntityAnimation entity) {
-                        return TextureMap.LOCATION_BLOCKS_TEXTURE;
-                    }
-                    
-                };
-            }
-        });
         
         blockEntityRenderer = new BETilesRenderer();
         BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_RENDERED, x -> blockEntityRenderer);

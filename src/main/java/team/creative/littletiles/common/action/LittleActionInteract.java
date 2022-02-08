@@ -2,8 +2,6 @@ package team.creative.littletiles.common.action;
 
 import java.util.UUID;
 
-import com.creativemd.littletiles.common.event.LittleEventHandler;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +22,7 @@ import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 public abstract class LittleActionInteract extends LittleAction {
     
@@ -76,7 +75,7 @@ public abstract class LittleActionInteract extends LittleAction {
     @Override
     public boolean action(Player player) throws LittleActionException {
         
-        if (isRightClick() && LittleEventHandler.consumeBlockTilePrevent(player, InteractionHand.MAIN_HAND))
+        if (isRightClick() && LittleBedEventHandler.consumeBlockTilePrevent(player, InteractionHand.MAIN_HAND))
             return false;
         
         Level level = player.level;

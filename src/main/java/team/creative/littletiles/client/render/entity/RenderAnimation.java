@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -41,13 +40,14 @@ import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 public class RenderAnimation extends EntityRenderer<EntityAnimation> {
     
     public static Minecraft mc = Minecraft.getInstance();
     public static final VertexBufferUploader uploader = new VertexBufferUploader();
     
-    protected RenderAnimation(EntityRendererProvider.Context context) {
+    public RenderAnimation(EntityRendererProvider.Context context) {
         super(context);
     }
     
@@ -241,7 +241,7 @@ public class RenderAnimation extends EntityRenderer<EntityAnimation> {
             for (LittleRenderChunk chunk : suppilier.renderChunks.values()) {
                 
                 if (layer == BlockRenderLayer.TRANSLUCENT)
-                    chunk.resortTransparency(LittleEventHandler.transparencySortingIndex, f, f1, f2);
+                    chunk.resortTransparency(LittleBedEventHandler.transparencySortingIndex, f, f1, f2);
                 
                 VertexBuffer buffer = chunk.getLayerBuffer(layer);
                 

@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.action;
 
-import com.creativemd.littletiles.common.event.LittleEventHandler;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -12,6 +10,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 public class LittleActionActivated extends LittleActionInteract {
     
@@ -49,11 +48,11 @@ public class LittleActionActivated extends LittleActionInteract {
             result = super.action(player);
         } catch (LittleActionException e) {
             if (!player.level.isClientSide)
-                LittleEventHandler.addBlockTilePrevent(player);
+                LittleBedEventHandler.addBlockTilePrevent(player);
             throw e;
         }
         if (!player.level.isClientSide)
-            LittleEventHandler.addBlockTilePrevent(player);
+            LittleBedEventHandler.addBlockTilePrevent(player);
         return result;
     }
     

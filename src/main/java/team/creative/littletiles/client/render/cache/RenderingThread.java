@@ -12,7 +12,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
-import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
@@ -47,6 +46,7 @@ import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverla
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderingThread extends Thread {
@@ -404,7 +404,7 @@ public class RenderingThread extends Thread {
             chunk.getLockCompileTask().lock();
             
             if (isChunkCurrentlyUpdating(chunk))
-                LittleEventHandler.queueChunkUpdate(chunk);
+                LittleBedEventHandler.queueChunkUpdate(chunk);
             else
                 chunk.setNeedsUpdate(false);
             

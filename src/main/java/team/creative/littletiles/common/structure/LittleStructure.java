@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.RenderType;
@@ -73,6 +72,7 @@ import team.creative.littletiles.common.structure.signal.input.InternalSignalInp
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
+import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
     
@@ -799,7 +799,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public void updateStructure() {
         if (getLevel() == null || getLevel().isClientSide)
             return;
-        LittleEventHandler.queueStructureForUpdatePacket(this);
+        LittleBedEventHandler.queueStructureForUpdatePacket(this);
     }
     
     public void sendUpdatePacket() {
@@ -876,7 +876,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     /** only server side **/
     public void queueForNextTick() {
-        LittleEventHandler.queueStructureForNextTick(this);
+        LittleBedEventHandler.queueStructureForNextTick(this);
     }
     
     /** only server side **/

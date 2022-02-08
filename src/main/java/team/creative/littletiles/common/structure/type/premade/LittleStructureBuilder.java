@@ -30,6 +30,10 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     
     public static final NamedHandlerRegistry<LittleStructureBuilderType> REGISTRY = new NamedHandlerRegistry<>(null);
     
+    public static void register(LittleStructureBuilderType type) {
+        REGISTRY.register(type.type.id, type);
+    }
+    
     public SimpleContainer inventory = new SimpleContainer(1);
     public int lastSizeX = 16;
     public int lastSizeY = 16;

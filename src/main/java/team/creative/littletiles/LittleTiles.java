@@ -8,8 +8,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.creativemd.littletiles.common.event.LittleEventHandler;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -62,7 +60,6 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -99,6 +96,7 @@ import team.creative.littletiles.common.item.ItemLittleScrewdriver;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselAndBitsConveration;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
@@ -121,6 +119,8 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
+import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.LittleStorage;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
@@ -212,6 +212,8 @@ public class LittleTiles {
     
     public static EntityType<PrimedSizedTnt> SIZED_TNT_TYPE;
     public static EntityType<EntitySit> SIT_TYPE;
+    
+    public static EntityType<EntitySit> ANIMATION;
     
     public static CreativeModeTab LITTLE_TAB = new CreativeModeTab("littletiles") {
         
@@ -410,12 +412,11 @@ public class LittleTiles {
         LittleActionRegistry.register(LittleActionDestroyBoxesFiltered.class, LittleActionDestroyBoxesFiltered::new);
         LittleActionRegistry.register(LittleActionDestroy.class, LittleActionDestroy::new);
         
-        MinecraftForge.EVENT_BUS.register(new LittleEventHandler());
+        MinecraftForge.EVENT_BUS.register(new LittleBedEventHandler());
         MinecraftForge.EVENT_BUS.register(WorldAnimationHandler.class);
         // MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
-        
-        // Entity
-        EntityRegistry.registerModEntity(new ResourceLocation(MODID, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
+        MinecraftForge.EVENT_BUS.register(new LittleSignalHandler());
+        MinecraftForge.EVENT_BUS.register(new LittleToolHandler());
         
         LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
         
