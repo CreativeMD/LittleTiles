@@ -2,9 +2,7 @@ package team.creative.littletiles.common.structure.type.premade;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -17,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -29,19 +28,7 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class LittleStructureBuilder extends LittleStructurePremade {
     
-    private static HashMap<String, LittleStructureBuilderType> types = new HashMap<>();
-    
-    public static void register(LittleStructureBuilderType type) {
-        types.put(type.type.id, type);
-    }
-    
-    public static Set<String> getNames() {
-        return types.keySet();
-    }
-    
-    public static LittleStructureBuilderType get(String id) {
-        return types.get(id);
-    }
+    public static final NamedHandlerRegistry<LittleStructureBuilderType> REGISTRY = new NamedHandlerRegistry<>(null);
     
     public SimpleContainer inventory = new SimpleContainer(1);
     public int lastSizeX = 16;
@@ -114,7 +101,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
         }
         
         @SuppressWarnings("deprecation")
-        public LittleGroup construct(LittleGrid context, int width, int height, int thickness, String block) {
+        public LittleGroup construct(LittleGrid context, int width, int height, int thickness, BlockState state) {
             CompoundTag structureNBT = new CompoundTag();
             structureNBT.putString("id", type.id);
             structureNBT.putIntArray("topRight", new int[] { Float.floatToIntBits(0), Float.floatToIntBits(1), Float.floatToIntBits(1) });
@@ -125,7 +112,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
                 for (int y = 0; y < height; y += context.count)
                     for (int z = 0; z < width; z += context.count)
                         boxes.add(new LittleBox(x, y, z, Math.min(x + 16, thickness), Math.min(y + 16, height), Math.min(z + 16, width)));
-            previews.addDirectly(new LittleTile(block, ColorUtils.WHITE, boxes));
+            previews.addDirectly(new LittleTile(state, ColorUtils.WHITE, boxes));
             return previews;
         }
         

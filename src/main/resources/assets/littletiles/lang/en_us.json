@@ -39,6 +39,14 @@
 	"gui.undo": "undo",
 	"gui.redo": "redo",
 	"gui.run": "run",
+	"gui.plus": "+",
+	"gui.minus": "-",
+	
+	"gui.frame_builder.width": "width",
+	"gui.frame_builder.height": "height",
+	"gui.frame_builder.thickness": "thickness",
+	"gui.frame_builder.craft": "craft",
+	"gui.frame_builder.failed": "§4failed",
 	
 	"dialog.invalid_grid": "Invalid grid size '%s'",
 	
