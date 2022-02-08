@@ -3,7 +3,6 @@ package team.creative.littletiles.common.action;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -22,7 +21,6 @@ import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
-import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 public abstract class LittleActionInteract extends LittleAction {
     
@@ -47,7 +45,7 @@ public abstract class LittleActionInteract extends LittleAction {
         double reach = PlayerUtils.getReach(player);
         Vec3 look = player.getViewVector(TickUtils.getDeltaFrameTime(level));
         this.look = pos.add(look.x * reach, look.y * reach, look.z * reach);
-        this.secondMode = LittleActionHandlerClient.isUsingSecondMode(player);
+        this.secondMode = LittleActionHandlerClient.isUsingSecondMode();
         if (level instanceof CreativeLevel)
             uuid = ((CreativeLevel) level).parent.getUUID();
     }
@@ -75,7 +73,7 @@ public abstract class LittleActionInteract extends LittleAction {
     @Override
     public boolean action(Player player) throws LittleActionException {
         
-        if (isRightClick() && LittleBedEventHandler.consumeBlockTilePrevent(player, InteractionHand.MAIN_HAND))
+        if (isRightClick())
             return false;
         
         Level level = player.level;
@@ -88,10 +86,8 @@ public abstract class LittleActionInteract extends LittleAction {
             if (animation == null)
                 onEntityNotFound();
             
-            if (!isAllowedToInteract(player, animation, isRightClick())) {
-                sendEntityResetToClient(player, animation);
+            if (!isAllowedToInteract(player, animation, isRightClick()))
                 return false;
-            }
             
             level = animation.fakeWorld;
             if (!transformedCoordinates) {

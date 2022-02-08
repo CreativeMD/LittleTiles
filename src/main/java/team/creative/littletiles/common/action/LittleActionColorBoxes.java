@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETiles.BlockEntityInteractor;
@@ -98,7 +98,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                         }
                     }
                     
-                    if (!intersects || !(tile.getClass() == LittleTile.class || tile instanceof LittleTileColored))
+                    if (!intersects)
                         continue;
                     
                     try {
@@ -119,7 +119,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                         continue structure_loop;
                     }
                     
-                    if (!LittleTileColored.needsToBeRecolored(tile, color))
+                    if (tile.color == color)
                         continue;
                     
                     doneSomething = true;
@@ -190,9 +190,9 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         };
         
         if (simulate)
-            te.updateTilesSecretly(consumer);
+            be.updateTilesSecretly(consumer);
         else
-            te.updateTiles(consumer);
+            be.updateTiles(consumer);
         
         ColorIngredient toDrain = ColorIngredient.getColors(color);
         toDrain.scale(colorVolume);

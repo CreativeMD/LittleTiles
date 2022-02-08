@@ -10,7 +10,6 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
-import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 public class LittleActionActivated extends LittleActionInteract {
     
@@ -34,9 +33,9 @@ public class LittleActionActivated extends LittleActionInteract {
     @Override
     protected boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
         if (context.parent.isStructure())
-            return context.parent.getStructure().use(level, context, player, hit);
+            return context.parent.getStructure().use(level, context, pos, player, hit).consumesAction();
         
-        if (context.tile.use(context.parent, context.box, pos, player, hit))
+        if (context.tile.use(context.parent, context.box, pos, player, hit).consumesAction())
             return true;
         return false;
     }
@@ -47,12 +46,8 @@ public class LittleActionActivated extends LittleActionInteract {
         try {
             result = super.action(player);
         } catch (LittleActionException e) {
-            if (!player.level.isClientSide)
-                LittleBedEventHandler.addBlockTilePrevent(player);
             throw e;
         }
-        if (!player.level.isClientSide)
-            LittleBedEventHandler.addBlockTilePrevent(player);
         return result;
     }
     
