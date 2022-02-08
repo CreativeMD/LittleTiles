@@ -40,7 +40,6 @@ import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -56,9 +55,9 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
-import team.creative.littletiles.common.gui.SubGuiGrabber;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiGlove;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -233,10 +232,6 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         public void addExtraInformation(CompoundTag nbt, List<Component> tooltip) {}
         
-        public String getLocalizedName() {
-            return LanguageUtils.translate(title);
-        }
-        
         @OnlyIn(Dist.CLIENT)
         public void onClickBlock(@Nullable Level level, Player player, ItemStack stack, @Nullable BlockHitResult result) {}
         
@@ -348,7 +343,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         public GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid) {
-            return new SubGuiGrabber(this, stack, 140, 140, context) {
+            return new GuiGlove(this, stack, 140, 140, context) {
                 public LittleVec size;
                 public boolean isColored = false;
                 
@@ -548,7 +543,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         @Override
         @OnlyIn(Dist.CLIENT)
         public GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid) {
-            return new SubGuiGrabber(this, stack, 140, 140, grid) {
+            return new GuiGlove(this, stack, 140, 140, grid) {
                 
                 @Override
                 public CompoundTag saveConfiguration(CompoundTag nbt) {}
@@ -576,8 +571,8 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public SubGuiGrabber getGui(Player player, ItemStack stack, LittleGrid grid) {
-            return new SubGuiGrabber(this, stack, 140, 140, grid) {
+        public GuiGlove getGui(Player player, ItemStack stack, LittleGrid grid) {
+            return new GuiGlove(this, stack, 140, 140, grid) {
                 
                 @Override
                 public void createControls() {

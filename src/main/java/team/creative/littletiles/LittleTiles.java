@@ -375,15 +375,6 @@ public class LittleTiles {
             }
         });
         
-        GuiHandler.register("grabber", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        
         GuiHandler.register("recipeadvanced", new GuiHandler() {
             
             @Override

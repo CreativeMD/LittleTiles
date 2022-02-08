@@ -41,6 +41,8 @@
 	"gui.run": "run",
 	"gui.plus": "+",
 	"gui.minus": "-",
+	"gui.previous": "<<",
+	"gui.next": ">>",
 	
 	"gui.frame_builder.width": "width",
 	"gui.frame_builder.height": "height",
