@@ -49,6 +49,12 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
     }
     
+    public static String getStructure(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("structure"))
+            return stack.getTag().getCompound("structure").getString("id");
+        return "";
+    }
+    
     @Override
     public boolean isComplex() {
         return true;

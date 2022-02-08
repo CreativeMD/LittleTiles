@@ -38,6 +38,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -115,6 +116,7 @@ import team.creative.littletiles.common.packet.update.BlocksUpdate;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
 import team.creative.littletiles.common.packet.update.OutputUpdate;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
+import team.creative.littletiles.common.recipe.StructureIngredient.StructureIngredientSerializer;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -426,6 +428,8 @@ public class LittleTiles {
         LEVEL_HANDLERS.register(LittleAnimationHandlerServer::new);
         
         STORAGE_BLOCKS = BlockTags.createOptional(new ResourceLocation(MODID, "storage_blocks"));
+        
+        CraftingHelper.register(new ResourceLocation(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
     }
     
     private void client(final FMLClientSetupEvent event) {
