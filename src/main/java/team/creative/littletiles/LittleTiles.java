@@ -51,7 +51,6 @@ import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
@@ -78,11 +77,12 @@ import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
+import team.creative.littletiles.common.gui.GuiStorage;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
 import team.creative.littletiles.common.gui.premade.GuiExport;
 import team.creative.littletiles.common.gui.premade.GuiImport;
-import team.creative.littletiles.common.gui.tool.GuiBag;
+import team.creative.littletiles.common.gui.structure.GuiBuilder;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -101,13 +101,7 @@ import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselAndBitsConveration;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
-import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
-import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
-import team.creative.littletiles.common.packet.LittleEntityFixControllerPacket;
-import team.creative.littletiles.common.packet.LittleEntityRequestPacket;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
-import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
-import team.creative.littletiles.common.packet.LittleResetAnimationPacket;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
@@ -125,8 +119,10 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.type.LittleStorage;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
+import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.NeighborUpdateOrganizer;
 import team.creative.littletiles.server.level.LevelHandlersServer;
@@ -280,7 +276,8 @@ public class LittleTiles {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
-                // TODO Auto-generated method stub
+                if (structure instanceof LittleStorage)
+                    return new GuiStorage((LittleStorage) structure, player);
                 return null;
             }
         });
@@ -375,19 +372,12 @@ public class LittleTiles {
             }
         });
         
-        GuiHandler.register("recipeadvanced", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                return new GuiBag(ContainerSlotView.mainHand(player));
-            }
-        });
-        
         GuiHandler.register("structure_builder", new LittleStructureGuiHandler() {
             
             @Override
             public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
-                // TODO Auto-generated method stub
+                if (structure instanceof LittleStructureBuilder)
+                    return new GuiBuilder((LittleStructureBuilder) structure);
                 return null;
             }
         });
@@ -409,24 +399,14 @@ public class LittleTiles {
         NETWORK.registerType(BlocksUpdate.class, BlocksUpdate::new);
         NETWORK.registerType(OutputUpdate.class, OutputUpdate::new);
         
-        CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
-        CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
-        CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
-        CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
-        CreativeCorePacket.registerPacket(LittleEntityFixControllerPacket.class);
-        CreativeCorePacket.registerPacket(LittleConsumeRightClickEvent.class);
-        
         LittleActionRegistry.register(LittleActions.class, LittleActions::new);
         LittleActionRegistry.register(LittleActionPlace.class, LittleActionPlace::new);
         LittleActionRegistry.register(LittleActionActivated.class, LittleActionActivated::new);
-        
-        LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);
-        LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class, LittleActionDestroyBoxesFiltered.class);
-        LittleAction.registerLittleAction("des", LittleActionDestroy.class);
-        
-        LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
-        
-        LittleAction.registerLittleAction("rep", LittleActionReplace.class);
+        LittleActionRegistry.register(LittleActionColorBoxes.class, LittleActionColorBoxes::new);
+        LittleActionRegistry.register(LittleActionColorBoxesFiltered.class, LittleActionColorBoxesFiltered::new);
+        LittleActionRegistry.register(LittleActionDestroyBoxes.class, LittleActionDestroyBoxes::new);
+        LittleActionRegistry.register(LittleActionDestroyBoxesFiltered.class, LittleActionDestroyBoxesFiltered::new);
+        LittleActionRegistry.register(LittleActionDestroy.class, LittleActionDestroy::new);
         
         MinecraftForge.EVENT_BUS.register(new LittleEventHandler());
         MinecraftForge.EVENT_BUS.register(WorldAnimationHandler.class);
