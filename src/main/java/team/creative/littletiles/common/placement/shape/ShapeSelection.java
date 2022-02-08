@@ -68,7 +68,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         this.stack = stack;
         
         shapeKey = getNBT().getString("shape");
-        shape = ShapeRegistry.getShape(shapeKey);
+        shape = ShapeRegistry.REGISTRY.get(shapeKey);
     }
     
     public CompoundTag getNBT() {
@@ -85,7 +85,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         CompoundTag nbt = getNBT();
         if (!shapeKey.equals(nbt.getString("shape"))) {
             shapeKey = nbt.getString("shape");
-            shape = ShapeRegistry.getShape(shapeKey);
+            shape = ShapeRegistry.REGISTRY.get(shapeKey);
             if (!cache.shapeKey.equals(shapeKey))
                 return true;
         }
@@ -325,7 +325,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.grid = grid;
             CompoundTag nbt = getNBT();
             shapeKey = nbt.getString("shape");
-            shape = ShapeRegistry.getShape(shapeKey);
+            shape = ShapeRegistry.REGISTRY.get(shapeKey);
             
             this.positions = positions;
             cachedBoxesLowRes = shape.getBoxes(ShapeSelection.this, true);

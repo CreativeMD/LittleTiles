@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -30,6 +29,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.util.math.box.CreativeAABB;
 import team.creative.littletiles.client.event.HoldLeftClick;
 import team.creative.littletiles.client.event.LeftClick;
 import team.creative.littletiles.client.event.WheelClick;
@@ -46,7 +46,7 @@ public class WorldAnimationHandler {
     
     @SideOnly(Side.CLIENT)
     private static void createClientHandler() {
-        client = new LittleAnimationHandlerClient(Minecraft.getMinecraft().world);
+        client = new LittleAnimationHandlerClient(Minecraft.getInstance().level);
     }
     
     @SideOnly(Side.CLIENT)

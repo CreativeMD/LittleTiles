@@ -42,6 +42,9 @@
 	
 	"dialog.invalid_grid": "Invalid grid size '%s'",
 	
+	"dialog.screwdriver.no_task": "No task selected",
+	"dialog.screwdriver.invalid_replacement": "Invalid replacement block",
+	
 	"markmode.gui.allowlowresolution": "Allow Low Resolution",
 	
 	"selection.include.vanilla": "Include Vanilla Blocks",
