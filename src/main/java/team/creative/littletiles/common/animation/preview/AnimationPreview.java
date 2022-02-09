@@ -9,7 +9,7 @@ import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
-import team.creative.creativecore.common.level.FakeLevel;
+import team.creative.creativecore.common.level.FakeClientLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.action.LittleActionException;
@@ -40,7 +40,7 @@ public class AnimationPreview {
     public AnimationPreview(LittleGroup previews) {
         this.previews = previews;
         BlockPos pos = new BlockPos(0, 75, 0);
-        FakeLevel fakeWorld = FakeLevel.createFakeWorld("animationViewer", true);
+        FakeClientLevel fakeWorld = FakeClientLevel.createFakeWorld("animationViewer", true);
         fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
         
         if (!previews.hasStructure()) {

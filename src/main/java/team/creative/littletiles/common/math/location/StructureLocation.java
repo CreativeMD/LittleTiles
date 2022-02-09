@@ -32,7 +32,7 @@ public class StructureLocation {
         this.pos = pos;
         this.index = index;
         if (level instanceof CreativeLevel)
-            this.levelUUID = ((CreativeLevel) level).parent.getUUID();
+            this.levelUUID = ((CreativeLevel) level).getHolder().getUUID();
         else
             this.levelUUID = null;
     }

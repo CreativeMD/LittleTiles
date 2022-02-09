@@ -17,6 +17,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     public final LittleLevelEntity parent;
     
     private OBB orientatedBB;
+    private boolean preventPush = false;
     
     public LittleLevelEntityPhysic(LittleLevelEntity parent) {
         this.parent = parent;
@@ -32,6 +33,19 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
     public AABB getBB() {
         return getOrigin().getAxisAlignedBox(orientatedBB);
+    }
+    
+    public void ignoreCollision(Runnable run) {
+        preventPush = true;
+        try {
+            run.run();
+        } finally {
+            preventPush = false;
+        }
+    }
+    
+    public boolean shouldPush() {
+        return !preventPush;
     }
     
     @Override

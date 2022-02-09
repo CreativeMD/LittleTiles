@@ -46,7 +46,7 @@ public class TileLocation {
         this.pos = context.parent.getPos();
         this.box = context.box.copy();
         if (context.parent.getLevel() instanceof CreativeLevel)
-            this.levelUUID = ((CreativeLevel) context.parent.getLevel()).parent.getUUID();
+            this.levelUUID = ((CreativeLevel) context.parent.getLevel()).getHolder().getUUID();
         else
             this.levelUUID = null;
     }

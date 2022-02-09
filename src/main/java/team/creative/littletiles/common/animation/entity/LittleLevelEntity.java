@@ -5,10 +5,14 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.level.CreativeClientLevel;
 import team.creative.creativecore.common.level.CreativeLevel;
-import team.creative.creativecore.common.level.SubLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.animation.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -20,13 +24,18 @@ import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 public class LittleLevelEntity extends Entity implements OrientationAwareEntity {
     
     private CreativeLevel fakeLevel;
-    
     private StructureAbsolute center;
     private IVecOrigin origin;
-    
     private StructureConnection structure;
     
     public final LittleLevelEntityPhysic physic = new LittleLevelEntityPhysic(this);
+    
+    public double initalOffX;
+    public double initalOffY;
+    public double initalOffZ;
+    public double initalRotX;
+    public double initalRotY;
+    public double initalRotZ;
     
     public LittleLevelEntity(EntityType<?> type, Level level) {
         super(type, level);
@@ -37,6 +46,20 @@ public class LittleLevelEntity extends Entity implements OrientationAwareEntity 
         setFakeLevel(fakeLevel);
         setCenter(center);
         this.structure = new StructureConnection(fakeLevel, location);
+        
+        setPosition(center.baseOffset.getX(), center.baseOffset.getY(), center.baseOffset.getZ());
+        
+        physic.ignoreCollision(() -> {
+            updateTickState();
+            this.initalOffX = origin.offX();
+            this.initalOffY = origin.offY();
+            this.initalOffZ = origin.offZ();
+            this.initalRotX = origin.rotX();
+            this.initalRotY = origin.rotY();
+            this.initalRotZ = origin.rotZ();
+        });
+        
+        origin.tick();
     }
     
     public IVecOrigin getOrigin() {
@@ -44,14 +67,14 @@ public class LittleLevelEntity extends Entity implements OrientationAwareEntity 
     }
     
     public LittleLevelEntity getTopLevelEntity() {
-        if (level instanceof SubLevel)
-            return ((LittleLevelEntity) ((SubLevel) level).parent).getTopLevelEntity();
+        if (level instanceof ISubLevel)
+            return ((LittleLevelEntity) ((ISubLevel) level).getHolder()).getTopLevelEntity();
         return this;
     }
     
     protected void setFakeLevel(CreativeLevel fakeLevel) {
         this.fakeLevel = fakeLevel;
-        this.fakeLevel.parent = this;
+        this.fakeLevel.setHolder(this);
         this.fakeLevel.registerLevelBoundListener(physic);
     }
     
@@ -77,11 +100,13 @@ public class LittleLevelEntity extends Entity implements OrientationAwareEntity 
         return structure.getStructure();
     }
     
-    @Override
-    protected void defineSynchedData() {
-        // TODO Auto-generated method stub
-        
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderChunkSuppilier getRenderChunkSuppilier() {
+        return (LittleRenderChunkSuppilier) ((CreativeClientLevel) fakeLevel).renderChunkSupplier;
     }
+    
+    @Override
+    protected void defineSynchedData() {}
     
     @Override
     protected void readAdditionalSaveData(CompoundTag nbt) {

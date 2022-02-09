@@ -3,7 +3,6 @@ package team.creative.littletiles.common.animation.entity;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -38,28 +37,21 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.level.CreativeLevel;
-import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.util.math.collision.CollidingPlane;
 import team.creative.creativecore.common.util.math.collision.CollidingPlane.PushCache;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
-import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.EntityAnimationController;
-import team.creative.littletiles.common.animation.physic.AABBCombiner;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.WorldAnimationHandler;
-import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
@@ -70,108 +62,6 @@ import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 public class EntityAnimation extends Entity {
     
     protected static final Predicate<Entity> noAnimation = (x) -> !(x instanceof EntityAnimation);
-    
-    // ================Constructors================
-    
-    public EntityAnimation(Level level) {
-        super(level);
-    }
-    
-    public EntityAnimation(Level level, CreativeLevel fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LocalStructureLocation location) {
-        this(level);
-        this.structureLocation = location;
-        try {
-            if (structureLocation == null)
-                this.structure = null;
-            else
-                this.structure = structureLocation.find(fakeWorld);
-        } catch (LittleActionException e) {
-            throw new RuntimeException(e);
-        }
-        
-        this.controller = controller;
-        this.controller.setParent(this);
-        
-        this.absolutePreviewPos = absolutePreviewPos;
-        setFakeWorld(fakeWorld);
-        this.uuid = uuid;
-        this.stringUUID = this.uuid.toString();
-        
-        setCenter(center);
-        
-        updateWorldCollision();
-        
-        setPosition(center.baseOffset.getX(), center.baseOffset.getY(), center.baseOffset.getZ());
-        
-        addDoor();
-        preventPush = true;
-        updateTickState();
-        updateBoundingBox();
-        this.initalOffX = origin.offX();
-        this.initalOffY = origin.offY();
-        this.initalOffZ = origin.offZ();
-        this.initalRotX = origin.rotX();
-        this.initalRotY = origin.rotY();
-        this.initalRotZ = origin.rotZ();
-        preventPush = false;
-        
-        origin.tick();
-    }
-    
-    public Entity getAbsoluteParent() {
-        if (level instanceof SubLevel)
-            return ((EntityAnimation) ((SubLevel) level).parent).getAbsoluteParent();
-        return this;
-    }
-    
-    public void setFakeWorld(CreativeWorld fakeWorld) {
-        this.fakeWorld = fakeWorld;
-        this.fakeWorld.parent = this;
-        
-        if (world.isRemote && this.fakeWorld.renderChunkSupplier == null)
-            this.fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
-        
-    }
-    
-    public boolean shouldAddDoor() {
-        return !isDead && !(world instanceof FakeWorld) && !(world instanceof SubWorld && ((SubWorld) world).getRealWorld() instanceof FakeWorld);
-    }
-    
-    public World getRealWorld() {
-        if (world instanceof SubWorld)
-            return ((SubWorld) world).getRealWorld();
-        return world;
-    }
-    
-    public boolean isDoorAdded() {
-        return addedDoor;
-    }
-    
-    public void addDoor() {
-        if (!shouldAddDoor())
-            return;
-        if (!addedDoor) {
-            WorldAnimationHandler.getHandler(world).createDoor(this);
-            addedDoor = true;
-        }
-    }
-    
-    public void markRemoved() {
-        isDead = true;
-        addedDoor = false;
-        if (fakeWorld == null || fakeWorld.loadedEntityList == null)
-            return;
-        for (Entity entity : fakeWorld.loadedEntityList)
-            if (entity instanceof EntityAnimation)
-                ((EntityAnimation) entity).markRemoved();
-        if (world.isRemote)
-            getRenderChunkSuppilier().unloadRenderCache();
-    }
-    
-    @Override
-    protected void entityInit() {
-        addDoor();
-    }
     
     // ================World Data================
     
@@ -190,101 +80,12 @@ public class EntityAnimation extends Entity {
     
     // ================Axis================
     
-    public void setCenter(StructureAbsolute center) {
-        this.center = center;
-        this.fakeWorld.setOrigin(center.rotationCenter);
-        this.origin = this.fakeWorld.getOrigin();
-        for (Entity entity : fakeWorld.loadedEntities())
-            if (entity instanceof EntityAnimation)
-                ((ChildVecOrigin) ((EntityAnimation) entity).origin).parent = this.origin;
-    }
-    
-    public void setCenterVec(LittleVecAbsolute axis, LittleVec additional) {
-        setCenter(new StructureAbsolute(axis, additional));
-    }
-    
-    public void setParentLevel(Level level) {
-        this.enteredAsChild = this.level instanceof CreativeLevel && !(level instanceof CreativeLevel);
-        this.level = level;
-        if (fakeWorld instanceof SubLevel)
-            ((SubLevel) fakeWorld).parentLevel = level;
-        this.fakeWorld.setOrigin(center.rotationCenter);
-        this.origin = this.fakeWorld.getOrigin();
-        hasOriginChanged = true;
-    }
-    
     public LittleStructure structure;
     public LocalStructureLocation structureLocation;
     public StructureAbsolute center;
     public BlockPos absolutePreviewPos;
     
     // ================Collision================
-    
-    public boolean preventPush = false;
-    
-    /** Is true when animation moves other entities */
-    public boolean noCollision = false;
-    
-    public AABBCombiner collisionBoxWorker;
-    
-    /** Static not affected by direction or entity offset */
-    public List<OrientatedBoundingBox> worldCollisionBoxes;
-    
-    /** Static not affected by direction or entity offset */
-    public OrientatedBoundingBox worldBoundingBox;
-    
-    /** Should be called if the world of the animation will be modified (Currently
-     * not possible) */
-    public void updateWorldCollision() {
-        double minX = Double.MAX_VALUE;
-        double minY = Double.MAX_VALUE;
-        double minZ = Double.MAX_VALUE;
-        double maxX = -Double.MAX_VALUE;
-        double maxY = -Double.MAX_VALUE;
-        double maxZ = -Double.MAX_VALUE;
-        
-        worldCollisionBoxes = new ArrayList<>();
-        
-        for (Iterator<TileEntity> iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
-            TileEntity tileEntity = iterator.next();
-            
-            if (tileEntity instanceof TileEntityLittleTiles) {
-                TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-                if (te.isEmpty())
-                    continue;
-                AxisAlignedBB bb = te.getSelectionBox();
-                minX = Math.min(minX, bb.minX);
-                minY = Math.min(minY, bb.minY);
-                minZ = Math.min(minZ, bb.minZ);
-                maxX = Math.max(maxX, bb.maxX);
-                maxY = Math.max(maxY, bb.maxY);
-                maxZ = Math.max(maxZ, bb.maxZ);
-                
-                ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
-                
-                for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
-                    LittleBox box = pair.value.getCollisionBox();
-                    if (box != null)
-                        boxes.add(box.getBox(te.getContext(), te.getPos()));
-                }
-                
-                // BoxUtils.compressBoxes(boxes, 0.0F);
-                
-                for (AxisAlignedBB box : boxes) {
-                    worldCollisionBoxes.add(new OrientatedBoundingBox(origin, box));
-                }
-            }
-        }
-        
-        fakeWorld.hasChanged = false;
-        hasOriginChanged = true;
-        
-        collisionBoxWorker = new AABBCombiner(worldCollisionBoxes, 0);
-        if (minX == Double.MAX_VALUE)
-            worldBoundingBox = new OrientatedBoundingBox(origin, 0, 0, 0, 1, 1, 1);
-        else
-            worldBoundingBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
-    }
     
     private static double minIgnore(double par1, double par2) {
         if (Math.abs(par2) < Math.abs(par1))
@@ -536,10 +337,6 @@ public class EntityAnimation extends Entity {
     @SideOnly(Side.CLIENT)
     public void createClient() {
         
-    }
-    
-    public LittleRenderChunkSuppilier getRenderChunkSuppilier() {
-        return (LittleRenderChunkSuppilier) fakeWorld.renderChunkSupplier;
     }
     
     // ================Ticking================
