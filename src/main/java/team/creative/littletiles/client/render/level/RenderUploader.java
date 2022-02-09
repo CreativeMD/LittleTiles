@@ -6,12 +6,10 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL15;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -26,6 +24,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.model.BufferBuilderUtils;
 import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerCache;
@@ -130,14 +129,8 @@ public class RenderUploader {
     public static ByteBuffer glMapBufferRange(long length) throws NotSupportedException {
         try {
             ByteBuffer result = ByteBuffer.allocateDirect((int) length);
-            if (arbVboField.getBoolean(null)) {
-                System.out.println("Using arb buffers ...");
-                ARBBufferObject.glGetBufferSubDataARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0, result);
-            }
-            //return ARBVertexBufferObject.glMapBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, ARBVertexBufferObject.GL_READ_ONLY_ARB, length, null);
-            //else if (GLContext.getCapabilities().OpenGL30)
-            //return GL30.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, 0, length, GL30.GL_MAP_READ_BIT, null);
-            //else if (OpenGlHelper.useVbo())
+            if (arbVboField.getBoolean(null))
+                ARBVertexBufferObject.glGetBufferSubDataARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0, result);
             else
                 GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0, result);
             return result;

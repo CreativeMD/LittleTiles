@@ -6,4 +6,6 @@ public interface OrientationAwareEntity {
     
     public void parentVecOriginChange(IVecOrigin origin);
     
+    public void markOriginChange();
+    
 }
