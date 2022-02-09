@@ -366,7 +366,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         return this.getClass() == obj.getClass();
     }
     
-    public abstract String print(List<Object> objects);
+    public abstract void print(TextBuilder text);
     
     public static abstract class IngredientOverflowHandler<T extends LittleIngredient> {
         
