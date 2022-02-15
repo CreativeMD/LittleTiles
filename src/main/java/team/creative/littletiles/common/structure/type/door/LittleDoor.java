@@ -24,6 +24,7 @@ import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionException.LittleActionExceptionHidden;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleDoorEntity;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -62,7 +63,7 @@ public abstract class LittleDoor extends LittleStructure {
         nbt.putBoolean("opened", opened);
     }
     
-    public EntityAnimation activate(DoorActivator activator, @Nullable Player player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
+    public LittleDoorEntity activate(DoorActivator activator, @Nullable Player player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
         if (waitingForApproval)
             throw new LittleActionExceptionHidden("Door has not been approved yet!");
         

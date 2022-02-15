@@ -30,7 +30,7 @@ import team.creative.littletiles.common.animation.entity.EnumFacing;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.animation.entity.OrientatedBoundingBox;
 import team.creative.littletiles.common.api.block.LittlePhysicBlock;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
@@ -66,6 +66,10 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
     public boolean shouldPush() {
         return !preventPush;
+    }
+    
+    public Iterable<OBB> collision(AABB box) {
+        
     }
     
     @Override
@@ -309,7 +313,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
                 entity.move(MoverType.SELF, moveX, moveY, moveZ);
                 
                 if (entity instanceof EntityPlayerMP)
-                    WorldAnimationHandler.setPushedByDoor((EntityPlayerMP) entity);
+                    LittleAnimationHandlers.setPushedByDoor((EntityPlayerMP) entity);
                 
                 if (LittleTiles.CONFIG.general.enableCollisionMotion) {
                     entity.motionX += moveX;
@@ -346,4 +350,14 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         noCollision = false;
     }
     
+    public void updateBoundingBox() {
+        if (orientatedBB == null || parent.getFakeLevel() == null)
+            return;
+        
+        if (parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged()) {
+            parent.markOriginChange();
+            setEntityBoundingBox(parent.getOrigin().getAxisAlignedBox(orientatedBB));
+            parent.resetOriginChange();
+        }
+    }
 }

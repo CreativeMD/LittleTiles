@@ -25,7 +25,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
@@ -202,7 +202,7 @@ public class AreaSelectionMode extends SelectionMode {
         if (rememberStructure)
             structures = new ArrayList<>();
         
-        for (EntityAnimation animation : WorldAnimationHandler.getHandler(level).findAnimations(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1))) {
+        for (EntityAnimation animation : LittleAnimationHandlers.getHandler(level).findAnimations(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1))) {
             if (rememberStructure) {
                 try {
                     LittleStructure structure = animation.structure;

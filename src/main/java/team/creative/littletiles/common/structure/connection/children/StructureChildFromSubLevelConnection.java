@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -33,15 +33,15 @@ public class StructureChildFromSubLevelConnection extends StructureChildConnecti
     }
     
     @Override
-    public EntityAnimation getAnimation() {
+    public LittleLevelEntity getAnimation() {
         IOrientatedLevel fakeWorld = (IOrientatedLevel) parent.getLevel();
-        return (EntityAnimation) fakeWorld.getHolder();
+        return (LittleLevelEntity) fakeWorld.getHolder();
     }
     
     @Override
     public void destroyStructure() {
         IOrientatedLevel fakeWorld = (IOrientatedLevel) parent.getLevel();
-        ((EntityAnimation) fakeWorld.getHolder()).markRemoved();
+        ((LittleLevelEntity) fakeWorld.getHolder()).markRemoved();
         parent.onStructureDestroyed();
     }
     

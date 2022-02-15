@@ -13,10 +13,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public class BlocksUpdate extends CreativePacket {
     
@@ -40,8 +40,8 @@ public class BlocksUpdate extends CreativePacket {
                 tags.add(null);
         }
         
-        if (level instanceof CreativeLevel)
-            uuid = ((CreativeLevel) level).parent.getUUID();
+        if (level instanceof ISubLevel subLevel)
+            uuid = subLevel.getHolder().getUUID();
     }
     
     public BlocksUpdate(Level level, Iterable<? extends BlockEntity> blockEntities) {
@@ -55,8 +55,8 @@ public class BlocksUpdate extends CreativePacket {
             tags.add(be.save(new CompoundTag()));
         }
         
-        if (level instanceof CreativeLevel)
-            uuid = ((CreativeLevel) level).parent.getUUID();
+        if (level instanceof ISubLevel subLevel)
+            uuid = subLevel.getHolder().getUUID();
     }
     
     public BlocksUpdate() {}
@@ -66,11 +66,11 @@ public class BlocksUpdate extends CreativePacket {
         Level level = player.level;
         
         if (uuid != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
-            if (animation == null)
+            LittleLevelEntity entity = LittleAnimationHandlers.find(true, uuid);
+            if (entity == null)
                 return;
             
-            level = animation.fakeWorld;
+            level = entity.getFakeLevel();
         }
         
         for (int i = 0; i < positions.size(); i++) {

@@ -21,7 +21,7 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -71,7 +71,7 @@ public class PlacementPreview {
     public Level getLevel(Entity entity) throws MissingAnimationException {
         Level level = entity.level;
         if (levelUUID != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
+            EntityAnimation animation = LittleAnimationHandlers.findAnimation(level.isClientSide, levelUUID);
             if (animation == null)
                 throw new MissingAnimationException(levelUUID);
             

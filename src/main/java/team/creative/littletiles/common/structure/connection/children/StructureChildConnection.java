@@ -8,7 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import team.creative.creativecore.common.util.mc.LevelUtils;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -80,7 +80,7 @@ public class StructureChildConnection implements IStructureConnection {
             getStructure().removeStructure();
     }
     
-    public EntityAnimation getAnimation() {
+    public LittleLevelEntity getAnimation() {
         return null;
     }
     

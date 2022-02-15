@@ -20,7 +20,7 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public abstract class LittleActionInteract extends LittleAction {
     
@@ -82,7 +82,7 @@ public abstract class LittleActionInteract extends LittleAction {
         transformedLook = this.look;
         
         if (uuid != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(player.level.isClientSide, uuid);
+            EntityAnimation animation = LittleAnimationHandlers.findAnimation(player.level.isClientSide, uuid);
             if (animation == null)
                 onEntityNotFound();
             

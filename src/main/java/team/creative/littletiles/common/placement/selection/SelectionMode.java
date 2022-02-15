@@ -11,11 +11,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 
 public abstract class SelectionMode {
@@ -125,8 +125,8 @@ public abstract class SelectionMode {
             
             addBlocksWorld(level, pos, pos2);
             
-            for (EntityAnimation animation : WorldAnimationHandler.getHandler(level).findAnimations(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
-                addBlocksWorld(animation.fakeWorld, pos, pos2);
+            for (LittleLevelEntity entity : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
+                addBlocksWorld(entity.getFakeLevel(), pos, pos2);
         }
         
         public MutableBlockPos min = null;

@@ -34,14 +34,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
-import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -200,15 +199,11 @@ public abstract class LittleAction extends CreativePacket {
     public static void sendBlockResetToClient(Level level, Player player, PlacementPreview preview) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
-            return;
         LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, preview.getPositions()), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, BlockPos pos) {
         if (!(player instanceof ServerPlayer))
-            return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null)
@@ -220,15 +215,11 @@ public abstract class LittleAction extends CreativePacket {
     public static void sendBlockResetToClient(Level level, Player player, BlockEntity be) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
-            return;
         LittleTiles.NETWORK.sendToClient(new BlockUpdate(level, be.getBlockPos(), be), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, Iterable<BETiles> blockEntities) {
         if (!(player instanceof ServerPlayer))
-            return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
         LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, blockEntities), (ServerPlayer) player);
     }
@@ -237,15 +228,13 @@ public abstract class LittleAction extends CreativePacket {
         if (!(player instanceof ServerPlayer))
             return;
         try {
-            if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
-                return;
             sendBlockResetToClient(level, player, structure.blocks());
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             e.printStackTrace();
         }
     }
     
-    public static boolean isAllowedToInteract(Player player, EntityAnimation animation, boolean rightClick) {
+    public static boolean isAllowedToInteract(Player player, LittleLevelEntity entity, boolean rightClick) {
         if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.mayBuild())))
             return false;
         

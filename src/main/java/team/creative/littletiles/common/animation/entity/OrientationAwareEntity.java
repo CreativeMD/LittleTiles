@@ -8,4 +8,6 @@ public interface OrientationAwareEntity {
     
     public void markOriginChange();
     
+    public void performTick();
+    
 }

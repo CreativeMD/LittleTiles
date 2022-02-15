@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -21,15 +22,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.LevelUtils;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.world.RenderUtils;
-import team.creative.littletiles.common.math.transformation.LittleTransformation;
+import team.creative.littletiles.common.animation.entity.LittleDoorEntity;
 import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementHelper;
@@ -41,12 +40,9 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
-public class DoorController extends EntityAnimationController {
+public class DoorController extends AnimationController {
     
-    protected boolean placedOnServer = false;
-    protected boolean isWaitingForApprove = false;
-    protected int ticksToWait = -1;
-    protected static final int waitTimeApprove = 300;
+    public LittleDoorEntity parent;
     protected Boolean placed = null;
     
     public static final String openedState = "opened";
@@ -98,11 +94,6 @@ public class DoorController extends EntityAnimationController {
     }
     
     @Override
-    public boolean noClip() {
-        return noClip;
-    }
-    
-    @Override
     public AnimationController addTransition(String from, String to, AnimationTimeline animation) {
         modifiedTransition = true;
         return super.addTransition(from, to, animation);
@@ -124,13 +115,8 @@ public class DoorController extends EntityAnimationController {
         return interpolation;
     }
     
-    @Override
     public Player activator() {
         return activator;
-    }
-    
-    public void markWaitingForApprove() {
-        isWaitingForApprove = true;
     }
     
     public boolean activate() {
@@ -284,8 +270,7 @@ public class DoorController extends EntityAnimationController {
         }
     }
     
-    @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
+    protected void save(CompoundTag nbt) {
         nbt.setTag("closed", getState(closedState).state.writeToNBT(new NBTTagCompound()));
         nbt.setTag("opened", getState(openedState).state.writeToNBT(new NBTTagCompound()));
         
@@ -316,8 +301,7 @@ public class DoorController extends EntityAnimationController {
         
     }
     
-    @Override
-    protected void readFromNBT(NBTTagCompound nbt) {
+    protected void load(CompoundTag nbt) {
         addState(closedState, new AnimationState(nbt.getCompoundTag("closed")));
         addState(openedState, new AnimationState(nbt.getCompoundTag("opened")));
         
@@ -353,46 +337,6 @@ public class DoorController extends EntityAnimationController {
         byte turnBackData = nbt.getByte("turnBack");
         turnBack = turnBackData == 0 ? null : (turnBackData > 0 ? true : false);
         noClip = nbt.getBoolean("noClip");
-    }
-    
-    @Override
-    public void onServerApproves() {
-        isWaitingForApprove = false;
-    }
-    
-    @Override
-    public void onServerPlaces() {
-        placedOnServer = true;
-    }
-    
-    @Override
-    public void transform(LittleTransformation transformation) {
-        for (AnimationControllerState state : states.values())
-            state.transform(transformation);
-        for (AnimationTimeline timeline : stateTransition.values()) {
-            if (transformation.rotX != 0) {
-                Rotation rotation = transformation.getRotation(Axis.X);
-                for (int i = 0; i < Math.abs(transformation.rotX); i++)
-                    timeline.transform(rotation);
-            }
-            if (transformation.rotY != 0) {
-                Rotation rotation = transformation.getRotation(Axis.Y);
-                for (int i = 0; i < Math.abs(transformation.rotY); i++)
-                    timeline.transform(rotation);
-            }
-            if (transformation.rotZ != 0) {
-                Rotation rotation = transformation.getRotation(Axis.Z);
-                for (int i = 0; i < Math.abs(transformation.rotZ); i++)
-                    timeline.transform(rotation);
-            }
-        }
-        
-        if (tickingState != null)
-            tickingState.clear();
-        else if (isChanging())
-            tickingState = new AnimationState();
-        if (isChanging())
-            animation.tick(tick, tickingState);
     }
     
 }

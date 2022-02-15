@@ -13,7 +13,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littletiles.common.level.LevelHandler;
 import team.creative.littletiles.common.level.LevelHandlers;
 
-public class LevelHandlersClient extends LevelHandlers {
+public class LevelHandlersClient extends LevelHandlers<LevelHandler> {
     
     private List<LevelAwareHandler> awareHandlers = new ArrayList<>();
     private List<Consumer<? extends LevelHandler>> unloaders = new ArrayList<>();

@@ -10,10 +10,10 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 
-public abstract class LevelHandlers {
+public class LevelHandlers<T extends LevelHandler> {
     
-    private List<Function<Level, LevelHandler>> factories = new ArrayList<>();
-    private HashMapList<Level, LevelHandler> handlers = new HashMapList<>();
+    private List<Function<Level, T>> factories = new ArrayList<>();
+    private HashMapList<Level, T> handlers = new HashMapList<>();
     public final boolean client;
     
     public LevelHandlers(boolean client) {
@@ -21,17 +21,25 @@ public abstract class LevelHandlers {
         MinecraftForge.EVENT_BUS.register(this);
     }
     
-    public void register(Function<Level, LevelHandler> function) {
+    protected Iterable<T> all() {
+        return handlers;
+    }
+    
+    protected List<T> getHandlers(Level level) {
+        return handlers.get(level);
+    }
+    
+    public void register(Function<Level, T> function) {
         factories.add(function);
     }
     
     protected void load(Level level) {
-        List<LevelHandler> levelHandlers = handlers.removeKey(level);
+        List<T> levelHandlers = handlers.removeKey(level);
         if (levelHandlers != null)
             throw new RuntimeException("This should not happen");
         
-        List<LevelHandler> newHandlers = new ArrayList<>(factories.size());
-        for (Function<Level, LevelHandler> func : factories)
+        List<T> newHandlers = new ArrayList<>(factories.size());
+        for (Function<Level, T> func : factories)
             newHandlers.add(func.apply(level));
         handlers.add(level, newHandlers);
         for (LevelHandler handler : newHandlers)
@@ -39,7 +47,7 @@ public abstract class LevelHandlers {
     }
     
     protected void unload(Level level) {
-        List<LevelHandler> levelHandlers = handlers.removeKey(level);
+        List<T> levelHandlers = handlers.removeKey(level);
         if (levelHandlers != null)
             for (LevelHandler handler : levelHandlers)
                 handler.unload();

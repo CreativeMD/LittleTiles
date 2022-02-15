@@ -8,12 +8,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public class NeighborUpdate extends CreativePacket {
     
@@ -23,8 +23,8 @@ public class NeighborUpdate extends CreativePacket {
     
     public NeighborUpdate(Level level, List<BlockPos> positions) {
         this.positions = positions;
-        if (level instanceof CreativeLevel)
-            uuid = ((CreativeLevel) level).parent.getUUID();
+        if (level instanceof ISubLevel subLevel)
+            uuid = subLevel.getHolder().getUUID();
     }
     
     public NeighborUpdate() {}
@@ -34,11 +34,11 @@ public class NeighborUpdate extends CreativePacket {
         Level level = player.level;
         
         if (uuid != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
-            if (animation == null)
+            LittleLevelEntity entity = LittleAnimationHandlers.find(true, uuid);
+            if (entity == null)
                 return;
             
-            level = animation.fakeWorld;
+            level = entity.getFakeLevel();
         }
         
         for (int i = 0; i < positions.size(); i++) {

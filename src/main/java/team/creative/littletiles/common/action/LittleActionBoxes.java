@@ -23,7 +23,7 @@ import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
@@ -61,7 +61,7 @@ public abstract class LittleActionBoxes extends LittleAction {
         boolean placed = false;
         Level level = player.level;
         if (levelUUID != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
+            EntityAnimation animation = LittleAnimationHandlers.findAnimation(level.isClientSide, levelUUID);
             if (animation == null)
                 throw new MissingAnimationException(levelUUID);
             

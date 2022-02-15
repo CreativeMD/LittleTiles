@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
@@ -60,6 +61,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -97,7 +99,8 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.item.LittleToolHandler;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselAndBitsConveration;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
@@ -127,8 +130,6 @@ import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActiv
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.NeighborUpdateOrganizer;
-import team.creative.littletiles.server.level.LevelHandlersServer;
-import team.creative.littletiles.server.level.LittleAnimationHandlerServer;
 
 @Mod(value = LittleTiles.MODID)
 public class LittleTiles {
@@ -142,7 +143,6 @@ public class LittleTiles {
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
-    public static final LevelHandlersServer LEVEL_HANDLERS = new LevelHandlersServer();
     
     public static Block BLOCK_TILES;
     public static Block BLOCK_TILES_TICKING;
@@ -413,7 +413,7 @@ public class LittleTiles {
         LittleActionRegistry.register(LittleActionDestroy.class, LittleActionDestroy::new);
         
         MinecraftForge.EVENT_BUS.register(new LittleBedEventHandler());
-        MinecraftForge.EVENT_BUS.register(WorldAnimationHandler.class);
+        MinecraftForge.EVENT_BUS.register(LittleAnimationHandlers.class);
         // MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         MinecraftForge.EVENT_BUS.register(new LittleSignalHandler());
         MinecraftForge.EVENT_BUS.register(new LittleToolHandler());
@@ -425,8 +425,6 @@ public class LittleTiles {
         MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
         MinecraftForge.EVENT_BUS.register(EntitySizeHandler.class);
-        
-        LEVEL_HANDLERS.register(LittleAnimationHandlerServer::new);
         
         STORAGE_BLOCKS = BlockTags.createOptional(new ResourceLocation(MODID, "storage_blocks"));
         
@@ -511,7 +509,7 @@ public class LittleTiles {
             BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
             Level level = x.getSource().getLevel();
             
-            for (LittleDoor door : WorldAnimationHandler.getHandler(level).findAnimations(pos))
+            for (LittleDoor door : findDoors(LittleAnimationHandlers.get(level), new AABB(pos)))
                 doors.add(door);
             
             BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -546,7 +544,7 @@ public class LittleTiles {
             Level level = x.getSource().getLevel();
             String[] args = StringArrayArgumentType.getStringArray(x, "names");
             
-            for (LittleDoor door : WorldAnimationHandler.getHandler(level).findAnimations(pos))
+            for (LittleDoor door : findDoors(LittleAnimationHandlers.get(level), new AABB(pos)))
                 if (checkStructureName(door, args))
                     doors.add(door);
                 
@@ -576,6 +574,16 @@ public class LittleTiles {
             }
             return 0;
         })));
+    }
+    
+    public static List<LittleDoor> findDoors(LittleAnimationHandler handler, AABB box) {
+        List<LittleDoor> doors = new ArrayList<>();
+        for (LittleLevelEntity entity : handler.entities)
+            try {
+                if (entity.getStructure() instanceof LittleDoor && entity.getBoundingBox().intersects(box) && !doors.contains(entity.getStructure()))
+                    doors.add(((LittleDoor) entity.getStructure()).getParentDoor());
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        return doors;
     }
     
     protected boolean checkStructureName(LittleStructure structure, String[] args) {

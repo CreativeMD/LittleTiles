@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -22,7 +22,7 @@ import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -32,7 +32,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -161,8 +161,8 @@ public class BlockPacket extends CreativePacket {
         Vec3 view = player.getViewVector(partialTickTime);
         this.look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         this.nbt = nbt;
-        if (level instanceof CreativeLevel)
-            uuid = ((CreativeLevel) level).parent.getUUID();
+        if (level instanceof ISubLevel subLevel)
+            uuid = subLevel.getHolder().getUUID();
     }
     
     @Override
@@ -173,16 +173,16 @@ public class BlockPacket extends CreativePacket {
         Level level = player.level;
         
         if (uuid != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(false, uuid);
-            if (animation == null)
+            LittleLevelEntity entity = LittleAnimationHandlers.find(false, uuid);
+            if (entity == null)
                 return;
             
-            if (!LittleAction.isAllowedToInteract(player, animation, action.rightClick))
+            if (!LittleAction.isAllowedToInteract(player, entity, action.rightClick))
                 return;
             
-            level = animation.fakeWorld;
-            pos = animation.origin.transformPointToFakeWorld(pos);
-            look = animation.origin.transformPointToFakeWorld(look);
+            level = entity.getFakeLevel();
+            pos = entity.getOrigin().transformPointToFakeWorld(pos);
+            look = entity.getOrigin().transformPointToFakeWorld(look);
         }
         
         BlockEntity blockEntity = level.getBlockEntity(blockPos);

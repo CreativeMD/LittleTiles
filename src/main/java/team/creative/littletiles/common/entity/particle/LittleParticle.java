@@ -1,11 +1,8 @@
 package team.creative.littletiles.common.entity.particle;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
-
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -13,7 +10,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
 
 @OnlyIn(Dist.CLIENT)
-public class LittleParticle extends Particle {
+public class LittleParticle extends TextureSheetParticle {
     
     public ParticleSettings settings;
     private float scaleDeviation;
@@ -53,12 +50,6 @@ public class LittleParticle extends Particle {
     
     public int getMaxAge() {
         return lifetime;
-    }
-    
-    @Override
-    public void render(VertexConsumer p_107261_, Camera p_107262_, float p_107263_) {
-        // TODO Auto-generated method stub
-        
     }
     
     @Override

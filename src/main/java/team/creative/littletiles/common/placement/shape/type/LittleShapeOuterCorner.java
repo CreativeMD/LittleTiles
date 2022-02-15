@@ -57,8 +57,8 @@ public class LittleShapeOuterCorner extends LittleShape {
         int value = box.get(facing.opposite());
         
         cache.setAbsolute(corner, axis, value);
-        cache.setAbsolute(corner.flip(one), axis, value);
-        cache.setAbsolute(corner.flip(two), axis, value);
+        cache.setAbsolute(corner.mirror(one), axis, value);
+        cache.setAbsolute(corner.mirror(two), axis, value);
         
         box.setData(cache.getData());
         if (selection.getNBT().getBoolean("second"))

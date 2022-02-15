@@ -47,6 +47,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
+import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import team.creative.littletiles.client.render.item.LittleRenderToolBackground;
@@ -79,6 +80,8 @@ public class LittleTilesClient {
     public static final Minecraft mc = Minecraft.getInstance();
     
     public static final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
+    public static LittleActionHandlerClient ACTION_HANDLER;
+    public static LittleAnimationHandlerClient ANIMATION_HANDLER;
     
     public static KeyMapping flip;
     public static KeyMapping mark;
@@ -95,8 +98,6 @@ public class LittleTilesClient {
     public static BETilesRenderer blockEntityRenderer;
     
     public static OverlayRenderer overlay;
-    
-    public static LittleActionHandlerClient ACTION_HANDLER;
     
     public static void displayActionMessage(List<Component> message) {
         overlay.addMessage(message);
@@ -116,6 +117,7 @@ public class LittleTilesClient {
         MinecraftForge.EVENT_BUS.register(new LittleClientEventHandler());
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
+        LEVEL_HANDLERS.register(LittleAnimationHandlerClient::new, x -> ANIMATION_HANDLER = x);
         
         up = new KeyMapping("key.rotateup", GLFW.GLFW_KEY_UP, "key.categories.littletiles");
         down = new KeyMapping("key.rotatedown", GLFW.GLFW_KEY_DOWN, "key.categories.littletiles");
@@ -275,12 +277,11 @@ public class LittleTilesClient {
         for (int i = 0; i <= 5; i++) {
             ModelLoader.setCustomModelResourceLocation(LittleTiles.BLOCK_INGREDIENT, i, new ModelResourceLocation(LittleTiles.BLOCK_INGREDIENT.getRegistryName()
                     .toString() + i, "inventory"));
-            ModelLoader.setCustomModelResourceLocation(LittleTiles.cyanColorIngredient, i, new ModelResourceLocation(LittleTiles.cyanColorIngredient.getRegistryName()
+            ModelLoader.setCustomModelResourceLocation(LittleTiles.CYAN_COLOR, i, new ModelResourceLocation(LittleTiles.CYAN_COLOR.getRegistryName().toString() + i, "inventory"));
+            ModelLoader.setCustomModelResourceLocation(LittleTiles.MAGENTA_COLOR, i, new ModelResourceLocation(LittleTiles.MAGENTA_COLOR.getRegistryName()
                     .toString() + i, "inventory"));
-            ModelLoader.setCustomModelResourceLocation(LittleTiles.magentaColorIngredient, i, new ModelResourceLocation(LittleTiles.magentaColorIngredient.getRegistryName()
-                    .toString() + i, "inventory"));
-            ModelLoader.setCustomModelResourceLocation(LittleTiles.yellowColorIngredient, i, new ModelResourceLocation(LittleTiles.yellowColorIngredient.getRegistryName()
-                    .toString() + i, "inventory"));
+            ModelLoader
+                    .setCustomModelResourceLocation(LittleTiles.YELLOW_COLOR, i, new ModelResourceLocation(LittleTiles.YELLOW_COLOR.getRegistryName().toString() + i, "inventory"));
         }
         
         CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipeAdvanced);
