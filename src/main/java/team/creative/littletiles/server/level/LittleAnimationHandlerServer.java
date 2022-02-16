@@ -18,20 +18,10 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
             tick();
             
             for (LittleLevelEntity entity : entities) {
-                
                 if (entity.level != level || entity.level instanceof CreativeLevel)
                     continue;
-                
-                entity.onUpdateForReal();
+                entity.performTick();
             }
-            
-            entities.removeIf((x) -> {
-                if (x.isRemoved()) {
-                    x.markRemoved();
-                    return true;
-                }
-                return false;
-            });
         }
     }
     

@@ -233,10 +233,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     }
     
     public void addBlockHitEffects(LittleHitResult result) {
-        BlockState state = result.level.getBlockState(result.asBlockHit().getBlockPos());
-        if (state != null && !state.getBlock().addHitEffects(state, world, target, mc.effectRenderer)) {
-            mc.effectRenderer.addBlockHitEffects(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos, target.sideHit);
-        }
+        BlockState state = level.getBlockState(result.asBlockHit().getBlockPos());
+        if (!net.minecraftforge.client.RenderProperties.get(state).addHitEffects(state, level, result.asBlockHit(), mc.particleEngine))
+            mc.particleEngine.crack(result.asBlockHit().getBlockPos(), result.asBlockHit().getDirection());
     }
     
     @SubscribeEvent
@@ -251,7 +250,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         Player player = event.player;
         
         try {
-            if (leftClickCounterField.getInt(mc) <= 0 && !player.isHandActive()) {
+            if (leftClickCounterField.getInt(mc) <= 0 && !player.isUsingItem()) {
                 if (onPlayerDamageBlock(player, result, event)) {
                     addBlockHitEffects(result);
                     player.swing(InteractionHand.MAIN_HAND);
@@ -463,16 +462,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
             for (LittleLevelEntity entity : entities) {
                 if (entity.level instanceof ISubLevel)
                     continue;
-                level.onUpdateForReal();
+                entity.performTick();
             }
-            
-            entities.removeIf((x) -> {
-                if (x.isDead) {
-                    x.markRemoved();
-                    return true;
-                }
-                return false;
-            });
         }
     }
     
