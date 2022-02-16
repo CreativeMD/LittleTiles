@@ -8,7 +8,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
-import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
@@ -63,14 +62,9 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     }
     
     @SubscribeEvent
-    public void chunkUnload(ChunkEvent.Unload event) {
-        getHandlers((Level) event.getWorld()).forEach(x -> x.chunkUnload(event));
-    }
-    
-    @SubscribeEvent
     public void tick(WorldTickEvent event) {
         if (!event.world.isClientSide)
-            getHandlers(event.world).forEach(x -> x.tick(event));
+            getHandlers(event.world).forEach(x -> x.tickServer(event));
     }
     
     @SubscribeEvent

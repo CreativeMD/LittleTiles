@@ -3,21 +3,20 @@ package team.creative.littletiles.common.level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.ChunkEvent;
 import team.creative.creativecore.common.util.math.box.OBB;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 
 public abstract class LittleAnimationHandler extends LevelHandler {
     
-    public List<LittleLevelEntity> entities = new CopyOnWriteArrayList<>();
+    public Set<LittleLevelEntity> entities = new CopyOnWriteArraySet<>();
     
     public LittleAnimationHandler(Level level) {
         super(level);
@@ -29,6 +28,10 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         super.unload();
         entities.clear();
         MinecraftForge.EVENT_BUS.unregister(this);
+    }
+    
+    public void tick() {
+        
     }
     
     public List<LittleLevelEntity> find(AABB bb) {
@@ -49,18 +52,12 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         return null;
     }
     
-    public void createDoor(EntityAnimation door) {
-        openDoors.add(door);
+    public void add(LittleLevelEntity entity) {
+        entities.add(entity);
     }
     
-    public void chunkUnload(ChunkEvent.Unload event) {
-        openDoors.removeIf((x) -> {
-            if (x.isRemoved()) {
-                x.markRemoved();
-                return true;
-            }
-            return false;
-        });
+    public void remove(LittleLevelEntity entity) {
+        entities.remove(entity);
     }
     
     public void collision(GetVoxelShapesEvent event) {

@@ -4,12 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.annotation.Nullable;
-
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -21,27 +17,27 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.DrawSelectionEvent.HighlightBlock;
@@ -49,18 +45,15 @@ import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
-import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.event.HoldLeftClick;
@@ -74,7 +67,6 @@ import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
-import team.creative.littletiles.common.packet.LittleConsumeRightClickEvent;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleAnimationHandlerClient extends LittleAnimationHandler {
@@ -87,9 +79,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     }
     
     public static void renderTick() {
-        float partialTicks = TickUtils.getDeltaFrameTime(level);
+        float partialTicks = TickUtils.getDeltaFrameTime(mc.level);
         
-        Entity renderViewEntity = mc.getRenderViewEntity();
+        Entity renderViewEntity = mc.getCameraEntity();
         if (renderViewEntity == null || LittleTilesClient.ANIMATION_HANDLER == null || LittleTilesClient.ANIMATION_HANDLER.entities.isEmpty())
             return;
         double camX = renderViewEntity.lastTickPosX + (renderViewEntity.posX - renderViewEntity.lastTickPosX) * partialTicks;
@@ -103,7 +95,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         ICamera camera = new Frustum();
         camera.setPosition(camX, camY, camZ);
         
-        for (EntityAnimation door : AnimationHandlers.LittleAnimationHandlers.openDoors) {
+        for (LittleLevelEntity entity : LittleTilesClient.ANIMATION_HANDLER.entities) {
             
             if (!render.shouldRender(door, camera, camX, camY, camZ) || door.isDead)
                 continue;
@@ -140,93 +132,51 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     
     @SubscribeEvent
     public void rightClick(PlayerInteractEvent event) {
-        if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific/* || event instanceof EntityInteract*/) {
+        if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific) {
             
-            RayTraceResult target = (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK) ? mc.objectMouseOver : null;
-            EntityPlayer player = event.getEntityPlayer();
-            float partialTicks = TickUtils.getPartialTickTime();
-            
-            Vec3d pos = player.getPositionEyes(partialTicks);
-            double d0 = target != null ? pos.distanceTo(target.hitVec) : (player.capabilities.isCreativeMode ? 5.0 : 4.5);
-            Vec3d look = player.getLook(partialTicks);
-            look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
-            
-            AABB box = new AABB(pos, target != null ? target.hitVec : look);
-            World world = player.world;
-            
-            EntityAnimation pointedEntity = null;
-            
-            RayTraceResult result = target;
-            double distance = result != null ? pos.distanceTo(result.hitVec) : 0;
-            for (EntityAnimation animation : findAnimations(box)) {
-                RayTraceResult tempResult = getTarget(animation.fakeWorld, animation.origin.transformPointToFakeWorld(pos), animation.origin
-                        .transformPointToFakeWorld(look), pos, look);
-                if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
-                    continue;
-                double tempDistance = pos.distanceTo(animation.origin.transformPointToWorld(tempResult.hitVec));
-                if (result == null || tempDistance < distance) {
-                    result = tempResult;
-                    distance = tempDistance;
-                    pointedEntity = animation;
-                }
-            }
-            
-            Entity selectedEntity = mc.objectMouseOver != null ? mc.objectMouseOver.entityHit : null;
-            if (event instanceof EntityInteractSpecific)
-                selectedEntity = ((EntityInteractSpecific) event).getTarget();
-            else if (event instanceof EntityInteract)
-                selectedEntity = ((EntityInteract) event).getTarget();
-            
-            if (pointedEntity == null && selectedEntity instanceof EntityAnimation)
-                pointedEntity = (EntityAnimation) selectedEntity;
-            
-            if (pointedEntity != null) {
-                if (pointedEntity.onRightClick(player, pos, look))
-                    if (event instanceof RightClickBlock) {
-                        event.setCanceled(true);
-                        event.setCancellationResult(EnumActionResult.SUCCESS);
-                    } else
-                        PacketHandler.sendPacketToServer(new LittleConsumeRightClickEvent());
+            LittleHitResult result = getHit();
+            if (result != null && result.level instanceof ISubLevel) {
+                Entity entity = ((ISubLevel) result.level).getHolder();
+                if (entity instanceof LittleLevelEntity levelEntity)
+                    levelEntity.onRightClick(event.getPlayer(), result.hit);
             }
         }
     }
     
     @SubscribeEvent
     public void mouseWheel(WheelClick event) {
-        RayTraceResult target = getRayTraceResult(event.player, TickUtils.getPartialTickTime(), null);
-        if (target == null)
+        LittleHitResult target = getHit();
+        if (target == null && !target.isBlock())
             return;
         
-        World world = lastWorldRayTraceResult;
-        EntityPlayer player = event.player;
+        Player player = event.player;
         
-        if (InputEventHandler.onPickBlock(target, player, world))
+        if (InputEventHandler.onPickBlock(target.asBlockHit(), player, target.level))
             return;
         
-        BlockState state = world.getBlockState(target.getBlockPos());
+        BlockState state = target.level.getBlockState(target.asBlockHit().getBlockPos());
         
-        if (state.getBlock().isAir(state, world, target.getBlockPos()))
+        if (state.isAir())
             return;
         
-        ItemStack stack = state.getBlock().getPickBlock(state, target, world, target.getBlockPos(), player);
+        ItemStack stack = state.getCloneItemStack(target.hit, level, target.asBlockHit().getBlockPos(), player);
         
         if (stack.isEmpty())
             return;
         
         if (event.player.isCreative()) {
-            player.inventory.setPickedItemStack(stack);
-            mc.playerController.sendSlotPacket(player.getHeldItem(EnumHand.MAIN_HAND), 36 + player.inventory.currentItem);
+            player.getInventory().setPickedItem(stack);
+            Minecraft.getInstance().gameMode.handleCreativeModeItemAdd(player.getItemInHand(InteractionHand.MAIN_HAND), 36 + player.getInventory().selected);
             event.setCanceled(true);
         }
-        int slot = player.inventory.getSlotFor(stack);
+        int slot = player.getInventory().findSlotMatchingItem(stack);
         if (slot != -1) {
-            if (InventoryPlayer.isHotbar(slot))
-                player.inventory.currentItem = slot;
+            if (Inventory.isHotbarSlot(slot))
+                player.getInventory().selected = slot;
             else
-                mc.playerController.pickItem(slot);
+                Minecraft.getInstance().gameMode.handlePickItem(slot);
             event.setCanceled(true);
         }
-        
     }
     
     private static final Method syncCurrentPlayItemMethod = ReflectionHelper.findMethod(PlayerControllerMP.class, "syncCurrentPlayItem", "func_78750_j");
@@ -282,8 +232,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         }*/
     }
     
-    public void addBlockHitEffects(World world, BlockPos pos, RayTraceResult target) {
-        IBlockState state = world.getBlockState(pos);
+    public void addBlockHitEffects(LittleHitResult result) {
+        BlockState state = result.level.getBlockState(result.asBlockHit().getBlockPos());
         if (state != null && !state.getBlock().addHitEffects(state, world, target, mc.effectRenderer)) {
             mc.effectRenderer.addBlockHitEffects(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos, target.sideHit);
         }
@@ -291,22 +241,20 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     
     @SubscribeEvent
     public void holdClick(HoldLeftClick event) {
-        RayTraceResult result = getRayTraceResult(event.player, TickUtils.getPartialTickTime(), null);
+        LittleHitResult result = getHit();
         if (result == null || !event.leftClick) {
             if (isHittingBlock)
                 resetBlockRemoving();
             return;
         }
         
-        World world = lastWorldRayTraceResult;
-        EntityPlayer player = event.player;
-        BlockPos pos = result.getBlockPos();
+        Player player = event.player;
         
         try {
             if (leftClickCounterField.getInt(mc) <= 0 && !player.isHandActive()) {
-                if (onPlayerDamageBlock(world, player, pos, result.sideHit, event)) {
-                    addBlockHitEffects(world, pos, result);
-                    player.swingArm(EnumHand.MAIN_HAND);
+                if (onPlayerDamageBlock(player, result, event)) {
+                    addBlockHitEffects(result);
+                    player.swing(InteractionHand.MAIN_HAND);
                     event.setLeftClickResult(false);
                 }
             }
@@ -316,7 +264,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         
     }
     
-    public boolean onPlayerDamageBlock(World world, EntityPlayer player, BlockPos pos, EnumFacing facing, HoldLeftClick event) {
+    public boolean onPlayerDamageBlock(Player player, LittleHitResult result, HoldLeftClick event) {
         try {
             syncCurrentPlayItemMethod.invoke(mc.playerController);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -374,7 +322,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         return false;
     }
     
-    public boolean clickBlock(World world, BlockPos loc, EnumFacing face) {
+    public boolean clickBlock(LittleHitResult result) {
         if (mc.playerController.getCurrentGameType().hasLimitedInteractions()) {
             if (mc.playerController.getCurrentGameType() == GameType.SPECTATOR)
                 return false;
@@ -431,11 +379,11 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     
     @SubscribeEvent
     public void leftClick(LeftClick event) {
-        RayTraceResult result = getRayTraceResult(event.player, TickUtils.getPartialTickTime(), null);
+        LittleHitResult result = getHit();
         if (result == null)
             return;
         
-        if (clickBlock(lastWorldRayTraceResult, result.getBlockPos(), result.sideHit))
+        if (clickBlock(result))
             event.setCanceled(true);
     }
     
@@ -510,6 +458,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     @SubscribeEvent
     public void tickClient(ClientTickEvent event) {
         if (event.phase == Phase.END && (!mc.hasSingleplayerServer() || !mc.isPaused())) {
+            tick();
+            
             for (LittleLevelEntity entity : entities) {
                 if (entity.level instanceof ISubLevel)
                     continue;
@@ -526,47 +476,38 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         }
     }
     
-    private EntityPlayer lastPlayerRayTraceResult;
-    private RayTraceResult lastRayTraceResult;
-    private CreativeWorld lastWorldRayTraceResult;
-    
-    public RayTraceResult getRayTraceResult(EntityPlayer player, float partialTicks, @Nullable RayTraceResult target) {
-        if (lastPlayerRayTraceResult == player)
-            return lastRayTraceResult;
+    public LittleHitResult getHit() {
+        Player player = mc.player;
+        HitResult result = mc.hitResult;
+        float partialTicks = TickUtils.getDeltaFrameTime(level);
         
-        Vec3d pos = player.getPositionEyes(partialTicks);
-        double d0 = target != null ? pos.distanceTo(target.hitVec) : (player.capabilities.isCreativeMode ? 5.0 : 4.5);
-        Vec3d look = player.getLook(partialTicks);
-        look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        Vec3 pos = player.getEyePosition(partialTicks);
+        double reachDistance = result != null ? pos.distanceTo(result.getLocation()) : PlayerUtils.getReach(player);
+        Vec3 look = player.getViewVector(partialTicks);
+        look = pos.add(look.x * reachDistance, look.y * reachDistance, look.z * reachDistance);
         
-        AxisAlignedBB box = new AxisAlignedBB(pos, target != null ? target.hitVec : look);
-        World world = player.world;
+        AABB box = new AABB(pos, look);
+        Level level = player.level;
         
-        RayTraceResult result = target;
-        double distance = result != null ? pos.distanceTo(result.hitVec) : 0;
-        for (EntityAnimation animation : findAnimations(box)) {
-            RayTraceResult tempResult = getTarget(animation.fakeWorld, animation.origin.transformPointToFakeWorld(pos), animation.origin
-                    .transformPointToFakeWorld(look), pos, look);
-            if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
+        LittleHitResult newHit = null;
+        double distance = reachDistance;
+        for (LittleLevelEntity entity : find(box)) {
+            LittleHitResult tempResult = entity.rayTrace(pos, look);
+            if (tempResult == null || !(tempResult.hit instanceof BlockHitResult))
                 continue;
-            double tempDistance = pos.distanceTo(animation.origin.transformPointToWorld(tempResult.hitVec));
-            if (result == null || tempDistance < distance) {
-                result = tempResult;
+            double tempDistance = pos.distanceTo(entity.getOrigin().transformPointToWorld(tempResult.hit.getLocation()));
+            if (newHit == null || tempDistance < distance) {
+                newHit = tempResult;
                 distance = tempDistance;
             }
         }
         
-        lastPlayerRayTraceResult = player;
-        if (result == target)
-            result = null;
-        lastRayTraceResult = result;
-        lastWorldRayTraceResult = result != null ? (CreativeWorld) result.hitInfo : null;
-        return result;
+        return newHit;
     }
     
     @SubscribeEvent
     public void renderLast(RenderLevelLastEvent event) {
-        if (mc.gameSettings.hideGUI)
+        if (mc.options.hideGui)
             return;
         EntityPlayer player = mc.player;
         float partialTicks = event.getPartialTicks();
@@ -607,71 +548,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         GlStateManager.disableBlend();
     }
     
-    public void drawBlockDamageTexture(Tessellator tessellatorIn, BufferBuilder bufferBuilderIn, Entity entityIn, float partialTicks) {
-        /*double d3 = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * partialTicks;
-        double d4 = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * partialTicks;
-        double d5 = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * partialTicks;
-        
-        if (!this.damagedBlocks.isEmpty()) {
-        	mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        	mc.renderGlobal.preRenderDamagedBlocks();
-        	bufferBuilderIn.begin(7, DefaultVertexFormats.BLOCK);
-        	bufferBuilderIn.setTranslation(-d3, -d4, -d5);
-        	bufferBuilderIn.noColor();
-        	Iterator<DestroyBlockProgress> iterator = this.damagedBlocks.values().iterator();
-        	
-        	while (iterator.hasNext()) {
-        		DestroyBlockProgress destroyblockprogress = iterator.next();
-        		BlockPos blockpos = destroyblockprogress.getPosition();
-        		double d6 = blockpos.getX() - d3;
-        		double d7 = blockpos.getY() - d4;
-        		double d8 = blockpos.getZ() - d5;
-        		Block block = this.world.getBlockState(blockpos).getBlock();
-        		TileEntity te = this.world.getTileEntity(blockpos);
-        		boolean hasBreak = block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockSign || block instanceof BlockSkull;
-        		if (!hasBreak)
-        			hasBreak = te != null && te.canRenderBreaking();
-        		
-        		if (!hasBreak) {
-        			if (d6 * d6 + d7 * d7 + d8 * d8 > 1024.0D) {
-        				iterator.remove();
-        			} else {
-        				IBlockState iblockstate = this.world.getBlockState(blockpos);
-        				
-        				if (iblockstate.getMaterial() != Material.AIR) {
-        					int k1 = destroyblockprogress.getPartialBlockDamage();
-        					TextureAtlasSprite textureatlassprite = mc.renderGlobal.destroyBlockIcons[k1];
-        					BlockRendererDispatcher blockrendererdispatcher = this.mc.getBlockRendererDispatcher();
-        					blockrendererdispatcher.renderBlockDamage(iblockstate, blockpos, textureatlassprite, this.world);
-        				}
-        			}
-        		}
-        	}
-        	
-        	tessellatorIn.draw();
-        	bufferBuilderIn.setTranslation(0.0D, 0.0D, 0.0D);
-        	mc.renderGlobal.postRenderDamagedBlocks();
-        }*/
-    }
-    
     @SubscribeEvent
     public void drawHighlight(HighlightBlock event) {
-        if (getRayTraceResult(lastPlayerRayTraceResult, event.getPartialTicks(), event.getTarget()) != null)
+        if (getHit() != null)
             event.setCanceled(true);
-    }
-    
-    public static LittleHitResult getTarget(CreativeLevel world, Vec3d pos, Vec3d look, Vec3d originalPos, Vec3d originalLook) {
-        RayTraceResult tempResult = world.rayTraceBlocks(pos, look);
-        if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
-            return null;
-        tempResult.hitInfo = world;
-        return tempResult;
-    }
-    
-    @SubscribeEvent
-    public void chunkUnloadEvent(ChunkEvent.Unload event) {
-        if (event.getWorld().isClientSide())
-            chunkUnload(event);
     }
     
     @SubscribeEvent

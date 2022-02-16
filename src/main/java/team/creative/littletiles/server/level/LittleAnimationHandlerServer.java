@@ -13,8 +13,10 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
         super(level);
     }
     
-    public void tick(WorldTickEvent event) {
+    public void tickServer(WorldTickEvent event) {
         if (event.phase == Phase.END && level == event.world) {
+            tick();
+            
             for (LittleLevelEntity entity : entities) {
                 
                 if (entity.level != level || entity.level instanceof CreativeLevel)

@@ -29,6 +29,7 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.animation.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -250,6 +251,18 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     public abstract void saveLevelEntity(CompoundTag nbt);
     
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+        LittleAnimationHandlers.get(level).add(this);
+    }
+    
+    @Override
+    public void onRemovedFromWorld() {
+        super.onRemovedFromWorld();
+        LittleAnimationHandlers.get(level).remove(this);
+    }
+    
     // ================MC Hooks================
     
     @Override
@@ -336,15 +349,14 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return result;
     }
     
-    public InteractionResult onRightClick(@Nullable Player player, Vec3 pos, Vec3 look) {
-        LittleHitResult result = rayTrace(pos, look);
-        if (result == null || !(result.hit instanceof BlockHitResult))
+    public InteractionResult onRightClick(@Nullable Player player, HitResult result) {
+        if (result == null || !(result instanceof BlockHitResult))
             return InteractionResult.PASS;
         
         if (player != null && player.getMainHandItem().getItem() instanceof ItemLittleWrench)
-            return ((ItemLittleWrench) player.getMainHandItem().getItem()).useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, (BlockHitResult) result.hit));
+            return ((ItemLittleWrench) player.getMainHandItem().getItem()).useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, (BlockHitResult) result));
         
-        return result.level.getBlockState(((BlockHitResult) result.hit).getBlockPos()).use(fakeLevel, player, InteractionHand.MAIN_HAND, (BlockHitResult) result.hit);
+        return fakeLevel.getBlockState(((BlockHitResult) result).getBlockPos()).use(fakeLevel, player, InteractionHand.MAIN_HAND, (BlockHitResult) result);
     }
     
 }
