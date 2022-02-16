@@ -15,8 +15,8 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.mod.OptifineHelper;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.RenderingThread;
 import team.creative.littletiles.client.render.item.ItemModelCache;
@@ -103,15 +103,15 @@ public class LittleTilesProfilerOverlay {
     public static void onRender(RenderTickEvent event) {
         if (event.phase == Phase.END && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
             List<String> warnings = new ArrayList<>();
-            if (OptifineHelper.isActive() && OptifineHelper.isRenderRegions())
+            if (OptifineHelper.installed() && OptifineHelper.isRenderRegions())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Render Regions");
-            if (OptifineHelper.isActive() && OptifineHelper.isAnisotropicFiltering())
+            if (OptifineHelper.installed() && OptifineHelper.isAnisotropicFiltering())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Anisotropic Filtering");
-            if (OptifineHelper.isActive() && OptifineHelper.isAntialiasing())
+            if (OptifineHelper.installed() && OptifineHelper.isAntialiasing())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Antialiasing");
-            if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.gameSettings.useVbo)
+            if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.options.vbo)
                 warnings.add(ChatFormatting.YELLOW + "(LittleTiles) Please enable VBO and restart the world!");
-            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.isActive() && mc.gameSettings.mipmapLevels == 0)
+            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.installed() && mc.options.mipmapLevels == 0)
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Enable mipmap levels (needs to be > 0)");
             if (!warnings.isEmpty()) {
                 GlStateManager.pushMatrix();

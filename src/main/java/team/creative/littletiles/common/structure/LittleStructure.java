@@ -65,6 +65,7 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.MissingChildException;
 import team.creative.littletiles.common.structure.exception.MissingParentException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -72,7 +73,6 @@ import team.creative.littletiles.common.structure.signal.input.InternalSignalInp
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
-import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
     
@@ -799,7 +799,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public void updateStructure() {
         if (getLevel() == null || getLevel().isClientSide)
             return;
-        LittleBedEventHandler.queueStructureForUpdatePacket(this);
+        LittleSignalHandler.queueStructureForUpdatePacket(this);
     }
     
     public void sendUpdatePacket() {
@@ -876,7 +876,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     /** only server side **/
     public void queueForNextTick() {
-        LittleBedEventHandler.queueStructureForNextTick(this);
+        LittleSignalHandler.queueStructureForNextTick(this);
     }
     
     /** only server side **/
