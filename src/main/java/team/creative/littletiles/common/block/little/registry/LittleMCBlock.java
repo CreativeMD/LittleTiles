@@ -3,6 +3,8 @@ package team.creative.littletiles.common.block.little.registry;
 import java.lang.reflect.Field;
 import java.util.Random;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
@@ -177,8 +179,8 @@ public class LittleMCBlock implements LittleBlock {
     public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity) {}
     
     @Override
-    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
-        return originalColor;
+    public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
+        return tile.getFogColor(parent, entity, originalColor, partialTicks);
     }
     
     @Override

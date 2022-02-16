@@ -26,6 +26,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
@@ -35,9 +36,13 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 public class ItemMultiTiles extends Item implements ILittlePlacer {
     
     public static ItemStack of(LittleElement element) {
+        return of(element, LittleGrid.min(), LittleGrid.min().box());
+    }
+    
+    public static ItemStack of(LittleElement element, LittleGrid grid, LittleBox box) {
         ItemStack stack = new ItemStack(LittleTiles.ITEM_TILES);
         LittleGroup group = new LittleGroup();
-        group.add(LittleGrid.min(), element, LittleGrid.min().box());
+        group.add(grid, element, box);
         stack.setTag(LittleGroup.save(group));
         return stack;
     }

@@ -4,6 +4,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
@@ -73,7 +75,7 @@ public interface LittleBlock {
     
     public boolean isLiquid();
     
-    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks);
+    public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks);
     
     public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion);
     

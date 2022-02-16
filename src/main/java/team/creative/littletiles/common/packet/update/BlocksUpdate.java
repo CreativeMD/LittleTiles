@@ -35,7 +35,7 @@ public class BlocksUpdate extends CreativePacket {
             states.add(level.getBlockState(pos));
             BlockEntity be = level.getBlockEntity(pos);
             if (be != null)
-                tags.add(be.save(new CompoundTag()));
+                tags.add(be.saveWithoutMetadata());
             else
                 tags.add(null);
         }
@@ -52,7 +52,7 @@ public class BlocksUpdate extends CreativePacket {
         for (BlockEntity be : blockEntities) {
             positions.add(be.getBlockPos());
             states.add(level.getBlockState(be.getBlockPos()));
-            tags.add(be.save(new CompoundTag()));
+            tags.add(be.saveWithoutMetadata());
         }
         
         if (level instanceof ISubLevel subLevel)

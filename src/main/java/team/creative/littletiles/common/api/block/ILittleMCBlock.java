@@ -2,6 +2,8 @@ package team.creative.littletiles.common.api.block;
 
 import java.util.Random;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
@@ -170,7 +172,7 @@ public interface ILittleMCBlock extends LittleBlock {
     public default void entityCollided(IParentCollection parent, LittleTile tile, Entity entity) {}
     
     @Override
-    public default Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
+    public default Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         return originalColor;
     }
     

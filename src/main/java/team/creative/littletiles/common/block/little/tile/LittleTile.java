@@ -7,6 +7,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
@@ -442,7 +444,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.isLiquid();
     }
     
-    public Vec3d getFogColor(IParentCollection parent, Entity entity, Vec3d originalColor, float partialTicks) {
+    public Vector3d getFogColor(IParentCollection parent, Entity entity, Vector3d originalColor, float partialTicks) {
         return block.getFogColor(parent, this, entity, originalColor, partialTicks);
     }
     

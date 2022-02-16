@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -14,13 +15,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -65,6 +67,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.IBlockRenderProperties;
 import net.minecraftforge.common.util.ForgeSoundType;
 import team.chisel.ctm.api.IFacade;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -74,7 +77,9 @@ import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
+import team.creative.littletiles.client.render.block.BlockTileRenderProperties;
 import team.creative.littletiles.client.render.cache.LayeredRenderBoxCache;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleActionActivated;
@@ -92,9 +97,9 @@ import team.creative.littletiles.common.item.ItemBlockTiles;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleWrench;
+import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.face.LittleFace;
-import team.creative.littletiles.common.mod.ctm.CTMManager;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -164,6 +169,12 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
                 break;
         }
         return getState(ticking, rendered);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void initializeClient(Consumer<IBlockRenderProperties> consumer) {
+        consumer.accept(BlockTileRenderProperties.INSTANCE);
     }
     
     @Override
@@ -377,31 +388,25 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
+    @SuppressWarnings("deprecation")
     public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
-        THIS THING IS ALSO ON SERVER SIDE, NO IDEA HOW TO DEAL WITH IT
-        if (result.isComplete()) {
+        if (context.isComplete()) {
             
-            state = result.tile.getBlockState();
+            state = context.tile.getState();
             
-            float hardness = state.getBlockHardness(world, pos);
+            float hardness = state.getDestroySpeed(level, pos);
             if (hardness < 0.0F)
                 return 0.0F;
             
-            if (!canHarvestBlock(player, state)) {
-                return player.getDigSpeed(state, pos) / hardness / 40F;
+            if (hardness == -1.0F) {
+                return 0.0F;
             } else {
-                return player.getDigSpeed(state, pos) / hardness / 20F;
+                int i = net.minecraftforge.common.ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
+                return player.getDigSpeed(state, pos) / hardness / i;
             }
         } else
-            return super.getPlayerRelativeBlockHardness(state, player, world, pos);
-        float f = p_60466_.getDestroySpeed(p_60468_, p_60469_);
-        if (f == -1.0F) {
-            return 0.0F;
-        } else {
-            int i = net.minecraftforge.common.ForgeHooks.canHarvestBlock(p_60466_, p_60467_, p_60468_, p_60469_) ? 30 : 100;
-            return p_60467_.getDigSpeed(p_60466_, p_60469_) / f / i;
-        }
+            return super.getDestroyProgress(state, player, level, pos);
     }
     
     @Override
@@ -476,7 +481,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     public InteractionResult useClient(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
         if (context.isComplete() && !(player.getItemInHand(hand).getItem() instanceof ItemLittleWrench))
-            return new LittleActionActivated(level, pos, player).execute(player);
+            return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionActivated(level, pos, player));
         return InteractionResult.PASS;
     }
     
@@ -528,12 +533,12 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
-    public boolean canCreatureSpawn(BlockState state, BlockGetter world, BlockPos pos, Type type, EntityType<?> entityType) {
+    public boolean isValidSpawn(BlockState state, BlockGetter world, BlockPos pos, Type type, EntityType<?> entityType) {
         return false;
     }
     
     @Override
-    public boolean removedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (level.isClientSide)
             return removedByPlayerClient(state, level, pos, player, willHarvest, fluid);
         return true;
@@ -543,7 +548,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     public boolean removedByPlayerClient(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player, 1.0F);
         if (result.isComplete())
-            return new LittleActionDestroy(level, pos, player).execute(player);
+            return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroy(level, pos, player));
         return false;
     }
     
@@ -591,7 +596,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
                 try {
                     return result.parent.getStructure().getStructureDrop();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            return result.tile.getDrop(result.parent.getGrid());
+            return ItemMultiTiles.of(result.tile, result.parent.getGrid(), result.box);
         }
         return ItemStack.EMPTY;
     }
@@ -615,8 +620,8 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
             }
             
             if (heighestTile != null)
-                world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block
-                        .getStateId(heighestTile.getBlockState()) });
+                level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState()).setPos(pos), entity.getX(), entity.getY(), entity
+                        .getZ(), numberOfParticles, 0.0D, 0.0D, 0.0D, (double) 0.15F);
         }
         return true;
     }
@@ -640,10 +645,12 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
             }
             
             Random random = new Random();
-            if (heighestTile != null)
-                world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity
-                        .getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block
-                                .getStateId(heighestTile.getBlockState()));
+            if (heighestTile != null) {
+                Vec3 vec3 = entity.getDeltaMovement();
+                level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState())
+                        .setPos(pos), entity.getX() + (random.nextDouble() - 0.5D) * entity.getDimensions(entity.getPose()).width, entity
+                                .getY() + 0.1D, entity.getZ() + (random.nextDouble() - 0.5D) * entity.getDimensions(entity.getPose()).width, vec3.x * -4.0D, 1.5D, vec3.z * -4.0D);
+            }
             return true;
         }
         return false;
@@ -917,6 +924,23 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
+    public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side) {
+        return defaultBlockState();
+    }
+    
+    @Override
+    public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side, BlockPos connection) {
+        BETiles te = loadBE(level, pos);
+        if (te != null) {
+            BlockState lookingFor = level.getBlockState(connection);
+            for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
+                if (pair.value.getState() == lookingFor)
+                    return lookingFor;
+        }
+        return this.defaultBlockState();
+    }
+    
+    @Override
     public void onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {
         BETiles be = loadBE(level, pos);
         if (be != null) {
@@ -935,23 +959,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
             });
         }
         super.onBlockExploded(state, level, pos, explosion);
-    }
-    
-    @Override
-    public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side) {
-        return defaultBlockState();
-    }
-    
-    @Override
-    public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side, BlockPos connection) {
-        BETiles te = loadBE(level, pos);
-        if (te != null) {
-            BlockState lookingFor = CTMManager.isInstalled() ? CTMManager.getCorrectStateOrigin(level, connection) : level.getBlockState(connection);
-            for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
-                if (pair.value.getState() == lookingFor)
-                    return lookingFor;
-        }
-        return this.defaultBlockState();
     }
     
     @Override

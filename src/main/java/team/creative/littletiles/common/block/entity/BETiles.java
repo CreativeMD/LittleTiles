@@ -403,11 +403,10 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     @Override
-    public CompoundTag save(CompoundTag nbt) {
-        super.save(nbt);
+    public void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
         grid.set(nbt);
         nbt.put("content", tiles.save());
-        return nbt;
     }
     
     @Override
