@@ -35,11 +35,13 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -225,7 +227,8 @@ public class LittleTiles {
     
     public LittleTiles() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::client);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(this::client));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands));
         
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, this::registerBlockEntities);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(EntityType.class, this::registerEntities);

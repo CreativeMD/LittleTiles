@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -33,13 +33,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import team.creative.creativecore.client.CreativeCoreClient;
-import team.creative.creativecore.client.command.ClientCommandRegistry;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeRenderBlock;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
@@ -295,16 +295,16 @@ public class LittleTilesClient {
         CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.grabber);
         ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 0, new ModelResourceLocation(LittleTiles.MODID + ":grabber", "inventory"));
         ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 1, new ModelResourceLocation(LittleTiles.MODID + ":grabber_background", "inventory"));
-        
-        event.enqueueWork(() -> {
-            ClientCommandRegistry.register(LiteralArgumentBuilder.<SharedSuggestionProvider>literal("lt-debug").executes(x -> {
-                if (LittleTilesProfilerOverlay.isActive())
-                    LittleTilesProfilerOverlay.stop();
-                else
-                    LittleTilesProfilerOverlay.start();
-                return Command.SINGLE_SUCCESS;
-            }));
-        });
+    }
+    
+    public static void commands(RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(LiteralArgumentBuilder.<CommandSourceStack>literal("lt-debug").executes(x -> {
+            if (LittleTilesProfilerOverlay.isActive())
+                LittleTilesProfilerOverlay.stop();
+            else
+                LittleTilesProfilerOverlay.start();
+            return Command.SINGLE_SUCCESS;
+        }));
     }
     
 }
