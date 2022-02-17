@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -16,15 +18,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mth;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.Entity;
@@ -38,6 +39,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.DrawSelectionEvent.HighlightBlock;
@@ -61,8 +63,6 @@ import team.creative.littletiles.client.event.InputEventHandler;
 import team.creative.littletiles.client.event.LeftClick;
 import team.creative.littletiles.client.event.WheelClick;
 import team.creative.littletiles.client.render.entity.RenderAnimation;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
@@ -500,43 +500,39 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     public void renderLast(RenderLevelLastEvent event) {
         if (mc.options.hideGui)
             return;
-        EntityPlayer player = mc.player;
-        float partialTicks = event.getPartialTicks();
         
-        lastPlayerRayTraceResult = null;
-        lastRayTraceResult = null;
-        lastWorldRayTraceResult = null;
+        LittleHitResult result = getHit();
         
-        RayTraceResult result = getRayTraceResult(player, event
-                .getPartialTicks(), (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK) ? mc.objectMouseOver : null);
-        
-        if (result == null)
+        if (result == null && !result.isBlock())
             return;
         
-        GlStateManager.enableBlend();
-        GlStateManager
-                .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.glLineWidth(2.0F);
-        GlStateManager.enableTexture2D();
-        mc.renderEngine.bindTexture(PreviewRenderer.WHITE_TEXTURE);
-        GlStateManager.depthMask(false);
-        GlStateManager.enableRescaleNormal();
+        BlockPos pos = result.asBlockHit().getBlockPos();
+        BlockState state = result.level.getBlockState(pos);
+        VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
+        LittleLevelEntity entity = result.getHolder();
+        float partialTicks = TickUtils.getDeltaFrameTime(level);
+        entity.getOrigin().setupRendering(event.getPoseStack(), entity, partialTicks);
+        Vec3 position = mc.gameRenderer.getMainCamera().getPosition();
+        double d0 = pos.getX() - position.x();
+        double d1 = pos.getY() - position.y();
+        double d2 = pos.getZ() - position.z();
         
-        BlockPos blockpos = result.getBlockPos();
-        IBlockState iblockstate = lastWorldRayTraceResult.getBlockState(blockpos);
-        
-        if (iblockstate.getMaterial() != Material.AIR && lastWorldRayTraceResult.getWorldBorder().contains(blockpos)) {
-            
-            EntityAnimation entity = (EntityAnimation) lastWorldRayTraceResult.parent;
-            GlStateManager.pushMatrix();
-            
-            entity.origin.setupRendering(entity, partialTicks);
-            RenderGlobal.drawSelectionBoundingBox(iblockstate.getSelectedBoundingBox(lastWorldRayTraceResult, blockpos).grow(0.0020000000949949026D), 0.0F, 0.0F, 0.0F, 0.4F);
-            GlStateManager.popMatrix();
+        if (!state.isAir() && this.level.getWorldBorder().isWithinBounds(pos)) {
+            PoseStack.Pose posestack$pose = event.getPoseStack().last();
+            state.getShape(result.level, pos, CollisionContext.of(mc.cameraEntity)).forAllEdges((p_194324_, p_194325_, p_194326_, p_194327_, p_194328_, p_194329_) -> {
+                float f = (float) (p_194327_ - p_194324_);
+                float f1 = (float) (p_194328_ - p_194325_);
+                float f2 = (float) (p_194329_ - p_194326_);
+                float f3 = Mth.sqrt(f * f + f1 * f1 + f2 * f2);
+                f /= f3;
+                f1 /= f3;
+                f2 /= f3;
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
+                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
+                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
+            });
         }
-        GlStateManager.depthMask(true);
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
     }
     
     @SubscribeEvent

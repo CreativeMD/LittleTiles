@@ -109,20 +109,15 @@ import team.creative.littletiles.server.LittleTilesServer;
 
 public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicBlock {
     
-    private static boolean loadingBlockEntityFromWorld = false;
-    public static Minecraft mc = Minecraft.getInstance(); // Note that doesn't work
-    
     public static BETiles loadBE(BlockGetter level, BlockPos pos) {
         if (level == null)
             return null;
-        loadingBlockEntityFromWorld = true;
         BlockEntity be = null;
         try {
             be = level.getBlockEntity(pos);
         } catch (Exception e) {
             return null;
         }
-        loadingBlockEntityFromWorld = false;
         if (be instanceof BETiles && ((BETiles) be).hasLoaded())
             return (BETiles) be;
         return null;
@@ -290,9 +285,9 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // get Selection shape and it's also used for some other stuff I don't know (only works on client side) TODO CHECK if that is the case
-        LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, mc.player);
+        LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
         if (tileContext.isComplete()) {
-            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode()))
+            if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode()))
                 return tileContext.parent.getBE().getBlockShape();
             if (LittleTiles.CONFIG.rendering.highlightStructureBox && tileContext.parent.isStructure())
                 try {
@@ -584,7 +579,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
-            if (selectEntireBlock(mc.player, LittleActionHandlerClient.isUsingSecondMode())) {
+            if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode())) {
                 ItemStack drop = new ItemStack(LittleTiles.ITEM_TILES);
                 LittleGroup group = new LittleGroup(result.parent.getGrid());
                 for (LittleTile tile : result.parent)
@@ -658,7 +653,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     
     @OnlyIn(Dist.CLIENT)
     public SoundType getSoundTypeClient(BlockState state, LevelReader level, BlockPos pos) {
-        LittleTileContext result = LittleTileContext.selectFocused(level, pos, mc.player);
+        LittleTileContext result = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
         if (result.isComplete())
             return result.tile.getSound();
         return null;

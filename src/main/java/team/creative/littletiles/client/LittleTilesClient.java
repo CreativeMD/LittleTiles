@@ -7,9 +7,6 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
-import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -251,28 +248,6 @@ public class LittleTilesClient {
             }
             
         }, LittleTiles.BLOCK_TILES, LittleTiles.BLOCK_TILES_TICKING, LittleTiles.BLOCK_TILES_RENDERED, LittleTiles.BLOCK_TILES_TICKING_RENDERED);
-        
-        CreativeCoreClient.registerBlockItem(LittleTiles.STORAGE_BLOCK);
-        
-        CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlock, LittleTiles.MODID, "colored_block_", BlockLittleDyeable.LittleDyeableType.values());
-        CreativeCoreClient
-                .registerBlockModels(LittleTiles.dyeableBlockTransparent, LittleTiles.MODID, "colored_transparent_block_", BlockLittleDyeableTransparent.LittleDyeableTransparent
-                        .values());
-        CreativeCoreClient.registerBlockModels(LittleTiles.dyeableBlock2, LittleTiles.MODID, "colored_block_", BlockLittleDyeable2.LittleDyeableType2.values());
-        
-        CreativeCoreClient.registerBlockItem(LittleTiles.signalConverter);
-        
-        CreativeCoreClient.registerBlockItem(LittleTiles.flowingWater);
-        CreativeCoreClient.registerBlockItem(LittleTiles.whiteFlowingWater);
-        CreativeCoreClient.registerBlockItem(LittleTiles.flowingLava);
-        CreativeCoreClient.registerBlockItem(LittleTiles.whiteFlowingLava);
-        
-        CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
-        CreativeCoreClient.registerItemRenderer(LittleTiles.saw);
-        CreativeCoreClient.registerItemRenderer(LittleTiles.container);
-        CreativeCoreClient.registerItemRenderer(LittleTiles.wrench);
-        CreativeCoreClient.registerItemRenderer(LittleTiles.screwdriver);
-        CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
         
         for (int i = 0; i <= 5; i++) {
             ModelLoader.setCustomModelResourceLocation(LittleTiles.BLOCK_INGREDIENT, i, new ModelResourceLocation(LittleTiles.BLOCK_INGREDIENT.getRegistryName()

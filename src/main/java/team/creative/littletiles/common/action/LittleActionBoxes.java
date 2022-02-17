@@ -14,12 +14,12 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -36,8 +36,8 @@ public abstract class LittleActionBoxes extends LittleAction {
     
     public LittleActionBoxes(Level level, LittleBoxes boxes) {
         this.boxes = boxes;
-        if (level instanceof CreativeLevel)
-            this.levelUUID = ((CreativeLevel) level).parent.getUUID();
+        if (level instanceof ISubLevel)
+            this.levelUUID = ((ISubLevel) level).getHolder().getUUID();
         else
             this.levelUUID = null;
     }
@@ -61,11 +61,11 @@ public abstract class LittleActionBoxes extends LittleAction {
         boolean placed = false;
         Level level = player.level;
         if (levelUUID != null) {
-            EntityAnimation animation = LittleAnimationHandlers.findAnimation(level.isClientSide, levelUUID);
+            LittleLevelEntity animation = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
             if (animation == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = animation.fakeWorld;
+            level = animation.getFakeLevel();
         }
         
         if (LittleTiles.CONFIG.isEditLimited(player)) {

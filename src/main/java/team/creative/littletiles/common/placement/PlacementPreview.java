@@ -11,12 +11,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
@@ -41,7 +41,7 @@ public class PlacementPreview {
     public final LittleBoxAbsolute box;
     
     PlacementPreview(Level level, LittleGroup previews, PlacementMode mode, PlacementPosition position, LittleBoxAbsolute box) {
-        this(level instanceof CreativeLevel ? ((CreativeLevel) level).parent.getUUID() : null, previews, mode, position, box);
+        this(level instanceof ISubLevel ? ((ISubLevel) level).getHolder().getUUID() : null, previews, mode, position, box);
     }
     
     PlacementPreview(UUID levelUUID, LittleGroup previews, PlacementMode mode, PlacementPosition position, LittleBoxAbsolute box) {
@@ -55,7 +55,7 @@ public class PlacementPreview {
     }
     
     PlacementPreview(Level level, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
-        this(level instanceof CreativeLevel ? ((CreativeLevel) level).parent.getUUID() : null, previews, mode, facing);
+        this(level instanceof ISubLevel ? ((ISubLevel) level).getHolder().getUUID() : null, previews, mode, facing);
     }
     
     PlacementPreview(UUID levelUUID, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
@@ -71,11 +71,11 @@ public class PlacementPreview {
     public Level getLevel(Entity entity) throws MissingAnimationException {
         Level level = entity.level;
         if (levelUUID != null) {
-            EntityAnimation animation = LittleAnimationHandlers.findAnimation(level.isClientSide, levelUUID);
-            if (animation == null)
+            LittleLevelEntity levelEntity = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
+            if (levelEntity == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = animation.fakeWorld;
+            level = levelEntity.getFakeLevel();
         }
         return level;
     }

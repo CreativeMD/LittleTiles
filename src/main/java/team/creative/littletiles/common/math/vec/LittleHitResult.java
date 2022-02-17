@@ -4,6 +4,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 
 public class LittleHitResult {
     
@@ -29,5 +31,11 @@ public class LittleHitResult {
     
     public EntityHitResult asEntityHit() {
         return (EntityHitResult) hit;
+    }
+    
+    public LittleLevelEntity getHolder() {
+        if (level instanceof ISubLevel)
+            return (LittleLevelEntity) ((ISubLevel) level).getHolder();
+        return null;
     }
 }

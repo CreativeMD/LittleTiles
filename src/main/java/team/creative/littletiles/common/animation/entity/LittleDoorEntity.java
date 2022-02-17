@@ -7,13 +7,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.animation.AnimationState;
+import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.EntityAnimationController;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public class LittleDoorEntity extends LittleLevelEntity {
     
-    public EntityAnimationController controller;
+    public DoorController controller;
     
     public LittleDoorEntity(EntityType<?> type, Level level) {
         super(type, level);
