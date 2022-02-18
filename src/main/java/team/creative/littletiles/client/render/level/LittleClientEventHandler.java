@@ -9,14 +9,11 @@ import java.util.Set;
 import com.creativemd.littletiles.common.event.AxisAlignedBB;
 import com.creativemd.littletiles.common.event.EntityPlayer;
 import com.creativemd.littletiles.common.event.IParentTileList;
-import com.creativemd.littletiles.common.event.IntHashMap;
 import com.creativemd.littletiles.common.event.LittleTileColored;
 import com.creativemd.littletiles.common.event.RenderGlobal;
 import com.creativemd.littletiles.common.event.Tessellator;
 import com.creativemd.littletiles.common.event.TileEntity;
 import com.creativemd.littletiles.common.event.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.event.World;
-import com.creativemd.littletiles.common.event.WorldClient;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
@@ -24,6 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -34,7 +32,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.cache.RenderingThread;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 
 public class LittleClientEventHandler {
@@ -50,27 +47,6 @@ public class LittleClientEventHandler {
     private static Field prevRenderSortZ;
     
     private static List<RenderChunk> queuedRenderChunksUpdate = new ArrayList<>();
-    
-    private static Field entitiesById = ReflectionHelper.findField(World.class, new String[] { "entitiesById", "field_175729_l" });
-    
-    public static boolean cancelEntitySpawn(WorldClient world, int entityID, Entity entity) {
-        if (entity instanceof EntityAnimation) {
-            ((EntityAnimation) entity).addDoor();
-            
-            if (((EntityAnimation) entity).spawnedInWorld) {
-                entity.setEntityId(entityID);
-                try {
-                    ((IntHashMap<Entity>) entitiesById.get(world)).addKey(entityID, entity);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-            ((EntityAnimation) entity).spawnedInWorld = true;
-            return false;
-        }
-        return false;
-    }
     
     public static void queueChunkUpdate(RenderChunk chunk) {
         synchronized (queuedRenderChunksUpdate) {

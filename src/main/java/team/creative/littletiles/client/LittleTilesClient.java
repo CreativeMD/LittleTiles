@@ -59,7 +59,6 @@ import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayPo
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.render.overlay.TooltipOverlay;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAxisIndicatorControl;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -106,8 +105,6 @@ public class LittleTilesClient {
                 return ColorUtils.WHITE;
             return ItemLittlePaintBrush.getColor(stack);
         }, LittleTiles.PAINT_BRUSH);
-        
-        BlockTile.mc = mc;
         
         MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
         MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
