@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -17,7 +16,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +31,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
@@ -62,7 +61,9 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAxisIndicatorControl;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
+import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
+import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
@@ -246,27 +247,14 @@ public class LittleTilesClient {
             
         }, LittleTiles.BLOCK_TILES, LittleTiles.BLOCK_TILES_TICKING, LittleTiles.BLOCK_TILES_RENDERED, LittleTiles.BLOCK_TILES_TICKING_RENDERED);
         
-        for (int i = 0; i <= 5; i++) {
-            ModelLoader.setCustomModelResourceLocation(LittleTiles.BLOCK_INGREDIENT, i, new ModelResourceLocation(LittleTiles.BLOCK_INGREDIENT.getRegistryName()
-                    .toString() + i, "inventory"));
-            ModelLoader.setCustomModelResourceLocation(LittleTiles.CYAN_COLOR, i, new ModelResourceLocation(LittleTiles.CYAN_COLOR.getRegistryName().toString() + i, "inventory"));
-            ModelLoader.setCustomModelResourceLocation(LittleTiles.MAGENTA_COLOR, i, new ModelResourceLocation(LittleTiles.MAGENTA_COLOR.getRegistryName()
-                    .toString() + i, "inventory"));
-            ModelLoader
-                    .setCustomModelResourceLocation(LittleTiles.YELLOW_COLOR, i, new ModelResourceLocation(LittleTiles.YELLOW_COLOR.getRegistryName().toString() + i, "inventory"));
-        }
-        
-        CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipeAdvanced);
-        ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 0, new ModelResourceLocation(LittleTiles.MODID + ":blueprint", "inventory"));
-        ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 1, new ModelResourceLocation(LittleTiles.MODID + ":blueprint_background", "inventory"));
-        
-        CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.chisel);
-        ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 0, new ModelResourceLocation(LittleTiles.MODID + ":chisel", "inventory"));
-        ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 1, new ModelResourceLocation(LittleTiles.MODID + ":chisel_background", "inventory"));
-        
-        CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.grabber);
-        ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 0, new ModelResourceLocation(LittleTiles.MODID + ":grabber", "inventory"));
-        ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 1, new ModelResourceLocation(LittleTiles.MODID + ":grabber_background", "inventory"));
+        ResourceLocation filled = new ResourceLocation(LittleTiles.MODID, "filled");
+        ClampedItemPropertyFunction function = (stack, level, entity, x) -> {
+            return ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
+        };
+        ItemProperties.register(LittleTiles.BLACK_COLOR, filled, function);
+        ItemProperties.register(LittleTiles.CYAN_COLOR, filled, function);
+        ItemProperties.register(LittleTiles.MAGENTA_COLOR, filled, function);
+        ItemProperties.register(LittleTiles.YELLOW_COLOR, filled, function);
     }
     
     public static void commands(RegisterClientCommandsEvent event) {

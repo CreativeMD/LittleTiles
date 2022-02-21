@@ -248,7 +248,7 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     }
     
     public static float dyeToBlockPercentage = 4096;
-    public static int bottleSize = (int) (dyeToBlockPercentage * 64);
+    public static final int BOTTLE_SIZE = (int) (dyeToBlockPercentage * 64);
     
     public static ColorIngredient getColors(LittleElement tile, double volume) {
         if (tile.hasColor()) {

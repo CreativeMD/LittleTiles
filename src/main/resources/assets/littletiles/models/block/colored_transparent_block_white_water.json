@@ -1,6 +1,0 @@
-{
-    "parent": "block/cube_all",
-    "textures": {
-        "all": "littletiles:blocks/white_water_still"
-    }
-}

@@ -42,17 +42,17 @@ import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
-public class RenderAnimation extends EntityRenderer<EntityAnimation> {
+public class LittleLevelEntity extends EntityRenderer<LittleLevelEntity> {
     
     public static Minecraft mc = Minecraft.getInstance();
     public static final VertexBufferUploader uploader = new VertexBufferUploader();
     
-    public RenderAnimation(EntityRendererProvider.Context context) {
+    public LittleLevelEntity(EntityRendererProvider.Context context) {
         super(context);
     }
     
     @Override
-    public boolean shouldRender(EntityAnimation animation, Frustum frustum, double camX, double camY, double camZ) {
+    public boolean shouldRender(LittleLevelEntity animation, Frustum frustum, double camX, double camY, double camZ) {
         AABB axisalignedbb = animation.getBoundingBox().grow(0.5D);
         
         if (axisalignedbb.hasNaN() || axisalignedbb.getAverageEdgeLength() == 0.0D)
@@ -67,7 +67,7 @@ public class RenderAnimation extends EntityRenderer<EntityAnimation> {
     }
     
     @Override
-    public void render(EntityAnimation animation, float p_114486_, float p_114487_, PoseStack pose, MultiBufferSource buffer, int p_114490_) {
+    public void render(LittleLevelEntity animation, float p_114486_, float p_114487_, PoseStack pose, MultiBufferSource buffer, int p_114490_) {
         super.render(animation, p_114486_, p_114487_, pose, buffer, p_114490_);
         
         boolean first = MinecraftForgeClient.getRenderPass() == 0 || MinecraftForgeClient.getRenderPass() == -1;
@@ -290,7 +290,7 @@ public class RenderAnimation extends EntityRenderer<EntityAnimation> {
     }
     
     @Override
-    public ResourceLocation getTextureLocation(EntityAnimation animation) {
+    public ResourceLocation getTextureLocation(LittleLevelEntity animation) {
         return InventoryMenu.BLOCK_ATLAS;
     }
     

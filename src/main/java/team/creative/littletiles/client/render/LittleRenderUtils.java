@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
@@ -18,20 +17,6 @@ import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 
 public class LittleRenderUtils {
-    
-    public static final RenderType[] BLOCK_LAYERS = new RenderType[] { RenderType.solid(), RenderType.cutoutMipped(), RenderType.cutout(), RenderType.translucent() };
-    public static final int TRANSLUCENT = 3;
-    
-    public static RenderType layer(int layer) {
-        return BLOCK_LAYERS[layer];
-    }
-    
-    public static int id(RenderType layer) {
-        for (int i = 0; i < BLOCK_LAYERS.length; i++)
-            if (BLOCK_LAYERS[i] == layer)
-                return i;
-        return -1;
-    }
     
     // ViewFrustum
     private static Field viewAreaField;

@@ -22,8 +22,6 @@ import team.creative.littletiles.common.ingredient.LittleInventory;
 
 public class ItemColorIngredient extends Item implements ILittleIngredientInventory {
     
-    public static int states = 6;
-    
     public ColorIngredientType type;
     
     public ItemColorIngredient(ColorIngredientType type) {
@@ -96,6 +94,10 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         return null;
     }
     
+    public int getColor(ItemStack stack) {
+        return stack.getOrCreateTag().getInt("value");
+    }
+    
     public void saveIngredient(ItemStack stack, ColorIngredient color) {
         stack.getOrCreateTag().putInt("value", type.getIngredient(color));
     }
@@ -139,9 +141,6 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         ColorIngredient color = ingredients.get(ColorIngredient.class);
         if (color != null && type.getIngredient(color) > 0) {
             saveIngredient(stack, color);
-            double stateSize = (double) ColorIngredient.bottleSize / states;
-            int state = Math.min(5, (int) (type.getIngredient(color) / stateSize));
-            stack.setDamageValue(state);
             return;
         }
         
