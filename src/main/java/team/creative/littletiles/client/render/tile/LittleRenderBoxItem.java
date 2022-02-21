@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.IBlockAccess;
@@ -41,7 +42,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, BlockState state, IBakedModel blockModel, Facing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
         if (facing != structure.facing)
             return Collections.EMPTY_LIST;
-        IBakedModel bakedmodel = Minecraft.getInstance().getRenderItem().getItemModelWithOverrides(structure.stack, null, null);
+        BakedModel bakedmodel = Minecraft.getInstance().getRenderItem().getItemModelWithOverrides(structure.stack, null, null);
         List<BakedQuad> blockQuads = new ArrayList<>(bakedmodel.getQuads(null, null, 0L));
         
         for (Facing face : Facing.values()) {

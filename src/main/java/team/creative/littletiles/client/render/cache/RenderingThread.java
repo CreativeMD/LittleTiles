@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -33,10 +32,11 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.optifine.shaders.SVertexBuilder;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.CreativeBakedModel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.SubLevel;
 import team.creative.creativecore.common.mod.OptifineHelper;
-import team.creative.creativecore.common.util.type.SingletonList;
+import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.client.render.LittleRenderUtils;
@@ -98,7 +98,7 @@ public class RenderingThread extends Thread {
         if (be.getLevel() instanceof IOrientatedLevel)
             chunk = LittleRenderUtils.getRenderChunk((IOrientatedLevel) be.getLevel(), be.getBlockPos());
         else
-            chunk = LittleRenderUtils.getRenderChunk(LittleRenderUtils.getViewFrustum(), be.getBlockPos());
+            chunk = LittleRenderUtils.getRenderChunk(LittleRenderUtils.getViewArea(), be.getBlockPos());
         
         if (chunk == null) {
             System.out.println("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());
@@ -316,7 +316,7 @@ public class RenderingThread extends Thread {
                                     }
                             }
                             
-                            net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
+                            net.minecraftforge.client.ForgeHooksClient.setRenderType(null);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
                                 cubeCache.clear();

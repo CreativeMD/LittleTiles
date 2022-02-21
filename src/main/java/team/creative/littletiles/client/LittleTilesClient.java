@@ -79,6 +79,7 @@ public class LittleTilesClient {
     public static final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
     public static LittleActionHandlerClient ACTION_HANDLER;
     public static LittleAnimationHandlerClient ANIMATION_HANDLER;
+    public static PreviewRenderer PREVIEW_RENDERER;
     
     public static KeyMapping flip;
     public static KeyMapping mark;
@@ -113,6 +114,7 @@ public class LittleTilesClient {
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
         LEVEL_HANDLERS.register(LittleAnimationHandlerClient::new, x -> ANIMATION_HANDLER = x);
+        LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
         
         up = new KeyMapping("key.rotateup", GLFW.GLFW_KEY_UP, "key.categories.littletiles");
         down = new KeyMapping("key.rotatedown", GLFW.GLFW_KEY_DOWN, "key.categories.littletiles");

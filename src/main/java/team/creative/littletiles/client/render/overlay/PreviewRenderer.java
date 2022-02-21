@@ -2,8 +2,6 @@ package team.creative.littletiles.client.render.overlay;
 
 import java.util.List;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.common.gui.mc.GuiContainerSub;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
@@ -23,18 +21,18 @@ import net.minecraft.world.World;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.client.event.DrawSelectionEvent.HighlightBlock;
+import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
+import team.creative.littletiles.client.level.LevelAwareHandler;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
@@ -54,14 +52,10 @@ import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode.PreviewMode;
 
-@SideOnly(Side.CLIENT)
-public class PreviewRenderer {
+public class PreviewRenderer implements LevelAwareHandler {
     
     public static final ResourceLocation WHITE_TEXTURE = new ResourceLocation(LittleTiles.MODID, "textures/preview.png");
-    
     public static Minecraft mc = Minecraft.getInstance();
-    
-    public static IMarkMode marked;
     
     public static boolean isCentered(ItemStack stack, ILittlePlacer iTile) {
         if (iTile.snapToGridByDefault(stack))
@@ -79,7 +73,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.undo.consumeClick()) {
             try {
                 if (LittleActionHandlerClient.canUseUndoOrRedo())
-                    LittleActionHandlerClient.undo();
+                    LittleTilesClient.ACTION_HANDLER.undo();
             } catch (LittleActionException e) {
                 LittleActionHandlerClient.handleException(e);
             }
@@ -88,7 +82,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.redo.consumeClick()) {
             try {
                 if (LittleActionHandlerClient.canUseUndoOrRedo())
-                    LittleActionHandlerClient.redo();
+                    LittleTilesClient.ACTION_HANDLER.redo();
             } catch (LittleActionException e) {
                 LittleActionHandlerClient.handleException(e);
             }
@@ -106,7 +100,7 @@ public class PreviewRenderer {
         
         LittleGroup tiles = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews.copy() : null;
         if (tiles == null && iTile != null)
-            tiles = iTile.getTiles(stack, allowLowResolution);
+            tiles = iTile.get(stack, allowLowResolution);
         
         PlacementPreview result = getPreviews(level, tiles, iTile.getTilesGrid(stack), stack, position, centered, fixed, allowLowResolution, mode);
         
@@ -133,14 +127,22 @@ public class PreviewRenderer {
     private static CompoundTag lastCached;
     private static LittleGroup lastPreviews;
     
-    @SubscribeEvent
-    public void unload(WorldEvent.Unload event) {
-        if (event.getWorld().isClientSide())
-            LittleAction.unloadWorld();
+    public static IMarkMode marked;
+    
+    public PreviewRenderer() {
+        MinecraftForge.EVENT_BUS.register(this);
     }
     
+    @Override
+    public void unload() {
+        marked = null;
+    }
+    
+    @Override
+    public void slowTick() {}
+    
     @SubscribeEvent
-    public void tick(RenderWorldLastEvent event) {
+    public void tick(RenderLevelLastEvent event) {
         if (mc.player != null && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
             World world = mc.world;
             EntityPlayer player = mc.player;
@@ -180,8 +182,7 @@ public class PreviewRenderer {
                         GlStateManager.depthMask(false);
                         
                         boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-                        PlacementPreview result = PlacementHelper
-                                .getPreviews(world, stack, position, isCentered(player, stack, iTile), isFixed(player, stack, iTile), allowLowResolution, mode);
+                        PlacementPreview result = PlacementHelper.getPreviews(world, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution, mode);
                         
                         if (result != null) {
                             processMarkKey(player, iTile, stack, result);
@@ -315,10 +316,10 @@ public class PreviewRenderer {
     }
     
     @SubscribeEvent
-    public void drawHighlight(DrawBlockHighlightEvent event) {
-        Player player = event.getPlayer();
-        Level world = player.world;
-        ItemStack stack = player.getHeldItemMainhand();
+    public void drawHighlight(HighlightBlock event) {
+        Player player = mc.player;
+        Level world = player.level;
+        ItemStack stack = player.getMainHandItem();
         
         if (!LittleAction.canPlace(player))
             return;
@@ -382,8 +383,7 @@ public class PreviewRenderer {
                     
                     boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                     
-                    PlacementPreview result = PlacementHelper
-                            .getPreviews(world, stack, position, isCentered(player, stack, iTile), isFixed(player, stack, iTile), allowLowResolution, mode);
+                    PlacementPreview result = PlacementHelper.getPreviews(world, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution, mode);
                     
                     if (result != null) {
                         processMarkKey(player, iTile, stack, result);
