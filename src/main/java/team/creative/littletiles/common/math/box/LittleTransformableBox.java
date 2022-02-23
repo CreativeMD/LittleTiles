@@ -32,7 +32,9 @@ import team.creative.littletiles.client.render.tile.LittleRenderBoxTransformable
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
+import team.creative.littletiles.common.math.face.ILittleFace;
 import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.vec.LittleRay;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
@@ -1057,8 +1059,8 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    protected void fillAdvanced(LittleFace face) {
-        List<VectorFan> axis = requestCache().get(face.facing).axisStrips;
+    protected void fillAdvanced(ILittleFace face) {
+        List<VectorFan> axis = requestCache().get(face.facing()).axisStrips;
         if (axis != null && !axis.isEmpty())
             face.cut(axis);
     }
@@ -1075,6 +1077,14 @@ public class LittleTransformableBox extends LittleBox {
         Axis two = facing.two();
         return new LittleFace(this, faceCache.axisStrips, faceCache
                 .tilted(), grid, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
+    }
+    
+    @Override
+    @Nullable
+    public boolean set(LittleServerFace face, LittleGrid grid, Facing facing) {
+        if (requestCache().get(facing).axisStrips.isEmpty())
+            return false;
+        return super.set(face, grid, facing);
     }
     
     class TransformableVec {

@@ -53,6 +53,9 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.face.LittleFaces;
+import team.creative.littletiles.common.math.face.LittleFaces.LittleFaceSideCache;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.transformation.LittleBlockTransformer;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -66,6 +69,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     private LittleGrid grid;
     private BlockParentCollection tiles;
     public final SideSolidCache sideCache = new SideSolidCache();
+    public LittleFaces faces;
     
     @OnlyIn(Dist.CLIENT)
     public BERenderManager render;
@@ -204,9 +208,11 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         }
     }
     
-    public void onNeighbourChanged() {
+    public void onNeighbourChanged(Facing facing) {
+        faces.neighbourChanged(this, facing);
+        
         if (isClient())
-            render.neighborChanged();
+            render.onNeighbourChanged();
         
         notifyStructure();
     }
@@ -225,6 +231,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         notifyStructure();
         
         sideCache.reset();
+        rebuildFaces();
         
         if (level != null) {
             level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
@@ -320,10 +327,26 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ).getShape(grid);
     }
     
-    /** Used for rendering */
-    @OnlyIn(Dist.CLIENT)
-    public boolean shouldSideBeRendered(Facing facing, LittleFace face, LittleTile rendered) {
-        face.ensureContext(grid);
+    public void rebuildFaces() {
+        LittleFaces newFaces = new LittleFaces(tilesCount());
+        LittleFaceSideCache cache = new LittleFaceSideCache();
+        LittleServerFace face = new LittleServerFace(this);
+        for (Pair<IParentCollection, LittleTile> entry : allTiles()) {
+            for (LittleBox box : entry.getValue()) {
+                cache.clear();
+                for (int i = 0; i < Facing.VALUES.length; i++) {
+                    Facing facing = Facing.VALUES[i];
+                    face.set(entry.getKey(), entry.getValue(), box, facing);
+                    cache.set(facing, face.calculate());
+                }
+                newFaces.push(cache);
+            }
+        }
+        this.faces = newFaces;
+    }
+    
+    public boolean shouldFaceBeRendered(Facing facing, LittleFace face, LittleTile rendered) {
+        face.ensureGrid(grid);
         
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
@@ -391,6 +414,9 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         grid = LittleGrid.get(nbt);
         
         tiles.load(nbt.getCompound("content"));
+        sideCache.load(nbt);
+        if (nbt.contains("faces"))
+            faces = new LittleFaces(nbt.getByteArray("faces"));
         
         if (level != null && !level.isClientSide) {
             level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
@@ -407,6 +433,9 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         super.saveAdditional(nbt);
         grid.set(nbt);
         nbt.put("content", tiles.save());
+        sideCache.write(nbt);
+        if (faces != null)
+            nbt.putByteArray("faces", faces.array());
     }
     
     @Override
@@ -812,12 +841,38 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     
     public class SideSolidCache {
         
-        SideState DOWN;
-        SideState UP;
-        SideState NORTH;
-        SideState SOUTH;
-        SideState WEST;
         SideState EAST;
+        SideState WEST;
+        SideState UP;
+        SideState DOWN;
+        SideState SOUTH;
+        SideState NORTH;
+        
+        public SideSolidCache() {}
+        
+        public void load(CompoundTag nbt) {
+            EAST = nbt.contains("east") ? SideState.values()[nbt.getInt("east")] : null;
+            WEST = nbt.contains("west") ? SideState.values()[nbt.getInt("west")] : null;
+            UP = nbt.contains("up") ? SideState.values()[nbt.getInt("up")] : null;
+            DOWN = nbt.contains("down") ? SideState.values()[nbt.getInt("down")] : null;
+            SOUTH = nbt.contains("south") ? SideState.values()[nbt.getInt("south")] : null;
+            NORTH = nbt.contains("north") ? SideState.values()[nbt.getInt("north")] : null;
+        }
+        
+        public void write(CompoundTag nbt) {
+            if (EAST != null)
+                nbt.putInt("east", EAST.ordinal());
+            if (WEST != null)
+                nbt.putInt("west", WEST.ordinal());
+            if (UP != null)
+                nbt.putInt("up", UP.ordinal());
+            if (DOWN != null)
+                nbt.putInt("down", DOWN.ordinal());
+            if (SOUTH != null)
+                nbt.putInt("south", SOUTH.ordinal());
+            if (NORTH != null)
+                nbt.putInt("north", NORTH.ordinal());
+        }
         
         public void reset() {
             DOWN = null;

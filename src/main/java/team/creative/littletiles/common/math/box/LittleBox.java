@@ -30,7 +30,9 @@ import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
+import team.creative.littletiles.common.math.face.ILittleFace;
 import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes.SplitRangeBox;
@@ -1144,8 +1146,15 @@ public class LittleBox {
         return new LittleFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
     }
     
-    public boolean intersectsWith(LittleFace face) {
-        return (face.facing.positive ? getMin(face.facing.axis) : getMax(face.facing.axis)) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
+    @Nullable
+    public boolean set(LittleServerFace face, LittleGrid grid, Facing facing) {
+        face.set(getMin(face.one), getMin(face.two), getMax(face.one), getMax(face.two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
+        return true;
+    }
+    
+    public boolean intersectsWith(ILittleFace face) {
+        return (face.facing().positive ? getMin(face.facing().axis) : getMax(face.facing().axis)) == face.origin() && face.maxOne() > getMin(face.one()) && face
+                .minOne() < getMax(face.one()) && face.maxTwo() > getMin(face.two()) && face.minTwo() < getMax(face.two());
     }
     
     public boolean isFaceSolid(Facing facing) {
@@ -1156,24 +1165,24 @@ public class LittleBox {
         return true;
     }
     
-    public void fill(LittleFace face) {
+    public void fill(ILittleFace face) {
         if (intersectsWith(face)) {
-            int minOne = Math.max(getMin(face.one), face.minOne);
-            int maxOne = Math.min(getMax(face.one), face.maxOne);
-            int minTwo = Math.max(getMin(face.two), face.minTwo);
-            int maxTwo = Math.min(getMax(face.two), face.maxTwo);
-            if (isFaceSolid(face.facing.opposite()))
+            int minOne = Math.max(getMin(face.one()), face.minOne());
+            int maxOne = Math.min(getMax(face.one()), face.maxOne());
+            int minTwo = Math.max(getMin(face.two()), face.minTwo());
+            int maxTwo = Math.min(getMax(face.two()), face.maxTwo());
+            if (isFaceSolid(face.facing().opposite()))
                 for (int one = minOne; one < maxOne; one++)
                     for (int two = minTwo; two < maxTwo; two++)
-                        face.filled[one - face.minOne][two - face.minTwo] = true;
-            else
+                        face.set(one - face.minOne(), two - face.minTwo(), true);
+            else if (face.supportsCutting())
                 fillAdvanced(face);
+            else
+                face.setPartiallyFilled();
         }
     }
     
-    protected void fillAdvanced(LittleFace face) {
-        
-    }
+    protected void fillAdvanced(ILittleFace face) {}
     
     // ================Static Helpers================
     

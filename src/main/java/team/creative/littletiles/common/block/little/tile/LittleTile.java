@@ -23,8 +23,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -42,7 +40,7 @@ import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
-import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.face.ILittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public final class LittleTile extends LittleElement implements Iterable<LittleBox> {
@@ -255,11 +253,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return true;
     }
     
-    public void fillFace(IParentCollection parent, LittleFace face, LittleGrid grid) {
+    public void fillFace(IParentCollection parent, ILittleFace face, LittleGrid grid) {
         for (LittleBox box : boxes) {
-            if (face.grid != parent.getGrid()) {
+            if (face.getGrid() != parent.getGrid()) {
                 box = box.copy();
-                box.convertTo(parent.getGrid(), face.grid);
+                box.convertTo(parent.getGrid(), face.getGrid());
             }
             box.fill(face);
         }
@@ -386,7 +384,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     // ================Rendering================
     
-    @OnlyIn(Dist.CLIENT)
     public boolean canBeRenderCombined(LittleTile tile) {
         return block.canBeRenderCombined(this, tile);
     }

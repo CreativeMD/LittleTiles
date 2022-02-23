@@ -114,7 +114,7 @@ public class BERenderManager {
         return cachedRenderBoundingBox;
     }
     
-    public void neighborChanged() {
+    public void onNeighbourChanged() {
         hasNeighbourChanged = true;
         queue();
     }
