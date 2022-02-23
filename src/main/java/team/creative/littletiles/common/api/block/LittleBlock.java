@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -86,5 +88,8 @@ public interface LittleBlock {
     public boolean checkEntityCollision();
     
     public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity);
+    
+    @OnlyIn(Dist.CLIENT)
+    public boolean canRenderInLayer(LittleTile tile, RenderType layer);
     
 }

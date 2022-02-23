@@ -1,7 +1,9 @@
 package team.creative.littletiles.client.render.cache;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -9,60 +11,84 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.BufferBuilderUtils;
-import team.creative.littletiles.client.render.LittleRenderUtils;
 
 public class LayeredRenderBufferCache {
     
-    private IRenderDataCache[] queue = new IRenderDataCache[LittleRenderUtils.BLOCK_LAYERS.length];
-    private BufferLink[] uploaded = new BufferLink[LittleRenderUtils.BLOCK_LAYERS.length];
+    private HashMap<RenderType, IRenderDataCache> queue = new HashMap<>();
+    private HashMap<RenderType, BufferLink> uploaded = new HashMap<>();
+    
+    private boolean beforeUpdate = false;
+    private HashMap<RenderType, IRenderDataCache> additional = null;
     
     public LayeredRenderBufferCache() {}
     
     public IRenderDataCache get(RenderType layer) {
-        return get(LittleRenderUtils.id(layer));
-    }
-    
-    public IRenderDataCache get(int layer) {
-        if (queue[layer] == null)
-            return uploaded[layer];
-        return queue[layer];
+        IRenderDataCache queued = queue.get(layer);
+        if (queued == null)
+            return uploaded.get(layer);
+        if (additional != null && layer != RenderType.translucent())
+            return combine(queued, additional.get(layer));
+        return queued;
+        
     }
     
     public synchronized void setEmptyIfEqual(BufferLink link, RenderType layer) {
-        int id = LittleRenderUtils.id(layer);
-        if (uploaded[id] == link)
-            uploaded[id] = null;
+        if (uploaded.get(layer) == link)
+            uploaded.remove(layer);
     }
     
     public synchronized void setUploaded(BufferLink link, RenderType layer) {
-        int id = LittleRenderUtils.id(layer);
-        queue[id] = null;
-        uploaded[id] = link;
+        queue.remove(layer);
+        queue.put(layer, link);
     }
     
     public synchronized void set(RenderType layer, BufferBuilder buffer) {
-        int id = LittleRenderUtils.id(layer);
-        if (buffer == null)
-            uploaded[id] = null;
-        queue[id] = buffer != null ? new BufferBuilderWrapper(buffer) : null;
-    }
-    
-    public synchronized void setEmpty() {
-        for (int i = 0; i < queue.length; i++) {
-            queue[i] = null;
-            uploaded[i] = null;
+        if (buffer == null && additional == null)
+            uploaded.remove(layer);
+        queue.put(layer, buffer != null ? new BufferBuilderWrapper(buffer) : null);
+        
+        if (layer == RenderType.translucent() && !beforeUpdate && additional != null) {
+            IRenderDataCache data = additional.get(layer);
+            if (data != null)
+                queue.put(layer, combine(queue.get(layer), data));
         }
     }
     
-    public synchronized void combine(LayeredRenderBufferCache cache) {
-        for (int i = 0; i < queue.length; i++)
-            if (i == LittleRenderUtils.TRANSLUCENT)
-                queue[i] = combine(i, get(i), cache.get(i));
-            else
-                uploaded[i] = combine(i, get(i), cache.get(i));
+    public synchronized void setEmpty() {
+        queue.clear();
+        uploaded.clear();
     }
     
-    private BufferLink combine(int layer, IRenderDataCache first, IRenderDataCache second) {
+    public boolean hasAdditional() {
+        return additional != null;
+    }
+    
+    public void beforeUpdate() {
+        beforeUpdate = true;
+    }
+    
+    public void afterUpdate() {
+        beforeUpdate = false;
+        additional = null;
+    }
+    
+    public synchronized void additional(LayeredRenderBufferCache cache) {
+        boolean already = additional != null;
+        if (!already)
+            additional = new HashMap<>();
+        
+        for (Entry<RenderType, IRenderDataCache> entry : additional.entrySet()) {
+            IRenderDataCache aCache = cache.get(entry.getKey());
+            entry.setValue(already ? combine(entry.getValue(), aCache) : aCache);
+            
+            if (entry.getKey() == RenderType.translucent())
+                queue.put(entry.getKey(), combine(get(entry.getKey()), aCache));
+            else
+                uploaded.put(entry.getKey(), combine(get(entry.getKey()), aCache));
+        }
+    }
+    
+    private BufferLink combine(IRenderDataCache first, IRenderDataCache second) {
         int vertexCount = 0;
         int length = 0;
         ByteBuffer firstBuffer = null;

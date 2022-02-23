@@ -212,7 +212,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         faces.neighbourChanged(this, facing);
         
         if (isClient())
-            render.onNeighbourChanged();
+            render.onNeighbourChanged(facing);
         
         notifyStructure();
     }

@@ -10,7 +10,7 @@ public enum LittleFaceState {
         }
         
         @Override
-        public boolean covered() {
+        public boolean coveredFully() {
             return false;
         }
         
@@ -28,8 +28,8 @@ public enum LittleFaceState {
         }
         
         @Override
-        public boolean covered() {
-            return true;
+        public boolean coveredFully() {
+            return false;
         }
         
         @Override
@@ -46,7 +46,7 @@ public enum LittleFaceState {
         }
         
         @Override
-        public boolean covered() {
+        public boolean coveredFully() {
             return true;
         }
         
@@ -64,7 +64,7 @@ public enum LittleFaceState {
         }
         
         @Override
-        public boolean covered() {
+        public boolean coveredFully() {
             return false;
         }
         
@@ -82,8 +82,8 @@ public enum LittleFaceState {
         }
         
         @Override
-        public boolean covered() {
-            return true;
+        public boolean coveredFully() {
+            return false;
         }
         
         @Override
@@ -100,7 +100,7 @@ public enum LittleFaceState {
         }
         
         @Override
-        public boolean covered() {
+        public boolean coveredFully() {
             return true;
         }
         
@@ -111,7 +111,7 @@ public enum LittleFaceState {
         
     };
     
-    public abstract boolean covered();
+    public abstract boolean coveredFully();
     
     public abstract boolean partially();
     

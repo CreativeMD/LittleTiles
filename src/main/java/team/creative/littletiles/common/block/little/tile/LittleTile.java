@@ -390,7 +390,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     public void addRenderingBoxes(LittleGrid grid, List<RenderBox> boxes) {
         for (LittleBox box : this.boxes)
-            boxes.add(box.getRenderingCube(grid));
+            boxes.add(box.getRenderingBox(grid));
     }
     
     // ================Sound================

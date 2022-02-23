@@ -24,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -40,7 +39,6 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -720,58 +718,6 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return pos;
     }
     
-    // ====================Transform & Transfer====================
-    
-    public void transferChildrenToAnimation(EntityAnimation animation) throws CorruptedConnectionException, NotYetConnectedException {
-        for (StructureChildConnection child : children.all()) {
-            LittleStructure childStructure = child.getStructure();
-            if (child.isLinkToAnotherWorld()) {
-                EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
-                int l1 = subAnimation.chunkCoordX;
-                int i2 = subAnimation.chunkCoordZ;
-                Level level = getLevel();
-                if (subAnimation.addedToChunk) {
-                    LevelChunk chunk = level.getChunk(l1, i2);
-                    if (chunk != null)
-                        chunk.removeEntity(subAnimation);
-                    subAnimation.addedToChunk = false;
-                }
-                level.loadedEntityList.remove(subAnimation);
-                subAnimation.setParentLevel(animation.fakeWorld);
-                animation.fakeWorld.addFreshEntity(subAnimation);
-                subAnimation.updateTickState();
-                
-                childStructure.updateParentConnection(child.childId, this, child.dynamic);
-                this.updateChildConnection(child.childId, childStructure, child.dynamic);
-                
-            } else
-                childStructure.transferChildrenToAnimation(animation);
-        }
-    }
-    
-    public void transferChildrenFromAnimation(EntityAnimation animation) throws CorruptedConnectionException, NotYetConnectedException {
-        Level parentLevel = animation.fakeWorld.getParent();
-        for (StructureChildConnection child : children.all()) {
-            LittleStructure childStructure = child.getStructure();
-            if (child.isLinkToAnotherWorld()) {
-                EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
-                int l1 = subAnimation.chunkCoordX;
-                int i2 = subAnimation.chunkCoordZ;
-                if (subAnimation.addedToChunk) {
-                    LevelChunk chunk = animation.fakeWorld.getChunk(l1, i2);
-                    if (chunk != null)
-                        chunk.removeEntity(subAnimation);
-                    subAnimation.addedToChunk = false;
-                }
-                animation.fakeWorld.loadedEntityList.remove(subAnimation);
-                subAnimation.setParentLevel(parentLevel);
-                parentLevel.addFreshEntity(subAnimation);
-                subAnimation.updateTickState();
-            } else
-                childStructure.transferChildrenFromAnimation(animation);
-        }
-    }
-    
     // ====================Helpers====================
     
     public SurroundingBox getSurroundingBox() throws CorruptedConnectionException, NotYetConnectedException {
@@ -898,7 +844,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingCubes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {}
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> boxes) {}
     
     public VoxelShape getExtraShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.empty();

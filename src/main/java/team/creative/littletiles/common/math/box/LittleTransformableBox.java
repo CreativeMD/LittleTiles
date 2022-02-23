@@ -1006,19 +1006,19 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid) {
+    public LittleRenderBox getRenderingBox(LittleGrid grid) {
         return new LittleRenderBoxTransformable(grid, this);
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid, BlockState state) {
+    public LittleRenderBox getRenderingBox(LittleGrid grid, BlockState state) {
         return new LittleRenderBoxTransformable(grid, this, state);
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid, LittleElement element) {
+    public LittleRenderBox getRenderingBox(LittleGrid grid, LittleElement element) {
         return new LittleRenderBoxTransformable(grid, this, element);
     }
     

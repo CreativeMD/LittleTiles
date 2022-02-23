@@ -1122,17 +1122,17 @@ public class LittleBox {
     // ================Rendering================
     
     @OnlyIn(value = Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid) {
+    public LittleRenderBox getRenderingBox(LittleGrid grid) {
         return new LittleRenderBox(grid, this);
     }
     
     @OnlyIn(value = Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid, BlockState state) {
+    public LittleRenderBox getRenderingBox(LittleGrid grid, BlockState state) {
         return new LittleRenderBox(grid, this, state);
     }
     
     @OnlyIn(value = Dist.CLIENT)
-    public LittleRenderBox getRenderingCube(LittleGrid grid, LittleElement element) {
+    public LittleRenderBox getRenderingBox(LittleGrid grid, LittleElement element) {
         return new LittleRenderBox(grid, this, element);
     }
     

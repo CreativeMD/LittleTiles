@@ -1,10 +1,6 @@
 package team.creative.littletiles.client.render.level;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import com.creativemd.littletiles.common.event.AxisAlignedBB;
 import com.creativemd.littletiles.common.event.EntityPlayer;
@@ -18,13 +14,11 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.world.WorldEvent.Unload;
@@ -38,39 +32,11 @@ public class LittleClientEventHandler {
     
     private static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
     
-    private static Field setTileEntitiesField;
-    
     public static int transparencySortingIndex;
     
     private static Field prevRenderSortX;
     private static Field prevRenderSortY;
     private static Field prevRenderSortZ;
-    
-    private static List<RenderChunk> queuedRenderChunksUpdate = new ArrayList<>();
-    
-    public static void queueChunkUpdate(RenderChunk chunk) {
-        synchronized (queuedRenderChunksUpdate) {
-            if (!queuedRenderChunksUpdate.contains(chunk))
-                queuedRenderChunksUpdate.add(chunk);
-        }
-    }
-    
-    @SubscribeEvent
-    public void onClientTick(ClientTickEvent event) {
-        if (event.phase == Phase.END) {
-            synchronized (queuedRenderChunksUpdate) {
-                if (!queuedRenderChunksUpdate.isEmpty()) {
-                    for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
-                        RenderChunk chunk = (RenderChunk) iterator.next();
-                        if (!chunk.isDirty()) {
-                            chunk.setDirty(true);
-                            iterator.remove();
-                        }
-                    }
-                }
-            }
-        }
-    }
     
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent event) {
@@ -104,30 +70,8 @@ public class LittleClientEventHandler {
     @SubscribeEvent
     public synchronized void worldUnload(Unload event) {
         if (event.getWorld().isClientSide()) {
-            
-            for (int i = 0; i < RenderingThread.threads.size(); i++) {
-                RenderingThread thread = RenderingThread.threads.get(i);
-                if (thread == null)
-                    continue;
-                thread.interrupt();
-                thread.updateCoords.clear();
-                RenderingThread.threads.set(i, null);
-            }
-            RenderingThread.chunks.clear();
-            
-            if (setTileEntitiesField == null)
-                setTileEntitiesField = ReflectionHelper.findField(RenderGlobal.class, new String[] { "setTileEntities", "field_181024_n" });
-            
-            try {
-                Set<TileEntity> set = (Set<TileEntity>) setTileEntitiesField.get(Minecraft.getMinecraft().renderGlobal);
-                synchronized (set) {
-                    set.clear();
-                }
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            RenderingThread.unload();
         }
-        
     }
     
     @SubscribeEvent

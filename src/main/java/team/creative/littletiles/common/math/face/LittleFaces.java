@@ -34,6 +34,10 @@ public class LittleFaces {
         buffer.writeMedium(cache.value);
     }
     
+    public void jump(int size) {
+        buffer.writerIndex(buffer.writerIndex() + size * 3);
+    }
+    
     public synchronized void pull(LittleFaceSideCache cache) {
         if (remaining())
             cache.value = buffer.readMedium();

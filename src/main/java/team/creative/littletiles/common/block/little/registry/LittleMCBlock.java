@@ -5,6 +5,7 @@ import java.util.Random;
 
 import com.mojang.math.Vector3d;
 
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionResult;
@@ -18,6 +19,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -186,5 +189,11 @@ public class LittleMCBlock implements LittleBlock {
     @Override
     public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
         return motion;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public boolean canRenderInLayer(LittleTile tile, RenderType layer) {
+        return ItemBlockRenderTypes.canRenderInLayer(getState(), layer);
     }
 }
