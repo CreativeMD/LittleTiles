@@ -1,17 +1,17 @@
 package team.creative.littletiles.client.render.cache;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
@@ -20,23 +20,25 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.optifine.shaders.SVertexBuilder;
+import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
+import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.CreativeBakedModel;
+import team.creative.creativecore.client.render.model.BlockInfoExtension;
+import team.creative.creativecore.client.render.model.CreativeBlockModelRenderer;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.LevelAccesorFake;
 import team.creative.creativecore.common.level.SubClientLevel;
 import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
@@ -137,6 +139,8 @@ public class RenderingThread extends Thread {
             while (active) {
                 LevelAccessor level = mc.level;
                 long duration = 0;
+                Random rand = new Random();
+                PoseStack posestack = new PoseStack();
                 
                 if (level != null && !QUEUE.isEmpty()) {
                     RenderingBlockContext data = QUEUE.poll();
@@ -167,15 +171,14 @@ public class RenderingThread extends Thread {
                                         level = data.be.getLevel();
                                     
                                     BlockState modelState = cube.state;
+                                    rand.setSeed(modelState.getSeed(pos));
                                     BakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRenderer().getBlockModel(modelState), level, modelState, pos);
-                                    modelState = cube.getModelState(modelState, level, pos);
                                     BlockPos offset = cube.getOffset();
                                     for (int h = 0; h < Facing.VALUES.length; h++) {
                                         Facing facing = Facing.VALUES[h];
                                         if (cube.renderSide(facing)) {
                                             if (cube.getQuad(facing) == null)
-                                                cube.setQuad(facing, CreativeBakedModel
-                                                        .getBakedQuad(level, cube, pos, offset, modelState, blockModel, layer, facing, Mth.getSeed(pos), false));
+                                                cube.setQuad(facing, cube.getBakedQuad(level, pos, offset, modelState, blockModel, facing, layer, rand, true, ColorUtils.WHITE));
                                         } else
                                             cube.setQuad(facing, null);
                                     }
@@ -193,9 +196,28 @@ public class RenderingThread extends Thread {
                         LayeredRenderBufferCache layerBuffer = data.be.render.getBufferCache();
                         VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
-                            Level renderWorld = data.be.getLevel();
-                            if (renderWorld instanceof SubClientLevel && !((SubClientLevel) renderWorld).shouldRender)
-                                renderWorld = ((SubClientLevel) renderWorld).getRealLevel();
+                            Level renderLevel = data.be.getLevel();
+                            if (renderLevel instanceof SubClientLevel && !((SubClientLevel) renderLevel).shouldRender)
+                                renderLevel = ((SubClientLevel) renderLevel).getRealLevel();
+                            
+                            boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0;
+                            VertexLighterFlat lighter = CreativeBlockModelRenderer.getLighter(smooth);
+                            
+                            lighter.setWorld(renderLevel);
+                            lighter.setBlockPos(pos);
+                            lighter.setState(Blocks.AIR.defaultBlockState());
+                            lighter.updateBlockInfo();
+                            
+                            BlockInfoExtension blockInfo = CreativeBlockModelRenderer.getBlockInfo(lighter);
+                            
+                            VertexBufferConsumer consumer = CreativeBlockModelRenderer.getConsumer(smooth);
+                            //ModelBlockRenderer.enableCaching();
+                            
+                            int chunkX = Mth.intFloorDiv(pos.getX(), 16);
+                            int chunkY = Mth.intFloorDiv(pos.getY(), 16);
+                            int chunkZ = Mth.intFloorDiv(pos.getZ(), 16);
+                            posestack.pushPose();
+                            posestack.translate(-chunkX * 16, -chunkY * 16, -chunkZ * 16);
                             
                             // Render vertex buffer
                             for (Entry<RenderType, List<LittleRenderBox>> entry : data.be.render.boxCache.entrySet()) {
@@ -210,49 +232,26 @@ public class RenderingThread extends Thread {
                                 
                                 if (buffer != null) {
                                     buffer.begin(VertexFormat.Mode.QUADS, format);
-                                    if (OptifineHelper.installed() && OptifineHelper.isRenderRegions() && !data.subWorld) {
-                                        int bits = 8;
-                                        RenderChunk chunk = (RenderChunk) data.chunk;
-                                        int dx = chunk.getOrigin().getX() >> bits << bits;
-                                        int dy = chunk.getOrigin().getY() >> bits << bits;
-                                        int dz = chunk.getOrigin().getZ() >> bits << bits;
-                                        
-                                        dx = OptifineHelper.getRenderChunkRegionX(chunk);
-                                        dz = OptifineHelper.getRenderChunkRegionZ(chunk);
-                                        
-                                        buffer.setTranslation(-dx, -dy, -dz);
-                                    } else {
-                                        int chunkX = Mth.intFloorDiv(pos.getX(), 16);
-                                        int chunkY = Mth.intFloorDiv(pos.getY(), 16);
-                                        int chunkZ = Mth.intFloorDiv(pos.getZ(), 16);
-                                        buffer.setTranslation(-chunkX * 16, -chunkY * 16, -chunkZ * 16);
-                                    }
                                     
-                                    boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(renderWorld, pos) == 0; //&& modelIn.isAmbientOcclusion(stateIn);
-                                    
-                                    BitSet bitset = null;
-                                    float[] afloat = null;
-                                    Object ambientFace = null;
-                                    if (FMLClientHandler.instance().hasOptifine())
-                                        ambientFace = OptifineHelper.getEnv(buffer, renderWorld, data.state, pos);
-                                    else if (smooth) {
-                                        bitset = new BitSet(3);
-                                        afloat = new float[EnumFacing.VALUES.length * 2];
-                                        ambientFace = CreativeModelPipeline.createAmbientOcclusionFace();
-                                    }
+                                    consumer.setBuffer(buffer);
+                                    lighter.setParent(consumer);
+                                    lighter.setTransform(posestack.last());
                                     
                                     for (int j = 0; j < cubes.size(); j++) {
                                         RenderBox cube = cubes.get(j);
-                                        BlockState state = cube.getBlockState();
+                                        BlockState state = cube.state;
                                         
-                                        if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders()) {
+                                        lighter.setState(state);
+                                        blockInfo.setCustomTint(cube.color);
+                                        
+                                        if (OptifineHelper.isShaders()) {
                                             if (state.getBlock() instanceof IFakeRenderingBlock)
                                                 state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
-                                            SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
+                                            OptifineHelper.pushBuffer(state, pos, data.be.getLevel(), buffer);
                                         }
                                         
-                                        for (int h = 0; h < EnumFacing.VALUES.length; h++) {
-                                            EnumFacing facing = EnumFacing.VALUES[h];
+                                        for (int h = 0; h < Facing.VALUES.length; h++) {
+                                            Facing facing = Facing.VALUES[h];
                                             Object quadObject = cube.getQuad(facing);
                                             List<BakedQuad> quads = null;
                                             if (quadObject instanceof List) {
@@ -262,24 +261,21 @@ public class RenderingThread extends Thread {
                                                 quads = bakedQuadWrapper;
                                             }
                                             if (quads != null && !quads.isEmpty())
-                                                if (smooth)
-                                                    CreativeModelPipeline
-                                                            .renderBlockFaceSmooth(renderWorld, state, pos, buffer, layer, quads, afloat, facing, bitset, ambientFace, cube);
-                                                else
-                                                    CreativeModelPipeline.renderBlockFaceFlat(renderWorld, state, pos, buffer, layer, quads, facing, bitset, cube, ambientFace);
+                                                for (BakedQuad quad : quads)
+                                                    quad.pipe(lighter);
                                         }
                                         
                                         bakedQuadWrapper.setElement(null);
                                         
-                                        if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-                                            SVertexBuilder.popEntity(buffer);
+                                        if (OptifineHelper.isShaders())
+                                            OptifineHelper.popBuffer(buffer);
                                         
                                         if (!LittleTiles.CONFIG.rendering.useQuadCache)
                                             cube.deleteQuadCache();
                                     }
                                     
-                                    if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-                                        SVertexBuilder.calcNormalChunkLayer(buffer);
+                                    if (OptifineHelper.isShaders())
+                                        OptifineHelper.calcNormalChunkLayer(buffer);
                                     
                                     buffer.end();
                                     
@@ -292,6 +288,10 @@ public class RenderingThread extends Thread {
                                     }
                             }
                             
+                            blockInfo.setCustomTint(-1);
+                            posestack.popPose();
+                            //ModelBlockRenderer.clearCache();
+                            lighter.resetBlockInfo();
                             net.minecraftforge.client.ForgeHooksClient.setRenderType(null);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
