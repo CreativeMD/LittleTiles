@@ -50,7 +50,7 @@ public class GuiBag extends GuiLayer {
         ColorIngredientType type = ColorIngredientType.getType(nbt.getAsString());
         ColorIngredient color = bag.get(ColorIngredient.class);
         if (color != null && !color.isEmpty()) {
-            int amount = Math.min(type.getIngredient(color), ColorIngredient.bottleSize);
+            int amount = Math.min(type.getIngredient(color), ColorIngredient.BOTTLE_SIZE);
             if (amount > 0) {
                 type.setIngredient(color, type.getIngredient(color) - amount);
                 

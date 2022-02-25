@@ -17,6 +17,21 @@ import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 
 public class LittleLevelScanner {
     
+    public static LittleBoxes scan(Level level, BlockPos pos, @Nullable BiFilter<IParentCollection, LittleTile> filter) {
+        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.min());
+        
+        BETiles te = BlockTile.loadBE(level, pos);
+        
+        if (te == null)
+            return boxes;
+        
+        for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
+            if (filter == null || filter.is(pair.key, pair.value))
+                boxes.addBoxes(pair.key, pair.value);
+            
+        return boxes;
+    }
+    
     public static LittleBoxes scan(Level level, BlockPos pos, BlockPos pos2, @Nullable BiFilter<IParentCollection, LittleTile> filter) {
         LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.min());
         

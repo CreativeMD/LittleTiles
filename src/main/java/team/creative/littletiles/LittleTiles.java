@@ -217,7 +217,7 @@ public class LittleTiles {
     
     public static EntityType<EntitySit> ANIMATION;
     
-    public static CreativeModeTab LITTLE_TAB = new CreativeModeTab("littletiles") {
+    public static final CreativeModeTab LITTLE_TAB = new CreativeModeTab("littletiles") {
         
         @Override
         public ItemStack makeIcon() {

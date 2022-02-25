@@ -75,16 +75,16 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             
             switch (type) {
             case black:
-                ingredient.setLimit(ColorIngredient.bottleSize, 0, 0, 0);
+                ingredient.setLimit(ColorIngredient.BOTTLE_SIZE, 0, 0, 0);
                 break;
             case cyan:
-                ingredient.setLimit(0, ColorIngredient.bottleSize, 0, 0);
+                ingredient.setLimit(0, ColorIngredient.BOTTLE_SIZE, 0, 0);
                 break;
             case magenta:
-                ingredient.setLimit(0, 0, ColorIngredient.bottleSize, 0);
+                ingredient.setLimit(0, 0, ColorIngredient.BOTTLE_SIZE, 0);
                 break;
             case yellow:
-                ingredient.setLimit(0, 0, 0, ColorIngredient.bottleSize);
+                ingredient.setLimit(0, 0, 0, ColorIngredient.BOTTLE_SIZE);
                 break;
             default:
                 break;

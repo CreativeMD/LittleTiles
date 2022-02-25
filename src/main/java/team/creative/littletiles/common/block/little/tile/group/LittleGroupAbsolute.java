@@ -23,6 +23,12 @@ public class LittleGroupAbsolute implements IGridBased {
         this.group = group;
     }
     
+    public LittleGroupAbsolute(LittleBoxes boxes, LittleElement element) {
+        this.pos = boxes.pos;
+        this.group = new LittleGroup(boxes.getGrid());
+        this.group.add(boxes.getGrid(), element, boxes.all());
+    }
+    
     public LittleGroupAbsolute(BlockPos pos, LittleGrid grid) {
         this(pos, new LittleGroup(null, grid, null));
     }

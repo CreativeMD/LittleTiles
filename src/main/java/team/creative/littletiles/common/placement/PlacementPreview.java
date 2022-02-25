@@ -95,6 +95,11 @@ public class PlacementPreview {
     }
     
     @OnlyIn(Dist.CLIENT)
+    public static PlacementPreview absolute(Level level, PlacementMode mode, LittleGroupAbsolute previews, Facing facing) {
+        return new PlacementPreview(level, previews, mode, facing);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("deprecation")
     public static PlacementPreview relative(Level level, ItemStack stack, PlacementPosition position, boolean low) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
