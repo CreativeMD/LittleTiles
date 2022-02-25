@@ -43,8 +43,8 @@ public class LittleActionDestroy extends LittleActionInteract {
         return destroyedTiles != null || structurePreview != null;
     }
     
-    public LittleAbsolutePreviews destroyedTiles;
-    public StructurePreview structurePreview;
+    public LittleGroupAbsolute destroyedTiles;
+    public transient StructurePreview structurePreview;
     
     @Override
     public LittleAction revert(Player player) {

@@ -1,15 +1,25 @@
 package team.creative.littletiles.common.block.little.element;
 
+import java.lang.reflect.Field;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateHolder;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 
 public class LittleElement {
+    
+    public static final Field PROPERTY_ENTRY_TO_STRING_FUNCTION_FIELD = ObfuscationReflectionHelper.findField(StateHolder.class, "f_61110_");
     
     public static LittleElement of(ItemStack stack, int color) throws NotBlockException {
         Block block = Block.byItem(stack.getItem());
@@ -84,8 +94,21 @@ public class LittleElement {
     public String getBlockName() {
         if (getState().getBlock() instanceof AirBlock)
             return getBlock().blockName();
-        else
-            return getState().toString();
+        else {
+            StringBuilder name = new StringBuilder();
+            BlockState state = getState();
+            name.append(state.getBlock().getRegistryName());
+            if (!state.getValues().isEmpty()) {
+                name.append('[');
+                try {
+                    name.append(state.getValues().entrySet().stream().map((Function<Entry<Property<?>, Comparable<?>>, String>) PROPERTY_ENTRY_TO_STRING_FUNCTION_FIELD.get(null))
+                            .collect(Collectors.joining(",")));
+                    
+                } catch (IllegalArgumentException | IllegalAccessException e) {}
+                name.append(']');
+            }
+            return name.toString();
+        }
     }
     
     public CompoundTag save(CompoundTag nbt) {

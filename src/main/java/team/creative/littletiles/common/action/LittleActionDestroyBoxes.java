@@ -46,7 +46,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     
     public LittleActionDestroyBoxes() {}
     
-    public List<StructurePreview> destroyedStructures;
+    public transient List<StructurePreview> destroyedStructures;
     public LittleGroupAbsolute previews;
     
     private boolean containsStructure(LittleStructure structure) {
@@ -61,7 +61,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         return false;
     }
     
-    public boolean doneSomething;
+    public transient boolean doneSomething;
     
     public LittleIngredients action(Player player, BETiles be, List<LittleBox> boxes, boolean simulate, LittleGrid grid) {
         doneSomething = false;

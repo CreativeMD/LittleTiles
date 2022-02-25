@@ -3,7 +3,6 @@ package team.creative.littletiles.client.render.overlay;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
@@ -14,17 +13,14 @@ import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.GuiRenderHelper;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.gui.controls.GuiActionDisplay;
 
-@SideOnly(Side.CLIENT)
 public class OverlayRenderer {
     
     private static Minecraft mc = Minecraft.getInstance();
-    protected static ScaledResolution scaledResolution;
     
     private OverlayGui gui = new OverlayGui();
     private GuiActionDisplay actionDisplay = new GuiActionDisplay("action").setMessageCount(1);

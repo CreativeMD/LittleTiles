@@ -2,61 +2,54 @@ package team.creative.littletiles.client.render.level;
 
 import java.lang.reflect.Field;
 
-import com.creativemd.littletiles.common.event.AxisAlignedBB;
-import com.creativemd.littletiles.common.event.EntityPlayer;
-import com.creativemd.littletiles.common.event.IParentTileList;
-import com.creativemd.littletiles.common.event.LittleTileColored;
-import com.creativemd.littletiles.common.event.RenderGlobal;
-import com.creativemd.littletiles.common.event.Tessellator;
-import com.creativemd.littletiles.common.event.TileEntity;
-import com.creativemd.littletiles.common.event.TileEntityLittleTiles;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.world.WorldEvent.Unload;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.TickUtils;
+import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 
 public class LittleClientEventHandler {
     
     private static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
+    private static final Field xTransparentOldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "f_109445_");
+    private static final Field yTransparentOldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "f_109446_");
+    private static final Field zTransparentOldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "f_109447_");
     
     public static int transparencySortingIndex;
-    
-    private static Field prevRenderSortX;
-    private static Field prevRenderSortY;
-    private static Field prevRenderSortZ;
     
     @SubscribeEvent
     public void onRenderTick(RenderTickEvent event) {
         if (event.phase == Phase.START) {
-            Minecraft mc = Minecraft.getMinecraft();
+            Minecraft mc = Minecraft.getInstance();
             
-            if (mc.player != null && mc.renderGlobal != null) {
-                if (prevRenderSortX == null) {
-                    prevRenderSortX = ReflectionHelper.findField(RenderGlobal.class, new String[] { "prevRenderSortX", "field_147596_f" });
-                    prevRenderSortY = ReflectionHelper.findField(RenderGlobal.class, new String[] { "prevRenderSortY", "field_147597_g" });
-                    prevRenderSortZ = ReflectionHelper.findField(RenderGlobal.class, new String[] { "prevRenderSortZ", "field_147602_h" });
-                }
-                
-                Entity entityIn = mc.getRenderViewEntity();
-                if (entityIn == null)
-                    return;
+            if (mc.player != null && mc.levelRenderer != null) {
                 try {
-                    double d0 = entityIn.posX - prevRenderSortX.getDouble(mc.renderGlobal);
-                    double d1 = entityIn.posY - prevRenderSortY.getDouble(mc.renderGlobal);
-                    double d2 = entityIn.posZ - prevRenderSortZ.getDouble(mc.renderGlobal);
+                    Vec3 vec3 = mc.gameRenderer.getMainCamera().getPosition();
+                    double d0 = vec3.x() - xTransparentOldField.getDouble(mc.levelRenderer);
+                    double d1 = vec3.y() - yTransparentOldField.getDouble(mc.levelRenderer);
+                    double d2 = vec3.z() - zTransparentOldField.getDouble(mc.levelRenderer);
                     if (d0 * d0 + d1 * d1 + d2 * d2 > 1.0D)
                         transparencySortingIndex++;
                 } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -78,16 +71,14 @@ public class LittleClientEventHandler {
     public void renderOverlay(RenderBlockOverlayEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (event.getOverlayType() == OverlayType.WATER) {
-            EntityPlayer player = event.getPlayer();
-            double d0 = player.posY + player.getEyeHeight();
-            BlockPos blockpos = new BlockPos(player.posX, d0, player.posZ);
-            TileEntity te = player.world.getTileEntity(blockpos);
-            if (te instanceof TileEntityLittleTiles) {
-                AxisAlignedBB bb = player.getEntityBoundingBox();
-                for (Pair<IParentTileList, LittleTile> pair : ((TileEntityLittleTiles) te).allTiles()) {
+            Player player = event.getPlayer();
+            BlockPos blockpos = new BlockPos(player.getEyePosition(TickUtils.getDeltaFrameTime(player.level)));
+            BlockEntity blockEntity = player.level.getBlockEntity(blockpos);
+            if (blockEntity instanceof BETiles be) {
+                AABB bb = player.getBoundingBox();
+                for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                     LittleTile tile = pair.value;
-                    if (tile instanceof LittleTileColored && tile.isMaterial(Material.WATER) && tile.getBox().getBox(pair.key.getContext(), blockpos).intersects(bb)) {
-                        
+                    if (tile.isMaterial(Material.WATER) && tile.intersectsWith(bb, pair.key)) {
                         mc.getTextureManager().bindTexture(RES_UNDERWATER_OVERLAY);
                         Tessellator tessellator = Tessellator.getInstance();
                         BufferBuilder bufferbuilder = tessellator.getBuffer();

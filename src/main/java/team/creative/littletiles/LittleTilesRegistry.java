@@ -47,6 +47,7 @@ import team.creative.littletiles.common.item.ItemPremadeStructure;
 public class LittleTilesRegistry {
     
     // ITEMS
+    
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, LittleTiles.MODID);
     
     public static final RegistryObject<Item> HAMMER = ITEMS.register("hammer", () -> new ItemLittleHammer());

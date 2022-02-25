@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.box.CreativeAABB;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
@@ -28,7 +27,7 @@ public class LittleTilesServer {
     public static final LevelHandlers LEVEL_HANDLERS = new LevelHandlers(false);
     public static NeighborUpdateOrganizer NEIGHBOR;
     
-    private static Field wasPushedByDoor = ObfuscationReflectionHelper.findField(ServerPlayer.class, "wasPushedByDoor");
+    private static Field wasPushedByDoor = null; //= ObfuscationReflectionHelper.findField(ServerPlayer.class, "wasPushedByDoor");
     
     public static void setPushedByDoor(ServerPlayer player) {
         try {

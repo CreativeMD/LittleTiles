@@ -55,7 +55,11 @@ public class LittleBlockRegistry {
     }
     
     public static BlockState loadState(String name) {
-        String[] parts = name.split("[");
+        String[] parts;
+        if (name.contains("["))
+            parts = name.split("[");
+        else
+            parts = new String[] { name };
         if (parts.length == 0)
             return Blocks.AIR.defaultBlockState();
         ResourceLocation location = new ResourceLocation(parts[0]);

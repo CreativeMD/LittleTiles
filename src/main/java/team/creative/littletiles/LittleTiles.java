@@ -137,8 +137,6 @@ public class LittleTiles {
         LittleStructureRegistry.initStructures();
         LittlePacketTypes.init();
         
-        ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
-        
         GuiHandler.register("storage", new LittleStructureGuiHandler() {
             
             @Override
@@ -299,7 +297,11 @@ public class LittleTiles {
     }
     
     private void serverStarting(final ServerStartingEvent event) {
+        
+        ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
+        
         Field loadedBlockEntities = ObfuscationReflectionHelper.findField(Level.class, "f_46434_");
+        
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
             x.getSource()
                     .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server start <player> <path> [time|ms|s|m|h|d] [loops (-1 -> endless)] " + ChatFormatting.RED + "starts the animation"), false);

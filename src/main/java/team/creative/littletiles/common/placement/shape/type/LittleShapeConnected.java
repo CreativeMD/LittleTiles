@@ -77,8 +77,10 @@ public class LittleShapeConnected extends LittleShapeSelectable {
             this.aimedContext = aimedContext;
             if (be != null)
                 for (LittleTile tile : be.noneStructureTiles())
-                    if (tile != startTile && tile.canBeCombined(startTile) && startTile.canBeCombined(tile))
-                        potential.add(tile.getBox());
+                    if (tile.is(startTile.tile))
+                        for (LittleBox box : tile)
+                            if (box != startTile.box)
+                                potential.add(box);
         }
         
         private void addBox(LittleBoxes boxes, LittleBox box, Facing facing) {

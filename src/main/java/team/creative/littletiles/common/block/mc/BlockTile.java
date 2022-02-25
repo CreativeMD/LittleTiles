@@ -122,7 +122,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     public final boolean rendered;
     
     public BlockTile(Material material, boolean ticking, boolean rendered) {
-        super(BlockBehaviour.Properties.of(material).explosionResistance(3.0F).sound(SILENT));
+        super(BlockBehaviour.Properties.of(material).explosionResistance(3.0F).sound(SILENT).dynamicShape());
         this.ticking = ticking;
         this.rendered = rendered;
     }

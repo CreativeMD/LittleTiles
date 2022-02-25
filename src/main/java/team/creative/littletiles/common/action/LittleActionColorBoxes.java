@@ -59,7 +59,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         
     }
     
-    public HashMapList<Integer, LittleBoxes> revertList;
+    public transient HashMapList<Integer, LittleBoxes> revertList;
     
     public void addRevert(int color, BlockPos pos, LittleGrid grid, List<LittleBox> boxes) {
         LittleBoxes newBoxes = new LittleBoxesSimple(pos, grid);
@@ -72,9 +72,9 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         return false;
     }
     
-    public boolean doneSomething;
+    public transient boolean doneSomething;
     
-    private double colorVolume;
+    private transient double colorVolume;
     
     public ColorIngredient action(BETiles be, List<LittleBox> boxes, ColorIngredient gained, boolean simulate, LittleGrid grid) {
         doneSomething = false;

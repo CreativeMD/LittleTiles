@@ -101,7 +101,7 @@ public class LittleTilesProfilerOverlay {
     
     @SubscribeEvent
     public static void onRender(RenderTickEvent event) {
-        if (event.phase == Phase.END && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
+        if (event.phase == Phase.END && mc.isWindowActive() && !mc.options.hideGui && mc.level != null) {
             List<String> warnings = new ArrayList<>();
             if (OptifineHelper.installed() && OptifineHelper.isRenderRegions())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Render Regions");

@@ -40,7 +40,6 @@ import team.creative.littletiles.common.structure.type.LittleStorage.LittleStora
 import team.creative.littletiles.common.structure.type.LittleStorage.LittleStorageType;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
-import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
@@ -177,7 +176,7 @@ public class LittleStructureRegistry {
                 .register(new LittleStructureBuilderType(registerStructureType("item_holder", "simple", LittleItemHolder.class, new LittleAttributeBuilder().extraRendering(), null)
                         .addInput("filled", 1), "frame"));
         
-        LittleDoorBase.initDoors();
+        // LittleDoorBase.initDoors();
         
         LittleStructurePremade.initPremadeStructures();
     }

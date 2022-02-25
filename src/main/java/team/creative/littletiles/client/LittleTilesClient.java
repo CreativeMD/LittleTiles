@@ -53,14 +53,10 @@ import team.creative.littletiles.client.render.item.LittleRenderToolPreview;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
-import team.creative.littletiles.client.render.overlay.OverlayControl;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
-import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayPositionType;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
-import team.creative.littletiles.client.render.overlay.TooltipOverlay;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiAxisIndicatorControl;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
@@ -107,9 +103,10 @@ public class LittleTilesClient {
             if (color == 0)
                 return ColorUtils.WHITE;
             return ItemLittlePaintBrush.getColor(stack);
-        }, LittleTiles.PAINT_BRUSH);
+        }, LittleTilesRegistry.PAINT_BRUSH.get());
         
-        MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
+        // MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
+        // overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
         MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
         MinecraftForge.EVENT_BUS.register(new LittleClientEventHandler());
         
@@ -142,7 +139,7 @@ public class LittleTilesClient {
         ClientRegistry.registerKeyBinding(undo);
         ClientRegistry.registerKeyBinding(redo);
         
-        CreativeCoreClient.registerItem(new LittleRenderToolBig(), LittleTiles.ITEM_TILES);
+        CreativeCoreClient.registerItem(new LittleRenderToolBig(), LittleTilesRegistry.ITEM_TILES.get());
         CreativeCoreClient.registerItem(new LittleRenderToolBig() {
             @Override
             public List<? extends RenderBox> getBoxes(ItemStack stack, RenderType layer) {
@@ -163,7 +160,7 @@ public class LittleTilesClient {
                 
                 return cubes;
             }
-        }, LittleTiles.PREMADE);
+        }, LittleTilesRegistry.PREMADE.get());
         
         CreativeCoreClient.registerItem(new LittleRenderToolPreview(new ResourceLocation(LittleTiles.MODID, "glove_background"), stack -> ItemLittleGlove.getMode(stack)
                 .getSeparateRenderingPreview(stack)) {
@@ -171,10 +168,10 @@ public class LittleTilesClient {
             public boolean shouldRenderPreview(ItemStack stack) {
                 return ItemLittleGlove.getMode(stack).renderBlockSeparately(stack);
             }
-        }, LittleTiles.GLOVE);
+        }, LittleTilesRegistry.GLOVE.get());
         CreativeCoreClient.registerItem(new LittleRenderToolPreview(new ResourceLocation(LittleTiles.MODID, "chisel_background"), stack -> ItemLittleChisel
-                .getElement(stack)), LittleTiles.CHISEL);
-        CreativeCoreClient.registerItem(new LittleRenderToolBackground(new ResourceLocation(LittleTiles.MODID, "blueprint_background")), LittleTiles.BLUEPRINT);
+                .getElement(stack)), LittleTilesRegistry.CHISEL.get());
+        CreativeCoreClient.registerItem(new LittleRenderToolBackground(new ResourceLocation(LittleTiles.MODID, "blueprint_background")), LittleTilesRegistry.BLUEPRINT.get());
         
         CreativeCoreClient.registerItem(new CreativeRenderItem() {
             
@@ -212,13 +209,11 @@ public class LittleTilesClient {
                 }
                 return cubes;
             }
-        }, LittleTiles.BLOCK_INGREDIENT);
+        }, LittleTilesRegistry.BLOCK_INGREDIENT.get());
         
         // Init overlays
-        MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
-        MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
-        
-        overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
+        //MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
+        //MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
         
         ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
         reloadableResourceManager.registerReloadListener(new SimplePreparableReloadListener() {
@@ -248,16 +243,17 @@ public class LittleTilesClient {
                 return Collections.EMPTY_LIST;
             }
             
-        }, LittleTiles.BLOCK_TILES, LittleTiles.BLOCK_TILES_TICKING, LittleTiles.BLOCK_TILES_RENDERED, LittleTiles.BLOCK_TILES_TICKING_RENDERED);
+        }, LittleTilesRegistry.BLOCK_TILES.get(), LittleTilesRegistry.BLOCK_TILES_TICKING.get(), LittleTilesRegistry.BLOCK_TILES_RENDERED
+                .get(), LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED.get());
         
         ResourceLocation filled = new ResourceLocation(LittleTiles.MODID, "filled");
         ClampedItemPropertyFunction function = (stack, level, entity, x) -> {
             return ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
         };
-        ItemProperties.register(LittleTiles.BLACK_COLOR, filled, function);
-        ItemProperties.register(LittleTiles.CYAN_COLOR, filled, function);
-        ItemProperties.register(LittleTiles.MAGENTA_COLOR, filled, function);
-        ItemProperties.register(LittleTiles.YELLOW_COLOR, filled, function);
+        ItemProperties.register(LittleTilesRegistry.BLACK_COLOR.get(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.get(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.get(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
     }
     
     public static void commands(RegisterClientCommandsEvent event) {
