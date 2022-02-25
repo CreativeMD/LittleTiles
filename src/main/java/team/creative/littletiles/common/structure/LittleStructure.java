@@ -38,6 +38,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -765,7 +766,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         checkConnections();
         BlockPos pos = getMinPos(getPos().mutable());
         
-        ItemStack stack = new ItemStack(LittleTiles.ITEM_TILES);
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
         stack.setTag(LittleGroup.save(getPreviews(pos)));
         
         if (name != null) {

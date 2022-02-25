@@ -39,15 +39,16 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 
-public class LittleLevelEntity extends EntityRenderer<LittleLevelEntity> {
+public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity> {
     
     public static Minecraft mc = Minecraft.getInstance();
     public static final VertexBufferUploader uploader = new VertexBufferUploader();
     
-    public LittleLevelEntity(EntityRendererProvider.Context context) {
+    public LittleLevelEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
     

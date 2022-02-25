@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.filter.premade.BlockFilters;
@@ -15,7 +14,7 @@ import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientBlock;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientItem;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientItemStack;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 
 public class BlankOMaticRecipeRegistry {
     
@@ -60,19 +59,19 @@ public class BlankOMaticRecipeRegistry {
         
         registerBleacher(new CreativeIngredientItem(Items.SUGAR), 1);
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 1, LittleTiles.GRAINY.defaultBlockState(), LittleTiles.GRAINY_BIG.defaultBlockState()));
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 2, LittleTiles.GRAINY_LOW.defaultBlockState()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 1, LittleTilesRegistry.GRAINY.get(), LittleTilesRegistry.GRAINY_BIG.get()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 2, LittleTilesRegistry.GRAINY_LOW.get()));
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 1, LittleTiles.GRAVEL.defaultBlockState(), LittleTiles.SAND.defaultBlockState(), LittleTiles.STONE
-                .defaultBlockState(), LittleTiles.CLAY.defaultBlockState()));
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 2, LittleTiles.CORK.defaultBlockState()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 1, LittleTilesRegistry.GRAVEL.get(), LittleTilesRegistry.SAND.get(), LittleTilesRegistry.STONE
+                .get(), LittleTilesRegistry.CLAY.get()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 2, LittleTilesRegistry.CORK.get()));
         
         Filter<Block> filter = BlockFilters.blocks(Blocks.STONE_BRICKS, Blocks.BRICKS);
-        registerBleachRecipe(new BleachRecipe(filter, 1, LittleTiles.BRICK.defaultBlockState(), LittleTiles.BRICK_BIG.defaultBlockState(), LittleTiles.BROKEN_BRICK_BIG
-                .defaultBlockState(), LittleTiles.CHISELED.defaultBlockState(), LittleTiles.STRIPS.defaultBlockState()));
-        registerBleachRecipe(new BleachRecipe(filter, 2, LittleTiles.BORDERED.defaultBlockState(), LittleTiles.FLOOR.defaultBlockState()));
+        registerBleachRecipe(new BleachRecipe(filter, 1, LittleTilesRegistry.BRICK.get(), LittleTilesRegistry.BRICK_BIG.get(), LittleTilesRegistry.BROKEN_BRICK_BIG
+                .get(), LittleTilesRegistry.CHISELED.get(), LittleTilesRegistry.STRIPS.get()));
+        registerBleachRecipe(new BleachRecipe(filter, 2, LittleTilesRegistry.BORDERED.get(), LittleTilesRegistry.FLOOR.get()));
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.material(Material.STONE), 4, LittleTiles.CLEAN.defaultBlockState()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.material(Material.STONE), 4, LittleTilesRegistry.CLEAN.get()));
     }
     
     public static class BleachVolume {
@@ -89,10 +88,10 @@ public class BlankOMaticRecipeRegistry {
     public static class BleachRecipe {
         
         public final Filter<Block> filter;
-        public final BlockState[] results;
+        public final Block[] results;
         public final int needed;
         
-        public BleachRecipe(Filter<Block> filter, int needed, BlockState... results) {
+        public BleachRecipe(Filter<Block> filter, int needed, Block... results) {
             this.filter = filter;
             this.needed = needed;
             this.results = results;
@@ -102,21 +101,17 @@ public class BlankOMaticRecipeRegistry {
             if (filter.is(block))
                 return true;
             
-            for (int i = 0; i < results.length; i++) {
-                BlockState state = results[i];
-                if (state.getBlock() == block)
+            for (int i = 0; i < results.length; i++)
+                if (results[i] == block)
                     return true;
-            }
             return false;
         }
         
         public boolean isResult(ItemStack stack) {
             Block other = Block.byItem(stack.getItem());
-            for (int i = 0; i < results.length; i++) {
-                BlockState state = results[i];
-                if (state.getBlock() == other)
+            for (int i = 0; i < results.length; i++)
+                if (results[i] == other)
                     return true;
-            }
             return false;
         }
     }

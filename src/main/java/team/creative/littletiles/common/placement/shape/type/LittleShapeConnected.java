@@ -6,12 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -84,7 +81,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
                         potential.add(tile.getBox());
         }
         
-        private void addBox(LittleBoxes boxes, LittleBox box, EnumFacing facing) {
+        private void addBox(LittleBoxes boxes, LittleBox box, Facing facing) {
             LittleShapeSelectable.addBox(boxes, facing == null, aimedContext, parent.noneStructureTiles(), box, facing);
         }
         
@@ -96,7 +93,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
             return boxes;
         }
         
-        public void performSearchIn(LittleBoxes boxes, HashMap<BlockPos, ConnectedBlock> blocks, LittleTile startTile, boolean start, LittleGridContext other, LittleBox otherBox, EnumFacing insideFace) {
+        public void performSearchIn(LittleBoxes boxes, HashMap<BlockPos, ConnectedBlock> blocks, LittleTile startTile, boolean start, LittleGrid other, LittleBox otherBox, Facing insideFace) {
             LittleGrid context = parent.getGrid();
             List<LittleBox> added = new ArrayList<>();
             int index = 0;

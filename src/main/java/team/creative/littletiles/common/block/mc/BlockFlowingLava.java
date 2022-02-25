@@ -25,6 +25,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.common.api.block.ILittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -117,7 +118,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;
             if (index >= Direction.values().length)
-                tile.setState(LittleTiles.LAVA.defaultBlockState());
+                tile.setState(LittleTilesRegistry.LAVA.get().defaultBlockState());
             else
                 tile.setState(tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]));
             parent.getBE().updateTiles();
@@ -136,7 +137,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     public boolean canBeRenderCombined(LittleTile one, LittleTile two) {
         if (two.getBlock() == this)
             return true;
-        if (two.getBlock() == LittleTiles.LAVA)
+        if (two.getBlock() == LittleTilesRegistry.LAVA.get())
             return true;
         return false;
     }

@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -130,7 +131,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                     }
                     
                     if (volume > 0) {
-                        ItemStack stack = new ItemStack(LittleTiles.BLOCK_INGREDIENT);
+                        ItemStack stack = new ItemStack(LittleTilesRegistry.BLOCK_INGREDIENT.get());
                         stack.setTag(new CompoundTag());
                         ItemBlockIngredient.saveIngredient(stack, entry);
                         stacks.add(stack);
@@ -178,25 +179,25 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 LittleIngredients ingredients = new LittleIngredients(overflow);
                 List<ItemStack> stacks = new ArrayList<>();
                 if (overflow.black > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.BLACK_COLOR);
+                    ItemStack stack = new ItemStack(LittleTilesRegistry.BLACK_COLOR.get());
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.cyan > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.CYAN_COLOR);
+                    ItemStack stack = new ItemStack(LittleTilesRegistry.CYAN_COLOR.get());
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.magenta > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.MAGENTA_COLOR);
+                    ItemStack stack = new ItemStack(LittleTilesRegistry.MAGENTA_COLOR.get());
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.yellow > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.YELLOW_COLOR);
+                    ItemStack stack = new ItemStack(LittleTilesRegistry.YELLOW_COLOR.get());
                     stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);

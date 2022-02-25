@@ -29,6 +29,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.common.api.block.ILittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -122,7 +123,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;
             if (index >= Direction.values().length)
-                tile.setState(LittleTiles.WATER.defaultBlockState());
+                tile.setState(LittleTilesRegistry.WATER.get().defaultBlockState());
             else
                 tile.setState(tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]));
             parent.getBE().updateTiles();
@@ -136,7 +137,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
         if (tile.getBlock() == this)
             return true;
-        if (tile.getBlock() == LittleTiles.WATER)
+        if (tile.getBlock() == LittleTilesRegistry.WATER.get())
             return true;
         return false;
     }

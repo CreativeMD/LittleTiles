@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
@@ -30,7 +30,7 @@ public class EntitySit extends Entity implements ILevelPositionProvider {
     private StructureChildConnection temp;
     
     public EntitySit(LittleChair chair, Level level, double x, double y, double z) {
-        super(LittleTiles.SIT_TYPE, level);
+        super(LittleTilesRegistry.SIT_TYPE.get(), level);
         entityData.set(CHAIRX, (float) x);
         entityData.set(CHAIRY, (float) y);
         entityData.set(CHAIRZ, (float) z);

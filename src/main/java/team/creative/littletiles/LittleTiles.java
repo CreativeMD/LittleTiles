@@ -18,28 +18,17 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -65,20 +54,10 @@ import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.api.tool.ILittleTool;
-import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.block.mc.BlockArrow;
-import team.creative.littletiles.common.block.mc.BlockFlowingLava;
-import team.creative.littletiles.common.block.mc.BlockFlowingWater;
-import team.creative.littletiles.common.block.mc.BlockLava;
-import team.creative.littletiles.common.block.mc.BlockSignalConverter;
-import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.block.mc.BlockWater;
 import team.creative.littletiles.common.config.LittleTilesConfig;
-import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
-import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.gui.GuiStorage;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
 import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
@@ -86,20 +65,6 @@ import team.creative.littletiles.common.gui.premade.GuiExport;
 import team.creative.littletiles.common.gui.premade.GuiImport;
 import team.creative.littletiles.common.gui.structure.GuiBuilder;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
-import team.creative.littletiles.common.item.ItemBlockIngredient;
-import team.creative.littletiles.common.item.ItemColorIngredient;
-import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
-import team.creative.littletiles.common.item.ItemLittleBag;
-import team.creative.littletiles.common.item.ItemLittleBlueprint;
-import team.creative.littletiles.common.item.ItemLittleChisel;
-import team.creative.littletiles.common.item.ItemLittleGlove;
-import team.creative.littletiles.common.item.ItemLittleHammer;
-import team.creative.littletiles.common.item.ItemLittlePaintBrush;
-import team.creative.littletiles.common.item.ItemLittleSaw;
-import team.creative.littletiles.common.item.ItemLittleScrewdriver;
-import team.creative.littletiles.common.item.ItemLittleWrench;
-import team.creative.littletiles.common.item.ItemMultiTiles;
-import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
@@ -139,89 +104,17 @@ public class LittleTiles {
     public static final String MODID = "littletiles";
     public static final String VERSION = "1.6.0";
     
-    public static BlockEntityType BE_SIGNALCONVERTER_TYPE;
-    public static BlockEntityType BE_TILES_TYPE;
-    public static BlockEntityType BE_TILES_TYPE_RENDERED;
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
     
-    public static Block BLOCK_TILES;
-    public static Block BLOCK_TILES_TICKING;
-    public static Block BLOCK_TILES_RENDERED;
-    public static Block BLOCK_TILES_TICKING_RENDERED;
-    
-    public static Block CLEAN = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_clean");
-    public static Block FLOOR = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_floor");
-    public static Block GRAINY_BIG = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_grainy_big");
-    public static Block GRAINY = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_grainy");
-    public static Block GRAINY_LOW = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_grainy_low");
-    public static Block BRICK = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_brick");
-    public static Block BRICK_BIG = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_brick_big");
-    public static Block BORDERED = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_bordered");
-    public static Block CHISELED = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_chiseled");
-    public static Block BROKEN_BRICK_BIG = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_broken_brick_big");
-    public static Block CLAY = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_clay");
-    public static Block STRIPS = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_strips");
-    public static Block GRAVEL = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_gravel");
-    public static Block SAND = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_sand");
-    public static Block STONE = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_stone");
-    public static Block CORK = new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)).setRegistryName("colored_cork");
-    
-    public static Block WATER = new BlockWater(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED).noCollission()).setRegistryName("colored_water");
-    public static Block WHITE_WATER = new BlockWater(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED).noCollission()).setRegistryName("colored_white_water");
-    
-    public static Block LAVA = new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED).noCollission()).setRegistryName("colored_lava");
-    public static Block WHITE_LAVA = new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW).noCollission().lightLevel((state) -> {
-        return 15;
-    })).setRegistryName("colored_white_lava");
-    
-    public static Block STORAGE_BLOCK = new Block(BlockBehaviour.Properties.of(Material.WOOD).destroyTime(1.5F).strength(1.5F).sound(SoundType.WOOD)).setRegistryName("storage");
-    
-    public static Block FLOWING_WATER = new BlockFlowingWater(WATER).setRegistryName("colored_water_flowing");
-    public static Block WHITE_FLOWING_WATER = new BlockFlowingWater(WHITE_WATER).setRegistryName("colored_white_water_flowing");
-    
-    public static Block FLOWING_LAVA = new BlockFlowingLava(LAVA).setRegistryName("colored_lava_flowing");
-    public static Block WHITE_FLOWING_LAVA = new BlockFlowingLava(WHITE_LAVA).setRegistryName("colored_white_lava_flowing");
-    
-    public static Block SINGLE_CABLE = new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DECORATION)).setRegistryName("cable_single");
-    
-    public static Block INPUT_ARROW = new BlockArrow().setRegistryName("arrow_input");
-    public static Block OUTPUT_ARROW = new BlockArrow().setRegistryName("arrow_output");
-    
-    public static Block SIGNAL_CONVERTER = new BlockSignalConverter().setRegistryName("signal_converter");
-    
     public static Tag<Block> STORAGE_BLOCKS;
-    
-    public static Item HAMMER;
-    public static Item BLUEPRINT;
-    public static Item ITEM_TILES;
-    public static Item SAW;
-    public static Item BAG;
-    public static Item WRENCH;
-    public static Item SCREWDRIVER;
-    public static Item CHISEL;
-    public static Item PAINT_BRUSH;
-    public static Item GLOVE;
-    public static Item PREMADE;
-    
-    public static Item BLOCK_INGREDIENT;
-    
-    public static Item BLACK_COLOR;
-    public static Item CYAN_COLOR;
-    public static Item MAGENTA_COLOR;
-    public static Item YELLOW_COLOR;
-    
-    public static EntityType<PrimedSizedTnt> SIZED_TNT_TYPE;
-    public static EntityType<EntitySit> SIT_TYPE;
-    
-    public static EntityType<EntitySit> ANIMATION;
     
     public static final CreativeModeTab LITTLE_TAB = new CreativeModeTab("littletiles") {
         
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(HAMMER);
+            return new ItemStack(LittleTilesRegistry.HAMMER.get());
         }
     };
     
@@ -230,38 +123,15 @@ public class LittleTiles {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(this::client));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands));
         
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, this::registerBlockEntities);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(EntityType.class, this::registerEntities);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, this::registerBlocks);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, this::registerItems);
-        
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
+        
+        LittleTilesRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleTilesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleTilesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleTilesRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
     
     private void init(final FMLCommonSetupEvent event) {
-        BLOCK_TILES = new BlockTile(Material.STONE, false, false).setRegistryName("tiles");
-        BLOCK_TILES_TICKING = new BlockTile(Material.STONE, true, false).setRegistryName("tiles_ticking");
-        BLOCK_TILES_RENDERED = new BlockTile(Material.STONE, false, true).setRegistryName("tiles_rendered");
-        BLOCK_TILES_TICKING_RENDERED = new BlockTile(Material.STONE, true, true).setRegistryName("tiles_ticking_rendered");
-        
-        HAMMER = new ItemLittleHammer().setRegistryName("hammer");
-        BLUEPRINT = new ItemLittleBlueprint().setRegistryName("blueprint");
-        ITEM_TILES = new ItemMultiTiles().setRegistryName("tiles");
-        SAW = new ItemLittleSaw().setRegistryName("saw");
-        BAG = new ItemLittleBag().setRegistryName("bag");
-        WRENCH = new ItemLittleWrench().setRegistryName("wrench");
-        SCREWDRIVER = new ItemLittleScrewdriver().setRegistryName("screwdriver");
-        CHISEL = new ItemLittleChisel().setRegistryName("chisel");
-        PAINT_BRUSH = new ItemLittlePaintBrush().setRegistryName("paint_brush");
-        GLOVE = new ItemLittleGlove().setRegistryName("glove");
-        PREMADE = new ItemPremadeStructure().setRegistryName("premade");
-        
-        BLOCK_INGREDIENT = new ItemBlockIngredient().setRegistryName("blockingredient");
-        
-        BLOCK_INGREDIENT = new ItemColorIngredient(ColorIngredientType.black).setRegistryName("bottle_black");
-        CYAN_COLOR = new ItemColorIngredient(ColorIngredientType.cyan).setRegistryName("bottle_cyan");
-        MAGENTA_COLOR = new ItemColorIngredient(ColorIngredientType.magenta).setRegistryName("bottle_magenta");
-        YELLOW_COLOR = new ItemColorIngredient(ColorIngredientType.yellow).setRegistryName("bottle_yellow");
         
         IngredientRules.loadRules();
         LittleStructureRegistry.initStructures();
@@ -426,38 +296,6 @@ public class LittleTiles {
     
     private void client(final FMLClientSetupEvent event) {
         LittleTilesClient.setup(event);
-    }
-    
-    public void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
-        BE_TILES_TYPE = BlockEntityType.Builder.of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE, pos, state), BLOCK_TILES, BLOCK_TILES_TICKING).build(null)
-                .setRegistryName(MODID, "tiles");
-        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder
-                .of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state), BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED).build(null)
-                .setRegistryName(MODID, "tiles_rendered");
-        BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, SIGNAL_CONVERTER).build(null).setRegistryName(MODID, "converter");
-        
-        event.getRegistry().registerAll(BE_TILES_TYPE, BE_TILES_TYPE_RENDERED, BE_SIGNALCONVERTER_TYPE);
-    }
-    
-    public void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
-        SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
-        SIT_TYPE = EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit");
-        
-        event.getRegistry().registerAll(SIZED_TNT_TYPE, SIT_TYPE);
-    }
-    
-    public void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry()
-                .registerAll(new Block[] { CLEAN, FLOOR, GRAINY_BIG, GRAINY, GRAINY_LOW, BRICK, BRICK_BIG, BORDERED, CHISELED, BROKEN_BRICK_BIG, CLAY, STRIPS, GRAVEL, SAND, STONE, CORK, WATER, WHITE_WATER, LAVA, WHITE_LAVA, BLOCK_TILES, BLOCK_TILES_TICKING, BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED, STORAGE_BLOCK, FLOWING_WATER, WHITE_FLOWING_WATER, FLOWING_LAVA, WHITE_FLOWING_LAVA, SINGLE_CABLE, INPUT_ARROW, OUTPUT_ARROW, SIGNAL_CONVERTER });
-    }
-    
-    private static Item createItem(Block block) {
-        return new BlockItem(block, new Item.Properties().tab(LITTLE_TAB)).setRegistryName(block.getRegistryName());
-    }
-    
-    public void registerItems(RegistryEvent.Register<Item> event) {
-        event.getRegistry()
-                .registerAll(HAMMER, BLUEPRINT, SAW, BAG, WRENCH, SCREWDRIVER, CHISEL, PAINT_BRUSH, ITEM_TILES, GLOVE, PREMADE, BLOCK_INGREDIENT, BLOCK_INGREDIENT, CYAN_COLOR, MAGENTA_COLOR, YELLOW_COLOR, createItem(CLEAN), createItem(FLOOR), createItem(GRAINY_BIG), createItem(GRAINY), createItem(GRAINY_LOW), createItem(BRICK), createItem(BRICK_BIG), createItem(BORDERED), createItem(CHISELED), createItem(BROKEN_BRICK_BIG), createItem(CLAY), createItem(STRIPS), createItem(GRAVEL), createItem(SAND), createItem(STONE), createItem(CORK), createItem(WATER), createItem(STORAGE_BLOCK), createItem(SIGNAL_CONVERTER));
     }
     
     private void serverStarting(final ServerStartingEvent event) {

@@ -40,6 +40,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -340,7 +341,7 @@ public abstract class LittleAction extends CreativePacket {
         
         String id = ItemPremadeStructure.getPremadeId(toDrain);
         for (ItemStack stack : inventory) {
-            if (stack.getItem() == LittleTiles.PREMADE && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
+            if (stack.getItem() == LittleTilesRegistry.PREMADE.get() && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
                 stack.shrink(1);
                 return true;
             }

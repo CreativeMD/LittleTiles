@@ -41,6 +41,7 @@ import team.creative.creativecore.client.render.model.CreativeRenderBlock;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
@@ -235,10 +236,10 @@ public class LittleTilesClient {
         
         CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
         
-        EntityRenderers.register(LittleTiles.SIZED_TNT_TYPE, RenderSizedTNTPrimed::new);
+        EntityRenderers.register(LittleTilesRegistry.SIZED_TNT_TYPE.get(), RenderSizedTNTPrimed::new);
         
         blockEntityRenderer = new BETilesRenderer();
-        BlockEntityRenderers.register(LittleTiles.BE_TILES_TYPE_RENDERED, x -> blockEntityRenderer);
+        BlockEntityRenderers.register(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), x -> blockEntityRenderer);
         
         CreativeCoreClient.registerBlocks(new CreativeRenderBlock() {
             

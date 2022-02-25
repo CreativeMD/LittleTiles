@@ -10,8 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -66,9 +66,9 @@ public class LittleChair extends LittleStructure {
         if (sitUUID != null) {
             Level level = getLevel();
             if (level instanceof IOrientatedLevel) {
-                if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
+                if (!(level instanceof ISubLevel))
                     return;
-                level = ((IOrientatedLevel) level).getRealLevel();
+                level = ((ISubLevel) level).getRealLevel();
             }
             for (Entity entity : level.loadedEntityList)
                 if (entity.getUUID().equals(sitUUID) && entity instanceof EntitySit) {
@@ -93,8 +93,8 @@ public class LittleChair extends LittleStructure {
             try {
                 LittleVecAbsolute vec = getHighestCenterPoint();
                 if (vec != null) {
-                    if (level instanceof IOrientatedLevel)
-                        level = ((IOrientatedLevel) level).getRealLevel();
+                    if (level instanceof ISubLevel)
+                        level = ((ISubLevel) level).getRealLevel();
                     EntitySit sit = new EntitySit(this, level, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
                     sitUUID = sit.getUUID();
                     player.startRiding(sit);

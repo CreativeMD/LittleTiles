@@ -20,6 +20,7 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -104,7 +105,7 @@ public class LittleStorage extends LittleStructure {
     
     public static int getSizeOfInventory(LittleGroup previews) {
         double size = 0;
-        String name = LittleTiles.STORAGE_BLOCK.getRegistryName().toString();
+        String name = LittleTilesRegistry.STORAGE_BLOCK.get().getRegistryName().toString();
         for (LittleTile tile : previews)
             if (tile.getBlock().blockName().equals(name))
                 size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
@@ -170,7 +171,7 @@ public class LittleStorage extends LittleStructure {
         try {
             for (IStructureParentCollection list : blocksList())
                 for (LittleTile tile : list)
-                    if (tile.getBlock() == LittleTiles.STORAGE_BLOCK)
+                    if (tile.getBlock() == LittleTilesRegistry.STORAGE_BLOCK.get())
                         volume += tile.getPercentVolume(list.getGrid());
                     
             volume *= LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;

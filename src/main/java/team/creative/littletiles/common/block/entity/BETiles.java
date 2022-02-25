@@ -38,6 +38,7 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.common.api.block.ILittleBlockEntity;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -73,6 +74,10 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     
     @OnlyIn(Dist.CLIENT)
     public BERenderManager render;
+    
+    public BETiles(BlockPos pos, BlockState state) {
+        this(LittleTilesRegistry.BE_TILES_TYPE.get(), pos, state);
+    }
     
     public BETiles(BlockEntityType<? extends BETiles> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -130,14 +135,16 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return size;
     }
     
-    public static void serverTick(Level level, BlockPos pos, BlockState state, BETiles be) {
-        if (!be.tiles.hasTicking() && !be.level.isClientSide) {
-            be.customTilesUpdate();
-            System.out.println("Ticking tileentity which shouldn't " + be.getBlockPos());
-            return;
+    public static void serverTick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (blockEntity instanceof BETiles be) {
+            if (!be.tiles.hasTicking() && !be.level.isClientSide) {
+                be.customTilesUpdate();
+                System.out.println("Ticking tileentity which shouldn't " + be.getBlockPos());
+                return;
+            }
+            
+            be.tick();
         }
-        
-        be.tick();
     }
     
     public Iterable<LittleStructure> ticking() {

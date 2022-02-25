@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
@@ -33,16 +34,16 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         ItemStack stack;
         switch (type) {
         case black:
-            stack = new ItemStack(LittleTiles.BLACK_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.BLACK_COLOR.get());
             break;
         case cyan:
-            stack = new ItemStack(LittleTiles.CYAN_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.CYAN_COLOR.get());
             break;
         case magenta:
-            stack = new ItemStack(LittleTiles.MAGENTA_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.MAGENTA_COLOR.get());
             break;
         case yellow:
-            stack = new ItemStack(LittleTiles.YELLOW_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.YELLOW_COLOR.get());
             break;
         default:
             stack = ItemStack.EMPTY;

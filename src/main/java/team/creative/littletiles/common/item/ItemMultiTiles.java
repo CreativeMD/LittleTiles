@@ -20,6 +20,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -40,7 +41,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     public static ItemStack of(LittleElement element, LittleGrid grid, LittleBox box) {
-        ItemStack stack = new ItemStack(LittleTiles.ITEM_TILES);
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
         LittleGroup group = new LittleGroup();
         group.add(grid, element, box);
         stack.setTag(LittleGroup.save(group));
@@ -156,7 +157,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     public static void reloadExampleStructures() {
         for (ExampleStructures example : ExampleStructures.values()) {
             try {
-                example.stack = new ItemStack(LittleTiles.ITEM_TILES);
+                example.stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
                 example.stack
                         .setTag(TagParser.parseTag(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(example.getFileName()), Charsets.UTF_8)));
             } catch (Exception e) {

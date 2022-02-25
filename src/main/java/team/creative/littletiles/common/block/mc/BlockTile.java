@@ -68,6 +68,7 @@ import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.block.BlockTileRenderProperties;
@@ -75,6 +76,7 @@ import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionDestroy;
 import team.creative.littletiles.common.api.block.LittlePhysicBlock;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.entity.BETilesRendered;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -130,8 +132,8 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     public static BlockState getState(boolean ticking, boolean rendered) {
-        return rendered ? (ticking ? LittleTiles.BLOCK_TILES_TICKING_RENDERED.defaultBlockState() : LittleTiles.BLOCK_TILES_RENDERED
-                .defaultBlockState()) : (ticking ? LittleTiles.BLOCK_TILES_TICKING.defaultBlockState() : LittleTiles.BLOCK_TILES.defaultBlockState());
+        return rendered ? (ticking ? LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED.get().defaultBlockState() : LittleTilesRegistry.BLOCK_TILES_RENDERED.get()
+                .defaultBlockState()) : (ticking ? LittleTilesRegistry.BLOCK_TILES_TICKING.get().defaultBlockState() : LittleTilesRegistry.BLOCK_TILES.get().defaultBlockState());
     }
     
     public static BlockState getState(BETiles te) {
@@ -567,7 +569,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
             if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode())) {
-                ItemStack drop = new ItemStack(LittleTiles.ITEM_TILES);
+                ItemStack drop = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
                 LittleGroup group = new LittleGroup(result.parent.getGrid());
                 for (LittleTile tile : result.parent)
                     group.add(result.parent.getGrid(), tile, tile);
@@ -729,14 +731,14 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         if (rendered)
-            return new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state);
-        return new BETiles(LittleTiles.BE_TILES_TYPE, pos, state);
+            return new BETilesRendered(pos, state);
+        return new BETiles(pos, state);
     }
     
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (ticking)
-            return level.isClientSide ? null : createTickerHelper(type, rendered ? LittleTiles.BE_TILES_TYPE_RENDERED : LittleTiles.BE_TILES_TYPE, BETiles::serverTick);
+            return level.isClientSide ? null : BETiles::serverTick;
         return null;
     }
     

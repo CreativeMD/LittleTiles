@@ -21,7 +21,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -377,7 +377,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public List<RenderBox> getItemPreview(LittleGroup previews, boolean translucent) {
             if (cubes == null) {
                 cubes = new ArrayList<>();
-                cubes.add(new RenderBox(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F, LittleTiles.CLEAN.defaultBlockState()).setColor(-13619152));
+                cubes.add(new RenderBox(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F, LittleTilesRegistry.CLEAN.get().defaultBlockState()).setColor(-13619152));
             }
             return cubes;
         }

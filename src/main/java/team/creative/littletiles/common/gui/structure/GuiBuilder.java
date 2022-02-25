@@ -20,7 +20,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMappe
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
@@ -51,7 +51,7 @@ public class GuiBuilder extends GuiLayer {
             if (type != null) {
                 ItemStack stack = builder.inventory.getItem(0);
                 if (stack.isEmpty()) {
-                    stack = new ItemStack(LittleTiles.BLUEPRINT);
+                    stack = new ItemStack(LittleTilesRegistry.BLUEPRINT.get());
                     builder.inventory.setItem(0, stack);
                 }
                 stack.setTag(LittleGroup.save(type.construct(grid, width, height, thickness, block.defaultBlockState())));
