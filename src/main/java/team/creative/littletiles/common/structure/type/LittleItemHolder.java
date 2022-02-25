@@ -80,7 +80,7 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    public void getRenderingCubes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
         if (layer == RenderType.cutout()) {
             AlignedBox box = frame.getBox().getBox(frame.getGrid());
             if (!stack.isEmpty())

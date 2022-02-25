@@ -1,0 +1,20 @@
+modLoader="javafml"
+loaderVersion="[24,)"
+issueTrackerURL="https://github.com/CreativeMD/LittleTiles/issues"
+logoFile="cmdcam.png"
+license="GNU General Public License v3.0"
+
+[[mods]]
+	modId="littletiles"
+	version="1.6.0"
+	displayName="LittleTiles"
+	displayURL="https://minecraft.curseforge.com/projects/littletiles"
+	authors="CreativeMD"
+	description='''#BuildItYourself'''
+
+[[dependencies.cmdcam]]
+	modId="creativecore"
+	mandatory=true
+	ordering="NONE"
+	side="BOTH"
+	versionRange="[2.5.0,)"

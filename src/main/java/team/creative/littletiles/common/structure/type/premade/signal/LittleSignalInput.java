@@ -82,7 +82,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
         super.renderFace(facing, grid, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
-        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.INPUT_ARROW.defaultBlockState().setValue(BlockStateProperties.FACING, facing.toVanilla()));
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTiles.INPUT_ARROW.defaultBlockState().setValue(BlockStateProperties.FACING, facing.toVanilla()));
         //cube.color = color;
         cube.keepVU = true;
         cube.allowOverlap = true;

@@ -22,7 +22,7 @@ public abstract class LittlePlaceBox {
     
     public List<LittleRenderBox> getRenderBoxes(LittleGrid grid) {
         List<LittleRenderBox> previews = new ArrayList<>();
-        previews.add(box.getRenderingCube(grid));
+        previews.add(box.getRenderingBox(grid));
         return previews;
     }
     

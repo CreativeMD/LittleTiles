@@ -1,15 +1,11 @@
 package team.creative.littletiles.common.structure.type.premade;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
@@ -19,7 +15,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -84,24 +79,11 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     }
     
     @OnlyIn(Dist.CLIENT)
-    private static Method spawnParticle0;
-    
-    @OnlyIn(Dist.CLIENT)
-    private static Field particleMaxAge;
-    
-    @OnlyIn(Dist.CLIENT)
     public void spawnParticle(Level level) {
         Minecraft mc = Minecraft.getInstance();
         
         if (mc.player.getMainHandItem().getItem() instanceof ItemLittleWrench || mc.player.getOffhandItem().getItem() instanceof ItemLittleWrench)
             return;
-        
-        if (spawnParticle0 == null)
-            spawnParticle0 = ReflectionHelper
-                    .findMethod(RenderGlobal.class, "spawnParticle0", "func_190571_b", int.class, boolean.class, boolean.class, double.class, double.class, double.class, double.class, double.class, double.class, int[].class);
-        
-        if (particleMaxAge == null)
-            particleMaxAge = ReflectionHelper.findField(Particle.class, new String[] { "particleMaxAge", "field_70547_e" });
         
         try {
             AABB bb = getSurroundingBox().getAABB();
@@ -126,6 +108,10 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             case NORTH:
                 rotation = Rotation.X_COUNTER_CLOCKWISE;
                 break;
+            case UP:
+                break;
+            default:
+                break;
             }
             
             if (rotation != null) {
@@ -145,7 +131,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
                 ((IOrientatedLevel) level).getOrigin().onlyRotateWithoutCenter(speed);
             }
             
-            mc.effectRenderer.addEffect(new LittleParticle((ClientLevel) level, pos, speed, settings));
+            mc.particleEngine.add(new LittleParticle((ClientLevel) level, pos, speed, settings));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -388,7 +374,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public List<RenderBox> getRenderingCubes(LittleGroup previews) {
+        public List<RenderBox> getItemPreview(LittleGroup previews, boolean translucent) {
             if (cubes == null) {
                 cubes = new ArrayList<>();
                 cubes.add(new RenderBox(0.2F, 0.2F, 0.2F, 0.8F, 0.8F, 0.8F, LittleTiles.CLEAN.defaultBlockState()).setColor(-13619152));

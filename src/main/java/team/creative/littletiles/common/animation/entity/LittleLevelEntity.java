@@ -146,6 +146,10 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return structure.getStructure();
     }
     
+    public void markRemoved() {
+        // TODO THING ABOUT WHAT TO DO WITH THIS METHOD
+    }
+    
     // ================Blocks================
     
     public Iterable<TickingBlockEntity> tickingBlockEntities() {

@@ -403,7 +403,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingCubes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
         if (layer != (ColorUtils.isTransparent(color) ? RenderType.translucent() : RenderType.solid()))
             return;
         
@@ -430,7 +430,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             renderBox.setMin(axis, renderBox.getMin(axis) - distance);
         }
         
-        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.SINGLE_CABLE.defaultBlockState().setValue(BlockStateProperties.AXIS, axis.toVanilla()));
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTiles.SINGLE_CABLE.defaultBlockState().setValue(BlockStateProperties.AXIS, axis.toVanilla()));
         if (!oneSidedRenderer) {
             if (positive)
                 cube.setMax(axis, cube.getMin(axis) + cube.getSize(axis) / 2);

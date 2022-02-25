@@ -12,7 +12,6 @@ import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
-import team.creative.littletiles.common.item.ItemLittleGlove.GrabberMode;
 
 public class VanillaBlockPacket extends CreativePacket {
     
@@ -33,8 +32,7 @@ public class VanillaBlockPacket extends CreativePacket {
             public void action(Level level, Player player, BlockPos pos, BlockState state) {
                 if (LittleAction.isBlockValid(state)) {
                     ItemStack stack = player.getMainHandItem();
-                    GrabberMode mode = ItemLittleGlove.getMode(stack);
-                    mode.vanillaBlockAction(level, stack, pos, state);
+                    ItemLittleGlove.getMode(stack).vanillaBlockAction(level, stack, pos, state);
                 }
             }
             

@@ -269,16 +269,6 @@ public class LittleTiles {
         
         ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
-        BE_TILES_TYPE = BlockEntityType.Builder.of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE, pos, state), BLOCK_TILES, BLOCK_TILES_TICKING).build(null)
-                .setRegistryName(MODID, "tiles");
-        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder
-                .of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state), BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED).build(null)
-                .setRegistryName(MODID, "tiles_rendered");
-        BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, SIGNAL_CONVERTER).build(null).setRegistryName(MODID, "converter");
-        
-        SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
-        SIT_TYPE = EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit");
-        
         GuiHandler.register("storage", new LittleStructureGuiHandler() {
             
             @Override
@@ -439,10 +429,20 @@ public class LittleTiles {
     }
     
     public void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
+        BE_TILES_TYPE = BlockEntityType.Builder.of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE, pos, state), BLOCK_TILES, BLOCK_TILES_TICKING).build(null)
+                .setRegistryName(MODID, "tiles");
+        BE_TILES_TYPE_RENDERED = BlockEntityType.Builder
+                .of((pos, state) -> new BETiles(LittleTiles.BE_TILES_TYPE_RENDERED, pos, state), BLOCK_TILES_RENDERED, BLOCK_TILES_TICKING_RENDERED).build(null)
+                .setRegistryName(MODID, "tiles_rendered");
+        BE_SIGNALCONVERTER_TYPE = BlockEntityType.Builder.of(BESignalConverter::new, SIGNAL_CONVERTER).build(null).setRegistryName(MODID, "converter");
+        
         event.getRegistry().registerAll(BE_TILES_TYPE, BE_TILES_TYPE_RENDERED, BE_SIGNALCONVERTER_TYPE);
     }
     
     public void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
+        SIZED_TNT_TYPE = EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt");
+        SIT_TYPE = EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit");
+        
         event.getRegistry().registerAll(SIZED_TNT_TYPE, SIT_TYPE);
     }
     
