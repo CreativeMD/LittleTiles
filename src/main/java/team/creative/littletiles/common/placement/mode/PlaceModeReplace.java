@@ -41,10 +41,8 @@ public class PlaceModeReplace extends PlacementMode {
         List<LittleBox> boxes = new ArrayList<>();
         for (LittleBox box : tile)
             for (LittleTile lt : LittleActionDestroyBoxes.removeBox(context.getBE(), context.block.getGrid(), box, false)) {
-                for (LittleBox newBox : lt) {
+                for (LittleBox newBox : lt)
                     boxes.add(newBox);
-                    
-                }
                 context.addRemoved(lt);
             }
         
