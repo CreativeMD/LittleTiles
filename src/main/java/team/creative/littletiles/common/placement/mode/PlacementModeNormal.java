@@ -12,9 +12,9 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
-public class PlaceModeNormal extends PlacementMode {
+public class PlacementModeNormal extends PlacementMode {
     
-    public PlaceModeNormal(String name, PreviewMode mode, boolean placeInside) {
+    public PlacementModeNormal(String name, PreviewMode mode, boolean placeInside) {
         super(name, mode, placeInside);
     }
     
@@ -53,7 +53,7 @@ public class PlaceModeNormal extends PlacementMode {
         if (isSpace) {
             context.placeTile(tile);
             return true;
-        } else if (this instanceof PlaceModeAll)
+        } else if (this instanceof PlacementModeAll)
             throw new LittleActionException("Could not place all tiles");
         else if (!boxes.isEmpty()) {
             context.placeTile(tile.copy(boxes));

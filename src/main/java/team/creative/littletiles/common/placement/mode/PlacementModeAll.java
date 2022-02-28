@@ -7,9 +7,9 @@ import java.util.Set;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 
-public class PlaceModeAll extends PlaceModeNormal {
+public class PlacementModeAll extends PlacementModeNormal {
     
-    public PlaceModeAll(String name, PreviewMode mode) {
+    public PlacementModeAll(String name, PreviewMode mode) {
         super(name, mode, false);
     }
     

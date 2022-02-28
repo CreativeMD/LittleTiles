@@ -10,9 +10,9 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
-public class PlaceModeOverwrite extends PlacementMode {
+public class PlacementModeOverwrite extends PlacementMode {
     
-    public PlaceModeOverwrite(String name, PreviewMode mode) {
+    public PlacementModeOverwrite(String name, PreviewMode mode) {
         super(name, mode, false);
     }
     
