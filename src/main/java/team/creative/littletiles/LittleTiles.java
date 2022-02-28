@@ -1,9 +1,9 @@
 package team.creative.littletiles;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +16,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.entity.player.Player;
@@ -68,7 +72,6 @@ import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
-import team.creative.littletiles.common.mod.chiselsandbits.ChiselAndBitsConveration;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
@@ -282,7 +285,7 @@ public class LittleTiles {
         
         TheOneProbeManager.init();
         
-        MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
+        //MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
         MinecraftForge.EVENT_BUS.register(EntitySizeHandler.class);
         
@@ -299,7 +302,7 @@ public class LittleTiles {
         
         ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
-        Field loadedBlockEntities = ObfuscationReflectionHelper.findField(Level.class, "f_46434_");
+        Method getChunks = ObfuscationReflectionHelper.findMethod(ChunkMap.class, "m_140416_");
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
             x.getSource()
@@ -311,14 +314,18 @@ public class LittleTiles {
             x.getSource()
                     .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server remove <name> " + ChatFormatting.RED + "removes the given path"), false);
             
-            Level level = x.getSource().getLevel();
+            ServerLevel level = x.getSource().getLevel();
             List<BETiles> blocks = new ArrayList<>();
             
             try {
-                for (BlockEntity be : (Set<BlockEntity>) loadedBlockEntities.get(level))
-                    if (be instanceof BETiles)
-                        blocks.add((BETiles) be);
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+                level.getChunkSource().getLoadedChunksCount();
+                for (ChunkHolder holder : (Iterable<ChunkHolder>) getChunks.invoke(level.getChunkSource().chunkMap))
+                    if (holder.getFullStatus() == FullChunkStatus.TICKING)
+                        for (BlockEntity be : holder.getTickingChunk().getBlockEntities().values())
+                            if (be instanceof BETiles)
+                                blocks.add((BETiles) be);
+                            
+            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
             x.getSource().sendSuccess(new TextComponent("Attempting to convert " + blocks.size() + " blocks!"), false);
