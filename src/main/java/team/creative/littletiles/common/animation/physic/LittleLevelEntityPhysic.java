@@ -14,6 +14,7 @@ import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.listener.LevelBoundsListener;
 import team.creative.creativecore.common.level.system.BlockUpdateLevelSystem;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.OBB;
 import team.creative.creativecore.common.util.math.collision.CollidingPlane;
@@ -143,7 +144,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
             // PHASE ONE
             // Gather all affected boxes
             List<AABB> surroundingBoxes = new ArrayList<>(worldCollisionBoxes.size());
-            for (OrientatedBoundingBox box : worldCollisionBoxes) {
+            for (OBB box : worldCollisionBoxes) {
                 if (box.cache == null)
                     box.buildCache();
                 box.cache.reset();
@@ -157,13 +158,13 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
             for (int j = 0; j < entities.size(); j++) {
                 Entity entity = entities.get(j);
                 
-                AxisAlignedBB entityBB = entity.getEntityBoundingBox();
+                AABB entityBB = entity.getEntityBoundingBox();
                 Vector3d center = new Vector3d(entityBB.minX + (entityBB.maxX - entityBB.minX) * 0.5D, entityBB.minY + (entityBB.maxY - entityBB.minY) * 0.5D, entityBB.minZ + (entityBB.maxZ - entityBB.minZ) * 0.5D);
                 double radius = VecUtils.distanceToSquared(entityBB.minX, entityBB.minY, entityBB.minZ, center);
                 
                 Double t = null;
-                OrientatedBoundingBox pushingBox = null;
-                EnumFacing facing = null;
+                OBB pushingBox = null;
+                Facing facing = null;
                 
                 checking_all_boxes: for (int i = 0; i < surroundingBoxes.size(); i++) {
                     if (surroundingBoxes.get(i).intersects(entityBB)) {
@@ -227,14 +228,14 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
                 
                 double maxVolume = 0;
                 
-                List<OrientatedBoundingBox> intersecting = new ArrayList<>();
-                List<EnumFacing> intersectingFacing = new ArrayList<>();
+                List<OBB> intersecting = new ArrayList<>();
+                List<Facing> intersectingFacing = new ArrayList<>();
                 
-                for (OrientatedBoundingBox box : worldCollisionBoxes) {
+                for (OBB box : worldCollisionBoxes) {
                     if (box == cache.pushBox || box.intersects(cache.entityBoxOrientated)) {
                         //box.cache.planes = CollidingPlane.getPlanes(box, box.cache, coordinator);
                         
-                        EnumFacing facing = CollidingPlane.getDirection(coordinator, box, center);
+                        Facing facing = CollidingPlane.getDirection(coordinator, box, center);
                         if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils
                                 .getOffset(VectorUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
                             continue;

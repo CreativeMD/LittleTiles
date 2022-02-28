@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.type;
+package team.creative.littletiles.common.structure.type.bed;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Player.BedSleepingProblem;
@@ -18,39 +18,27 @@ public class LittleBedEventHandler {
     
     @SubscribeEvent
     public void isSleepingLocationAllowed(SleepingLocationCheckEvent event) {
-        try {
-            if (event.getEntityLiving() instanceof Player player) {
-                LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(player);
-                if (bed instanceof LittleBed && ((LittleBed) bed).getSleepingPlayer() == player)
-                    event.setResult(Result.ALLOW);
-            }
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
+        if (event.getEntityLiving() instanceof Player player) {
+            LittleBed bed = ((ILittleBedPlayerExtension) player).getBed();
+            if (bed != null && bed.getSleepingPlayer() == player)
+                event.setResult(Result.ALLOW);
         }
     }
     
     @SubscribeEvent
     public void onPlayerLogout(PlayerLoggedOutEvent event) {
-        try {
-            LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.getPlayer());
-            if (bed instanceof LittleBed)
-                ((LittleBed) bed).setSleepingPlayer(null);
-            LittleBed.littleBed.set(event.getPlayer(), null);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        LittleBed bed = ((ILittleBedPlayerExtension) event.getPlayer()).getBed();
+        if (bed != null)
+            bed.setSleepingPlayer(null);
+        ((ILittleBedPlayerExtension) event.getPlayer()).setBed(null);
     }
     
     @SubscribeEvent
     public void onWakeUp(PlayerWakeUpEvent event) {
-        try {
-            LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.getPlayer());
-            if (bed instanceof LittleBed)
-                ((LittleBed) bed).setSleepingPlayer(null);
-            LittleBed.littleBed.set(event.getPlayer(), null);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        LittleBed bed = ((ILittleBedPlayerExtension) event.getPlayer()).getBed();
+        if (bed != null)
+            bed.setSleepingPlayer(null);
+        ((ILittleBedPlayerExtension) event.getPlayer()).setBed(null);
     }
     
     @SubscribeEvent

@@ -41,7 +41,7 @@ import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
+import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 
 public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity> {
     

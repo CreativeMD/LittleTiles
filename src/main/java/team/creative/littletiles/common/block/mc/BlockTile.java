@@ -93,7 +93,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.common.structure.type.LittleBed;
+import team.creative.littletiles.common.structure.type.bed.ILittleBedPlayerExtension;
 import team.creative.littletiles.server.LittleTilesServer;
 
 public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicBlock {
@@ -305,21 +305,10 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     @Override
     public boolean isBed(BlockState state, BlockGetter level, BlockPos pos, @Nullable Entity player) {
         BETiles be = loadBE(level, pos);
-        if (be != null) {
-            LittleStructure bed = null;
-            if (player != null) {
-                try {
-                    bed = (LittleStructure) LittleBed.littleBed.get(player);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-            
+        if (be != null && player != null)
             for (LittleStructure structure : be.loadedStructures())
-                if (structure == bed || structure.isBed((LivingEntity) player))
+                if (structure == ((ILittleBedPlayerExtension) player).getBed())
                     return true;
-                
-        }
         return false;
     }
     

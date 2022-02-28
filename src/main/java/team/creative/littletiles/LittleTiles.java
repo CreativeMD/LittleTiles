@@ -90,8 +90,8 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
-import team.creative.littletiles.common.structure.type.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.LittleStorage;
+import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;

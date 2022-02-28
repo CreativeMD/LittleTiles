@@ -22,8 +22,6 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScalerVolume;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
-import team.creative.littletiles.common.structure.type.LittleBed;
-import team.creative.littletiles.common.structure.type.LittleBed.LittleBedParser;
 import team.creative.littletiles.common.structure.type.LittleChair;
 import team.creative.littletiles.common.structure.type.LittleChair.LittleChairParser;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
@@ -40,6 +38,8 @@ import team.creative.littletiles.common.structure.type.LittleStorage.LittleStora
 import team.creative.littletiles.common.structure.type.LittleStorage.LittleStorageType;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
+import team.creative.littletiles.common.structure.type.bed.LittleBed;
+import team.creative.littletiles.common.structure.type.bed.LittleBed.LittleBedParser;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
