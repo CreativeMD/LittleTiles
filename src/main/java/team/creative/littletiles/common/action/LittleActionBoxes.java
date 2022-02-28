@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
@@ -25,10 +26,11 @@ import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEdi
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
-public abstract class LittleActionBoxes extends LittleAction {
+public abstract class LittleActionBoxes extends LittleAction<Boolean> {
     
     public LittleBoxes boxes;
     @CanBeNull
@@ -47,14 +49,12 @@ public abstract class LittleActionBoxes extends LittleAction {
         this.levelUUID = levelUUID;
     }
     
-    public LittleActionBoxes() {
-        
-    }
+    public LittleActionBoxes() {}
     
     public abstract void action(Level level, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException;
     
     @Override
-    public boolean action(Player player) throws LittleActionException {
+    public Boolean action(Player player) throws LittleActionException {
         if (boxes.isEmpty())
             return false;
         
@@ -110,6 +110,22 @@ public abstract class LittleActionBoxes extends LittleAction {
         
         level.playSound(null, player, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
         return placed;
+    }
+    
+    protected LittleActionBoxes assignMirror(LittleActionBoxes action, Axis axis, LittleBoxAbsolute box) {
+        action.boxes = this.boxes.copy();
+        action.boxes.mirror(axis, box);
+        return action;
+    }
+    
+    @Override
+    public boolean wasSuccessful(Boolean result) {
+        return result;
+    }
+    
+    @Override
+    public Boolean failed() {
+        return false;
     }
     
 }

@@ -96,7 +96,6 @@ import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.server.LittleTilesServer;
-import team.creative.littletiles.server.NeighborUpdateOrganizer;
 
 @Mod(value = LittleTiles.MODID)
 public class LittleTiles {
@@ -279,7 +278,7 @@ public class LittleTiles {
         MinecraftForge.EVENT_BUS.register(new LittleSignalHandler());
         MinecraftForge.EVENT_BUS.register(new LittleToolHandler());
         
-        LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
+        LittleTilesServer.init(event);
         
         TheOneProbeManager.init();
         

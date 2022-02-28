@@ -138,7 +138,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
     }
     
     @Override
-    public void flip(Axis axis, LittleBoxAbsolute absoluteBox) {
+    public void mirror(Axis axis, LittleBoxAbsolute absoluteBox) {
         sameGrid(absoluteBox, () -> {
             Iterable<LittleBox> boxes = all();
             blockMap = new HashMapList<>();

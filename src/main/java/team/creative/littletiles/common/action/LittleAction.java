@@ -69,7 +69,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
-public abstract class LittleAction extends CreativePacket {
+public abstract class LittleAction<T> extends CreativePacket {
     
     /** Must be implemented by every action **/
     public LittleAction() {
@@ -83,7 +83,11 @@ public abstract class LittleAction extends CreativePacket {
     @OnlyIn(Dist.CLIENT)
     public abstract LittleAction revert(Player player) throws LittleActionException;
     
-    public abstract boolean action(Player player) throws LittleActionException;
+    public abstract T action(Player player) throws LittleActionException;
+    
+    public abstract boolean wasSuccessful(T result);
+    
+    public abstract T failed();
     
     @Override
     public final void executeClient(Player player) {}

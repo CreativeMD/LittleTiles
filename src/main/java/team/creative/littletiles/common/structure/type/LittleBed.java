@@ -21,7 +21,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Unit;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,6 +29,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -167,7 +167,7 @@ public class LittleBed extends LittleStructure {
             double d0 = 8.0D;
             double d1 = 5.0D;
             List<EntityMob> list = player.world
-                    .<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(highest.x - 8.0D, highest.y - 5.0D, highest.z - 8.0D, highest.x + 8.0D, highest.y + 5.0D, highest.z + 8.0D));
+                    .<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AABB(highest.x - 8.0D, highest.y - 5.0D, highest.z - 8.0D, highest.x + 8.0D, highest.y + 5.0D, highest.z + 8.0D));
             
             if (!list.isEmpty()) {
                 return EntityPlayer.SleepResult.NOT_SAFE;

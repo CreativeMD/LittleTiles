@@ -22,7 +22,7 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
-public abstract class LittleActionInteract extends LittleAction {
+public abstract class LittleActionInteract<T> extends LittleAction<T> {
     
     public BlockPos blockPos;
     public Vec3 pos;
@@ -68,13 +68,15 @@ public abstract class LittleActionInteract extends LittleAction {
     
     protected abstract boolean isRightClick();
     
-    protected abstract boolean action(Level level, BETiles te, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException;
+    protected abstract T action(Level level, BETiles te, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException;
+    
+    protected abstract T ignored();
     
     @Override
-    public boolean action(Player player) throws LittleActionException {
+    public T action(Player player) throws LittleActionException {
         
         if (isRightClick())
-            return false;
+            return ignored();
         
         Level level = player.level;
         
@@ -87,7 +89,7 @@ public abstract class LittleActionInteract extends LittleAction {
                 onEntityNotFound();
             
             if (!isAllowedToInteract(player, animation, isRightClick()))
-                return false;
+                return failed();
             
             level = animation.getFakeLevel();
             if (!transformedCoordinates) {
@@ -106,7 +108,7 @@ public abstract class LittleActionInteract extends LittleAction {
             
             if (!isAllowedToInteract(level, player, blockPos, isRightClick(), Facing.EAST)) {
                 sendBlockResetToClient(level, player, be);
-                return false;
+                return failed();
             }
             
             if (context.isComplete()) {
@@ -118,7 +120,7 @@ public abstract class LittleActionInteract extends LittleAction {
                 onTileNotFound();
         } else
             onTileEntityNotFound();
-        return false;
+        return ignored();
         
     }
     

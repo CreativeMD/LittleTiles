@@ -9,10 +9,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import team.creative.creativecore.common.util.math.box.OBB;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.event.GetVoxelShapesEvent;
+import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 public abstract class LittleAnimationHandler extends LevelHandler {
     
@@ -68,6 +71,25 @@ public abstract class LittleAnimationHandler extends LevelHandler {
             for (OBB bb : entity.physic.collision(event.box))
                 event.add(bb);
         }
+    }
+    
+    public LittleHitResult getHit(Vec3 pos, Vec3 look, double reach) {
+        AABB box = new AABB(pos, look);
+        
+        LittleHitResult newHit = null;
+        double distance = reach;
+        for (LittleLevelEntity entity : find(box)) {
+            LittleHitResult tempResult = entity.rayTrace(pos, look);
+            if (tempResult == null || !(tempResult.hit instanceof BlockHitResult))
+                continue;
+            double tempDistance = pos.distanceTo(entity.getOrigin().transformPointToWorld(tempResult.hit.getLocation()));
+            if (newHit == null || tempDistance < distance) {
+                newHit = tempResult;
+                distance = tempDistance;
+            }
+        }
+        
+        return newHit;
     }
     
 }

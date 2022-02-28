@@ -32,8 +32,8 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.IngredientUtils;
@@ -118,10 +118,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             this.boxes.add(box);
     }
     
-    public void remove(ParentCollection parent, LittleBox box) {
-        boxes.remove(box);
+    public boolean remove(LittleCollection parent, LittleBox box) {
+        boolean result = boxes.remove(box);
         if (boxes.isEmpty())
             parent.remove(this);
+        return result;
     }
     
     public void move(LittleVec vec) {

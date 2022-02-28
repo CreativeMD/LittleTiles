@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.action;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -11,7 +12,7 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
-public class LittleActionActivated extends LittleActionInteract {
+public class LittleActionActivated extends LittleActionInteract<InteractionResult> {
     
     public LittleActionActivated(Level level, BlockPos blockPos, Player player) {
         super(level, blockPos, player);
@@ -24,31 +25,14 @@ public class LittleActionActivated extends LittleActionInteract {
     public LittleActionActivated() {}
     
     @Override
-    public boolean sendToServer() {
-        return !preventInteraction;
-    }
-    
-    public boolean preventInteraction = false;
-    
-    @Override
-    protected boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
+    protected InteractionResult action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
         if (context.parent.isStructure())
-            return context.parent.getStructure().use(level, context, pos, player, hit).consumesAction();
+            return context.parent.getStructure().use(level, context, pos, player, hit);
         
-        if (context.tile.use(context.parent, context.box, pos, player, hit).consumesAction())
-            return true;
-        return false;
-    }
-    
-    @Override
-    public boolean action(Player player) throws LittleActionException {
-        boolean result;
-        try {
-            result = super.action(player);
-        } catch (LittleActionException e) {
-            throw e;
-        }
-        return result;
+        InteractionResult result = context.tile.use(context.parent, context.box, pos, player, hit);
+        if (result.consumesAction())
+            return result;
+        return InteractionResult.PASS;
     }
     
     @Override
@@ -74,6 +58,21 @@ public class LittleActionActivated extends LittleActionInteract {
     @Override
     protected boolean requiresBreakEvent() {
         return false;
+    }
+    
+    @Override
+    protected InteractionResult ignored() {
+        return InteractionResult.PASS;
+    }
+    
+    @Override
+    public boolean wasSuccessful(InteractionResult result) {
+        return InteractionResult.PASS != result;
+    }
+    
+    @Override
+    public InteractionResult failed() {
+        return InteractionResult.FAIL;
     }
     
 }

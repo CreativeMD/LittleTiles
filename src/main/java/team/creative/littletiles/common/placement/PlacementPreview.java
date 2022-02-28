@@ -84,7 +84,7 @@ public class PlacementPreview {
         return new PlacementPreview(levelUUID, previews, mode, position, box);
     }
     
-    public static PlacementPreview load(UUID levelUUID, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
+    public static PlacementPreview load(UUID levelUUID, PlacementMode mode, LittleGroupAbsolute previews, Facing facing) {
         return new PlacementPreview(levelUUID, previews, mode, facing);
     }
     

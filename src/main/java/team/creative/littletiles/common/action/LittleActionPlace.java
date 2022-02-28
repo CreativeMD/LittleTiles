@@ -19,8 +19,10 @@ import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 
-public class LittleActionPlace extends LittleAction {
+public class LittleActionPlace extends LittleAction<Boolean> {
     
     public PlacementPreview preview;
     public PlaceAction action;
@@ -29,7 +31,6 @@ public class LittleActionPlace extends LittleAction {
     public transient PlacementResult result;
     @OnlyIn(Dist.CLIENT)
     public transient LittleGroupAbsolute destroyed;
-    
     public transient boolean toVanilla = true;
     
     public LittleActionPlace() {}
@@ -53,13 +54,23 @@ public class LittleActionPlace extends LittleAction {
         if (destroyed != null) {
             destroyed.convertToSmallest();
             return new LittleActions(new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes), new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview
-                    .load(preview.levelUUID, destroyed, PlacementMode.normal, preview.position.facing)));
+                    .load(preview.levelUUID, PlacementMode.normal, destroyed, preview.position.facing)));
         }
         return new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes);
     }
     
     @Override
-    public boolean action(Player player) throws LittleActionException {
+    public boolean wasSuccessful(Boolean result) {
+        return result;
+    }
+    
+    @Override
+    public Boolean failed() {
+        return false;
+    }
+    
+    @Override
+    public Boolean action(Player player) throws LittleActionException {
         Level level = player.level;
         
         if (!isAllowedToInteract(level, player, preview.position.getPos(), true, preview.position.facing)) {
@@ -143,10 +154,24 @@ public class LittleActionPlace extends LittleAction {
     }
     
     protected boolean canDrainIngredientsBeforePlacing(Player player, LittleInventory inventory) throws LittleActionException {
-        return canTake(player, inventory, getIngredients(preview.previews));
+        if (action != PlaceAction.PREMADE)
+            return canTake(player, inventory, getIngredients(preview.previews));
+        
+        LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(preview.previews.getStructureId());
+        
+        try {
+            inventory.startSimulation();
+            return take(player, inventory, entry.stack) && entry.arePreviewsEqual(preview.previews);
+        } finally {
+            inventory.stopSimulation();
+        }
     }
     
     protected void drainIngredientsAfterPlacing(Player player, LittleInventory inventory, PlacementResult placedTiles, LittleGroup previews) throws LittleActionException {
+        if (action == PlaceAction.PREMADE) {
+            take(player, inventory, LittleStructurePremade.getStructurePremadeEntry(previews.getStructureId()).stack);
+            return;
+        }
         LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
         ingredients.add(getIngredients(placedTiles.placedPreviews));
         take(player, inventory, ingredients);
@@ -162,7 +187,8 @@ public class LittleActionPlace extends LittleAction {
     public static enum PlaceAction {
         
         CURRENT_ITEM,
-        ABSOLUTE;
+        ABSOLUTE,
+        PREMADE;
         
     }
     

@@ -65,7 +65,7 @@ public abstract class LittleBoxes implements IGridBased {
     
     public abstract Iterable<LittleBox> all();
     
-    public abstract void flip(Axis axis, LittleBoxAbsolute absoluteBox);
+    public abstract void mirror(Axis axis, LittleBoxAbsolute absoluteBox);
     
     public abstract LittleBoxes copy();
     

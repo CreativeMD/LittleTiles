@@ -120,7 +120,7 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     }
     
     @Override
-    public void flip(Axis axis, LittleBoxAbsolute absoluteBox) {
+    public void mirror(Axis axis, LittleBoxAbsolute absoluteBox) {
         sameGrid(absoluteBox, () -> {
             LittleVec center = absoluteBox.getDoubledCenter(pos);
             for (LittleBox box : boxes)

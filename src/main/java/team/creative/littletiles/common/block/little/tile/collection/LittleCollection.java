@@ -95,6 +95,13 @@ public class LittleCollection implements Iterable<LittleTile> {
         return false;
     }
     
+    public boolean remove(LittleElement element, LittleBox box) {
+        for (LittleTile other : this)
+            if (other.is(element))
+                return other.remove(this, box);
+        return false;
+    }
+    
     public void clear() {
         content.clear();
         refresh();

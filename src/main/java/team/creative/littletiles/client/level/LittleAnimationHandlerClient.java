@@ -35,8 +35,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -477,23 +475,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         Vec3 look = player.getViewVector(partialTicks);
         look = pos.add(look.x * reachDistance, look.y * reachDistance, look.z * reachDistance);
         
-        AABB box = new AABB(pos, look);
-        Level level = player.level;
-        
-        LittleHitResult newHit = null;
-        double distance = reachDistance;
-        for (LittleLevelEntity entity : find(box)) {
-            LittleHitResult tempResult = entity.rayTrace(pos, look);
-            if (tempResult == null || !(tempResult.hit instanceof BlockHitResult))
-                continue;
-            double tempDistance = pos.distanceTo(entity.getOrigin().transformPointToWorld(tempResult.hit.getLocation()));
-            if (newHit == null || tempDistance < distance) {
-                newHit = tempResult;
-                distance = tempDistance;
-            }
-        }
-        
-        return newHit;
+        return getHit(pos, look, reachDistance);
     }
     
     @SubscribeEvent
