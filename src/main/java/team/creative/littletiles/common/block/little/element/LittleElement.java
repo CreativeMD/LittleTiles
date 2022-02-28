@@ -30,7 +30,7 @@ public class LittleElement {
     
     private BlockState state;
     protected LittleBlock block;
-    public final int color;
+    public int color;
     
     public LittleElement(LittleElement element) {
         this.state = element.state;
