@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,6 +19,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -35,10 +37,9 @@ public class LittleShapeConnected extends LittleShapeSelectable {
     @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         for (ShapeSelectPos pos : selection) {
-            if (pos.result.isComplete()) {
-                ConnectedBlock block = new ConnectedBlock(pos.result.parent.getBE(), pos.result, selection.getGrid());
-                boxes = block.start(boxes, pos.result.tile, selection.inside ? null : pos.pos.facing);
-            } else
+            if (pos.result.isComplete())
+                new ConnectedSearch(pos.result, selection.inside ? null : pos.pos.facing, selection.getGrid()).start(boxes);
+            else
                 addBox(boxes, selection.inside, selection.getGrid(), pos.ray.getBlockPos(), pos.pos.facing);
         }
     }
@@ -62,40 +63,73 @@ public class LittleShapeConnected extends LittleShapeSelectable {
     @Override
     public void mirror(CompoundTag nbt, Axis axis) {}
     
-    private static final ConnectedBlock EMPTY = new ConnectedBlock(null, null, null);
+    private static class ConnectedSearch {
+        
+        public final LittleElement element;
+        public final LittleBox box;
+        public final LittleGrid aimedGrid;
+        public final HashMap<BlockPos, ConnectedBlock> blocks = new HashMap<>();
+        public final Facing facing;
+        public final ConnectedBlock origin;
+        private final MutableBlockPos pos = new MutableBlockPos();
+        
+        public ConnectedSearch(LittleTileContext context, Facing facing, LittleGrid aimedGrid) {
+            this.element = context.tile;
+            this.box = context.box;
+            this.facing = facing;
+            this.aimedGrid = aimedGrid;
+            this.origin = new ConnectedBlock(context.parent.getBE(), this);
+            blocks.put(context.parent.getPos(), origin);
+        }
+        
+        public void addBox(LittleBoxes boxes, ConnectedBlock block, LittleBox box, Facing facing) {
+            LittleShapeSelectable.addBox(boxes, facing == null, aimedGrid, block.parent.noneStructureTiles(), box, facing);
+        }
+        
+        public LittleBoxes start(LittleBoxes boxes) {
+            origin.performSearchIn(boxes, this, true, origin.parent.getGrid(), box, facing);
+            return boxes;
+        }
+        
+        public ConnectedBlock get(BlockPos pos, Facing facing) {
+            this.pos.set(pos);
+            this.pos.move(facing.toVanilla());
+            ConnectedBlock block = blocks.get(pos);
+            if (block == null) {
+                BlockEntity be = origin.parent.getLevel().getBlockEntity(pos);
+                if (be instanceof BETiles)
+                    block = new ConnectedBlock((BETiles) be, this);
+                else
+                    block = EMPTY;
+                blocks.put(pos, block);
+            }
+            return block;
+        }
+        
+    }
+    
+    private static final ConnectedBlock EMPTY = new ConnectedBlock(null, null);
     
     private static class ConnectedBlock {
         
         private final BETiles parent;
         private final List<LittleBox> potential;
-        private final LittleGrid aimedContext;
-        private ConnectedBlock[] neighborCache = new ConnectedBlock[6];
         
-        public ConnectedBlock(BETiles be, LittleTileContext startTile, LittleGrid aimedContext) {
-            parent = be;
-            potential = new ArrayList<>();
-            this.aimedContext = aimedContext;
-            if (be != null)
+        public ConnectedBlock(BETiles be, ConnectedSearch search) {
+            this.parent = be;
+            if (be != null) {
+                potential = new ArrayList<>();
                 for (LittleTile tile : be.noneStructureTiles())
-                    if (tile.is(startTile.tile))
+                    if (tile.is(search.element))
                         for (LittleBox box : tile)
-                            if (box != startTile.box)
+                            if (box != search.box)
                                 potential.add(box);
+            } else
+                potential = Collections.EMPTY_LIST;
+            
         }
         
-        private void addBox(LittleBoxes boxes, LittleBox box, Facing facing) {
-            LittleShapeSelectable.addBox(boxes, facing == null, aimedContext, parent.noneStructureTiles(), box, facing);
-        }
-        
-        public LittleBoxes start(LittleBoxes boxes, LittleTile startTile, Facing facing) {
-            HashMap<BlockPos, ConnectedBlock> blocks = new HashMap<>();
-            blocks.put(parent.getBlockPos(), this);
-            addBox(boxes, startTile.getBox().copy(), facing);
-            performSearchIn(boxes, blocks, startTile, true, parent.getGrid(), startTile.getBox().copy(), facing);
-            return boxes;
-        }
-        
-        public void performSearchIn(LittleBoxes boxes, HashMap<BlockPos, ConnectedBlock> blocks, LittleTile startTile, boolean start, LittleGrid other, LittleBox otherBox, Facing insideFace) {
+        public void performSearchIn(LittleBoxes boxes, ConnectedSearch search, boolean start, LittleGrid other, LittleBox otherBox, Facing insideFace) {
             LittleGrid context = parent.getGrid();
             List<LittleBox> added = new ArrayList<>();
             int index = 0;
@@ -104,7 +138,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
                     LittleBox box = iterator.next();
                     if (index == 0 ? box.doesTouch(context, other, otherBox) : box.doesTouch(added.get(index - 1))) {
                         LittleBox copy = box.copy();
-                        addBox(boxes, copy, insideFace);
+                        search.addBox(boxes, this, copy, insideFace);
                         added.add(box.copy());
                         iterator.remove();
                     }
@@ -116,37 +150,24 @@ public class LittleShapeConnected extends LittleShapeSelectable {
                 added.add(otherBox);
             
             for (LittleBox box : added) {
-                for (int i = 0; i < neighborCache.length; i++) {
+                for (int i = 0; i < Facing.VALUES.length; i++) {
                     Facing facing = Facing.get(i);
                     if (box.isFaceAtEdge(context, facing)) {
-                        if (neighborCache[i] == null) {
-                            BlockPos pos = parent.getBlockPos().relative(facing.toVanilla());
-                            ConnectedBlock block = blocks.get(pos);
-                            if (block == null) {
-                                BlockEntity be = parent.getLevel().getBlockEntity(pos);
-                                if (be instanceof BETiles)
-                                    block = new ConnectedBlock((BETiles) te, startTile, aimedContext);
-                                else
-                                    block = EMPTY;
-                                blocks.put(pos, block);
-                            }
-                            neighborCache[i] = block;
-                        }
                         
-                        ConnectedBlock block = neighborCache[i];
+                        ConnectedBlock block = search.get(parent.getBlockPos(), facing);
                         if (block.isEmpty())
                             continue;
                         
                         LittleBox copyBox = box.copy();
-                        copyBox.sub(context.size * facing.getFrontOffsetX(), context.size * facing.getFrontOffsetY(), context.size * facing.getFrontOffsetZ());
+                        copyBox.sub(context.count * facing.offset(Axis.X), context.count * facing.offset(Axis.Y), context.count * facing.offset(Axis.Z));
                         
                         LittleGrid used = context;
-                        if (block.getGrid().count > context.size) {
+                        if (block.getGrid().count > context.count) {
                             copyBox.convertTo(context, block.getGrid());
                             used = block.getGrid();
                         }
                         
-                        block.performSearchIn(boxes, blocks, startTile, false, used, copyBox, insideFace);
+                        block.performSearchIn(boxes, search, false, used, copyBox, insideFace);
                     }
                     
                 }
