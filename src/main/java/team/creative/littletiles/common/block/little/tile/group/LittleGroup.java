@@ -53,6 +53,14 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         convertToSmallest();
     }
     
+    public LittleGroup(LittleGroup group, List<LittleGroup> children) {
+        this.grid = group.getGrid();
+        this.structure = group.structure;
+        this.content = group.content;
+        this.children = new ItemChildrenList(this, children);
+        convertToSmallest();
+    }
+    
     public LittleGroup(LittleGrid grid) {
         this(null, grid, Collections.EMPTY_LIST);
     }
@@ -440,6 +448,12 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         if (hasStructure())
             return getStructureType().getSpecialBoxes(this);
         return Collections.EMPTY_LIST;
+    }
+    
+    public void add(LittleGroup group) {
+        sameGrid(group, () -> {
+            content.addAll(group);
+        });
     }
     
     public void add(LittleGrid grid, LittleElement element, Iterable<LittleBox> boxes) {

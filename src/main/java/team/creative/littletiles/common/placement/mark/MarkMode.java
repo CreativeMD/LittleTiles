@@ -104,8 +104,6 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void done() {
-        
-    }
+    public void done() {}
     
 }

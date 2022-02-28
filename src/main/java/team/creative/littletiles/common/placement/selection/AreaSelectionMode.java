@@ -3,9 +3,6 @@ package team.creative.littletiles.common.placement.selection;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -16,18 +13,20 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -82,7 +81,7 @@ public class AreaSelectionMode extends SelectionMode {
         stack.getTag().remove("pos2");
     }
     
-    public LittleGroup getGroup(Level world, BlockPos pos, BlockPos pos2, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
+    public LittleGroup getGroup(Level level, BlockPos pos, BlockPos pos2, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
         int minX = Math.min(pos.getX(), pos2.getX());
         int minY = Math.min(pos.getY(), pos2.getY());
         int minZ = Math.min(pos.getZ(), pos2.getZ());
@@ -91,8 +90,9 @@ public class AreaSelectionMode extends SelectionMode {
         int maxZ = Math.max(pos.getZ(), pos2.getZ());
         
         LittleGroup previews = new LittleGroup();
+        List<LittleGroup> children = new ArrayList<>();
         
-        boolean includeTE = includeCB || includeLT;
+        boolean includeBE = includeCB || includeLT;
         
         BlockPos center = new BlockPos(minX, minY, minZ);
         MutableBlockPos newPos = new MutableBlockPos();
@@ -105,13 +105,12 @@ public class AreaSelectionMode extends SelectionMode {
             for (int posY = minY; posY <= maxY; posY++) {
                 for (int posZ = minZ; posZ <= maxZ; posZ++) {
                     newPos.set(posX, posY, posZ);
-                    if (includeTE) {
-                        BlockEntity tileEntity = world.getBlockEntity(newPos);
+                    if (includeBE) {
+                        BlockEntity blockEntity = level.getBlockEntity(newPos);
                         
                         if (includeLT) {
-                            if (tileEntity instanceof BETiles) {
-                                BETiles te = (BETiles) tileEntity;
-                                for (IParentCollection parent : te.groups()) {
+                            if (blockEntity instanceof BETiles be) {
+                                for (IParentCollection parent : be.groups()) {
                                     if (rememberStructure && parent.isStructure()) {
                                         try {
                                             LittleStructure structure = parent.getStructure();
@@ -119,7 +118,7 @@ public class AreaSelectionMode extends SelectionMode {
                                                 structure = structure.getParent().getStructure();
                                             structure.checkConnections();
                                             if (!structures.contains(structure)) {
-                                                previews.addChild(structure.getPreviews(center), false);
+                                                children.add(structure.getPreviews(center));
                                                 structures.add(structure);
                                             }
                                         } catch (CorruptedConnectionException | NotYetConnectedException e) {
@@ -128,42 +127,40 @@ public class AreaSelectionMode extends SelectionMode {
                                         
                                     } else
                                         for (LittleTile tile : parent) {
-                                            LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getGrid());
-                                            preview.box.add(new LittleVec((posX - minX) * previews.getGrid().count, (posY - minY) * previews
-                                                    .getGrid().count, (posZ - minZ) * previews.getGrid().count));
+                                            tile = tile.copy();
+                                            tile.move(new LittleVec((posX - minX) * parent.getGrid().count, (posY - minY) * parent.getGrid().count, (posZ - minZ) * parent
+                                                    .getGrid().count));
+                                            previews.add(parent.getGrid(), tile, tile);
                                         }
                                 }
                             }
                         }
                         
                         if (includeCB) {
-                            LittlePreviews specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
+                            LittleGroup specialPreviews = ChiselsAndBitsManager.getGroup(blockEntity);
                             if (specialPreviews != null) {
-                                for (int i = 0; i < specialPreviews.size(); i++) {
-                                    LittlePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGrid.get(ChiselsAndBitsManager.convertingFrom));
-                                    preview.box.add(new LittleVec((posX - minX) * previews.getGrid().count, (posY - minY) * previews.getGrid().count, (posZ - minZ) * previews
-                                            .getGrid().count));
-                                }
+                                specialPreviews.move(new LittleVecGrid(new LittleVec((posX - minX) * previews.getGrid().count, (posY - minY) * previews
+                                        .getGrid().count, (posZ - minZ) * previews.getGrid().count), previews.getGrid()));
+                                previews.add(specialPreviews);
                                 continue;
                             }
                         }
                     }
                     
                     if (includeVanilla) {
-                        BlockState state = world.getBlockState(newPos);
+                        BlockState state = level.getBlockState(newPos);
                         if (LittleAction.isBlockValid(state)) {
-                            LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-                            int minSize = LittleGrid.min().count;
-                            tile.setBox(new LittleBox(0, 0, 0, minSize, minSize, minSize));
-                            LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), LittleGrid.min());
-                            preview.box.add(new LittleVec((posX - minX) * previews.getGrid().count, (posY - minY) * previews.getGrid().count, (posZ - minZ) * previews
-                                    .getGrid().count));
+                            LittleBox box = previews.getGrid().box();
+                            box.add(new LittleVec((posX - minX) * previews.getGrid().count, (posY - minY) * previews.getGrid().count, (posZ - minZ) * previews.getGrid().count));
+                            previews.add(previews.getGrid(), new LittleElement(state, ColorUtils.WHITE), box);
                         }
                     }
                 }
             }
         }
-        return previews;
+        if (children.isEmpty())
+            return previews;
+        return new LittleGroup(previews, children);
     }
     
     @Override
@@ -188,6 +185,7 @@ public class AreaSelectionMode extends SelectionMode {
         else if (pos2 == null)
             pos2 = pos;
         
+        List<LittleGroup> children = new ArrayList<>();
         LittleGroup previews = getGroup(level, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
         
         int minX = Math.min(pos.getX(), pos2.getX());
@@ -202,15 +200,15 @@ public class AreaSelectionMode extends SelectionMode {
         if (rememberStructure)
             structures = new ArrayList<>();
         
-        for (EntityAnimation animation : LittleAnimationHandlers.getHandler(level).findAnimations(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1))) {
+        for (LittleLevelEntity animation : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1))) {
             if (rememberStructure) {
                 try {
-                    LittleStructure structure = animation.structure;
+                    LittleStructure structure = animation.getStructure();
                     while (structure.getParent() != null)
                         structure = structure.getParent().getStructure();
                     structure.checkConnections();
                     if (!structures.contains(structure)) {
-                        previews.addChild(structure.getPreviews(center), false);
+                        children.add(structure.getPreviews(center));
                         structures.add(structure);
                     }
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
@@ -219,15 +217,22 @@ public class AreaSelectionMode extends SelectionMode {
                 
             } else
                 try {
-                    for (Pair<IStructureParentCollection, LittleTile> pair : animation.structure.tiles()) {
-                        LittlePreview preview = previews.addPreview(null, pair.value.getPreviewTile(), pair.getKey().getGrid());
-                        preview.box.add(new LittleVec((pair.key.getPos().getX() - minX) * previews.getGrid().count, (pair.key.getPos().getY() - minY) * previews
-                                .getGrid().count, (pair.key.getPos().getZ() - minZ) * previews.getGrid().count));
+                    for (Pair<IStructureParentCollection, LittleTile> pair : animation.getStructure().tiles()) {
+                        LittleTile tile = pair.value.copy();
+                        tile.move(new LittleVec((pair.key.getPos().getX() - minX) * pair.key.getGrid().count, (pair.key.getPos().getY() - minY) * pair.key
+                                .getGrid().count, (pair.key.getPos().getZ() - minZ) * pair.key.getGrid().count));
+                        previews.add(pair.key.getGrid(), tile, tile);
                     }
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
         
-        return previews;
+        if (children.isEmpty())
+            return previews;
+        List<LittleGroup> newChildren = new ArrayList<>();
+        for (LittleGroup child : previews.children.children())
+            newChildren.add(child);
+        newChildren.addAll(children);
+        return new LittleGroup(previews, newChildren);
     }
     
 }
