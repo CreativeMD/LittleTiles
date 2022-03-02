@@ -15,12 +15,10 @@ import team.creative.creativecore.client.render.model.CreativeBakedModel;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
-import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LevelAwareHandler;
 
 public class ItemRenderCache implements LevelAwareHandler {
     
-    public static final ItemRenderCache INSTANCE = new ItemRenderCache();
     public static final RenderingThreadItem THREAD = new RenderingThreadItem();
     
     private HashMap<ItemStack, ItemModelCache> caches = new HashMap<>();
@@ -60,10 +58,6 @@ public class ItemRenderCache implements LevelAwareHandler {
         for (Iterator<ItemModelCache> iterator = caches.values().iterator(); iterator.hasNext();)
             if (iterator.next().expired())
                 iterator.remove();
-    }
-    
-    static {
-        LittleTilesClient.LEVEL_HANDLERS.register(INSTANCE);
     }
     
     public static class RenderingThreadItem extends Thread {

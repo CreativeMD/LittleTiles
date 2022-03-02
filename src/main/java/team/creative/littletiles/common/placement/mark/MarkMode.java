@@ -17,7 +17,6 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.GuiMarkMode;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 
@@ -25,7 +24,7 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 public class MarkMode implements IMarkMode {
     
     public static PlacementPosition loadPosition(PlacementPosition position, PlacementPreview preview) {
-        if (!preview.previews.isAbsolute()) {
+        /*if (!preview.previews.isAbsolute()) {
             position.setVecContext(new LittleVecGrid(preview.box.getCenter(), preview.previews.getGrid()));
             
             Facing facing = position.facing;
@@ -59,7 +58,7 @@ public class MarkMode implements IMarkMode {
             
             if (preview.previews.size() > 1 && preview.fixed)
                 position.addVec(preview.cachedOffset);
-        }
+        }*/
         return position;
     }
     

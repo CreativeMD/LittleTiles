@@ -47,6 +47,7 @@ import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
+import team.creative.littletiles.client.render.item.ItemRenderCache;
 import team.creative.littletiles.client.render.item.LittleRenderToolBackground;
 import team.creative.littletiles.client.render.item.LittleRenderToolBig;
 import team.creative.littletiles.client.render.item.LittleRenderToolPreview;
@@ -55,6 +56,7 @@ import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.render.overlay.TooltipOverlay;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -77,6 +79,7 @@ public class LittleTilesClient {
     public static LittleActionHandlerClient ACTION_HANDLER;
     public static LittleAnimationHandlerClient ANIMATION_HANDLER;
     public static PreviewRenderer PREVIEW_RENDERER;
+    public static ItemRenderCache ITEM_RENDER_CACHE;
     
     public static KeyMapping flip;
     public static KeyMapping mark;
@@ -113,6 +116,7 @@ public class LittleTilesClient {
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
         //LEVEL_HANDLERS.register(LittleAnimationHandlerClient::new, x -> ANIMATION_HANDLER = x);
         LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
+        LEVEL_HANDLERS.register(ITEM_RENDER_CACHE = new ItemRenderCache());
         
         up = new KeyMapping("key.rotateup", GLFW.GLFW_KEY_UP, "key.categories.littletiles");
         down = new KeyMapping("key.rotatedown", GLFW.GLFW_KEY_DOWN, "key.categories.littletiles");
@@ -212,8 +216,8 @@ public class LittleTilesClient {
         }, LittleTilesRegistry.BLOCK_INGREDIENT.get());
         
         // Init overlays
-        //MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
-        //MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
+        MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
+        MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
         
         ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
         reloadableResourceManager.registerReloadListener(new SimplePreparableReloadListener() {
