@@ -38,6 +38,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -142,6 +143,8 @@ public class LittleTiles {
         NETWORK.registerType(BlockUpdate.class, BlockUpdate::new);
         NETWORK.registerType(BlocksUpdate.class, BlocksUpdate::new);
         NETWORK.registerType(OutputUpdate.class, OutputUpdate::new);
+        
+        CreativeConfigRegistry.ROOT.registerValue(MODID, CONFIG = new LittleTilesConfig());
         
         LittleActionRegistry.register(LittleActions.class, LittleActions::new);
         LittleActionRegistry.register(LittleActionPlace.class, LittleActionPlace::new);
