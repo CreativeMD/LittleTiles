@@ -26,7 +26,6 @@ import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -218,7 +217,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (LittleActionHandlerClient.isUsingSecondMode()) {
             selection = null;
-            PreviewRenderer.marked = null;
+            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
         } else if (selection != null)
             return selection.addAndCheckIfPlace(player, getPosition(position, result, currentMode), result);
         return false;

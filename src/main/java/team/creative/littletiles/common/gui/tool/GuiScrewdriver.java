@@ -96,7 +96,7 @@ public class GuiScrewdriver extends GuiConfigure {
         }).setTranslate("gui.redo")).addRight(new GuiButton("run", x -> {
             LittleAction action = getDesiredAction();
             if (action != null)
-                if (LittleTilesClient.ACTION_HANDLER.execute(action))
+                if (action.wasSuccessful(LittleTilesClient.ACTION_HANDLER.execute(action)))
                     playSound(SoundEvents.LEVER_CLICK);
         }).setTranslate("gui.run"));
         add(actions);

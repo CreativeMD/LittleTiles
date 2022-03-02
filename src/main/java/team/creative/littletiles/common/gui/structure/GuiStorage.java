@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui;
+package team.creative.littletiles.common.gui.structure;
 
 import com.creativemd.creativecore.common.gui.ContainerControl;
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
@@ -20,7 +20,7 @@ public class GuiStorage extends GuiLayer {
     public final StorageSize size;
     
     public GuiStorage(LittleStorage storage, Player player) {
-        super("little-storage", 250, 250);
+        super("little_storage", 250, 250);
         this.size = StorageSize.getSizeFromInventory(storage.inventory);
         this.storage = storage;
         if (!player.level.isClientSide)

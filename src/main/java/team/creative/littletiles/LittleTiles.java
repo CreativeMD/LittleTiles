@@ -12,7 +12,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +21,6 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -40,11 +38,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.handler.GuiHandler;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
-import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
@@ -57,17 +52,9 @@ import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
-import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
-import team.creative.littletiles.common.gui.GuiStorage;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
-import team.creative.littletiles.common.gui.handler.LittleTileGuiHandler;
-import team.creative.littletiles.common.gui.premade.GuiExport;
-import team.creative.littletiles.common.gui.premade.GuiImport;
-import team.creative.littletiles.common.gui.structure.GuiBuilder;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
@@ -93,11 +80,11 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
-import team.creative.littletiles.common.structure.type.LittleStorage;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
-import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
+import team.creative.littletiles.common.structure.type.premade.LittleExporter;
+import team.creative.littletiles.common.structure.type.premade.LittleImporter;
 import team.creative.littletiles.server.LittleTilesServer;
 
 @Mod(value = LittleTiles.MODID)
@@ -138,116 +125,6 @@ public class LittleTiles {
         IngredientRules.loadRules();
         LittleStructureRegistry.initStructures();
         LittlePacketTypes.init();
-        
-        GuiHandler.register("storage", new LittleStructureGuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
-                if (structure instanceof LittleStorage)
-                    return new GuiStorage((LittleStorage) structure, player);
-                return null;
-            }
-        });
-        
-        GuiHandler.register("blankomatic", new LittleStructureGuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        
-        GuiHandler.register("configure", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                if (player.getMainHandItem().getItem() instanceof ILittleTool)
-                    return ((ILittleTool) player.getMainHandItem().getItem()).getConfigure(player, ContainerSlotView.mainHand(player));
-                return null;
-            }
-        });
-        
-        GuiHandler.register("configureadvanced", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                if (player.getMainHandItem().getItem() instanceof ILittleTool)
-                    return ((ILittleTool) player.getMainHandItem().getItem()).getConfigureAdvanced(player, ContainerSlotView.mainHand(player));
-                return null;
-            }
-        });
-        
-        GuiHandler.register("diagnose", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        
-        GuiHandler.register("lt-import", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                return new GuiImport();
-            }
-        });
-        
-        GuiHandler.register("lt-export", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                return new GuiExport();
-            }
-        });
-        
-        GuiHandler.register("workbench", new GuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        
-        GuiHandler.register("particle", new LittleStructureGuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        
-        GuiHandler.register("structureoverview", new LittleTileGuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt, LittleTileContext context) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        
-        GuiHandler.register("structureoverview2", new LittleStructureGuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-        
-        GuiHandler.register("structure_builder", new LittleStructureGuiHandler() {
-            
-            @Override
-            public GuiLayer create(Player player, CompoundTag nbt, LittleStructure structure) {
-                if (structure instanceof LittleStructureBuilder)
-                    return new GuiBuilder((LittleStructureBuilder) structure);
-                return null;
-            }
-        });
         
         NETWORK.registerType(ActionMessagePacket.class, ActionMessagePacket::new);
         NETWORK.registerType(VanillaBlockPacket.class, VanillaBlockPacket::new);
@@ -343,12 +220,12 @@ public class LittleTiles {
         }));
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-export").executes((x) -> {
-            GuiHandler.openGui("lt-export", new CompoundTag(), x.getSource().getPlayerOrException());
+            LittleExporter.GUI.open(x.getSource().getPlayerOrException());
             return 0;
         }));
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-import").executes((x) -> {
-            GuiHandler.openGui("lt-import", new CompoundTag(), x.getSource().getPlayerOrException());
+            LittleImporter.GUI.open(x.getSource().getPlayerOrException());
             return 0;
         }));
         

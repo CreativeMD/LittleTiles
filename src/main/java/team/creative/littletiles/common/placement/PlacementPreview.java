@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
@@ -100,21 +100,31 @@ public class PlacementPreview {
     }
     
     @OnlyIn(Dist.CLIENT)
-    @SuppressWarnings("deprecation")
     public static PlacementPreview relative(Level level, ItemStack stack, PlacementPosition position, boolean low) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-        LittleGroup tiles = iTile.get(stack, low);
+        return relative(level, stack, iTile.get(stack, low), position, LittleTilesClient.PREVIEW_RENDERER.isCentered(stack, iTile), LittleTilesClient.PREVIEW_RENDERER
+                .isFixed(stack, iTile));
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static PlacementPreview relative(Level level, ItemStack stack, PlacementPosition position, boolean low, boolean centered, boolean fixed) {
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
+        return relative(level, stack, iTile.get(stack, low), position, centered, fixed);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("deprecation")
+    public static PlacementPreview relative(Level level, ItemStack stack, LittleGroup tiles, PlacementPosition position, boolean centered, boolean fixed) {
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         LittleGrid original = tiles.getGrid();
         PlacementMode mode = iTile.getPlacementMode(stack);
-        boolean centered = PreviewRenderer.isCentered(stack, iTile);
-        boolean fixed = PreviewRenderer.isFixed(stack, iTile);
         
         if (!tiles.isEmpty() || tiles.hasChildren()) {
             
             tiles.forceSameGrid(position);
             LittleGrid grid = tiles.getGrid();
             
-            LittleVec size = PlacementHelper.getSize(iTile, stack, tiles, low, original);
+            LittleVec size = PlacementHelper.getSize(iTile, stack, tiles, original);
             
             List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
             

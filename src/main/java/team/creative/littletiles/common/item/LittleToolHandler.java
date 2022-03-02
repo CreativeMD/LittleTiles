@@ -2,7 +2,6 @@ package team.creative.littletiles.common.item;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -21,12 +20,12 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.handler.GuiCreator.GuiCreatorBasic;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.event.PickBlockEvent;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
@@ -37,7 +36,6 @@ import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
-import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 
@@ -45,6 +43,18 @@ public class LittleToolHandler {
     
     public static ItemStack lastSelectedItem = null;
     public static ILittleTool tool = null;
+    
+    public static final GuiCreatorBasic OPEN_CONFIG = GuiCreator.register("configure", new GuiCreatorBasic((nbt, player) -> {
+        if (player.getMainHandItem().getItem() instanceof ILittleTool)
+            return ((ILittleTool) player.getMainHandItem().getItem()).getConfigure(player, ContainerSlotView.mainHand(player));
+        return null;
+    }));
+    
+    public static final GuiCreatorBasic OPEN_CONFIG_ADVANCED = GuiCreator.register("configureadvanced", new GuiCreatorBasic((nbt, player) -> {
+        if (player.getMainHandItem().getItem() instanceof ILittleTool)
+            return ((ILittleTool) player.getMainHandItem().getItem()).getConfigureAdvanced(player, ContainerSlotView.mainHand(player));
+        return null;
+    }));
     
     private boolean leftClicked;
     
@@ -85,8 +95,8 @@ public class LittleToolHandler {
                 }
                 
                 if (stack.getItem() instanceof ILittleTool) {
-                    if (((ILittleTool) stack.getItem())
-                            .onClickBlock(event.getWorld(), event.getPlayer(), stack, new PlacementPosition(ray, ((ILittleTool) stack.getItem()).getPositionGrid(stack)), ray))
+                    PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(event.getWorld(), stack, ray);
+                    if (((ILittleTool) stack.getItem()).onClickBlock(event.getWorld(), event.getPlayer(), stack, position, ray))
                         event.setCanceled(true);
                     tool = (ILittleTool) stack.getItem();
                     lastSelectedItem = stack;
@@ -117,21 +127,16 @@ public class LittleToolHandler {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public static PlacementPosition getPosition(Level level, ILittleTool iTile, ItemStack stack, BlockHitResult result) {
-        return PreviewRenderer.marked != null ? PreviewRenderer.marked.getPosition() : PlacementHelper.getPosition(level, result, iTile.getPositionGrid(stack), iTile, stack);
-    }
-    
-    @OnlyIn(Dist.CLIENT)
     public boolean onRightInteractClient(ILittleTool iTile, Player player, InteractionHand hand, Level level, ItemStack stack, BlockPos pos, Facing facing) {
         if (iTile instanceof ILittlePlacer) {
             HitResult result = Minecraft.getInstance().hitResult;
             if (!(result instanceof BlockHitResult))
                 return false;
-            PlacementPosition position = getPosition(level, iTile, stack, (BlockHitResult) result);
+            PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
             if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && ((ILittlePlacer) iTile).hasTiles(stack)) {
                 if (!stack.isEmpty()) {
                     LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, PlacementPreview.relative(level, stack, position, false)));
-                    PreviewRenderer.marked = null;
+                    LittleTilesClient.PREVIEW_RENDERER.removeMarked();
                 }
                 iTile.onDeselect(level, stack, player);
                 return true;
@@ -161,14 +166,14 @@ public class LittleToolHandler {
                     if (stack.getItem() instanceof ILittleTool) {
                         GuiConfigure gui = ((ILittleTool) stack.getItem()).getConfigure(mc.player, ContainerSlotView.mainHand(mc.player));
                         if (gui != null)
-                            GuiHandler.openGui("configure", new CompoundTag(), mc.player);
+                            OPEN_CONFIG.open(mc.player);
                     }
                 
                 while (LittleTilesClient.configureAdvanced.consumeClick())
                     if (stack.getItem() instanceof ILittleTool) {
                         GuiConfigure gui = ((ILittleTool) stack.getItem()).getConfigureAdvanced(mc.player, ContainerSlotView.mainHand(mc.player));
                         if (gui != null)
-                            GuiHandler.openGui("configureadvanced", new CompoundTag(), mc.player);
+                            OPEN_CONFIG_ADVANCED.open(mc.player);
                     }
             }
         }

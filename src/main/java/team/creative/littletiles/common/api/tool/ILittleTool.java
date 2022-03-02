@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.api.tool;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -53,7 +55,7 @@ public interface ILittleTool {
     public default void tick(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {}
     
     @OnlyIn(Dist.CLIENT)
-    public default void render(Player player, ItemStack stack, double x, double y, double z) {}
+    public default void render(Player player, ItemStack stack, PoseStack pose) {}
     
     @OnlyIn(Dist.CLIENT)
     public default void onDeselect(Level level, ItemStack stack, Player player) {}

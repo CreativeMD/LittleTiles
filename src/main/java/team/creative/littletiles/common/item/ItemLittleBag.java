@@ -11,7 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.handler.ItemGuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
@@ -24,7 +25,7 @@ import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 
-public class ItemLittleBag extends Item implements GuiHandler, ILittleIngredientInventory {
+public class ItemLittleBag extends Item implements ItemGuiCreator, ILittleIngredientInventory {
     
     public static int colorUnitMaximum = 10000000;
     public static int inventoryWidth = 6;
@@ -43,7 +44,7 @@ public class ItemLittleBag extends Item implements GuiHandler, ILittleIngredient
     }
     
     @Override
-    public GuiLayer create(Player player, CompoundTag nbt) {
+    public GuiLayer create(CompoundTag nbt, Player player) {
         return new GuiBag(ContainerSlotView.mainHand(player));
     }
     
@@ -52,7 +53,7 @@ public class ItemLittleBag extends Item implements GuiHandler, ILittleIngredient
         if (hand != InteractionHand.MAIN_HAND)
             return InteractionResultHolder.fail(player.getItemInHand(hand));
         if (!level.isClientSide)
-            GuiHandler.openItemGui(player, hand, new CompoundTag());
+            GuiCreator.ITEM_OPENER.open(player, hand);
         return InteractionResultHolder.success(player.getItemInHand(hand));
     }
     

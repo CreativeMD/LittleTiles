@@ -15,6 +15,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -27,8 +28,8 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.GuiStorage;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
+import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
+import team.creative.littletiles.common.gui.structure.GuiStorage;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -40,6 +41,9 @@ import team.creative.littletiles.common.structure.registry.LittleStructureGuiPar
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
 public class LittleStorage extends LittleStructure {
+    
+    public static final LittleStructureGuiCreator GUI = GuiCreator
+            .register("storage", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiStorage((LittleStorage) structure, player)));
     
     private List<GuiStorage> openContainers = new ArrayList<GuiStorage>();
     
@@ -127,7 +131,7 @@ public class LittleStorage extends LittleStructure {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide && !hasPlayerOpened(player))
-            LittleStructureGuiHandler.openGui("storage", new CompoundTag(), player, this);
+            GUI.open(player, this);
         return InteractionResult.SUCCESS;
     }
     

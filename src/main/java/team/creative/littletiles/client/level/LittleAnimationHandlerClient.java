@@ -40,8 +40,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.DrawSelectionEvent.HighlightBlock;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -479,15 +478,13 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     }
     
     @SubscribeEvent
-    public void renderLast(RenderLevelLastEvent event) {
-        if (mc.options.hideGui)
-            return;
-        
+    public void drawHighlight(DrawSelectionEvent event) {
         LittleHitResult result = getHit();
         
         if (result == null && !result.isBlock())
             return;
         
+        event.setCanceled(true);
         BlockPos pos = result.asBlockHit().getBlockPos();
         BlockState state = result.level.getBlockState(pos);
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
@@ -515,12 +512,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
                         .normal(posestack$pose.normal(), f, f1, f2).endVertex();
             });
         }
-    }
-    
-    @SubscribeEvent
-    public void drawHighlight(HighlightBlock event) {
-        if (getHit() != null)
-            event.setCanceled(true);
     }
     
     @SubscribeEvent

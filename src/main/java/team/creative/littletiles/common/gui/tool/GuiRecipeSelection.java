@@ -4,6 +4,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
@@ -14,7 +15,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -54,7 +55,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         mode.clear(stack);
         
         tool.changed();
-        GuiHandler.openGui("recipeadvanced", new CompoundTag(), getPlayer());
+        GuiCreator.ITEM_OPENER.open(getPlayer(), InteractionHand.MAIN_HAND);
     });
     
     public GuiRecipeSelection(ContainerSlotView view) {

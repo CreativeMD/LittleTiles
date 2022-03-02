@@ -18,7 +18,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.handler.ItemGuiCreator;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -26,7 +27,6 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
@@ -47,7 +47,7 @@ import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
-public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip, GuiHandler {
+public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip, ItemGuiCreator {
     
     private static boolean activeFilter = false;
     private static BiFilter<IParentCollection, LittleTile> currentFilter = null;
@@ -87,7 +87,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         if (hand == InteractionHand.OFF_HAND)
             return new InteractionResultHolder(InteractionResult.PASS, player.getItemInHand(hand));
         if (!level.isClientSide)
-            GuiHandler.openItemGui(player, hand);
+            GuiCreator.ITEM_OPENER.open(player, hand);
         return new InteractionResultHolder(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
     
@@ -104,7 +104,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (LittleActionHandlerClient.isUsingSecondMode()) {
             selection = null;
-            PreviewRenderer.marked = null;
+            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (isFiltered())
@@ -133,7 +133,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
-    public GuiLayer create(Player player, CompoundTag nbt) {
+    public GuiLayer create(CompoundTag nbt, Player player) {
         return getConfigure(player, ContainerSlotView.mainHand(player));
     }
     

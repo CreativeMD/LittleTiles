@@ -121,6 +121,10 @@ public class RenderingThread extends Thread {
         return true;
     }
     
+    public static int queueSize() {
+        return QUEUE.size();
+    }
+    
     static {
         initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
     }

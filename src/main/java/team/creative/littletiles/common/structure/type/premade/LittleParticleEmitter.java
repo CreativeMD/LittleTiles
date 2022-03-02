@@ -16,6 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -28,7 +29,8 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.entity.particle.LittleParticle;
 import team.creative.littletiles.common.entity.particle.LittleParticlePresets;
 import team.creative.littletiles.common.entity.particle.LittleParticleTexture;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiHandler;
+import team.creative.littletiles.common.gui.SubGuiParticle;
+import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
@@ -39,6 +41,9 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
+    
+    public static final LittleStructureGuiCreator GUI = GuiCreator
+            .register("particle", new LittleStructureGuiCreator((nbt, player, structure) -> new SubGuiParticle((LittleParticleEmitter) structure)));
     
     @StructureDirectional
     public Facing facing = Facing.UP;
@@ -74,7 +79,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide)
-            LittleStructureGuiHandler.openGui("particle", new CompoundTag(), player, this);
+            GUI.open(player, this);
         return InteractionResult.SUCCESS;
     }
     

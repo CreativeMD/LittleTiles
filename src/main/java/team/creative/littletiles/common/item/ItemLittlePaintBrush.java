@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -30,7 +30,6 @@ import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
@@ -97,7 +96,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
         if (hand == InteractionHand.OFF_HAND)
             return new InteractionResultHolder(InteractionResult.PASS, player.getItemInHand(hand));
         if (!level.isClientSide)
-            GuiHandler.openItemGui(player, hand);
+            GuiCreator.ITEM_OPENER.open(player, hand);
         return new InteractionResultHolder(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
     
@@ -134,7 +133,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (LittleActionHandlerClient.isUsingSecondMode()) {
             selection = null;
-            PreviewRenderer.marked = null;
+            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (ItemLittleHammer.isFiltered())

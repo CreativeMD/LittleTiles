@@ -1,9 +1,8 @@
 package team.creative.littletiles.common.placement.box;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.core.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -20,10 +19,9 @@ public abstract class LittlePlaceBox {
         this.box = box;
     }
     
-    public List<LittleRenderBox> getRenderBoxes(LittleGrid grid) {
-        List<LittleRenderBox> previews = new ArrayList<>();
-        previews.add(box.getRenderingBox(grid));
-        return previews;
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderBox(LittleGrid grid) {
+        return box.getRenderingBox(grid);
     }
     
     public abstract void place(Placement placement, LittleGrid grid, BlockPos pos, LittleStructure structure) throws LittleActionException;

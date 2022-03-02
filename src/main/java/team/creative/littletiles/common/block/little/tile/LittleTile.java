@@ -389,6 +389,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.canBeRenderCombined(this, tile);
     }
     
+    public void addPlaceBoxes(LittleGrid grid, List<RenderBox> boxes) {
+        for (LittleBox box : this.boxes)
+            boxes.add(new RenderBox(box.getBox(grid)));
+    }
+    
     public void addRenderingBoxes(LittleGrid grid, List<RenderBox> boxes) {
         for (LittleBox box : this.boxes)
             boxes.add(box.getRenderingBox(grid));
