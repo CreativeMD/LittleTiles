@@ -2,10 +2,18 @@ package team.creative.littletiles.client.render.level;
 
 import java.lang.reflect.Field;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3d;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +29,6 @@ import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.world.WorldEvent.Unload;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -71,6 +78,7 @@ public class LittleClientEventHandler {
     public void renderOverlay(RenderBlockOverlayEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (event.getOverlayType() == OverlayType.WATER) {
+            PoseStack pose = new PoseStack();
             Player player = event.getPlayer();
             BlockPos blockpos = new BlockPos(player.getEyePosition(TickUtils.getDeltaFrameTime(player.level)));
             BlockEntity blockEntity = player.level.getBlockEntity(blockpos);
@@ -79,33 +87,29 @@ public class LittleClientEventHandler {
                 for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                     LittleTile tile = pair.value;
                     if (tile.isMaterial(Material.WATER) && tile.intersectsWith(bb, pair.key)) {
-                        mc.getTextureManager().bindTexture(RES_UNDERWATER_OVERLAY);
-                        Tessellator tessellator = Tessellator.getInstance();
-                        BufferBuilder bufferbuilder = tessellator.getBuffer();
+                        
+                        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                        RenderSystem.enableTexture();
+                        RenderSystem.setShaderTexture(0, RES_UNDERWATER_OVERLAY);
+                        
+                        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
                         float f = mc.player.getBrightness();
-                        Vec3d color = ColorUtils.IntToVec(((LittleTileColored) tile).color);
-                        GlStateManager.color(f * (float) color.x, f * (float) color.y, f * (float) color.z, 0.5F);
-                        GlStateManager.enableBlend();
-                        GlStateManager
-                                .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                        GlStateManager.pushMatrix();
-                        float f1 = 4.0F;
-                        float f2 = -1.0F;
-                        float f3 = 1.0F;
-                        float f4 = -1.0F;
-                        float f5 = 1.0F;
-                        float f6 = -0.5F;
-                        float f7 = -mc.player.rotationYaw / 64.0F;
-                        float f8 = mc.player.rotationPitch / 64.0F;
-                        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-                        bufferbuilder.pos(-1.0D, -1.0D, -0.5D).tex(4.0F + f7, 4.0F + f8).endVertex();
-                        bufferbuilder.pos(1.0D, -1.0D, -0.5D).tex(0.0F + f7, 4.0F + f8).endVertex();
-                        bufferbuilder.pos(1.0D, 1.0D, -0.5D).tex(0.0F + f7, 0.0F + f8).endVertex();
-                        bufferbuilder.pos(-1.0D, 1.0D, -0.5D).tex(4.0F + f7, 0.0F + f8).endVertex();
-                        tessellator.draw();
-                        GlStateManager.popMatrix();
-                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                        GlStateManager.disableBlend();
+                        RenderSystem.enableBlend();
+                        RenderSystem.defaultBlendFunc();
+                        RenderSystem.setShaderColor(f, f, f, 0.1F);
+                        Vector3d color = ColorUtils.toVec(tile.color);
+                        RenderSystem.setShaderColor(f * (float) color.x, f * (float) color.y, f * (float) color.z, 0.5F);
+                        float f7 = -mc.player.getYRot() / 64.0F;
+                        float f8 = mc.player.getXRot() / 64.0F;
+                        Matrix4f matrix4f = pose.last().pose();
+                        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+                        bufferbuilder.vertex(matrix4f, -1.0F, -1.0F, -0.5F).uv(4.0F + f7, 4.0F + f8).endVertex();
+                        bufferbuilder.vertex(matrix4f, 1.0F, -1.0F, -0.5F).uv(0.0F + f7, 4.0F + f8).endVertex();
+                        bufferbuilder.vertex(matrix4f, 1.0F, 1.0F, -0.5F).uv(0.0F + f7, 0.0F + f8).endVertex();
+                        bufferbuilder.vertex(matrix4f, -1.0F, 1.0F, -0.5F).uv(4.0F + f7, 0.0F + f8).endVertex();
+                        bufferbuilder.end();
+                        BufferUploader.end(bufferbuilder);
+                        RenderSystem.disableBlend();
                         
                         event.setCanceled(true);
                         return;
