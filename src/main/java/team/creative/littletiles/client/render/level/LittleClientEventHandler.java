@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -67,11 +68,14 @@ public class LittleClientEventHandler {
         
     }
     
+    public void reloadRenderer(EntityRenderersEvent.AddLayers event) {
+        
+    }
+    
     @SubscribeEvent
     public synchronized void worldUnload(Unload event) {
-        if (event.getWorld().isClientSide()) {
+        if (event.getWorld().isClientSide())
             RenderingThread.unload();
-        }
     }
     
     @SubscribeEvent

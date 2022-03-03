@@ -47,9 +47,11 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
     
     public static Minecraft mc = Minecraft.getInstance();
     public static final VertexBufferUploader uploader = new VertexBufferUploader();
+    public static LittleLevelEntityRenderer INSTANCE;
     
     public LittleLevelEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
+        INSTANCE = this;
     }
     
     @Override
