@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.render.level;
+package team.creative.littletiles.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.world.phys.Vec3;
+import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 
 @Mixin(targets = "net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk.RebuildTask")
 public abstract class MixinChunkRenderDispatcher {
