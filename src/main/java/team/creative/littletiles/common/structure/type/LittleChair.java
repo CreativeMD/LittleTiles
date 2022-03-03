@@ -4,12 +4,14 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.level.CreativeServerLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
@@ -70,13 +72,24 @@ public class LittleChair extends LittleStructure {
                     return;
                 level = ((ISubLevel) level).getRealLevel();
             }
-            for (Entity entity : level.loadedEntityList)
-                if (entity.getUUID().equals(sitUUID) && entity instanceof EntitySit) {
-                    EntitySit sit = (EntitySit) entity;
-                    StructureChildConnection temp = this.children.generateConnection(sit);
-                    sit.getEntityData().set(EntitySit.CONNECTION, temp.save(new CompoundTag()));
-                    break;
-                }
+            if (!level.isClientSide) {
+                Iterable<Entity> iterable;
+                if (level instanceof ServerLevel)
+                    iterable = ((ServerLevel) level).getAllEntities();
+                else if (level instanceof CreativeServerLevel)
+                    iterable = ((CreativeServerLevel) level).loadedEntities();
+                else
+                    throw new UnsupportedOperationException();
+                
+                for (Entity entity : iterable)
+                    if (entity.getUUID().equals(sitUUID) && entity instanceof EntitySit) {
+                        EntitySit sit = (EntitySit) entity;
+                        StructureChildConnection temp = this.children.generateConnection(sit);
+                        sit.getEntityData().set(EntitySit.CONNECTION, temp.save(new CompoundTag()));
+                        break;
+                    }
+            }
+            
         }
     }
     
