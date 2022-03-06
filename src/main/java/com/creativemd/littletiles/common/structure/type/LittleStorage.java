@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.structure.type;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
@@ -43,6 +44,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 public class LittleStorage extends LittleStructure {
     
@@ -167,6 +171,10 @@ public class LittleStorage extends LittleStructure {
         updateInput();
         onInventoryChanged();
     }
+
+    public LittleStorageItemHandler itemHandler(){
+        return new LittleStorageItemHandler();
+    }
     
     @Override
     protected void afterPlaced() {
@@ -241,5 +249,15 @@ public class LittleStorage extends LittleStructure {
         }
         
     }
-    
+
+    public class LittleStorageItemHandler extends InvWrapper {
+        public LittleStorageItemHandler() {
+            super(inventory);
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return slot == numberOfSlots - 1 ? lastSlotStackSize : super.getSlotLimit(slot);
+        }
+    }
 }
