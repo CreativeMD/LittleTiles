@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 import team.creative.littletiles.common.structure.type.bed.ILittleBedPlayerExtension;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
 
-@Mixin(Player.class)
+@Mixin(value = Player.class, remap = false)
 public abstract class LittleBedPlayerMixin extends LivingEntity implements ILittleBedPlayerExtension {
     
     protected LittleBedPlayerMixin(EntityType<? extends LivingEntity> p_20966_, Level p_20967_) {
@@ -23,7 +23,7 @@ public abstract class LittleBedPlayerMixin extends LivingEntity implements ILitt
     public LittleBed bed;
     
     @Shadow
-    private int sleepingCounter;
+    private int sleepCounter;
     
     @Override
     public LittleBed getBed() {
@@ -46,7 +46,7 @@ public abstract class LittleBedPlayerMixin extends LivingEntity implements ILitt
     @Override
     @Unique
     public void setSleepingCounter(int counter) {
-        this.sleepingCounter = counter;
+        this.sleepCounter = counter;
     }
     
 }

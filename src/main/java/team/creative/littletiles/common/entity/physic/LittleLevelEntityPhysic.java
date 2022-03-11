@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.animation.physic;
+package team.creative.littletiles.common.entity.physic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +28,9 @@ import team.creative.littletiles.common.animation.entity.AxisAlignedBB;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.entity.EntityPlayerMP;
 import team.creative.littletiles.common.animation.entity.EnumFacing;
-import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.animation.entity.OrientatedBoundingBox;
 import team.creative.littletiles.common.api.block.LittlePhysicBlock;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public class LittleLevelEntityPhysic implements LevelBoundsListener {

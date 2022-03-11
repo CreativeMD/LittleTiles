@@ -5,7 +5,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;

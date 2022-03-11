@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.animation.physic;
+package team.creative.littletiles.common.entity.physic;
 
 import java.util.List;
 

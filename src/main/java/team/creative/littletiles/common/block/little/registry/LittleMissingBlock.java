@@ -5,7 +5,7 @@ import java.util.Random;
 import com.mojang.math.Vector3d;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -61,7 +61,7 @@ public class LittleMissingBlock implements LittleBlock {
     }
     
     @Override
-    public boolean is(Tag<Block> tag) {
+    public boolean is(TagKey<Block> tag) {
         return false;
     }
     

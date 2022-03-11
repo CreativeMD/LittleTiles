@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.animation.entity;
+package team.creative.littletiles.common.entity;
 
 import javax.annotation.Nullable;
 
@@ -27,7 +27,7 @@ import team.creative.creativecore.common.level.SubServerLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
-import team.creative.littletiles.common.animation.physic.LittleLevelEntityPhysic;
+import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;

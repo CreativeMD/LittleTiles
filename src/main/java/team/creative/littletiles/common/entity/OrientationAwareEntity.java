@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.animation.entity;
+package team.creative.littletiles.common.entity;
 
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 

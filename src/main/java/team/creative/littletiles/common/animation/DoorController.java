@@ -28,7 +28,8 @@ import team.creative.littletiles.client.render.cache.ChunkBlockLayerManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.world.RenderUtils;
-import team.creative.littletiles.common.animation.entity.LittleDoorEntity;
+import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementHelper;
@@ -42,7 +43,7 @@ import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
 public class DoorController extends AnimationController {
     
-    public LittleDoorEntity parent;
+    public LittleLevelEntity parent;
     protected Boolean placed = null;
     
     public static final String openedState = "opened";
@@ -147,14 +148,14 @@ public class DoorController extends AnimationController {
         
         if (isChanging()) {
             try {
-                parent.structure.checkConnections();
+                parent.getStructure().checkConnections();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 return currentState.state;
             }
             
-            ((LittleDoor) parent.structure).beforeTick(parent, tick);
+            ((LittleDoor) parent.getStructure()).beforeTick(parent, tick);
             AnimationState state = super.tick();
-            ((LittleDoor) parent.structure).afterTick(parent, tick);
+            ((LittleDoor) parent.getStructure()).afterTick(parent, tick);
             return state;
         } else
             return super.tick();
@@ -163,36 +164,36 @@ public class DoorController extends AnimationController {
     @Override
     public void startTransition(String key) {
         super.startTransition(key);
-        ((LittleDoor) parent.structure).startAnimation(parent);
+        ((LittleDoor) parent.getStructure()).startAnimation(parent);
     }
     
     @Override
     public void endTransition() {
         super.endTransition();
-        ((LittleDoor) parent.structure).finishAnimation(parent);
+        ((LittleDoor) parent.getStructure()).finishAnimation(parent);
         if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
             if (isWaitingForApprove)
                 placed = false;
             else
                 place();
         } else
-            ((LittleDoor) parent.structure).completeAnimation();
+            ((LittleDoor) parent.getStructure()).completeAnimation();
     }
     
     public void place() {
         try {
-            parent.structure.checkConnections();
+            parent.getStructure().checkConnections();
             
             World world = parent.world;
-            LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
+            LittleAbsolutePreviews previews = parent.getStructure().getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
             
-            parent.structure.callStructureDestroyedToSameWorld();
+            parent.getStructure().callStructureDestroyedToSameWorld();
             
             if (world.isRemote)
                 parent.getRenderChunkSuppilier().backToRAM(); //Just doesn't work you cannot get the render data after everything happened
                 
             Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all))
-                    .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
+                    .setPlaySounds(((LittleDoorBase) parent.getStructure()).playPlaceSounds);
             
             LittleDoor newDoor;
             PlacementResult result;
@@ -204,11 +205,11 @@ public class DoorController extends AnimationController {
                 
                 newDoor.transferChildrenFromAnimation(parent);
                 
-                if (parent.structure.getParent() != null) {
-                    boolean dynamic = parent.structure.getParent().dynamic;
-                    LittleStructure parentStructure = parent.structure.getParent().getStructure();
-                    newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure, dynamic);
-                    parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor, dynamic);
+                if (parent.getStructure().getParent() != null) {
+                    boolean dynamic = parent.getStructure().getParent().dynamic;
+                    LittleStructure parentStructure = parent.getStructure().getParent().getStructure();
+                    newDoor.updateParentConnection(parent.getStructure().getParent().getChildId(), parentStructure, dynamic);
+                    parentStructure.updateChildConnection(parent.getStructure().getParent().getChildId(), newDoor, dynamic);
                 }
                 
                 if (!world.isRemote) {
@@ -220,7 +221,7 @@ public class DoorController extends AnimationController {
             } else {
                 parent.markRemoved();
                 if (!world.isRemote)
-                    LevelUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
+                    LevelUtils.dropItem(world, parent.getStructure().getStructureDrop(), parent.center.baseOffset);
                 return;
             }
             

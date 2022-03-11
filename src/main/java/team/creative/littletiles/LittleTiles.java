@@ -20,7 +20,7 @@ import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -52,10 +52,10 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
-import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
@@ -98,7 +98,7 @@ public class LittleTiles {
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
     
-    public static Tag<Block> STORAGE_BLOCKS;
+    public static TagKey<Block> STORAGE_BLOCKS;
     
     public static final CreativeModeTab LITTLE_TAB = new CreativeModeTab("littletiles") {
         
@@ -169,7 +169,7 @@ public class LittleTiles {
         
         MinecraftForge.EVENT_BUS.register(EntitySizeHandler.class);
         
-        STORAGE_BLOCKS = BlockTags.createOptional(new ResourceLocation(MODID, "storage_blocks"));
+        STORAGE_BLOCKS = BlockTags.create(new ResourceLocation(MODID, "storage_blocks"));
         
         CraftingHelper.register(new ResourceLocation(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
     }

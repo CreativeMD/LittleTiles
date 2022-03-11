@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 
-@Mixin(targets = "net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk.RebuildTask")
+@Mixin(targets = "net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk.RebuildTask", remap = false)
 public abstract class MixinChunkRenderDispatcher {
     
     @Inject(at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList()Ljava/util/ArrayList;"),

@@ -10,6 +10,7 @@ import com.mojang.math.Vector3d;
 
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
+import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;

@@ -5,7 +5,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.littletiles.common.animation.entity.LittleLevelEntity;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 
 public class LittleHitResult {
     

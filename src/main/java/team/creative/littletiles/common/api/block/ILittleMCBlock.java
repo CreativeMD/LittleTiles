@@ -6,7 +6,7 @@ import com.mojang.math.Vector3d;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -50,8 +50,9 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public default boolean is(Tag<Block> tag) {
-        return tag.contains(asBlock());
+    @SuppressWarnings("deprecation")
+    public default boolean is(TagKey<Block> tag) {
+        return asBlock().builtInRegistryHolder().is(tag);
     }
     
     @Override
