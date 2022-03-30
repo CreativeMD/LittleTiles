@@ -3,6 +3,8 @@ package team.creative.littletiles.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -21,9 +23,9 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -220,16 +222,11 @@ public class LittleTilesClient {
         MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
         
         ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
-        reloadableResourceManager.registerReloadListener(new SimplePreparableReloadListener() {
+        reloadableResourceManager.registerReloadListener(new PreparableReloadListener() {
             
             @Override
-            protected void apply(Object p_10793_, ResourceManager p_10794_, ProfilerFiller p_10795_) {
-                LittleChunkDispatcher.currentRenderState++;
-            }
-            
-            @Override
-            protected Object prepare(ResourceManager p_10796_, ProfilerFiller p_10797_) {
-                return null;
+            public CompletableFuture<Void> reload(PreparationBarrier p_10638_, ResourceManager p_10639_, ProfilerFiller p_10640_, ProfilerFiller p_10641_, Executor p_10642_, Executor p_10643_) {
+                return CompletableFuture.runAsync(() -> LittleChunkDispatcher.currentRenderState++, p_10643_);
             }
         });
         
