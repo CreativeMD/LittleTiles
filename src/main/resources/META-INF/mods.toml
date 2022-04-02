@@ -6,7 +6,7 @@ license="GNU General Public License v3.0"
 
 [[mods]]
 	modId="littletiles"
-	version="1.6.0"
+	version="${file.jarVersion}"
 	displayName="LittleTiles"
 	displayURL="https://minecraft.curseforge.com/projects/littletiles"
 	authors="CreativeMD"
