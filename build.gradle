@@ -36,10 +36,6 @@ repositories {
 group= "team.creative" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "littletiles"
 
-if (System.getenv('BUILD_NUMBER') != null) {
-    version += ".${System.getenv('BUILD_NUMBER')}"
-}
-
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
