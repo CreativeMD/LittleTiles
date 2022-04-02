@@ -16,7 +16,7 @@ import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 public abstract class MixinChunkRenderDispatcher {
     
     @Inject(at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList()Ljava/util/ArrayList;"),
-            method = "doTask(Lnet/minecraft/client/renderer/ChunkBufferBuilderPack;)", locals = LocalCapture.CAPTURE_FAILHARD)
+            method = "doTask(Lnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", locals = LocalCapture.CAPTURE_FAILHARD)
     private void rebuild(ChunkBufferBuilderPack pack, CallbackInfo info, Vec3 vec, float x, float y, float z, CompiledChunk compiled) {
         LittleChunkDispatcher.beforeUploadRebuild(pack, compiled, (RenderChunk) (Object) this);
     }
