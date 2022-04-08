@@ -75,6 +75,9 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             mods {
+                creativecore {
+                    source project(':CreativeCore').sourceSets.main
+                }
                 littletiles {
                     source sourceSets.main
                 }
@@ -96,6 +99,9 @@ minecraft {
             args '--mod', 'littletiles', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
+                creativecore {
+                    source project(':CreativeCore').sourceSets.main
+                }
                 littletiles {
                     source sourceSets.main
                 }
