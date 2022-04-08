@@ -38,6 +38,18 @@ archivesBaseName = "littletiles"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+java.sourceSets.create("api") {
+    
+    java {
+        srcDir("src/api/java")
+    }
+    compileClasspath += sourceSets.main.compileClasspath
+    runtimeClasspath += sourceSets.main.runtimeClasspath
+}
+
+sourceSets.main.compileClasspath += sourceSets.api.output
+sourceSets.main.runtimeClasspath += sourceSets.api.output
+
 minecraft {
     mappings channel: 'parchment', version: "2022.03.13-1.18.2"
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
