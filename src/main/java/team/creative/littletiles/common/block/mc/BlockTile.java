@@ -813,4 +813,15 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
         return (facing.positive ? 0 : 1) + pos.get(facing.axis.toVanilla()); // most inward value possible
     }
     
+    @Override
+    public boolean supportsExternalFaceHiding(BlockState state) {
+        return true;
+    }
+    
+    @Override
+    public boolean hidesNeighborFace(BlockGetter level, BlockPos pos, BlockState state, BlockState neighborState, Direction dir) {
+        // TODO Implement it
+        return super.hidesNeighborFace(level, pos, state, neighborState, dir);
+    }
+    
 }

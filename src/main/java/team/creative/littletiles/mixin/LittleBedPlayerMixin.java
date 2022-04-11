@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 import team.creative.littletiles.common.structure.type.bed.ILittleBedPlayerExtension;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
 
-@Mixin(value = Player.class, remap = false)
+@Mixin(Player.class)
 public abstract class LittleBedPlayerMixin extends LivingEntity implements ILittleBedPlayerExtension {
     
     protected LittleBedPlayerMixin(EntityType<? extends LivingEntity> p_20966_, Level p_20967_) {

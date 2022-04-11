@@ -69,7 +69,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     @Deprecated
-    @SuppressWarnings("deprecation")
     public LittleTile(BlockState state, LittleBlock block, int color, List<LittleBox> boxes) {
         super(state, block, color);
         this.boxes = boxes;

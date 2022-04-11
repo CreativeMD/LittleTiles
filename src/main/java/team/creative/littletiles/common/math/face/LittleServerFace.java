@@ -19,7 +19,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructureAttribute;
 
-public class LittleServerFace implements ILittleFace {
+public non-sealed class LittleServerFace implements ILittleFace {
     
     private final BETiles be;
     private final HashMap<Facing, Boolean> neighbours = new HashMap<>();

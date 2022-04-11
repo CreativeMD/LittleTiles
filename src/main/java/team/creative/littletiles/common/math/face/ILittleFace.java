@@ -7,7 +7,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.littletiles.common.grid.LittleGrid;
 
-public interface ILittleFace {
+public sealed interface ILittleFace permits LittleFace,LittleServerFace {
     
     public LittleGrid getGrid();
     

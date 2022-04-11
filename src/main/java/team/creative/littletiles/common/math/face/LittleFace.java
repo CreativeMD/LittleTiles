@@ -13,7 +13,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 
-public class LittleFace implements ILittleFace {
+public non-sealed class LittleFace implements ILittleFace {
     
     public LittleGrid grid;
     public LittleBox box;
