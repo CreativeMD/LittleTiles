@@ -404,7 +404,6 @@ public class GuiSignalController extends GuiParent {
     
     public abstract class GuiSignalNode extends GuiButton implements Iterable<NodeConnection> {
         
-        private String error;
         private int col;
         private int row;
         
