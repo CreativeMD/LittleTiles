@@ -58,6 +58,7 @@ minecraft {
     // These can be tweaked, removed, or duplicated as needed.
     runs {
         client {
+            taskName "littletiles_client"
             workingDirectory project.file('run')
 			
 			property 'mixin.env.remapRefMap', 'true'
@@ -76,6 +77,7 @@ minecraft {
         }
 
         server {
+            taskName "littletiles_server"
             workingDirectory project.file('run')
 			
 			property 'mixin.env.remapRefMap', 'true'
@@ -85,30 +87,6 @@ minecraft {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
-
-            mods {
-                creativecore {
-                    source project(':CreativeCore').sourceSets.main
-                }
-                littletiles {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-			
-			property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', 'littletiles', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 creativecore {
