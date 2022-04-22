@@ -4,11 +4,11 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButtonTranslated;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
@@ -21,7 +21,7 @@ import team.creative.littletiles.common.structure.signal.logic.SignalPatternPars
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalCustomIndex;
 
-public class SubGuiDialogSignalInput extends SubGui {
+public class SubGuiDialogSignalInput extends GuiLayer {
     
     public final GuiSignalNodeInput input;
     
@@ -32,7 +32,7 @@ public class SubGuiDialogSignalInput extends SubGui {
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         
         controls.add(new GuiLabel(input.component.name + "[", 0, 0));
         controls.add(new GuiTextfield("range", input.getRange(), 20, 0, 100, 10));
@@ -59,30 +59,30 @@ public class SubGuiDialogSignalInput extends SubGui {
                 GuiScrollBox panel = (GuiScrollBox) get("config");
                 input.operator = tab.getState();
                 switch (tab.getState()) {
-                case 0:
-                    
-                    break;
-                case 1:
-                    GuiStateButton operation = (GuiStateButton) panel.get("operation");
-                    input.logic = SignalLogicOperator.values()[operation.getState()];
-                    break;
-                case 2:
-                    int[] indexes = new int[bandwidth];
-                    for (int i = 0; i < bandwidth; i++) {
-                        GuiStateButton stateButton = (GuiStateButton) panel.get(i + "");
-                        indexes[i] = stateButton.getState();
-                    }
-                    input.pattern = indexes;
-                    break;
-                case 3:
-                    GuiTextfield textfield = (GuiTextfield) get("equation");
-                    try {
-                        input.equation = SignalInputCondition.parseExpression(new SignalPatternParser(textfield.text), new char[0], false, true);
-                    } catch (ParseException e) {
-                        input.equation = null;
-                    }
-                    
-                    break;
+                    case 0:
+                        
+                        break;
+                    case 1:
+                        GuiStateButton operation = (GuiStateButton) panel.get("operation");
+                        input.logic = SignalLogicOperator.values()[operation.getState()];
+                        break;
+                    case 2:
+                        int[] indexes = new int[bandwidth];
+                        for (int i = 0; i < bandwidth; i++) {
+                            GuiStateButton stateButton = (GuiStateButton) panel.get(i + "");
+                            indexes[i] = stateButton.getState();
+                        }
+                        input.pattern = indexes;
+                        break;
+                    case 3:
+                        GuiTextfield textfield = (GuiTextfield) get("equation");
+                        try {
+                            input.equation = SignalInputCondition.parseExpression(new SignalPatternParser(textfield.text), new char[0], false, true);
+                        } catch (ParseException e) {
+                            input.equation = null;
+                        }
+                        
+                        break;
                 }
                 
                 input.updateLabel();
@@ -99,27 +99,27 @@ public class SubGuiDialogSignalInput extends SubGui {
             GuiScrollBox panel = (GuiScrollBox) get("config");
             panel.controls.clear();
             switch (tab.getState()) {
-            case 0:
-                
-                break;
-            case 1:
-                panel.addControl(new GuiStateButton("operation", input.logic == null ? 0 : input.logic
-                    .ordinal(), 0, 0, 40, 14, SignalLogicOperator.AND.display, SignalLogicOperator.OR.display, SignalLogicOperator.XOR.display));
-                break;
-            case 2:
-                for (int i = 0; i < bandwidth; i++) {
-                    int state = 2;
-                    if (input.pattern != null && input.pattern.length > i)
-                        state = input.pattern[i];
+                case 0:
                     
-                    panel.addControl(new GuiLabel(i + ":", 10, i * 20 + 3));
-                    panel.addControl(new GuiStateButton(i + "", state, 30, i * 20, 60, "false", "true", "ignore"));
-                }
-                break;
-            case 3:
-                panel.addControl(new GuiTextfield("equation", input.equation != null ? input.equation.write() : "", 0, 0, 100, 10));
-                panel.addControl(new GuiLabel("d<index>", 0, 20));
-                break;
+                    break;
+                case 1:
+                    panel.addControl(new GuiStateButton("operation", input.logic == null ? 0 : input.logic
+                            .ordinal(), 0, 0, 40, 14, SignalLogicOperator.AND.display, SignalLogicOperator.OR.display, SignalLogicOperator.XOR.display));
+                    break;
+                case 2:
+                    for (int i = 0; i < bandwidth; i++) {
+                        int state = 2;
+                        if (input.pattern != null && input.pattern.length > i)
+                            state = input.pattern[i];
+                        
+                        panel.addControl(new GuiLabel(i + ":", 10, i * 20 + 3));
+                        panel.addControl(new GuiStateButton(i + "", state, 30, i * 20, 60, "false", "true", "ignore"));
+                    }
+                    break;
+                case 3:
+                    panel.addControl(new GuiTextfield("equation", input.equation != null ? input.equation.write() : "", 0, 0, 100, 10));
+                    panel.addControl(new GuiLabel("d<index>", 0, 20));
+                    break;
             }
             panel.refreshControls();
         } else if (event.source.is("range"))

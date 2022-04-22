@@ -3,9 +3,9 @@ package team.creative.littletiles.common.gui.signal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
@@ -15,7 +15,7 @@ import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal.ICondition
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
-public class SubGuiDialogSignalMode extends SubGui {
+public class SubGuiDialogSignalMode extends GuiLayer {
     
     public final IConditionConfiguration event;
     public GuiSignalModeConfiguration config;
@@ -28,7 +28,7 @@ public class SubGuiDialogSignalMode extends SubGui {
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         List<String> lines = new ArrayList<>();
         for (SignalMode mode : SignalMode.values())
             lines.add(translate(mode.translateKey));

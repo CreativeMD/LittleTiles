@@ -1,34 +1,33 @@
 package team.creative.littletiles.common.gui.dialogs;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer;
-import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
+import team.creative.littletiles.common.gui.controls.IAnimationControl;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.door.LittleAdvancedDoor;
 
-public class SubGuiDialogAxis extends SubGui {
+public class SubGuiDialogAxis extends GuiLayer {
     
     public final GuiAxisButton activator;
     public final AnimationGuiHandler handler;
@@ -40,7 +39,7 @@ public class SubGuiDialogAxis extends SubGui {
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         controls.add(activator.viewer);
         controls.add(new GuiIconButton("reset view", 20, 107, 8) {
             
@@ -56,17 +55,17 @@ public class SubGuiDialogAxis extends SubGui {
             @Override
             public void onClicked(int x, int y, int button) {
                 switch (activator.viewer.getAxis()) {
-                case X:
-                    activator.viewer.setViewAxis(EnumFacing.Axis.Y);
-                    break;
-                case Y:
-                    activator.viewer.setViewAxis(EnumFacing.Axis.Z);
-                    break;
-                case Z:
-                    activator.viewer.setViewAxis(EnumFacing.Axis.X);
-                    break;
-                default:
-                    break;
+                    case X:
+                        activator.viewer.setViewAxis(EnumFacing.Axis.Y);
+                        break;
+                    case Y:
+                        activator.viewer.setViewAxis(EnumFacing.Axis.Z);
+                        break;
+                    case Z:
+                        activator.viewer.setViewAxis(EnumFacing.Axis.X);
+                        break;
+                    default:
+                        break;
                 }
             }
         }.setCustomTooltip("change view"));
@@ -113,7 +112,7 @@ public class SubGuiDialogAxis extends SubGui {
         controls.add(new GuiCheckBox("even", 107, 0, activator.viewer.isEven()));
         
         GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(activator.viewer.getAxisContext() + ""), 107, 80, 20, 12, LittleGridContext
-            .getNames().toArray(new String[0]));
+                .getNames().toArray(new String[0]));
         controls.add(contextBox);
         
         controls.add(new GuiButton("close", 125, 110) {

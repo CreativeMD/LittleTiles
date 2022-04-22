@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.ChatFormatting;
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
@@ -27,7 +27,7 @@ import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
-public class SubGuiDialogSignal extends SubGui {
+public class SubGuiDialogSignal extends GuiLayer {
     
     public final List<GuiSignalComponent> inputs;
     protected final IConditionConfiguration event;
@@ -46,17 +46,17 @@ public class SubGuiDialogSignal extends SubGui {
     }
     
     @Override
-    public void createControls() {
-        controls.add(new GuiLabel("result", translate("gui.signal.configuration.result"), 0, 0));
+    public void create() {
+        add(new GuiLabel("result", translate("gui.signal.configuration.result"), 0, 0));
         
         GuiSignalController controller = new GuiSignalController("controller", 0, 22, 294, 150, event.getOutput(), inputs);
-        controls.add(controller);
+        add(controller);
         List<String> inputLines = new ArrayList<>();
         for (GuiSignalComponent entry : inputs)
             inputLines.add(entry.info());
         inputLines.add("[]");
-        controls.add(new GuiComboBox("inputs", 0, 180, 80, inputLines));
-        controls.add(new GuiButton("add", translate("gui.signal.configuration.add"), 88, 180) {
+        add(new GuiComboBox("inputs", 0, 180, 80, inputLines));
+        add(new GuiButton("add", translate("gui.signal.configuration.add"), 88, 180) {
             
             @Override
             public void onClicked(int x, int y, int button) {
