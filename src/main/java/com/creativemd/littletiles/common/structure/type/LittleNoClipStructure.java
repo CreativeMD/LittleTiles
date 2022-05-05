@@ -67,7 +67,7 @@ public class LittleNoClipStructure extends LittleStructure {
     }
     
     @Override
-    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, HashMap<Entity, OrientatedBoundingBox> entities) {
+    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, HashMap<Entity, AxisAlignedBB> entities) {
         if (web)
             entities.keySet().forEach(x-> x.setInWeb());
         
