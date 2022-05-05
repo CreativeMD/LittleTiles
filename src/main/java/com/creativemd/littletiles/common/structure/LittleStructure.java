@@ -1065,17 +1065,14 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         if (!hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
             return;
         
-        AxisAlignedBB box = child.getStructure().getSurroundingBox().getAABB();
-        for (Iterator<Entry<Entity, OrientatedBoundingBox>> itr = entities.entrySet().iterator(); itr.hasNext(); ) {
-            Entry<Entity, OrientatedBoundingBox> entry = itr.next();
-            if (!entry.getValue().intersects(box))
-                itr.remove();
-        }
+        AxisAlignedBB box = getStructure().getSurroundingBox().getAABB();
+        HashMap<Entity, OrientatedBoundingBox> collided = new HashMap<>();
+        for (Entry<Entity, OrientatedBoundingBox> entry : entities.entrySet())
+            if (entry.getValue().intersects(box))
+                collided.put(entry.getKey(), entry.getValue());
         
-        if (entities.isEmpty())
-            return;
-        
-        onEntityCollidedWithBlockAnimation(animation, entities);
+        if (!collided.isEmpty())
+            onEntityCollidedWithBlockAnimation(animation, collided);
         
         for (StructureChildConnection child : children) {
             LittleStructure structure = child.getStructure();
@@ -1083,7 +1080,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             if (child.isLinkToAnotherWorld() || !hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
                 continue;
             
-            structure.checkForAnimationCollision(animation, new HashMap<>(entities));
+            structure.checkForAnimationCollision(animation, entities);
         }
         
     }
