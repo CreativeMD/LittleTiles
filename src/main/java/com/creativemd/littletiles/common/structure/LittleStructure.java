@@ -1059,33 +1059,31 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         return false;
     }
     
-    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, Entity entity, OrientatedBoundingBox entityBox) {}
+    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, HashMap<Entity, OrientatedBoundingBox> entities) {}
     
-    public void checkForAnimationCollision(EntityAnimation animation, Entity entity, OrientatedBoundingBox entityBox) throws CorruptedConnectionException, NotYetConnectedException {
-        
+    public void checkForAnimationCollision(EntityAnimation animation, HashMap<Entity, OrientatedBoundingBox> entities) throws CorruptedConnectionException, NotYetConnectedException {
         if (!hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
             return;
-        /*
-        710.7777039007169 5.801335931428431 474.018603460737
-        710.1777038768751 4.001335979112147 473.4186034368951
-        711.0 5.0 475.0
-        710.0 4.0 474.0
-         */
-        /*
-        710.773885580101 4.799999952316284 474.0149224989734
-        710.1738855562592 3.0 473.41492247513156
-        711.0 5.0 475.0
-        710.0 4.0 474.0
-         */
+        
+        AxisAlignedBB box = child.getStructure().getSurroundingBox().getAABB();
+        for (Iterator<Entry<Entity, OrientatedBoundingBox>> itr = entities.entrySet().iterator(); itr.hasNext(); ) {
+            Entry<Entity, OrientatedBoundingBox> entry = itr.next();
+            if (!entry.getValue().intersects(box))
+                itr.remove();
+        }
+        
+        if (entities.isEmpty())
+            return;
+        
+        onEntityCollidedWithBlockAnimation(animation, entities);
         
         for (StructureChildConnection child : children) {
+            LittleStructure structure = child.getStructure();
             
-            AxisAlignedBB aabb = child.getStructure().getSurroundingBox().getAABB();
-            if (aabb.intersects(new AxisAlignedBB(entityBox.maxX, entityBox.maxY, entityBox.maxZ, entityBox.minX, entityBox.minY, entityBox.minZ)) && !child
-                    .isLinkToAnotherWorld()) {
-                child.getStructure().onEntityCollidedWithBlockAnimation(animation, entity, entityBox);
-            }
+            if (child.isLinkToAnotherWorld() || !hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
+                continue;
             
+            structure.checkForAnimationCollision(animation, new HashMap<>(entities));
         }
         
     }

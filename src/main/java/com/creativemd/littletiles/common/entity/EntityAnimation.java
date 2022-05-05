@@ -72,7 +72,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class EntityAnimation extends Entity implements INoPushEntity {
     
     protected static final Predicate<Entity> noAnimation = (x) -> !(x.getLowestRidingEntity() instanceof INoPushEntity);
-    protected static HashMap<Entity, OrientatedBoundingBox> collisionCache = new HashMap<Entity, OrientatedBoundingBox>();
+    
     // ================Constructors================
     
     public EntityAnimation(World worldIn) {
@@ -596,44 +596,26 @@ public class EntityAnimation extends Entity implements INoPushEntity {
         hasOriginChanged = true;
     }
     
-    public void updateCollisionCache(Entity entity) {
-        collisionCache.put(entity, this.origin.getOrientatedBox(entity.getEntityBoundingBox()));
-        System.out.println("updated!");
-    }
-    
-    public void removeFromCollisionCache(Entity entity) {
-        collisionCache.remove(entity);
-        System.out.println("removed!");
-    }
-    
     public void onTick() {
         if (controller == null)
             return;
-        AnimationState state = controller.tick();
-        Vector3d offset = state.getOffset();
-        Vector3d rotation = state.getRotation();
-        CollisionCoordinator coordinator = new CollisionCoordinator(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin
-                .rotX(), rotation.y - origin.rotY(), rotation.z - origin.rotZ(), origin, origin);
-        List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, coordinator.computeSurroundingBox(worldBoundingBox), EntityAnimation.noAnimation);
-        //System.out.println(entities);
         
+        List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, this.getEntityBoundingBox(), EntityAnimation.noAnimation);
         if (!entities.isEmpty()) {
-            for (Entity entity : entities) {
-                
-                if (!collisionCache.containsKey(entity))
-                    updateCollisionCache(entity);
-            }
-        } else {
-            collisionCache.clear();
-        }
-        
-        for (Entry<Entity, OrientatedBoundingBox> entry : collisionCache.entrySet())
+            HashMap<Entity, OrientatedBoundingBox> map = new HashMap<>();
+            for (Entity entity : entities) 
+                map.put(entity, this.origin.getOrientatedBox(entity.getEntityBoundingBox()));
+            
             try {
-                this.structure.checkForAnimationCollision(this, entry.getKey(), entry.getValue());
+                this.structure.checkForAnimationCollision(this, map);
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 e.printStackTrace();
             }
+        }
         
+        AnimationState state = controller.tick();
+        Vector3d offset = state.getOffset();
+        Vector3d rotation = state.getRotation();
         moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin
                 .rotY(), rotation.z - origin.rotZ());
     }
