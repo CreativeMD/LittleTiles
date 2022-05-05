@@ -1059,15 +1059,15 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         return false;
     }
     
-    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, HashMap<Entity, OrientatedBoundingBox> entities) {}
+    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, HashMap<Entity, AxisAlignedBB> entities) {}
     
-    public void checkForAnimationCollision(EntityAnimation animation, HashMap<Entity, OrientatedBoundingBox> entities) throws CorruptedConnectionException, NotYetConnectedException {
+    public void checkForAnimationCollision(EntityAnimation animation, HashMap<Entity, AxisAlignedBB> entities) throws CorruptedConnectionException, NotYetConnectedException {
         if (!hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
             return;
         
-        AxisAlignedBB box = getStructure().getSurroundingBox().getAABB();
-        HashMap<Entity, OrientatedBoundingBox> collided = new HashMap<>();
-        for (Entry<Entity, OrientatedBoundingBox> entry : entities.entrySet())
+        AxisAlignedBB box = getSurroundingBox().getAABB();
+        HashMap<Entity, AxisAlignedBB> collided = new HashMap<>();
+        for (Entry<Entity, AxisAlignedBB> entry : entities.entrySet())
             if (entry.getValue().intersects(box))
                 collided.put(entry.getKey(), entry.getValue());
         
