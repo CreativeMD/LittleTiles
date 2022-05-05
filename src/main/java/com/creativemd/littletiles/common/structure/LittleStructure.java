@@ -12,6 +12,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.Pair;
@@ -23,6 +24,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.ChildrenList;
 import com.creativemd.littletiles.common.structure.connection.IWorldPositionProvider;
 import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
@@ -154,6 +156,28 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         return type.attribute;
     }
     
+    public boolean hasAttribute(int attribute) {
+        return (getAttribute() & attribute) != 0;
+    }
+    
+    public boolean hasAttributeIncludeChildren(int attribute) throws CorruptedConnectionException, NotYetConnectedException {
+        if ((getAttribute() & attribute) != 0)
+            return true;
+        for (StructureChildConnection child : children)
+            if (child.getStructure().hasAttribute(attribute))
+                return true;
+        return false;
+    }
+    
+    public boolean hasAttributeIncludeChildrenSameWorldOnly(int attribute) throws CorruptedConnectionException, NotYetConnectedException {
+        if ((getAttribute() & attribute) != 0)
+            return true;
+        for (StructureChildConnection child : children)
+            if (!child.isLinkToAnotherWorld() && child.getStructure().hasAttribute(attribute))
+                return true;
+        return false;
+    }
+    
     public StructureLocation getStructureLocation() {
         return new StructureLocation(this);
     }
@@ -221,8 +245,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         if (childWorld == world)
             connector = new StructureChildConnection(this, false, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute());
         else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
-            connector = new StructureChildToSubWorldConnection(this, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute(), ((SubWorld) childWorld).parent
-                .getUniqueID());
+            connector = new StructureChildToSubWorldConnection(this, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child
+                    .getAttribute(), ((SubWorld) childWorld).parent.getUniqueID());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         
@@ -253,7 +277,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             connector = new StructureChildConnection(parent, true, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this.getAttribute());
         else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
             connector = new StructureChildToSubWorldConnection(parent, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this
-                .getAttribute(), ((SubWorld) world).parent.getUniqueID());
+                    .getAttribute(), ((SubWorld) world).parent.getUniqueID());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         return connector;
@@ -440,7 +464,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     /** takes name of stack and connects the structure to its children (does so recursively)
      * 
-     * @param stack */
+     * @param stack
+     */
     public void placedStructure(@Nullable ItemStack stack) {
         NBTTagCompound nbt;
         if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
@@ -472,7 +497,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                 if (nbt.hasKey("i" + i + "coX")) {
                     LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
                     coord = new LittleIdentifierRelative(pos.coord.getX() - getPos().getX(), pos.coord.getY() - getPos().getY(), pos.coord.getZ() - getPos()
-                        .getZ(), LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
+                            .getZ(), LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
                 } else {
                     coord = LittleIdentifierRelative.loadIdentifierOld("i" + i, nbt);
                 }
@@ -518,7 +543,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
                 for (StructureChildConnection child : children)
                     if (child instanceof StructureChildToSubWorldConnection && ((StructureChildToSubWorldConnection) child).entityUUID
-                        .equals(((IAnimatedStructure) this).getAnimation().getUniqueID()))
+                            .equals(((IAnimatedStructure) this).getAnimation().getUniqueID()))
                         throw new RuntimeException("Something went wrong during loading!");
                     
         } else
@@ -702,7 +727,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                                 StructureChildConnection connection = iterator.next();
                                 try {
                                     if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
-                                        .getType() == SignalComponentType.INPUT) {
+                                            .getType() == SignalComponentType.INPUT) {
                                         next = (ISignalStructureComponent) connection.getStructure();
                                         break;
                                     }
@@ -740,7 +765,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                                 StructureChildConnection connection = iterator.next();
                                 try {
                                     if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
-                                        .getType() == SignalComponentType.OUTPUT) {
+                                            .getType() == SignalComponentType.OUTPUT) {
                                         next = (ISignalStructureComponent) connection.getStructure();
                                         break;
                                     }
@@ -1032,6 +1057,37 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     public boolean isBed(EntityLivingBase player) {
         return false;
+    }
+    
+    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, Entity entity, OrientatedBoundingBox entityBox) {}
+    
+    public void checkForAnimationCollision(EntityAnimation animation, Entity entity, OrientatedBoundingBox entityBox) throws CorruptedConnectionException, NotYetConnectedException {
+        
+        if (!hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
+            return;
+        /*
+        710.7777039007169 5.801335931428431 474.018603460737
+        710.1777038768751 4.001335979112147 473.4186034368951
+        711.0 5.0 475.0
+        710.0 4.0 474.0
+         */
+        /*
+        710.773885580101 4.799999952316284 474.0149224989734
+        710.1738855562592 3.0 473.41492247513156
+        711.0 5.0 475.0
+        710.0 4.0 474.0
+         */
+        
+        for (StructureChildConnection child : children) {
+            
+            AxisAlignedBB aabb = child.getStructure().getSurroundingBox().getAABB();
+            if (aabb.intersects(new AxisAlignedBB(entityBox.maxX, entityBox.maxY, entityBox.maxZ, entityBox.minX, entityBox.minY, entityBox.minZ)) && !child
+                    .isLinkToAnotherWorld()) {
+                child.getStructure().onEntityCollidedWithBlockAnimation(animation, entity, entityBox);
+            }
+            
+        }
+        
     }
     
     public void onEntityCollidedWithBlock(World worldIn, IParentTileList parent, BlockPos pos, Entity entityIn) {}
