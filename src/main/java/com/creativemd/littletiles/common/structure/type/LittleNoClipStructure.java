@@ -74,7 +74,7 @@ public class LittleNoClipStructure extends LittleStructure {
         if (animation.world.isRemote)
             return;
         
-        entities.addAll(entities.keySet());
+        this.entities.addAll(entities.keySet());
         queueForNextTick();
     }
     
