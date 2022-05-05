@@ -602,9 +602,11 @@ public class EntityAnimation extends Entity implements INoPushEntity {
         
         List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, this.getEntityBoundingBox(), EntityAnimation.noAnimation);
         if (!entities.isEmpty()) {
-            HashMap<Entity, OrientatedBoundingBox> map = new HashMap<>();
-            for (Entity entity : entities) 
-                map.put(entity, this.origin.getOrientatedBox(entity.getEntityBoundingBox()));
+            HashMap<Entity, AxisAlignedBB> map = new HashMap<>();
+            for (Entity entity : entities) {
+                OrientatedBoundingBox obb = this.origin.getOrientatedBox(entity.getEntityBoundingBox());
+                map.put(entity, new AxisAlignedBB(obb.minX, obb.minY, obb.minZ, obb.maxX, obb.maxY, obb.maxZ));
+            }
             
             try {
                 this.structure.checkForAnimationCollision(this, map);
