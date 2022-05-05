@@ -5,6 +5,8 @@ import java.util.HashSet;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -61,6 +63,18 @@ public class LittleNoClipStructure extends LittleStructure {
         if (intersected)
             entities.add(entityIn);
         
+        queueForNextTick();
+    }
+    
+    @Override
+    public void onEntityCollidedWithBlockAnimation(EntityAnimation animation, HashMap<Entity, AxisAlignedBB> entities) {
+        if (web)
+            entities.keySet().forEach(x-> x.setInWeb());
+        
+        if (animation.world.isRemote)
+            return;
+        
+        this.entities.addAll(entities.keySet());
         queueForNextTick();
     }
     

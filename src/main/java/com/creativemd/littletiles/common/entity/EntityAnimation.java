@@ -1,8 +1,10 @@
 package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -312,6 +314,7 @@ public class EntityAnimation extends Entity implements INoPushEntity {
             return;
         
         CollisionCoordinator coordinator = new CollisionCoordinator(x, y, z, rotX, rotY, rotZ, origin, origin);
+        List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, coordinator.computeSurroundingBox(worldBoundingBox), EntityAnimation.noAnimation);
         if (LittleTiles.CONFIG.general.enableAnimationCollision)
             moveAndRotateAnimation(coordinator);
         coordinator.move();
@@ -423,7 +426,7 @@ public class EntityAnimation extends Entity implements INoPushEntity {
                         
                         EnumFacing facing = CollidingPlane.getDirection(coordinator, box, center);
                         if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils
-                            .getOffset(VectorUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
+                                .getOffset(VectorUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
                             continue;
                         
                         double intersectingVolume = box.getIntersectionVolume(cache.entityBoxOrientated);
@@ -588,7 +591,7 @@ public class EntityAnimation extends Entity implements INoPushEntity {
         Vector3d offset = state.getOffset();
         Vector3d rotation = state.getRotation();
         moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin
-            .rotY(), rotation.z - origin.rotZ());
+                .rotY(), rotation.z - origin.rotZ());
         origin.tick();
         hasOriginChanged = true;
     }
@@ -596,11 +599,27 @@ public class EntityAnimation extends Entity implements INoPushEntity {
     public void onTick() {
         if (controller == null)
             return;
+        
+        List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, this.getEntityBoundingBox(), EntityAnimation.noAnimation);
+        if (!entities.isEmpty()) {
+            HashMap<Entity, AxisAlignedBB> map = new HashMap<>();
+            for (Entity entity : entities) {
+                OrientatedBoundingBox obb = this.origin.getOrientatedBox(entity.getEntityBoundingBox());
+                map.put(entity, new AxisAlignedBB(obb.minX, obb.minY, obb.minZ, obb.maxX, obb.maxY, obb.maxZ));
+            }
+            
+            try {
+                this.structure.checkForAnimationCollision(this, map);
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                e.printStackTrace();
+            }
+        }
+        
         AnimationState state = controller.tick();
         Vector3d offset = state.getOffset();
         Vector3d rotation = state.getRotation();
         moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin
-            .rotY(), rotation.z - origin.rotZ());
+                .rotY(), rotation.z - origin.rotZ());
     }
     
     private boolean addedDoor;
@@ -786,7 +805,7 @@ public class EntityAnimation extends Entity implements INoPushEntity {
         Vec3d hit = result.getHitVec();
         if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
             ((ItemLittleWrench) player.getHeldItemMainhand().getItem())
-                .onItemUse(player, fakeWorld, result.getBlockPos(), EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
+                    .onItemUse(player, fakeWorld, result.getBlockPos(), EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
             return true;
         }
         
@@ -794,7 +813,7 @@ public class EntityAnimation extends Entity implements INoPushEntity {
         IBlockState state = result.world.getBlockState(result.getBlockPos());
         
         return state.getBlock()
-            .onBlockActivated(fakeWorld, result.getBlockPos(), state, player, EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
+                .onBlockActivated(fakeWorld, result.getBlockPos(), state, player, EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
     }
     
     @Override
