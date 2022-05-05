@@ -1065,7 +1065,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         if (!hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
             return;
         
-        AxisAlignedBB box = getStructure().getSurroundingBox().getAABB();
+        AxisAlignedBB box = getSurroundingBox().getAABB();
         HashMap<Entity, OrientatedBoundingBox> collided = new HashMap<>();
         for (Entry<Entity, OrientatedBoundingBox> entry : entities.entrySet())
             if (entry.getValue().intersects(box))
