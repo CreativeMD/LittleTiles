@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -78,7 +77,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
-        tooltip.add(new TranslatableComponent("gui.shape").append(": ").append(new TranslatableComponent(shape.getKey())));
+        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getKey())));
         shape.addExtraInformation(stack.getTag(), tooltip);
     }
     

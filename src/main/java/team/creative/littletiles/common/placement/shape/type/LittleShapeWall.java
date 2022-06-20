@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -136,22 +135,22 @@ public class LittleShapeWall extends LittleShape {
     
     @Override
     public void addExtraInformation(CompoundTag nbt, List<Component> list) {
-        list.add(new TranslatableComponent("gui.thickness").append(": " + nbt.getInt("thickness")).append(new TranslatableComponent("gui.pixel.length")));
+        list.add(Component.translatable("gui.thickness").append(": " + nbt.getInt("thickness")).append(Component.translatable("gui.pixel.length")));
         
         int facing = nbt.getInt("direction");
         String text;
         switch (facing) {
-        case 1:
-            text = "x";
-            break;
-        case 2:
-            text = "z";
-            break;
-        default:
-            text = "y";
-            break;
+            case 1:
+                text = "x";
+                break;
+            case 2:
+                text = "z";
+                break;
+            default:
+                text = "y";
+                break;
         }
-        list.add(new TranslatableComponent("gui.facing").append(": ").append(new TranslatableComponent("gui.axis." + text)));
+        list.add(Component.translatable("gui.facing").append(": ").append(Component.translatable("gui.axis." + text)));
     }
     
     @Override

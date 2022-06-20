@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -21,6 +20,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -143,7 +143,7 @@ public class RenderingThread extends Thread {
             while (active) {
                 LevelAccessor level = mc.level;
                 long duration = 0;
-                Random rand = new Random();
+                RandomSource rand = RandomSource.create();
                 PoseStack posestack = new PoseStack();
                 
                 if (level != null && !QUEUE.isEmpty()) {
@@ -168,7 +168,7 @@ public class RenderingThread extends Thread {
                             for (int j = 0; j < cubes.size(); j++) {
                                 RenderBox cube = cubes.get(j);
                                 if (cube.doesNeedQuadUpdate) {
-                                    if (ArrayUtils.contains(fakeLeveldMods, cube.state.getBlock().getRegistryName().getNamespace())) {
+                                    if (ArrayUtils.contains(fakeLeveldMods, cube.state.getBlock().builtInRegistryHolder().key().location().getNamespace())) {
                                         fakeAccess.set(data.be.getLevel(), pos, cube.state);
                                         level = fakeAccess;
                                     } else

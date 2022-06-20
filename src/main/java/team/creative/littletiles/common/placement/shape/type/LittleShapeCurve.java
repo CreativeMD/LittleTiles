@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -53,15 +52,15 @@ public class LittleShapeCurve extends LittleShape {
         
         Interpolation<Vec3d> interpolation;
         switch (selection.getNBT().getInt("interpolation")) {
-        case 0:
-            interpolation = new HermiteInterpolation<>(points.toArray(new Vec3d[0]));
-            break;
-        case 1:
-            interpolation = new CubicInterpolation<>(points.toArray(new Vec3d[0]));
-            break;
-        default:
-            interpolation = new LinearInterpolation<>(points.toArray(new Vec3d[0]));
-            break;
+            case 0:
+                interpolation = new HermiteInterpolation<>(points.toArray(new Vec3d[0]));
+                break;
+            case 1:
+                interpolation = new CubicInterpolation<>(points.toArray(new Vec3d[0]));
+                break;
+            default:
+                interpolation = new LinearInterpolation<>(points.toArray(new Vec3d[0]));
+                break;
         }
         
         Vec3d origin = new Vec3d(boxes.pos.getX(), boxes.pos.getY(), boxes.pos.getZ());
@@ -92,7 +91,7 @@ public class LittleShapeCurve extends LittleShape {
     
     @Override
     public void addExtraInformation(CompoundTag nbt, List<Component> list) {
-        list.add(new TranslatableComponent("gui.interpolation").append(": ").append(new TranslatableComponent("gui." + interpolationTypes[nbt.getInt("interpolation")])));
+        list.add(Component.translatable("gui.interpolation").append(": ").append(Component.translatable("gui." + interpolationTypes[nbt.getInt("interpolation")])));
     }
     
     @Override

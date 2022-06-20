@@ -125,7 +125,6 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         return true;
     }
     
-    @SuppressWarnings("deprecation")
     public void move(LittleVecGrid vec) {
         if (!transformable())
             throw new RuntimeException("Cannot transform group with links");

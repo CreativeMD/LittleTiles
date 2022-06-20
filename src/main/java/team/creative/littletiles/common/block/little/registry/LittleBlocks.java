@@ -7,6 +7,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +42,7 @@ public class LittleBlocks {
             
             @Override
             @OnlyIn(Dist.CLIENT)
-            public void randomDisplayTick(IParentCollection parent, LittleTile tile, java.util.Random rand) {
+            public void randomDisplayTick(IParentCollection parent, LittleTile tile, RandomSource rand) {
                 Minecraft mc = Minecraft.getInstance();
                 ItemStack itemstack = mc.player.getMainHandItem();
                 if (mc.player.isCreative() && itemstack.is(Blocks.BARRIER.asItem()))
@@ -107,7 +108,6 @@ public class LittleBlocks {
             }
             
             @Override
-            @SuppressWarnings("deprecation")
             public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
                 if (parent.isClient())
                     return InteractionResult.SUCCESS;

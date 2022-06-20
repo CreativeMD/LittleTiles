@@ -161,7 +161,6 @@ public class LittlePacketTypes {
             }
             
             @Override
-            @SuppressWarnings("deprecation")
             protected LittleGroup readContent(FriendlyByteBuf buffer) {
                 int size = buffer.readInt();
                 List<LittleGroup> children = new ArrayList<>(size);

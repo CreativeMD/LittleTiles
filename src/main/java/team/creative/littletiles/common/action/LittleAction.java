@@ -7,10 +7,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -97,7 +96,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         try {
             action(player);
         } catch (LittleActionException e) {
-            player.sendMessage(new TextComponent(e.getLocalizedMessage()), Util.NIL_UUID);
+            player.sendSystemMessage(Component.literal(e.getLocalizedMessage()));
         }
     }
     

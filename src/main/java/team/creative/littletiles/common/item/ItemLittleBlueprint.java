@@ -3,7 +3,6 @@ package team.creative.littletiles.common.item;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -49,7 +48,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public Component getName(ItemStack stack) {
         if (stack.getOrCreateTag().contains("content") && stack.getOrCreateTagElement("content").contains("structure") && stack.getOrCreateTagElement("content")
                 .getCompound("structure").contains("name"))
-            return new TextComponent(stack.getOrCreateTagElement("content").getCompound("structure").getString("name"));
+            return Component.literal(stack.getOrCreateTagElement("content").getCompound("structure").getString("name"));
         return super.getName(stack);
     }
     

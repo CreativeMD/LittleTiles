@@ -12,8 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
@@ -185,14 +184,14 @@ public class LittleTiles {
         Method getChunks = ObfuscationReflectionHelper.findMethod(ChunkMap.class, "m_140416_");
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
+            x.getSource().sendSuccess(Component
+                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server start <player> <path> [time|ms|s|m|h|d] [loops (-1 -> endless)] " + ChatFormatting.RED + "starts the animation"), false);
+            x.getSource().sendSuccess(Component
+                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server stop <player> " + ChatFormatting.RED + "stops the animation"), false);
             x.getSource()
-                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server start <player> <path> [time|ms|s|m|h|d] [loops (-1 -> endless)] " + ChatFormatting.RED + "starts the animation"), false);
-            x.getSource()
-                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server stop <player> " + ChatFormatting.RED + "stops the animation"), false);
-            x.getSource()
-                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server list " + ChatFormatting.RED + "lists all saved paths"), false);
-            x.getSource()
-                    .sendSuccess(new TextComponent("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server remove <name> " + ChatFormatting.RED + "removes the given path"), false);
+                    .sendSuccess(Component.literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server list " + ChatFormatting.RED + "lists all saved paths"), false);
+            x.getSource().sendSuccess(Component
+                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server remove <name> " + ChatFormatting.RED + "removes the given path"), false);
             
             ServerLevel level = x.getSource().getLevel();
             List<BETiles> blocks = new ArrayList<>();
@@ -208,7 +207,7 @@ public class LittleTiles {
             } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-            x.getSource().sendSuccess(new TextComponent("Attempting to convert " + blocks.size() + " blocks!"), false);
+            x.getSource().sendSuccess(Component.literal("Attempting to convert " + blocks.size() + " blocks!"), false);
             int converted = 0;
             int i = 0;
             for (BETiles be : blocks) {
@@ -216,9 +215,9 @@ public class LittleTiles {
                     converted++;
                 i++;
                 if (i % 50 == 0)
-                    x.getSource().sendSuccess(new TextComponent("Processed " + i + "/" + blocks.size() + " and converted " + converted), false);
+                    x.getSource().sendSuccess(Component.literal("Processed " + i + "/" + blocks.size() + " and converted " + converted), false);
             }
-            x.getSource().sendSuccess(new TextComponent("Converted " + converted + " blocks"), false);
+            x.getSource().sendSuccess(Component.literal("Converted " + converted + " blocks"), false);
             return 0;
         }));
         
@@ -252,7 +251,7 @@ public class LittleTiles {
                                     structure.checkConnections();
                                     doors.add((LittleDoor) structure);
                                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                    x.getSource().sendFailure(new TranslatableComponent("commands.open.notloaded"));
+                                    x.getSource().sendFailure(Component.translatable("commands.open.notloaded"));
                                 }
                             }
                         } catch (LittleActionException e) {}
@@ -288,7 +287,7 @@ public class LittleTiles {
                                     structure.checkConnections();
                                     doors.add((LittleDoor) structure);
                                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                    x.getSource().sendFailure(new TranslatableComponent("commands.open.notloaded"));
+                                    x.getSource().sendFailure(Component.translatable("commands.open.notloaded"));
                                 }
                             }
                         } catch (LittleActionException e) {}

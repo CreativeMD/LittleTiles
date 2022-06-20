@@ -3,7 +3,7 @@ package team.creative.littletiles.common.gui.tool;
 import org.apache.commons.lang3.ArrayUtils;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -31,7 +31,6 @@ public class GuiRecipeSelection extends GuiConfigure {
     
     public SelectionResult result;
     
-    @SuppressWarnings("deprecation")
     public final GuiSyncLocal<CompoundTag> SAVE_SELECTION = getSyncHolder().register("save_selection", nbt -> {
         ItemStack stack = tool.get();
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
@@ -110,7 +109,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         add(new GuiCheckBox("remember_structure", true).setTranslate("selection.include.structure"));
         // accurate
         GuiParent scale = new GuiParent(GuiFlow.STACK_X);
-        GuiLabel label = new GuiLabel("label_scale").setTitle(new TranslatableComponent("selection.scale").append(": "));
+        GuiLabel label = new GuiLabel("label_scale").setTitle(Component.translatable("selection.scale").append(": "));
         scale.add(label);
         scale.add(new GuiArraySlider("scale"));
         updateSlider();
@@ -122,7 +121,7 @@ public class GuiRecipeSelection extends GuiConfigure {
             boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
             
             if (rememberStructure && mode.getGroup(getPlayer().level, stack, includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
-                GuiDialogHandler.openDialog(this, "no_tiles", new TranslatableComponent("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
+                GuiDialogHandler.openDialog(this, "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                 return;
             }
             

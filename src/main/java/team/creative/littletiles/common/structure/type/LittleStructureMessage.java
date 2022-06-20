@@ -1,9 +1,8 @@
 package team.creative.littletiles.common.structure.type;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -40,7 +39,7 @@ public class LittleStructureMessage extends LittleStructure {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (allowRightClick) {
-            player.sendMessage(new TextComponent(text), Util.NIL_UUID);
+            player.sendSystemMessage(Component.literal(text));
             return InteractionResult.SUCCESS;
         }
         return super.use(level, context, pos, player, result);
@@ -67,8 +66,7 @@ public class LittleStructureMessage extends LittleStructure {
             
             final LevelChunk chunk = level.getChunkAt(getPos());
             if (chunk != null)
-                ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)
-                        .forEach(x -> x.sendMessage(new TextComponent(text), Util.NIL_UUID));
+                ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(x -> x.sendSystemMessage(Component.literal(text)));
         }
     }
     

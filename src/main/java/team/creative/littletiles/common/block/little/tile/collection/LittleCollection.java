@@ -215,7 +215,6 @@ public class LittleCollection implements Iterable<LittleTile> {
         return content.get(0);
     }
     
-    @SuppressWarnings("deprecation")
     public static void load(LittleCollection collection, ListTag list) {
         collection.clear();
         for (int i = 0; i < list.size(); i++) {

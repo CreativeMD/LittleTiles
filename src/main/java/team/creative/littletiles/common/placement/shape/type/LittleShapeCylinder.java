@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -89,15 +88,15 @@ public class LittleShapeCylinder extends LittleShape {
                 if (valueA + valueB <= 1) {
                     LittleBox toAdd = null;
                     switch (direction) {
-                    case 0:
-                        toAdd = new LittleBox(min.x + incA, min.y, min.z + incB, min.x + incA + 1, max.y, min.z + incB + 1);
-                        break;
-                    case 1:
-                        toAdd = new LittleBox(min.x, min.y + incA, min.z + incB, max.x, min.y + incA + 1, min.z + incB + 1);
-                        break;
-                    case 2:
-                        toAdd = new LittleBox(min.x + incA, min.y + incB, min.z, min.x + incA + 1, min.y + incB + 1, max.z);
-                        break;
+                        case 0:
+                            toAdd = new LittleBox(min.x + incA, min.y, min.z + incB, min.x + incA + 1, max.y, min.z + incB + 1);
+                            break;
+                        case 1:
+                            toAdd = new LittleBox(min.x, min.y + incA, min.z + incB, max.x, min.y + incA + 1, min.z + incB + 1);
+                            break;
+                        case 2:
+                            toAdd = new LittleBox(min.x + incA, min.y + incB, min.z, min.x + incA + 1, min.y + incB + 1, max.z);
+                            break;
                     }
                     
                     if (hollow) {
@@ -120,25 +119,25 @@ public class LittleShapeCylinder extends LittleShape {
     @Override
     public void addExtraInformation(CompoundTag nbt, List<Component> list) {
         if (nbt.getBoolean("hollow")) {
-            list.add(new TranslatableComponent("gui.type").append(": ").append(new TranslatableComponent("gui.hollow")));
-            list.add(new TranslatableComponent("gui.thickness").append(": " + nbt.getInt("thickness")).append(new TranslatableComponent("gui.pixel.length")));
+            list.add(Component.translatable("gui.type").append(": ").append(Component.translatable("gui.hollow")));
+            list.add(Component.translatable("gui.thickness").append(": " + nbt.getInt("thickness")).append(Component.translatable("gui.pixel.length")));
         } else
-            list.add(new TranslatableComponent("gui.type").append(": ").append(new TranslatableComponent("gui.solid")));
+            list.add(Component.translatable("gui.type").append(": ").append(Component.translatable("gui.solid")));
         
         int facing = nbt.getInt("direction");
         String text;
         switch (facing) {
-        case 1:
-            text = "x";
-            break;
-        case 2:
-            text = "z";
-            break;
-        default:
-            text = "y";
-            break;
+            case 1:
+                text = "x";
+                break;
+            case 2:
+                text = "z";
+                break;
+            default:
+                text = "y";
+                break;
         }
-        list.add(new TranslatableComponent("gui.facing").append(": ").append(new TranslatableComponent("gui.axis." + text)));
+        list.add(Component.translatable("gui.facing").append(": ").append(Component.translatable("gui.axis." + text)));
     }
     
     @Override

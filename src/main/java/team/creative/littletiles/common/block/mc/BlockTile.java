@@ -17,6 +17,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -294,9 +295,8 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
-    @Nullable
-    public BlockPathTypes getAiPathNodeType(BlockState state, BlockGetter world, BlockPos pos, @Nullable Mob entity) {
-        return state.getBlock() == Blocks.LAVA ? BlockPathTypes.LAVA : state.isBurning(world, pos) ? BlockPathTypes.DAMAGE_FIRE : null;
+    public @org.jetbrains.annotations.Nullable BlockPathTypes getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @org.jetbrains.annotations.Nullable Mob mob) {
+        return state.getBlock() == Blocks.LAVA ? BlockPathTypes.LAVA : state.isBurning(level, pos) ? BlockPathTypes.DAMAGE_FIRE : null;
     }
     
     @Override
@@ -361,7 +361,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
         if (context.isComplete()) {
@@ -417,7 +416,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState removed, boolean p_50941_) {
         BETiles te = loadBE(level, pos); // TODO CHECK which method to use maybe playerWillDestroy is better
         if (te != null && te.isEmpty())
@@ -432,7 +430,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void animateTick(BlockState state, Level level, BlockPos pos, Random rand) {
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource rand) {
         if (LittleTiles.CONFIG.rendering.enableRandomDisplayTick) {
             BETiles be = loadBE(level, pos);
             if (be != null)

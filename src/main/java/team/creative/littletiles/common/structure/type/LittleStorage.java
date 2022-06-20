@@ -109,7 +109,7 @@ public class LittleStorage extends LittleStructure {
     
     public static int getSizeOfInventory(LittleGroup previews) {
         double size = 0;
-        String name = LittleTilesRegistry.STORAGE_BLOCK.get().getRegistryName().toString();
+        String name = LittleTilesRegistry.STORAGE_BLOCK.get().builtInRegistryHolder().key().location().toString();
         for (LittleTile tile : previews)
             if (tile.getBlock().blockName().equals(name))
                 size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;

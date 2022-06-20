@@ -97,7 +97,7 @@ public class LittleElement {
         else {
             StringBuilder name = new StringBuilder();
             BlockState state = getState();
-            name.append(state.getBlock().getRegistryName());
+            name.append(state.getBlock().builtInRegistryHolder().key().location());
             if (!state.getValues().isEmpty()) {
                 name.append('[');
                 try {

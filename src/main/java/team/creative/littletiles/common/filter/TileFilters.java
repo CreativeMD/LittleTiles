@@ -61,7 +61,7 @@ public class TileFilters {
         @Override
         public CompoundTag write() {
             CompoundTag tag = new CompoundTag();
-            tag.putString("block", block.getRegistryName().toString());
+            tag.putString("block", block.builtInRegistryHolder().key().location().toString());
             return tag;
         }
         

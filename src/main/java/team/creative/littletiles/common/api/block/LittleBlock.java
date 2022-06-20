@@ -1,13 +1,12 @@
 package team.creative.littletiles.common.api.block;
 
-import java.util.Random;
-
 import javax.annotation.Nullable;
 
 import com.mojang.math.Vector3d;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -61,7 +60,7 @@ public interface LittleBlock {
     
     public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion);
     
-    public void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand);
+    public void randomDisplayTick(IParentCollection parent, LittleTile tile, RandomSource rand);
     
     public boolean canInteract();
     

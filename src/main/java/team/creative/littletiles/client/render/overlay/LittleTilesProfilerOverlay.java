@@ -113,7 +113,7 @@ public class LittleTilesProfilerOverlay {
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Anisotropic Filtering");
             if (OptifineHelper.installed() && OptifineHelper.isAntialiasing())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Antialiasing");
-            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.installed() && mc.options.mipmapLevels == 0)
+            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.installed() && mc.options.mipmapLevels().get() == 0)
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Enable mipmap levels (needs to be > 0)");
             if (!warnings.isEmpty()) {
                 for (int i = 0; i < warnings.size(); i++) {

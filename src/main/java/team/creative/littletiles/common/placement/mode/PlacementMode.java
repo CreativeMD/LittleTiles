@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
@@ -67,7 +67,7 @@ public abstract class PlacementMode {
     
     public void register(String id, PlacementMode handler) {
         REGISTRY.register(id, handler);
-        map.addComponent(handler, new TranslatableComponent(handler.name));
+        map.addComponent(handler, Component.translatable(handler.name));
     }
     
     public static TextMapBuilder<PlacementMode> map() {

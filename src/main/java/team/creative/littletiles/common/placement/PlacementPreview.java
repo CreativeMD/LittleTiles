@@ -113,7 +113,6 @@ public class PlacementPreview {
     }
     
     @OnlyIn(Dist.CLIENT)
-    @SuppressWarnings("deprecation")
     public static PlacementPreview relative(Level level, ItemStack stack, LittleGroup tiles, PlacementPosition position, boolean centered, boolean fixed) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         LittleGrid original = tiles.getGrid();

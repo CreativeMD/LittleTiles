@@ -47,7 +47,6 @@ public class BlockSignalConverter extends BaseEntityBlock {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos origin, boolean p_60514_) {
         super.neighborChanged(state, level, pos, block, origin, p_60514_);
         changed(level, pos);

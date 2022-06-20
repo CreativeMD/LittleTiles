@@ -3,7 +3,6 @@ package team.creative.littletiles.common.block.little.tile;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Nullable;
 
@@ -11,6 +10,7 @@ import com.mojang.math.Vector3d;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -414,7 +414,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         block.exploded(parent, this, explosion);
     }
     
-    public void randomDisplayTick(IParentCollection parent, Random rand) {
+    public void randomDisplayTick(IParentCollection parent, RandomSource rand) {
         block.randomDisplayTick(parent, this, rand);
     }
     

@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -33,21 +32,21 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
     public static ItemStack generateItemStack(ColorIngredientType type, int value) {
         ItemStack stack;
         switch (type) {
-        case black:
-            stack = new ItemStack(LittleTilesRegistry.BLACK_COLOR.get());
-            break;
-        case cyan:
-            stack = new ItemStack(LittleTilesRegistry.CYAN_COLOR.get());
-            break;
-        case magenta:
-            stack = new ItemStack(LittleTilesRegistry.MAGENTA_COLOR.get());
-            break;
-        case yellow:
-            stack = new ItemStack(LittleTilesRegistry.YELLOW_COLOR.get());
-            break;
-        default:
-            stack = ItemStack.EMPTY;
-            break;
+            case black:
+                stack = new ItemStack(LittleTilesRegistry.BLACK_COLOR.get());
+                break;
+            case cyan:
+                stack = new ItemStack(LittleTilesRegistry.CYAN_COLOR.get());
+                break;
+            case magenta:
+                stack = new ItemStack(LittleTilesRegistry.MAGENTA_COLOR.get());
+                break;
+            case yellow:
+                stack = new ItemStack(LittleTilesRegistry.YELLOW_COLOR.get());
+                break;
+            default:
+                stack = ItemStack.EMPTY;
+                break;
         }
         
         if (!stack.isEmpty()) {
@@ -75,20 +74,20 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             type.setIngredient(ingredient, stack.getTag().getInt("value"));
             
             switch (type) {
-            case black:
-                ingredient.setLimit(ColorIngredient.BOTTLE_SIZE, 0, 0, 0);
-                break;
-            case cyan:
-                ingredient.setLimit(0, ColorIngredient.BOTTLE_SIZE, 0, 0);
-                break;
-            case magenta:
-                ingredient.setLimit(0, 0, ColorIngredient.BOTTLE_SIZE, 0);
-                break;
-            case yellow:
-                ingredient.setLimit(0, 0, 0, ColorIngredient.BOTTLE_SIZE);
-                break;
-            default:
-                break;
+                case black:
+                    ingredient.setLimit(ColorIngredient.BOTTLE_SIZE, 0, 0, 0);
+                    break;
+                case cyan:
+                    ingredient.setLimit(0, ColorIngredient.BOTTLE_SIZE, 0, 0);
+                    break;
+                case magenta:
+                    ingredient.setLimit(0, 0, ColorIngredient.BOTTLE_SIZE, 0);
+                    break;
+                case yellow:
+                    ingredient.setLimit(0, 0, 0, ColorIngredient.BOTTLE_SIZE);
+                    break;
+                default:
+                    break;
             }
             return ingredient;
         }
@@ -168,7 +167,7 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             
             @Override
             public Component print(ColorIngredient ingredient) {
-                return new TextComponent(ingredient.getBlackDescription());
+                return Component.literal(ingredient.getBlackDescription());
             }
         },
         cyan {
@@ -184,7 +183,7 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             
             @Override
             public Component print(ColorIngredient ingredient) {
-                return new TextComponent(ingredient.getCyanDescription());
+                return Component.literal(ingredient.getCyanDescription());
             }
         },
         magenta {
@@ -200,7 +199,7 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             
             @Override
             public Component print(ColorIngredient ingredient) {
-                return new TextComponent(ingredient.getMagentaDescription());
+                return Component.literal(ingredient.getMagentaDescription());
             }
         },
         yellow {
@@ -216,7 +215,7 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             
             @Override
             public Component print(ColorIngredient ingredient) {
-                return new TextComponent(ingredient.getYellowDescription());
+                return Component.literal(ingredient.getYellowDescription());
             }
         };
         
@@ -228,16 +227,16 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         
         public static ColorIngredientType getType(String type) {
             switch (type.toLowerCase()) {
-            case "black":
-                return ColorIngredientType.black;
-            case "cyan":
-                return ColorIngredientType.cyan;
-            case "magenta":
-                return ColorIngredientType.magenta;
-            case "yellow":
-                return ColorIngredientType.yellow;
-            default:
-                return null;
+                case "black":
+                    return ColorIngredientType.black;
+                case "cyan":
+                    return ColorIngredientType.cyan;
+                case "magenta":
+                    return ColorIngredientType.magenta;
+                case "yellow":
+                    return ColorIngredientType.yellow;
+                default:
+                    return null;
             }
         }
     }

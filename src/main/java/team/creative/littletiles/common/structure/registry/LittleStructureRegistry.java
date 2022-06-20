@@ -40,6 +40,7 @@ import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
 import team.creative.littletiles.common.structure.type.bed.LittleBed.LittleBedParser;
+import team.creative.littletiles.common.structure.type.machine.LittleMachine;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
@@ -177,7 +178,7 @@ public class LittleStructureRegistry {
                         .addInput("filled", 1), "frame"));
         
         // LittleDoorBase.initDoors();
-        
+        LittleMachine.initMachines();
         LittleStructurePremade.initPremadeStructures();
     }
 }

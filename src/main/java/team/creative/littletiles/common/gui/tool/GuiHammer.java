@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.gui.tool;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
@@ -34,7 +34,7 @@ public class GuiHammer extends GuiConfigureTool {
     @Override
     public void create() {
         GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>()
-                .addComponent(ShapeRegistry.notTileShapes(), x -> new TranslatableComponent(x.getTranslatableName())));
+                .addComponent(ShapeRegistry.notTileShapes(), x -> Component.translatable(x.getTranslatableName())));
         box.select(ItemLittleHammer.getShape(tool.get()));
         GuiScrollY scroll = new GuiScrollY("settings").setExpandable();
         add(box);

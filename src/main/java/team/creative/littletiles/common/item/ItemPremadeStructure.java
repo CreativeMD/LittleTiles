@@ -67,7 +67,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
-        if (allowdedIn(tab))
+        if (allowedIn(tab))
             for (LittleStructureTypePremade entry : LittleStructurePremade.getPremadeStructureTypes())
                 if (entry.showInCreativeTab)
                     list.add(entry.createItemStack());

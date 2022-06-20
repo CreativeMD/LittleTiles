@@ -1,12 +1,11 @@
 package team.creative.littletiles.common.api.block;
 
-import java.util.Random;
-
 import com.mojang.math.Vector3d;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -50,7 +49,6 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public default boolean is(TagKey<Block> tag) {
         return asBlock().builtInRegistryHolder().is(tag);
     }
@@ -96,13 +94,11 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public default SoundType getSoundType() {
         return asBlock().getSoundType(getState());
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public default float getExplosionResistance(LittleTile tile) {
         return asBlock().getExplosionResistance();
     }
@@ -111,10 +107,9 @@ public interface ILittleMCBlock extends LittleBlock {
     public default void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {}
     
     @Override
-    public default void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand) {}
+    public default void randomDisplayTick(IParentCollection parent, LittleTile tile, RandomSource rand) {}
     
     @Override
-    @SuppressWarnings("deprecation")
     public default int getLightValue() {
         return getState().getLightEmission();
     }
@@ -126,7 +121,7 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default String blockName() {
-        return asBlock().getRegistryName().toString();
+        return asBlock().builtInRegistryHolder().key().location().toString();
     }
     
     @Override

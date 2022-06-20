@@ -2,7 +2,7 @@
 	"required": true,
 	"package": "team.creative.littletiles.mixin",
 	"compatibilityLevel": "JAVA_17",
-	"refmap": "littletiles.mixin.refmap.json",
+	"refmap": "littletiles.mixins.refmap.json",
 	"mixins": [
 		"LittleBedPlayerMixin"
 	],

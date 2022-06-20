@@ -12,7 +12,6 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 
 public class LittleBlockTransformer {
     
-    @SuppressWarnings("deprecation")
     public static void mirror(BETiles be, Axis axis) {
         if (axis == null)
             return;
@@ -32,7 +31,6 @@ public class LittleBlockTransformer {
         }
     }
     
-    @SuppressWarnings("deprecation")
     public static void rotate(BETiles be, Rotation rotation, int steps) {
         if (rotation == null)
             return;

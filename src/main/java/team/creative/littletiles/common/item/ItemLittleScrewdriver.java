@@ -2,12 +2,9 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -43,11 +40,11 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
         if (rightClick) {
             stack.getOrCreateTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
             if (!player.level.isClientSide)
-                player.sendMessage(new TranslatableComponent("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
+                player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
         } else {
             stack.getOrCreateTag().putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
             if (!player.level.isClientSide)
-                player.sendMessage(new TranslatableComponent("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
+                player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
         }
     }
     
@@ -80,16 +77,16 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
         if (stack.getOrCreateTag().contains("pos1")) {
             int[] array = stack.getOrCreateTag().getIntArray("pos1");
             if (array.length == 3)
-                tooltip.add(new TextComponent("1: " + array[0] + " " + array[1] + " " + array[2]));
+                tooltip.add(Component.literal("1: " + array[0] + " " + array[1] + " " + array[2]));
         } else
-            tooltip.add(new TextComponent("1: ").append(new TranslatableComponent("gui.click.left")));
+            tooltip.add(Component.literal("1: ").append(Component.translatable("gui.click.left")));
         
         if (stack.getOrCreateTag().contains("pos2")) {
             int[] array = stack.getOrCreateTag().getIntArray("pos2");
             if (array.length == 3)
-                tooltip.add(new TextComponent("2: " + array[0] + " " + array[1] + " " + array[2]));
+                tooltip.add(Component.literal("2: " + array[0] + " " + array[1] + " " + array[2]));
         } else
-            tooltip.add(new TextComponent("2: ").append(new TranslatableComponent("gui.click.right")));
+            tooltip.add(Component.literal("2: ").append(Component.translatable("gui.click.right")));
     }
     
     @Override

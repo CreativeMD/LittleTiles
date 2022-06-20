@@ -3,10 +3,9 @@ package team.creative.littletiles.common.placement.selection;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -65,14 +64,14 @@ public class AreaSelectionMode extends SelectionMode {
     public void leftClick(Player player, ItemStack stack, BlockPos pos) {
         stack.getTag().putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
-            player.sendMessage(new TranslatableComponent("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
+            player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
     }
     
     @Override
     public void rightClick(Player player, ItemStack stack, BlockPos pos) {
         stack.getTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
-            player.sendMessage(new TranslatableComponent("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
+            player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
     }
     
     @Override

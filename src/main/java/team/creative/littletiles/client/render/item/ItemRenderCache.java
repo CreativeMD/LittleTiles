@@ -3,12 +3,12 @@ package team.creative.littletiles.client.render.item;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.model.CreativeBakedModel;
@@ -77,7 +77,7 @@ public class ItemRenderCache implements LevelAwareHandler {
                     
                     if (renderer != null) {
                         RenderType[] layers = renderer.getLayers(pair.key, true);
-                        Random rand = new Random();
+                        RandomSource rand = RandomSource.create();
                         for (int i = 0; i < layers.length; i++) {
                             RenderType layer = layers[i];
                             for (int j = 0; j < Facing.values().length; j++) {

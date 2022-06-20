@@ -109,7 +109,6 @@ public class LittleStructureBuilder extends LittleStructurePremade {
             this.frameVariableName = frameVariableName;
         }
         
-        @SuppressWarnings("deprecation")
         public LittleGroup construct(LittleGrid context, int width, int height, int thickness, BlockState state) {
             CompoundTag structureNBT = new CompoundTag();
             structureNBT.putString("id", type.id);

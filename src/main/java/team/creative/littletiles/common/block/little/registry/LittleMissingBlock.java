@@ -1,11 +1,10 @@
 package team.creative.littletiles.common.block.little.registry;
 
-import java.util.Random;
-
 import com.mojang.math.Vector3d;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -99,7 +98,7 @@ public class LittleMissingBlock implements LittleBlock {
     public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {}
     
     @Override
-    public void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand) {
+    public void randomDisplayTick(IParentCollection parent, LittleTile tile, RandomSource rand) {
         
     }
     

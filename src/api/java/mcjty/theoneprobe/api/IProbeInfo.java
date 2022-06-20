@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -88,10 +87,10 @@ public interface IProbeInfo {
     IProbeInfo mcText(Component text, ITextStyle style);
     default IProbeInfo text(CompoundText text) { return text(text.get()); }
     default IProbeInfo text(CompoundText text, ITextStyle style) { return text(text.get(), style); }
-    default IProbeInfo text(String text) { return mcText(new TranslatableComponent(text)); }
-    default IProbeInfo text(String text, Object...args) { return mcText(new TranslatableComponent(text, args)); }
-    default IProbeInfo text(String text, ITextStyle style) { return mcText(new TranslatableComponent(text), style); }
-    default IProbeInfo text(String text, ITextStyle style, Object...args) { return mcText(new TranslatableComponent(text, args), style); }
+    default IProbeInfo text(String text) { return mcText(Component.translatable(text)); }
+    default IProbeInfo text(String text, Object...args) { return mcText(Component.translatable(text, args)); }
+    default IProbeInfo text(String text, ITextStyle style) { return mcText(Component.translatable(text), style); }
+    default IProbeInfo text(String text, ITextStyle style, Object...args) { return mcText(Component.translatable(text, args), style); }
     
     IProbeInfo item(ItemStack stack, IItemStyle style);
     IProbeInfo item(ItemStack stack);

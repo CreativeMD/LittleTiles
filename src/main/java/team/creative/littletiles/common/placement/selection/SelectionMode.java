@@ -3,7 +3,7 @@ package team.creative.littletiles.common.placement.selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -32,8 +32,8 @@ public abstract class SelectionMode {
         return REGISTRY.getId(this);
     }
     
-    public TranslatableComponent getTranslation() {
-        return new TranslatableComponent("mode.selection." + REGISTRY.getId(this));
+    public Component getTranslation() {
+        return Component.translatable("mode.selection." + REGISTRY.getId(this));
     }
     
     public abstract SelectionResult generateResult(Level level, ItemStack stack);

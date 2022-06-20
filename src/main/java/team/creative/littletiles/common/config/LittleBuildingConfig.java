@@ -68,14 +68,12 @@ public class LittleBuildingConfig {
         },
         IRON {
             @Override
-            @SuppressWarnings("deprecation")
             public boolean is(Block block) {
                 return block.builtInRegistryHolder().is(BlockTags.NEEDS_IRON_TOOL) || !block.builtInRegistryHolder().is(BlockTags.NEEDS_DIAMOND_TOOL);
             }
         },
         STONE {
             @Override
-            @SuppressWarnings("deprecation")
             public boolean is(Block block) {
                 return block.builtInRegistryHolder().is(BlockTags.NEEDS_STONE_TOOL) || (!block.builtInRegistryHolder().is(BlockTags.NEEDS_IRON_TOOL) && !block
                         .builtInRegistryHolder().is(BlockTags.NEEDS_DIAMOND_TOOL));
@@ -83,7 +81,6 @@ public class LittleBuildingConfig {
         },
         WOOD {
             @Override
-            @SuppressWarnings("deprecation")
             public boolean is(Block block) {
                 return !block.builtInRegistryHolder().is(BlockTags.NEEDS_STONE_TOOL) && !block.builtInRegistryHolder().is(BlockTags.NEEDS_IRON_TOOL) && !block
                         .builtInRegistryHolder().is(BlockTags.NEEDS_DIAMOND_TOOL);

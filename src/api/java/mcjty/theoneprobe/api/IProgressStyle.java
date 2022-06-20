@@ -1,7 +1,6 @@
 package mcjty.theoneprobe.api;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 /**
  * Style for the progress bar.
@@ -47,10 +46,10 @@ public interface IProgressStyle {
     IProgressStyle prefix(Component prefix);
     IProgressStyle suffix(Component suffix);
     
-    default IProgressStyle prefix(String prefix, Object...args) { return prefix(new TranslatableComponent(prefix, args)); }
-    default IProgressStyle suffix(String suffix, Object...args){ return suffix(new TranslatableComponent(suffix, args)); }
-    default IProgressStyle prefix(String prefix) { return prefix(new TranslatableComponent(prefix)); }
-    default IProgressStyle suffix(String suffix){ return suffix(new TranslatableComponent(suffix)); }
+    default IProgressStyle prefix(String prefix, Object...args) { return prefix(Component.translatable(prefix, args)); }
+    default IProgressStyle suffix(String suffix, Object...args){ return suffix(Component.translatable(suffix, args)); }
+    default IProgressStyle prefix(String prefix) { return prefix(Component.translatable(prefix)); }
+    default IProgressStyle suffix(String suffix){ return suffix(Component.translatable(suffix)); }
     
     /// If the progressbar is a lifebar then this is the maximum width
     default IProgressStyle bounds(int width, int height) { return width(width).height(height); }
