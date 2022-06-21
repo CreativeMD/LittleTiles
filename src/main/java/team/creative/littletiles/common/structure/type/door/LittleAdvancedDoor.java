@@ -37,7 +37,7 @@ import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.ValueTimeline;
-import team.creative.littletiles.common.animation.key.AnimationKey;
+import team.creative.littletiles.common.animation.property.AnimationProperty;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.gui.controls.GuiLTDistance;
 import team.creative.littletiles.common.gui.controls.GuiTileViewer;
@@ -140,7 +140,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
         return inverted;
     }
     
-    public static boolean isAligned(AnimationKey key, ValueTimeline timeline) {
+    public static boolean isAligned(AnimationProperty key, ValueTimeline timeline) {
         if (timeline == null)
             return true;
         
@@ -240,52 +240,52 @@ public class LittleAdvancedDoor extends LittleDoorBase {
         LittleAdvancedDoor newDoor = (LittleAdvancedDoor) placement.origin.getStructure();
         int duration = newDoor.duration;
         
-        PairList<AnimationKey, ValueTimeline> open = new PairList<>();
-        PairList<AnimationKey, ValueTimeline> close = new PairList<>();
+        PairList<AnimationProperty, ValueTimeline> open = new PairList<>();
+        PairList<AnimationProperty, ValueTimeline> close = new PairList<>();
         
         AnimationState opened = new AnimationState();
         AnimationState closed = new AnimationState();
         if (offX != null) {
-            opened.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.last(AnimationKey.offX)));
-            closed.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.first(AnimationKey.offX)));
+            opened.set(AnimationProperty.offX, offGrid.toVanillaGrid(offX.last(AnimationProperty.offX)));
+            closed.set(AnimationProperty.offX, offGrid.toVanillaGrid(offX.first(AnimationProperty.offX)));
             
-            open.add(AnimationKey.offX, offX.copy().factor(offGrid.pixelSize));
-            close.add(AnimationKey.offX, offX.invert(duration).factor(offGrid.pixelSize));
+            open.add(AnimationProperty.offX, offX.copy().factor(offGrid.pixelSize));
+            close.add(AnimationProperty.offX, offX.invert(duration).factor(offGrid.pixelSize));
         }
         if (offY != null) {
-            opened.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.last(AnimationKey.offY)));
-            closed.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.first(AnimationKey.offY)));
+            opened.set(AnimationProperty.offY, offGrid.toVanillaGrid(offY.last(AnimationProperty.offY)));
+            closed.set(AnimationProperty.offY, offGrid.toVanillaGrid(offY.first(AnimationProperty.offY)));
             
-            open.add(AnimationKey.offY, offY.copy().factor(offGrid.pixelSize));
-            close.add(AnimationKey.offY, offY.invert(duration).factor(offGrid.pixelSize));
+            open.add(AnimationProperty.offY, offY.copy().factor(offGrid.pixelSize));
+            close.add(AnimationProperty.offY, offY.invert(duration).factor(offGrid.pixelSize));
         }
         if (offZ != null) {
-            opened.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.last(AnimationKey.offZ)));
-            closed.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.first(AnimationKey.offZ)));
+            opened.set(AnimationProperty.offZ, offGrid.toVanillaGrid(offZ.last(AnimationProperty.offZ)));
+            closed.set(AnimationProperty.offZ, offGrid.toVanillaGrid(offZ.first(AnimationProperty.offZ)));
             
-            open.add(AnimationKey.offZ, offZ.copy().factor(offGrid.pixelSize));
-            close.add(AnimationKey.offZ, offZ.invert(duration).factor(offGrid.pixelSize));
+            open.add(AnimationProperty.offZ, offZ.copy().factor(offGrid.pixelSize));
+            close.add(AnimationProperty.offZ, offZ.invert(duration).factor(offGrid.pixelSize));
         }
         if (rotX != null) {
-            opened.set(AnimationKey.rotX, rotX.last(AnimationKey.rotX));
-            closed.set(AnimationKey.rotX, rotX.first(AnimationKey.rotX));
+            opened.set(AnimationProperty.rotX, rotX.last(AnimationProperty.rotX));
+            closed.set(AnimationProperty.rotX, rotX.first(AnimationProperty.rotX));
             
-            open.add(AnimationKey.rotX, rotX);
-            close.add(AnimationKey.rotX, rotX.invert(duration));
+            open.add(AnimationProperty.rotX, rotX);
+            close.add(AnimationProperty.rotX, rotX.invert(duration));
         }
         if (rotY != null) {
-            opened.set(AnimationKey.rotY, rotY.last(AnimationKey.rotY));
-            closed.set(AnimationKey.rotY, rotY.first(AnimationKey.rotY));
+            opened.set(AnimationProperty.rotY, rotY.last(AnimationProperty.rotY));
+            closed.set(AnimationProperty.rotY, rotY.first(AnimationProperty.rotY));
             
-            open.add(AnimationKey.rotY, rotY);
-            close.add(AnimationKey.rotY, rotY.invert(duration));
+            open.add(AnimationProperty.rotY, rotY);
+            close.add(AnimationProperty.rotY, rotY.invert(duration));
         }
         if (rotZ != null) {
-            opened.set(AnimationKey.rotZ, rotZ.last(AnimationKey.rotZ));
-            closed.set(AnimationKey.rotZ, rotZ.first(AnimationKey.rotZ));
+            opened.set(AnimationProperty.rotZ, rotZ.last(AnimationProperty.rotZ));
+            closed.set(AnimationProperty.rotZ, rotZ.first(AnimationProperty.rotZ));
             
-            open.add(AnimationKey.rotZ, rotZ);
-            close.add(AnimationKey.rotZ, rotZ.invert(duration));
+            open.add(AnimationProperty.rotZ, rotZ);
+            close.add(AnimationProperty.rotZ, rotZ.invert(duration));
         }
         
         return new DoorController(supplier, closed, opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close), interpolation);
@@ -353,27 +353,27 @@ public class LittleAdvancedDoor extends LittleDoorBase {
             
             ValueTimeline rotX = ValueTimeline.create(interpolation, timeline.channels.get(0).getPairs());
             if (rotX != null)
-                animation.values.add(AnimationKey.rotX, rotX);
+                animation.values.add(AnimationProperty.rotX, rotX);
             
             ValueTimeline rotY = ValueTimeline.create(interpolation, timeline.channels.get(1).getPairs());
             if (rotY != null)
-                animation.values.add(AnimationKey.rotY, rotY);
+                animation.values.add(AnimationProperty.rotY, rotY);
             
             ValueTimeline rotZ = ValueTimeline.create(interpolation, timeline.channels.get(2).getPairs());
             if (rotZ != null)
-                animation.values.add(AnimationKey.rotZ, rotZ);
+                animation.values.add(AnimationProperty.rotZ, rotZ);
             
             ValueTimeline offX = ValueTimeline.create(interpolation, timeline.channels.get(3).getPairs());
             if (offX != null)
-                animation.values.add(AnimationKey.offX, offX.factor(context.pixelSize));
+                animation.values.add(AnimationProperty.offX, offX.factor(context.pixelSize));
             
             ValueTimeline offY = ValueTimeline.create(interpolation, timeline.channels.get(4).getPairs());
             if (offY != null)
-                animation.values.add(AnimationKey.offY, offY.factor(context.pixelSize));
+                animation.values.add(AnimationProperty.offY, offY.factor(context.pixelSize));
             
             ValueTimeline offZ = ValueTimeline.create(interpolation, timeline.channels.get(5).getPairs());
             if (offZ != null)
-                animation.values.add(AnimationKey.offZ, offZ.factor(context.pixelSize));
+                animation.values.add(AnimationProperty.offZ, offZ.factor(context.pixelSize));
             
             handler.setTimeline(animation, children.events);
             
@@ -526,7 +526,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
             door.offZ = ValueTimeline.create(door.interpolation, timeline.channels.get(5).getPairs());
             
             door.noClip = settings.noClip;
-            if (!isAligned(AnimationKey.offX, door.offX) || !isAligned(AnimationKey.offY, door.offY) || !isAligned(AnimationKey.offZ, door.offZ) || !isAligned(AnimationKey.rotX, door.rotX) || !isAligned(AnimationKey.rotY, door.rotY) || !isAligned(AnimationKey.rotZ, door.rotZ))
+            if (!isAligned(AnimationProperty.offX, door.offX) || !isAligned(AnimationProperty.offY, door.offY) || !isAligned(AnimationProperty.offZ, door.offZ) || !isAligned(AnimationProperty.rotX, door.rotX) || !isAligned(AnimationProperty.rotY, door.rotY) || !isAligned(AnimationProperty.rotZ, door.rotZ))
                 door.stayAnimated = true;
             else
                 door.stayAnimated = settings.stayAnimated;

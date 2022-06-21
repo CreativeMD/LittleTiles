@@ -10,7 +10,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VecNd;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
-import team.creative.littletiles.common.animation.key.AnimationKey;
+import team.creative.littletiles.common.animation.property.AnimationProperty;
 
 public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurve<T> {
     
@@ -78,14 +78,14 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
     public abstract double valueAt(double mu, double before, int pointIndex, double after, int pointIndexNext, int dim);
     
     @Override
-    public T first(AnimationKey<T> key) {
+    public T first(AnimationProperty<T> key) {
         if (points.isEmpty())
             return key.defaultValue();
         return points.getFirst().value;
     }
     
     @Override
-    public T last(AnimationKey<T> key) {
+    public T last(AnimationProperty<T> key) {
         if (points.isEmpty())
             return key.defaultValue();
         return points.getLast().value;

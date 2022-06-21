@@ -15,14 +15,14 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.curve.ValueCurve;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
-import team.creative.littletiles.common.animation.key.AnimationKey;
-import team.creative.littletiles.common.animation.key.AnimationKeys;
+import team.creative.littletiles.common.animation.property.AnimationProperties;
+import team.creative.littletiles.common.animation.property.AnimationProperty;
 
 public class AnimationTimeline {
     
     public final int duration;
     private int tick;
-    private HashMap<AnimationKey, ValueCurve> values = new HashMap<>();
+    private HashMap<AnimationProperty, ValueCurve> values = new HashMap<>();
     private int eventIndex = 0;
     private List<AnimationEventEntry> events = new ArrayList<>();
     private BitSet activeEvents = new BitSet();
@@ -34,7 +34,7 @@ public class AnimationTimeline {
         
         CompoundTag valueNBT = nbt.getCompound("values");
         for (String key : valueNBT.getAllKeys())
-            values.put(AnimationKeys.REGISTRY.get(key), ValueCurve.load(valueNBT.getCompound(key)));
+            values.put(AnimationProperties.REGISTRY.get(key), ValueCurve.load(valueNBT.getCompound(key)));
         
         ListTag list = nbt.getList("events", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
@@ -50,7 +50,7 @@ public class AnimationTimeline {
             return false;
         
         tick++;
-        for (Entry<AnimationKey, ValueCurve> pair : values.entrySet())
+        for (Entry<AnimationProperty, ValueCurve> pair : values.entrySet())
             state.set(pair.getKey(), pair.getValue().value(tick));
         
         if (eventIndex < events.size()) {
@@ -82,7 +82,7 @@ public class AnimationTimeline {
         nbt.putInt("eindex", eventIndex);
         
         CompoundTag valuesNBT = new CompoundTag();
-        for (Entry<AnimationKey, ValueCurve> entry : values.entrySet())
+        for (Entry<AnimationProperty, ValueCurve> entry : values.entrySet())
             valuesNBT.put(entry.getKey().name(), entry.getValue().save());
         nbt.put("values", valuesNBT);
         
@@ -94,16 +94,16 @@ public class AnimationTimeline {
     }
     
     public void rotate(Rotation rotation) {
-        HashMap<AnimationKey, ValueCurve> newValues = new HashMap<>();
-        for (Entry<AnimationKey, ValueCurve> pair : values.entrySet()) {
-            Pair<AnimationKey, ValueCurve> result = pair.getKey().rotate(rotation, pair.getValue());
+        HashMap<AnimationProperty, ValueCurve> newValues = new HashMap<>();
+        for (Entry<AnimationProperty, ValueCurve> pair : values.entrySet()) {
+            Pair<AnimationProperty, ValueCurve> result = pair.getKey().rotate(rotation, pair.getValue());
             newValues.put(result.key, result.value);
         }
         this.values = newValues;
     }
     
     public boolean firstAligned() {
-        for (Entry<AnimationKey, ValueCurve> pair : values.entrySet()) {
+        for (Entry<AnimationProperty, ValueCurve> pair : values.entrySet()) {
             if (!pair.getKey().aligned(pair.getValue().first(pair.getKey())))
                 return false;
         }
@@ -111,7 +111,7 @@ public class AnimationTimeline {
     }
     
     public boolean lastAligned() {
-        for (Entry<AnimationKey, ValueCurve> pair : values.entrySet()) {
+        for (Entry<AnimationProperty, ValueCurve> pair : values.entrySet()) {
             if (!pair.getKey().aligned(pair.getValue().last(pair.getKey())))
                 return false;
         }

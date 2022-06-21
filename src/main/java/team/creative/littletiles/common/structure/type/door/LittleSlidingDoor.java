@@ -24,8 +24,8 @@ import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.AnimationState;
 import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.ValueTimeline;
-import team.creative.littletiles.common.animation.key.AnimationKey;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.animation.property.AnimationProperty;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -69,7 +69,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
     @Override
     public DoorController createController(UUIDSupplier supplier, Placement placement, int completeDuration) {
         //((LittleSlidingDoor) placement.origin.getStructure()).direction = direction.getOpposite();
-        return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), direction.getAxisDirection()
+        return new DoorController(supplier, new AnimationState(), new AnimationState().set(AnimationProperty.getOffset(direction.getAxis()), direction.getAxisDirection()
                 .getOffset() * moveContext.toVanillaGrid(moveDistance)), stayAnimated ? null : false, duration, completeDuration, interpolation);
     }
     
@@ -244,7 +244,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
             EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
             GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
             
-            timeline.values.add(AnimationKey.getOffset(direction.getAxis()), ValueTimeline.create(interpolation).addPoint(0, 0D)
+            timeline.values.add(AnimationProperty.getOffset(direction.getAxis()), ValueTimeline.create(interpolation).addPoint(0, 0D)
                     .addPoint(timeline.duration, direction.getAxisDirection().getOffset() * distance.getDistanceContext().toVanillaGrid(distance.getDistance())));
         }
         

@@ -6,7 +6,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
-import team.creative.littletiles.common.animation.key.AnimationKey;
+import team.creative.littletiles.common.animation.property.AnimationProperty;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.math.transformation.LittleTransformation;
 
@@ -68,8 +68,8 @@ public class AnimationController {
         if (toState == null)
             throw new RuntimeException("State '" + to + "' does not exist");
         
-        PairList<AnimationKey, ValueTimeline> values = new PairList<>();
-        for (Pair<AnimationKey, Double> pair : fromState.state.getValues()) {
+        PairList<AnimationProperty, ValueTimeline> values = new PairList<>();
+        for (Pair<AnimationProperty, Double> pair : fromState.state.getValues()) {
             ValueTimeline timeline = ValueTimeline.create(getInterpolationType());
             timeline.points.add(0, pair.value);
             if (toState.state.getValues().containsKey(pair.key))
@@ -79,7 +79,7 @@ public class AnimationController {
             values.add(pair.key, timeline);
         }
         
-        for (Pair<AnimationKey, Double> pair : toState.state.getValues()) {
+        for (Pair<AnimationProperty, Double> pair : toState.state.getValues()) {
             if (values.containsKey(pair.key))
                 continue;
             ValueTimeline timeline = ValueTimeline.create(getInterpolationType());
