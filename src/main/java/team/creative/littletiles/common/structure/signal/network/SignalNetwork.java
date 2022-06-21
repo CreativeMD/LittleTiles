@@ -1,14 +1,13 @@
 package team.creative.littletiles.common.structure.signal.network;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.world.level.Level;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
@@ -16,7 +15,7 @@ import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedul
 public class SignalNetwork implements ISignalSchedulable {
     
     public final int bandwidth;
-    private final boolean[] state;
+    private SignalState state;
     private boolean changed = false;
     private boolean forceUpdate = false;
     private List<ISignalStructureTransmitter> transmitters = new ArrayList<>();
@@ -27,7 +26,7 @@ public class SignalNetwork implements ISignalSchedulable {
     
     public SignalNetwork(int bandwidth) {
         this.bandwidth = bandwidth;
-        this.state = new boolean[bandwidth];
+        this.state = SignalState.create(bandwidth);
     }
     
     public List<ISignalStructureComponent> getOutputs() {
@@ -37,20 +36,20 @@ public class SignalNetwork implements ISignalSchedulable {
     @Override
     public void notifyChange() {
         if (!forceUpdate) {
-            boolean[] oldState = Arrays.copyOf(state, bandwidth);
-            BooleanUtils.reset(state);
+            SignalState oldState = SignalState.copy(state);
+            state.reset();
             
             for (int i = 0; i < outputs.size(); i++)
                 try {
-                    BooleanUtils.or(state, outputs.get(i).getState());
+                    state = state.or(outputs.get(i).getState());
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             
-            if (BooleanUtils.equals(state, oldState) && !inputs.isEmpty())
+            if (state.equals(bandwidth, oldState) && !inputs.isEmpty())
                 return;
         } else
             for (int i = 0; i < outputs.size(); i++)
                 try {
-                    BooleanUtils.or(state, outputs.get(i).getState());
+                    state = state.or(outputs.get(i).getState());
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         forceUpdate = false;
         for (int i = 0; i < inputs.size(); i++)
@@ -151,25 +150,25 @@ public class SignalNetwork implements ISignalSchedulable {
             add(connections.next());
         
         switch (base.getComponentType()) {
-        case INPUT:
-            inputs.add((ISignalStructureComponent) base);
-            forceUpdate = true;
-            schedule();
-            break;
-        case OUTPUT:
-            outputs.add((ISignalStructureComponent) base);
-            forceUpdate = true;
-            schedule();
-            break;
-        case TRANSMITTER:
-            transmitters.add((ISignalStructureTransmitter) base);
-            break;
-        case IOSPECIAL:
-            inputs.add((ISignalStructureComponent) base);
-            outputs.add((ISignalStructureComponent) base);
-            forceUpdate = true;
-            schedule();
-            break;
+            case INPUT:
+                inputs.add((ISignalStructureComponent) base);
+                forceUpdate = true;
+                schedule();
+                break;
+            case OUTPUT:
+                outputs.add((ISignalStructureComponent) base);
+                forceUpdate = true;
+                schedule();
+                break;
+            case TRANSMITTER:
+                transmitters.add((ISignalStructureTransmitter) base);
+                break;
+            case IOSPECIAL:
+                inputs.add((ISignalStructureComponent) base);
+                outputs.add((ISignalStructureComponent) base);
+                forceUpdate = true;
+                schedule();
+                break;
         }
     }
     
@@ -194,22 +193,22 @@ public class SignalNetwork implements ISignalSchedulable {
         base.setNetwork(null);
         
         switch (base.getComponentType()) {
-        case INPUT:
-            inputs.remove(base);
-            schedule();
-            return false;
-        case OUTPUT:
-            outputs.remove(base);
-            schedule();
-            return false;
-        case TRANSMITTER:
-            deleteNetwork();
-            return true;
-        case IOSPECIAL:
-            inputs.remove(base);
-            outputs.remove(base);
-            schedule();
-            return false;
+            case INPUT:
+                inputs.remove(base);
+                schedule();
+                return false;
+            case OUTPUT:
+                outputs.remove(base);
+                schedule();
+                return false;
+            case TRANSMITTER:
+                deleteNetwork();
+                return true;
+            case IOSPECIAL:
+                inputs.remove(base);
+                outputs.remove(base);
+                schedule();
+                return false;
         }
         return false;
     }

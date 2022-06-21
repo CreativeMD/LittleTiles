@@ -32,6 +32,7 @@ import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittlePacketTypes {
     
@@ -404,5 +405,19 @@ public class LittlePacketTypes {
             }
             
         }, PlacementPreview.class);
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<SignalState>() {
+            
+            @Override
+            protected void writeContent(SignalState content, FriendlyByteBuf buffer) {
+                content.write(buffer);
+            }
+            
+            @Override
+            protected SignalState readContent(FriendlyByteBuf buffer) {
+                return SignalState.read(buffer);
+            }
+            
+        });
     }
 }

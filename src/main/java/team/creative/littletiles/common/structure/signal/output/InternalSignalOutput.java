@@ -1,14 +1,14 @@
 package team.creative.littletiles.common.structure.signal.output;
 
 import java.text.ParseException;
-import java.util.Arrays;
 
 import net.minecraft.nbt.CompoundTag;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.packet.update.OutputUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
+import team.creative.littletiles.common.structure.signal.SignalState;
+import team.creative.littletiles.common.structure.signal.SignalState.SignalStateSize;
 import team.creative.littletiles.common.structure.signal.component.InternalSignal;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -43,7 +43,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
     
     @Override
     public void load(CompoundTag nbt) {
-        BooleanUtils.intToBool(nbt.getInt("state"), getState());
+        overwrite(getState().load(nbt.get("state")));
         try {
             if (nbt.contains("con"))
                 condition = SignalInputCondition.parseInput(nbt.getString("con"));
@@ -63,7 +63,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
     
     @Override
     public CompoundTag write(boolean preview, CompoundTag nbt) {
-        nbt.putInt("state", BooleanUtils.boolToInt(getState()));
+        nbt.put("state", getState().save());
         if (condition != null)
             nbt.putString("con", condition.write());
         nbt.putString("mode", handler == null ? defaultMode.name() : handler.getMode().name());
@@ -84,14 +84,12 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
             return;
         int bandwidth = getBandwidth();
         if (bandwidth > 0) {
-            boolean[] outputState = new boolean[bandwidth];
-            boolean[] result = condition.test(getStructure(), false);
-            if (result.length == 1)
-                Arrays.fill(outputState, result[0]);
+            SignalState outputState = SignalState.create(bandwidth);
+            SignalState result = condition.test(getStructure(), false);
+            if (result.size() == SignalStateSize.SINGLE)
+                outputState = outputState.fill(result.any());
             else
-                for (int i = 0; i < result.length; i++)
-                    if (i < outputState.length)
-                        outputState[i] = result[i];
+                outputState = outputState.fill(result);
             handler.schedule(outputState);
         }
     }

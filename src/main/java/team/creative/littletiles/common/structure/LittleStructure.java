@@ -33,7 +33,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
@@ -889,19 +888,19 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         List<String> infos = new ArrayList<>();
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
-                infos.add("a" + i + ":" + BooleanUtils.print(inputs[i].getState()));
+                infos.add("a" + i + ":" + inputs[i].getState().print(inputs[i].getBandwidth()));
         for (ISignalStructureComponent component : inputs())
             try {
-                infos.add("i" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+                infos.add("i" + component.getId() + ":" + component.getState().print(component.getBandwidth()));
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("i" + component.getId() + ":broken");
             }
         if (outputs != null)
             for (int i = 0; i < outputs.length; i++)
-                infos.add("b" + i + ":" + BooleanUtils.print(outputs[i].getState()));
+                infos.add("b" + i + ":" + outputs[i].getState().print(outputs[i].getBandwidth()));
         for (ISignalStructureComponent component : outputs())
             try {
-                infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+                infos.add("o" + component.getId() + ":" + component.getState().print(component.getBandwidth()));
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("o" + component.getId() + ":broken");
             }

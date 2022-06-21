@@ -28,7 +28,6 @@ import net.minecraftforge.event.ForgeEventFactory;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
@@ -47,6 +46,7 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 
 public class LittleBed extends LittleStructure {
@@ -89,7 +89,7 @@ public class LittleBed extends LittleStructure {
     public void setSleepingPlayer(Player player) {
         this.sleepingPlayer = player;
         if (!getLevel().isClientSide)
-            getInput(0).updateState(BooleanUtils.asArray(player != null));
+            getInput(0).updateState(SignalState.of(player != null));
     }
     
     public Player.BedSleepingProblem trySleep(Player player, Vec3d highest) {

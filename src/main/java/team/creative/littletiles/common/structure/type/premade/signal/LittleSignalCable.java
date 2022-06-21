@@ -16,6 +16,7 @@ import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.network.ISignalStructureTransmitter;
 
@@ -79,9 +80,12 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
         public void changed() {}
         
         @Override
-        public boolean[] getState() {
+        public SignalState getState() {
             return null;
         }
+        
+        @Override
+        public void overwriteState(SignalState state) {}
         
         @Override
         public SignalComponentType getComponentType() {

@@ -4,9 +4,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.signal.SignalUtils;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
@@ -78,18 +77,18 @@ public class SignalInputVariable extends SignalInputCondition {
     }
     
     @Override
-    public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-        boolean[] state = target.getState(structure);
+    public SignalState test(LittleStructure structure, boolean forceBitwise) {
+        SignalState state = target.getState(structure);
         if (forceBitwise)
             return state;
-        return BooleanUtils.asArray(BooleanUtils.any(state));
+        return SignalState.of(state.any());
         
     }
     
     @Override
-    public boolean testIndex(boolean[] state) {
-        if (target.isIndexVariable() && target.child < state.length)
-            return state[target.child];
+    public boolean testIndex(SignalState state) {
+        if (target.isIndexVariable())
+            return state.is(target.child);
         return false;
     }
     
@@ -113,15 +112,16 @@ public class SignalInputVariable extends SignalInputCondition {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-            boolean[] state = target.getState(structure);
+        public SignalState test(LittleStructure structure, boolean forceBitwise) {
+            SignalState state = target.getState(structure);
             boolean result = false;
-            for (int i = 0; i < state.length; i++)
+            int bandwidth = target.bandwidth(structure);
+            for (int i = 0; i < bandwidth; i++)
                 if (i == 0)
-                    result = state[i];
+                    result = state.is(i);
                 else
-                    result = operator.perform(result, state[i]);
-            return BooleanUtils.asArray(result);
+                    result = operator.perform(result, state.is(i));
+            return SignalState.of(result);
         }
         
         @Override
@@ -140,8 +140,8 @@ public class SignalInputVariable extends SignalInputCondition {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-            return BooleanUtils.asArray(SignalUtils.is(target.getState(structure), indexes));
+        public SignalState test(LittleStructure structure, boolean forceBitwise) {
+            return SignalState.of(target.getState(structure).is(indexes));
         }
         
         @Override
@@ -166,8 +166,8 @@ public class SignalInputVariable extends SignalInputCondition {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-            return BooleanUtils.asArray(condition.testIndex(target.getState(structure)));
+        public SignalState test(LittleStructure structure, boolean forceBitwise) {
+            return SignalState.of(condition.testIndex(target.getState(structure)));
         }
         
         @Override

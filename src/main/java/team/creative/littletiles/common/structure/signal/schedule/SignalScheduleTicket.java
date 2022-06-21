@@ -3,16 +3,16 @@ package team.creative.littletiles.common.structure.signal.schedule;
 import java.lang.ref.WeakReference;
 
 import net.minecraft.world.level.Level;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
 public class SignalScheduleTicket implements ISignalScheduleTicket {
     
     private int delay;
     private final WeakReference<SignalOutputHandler> outputCondition;
-    private final boolean[] result;
+    private SignalState result;
     
-    public SignalScheduleTicket(SignalOutputHandler outputCondition, boolean[] result, int delay) {
+    public SignalScheduleTicket(SignalOutputHandler outputCondition, SignalState result, int delay) {
         this.outputCondition = new WeakReference<SignalOutputHandler>(outputCondition);
         this.result = result;
         this.delay = delay;
@@ -59,13 +59,13 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
     }
     
     @Override
-    public boolean[] getState() {
+    public SignalState getState() {
         return result;
     }
     
     @Override
-    public void overwriteState(boolean[] newState) {
-        BooleanUtils.set(result, newState);
+    public void overwriteState(SignalState newState) {
+        result = result.overwrite(newState);
     }
     
     @Override

@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
 
@@ -107,10 +107,10 @@ public abstract class SignalInputCondition {
         return first;
     }
     
-    public abstract boolean[] test(LittleStructure structure, boolean forceBitwise);
+    public abstract SignalState test(LittleStructure structure, boolean forceBitwise);
     
     /** only used for sub equation (inside a variable), only has indexes */
-    public abstract boolean testIndex(boolean[] state);
+    public abstract boolean testIndex(SignalState state);
     
     public abstract String write();
     
@@ -124,11 +124,11 @@ public abstract class SignalInputCondition {
     public static abstract class SignalInputConditionOperator extends SignalInputCondition {
         
         @Override
-        public boolean[] test(LittleStructure structure, boolean forceBitwise) {
+        public SignalState test(LittleStructure structure, boolean forceBitwise) {
             return test(structure);
         }
         
-        public abstract boolean[] test(LittleStructure structure);
+        public abstract SignalState test(LittleStructure structure);
         
     }
     
@@ -141,15 +141,12 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure) {
-            boolean[] state = BooleanUtils.copy(condition.test(structure, true));
-            for (int i = 0; i < state.length; i++)
-                state[i] = !state[i];
-            return state;
+        public SignalState test(LittleStructure structure) {
+            return SignalState.copy(condition.test(structure, true)).invert();
         }
         
         @Override
-        public boolean testIndex(boolean[] state) {
+        public boolean testIndex(SignalState state) {
             return !condition.testIndex(state);
         }
         
@@ -173,15 +170,12 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure) {
-            boolean[] state = BooleanUtils.copy(condition.test(structure, false));
-            for (int i = 0; i < state.length; i++)
-                state[i] = !state[i];
-            return state;
+        public SignalState test(LittleStructure structure) {
+            return SignalState.copy(condition.test(structure, false)).invert();
         }
         
         @Override
-        public boolean testIndex(boolean[] state) {
+        public boolean testIndex(SignalState state) {
             return !condition.testIndex(state);
         }
         
@@ -206,12 +200,12 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-            return BooleanUtils.asArray(bit);
+        public SignalState test(LittleStructure structure, boolean forceBitwise) {
+            return SignalState.of(bit);
         }
         
         @Override
-        public boolean testIndex(boolean[] state) {
+        public boolean testIndex(SignalState state) {
             return false;
         }
         
@@ -236,15 +230,15 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-            boolean[] state = new boolean[conditions.length];
-            for (int i = 0; i < state.length; i++)
-                state[i] = BooleanUtils.any(conditions[i].test(structure, false));
+        public SignalState test(LittleStructure structure, boolean forceBitwise) {
+            SignalState state = SignalState.create(conditions.length);
+            for (int i = 0; i < conditions.length; i++)
+                state = state.set(i, conditions[i].test(structure, false).any());
             return state;
         }
         
         @Override
-        public boolean testIndex(boolean[] state) {
+        public boolean testIndex(SignalState state) {
             return false;
         }
         

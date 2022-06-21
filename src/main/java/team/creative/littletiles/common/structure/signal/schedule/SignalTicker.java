@@ -15,6 +15,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
@@ -67,7 +68,7 @@ public class SignalTicker {
         get(level).schedule(schedulable);
     }
     
-    public static ISignalScheduleTicket schedule(SignalOutputHandler handler, boolean[] result, int tick) {
+    public static ISignalScheduleTicket schedule(SignalOutputHandler handler, SignalState result, int tick) {
         Level level = handler.component.getStructureLevel();
         if (level == null) {
             SignalScheduleTicket ticket = new SignalScheduleTicket(handler, result, tick);
@@ -172,7 +173,7 @@ public class SignalTicker {
         return ticket;
     }
     
-    public synchronized ISignalScheduleTicket openTicket(SignalOutputHandler handler, boolean[] result, int tick) {
+    public synchronized ISignalScheduleTicket openTicket(SignalOutputHandler handler, SignalState result, int tick) {
         int delay;
         if (tick <= queueLength) {
             delay = queueIndex + tick - 1;

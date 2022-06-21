@@ -12,7 +12,6 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -29,18 +28,19 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 
 public class LittleSignalInput extends LittleSignalCableBase implements ISignalStructureComponent {
     
-    private final boolean[] state;
+    private SignalState state;
     @StructureDirectional
     public Facing facing;
     
     public LittleSignalInput(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
-        this.state = new boolean[getBandwidth()];
+        this.state = SignalState.create(getBandwidth());
     }
     
     @Override
@@ -49,20 +49,26 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     }
     
     @Override
-    public boolean[] getState() {
+    public void overwriteState(SignalState state) {
+        this.state = this.state.overwrite(state);
+        this.state.shrinkTo(getBandwidth());
+    }
+    
+    @Override
+    public SignalState getState() {
         return state;
     }
     
     @Override
     protected void loadExtra(CompoundTag nbt) {
         super.loadExtra(nbt);
-        BooleanUtils.intToBool(nbt.getInt("state"), state);
+        state = state.load(nbt.get("state"));
     }
     
     @Override
     protected void saveExtra(CompoundTag nbt) {
         super.saveExtra(nbt);
-        nbt.putInt("state", BooleanUtils.boolToInt(state));
+        nbt.put("state", state.save());
     }
     
     @Override
@@ -270,7 +276,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     @Override
     public String info() {
         if (getParent() != null)
-            return "i" + getId() + ":" + BooleanUtils.print(getState());
+            return "i" + getId() + ":" + getState().print(getBandwidth());
         return "";
     }
     
@@ -311,9 +317,12 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         }
         
         @Override
-        public boolean[] getState() {
+        public SignalState getState() {
             return null;
         }
+        
+        @Override
+        public void overwriteState(SignalState state) {}
         
         @Override
         public SignalComponentType getComponentType() {

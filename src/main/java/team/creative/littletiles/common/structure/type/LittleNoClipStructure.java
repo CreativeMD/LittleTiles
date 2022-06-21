@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -21,6 +20,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleNoClipStructure extends LittleStructure {
     
@@ -71,8 +71,8 @@ public class LittleNoClipStructure extends LittleStructure {
         for (Entity entity : entities)
             if (entity instanceof Player)
                 players++;
-        getInput(0).updateState(BooleanUtils.toBits(players, 4));
-        getInput(1).updateState(BooleanUtils.toBits(entities.size(), 4));
+        getInput(0).updateState(SignalState.of(players));
+        getInput(1).updateState(SignalState.of(entities.size()));
         boolean wasEmpty = entities.isEmpty();
         entities.clear();
         return !wasEmpty;

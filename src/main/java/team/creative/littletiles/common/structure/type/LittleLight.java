@@ -46,7 +46,7 @@ public class LittleLight extends LittleStructure {
     
     @Override
     public int getLightValue(BlockPos pos) {
-        return getOutput(0).getState()[0] ? level : 0;
+        return getOutput(0).getState().any() ? level : 0;
     }
     
     @Override
@@ -77,7 +77,7 @@ public class LittleLight extends LittleStructure {
     
     @Override
     public int getAttribute() {
-        if (getOutput(0).getState()[0])
+        if (getOutput(0).getState().any())
             return super.getAttribute() | LittleStructureAttribute.EMISSIVE;
         return super.getAttribute();
     }

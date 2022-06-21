@@ -1,10 +1,10 @@
 package team.creative.littletiles.common.structure.signal.output;
 
 import net.minecraft.nbt.CompoundTag;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
@@ -12,7 +12,7 @@ public abstract class SignalOutputHandler {
     
     public final ISignalComponent component;
     public final int delay;
-    public boolean[] lastReacted;
+    public SignalState lastReacted;
     
     public SignalOutputHandler(ISignalComponent component, int delay, CompoundTag nbt) {
         this.component = component;
@@ -21,18 +21,21 @@ public abstract class SignalOutputHandler {
     
     public abstract SignalMode getMode();
     
-    public void schedule(boolean[] state) {
-        if (lastReacted != null && BooleanUtils.equals(state, lastReacted))
-            return;
-        queue(state);
-        if (lastReacted == null)
-            lastReacted = new boolean[state.length];
-        BooleanUtils.set(lastReacted, state);
+    public void schedule(SignalState state) {
+        try {
+            int bandwidth = getBandwidth();
+            if (lastReacted != null && lastReacted.equals(bandwidth, state))
+                return;
+            queue(state);
+            if (lastReacted == null)
+                lastReacted = SignalState.create(bandwidth);
+            lastReacted = lastReacted.overwrite(state);
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
-    public abstract void queue(boolean[] state);
+    public abstract void queue(SignalState state);
     
-    public void performStateChange(boolean[] state) {
+    public void performStateChange(SignalState state) {
         component.updateState(state);
     }
     

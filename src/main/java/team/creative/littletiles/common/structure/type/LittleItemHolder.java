@@ -12,7 +12,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -23,6 +22,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
+import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleItemHolder extends LittleStructure {
     
@@ -77,7 +77,7 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     public void updateInput() {
-        getInput(0).updateState(BooleanUtils.asArray(!stack.isEmpty()));
+        getInput(0).updateState(SignalState.of(!stack.isEmpty()));
     }
     
     @Override

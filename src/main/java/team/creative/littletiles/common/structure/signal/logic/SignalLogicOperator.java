@@ -2,8 +2,9 @@ package team.creative.littletiles.common.structure.signal.logic;
 
 import java.text.ParseException;
 
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.signal.SignalState;
+import team.creative.littletiles.common.structure.signal.SignalState.SignalStateSize;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionOperator;
 
@@ -21,13 +22,18 @@ public enum SignalLogicOperator {
         }
         
         @Override
+        public int perform(int first, int second) {
+            return first & second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first & second;
+        }
+        
+        @Override
         public SignalInputCondition create(SignalInputCondition[] conditions) {
             return new SignalInputConditionOperatorStackable(conditions) {
-                
-                @Override
-                public boolean perform(boolean first, boolean second) {
-                    return first && second;
-                }
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -59,13 +65,18 @@ public enum SignalLogicOperator {
         }
         
         @Override
+        public int perform(int first, int second) {
+            return first | second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first | second;
+        }
+        
+        @Override
         public SignalInputCondition create(SignalInputCondition[] conditions) {
             return new SignalInputConditionOperatorStackable(conditions) {
-                
-                @Override
-                public boolean perform(boolean first, boolean second) {
-                    return first || second;
-                }
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -98,13 +109,18 @@ public enum SignalLogicOperator {
         }
         
         @Override
+        public int perform(int first, int second) {
+            return first ^ second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first ^ second;
+        }
+        
+        @Override
         public SignalInputCondition create(SignalInputCondition[] conditions) {
             return new SignalInputConditionOperatorStackable(conditions) {
-                
-                @Override
-                public boolean perform(boolean first, boolean second) {
-                    return first ^ second;
-                }
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -136,13 +152,18 @@ public enum SignalLogicOperator {
         }
         
         @Override
+        public int perform(int first, int second) {
+            return first & second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first & second;
+        }
+        
+        @Override
         public SignalInputCondition create(SignalInputCondition[] conditions) {
             return new SignalInputConditionOperatorStackableBitwise(conditions) {
-                
-                @Override
-                public boolean perform(boolean first, boolean second) {
-                    return first && second;
-                }
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -170,13 +191,18 @@ public enum SignalLogicOperator {
         }
         
         @Override
+        public int perform(int first, int second) {
+            return first | second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first | second;
+        }
+        
+        @Override
         public SignalInputCondition create(SignalInputCondition[] conditions) {
             return new SignalInputConditionOperatorStackableBitwise(conditions) {
-                
-                @Override
-                public boolean perform(boolean first, boolean second) {
-                    return first || second;
-                }
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -204,13 +230,18 @@ public enum SignalLogicOperator {
         }
         
         @Override
+        public int perform(int first, int second) {
+            return first ^ second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first ^ second;
+        }
+        
+        @Override
         public SignalInputCondition create(SignalInputCondition[] conditions) {
             return new SignalInputConditionOperatorStackableBitwise(conditions) {
-                
-                @Override
-                public boolean perform(boolean first, boolean second) {
-                    return first ^ second;
-                }
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -233,7 +264,17 @@ public enum SignalLogicOperator {
         
         @Override
         public boolean perform(boolean first, boolean second) {
-            return false;
+            return first | second;
+        }
+        
+        @Override
+        public int perform(int first, int second) {
+            return first + second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first + second;
         }
         
         @Override
@@ -250,10 +291,6 @@ public enum SignalLogicOperator {
                     return SignalInputCondition.ADD_DURATION;
                 }
                 
-                @Override
-                public int perform(int first, int second) {
-                    return first + second;
-                }
             };
         }
     },
@@ -265,7 +302,17 @@ public enum SignalLogicOperator {
         
         @Override
         public boolean perform(boolean first, boolean second) {
-            return false;
+            return first && !second;
+        }
+        
+        @Override
+        public int perform(int first, int second) {
+            return first - second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first - second;
         }
         
         @Override
@@ -281,11 +328,6 @@ public enum SignalLogicOperator {
                 public float getModifier() {
                     return SignalInputCondition.SUB_DURATION;
                 }
-                
-                @Override
-                public int perform(int first, int second) {
-                    return first - second;
-                }
             };
         }
     },
@@ -297,7 +339,17 @@ public enum SignalLogicOperator {
         
         @Override
         public boolean perform(boolean first, boolean second) {
-            return false;
+            return first && second;
+        }
+        
+        @Override
+        public int perform(int first, int second) {
+            return first * second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first * second;
         }
         
         @Override
@@ -313,11 +365,6 @@ public enum SignalLogicOperator {
                 public float getModifier() {
                     return SignalInputCondition.MUL_DURATION;
                 }
-                
-                @Override
-                public int perform(int first, int second) {
-                    return first * second;
-                }
             };
         }
     },
@@ -329,7 +376,17 @@ public enum SignalLogicOperator {
         
         @Override
         public boolean perform(boolean first, boolean second) {
-            return false;
+            return first && !second;
+        }
+        
+        @Override
+        public int perform(int first, int second) {
+            return first / second;
+        }
+        
+        @Override
+        public long perform(long first, long second) {
+            return first / second;
         }
         
         @Override
@@ -344,11 +401,6 @@ public enum SignalLogicOperator {
                 @Override
                 public float getModifier() {
                     return SignalInputCondition.DIV_DURATION;
-                }
-                
-                @Override
-                public int perform(int first, int second) {
-                    return first / second;
                 }
             };
         }
@@ -366,26 +418,26 @@ public enum SignalLogicOperator {
     
     public static SignalLogicOperator getOperator(char character) {
         switch (character) {
-        case '&':
-            return SignalLogicOperator.BITWISE_AND;
-        case '+':
-            return SignalLogicOperator.OR;
-        case '|':
-            return SignalLogicOperator.BITWISE_OR;
-        case 'V':
-            return SignalLogicOperator.XOR;
-        case '^':
-            return SignalLogicOperator.BITWISE_XOR;
-        case '#':
-            return SignalLogicOperator.ADD;
-        case '-':
-            return SignalLogicOperator.SUB;
-        case '*':
-            return SignalLogicOperator.MUL;
-        case '/':
-            return SignalLogicOperator.DIV;
-        default:
-            return null;
+            case '&':
+                return SignalLogicOperator.BITWISE_AND;
+            case '+':
+                return SignalLogicOperator.OR;
+            case '|':
+                return SignalLogicOperator.BITWISE_OR;
+            case 'V':
+                return SignalLogicOperator.XOR;
+            case '^':
+                return SignalLogicOperator.BITWISE_XOR;
+            case '#':
+                return SignalLogicOperator.ADD;
+            case '-':
+                return SignalLogicOperator.SUB;
+            case '*':
+                return SignalLogicOperator.MUL;
+            case '/':
+                return SignalLogicOperator.DIV;
+            default:
+                return null;
         }
     }
     
@@ -422,6 +474,10 @@ public enum SignalLogicOperator {
     
     public abstract boolean perform(boolean first, boolean second);
     
+    public abstract int perform(int first, int second);
+    
+    public abstract long perform(long first, long second);
+    
     public abstract SignalInputCondition create(SignalInputCondition[] conditions);
     
     public static abstract class SignalInputConditionOperatorStackable extends SignalInputConditionOperator {
@@ -433,46 +489,36 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure) {
-            boolean[][] state = new boolean[conditions.length][];
-            int size = 0;
+        public SignalState test(LittleStructure structure) {
+            SignalState[] state = new SignalState[conditions.length];
+            SignalStateSize size = SignalStateSize.SINGLE;
             for (int i = 0; i < conditions.length; i++) {
                 state[i] = conditions[i].test(structure, false);
-                size = Math.max(size, state[i].length);
+                size = size.max(state[i].size());
             }
             
-            boolean[] result = new boolean[size];
+            SignalState result = size.create();
             for (int i = 0; i < state.length; i++) {
-                for (int j = 0; j < result.length; j++) {
-                    boolean value;
-                    if (state[i].length > j)
-                        value = state[i][j];
-                    else if (state[i].length == 1) // single sized arrays will be treated as infinite sized arrays (with one value)
-                        value = state[i][0];
-                    else
-                        value = false;
-                    if (i == 0)
-                        result[j] = value;
-                    else
-                        result[j] = perform(result[j], value);
+                switch (size) {
+                    case SINGLE -> result = result.set(0, operator().perform(result.any(), state[i].any()));
+                    case INT -> result = result.setNumber(operator().perform(result.number(), state[i].size() == SignalStateSize.SINGLE ? -1 : state[i].number()));
+                    case LONG -> result = result.setLongNumber(operator().perform(result.longNumber(), state[i].size() == SignalStateSize.SINGLE ? -1L : state[i].longNumber()));
                 }
             }
             return result;
         }
         
         @Override
-        public boolean testIndex(boolean[] state) {
+        public boolean testIndex(SignalState state) {
             boolean result = false;
             for (int i = 0; i < conditions.length; i++) {
                 if (i == 0)
                     result = conditions[i].testIndex(state);
                 else
-                    result = perform(result, conditions[i].testIndex(state));
+                    result = operator().perform(result, conditions[i].testIndex(state));
             }
             return result;
         }
-        
-        public abstract boolean perform(boolean first, boolean second);
         
         public abstract boolean needsBrackets();
         
@@ -516,26 +562,20 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public boolean[] test(LittleStructure structure) {
-            boolean[][] state = new boolean[conditions.length][];
-            int size = 0;
+        public SignalState test(LittleStructure structure) {
+            SignalState[] state = new SignalState[conditions.length];
+            SignalStateSize size = SignalStateSize.SINGLE;
             for (int i = 0; i < conditions.length; i++) {
                 state[i] = conditions[i].test(structure, true);
-                size = Math.max(size, state[i].length);
+                size = size.max(state[i].size());
             }
             
-            boolean[] result = new boolean[size];
+            SignalState result = size.create();
             for (int i = 0; i < state.length; i++) {
-                for (int j = 0; j < result.length; j++) {
-                    boolean value;
-                    if (state[i].length > j)
-                        value = state[i][j];
-                    else
-                        value = false;
-                    if (i == 0)
-                        result[j] = value;
-                    else
-                        result[j] = perform(result[j], value);
+                switch (size) {
+                    case SINGLE -> result = result.set(0, operator().perform(result.any(), state[i].any()));
+                    case INT -> result = result.setNumber(operator().perform(result.number(), state[i].number()));
+                    case LONG -> result = result.setLongNumber(operator().perform(result.longNumber(), state[i].longNumber()));
                 }
             }
             return result;
@@ -555,29 +595,42 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public boolean perform(boolean first, boolean second) {
-            return false;
-        }
-        
-        public abstract int perform(int first, int second);
-        
-        @Override
-        public boolean[] test(LittleStructure structure) {
-            boolean[][] state = new boolean[conditions.length][];
-            int size = 0;
+        public SignalState test(LittleStructure structure) {
+            SignalState[] state = new SignalState[conditions.length];
+            SignalStateSize size = SignalStateSize.SINGLE;
             for (int i = 0; i < conditions.length; i++) {
                 state[i] = conditions[i].test(structure, true);
-                size = Math.max(size, state[i].length);
+                size = size.max(state[i].size());
             }
             
-            int result = 0;
-            for (int i = 0; i < state.length; i++) {
-                if (i == 0)
-                    result = BooleanUtils.toNumber(state[i]);
-                else
-                    result = perform(result, BooleanUtils.toNumber(state[i]));
+            SignalState result = size.create();
+            switch (size) {
+                case SINGLE -> {
+                    for (int i = 0; i < state.length; i++) {
+                        if (i == 0)
+                            result = result.set(0, state[i].any());
+                        else
+                            result = result.set(0, operator().perform(result.any(), state[i].any()));
+                    }
+                }
+                case INT -> {
+                    for (int i = 0; i < state.length; i++) {
+                        if (i == 0)
+                            result = result.setNumber(state[i].number());
+                        else
+                            result = result.setNumber(operator().perform(result.number(), state[i].number()));
+                    }
+                }
+                case LONG -> {
+                    for (int i = 0; i < state.length; i++) {
+                        if (i == 0)
+                            result = result.setLongNumber(state[i].longNumber());
+                        else
+                            result = result.setLongNumber(operator().perform(result.longNumber(), state[i].longNumber()));
+                    }
+                }
             }
-            return BooleanUtils.toBits(result, Math.max(size, BooleanUtils.getRequiredBandwidth(result)));
+            return result;
         }
         
         @Override

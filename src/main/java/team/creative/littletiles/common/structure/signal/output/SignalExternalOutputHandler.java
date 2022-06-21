@@ -1,16 +1,16 @@
 package team.creative.littletiles.common.structure.signal.output;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.function.Function;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
+import team.creative.littletiles.common.structure.signal.SignalState.SignalStateSize;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -66,14 +66,12 @@ public class SignalExternalOutputHandler implements ISignalComponent {
         try {
             int bandwidth = handler.getBandwidth();
             if (bandwidth > 0) {
-                boolean[] outputState = new boolean[bandwidth];
-                boolean[] result = condition.test(structure, false);
-                if (result.length == 1)
-                    Arrays.fill(outputState, result[0]);
+                SignalState outputState = SignalState.create(bandwidth);
+                SignalState result = condition.test(structure, false);
+                if (result.size() == SignalStateSize.SINGLE)
+                    outputState = outputState.fill(result.any());
                 else
-                    for (int i = 0; i < result.length; i++)
-                        if (i < outputState.length)
-                            outputState[i] = result[i];
+                    outputState = outputState.fill(result);
                 handler.schedule(outputState);
             }
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
@@ -85,7 +83,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
         nbt.putInt("index", index);
         if (structure != null)
             try {
-                nbt.putInt("state", BooleanUtils.boolToInt(getState()));
+                nbt.put("state", getState().save());
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         if (condition != null)
             nbt.putString("con", condition.write());
@@ -110,8 +108,14 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     }
     
     @Override
-    public boolean[] getState() throws CorruptedConnectionException, NotYetConnectedException {
+    public SignalState getState() throws CorruptedConnectionException, NotYetConnectedException {
         return getOutput().getState();
+    }
+    
+    @Override
+    @Deprecated
+    public void overwriteState(SignalState state) throws CorruptedConnectionException, NotYetConnectedException {
+        getOutput().overwriteState(state);
     }
     
     @Override

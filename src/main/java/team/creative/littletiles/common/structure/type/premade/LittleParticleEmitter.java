@@ -59,7 +59,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     
     @Override
     public void tick() {
-        if (getOutput(0).getState()[0])
+        if (getOutput(0).getState().any())
             return;
         if (ticker >= delay) {
             if (getLevel().isClientSide)
@@ -97,26 +97,26 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             
             Rotation rotation = null;
             switch (facing) {
-            case DOWN:
-                pos.scale(-1);
-                speed.scale(-1);
-                break;
-            case EAST:
-                rotation = Rotation.Z_COUNTER_CLOCKWISE;
-                break;
-            case WEST:
-                rotation = Rotation.Z_CLOCKWISE;
-                break;
-            case SOUTH:
-                rotation = Rotation.X_CLOCKWISE;
-                break;
-            case NORTH:
-                rotation = Rotation.X_COUNTER_CLOCKWISE;
-                break;
-            case UP:
-                break;
-            default:
-                break;
+                case DOWN:
+                    pos.scale(-1);
+                    speed.scale(-1);
+                    break;
+                case EAST:
+                    rotation = Rotation.Z_COUNTER_CLOCKWISE;
+                    break;
+                case WEST:
+                    rotation = Rotation.Z_CLOCKWISE;
+                    break;
+                case SOUTH:
+                    rotation = Rotation.X_CLOCKWISE;
+                    break;
+                case NORTH:
+                    rotation = Rotation.X_COUNTER_CLOCKWISE;
+                    break;
+                case UP:
+                    break;
+                default:
+                    break;
             }
             
             if (rotation != null) {

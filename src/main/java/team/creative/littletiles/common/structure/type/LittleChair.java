@@ -14,7 +14,6 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.level.CreativeServerLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -28,6 +27,7 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleChair extends LittleStructure {
     
@@ -57,7 +57,7 @@ public class LittleChair extends LittleStructure {
     public void setPlayer(Player player) {
         this.player = player;
         if (!getLevel().isClientSide)
-            getInput(0).updateState(BooleanUtils.asArray(player != null));
+            getInput(0).updateState(SignalState.of(player != null));
         if (this.player == null)
             sitUUID = null;
     }

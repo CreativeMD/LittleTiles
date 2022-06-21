@@ -29,6 +29,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
@@ -68,10 +69,11 @@ public class LittleSignalDisplay extends LittleStructurePremade {
         if (textureId == -1)
             textureId = GlStateManager._genTexture();
         GlStateManager._bindTexture(textureId);
-        boolean[] state = getOutput(0).getState();
-        ByteBuffer buffer = ByteBuffer.allocateDirect(state.length * 3);
-        for (int i = 0; i < state.length; i++) {
-            if (state[i]) {
+        int bandwidth = getOutput(0).getBandwidth();
+        SignalState state = getOutput(0).getState();
+        ByteBuffer buffer = ByteBuffer.allocateDirect(bandwidth * 3);
+        for (int i = 0; i < bandwidth; i++) {
+            if (state.is(i)) {
                 buffer.put((byte) 255);
                 buffer.put((byte) 255);
                 buffer.put((byte) 255);
