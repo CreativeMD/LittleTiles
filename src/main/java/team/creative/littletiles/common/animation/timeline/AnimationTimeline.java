@@ -76,7 +76,7 @@ public class AnimationTimeline {
         return true;
     }
     
-    public CompoundTag writeToNBT(CompoundTag nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         nbt.putInt("duration", duration);
         nbt.putInt("tick", tick);
         nbt.putInt("eindex", eventIndex);

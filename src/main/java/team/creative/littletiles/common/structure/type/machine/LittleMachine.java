@@ -1,33 +1,62 @@
 package team.creative.littletiles.common.structure.type.machine;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import net.minecraft.nbt.CompoundTag;
-import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
-import team.creative.littletiles.common.animation.program.StateProgram;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.logic.StructureAction;
 
 public abstract class LittleMachine extends LittleStructure {
     
-    private static final NamedHandlerRegistry<StateProgram<StructureAction>> PROGRAM_REGISTRY = new NamedHandlerRegistry<StateProgram<StructureAction>>(null);
-    
-    public static void initMachines() {
-        PROGRAM_REGISTRY.register("particle", new StateProgram<StructureAction>());
-    }
-    
-    public StateProgram<StructureAction> program;
+    private HashMap<String, StructureState> states = new HashMap<>();
+    private HashMap<String, MachineTransition> transitions = new HashMap<>();
+    private String current;
+    private StructureState tempState;
     
     public LittleMachine(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
-    public abstract boolean isDefaultProgram();
+    public StructureState get(String in) {
+        return states.get(in);
+    }
+    
+    public StructureState state() {
+        if (tempState == null)
+            tempState = get(current);
+        return tempState;
+    }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {}
+    protected void loadExtra(CompoundTag nbt) {
+        current = nbt.getString("cu");
+        
+        states.clear();
+        CompoundTag stateNBT = nbt.getCompound("st");
+        for (String key : stateNBT.getAllKeys())
+            states.put(key, new StructureState(stateNBT.getCompound(key)));
+        
+        transitions.clear();
+        CompoundTag transNBT = nbt.getCompound("tr");
+        for (String key : transNBT.getAllKeys())
+            transitions.put(key, new MachineTransition(transNBT.getCompound(key)));
+    }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {}
+    protected void saveExtra(CompoundTag nbt) {
+        nbt.putString("cu", current);
+        
+        CompoundTag stateNBT = new CompoundTag();
+        for (Entry<String, StructureState> entry : states.entrySet())
+            stateNBT.put(entry.getKey(), entry.getValue().save(new CompoundTag()));
+        nbt.put("st", stateNBT);
+        
+        CompoundTag transNBT = new CompoundTag();
+        for (Entry<String, MachineTransition> entry : transitions.entrySet())
+            stateNBT.put(entry.getKey(), entry.getValue().save(new CompoundTag()));
+        nbt.put("tr", transNBT);
+    }
     
 }
