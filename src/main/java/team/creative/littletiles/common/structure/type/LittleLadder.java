@@ -12,15 +12,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.ForgeConfig;
-import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
 public class LittleLadder extends LittleStructure {
     
@@ -73,26 +68,6 @@ public class LittleLadder extends LittleStructure {
                 }
             }
             return false;
-        }
-    }
-    
-    public static class LittleLadderParser extends LittleStructureGuiParser {
-        
-        public LittleLadderParser(GuiParent parent, AnimationGuiHandler handler) {
-            super(parent, handler);
-        }
-        
-        @Override
-        public void createControls(LittleGroup previews, LittleStructure structure) {}
-        
-        @Override
-        public LittleLadder parseStructure(LittleGroup previews) {
-            return createStructure(LittleLadder.class, null);
-        }
-        
-        @Override
-        protected LittleStructureType getStructureType() {
-            return LittleStructureRegistry.getStructureType(LittleLadder.class);
         }
     }
 }

@@ -3,15 +3,12 @@ package team.creative.littletiles.common.structure.type.bed;
 import java.util.List;
 import java.util.Optional;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
@@ -25,18 +22,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
-import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
-import team.creative.littletiles.common.gui.controls.GuiTileViewer;
-import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -44,10 +34,7 @@ import team.creative.littletiles.common.structure.directional.StructureDirection
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.signal.SignalState;
-import team.creative.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 
 public class LittleBed extends LittleStructure {
     
@@ -192,55 +179,6 @@ public class LittleBed extends LittleStructure {
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         
         return InteractionResult.SUCCESS;
-    }
-    
-    public static class LittleBedParser extends LittleStructureGuiParser {
-        
-        public LittleBedParser(GuiParent parent, AnimationGuiHandler handler) {
-            super(parent, handler);
-            parent.registerEventClick(x -> {
-                GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
-                GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
-                
-                EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
-                
-                LittleSlidingDoorParser.updateDirection(viewer, direction.getOpposite(), relativeDirection);
-            });
-        }
-        
-        @Override
-        public void createControls(LittleGroup previews, LittleStructure structure) {
-            GuiTileViewer tile = new GuiTileViewer("tileviewer", previews.getGrid());
-            tile.setViewDirection(Facing.UP);
-            parent.add(tile);
-            
-            LittleVec size = previews.getSize();
-            int index = EnumFacing.EAST.getHorizontalIndex();
-            if (size.x < size.z)
-                index = EnumFacing.SOUTH.getHorizontalIndex();
-            if (structure instanceof LittleBed)
-                index = ((LittleBed) structure).direction.getHorizontalIndex();
-            if (index < 0)
-                index = 0;
-            parent.add(new GuiStateButton("direction", index, RotationUtils.getHorizontalFacingNames()));
-            
-            GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", Facing.UP);
-            parent.add(relativeDirection);
-            LittleSlidingDoorParser.updateDirection(tile, Facing.getHorizontal(index).getOpposite(), relativeDirection);
-        }
-        
-        @Override
-        public LittleBed parseStructure(LittleGroup previews) {
-            Facing direction = Facing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
-            LittleBed bed = createStructure(LittleBed.class, null);
-            bed.direction = direction;
-            return bed;
-        }
-        
-        @Override
-        protected LittleStructureType getStructureType() {
-            return LittleStructureRegistry.getStructureType(LittleBed.class);
-        }
     }
     
 }

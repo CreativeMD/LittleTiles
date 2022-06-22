@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.type.premade;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import net.minecraft.client.Minecraft;
@@ -36,9 +37,10 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
     
@@ -359,13 +361,13 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         }
     }
     
-    public static class LittleStructureTypeParticleEmitter extends LittleStructureTypePremade {
+    public static class LittleStructureTypeParticleEmitter extends LittlePremadeType {
         
         @OnlyIn(Dist.CLIENT)
         public List<RenderBox> cubes;
         
-        public LittleStructureTypeParticleEmitter(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid) {
-            super(id, category, structureClass, attribute, modid);
+        public <T extends LittleStructure> LittleStructureTypeParticleEmitter(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
+            super(id, structureClass, factory, attribute, modid);
         }
         
         @Override

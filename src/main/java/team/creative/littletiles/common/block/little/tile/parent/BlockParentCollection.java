@@ -10,7 +10,7 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;

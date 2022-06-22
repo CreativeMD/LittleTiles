@@ -152,7 +152,7 @@ public class LittleTilesClient {
                 if (!stack.getOrCreateTag().contains("structure"))
                     return Collections.EMPTY_LIST;
                 
-                LittleStructureTypePremade premade = LittleStructurePremade.getType(stack.getOrCreateTagElement("structure").getString("id"));
+                LittlePremadeType premade = LittleStructurePremade.getType(stack.getOrCreateTagElement("structure").getString("id"));
                 if (premade == null)
                     return Collections.EMPTY_LIST;
                 LittleGroup previews = ((ItemPremadeStructure) stack.getItem()).getTiles(stack);

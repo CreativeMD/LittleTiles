@@ -7,8 +7,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
 import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.SubWorld;
@@ -25,25 +23,15 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
-import team.creative.creativecore.common.util.type.HashMapList;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.DoorController;
 import team.creative.littletiles.common.animation.ValueTimeline;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
-import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
-import team.creative.littletiles.common.gui.dialogs.SubGuiDoorSettings.GuiDoorSettingsButton;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementHelper;
@@ -51,21 +39,10 @@ import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
-import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
-import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
-import team.creative.littletiles.common.structure.type.door.LittleAdvancedDoor.LittleAdvancedDoorParser;
-import team.creative.littletiles.common.structure.type.door.LittleAdvancedDoor.LittleAdvancedDoorType;
-import team.creative.littletiles.common.structure.type.door.LittleAxisDoor.LittleAxisDoorParser;
-import team.creative.littletiles.common.structure.type.door.LittleAxisDoor.LittleAxisDoorType;
-import team.creative.littletiles.common.structure.type.door.LittleDoorActivator.LittleDoorActivatorParser;
-import team.creative.littletiles.common.structure.type.door.LittleDoorActivator.LittleDoorActivatorType;
-import team.creative.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 
 public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStructure {
     
@@ -316,17 +293,6 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         animation.markRemoved();
     }
     
-    public static void initDoors() {
-        LittleStructureRegistry.registerStructureType(new LittleAxisDoorType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE)
-                .addOutput("state", 1, SignalMode.TOGGLE), LittleAxisDoorParser.class);
-        LittleStructureRegistry.registerStructureType(new LittleDoorType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE)
-                .addOutput("state", 1, SignalMode.TOGGLE), LittleSlidingDoorParser.class);
-        LittleStructureRegistry.registerStructureType(new LittleAdvancedDoorType("advancedDoor", "door", LittleAdvancedDoor.class, LittleStructureAttribute.NONE)
-                .addOutput("state", 1, SignalMode.TOGGLE), LittleAdvancedDoorParser.class);
-        LittleStructureRegistry.registerStructureType(new LittleDoorActivatorType("doorActivator", "door", LittleDoorActivator.class, LittleStructureAttribute.NONE)
-                .addOutput("state", 1, SignalMode.TOGGLE), LittleDoorActivatorParser.class);
-    }
-    
     public static abstract class LittleDoorBaseType extends LittleStructureType {
         
         public LittleDoorBaseType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
@@ -353,74 +319,5 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
                 }
             }
         }
-    }
-    
-    public static abstract class LittleDoorBaseParser extends LittleStructureGuiParser {
-        
-        public LittleDoorBaseParser(GuiParent parent, AnimationGuiHandler handler) {
-            super(parent, handler);
-        }
-        
-        @SideOnly(Side.CLIENT)
-        @CustomEventSubscribe
-        public void onChanged(GuiControlChangedEvent event) {
-            if (event.source.is("duration_s") || event.source.is("children_activate") || event.source.is("interpolation"))
-                updateTimeline();
-        }
-        
-        @Override
-        @SideOnly(Side.CLIENT)
-        public void createControls(LittlePreviews previews, LittleStructure structure) {
-            boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
-            boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
-            boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
-            boolean playPlaceSounds = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).playPlaceSounds : true;
-            parent.controls.add(new GuiDoorSettingsButton("settings", 108, 93, stayAnimated, disableRightClick, noClip, playPlaceSounds));
-            parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
-            parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 10, 1, 500));
-            parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
-            parent.controls
-                    .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
-            
-            updateTimeline();
-        }
-        
-        @Override
-        @SideOnly(Side.CLIENT)
-        public LittleDoorBase parseStructure(LittlePreviews previews) {
-            GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
-            GuiDoorSettingsButton settings = (GuiDoorSettingsButton) parent.get("settings");
-            GuiDoorEventsButton button = (GuiDoorEventsButton) parent.get("children_activate");
-            GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
-            
-            int duration = (int) slider.value;
-            LittleDoorBase door = parseStructure();
-            door.duration = duration;
-            door.stayAnimated = settings.stayAnimated;
-            door.disableRightClick = !settings.disableRightClick;
-            door.noClip = settings.noClip;
-            door.playPlaceSounds = settings.playPlaceSounds;
-            door.events = button.events;
-            door.interpolation = interpolationButton.getState();
-            
-            return door;
-        }
-        
-        @SideOnly(Side.CLIENT)
-        public abstract LittleDoorBase parseStructure();
-        
-        @SideOnly(Side.CLIENT)
-        public abstract void populateTimeline(AnimationTimeline timeline, int interpolation);
-        
-        public void updateTimeline() {
-            GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
-            AnimationTimeline timeline = new AnimationTimeline((int) slider.value, new PairList<>());
-            GuiDoorEventsButton children = (GuiDoorEventsButton) parent.get("children_activate");
-            GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
-            
-            populateTimeline(timeline, interpolationButton.getState());
-            handler.setTimeline(timeline, children.events);
-        }
-        
     }
 }

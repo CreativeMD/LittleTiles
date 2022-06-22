@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.type.premade.signal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,8 +15,8 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.network.ISignalStructureTransmitter;
@@ -53,8 +54,8 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
     
     public static class LittleStructureTypeCable extends LittleStructureTypeNetwork {
         
-        public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid, int bandwidth) {
-            super(id, category, structureClass, attribute, modid, bandwidth, 6);
+        public <T extends LittleStructure> LittleStructureTypeCable(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth) {
+            super(id, structureClass, factory, attribute, modid, bandwidth, 6);
         }
         
         @Override

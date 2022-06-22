@@ -3,6 +3,7 @@ package team.creative.littletiles.common.structure;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -22,12 +23,12 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
-import team.creative.littletiles.common.structure.registry.IStructureIngredientRule;
-import team.creative.littletiles.common.structure.registry.StructureIngredientRule;
-import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScaler;
+import team.creative.littletiles.common.structure.registry.ingredient.IStructureIngredientRule;
+import team.creative.littletiles.common.structure.registry.ingredient.StructureIngredientRule;
+import team.creative.littletiles.common.structure.registry.ingredient.StructureIngredientRule.StructureIngredientScaler;
 import team.creative.littletiles.common.structure.signal.input.InternalSignalInput;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
@@ -35,17 +36,17 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 public class LittleStructureType {
     
     public final String id;
-    public final String category;
     public final Class<? extends LittleStructure> clazz;
+    public final BiFunction<LittleStructureType, IStructureParentCollection, ? extends LittleStructure> factory;
     public final int attribute;
     public final List<StructureDirectionalField> directional;
     public final List<InternalComponent> inputs = new ArrayList<>();
     public final List<InternalComponentOutput> outputs = new ArrayList<>();
     protected List<IStructureIngredientRule> ingredientRules = null;
     
-    public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute) {
+    public <T extends LittleStructure> LittleStructureType(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
         this.id = id;
-        this.category = category;
+        this.factory = factory;
         this.clazz = structureClass;
         this.attribute = attribute.build();
         
@@ -103,11 +104,7 @@ public class LittleStructureType {
     }
     
     public LittleStructure createStructure(StructureParentCollection mainBlock) {
-        try {
-            return clazz.getConstructor(LittleStructureType.class, IStructureParentCollection.class).newInstance(this, mainBlock);
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid structure type " + id, e);
-        }
+        return factory.apply(this, mainBlock);
     }
     
     @OnlyIn(Dist.CLIENT)

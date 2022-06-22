@@ -12,8 +12,8 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.connection.IStructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.CorruptedLinkException;
@@ -21,7 +21,6 @@ import team.creative.littletiles.common.structure.exception.MissingBlockExceptio
 import team.creative.littletiles.common.structure.exception.MissingStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.type.LittleFixedStructure;
 
 public class StructureParentCollection extends ParentCollection implements IStructureParentCollection, IStructureConnection {
     
@@ -222,17 +221,8 @@ public class StructureParentCollection extends ParentCollection implements IStru
             return null;
         
         String id = nbt.getString("id");
-        LittleStructureType type = LittleStructureRegistry.getStructureType(id);
-        if (type != null) {
-            LittleStructure structure = type.createStructure(mainBlock);
-            structure.load(nbt);
-            
-            return structure;
-            
-        }
-        
-        System.out.println("Could not find structureID=" + id);
-        LittleStructure structure = new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), mainBlock);
+        LittleStructureType type = LittleStructureRegistry.REGISTRY.get(id);
+        LittleStructure structure = type.createStructure(mainBlock);
         structure.load(nbt);
         return structure;
     }

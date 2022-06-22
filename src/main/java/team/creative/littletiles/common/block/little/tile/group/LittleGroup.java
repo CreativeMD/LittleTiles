@@ -30,8 +30,8 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.connection.children.ItemChildrenList;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.registry;
+package team.creative.littletiles.common.structure.registry.ingredient;
 
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.LittleIngredients;

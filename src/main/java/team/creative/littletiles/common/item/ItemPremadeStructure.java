@@ -68,7 +68,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
         if (allowedIn(tab))
-            for (LittleStructureTypePremade entry : LittleStructurePremade.getPremadeStructureTypes())
+            for (LittlePremadeType entry : LittleStructurePremade.getPremadeStructureTypes())
                 if (entry.showInCreativeTab)
                     list.add(entry.createItemStack());
     }
@@ -170,8 +170,8 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     @Override
     public boolean snapToGridByDefault(ItemStack stack) {
         LittleStructureType type = LittleStructureRegistry.getStructureType(getPremadeId(stack));
-        if (type instanceof LittleStructureTypePremade)
-            return ((LittleStructureTypePremade) type).snapToGrid;
+        if (type instanceof LittlePremadeType)
+            return ((LittlePremadeType) type).snapToGrid;
         return false;
     }
     

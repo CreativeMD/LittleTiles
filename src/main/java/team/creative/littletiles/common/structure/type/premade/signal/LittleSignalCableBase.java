@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -36,10 +37,11 @@ import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -573,13 +575,13 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         
     }
     
-    public static abstract class LittleStructureTypeNetwork extends LittleStructureTypePremade implements ISignalComponent {
+    public static abstract class LittleStructureTypeNetwork extends LittlePremadeType implements ISignalComponent {
         
         public final int bandwidth;
         public final int numberOfConnections;
         
-        public LittleStructureTypeNetwork(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid, int bandwidth, int numberOfConnections) {
-            super(id, category, structureClass, attribute.neighborListener(), modid);
+        public <T extends LittleStructure> LittleStructureTypeNetwork(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth, int numberOfConnections) {
+            super(id, structureClass, factory, attribute.neighborListener(), modid);
             this.bandwidth = bandwidth;
             this.numberOfConnections = numberOfConnections;
         }

@@ -60,7 +60,7 @@ import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.transformation.LittleBlockTransformer;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 
 public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
     

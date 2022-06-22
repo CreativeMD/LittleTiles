@@ -20,19 +20,23 @@ public class StructureState {
     
     private List<String> transitions = new ArrayList<>();
     
+    private boolean animated;
+    
     public StructureState(CompoundTag nbt) {
         offset = new Vec3d(nbt.getDouble("offX"), nbt.getDouble("offY"), nbt.getDouble("offZ"));
         rotation = new Vec3d(nbt.getDouble("rotX"), nbt.getDouble("rotY"), nbt.getDouble("rotZ"));
-        if (nbt.contains("signal")) {
+        if (nbt.contains("sig")) {
             CompoundTag signalNBT = nbt.getCompound("signal");
             for (String key : signalNBT.getAllKeys())
                 signals.put(key, SignalState.loadFromTag(signalNBT.get(key)));
         }
-        if (nbt.contains("transitions")) {
+        if (nbt.contains("tra")) {
             ListTag list = nbt.getList("transitions", Tag.TAG_STRING);
             for (int i = 0; i < list.size(); i++)
                 transitions.add(list.getString(i));
         }
+        
+        animated = nbt.getBoolean("ani");
     }
     
     public CompoundTag save(CompoundTag nbt) {
@@ -54,15 +58,19 @@ public class StructureState {
             CompoundTag signalNBT = new CompoundTag();
             for (Entry<String, SignalState> entry : signals.entrySet())
                 signalNBT.put(entry.getKey(), entry.getValue().save());
-            nbt.put("signal", signalNBT);
+            nbt.put("sig", signalNBT);
         }
         
         if (!transitions.isEmpty()) {
             ListTag list = new ListTag();
             for (int i = 0; i < transitions.size(); i++)
                 list.add(StringTag.valueOf(transitions.get(i)));
-            nbt.put("transitions", list);
+            nbt.put("tra", list);
         }
+        
+        if (animated)
+            nbt.putBoolean("ani", animated);
+        
         return nbt;
     }
     

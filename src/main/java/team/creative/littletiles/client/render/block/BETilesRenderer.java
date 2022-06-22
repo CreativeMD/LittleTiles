@@ -8,7 +8,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 
 public class BETilesRenderer implements BlockEntityRenderer<BETiles> {
     

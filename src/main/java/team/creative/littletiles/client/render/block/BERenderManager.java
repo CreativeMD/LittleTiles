@@ -33,7 +33,7 @@ import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.face.LittleFaceState;
 import team.creative.littletiles.common.math.face.LittleFaces.LittleFaceSideCache;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.registry;
+package team.creative.littletiles.common.structure.registry.gui;
 
 import javax.annotation.Nullable;
 
@@ -13,14 +13,15 @@ import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.gui.dialogs.SubGuiSignalEvents.GuiSignalEventsButton;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class LittleStructureGuiParser implements IAnimationControl {
+public abstract class LittleStructureGuiControl implements IAnimationControl {
     
     public final GuiParent parent;
     public final AnimationGuiHandler handler;
     
-    public LittleStructureGuiParser(GuiParent parent, AnimationGuiHandler handler) {
+    public LittleStructureGuiControl(GuiParent parent, AnimationGuiHandler handler) {
         this.parent = parent;
         this.handler = handler;
     }
@@ -53,11 +54,5 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
     
     @Override
     public void onLoaded(AnimationPreview animationPreview) {}
-    
-    public static abstract class LittleStructureGuiParserNotFoundHandler {
-        
-        public abstract LittleStructureGuiParser create(LittleStructure structure, GuiParent parent, AnimationGuiHandler handler);
-        
-    }
     
 }

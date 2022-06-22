@@ -34,8 +34,8 @@ import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiControl;
 
 public class SubGuiRecipe extends GuiConfigure implements IAnimationControl {
     
@@ -44,8 +44,8 @@ public class SubGuiRecipe extends GuiConfigure implements IAnimationControl {
     });
     
     public LittleStructure structure;
-    public LittleStructureGuiParser parser;
-    public PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> craftables;
+    public LittleStructureGuiControl parser;
+    public PairList<String, PairList<String, Class<? extends LittleStructureGuiControl>>> craftables;
     
     public AnimationPreview animationPreview;
     public StructureHolder selected;
@@ -61,10 +61,10 @@ public class SubGuiRecipe extends GuiConfigure implements IAnimationControl {
     public SubGuiRecipe(ContainerSlotView view) {
         super("recipe", 350, 200, view);
         
-        PairList<String, Class<? extends LittleStructureGuiParser>> noneCategory = new PairList<>();
+        PairList<String, Class<? extends LittleStructureGuiControl>> noneCategory = new PairList<>();
         noneCategory.add("structure.none.name", null);
         craftables = new PairList<>(LittleStructureRegistry.getCraftables());
-        craftables.add(0, new Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>>("", noneCategory));
+        craftables.add(0, new Pair<String, PairList<String, Class<? extends LittleStructureGuiControl>>>("", noneCategory));
         
         previews = LittlePreview.getPreview(stack);
         
@@ -150,7 +150,7 @@ public class SubGuiRecipe extends GuiConfigure implements IAnimationControl {
     
     @Override
     public void create() {
-        controls.add(new GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>>("types", 0, 5, 90, craftables));
+        controls.add(new GuiComboBoxCategory<Class<? extends LittleStructureGuiControl>>("types", 0, 5, 90, craftables));
         
         controls.add(new GuiButton("clear", translate("selection.clear"), 105, 176, 38) {
             
@@ -220,7 +220,7 @@ public class SubGuiRecipe extends GuiConfigure implements IAnimationControl {
         this.structure = structure;
         int index = 0;
         boolean found = false;
-        for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> category : craftables) {
+        for (Pair<String, PairList<String, Class<? extends LittleStructureGuiControl>>> category : craftables) {
             int currentIndex = category.value.indexOfKey("structure." + (structure != null ? structure.type.id : "none") + ".name");
             if (currentIndex != -1) {
                 comboBox.select(currentIndex + index);
@@ -255,9 +255,9 @@ public class SubGuiRecipe extends GuiConfigure implements IAnimationControl {
         
         LittleStructure saved = this.structure;
         
-        GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>> types = (GuiComboBoxCategory) get("types");
+        GuiComboBoxCategory<Class<? extends LittleStructureGuiControl>> types = (GuiComboBoxCategory) get("types");
         if (types.enabled) {
-            Pair<String, Class<? extends LittleStructureGuiParser>> selected = types.getSelected();
+            Pair<String, Class<? extends LittleStructureGuiControl>> selected = types.getSelected();
             
             if (saved != null && !selected.key.equals("structure." + saved.type.id + ".name"))
                 saved = null;

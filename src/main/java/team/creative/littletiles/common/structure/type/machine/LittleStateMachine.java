@@ -8,14 +8,16 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
-public abstract class LittleMachine extends LittleStructure {
+public class LittleStateMachine extends LittleStructure {
+    
+    public String parser;
     
     private HashMap<String, StructureState> states = new HashMap<>();
     private HashMap<String, MachineTransition> transitions = new HashMap<>();
     private String current;
     private StructureState tempState;
     
-    public LittleMachine(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleStateMachine(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -42,6 +44,8 @@ public abstract class LittleMachine extends LittleStructure {
         CompoundTag transNBT = nbt.getCompound("tr");
         for (String key : transNBT.getAllKeys())
             transitions.put(key, new MachineTransition(transNBT.getCompound(key)));
+        
+        parser = nbt.getString("parser");
     }
     
     @Override
@@ -57,6 +61,8 @@ public abstract class LittleMachine extends LittleStructure {
         for (Entry<String, MachineTransition> entry : transitions.entrySet())
             stateNBT.put(entry.getKey(), entry.getValue().save(new CompoundTag()));
         nbt.put("tr", transNBT);
+        
+        nbt.putString("parser", parser);
     }
     
 }
