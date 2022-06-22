@@ -69,8 +69,8 @@ import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleTilesClient {
@@ -152,7 +152,7 @@ public class LittleTilesClient {
                 if (!stack.getOrCreateTag().contains("structure"))
                     return Collections.EMPTY_LIST;
                 
-                LittlePremadeType premade = LittleStructurePremade.getType(stack.getOrCreateTagElement("structure").getString("id"));
+                LittlePremadeType premade = LittlePremadeRegistry.get(stack.getOrCreateTagElement("structure").getString("id"));
                 if (premade == null)
                     return Collections.EMPTY_LIST;
                 LittleGroup previews = ((ItemPremadeStructure) stack.getItem()).getTiles(stack);

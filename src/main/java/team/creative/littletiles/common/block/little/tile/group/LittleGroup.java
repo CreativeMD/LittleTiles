@@ -104,7 +104,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     public LittleStructureType getStructureType() {
         if (hasStructure())
-            return LittleStructureRegistry.getStructureType(structure.getString("id"));
+            return LittleStructureRegistry.REGISTRY.get(structure.getString("id"));
         return null;
     }
     

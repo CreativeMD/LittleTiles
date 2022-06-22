@@ -25,10 +25,9 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadePreview;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 
 public class ItemPremadeStructure extends Item implements ILittlePlacer {
     
@@ -68,14 +67,14 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
         if (allowedIn(tab))
-            for (LittlePremadeType entry : LittleStructurePremade.getPremadeStructureTypes())
+            for (LittlePremadeType entry : LittlePremadeRegistry.types())
                 if (entry.showInCreativeTab)
                     list.add(entry.createItemStack());
     }
     
     @Override
     public boolean hasTiles(ItemStack stack) {
-        return LittleStructurePremade.getStructurePremadeEntry(getPremadeId(stack)) != null;
+        return LittlePremadeRegistry.getPreview(getPremadeId(stack)) != null;
     }
     
     public void removeUnnecessaryData(ItemStack stack) {
@@ -95,7 +94,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     private LittleGroup getPreviews(String id) {
         if (cachedPreviews.containsKey(id))
             return cachedPreviews.get(id).copy();
-        LittleGroup previews = LittleStructurePremade.getPreviews(id);
+        LittleGroup previews = LittlePremadeRegistry.getLittleGroup(id);
         if (previews != null)
             return previews.copy();
         return null;
@@ -169,7 +168,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     
     @Override
     public boolean snapToGridByDefault(ItemStack stack) {
-        LittleStructureType type = LittleStructureRegistry.getStructureType(getPremadeId(stack));
+        LittleStructureType type = LittlePremadeRegistry.get(getPremadeId(stack));
         if (type instanceof LittlePremadeType)
             return ((LittlePremadeType) type).snapToGrid;
         return false;
@@ -179,8 +178,8 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
         return stack.getOrCreateTagElement("structure").getString("id");
     }
     
-    public static LittleStructurePremadeEntry getPremade(ItemStack stack) {
-        return LittleStructurePremade.getStructurePremadeEntry(stack.getOrCreateTagElement("structure").getString("id"));
+    public static LittlePremadePreview getPremade(ItemStack stack) {
+        return LittlePremadeRegistry.getPreview(stack.getOrCreateTagElement("structure").getString("id"));
     }
     
 }

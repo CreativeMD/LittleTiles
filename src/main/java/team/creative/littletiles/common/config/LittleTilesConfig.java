@@ -15,7 +15,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.ItemLittleBag;
 import team.creative.littletiles.common.item.ItemMultiTiles;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 
 public class LittleTilesConfig {
     
@@ -247,7 +247,7 @@ public class LittleTilesConfig {
             LittleGrid.loadGrid(base, scale, exponent, LittleTiles.CONFIG.general.defaultSelectedGrid);
             ItemMultiTiles.currentContext = LittleGrid.defaultGrid();
             ItemLittleBag.maxStackSizeOfTiles = ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d;
-            LittleStructurePremade.reloadPremadeStructures();
+            LittlePremadeRegistry.reload();
             ItemMultiTiles.reloadExampleStructures();
         }
     }
