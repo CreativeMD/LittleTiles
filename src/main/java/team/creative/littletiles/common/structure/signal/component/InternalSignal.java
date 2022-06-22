@@ -37,7 +37,7 @@ public abstract class InternalSignal<T extends InternalComponent> implements ISi
         this.state.shrinkTo(getBandwidth());
     }
     
-    public abstract CompoundTag write(boolean preview, CompoundTag nbt);
+    public abstract CompoundTag save(boolean preview, CompoundTag nbt);
     
     @Override
     public int getBandwidth() {

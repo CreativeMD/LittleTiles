@@ -445,10 +445,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         }
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
-                inputs[i].write(preview, nbt);
+                inputs[i].save(preview, nbt);
         if (outputs != null)
             for (int i = 0; i < outputs.length; i++)
-                nbt.put(outputs[i].component.identifier, outputs[i].write(preview, new CompoundTag()));
+                nbt.put(outputs[i].component.identifier, outputs[i].save(preview, new CompoundTag()));
             
         saveExtra(nbt);
     }

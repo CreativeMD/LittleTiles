@@ -62,7 +62,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
     }
     
     @Override
-    public CompoundTag write(boolean preview, CompoundTag nbt) {
+    public CompoundTag save(boolean preview, CompoundTag nbt) {
         nbt.put("state", getState().save());
         if (condition != null)
             nbt.putString("con", condition.write());

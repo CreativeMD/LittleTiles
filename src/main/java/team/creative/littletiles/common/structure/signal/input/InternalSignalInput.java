@@ -28,7 +28,7 @@ public class InternalSignalInput extends InternalSignal<InternalComponent> {
     }
     
     @Override
-    public CompoundTag write(boolean preview, CompoundTag nbt) {
+    public CompoundTag save(boolean preview, CompoundTag nbt) {
         nbt.put(component.identifier, getState().save());
         return nbt;
     }
