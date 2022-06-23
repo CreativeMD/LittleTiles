@@ -45,6 +45,17 @@ public class AnimationTimeline {
                 activeEvents.set(i);
     }
     
+    public AnimationTimeline(int duration) {
+        this.duration = duration;
+        this.tick = 0;
+    }
+    
+    public AnimationTimeline(int duration, List<AnimationEventEntry> events) {
+        this.duration = duration;
+        this.tick = 0;
+        this.events.addAll(events);
+    }
+    
     public boolean tick(AnimationState state) {
         if (tick > duration)
             return false;

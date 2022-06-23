@@ -1,7 +1,10 @@
 package team.creative.littletiles.common.structure.registry.gui;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.world.SimpleContainer;
-import team.creative.creativecore.common.gui.GuiParent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -12,28 +15,28 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.LittleStorage;
 
-public class LittleStorageParser extends LittleStructureGuiControl {
+@OnlyIn(Dist.CLIENT)
+public class LittleStorageGui extends LittleStructureGuiControl {
     
-    public LittleStorageParser(GuiParent parent, AnimationGuiHandler handler) {
-        super(parent, handler);
+    public LittleStorageGui(LittleStructureType type, AnimationGuiHandler handler) {
+        super(type, handler);
     }
     
     @Override
-    public void createControls(LittleGroup previews, LittleStructure structure) {
-        parent.add(new GuiLabel("space").setTitle(new TextBuilder().text("space: " + LittleStorage.getSizeOfInventory(previews)).build()));
+    public void createExtra(LittleGroup previews, @Nullable LittleStructure structure) {
+        add(new GuiLabel("space").setTitle(new TextBuilder().text("space: " + LittleStorage.getSizeOfInventory(previews)).build()));
         boolean invisible = false;
         if (structure instanceof LittleStorage)
             invisible = ((LittleStorage) structure).invisibleStorageTiles;
-        parent.add(new GuiCheckBox("invisible", "invisible storage tiles", invisible));
+        add(new GuiCheckBox("invisible", "invisible storage tiles", invisible));
     }
     
     @Override
-    public LittleStorage parseStructure(LittleGroup previews) {
-        LittleStorage storage = createStructure(LittleStorage.class, null);
-        storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
+    protected void saveExtra(LittleStructure structure, LittleGroup previews) {
+        LittleStorage storage = (LittleStorage) structure;
+        storage.invisibleStorageTiles = ((GuiCheckBox) get("invisible")).value;
         
         for (LittleTile tile : previews)
             if (tile.getBlock().is(LittleTiles.STORAGE_BLOCKS))
@@ -43,12 +46,5 @@ public class LittleStorageParser extends LittleStructureGuiControl {
         storage.stackSizeLimit = LittleStorage.maxSlotStackSize;
         storage.updateNumberOfSlots();
         storage.inventory = new SimpleContainer(storage.numberOfSlots);
-        
-        return storage;
-    }
-    
-    @Override
-    protected LittleStructureType getStructureType() {
-        return LittleStructureRegistry.getStructureType(LittleStorage.class);
     }
 }

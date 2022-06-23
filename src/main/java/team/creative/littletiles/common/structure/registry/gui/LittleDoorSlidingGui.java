@@ -4,7 +4,9 @@ import javax.annotation.Nullable;
 
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import team.creative.creativecore.common.gui.GuiParent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
@@ -19,13 +21,13 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 import team.creative.littletiles.common.structure.type.door.LittleSlidingDoor;
 
-public class LittleSlidingDoorParser extends LittleDoorBaseParser {
+@OnlyIn(Dist.CLIENT)
+public class LittleDoorSlidingGui extends LittleDoorBaseGui {
     
-    public LittleSlidingDoorParser(GuiParent parent, AnimationGuiHandler handler) {
-        super(parent, handler);
+    public LittleDoorSlidingGui(LittleStructureType type, AnimationGuiHandler handler) {
+        super(type, handler);
     }
     
     @SideOnly(Side.CLIENT)
@@ -46,28 +48,6 @@ public class LittleSlidingDoorParser extends LittleDoorBaseParser {
         super.onChanged(event);
         if (event.source.is("distance"))
             updateTimeline();
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public static void updateDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection) {
-        EnumFacing newDirection = EnumFacing.EAST;
-        
-        if (viewer.getXFacing().getAxis() == direction.getAxis())
-            if (viewer.getXFacing().getAxisDirection() == direction.getAxisDirection())
-                newDirection = EnumFacing.EAST;
-            else
-                newDirection = EnumFacing.WEST;
-        else if (viewer.getYFacing().getAxis() == direction.getAxis())
-            if (viewer.getYFacing().getAxisDirection() == direction.getAxisDirection())
-                newDirection = EnumFacing.DOWN;
-            else
-                newDirection = EnumFacing.UP;
-        else if (viewer.getZFacing().getAxis() == direction.getAxis())
-            if (viewer.getZFacing().getAxisDirection() == direction.getAxisDirection())
-                newDirection = EnumFacing.SOUTH;
-            else
-                newDirection = EnumFacing.NORTH;
-        relativeDirection.setDirection(newDirection);
     }
     
     @SideOnly(Side.CLIENT)
@@ -122,17 +102,17 @@ public class LittleSlidingDoorParser extends LittleDoorBaseParser {
             @Override
             public void onClicked(int x, int y, int button) {
                 switch (viewer.getAxis()) {
-                case X:
-                    viewer.setViewAxis(EnumFacing.Axis.Y);
-                    break;
-                case Y:
-                    viewer.setViewAxis(EnumFacing.Axis.Z);
-                    break;
-                case Z:
-                    viewer.setViewAxis(EnumFacing.Axis.X);
-                    break;
-                default:
-                    break;
+                    case X:
+                        viewer.setViewAxis(EnumFacing.Axis.Y);
+                        break;
+                    case Y:
+                        viewer.setViewAxis(EnumFacing.Axis.Z);
+                        break;
+                    case Z:
+                        viewer.setViewAxis(EnumFacing.Axis.X);
+                        break;
+                    default:
+                        break;
                 }
                 
                 updateButtonDirection(viewer, direction, relativeDirection);

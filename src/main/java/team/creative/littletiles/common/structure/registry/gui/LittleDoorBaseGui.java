@@ -1,37 +1,33 @@
 package team.creative.littletiles.common.structure.registry.gui;
 
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
-
-import team.creative.creativecore.common.gui.GuiParent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
-import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import team.creative.littletiles.common.gui.dialogs.SubGuiDoorSettings.GuiDoorSettingsButton;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
-public abstract class LittleDoorBaseParser extends LittleStructureGuiControl {
+@OnlyIn(Dist.CLIENT)
+public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
-    public LittleDoorBaseParser(GuiParent parent, AnimationGuiHandler handler) {
-        super(parent, handler);
-    }
-    
-    @SideOnly(Side.CLIENT)
-    @CustomEventSubscribe
-    public void onChanged(GuiControlChangedEvent event) {
-        if (event.source.is("duration_s") || event.source.is("children_activate") || event.source.is("interpolation"))
-            updateTimeline();
+    public LittleDoorBaseGui(LittleStructureType type, AnimationGuiHandler handler) {
+        super(type, handler);
+        registerEventChanged(x -> {
+            if (x.control.is("duration_s", "children_activate", "interpolation"))
+                updateTimeline();
+        });
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void createControls(LittlePreviews previews, LittleStructure structure) {
+    protected void createExtra(LittleGroup group, LittleStructure structure) {
         boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
         boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
         boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
@@ -47,40 +43,27 @@ public abstract class LittleDoorBaseParser extends LittleStructureGuiControl {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public LittleDoorBase parseStructure(LittlePreviews previews) {
-        GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
-        GuiDoorSettingsButton settings = (GuiDoorSettingsButton) parent.get("settings");
-        GuiDoorEventsButton button = (GuiDoorEventsButton) parent.get("children_activate");
-        GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
+    protected void saveExtra(LittleStructure structure, LittleGroup previews) {
+        LittleDoorBase door = (LittleDoorBase) structure;
         
-        int duration = (int) slider.value;
-        LittleDoorBase door = parseStructure();
-        door.duration = duration;
+        GuiDoorSettingsButton settings = get("settings", GuiDoorSettingsButton.class);
+        
+        door.duration = (int) get("duration_s", GuiSteppedSlider.class).value;
         door.stayAnimated = settings.stayAnimated;
         door.disableRightClick = !settings.disableRightClick;
         door.noClip = settings.noClip;
         door.playPlaceSounds = settings.playPlaceSounds;
-        door.events = button.events;
-        door.interpolation = interpolationButton.getState();
-        
-        return door;
+        door.events = get("children_activate", GuiDoorEventsButton.class).events;
+        door.interpolation = get("interpolation", GuiStateButton.class).getState();
     }
     
-    @SideOnly(Side.CLIENT)
-    public abstract LittleDoorBase parseStructure();
-    
-    @SideOnly(Side.CLIENT)
     public abstract void populateTimeline(AnimationTimeline timeline, int interpolation);
     
     public void updateTimeline() {
-        GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
-        AnimationTimeline timeline = new AnimationTimeline((int) slider.value, new PairList<>());
-        GuiDoorEventsButton children = (GuiDoorEventsButton) parent.get("children_activate");
-        GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
+        AnimationTimeline timeline = new AnimationTimeline((int) get("duration_s", GuiSteppedSlider.class).value);
         
-        populateTimeline(timeline, interpolationButton.getState());
-        handler.setTimeline(timeline, children.events);
+        populateTimeline(timeline, get("interpolation", GuiStateButton.class).getState());
+        handler.setTimeline(timeline, get("children_activate", GuiDoorEventsButton.class).events);
     }
     
 }

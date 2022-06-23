@@ -1,8 +1,11 @@
 package team.creative.littletiles.common.structure.registry.gui;
 
+import java.util.ArrayList;
+
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import team.creative.creativecore.common.gui.GuiParent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
@@ -24,12 +27,13 @@ import team.creative.littletiles.common.structure.type.door.LittleAdvancedDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
-public class LittleAdvancedDoorParser extends LittleStructureGuiControl {
+@OnlyIn(Dist.CLIENT)
+public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
     
     public LittleGridContext context;
     
-    public LittleAdvancedDoorParser(GuiParent parent, AnimationGuiHandler handler) {
-        super(parent, handler);
+    public LittleDoorAdvancedGui(LittleStructureType type, AnimationGuiHandler handler) {
+        super(type, handler);
     }
     
     @Override

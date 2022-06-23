@@ -3,9 +3,11 @@ package team.creative.littletiles.common.structure.registry.gui;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import net.minecraft.core.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
-import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
@@ -22,14 +24,14 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.type.door.LittleAxisDoor;
-import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 import team.creative.littletiles.common.structure.type.door.LittleAxisDoor.AxisDoorRotation;
 import team.creative.littletiles.common.structure.type.door.LittleAxisDoor.DirectionRotation;
 
-public class LittleAxisDoorParser extends LittleDoorBaseParser {
+@OnlyIn(Dist.CLIENT)
+public class LittleDoorAxisGui extends LittleDoorBaseGui {
     
-    public LittleAxisDoorParser(GuiParent parent, AnimationGuiHandler handler) {
-        super(parent, handler);
+    public LittleDoorAxisGui(LittleStructureType type, AnimationGuiHandler handler) {
+        super(type, handler);
     }
     
     @Override

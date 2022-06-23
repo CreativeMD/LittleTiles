@@ -17,6 +17,7 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.event.GuiControlEvent;
+import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
@@ -103,7 +104,6 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
     public GuiTileViewer(String name, LittleGrid context) {
         super(name);
         this.context = context;
-        this.marginWidth = 0;
         
         setViewAxis(Axis.Y);
         rotX.setStart(rotX.aimed());
@@ -128,36 +128,36 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
         updateNormalAxis();
         
         switch (facing.opposite()) {
-        case EAST:
-            rotX.set(0);
-            rotY.set(-90);
-            rotZ.set(0);
-            break;
-        case WEST:
-            rotX.set(0);
-            rotY.set(90);
-            rotZ.set(0);
-            break;
-        case UP:
-            rotX.set(90);
-            rotY.set(0);
-            rotZ.set(0);
-            break;
-        case DOWN:
-            rotX.set(-90);
-            rotY.set(0);
-            rotZ.set(0);
-            break;
-        case SOUTH:
-            rotX.set(0);
-            rotY.set(-180);
-            rotZ.set(0);
-            break;
-        case NORTH:
-            rotX.set(0);
-            rotY.set(0);
-            rotZ.set(0);
-            break;
+            case EAST:
+                rotX.set(0);
+                rotY.set(-90);
+                rotZ.set(0);
+                break;
+            case WEST:
+                rotX.set(0);
+                rotY.set(90);
+                rotZ.set(0);
+                break;
+            case UP:
+                rotX.set(90);
+                rotY.set(0);
+                rotZ.set(0);
+                break;
+            case DOWN:
+                rotX.set(-90);
+                rotY.set(0);
+                rotZ.set(0);
+                break;
+            case SOUTH:
+                rotX.set(0);
+                rotY.set(-180);
+                rotZ.set(0);
+                break;
+            case NORTH:
+                rotX.set(0);
+                rotY.set(0);
+                rotZ.set(0);
+                break;
         }
         
         Vec3i direction = Facing.EAST.getDirectionVec();
@@ -325,20 +325,20 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
             float min = (float) (-10000 * 1 / scale.aimed());
             float max = -min;
             switch (normalAxis) {
-            case X:
-                normalCube.minX = min;
-                normalCube.maxX = max;
-                break;
-            case Y:
-                normalCube.minY = min;
-                normalCube.maxY = max;
-                break;
-            case Z:
-                normalCube.minZ = min;
-                normalCube.maxZ = max;
-                break;
-            default:
-                break;
+                case X:
+                    normalCube.minX = min;
+                    normalCube.maxX = max;
+                    break;
+                case Y:
+                    normalCube.minY = min;
+                    normalCube.maxY = max;
+                    break;
+                case Z:
+                    normalCube.minZ = min;
+                    normalCube.maxZ = max;
+                    break;
+                default:
+                    break;
             }
             
             if (visibleNormalAxis)
@@ -399,15 +399,15 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
         vec.z = Math.round(vec.z);
     }
     
-    public EnumFacing getXFacing() {
+    public Facing getXFacing() {
         return xFacing;
     }
     
-    public EnumFacing getYFacing() {
+    public Facing getYFacing() {
         return yFacing;
     }
     
-    public EnumFacing getZFacing() {
+    public Facing getZFacing() {
         return zFacing;
     }
     
@@ -421,22 +421,27 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
     
     protected void move(Axis axis, int distance) {
         switch (axis) {
-        case X:
-            box.minX += distance;
-            box.maxX += distance;
-            break;
-        case Y:
-            box.minY += distance;
-            box.maxY += distance;
-            break;
-        case Z:
-            box.minZ += distance;
-            box.maxZ += distance;
-            break;
-        default:
-            break;
+            case X:
+                box.minX += distance;
+                box.maxX += distance;
+                break;
+            case Y:
+                box.minY += distance;
+                box.maxY += distance;
+                break;
+            case Z:
+                box.minZ += distance;
+                box.maxZ += distance;
+                break;
+            default:
+                break;
         }
         raiseEvent(new GuiTileViewerAxisChangedEvent(this));
+    }
+    
+    @Override
+    public ControlFormatting getControlFormatting() {
+        return ControlFormatting.NESTED_NO_PADDING;
     }
     
     @Override
@@ -537,6 +542,27 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
         this.min = animationPreview.previews.getMinVec();
         this.context = animationPreview.previews.getContext();
         updateNormalAxis();
+    }
+    
+    public void updateIndicator(Facing facing, GuiDirectionIndicator indicator) {
+        Facing newFacing = Facing.EAST;
+        
+        if (getXFacing().axis == facing.axis)
+            if (getXFacing().positive == facing.positive)
+                newFacing = Facing.EAST;
+            else
+                newFacing = Facing.WEST;
+        else if (getYFacing().axis == facing.axis)
+            if (getYFacing().positive == facing.positive)
+                newFacing = Facing.DOWN;
+            else
+                newFacing = Facing.UP;
+        else if (getZFacing().axis == facing.axis)
+            if (getZFacing().positive == facing.positive)
+                newFacing = Facing.SOUTH;
+            else
+                newFacing = Facing.NORTH;
+        indicator.setFacing(newFacing);
     }
     
     public static class GuiTileViewerAxisChangedEvent extends GuiControlEvent {

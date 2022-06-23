@@ -6,9 +6,11 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import team.creative.creativecore.common.gui.GuiParent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
@@ -19,10 +21,11 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoorActivator;
 
-public class LittleDoorActivatorParser extends LittleStructureGuiControl {
+@OnlyIn(Dist.CLIENT)
+public class LittleDoorActivatorGui extends LittleStructureGuiControl {
     
-    public LittleDoorActivatorParser(GuiParent parent, AnimationGuiHandler handler) {
-        super(parent, handler);
+    public LittleDoorActivatorGui(LittleStructureType type, AnimationGuiHandler handler) {
+        super(type, handler);
     }
     
     public String getDisplayName(LittlePreviews previews, int childId) {

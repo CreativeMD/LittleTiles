@@ -7,7 +7,6 @@ import java.util.function.BiFunction;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.util.type.tree.NamedTree;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -17,29 +16,41 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 @OnlyIn(Dist.CLIENT)
 public class LittleStructureGuiRegistry {
     
-    private static final NamedTree<BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl>> TREE = new NamedTree<>();
-    private static final HashMap<LittleStructureType, BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl>> BY_TYPE = new HashMap<>();
-    private static final List<BiFunction<LittleStructureType, LittleGroup, BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl>>> SPECIAL = new ArrayList<>();
+    private static final NamedTree<LittleStructureGui> TREE = new NamedTree<>();
+    private static final HashMap<LittleStructureType, LittleStructureGui> BY_TYPE = new HashMap<>();
+    private static final List<BiFunction<LittleStructureType, LittleGroup, LittleStructureGui>> SPECIAL = new ArrayList<>();
     
-    public static void registerTreeOnly(String id, BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl> gui) {
+    public static void registerTreeOnly(String id, LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> gui) {
+        registerTreeOnly(id, new LittleStructureGui(type, gui));
+    }
+    
+    public static void registerTreeOnly(String id, LittleStructureGui gui) {
         TREE.add(id, gui);
     }
     
-    public static void register(BiFunction<LittleStructureType, LittleGroup, BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl>> special) {
+    public static void register(BiFunction<LittleStructureType, LittleGroup, LittleStructureGui> special) {
         SPECIAL.add(special);
     }
     
-    public static void register(String id, LittleStructureType type, BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl> factory) {
-        TREE.add(id, factory);
-        BY_TYPE.put(type, factory);
+    public static void register(String id, LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> factory) {
+        register(id, new LittleStructureGui(type, factory));
     }
     
-    public static void register(LittleStructureType type, BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl> factory) {
-        BY_TYPE.put(type, factory);
+    public static void register(String id, LittleStructureGui gui) {
+        TREE.add(id, gui);
+        BY_TYPE.put(gui.type(), gui);
     }
     
-    public static BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl> get(LittleStructureType type, LittleGroup group) {
-        BiFunction<GuiParent, AnimationGuiHandler, LittleStructureGuiControl> factory = BY_TYPE.get(type);
+    public static void register(LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> factory) {
+        register(new LittleStructureGui(type, factory));
+    }
+    
+    public static void register(LittleStructureGui gui) {
+        BY_TYPE.put(gui.type(), gui);
+    }
+    
+    public static LittleStructureGui get(LittleStructureType type, LittleGroup group) {
+        LittleStructureGui factory = BY_TYPE.get(type);
         if (factory != null)
             return factory;
         
@@ -49,7 +60,7 @@ public class LittleStructureGuiRegistry {
                 return factory;
         }
         
-        factory = LittleStructureGuiControlNotFound::new;
+        factory = new LittleStructureGui(type, LittleStructureGuiNotFound::new);
         BY_TYPE.put(type, factory);
         return factory;
     }
@@ -59,37 +70,36 @@ public class LittleStructureGuiRegistry {
     }
     
     static {
-        register("simple.fixed", get("fixed"), LittleFixedStructureParser::new);
-        register("simple.ladder", get("ladder"), LittleLadderParser::new);
-        register("simple.bed", get("bed"), LittleBedParser::new);
-        register("simple.chair", get("chair"), LittleChairParser::new);
-        register("simple.storage", get("storage"), LittleStorageParser::new);
-        register("simple.noclip", get("noclip"), LittleNoClipStructureParser::new);
-        register("simple.light", get("light"), LittleLightStructureParser::new);
-        register("simple.message", get("message"), LittleMessageStructureParser::new);
+        register("simple.fixed", get("fixed"), LittleStructureGuiDefault::new);
+        register("simple.ladder", get("ladder"), LittleStructureGuiDefault::new);
+        register("simple.bed", get("bed"), LittleBedGui::new);
+        register("simple.chair", get("chair"), LittleStructureGuiDefault::new);
+        register("simple.storage", get("storage"), LittleStorageGui::new);
+        register("simple.noclip", get("noclip"), LittleNoClipGui::new);
+        register("simple.light", get("light"), LittleLightGui::new);
+        register("simple.message", get("message"), LittleMessageGui::new);
         
         LittleStructureType machine = get("machine");
+        LittleStructureGui axisDoor = new LittleStructureGui(machine, LittleDoorAxisGui::new);
+        LittleStructureGui slidingDoor = new LittleStructureGui(machine, LittleDoorSlidingGui::new);
+        LittleStructureGui advancedDoor = new LittleStructureGui(machine, LittleDoorAdvancedGui::new);
+        LittleStructureGui activatorDoor = new LittleStructureGui(machine, LittleDoorActivatorGui::new);
         register((type, group) -> {
             if (type != machine)
                 return null;
-            switch (group.getStructureTag().getString("parser")) {
-                case "axis":
-                    return LittleAxisDoorParser::new;
-                case "sliding":
-                    return LittleSlidingDoorParser::new;
-                case "advanced":
-                    return LittleAdvancedDoorParser::new;
-                case "activator":
-                    return LittleDoorActivatorParser::new;
-                default:
-                    return null;
-            }
+            return switch (group.getStructureTag().getString("parser")) {
+                case "axis" -> axisDoor;
+                case "sliding" -> slidingDoor;
+                case "advanced" -> advancedDoor;
+                case "activator" -> activatorDoor;
+                default -> null;
+            };
         });
         
-        registerTreeOnly("door.axis", LittleAxisDoorParser::new);
-        registerTreeOnly("door.sliding", LittleSlidingDoorParser::new);
-        registerTreeOnly("door.advanced", LittleAdvancedDoorParser::new);
-        registerTreeOnly("door.activator", LittleDoorActivatorParser::new);
+        registerTreeOnly("door.axis", axisDoor);
+        registerTreeOnly("door.sliding", slidingDoor);
+        registerTreeOnly("door.advanced", advancedDoor);
+        registerTreeOnly("door.activator", activatorDoor);
     }
     
 }

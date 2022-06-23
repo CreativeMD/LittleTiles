@@ -5,18 +5,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.controls.gui.GuiListBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import team.creative.creativecore.common.gui.GuiControl;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.gui.handler.GuiLayerHandler;
+import team.creative.creativecore.common.gui.packet.LayerOpenPacket;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal.GuiSignalComponent;
@@ -24,6 +27,7 @@ import team.creative.littletiles.common.gui.signal.SubGuiDialogSignal.ICondition
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -33,110 +37,99 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
-public class SubGuiSignalEvents extends GuiLayer {
+public class GuiLayerSignalEvents extends GuiLayer {
     
-    public GuiSignalEventsButton button;
+    public static final GuiLayerHandler SIGNAL_LAYER = (parent, nbt) -> new GuiLayerSignalEvents();
+    
+    private GuiSignalEventsButton button;
     public List<GuiSignalEvent> events;
     
-    public SubGuiSignalEvents(GuiSignalEventsButton button) {
-        super(300, 200);
+    public GuiLayerSignalEvents() {
+        super("events", 300, 200);
+    }
+    
+    public void setButton(GuiSignalEventsButton button) {
         this.button = button;
         this.events = new ArrayList<>();
         for (GuiSignalEvent event : button.events)
             this.events.add(event.copy());
     }
     
-    public void addEntry(GuiSignalEvent event) {
-        GuiScrollBox box = (GuiScrollBox) get("content");
-        GuiPanel panel = new GuiPanel("event", 2, 2, 158, 30);
-        panel.addControl(new GuiLabel("label", 0, 0));
-        panel.addControl(new GuiLabel("mode", 0, 16));
-        panel.addControl(new GuiButton("edit", 84, 14, 30, 10) {
-            
-            @Override
-            public void onClicked(int x, int y, int button) {
-                openClientLayer(new SubGuiDialogSignal(SubGuiSignalEvents.this.button.inputs, event));
-            }
-        });
+    @Override
+    public void create() {
+        if (button == null)
+            return;
         
-        panel.addControl(new GuiButton("reset", 122, 14, 30, 10) {
-            
-            @Override
-            public void onClicked(int x, int y, int button) {
-                event.reset();
-            }
-        });
+        flow = GuiFlow.STACK_Y;
+        GuiParent upperBox = new GuiParent(GuiFlow.STACK_X);
+        add(upperBox.setExpandableY());
         
-        box.addControl(panel);
+        upperBox.add(new GuiScrollY("content").setAlign(Align.STRETCH).setExpandable());
+        
+        GuiParent components = new GuiParent(GuiFlow.STACK_Y);
+        upperBox.add(components.setExpandable());
+        
+        components.add(new GuiLabel("components").setTranslate("gui.components"));
+        for (GuiSignalComponent component : button.inputs)
+            components.add(new GuiLabel("components").setTitle(Component.literal(component.display())));
+        
+        GuiLeftRightBox lowerBox = new GuiLeftRightBox();
+        add(lowerBox);
+        
+        lowerBox.addRight(new GuiButton("save", x -> {
+            GuiLayerSignalEvents.this.button.events = events;
+            closeTopLayer();
+        }).setTranslate("gui.save")).addLeft(new GuiButton("cancel", x -> closeTopLayer()).setTranslate("gui.cancel"));
+        
+        for (GuiSignalEvent event : events)
+            addEvent(event);
+    }
+    
+    public void addEvent(GuiSignalEvent event) {
+        GuiScrollY box = (GuiScrollY) get("content");
+        
+        GuiParent panel = new GuiParent(event.component.name, GuiFlow.STACK_Y);
+        box.add(panel);
+        
+        GuiParent upper = new GuiParent(GuiFlow.STACK_X).setAlign(Align.STRETCH);
+        panel.add(upper);
+        upper.add(new GuiLabel("label").setExpandableX());
+        upper.add(new GuiLabel("mode"));
+        
+        GuiParent lower = new GuiParent(GuiFlow.STACK_X).setAlign(Align.STRETCH);
+        panel.add(lower);
+        lower.add(new GuiButton("edit", x -> {
+            SubGuiDialogSignal layer = (SubGuiDialogSignal) this.getParent().openLayer(new LayerOpenPacket(SubGuiDialogSignal.SIGNAL_DIALOG, new CompoundTag()));
+            layer.set(GuiLayerSignalEvents.this.button.inputs, event);
+            layer.init();
+        }).setTranslate("gui.edit"));
+        
+        lower.add(new GuiButton("reset", x -> event.reset()).setTranslate("gui.reset"));
+        
         event.panel = panel;
         event.update();
-        reloadListBox();
     }
     
-    public void reloadListBox() {
-        GuiScrollBox box = (GuiScrollBox) get("content");
-        int height = 2;
-        for (GuiControl control : box.controls) {
-            control.posY = height;
-            height += control.height + 2;
-        }
-    }
-    
-    public List<String> getComponents(LittlePreviews previews, SignalComponentType type) {
+    public List<String> getComponents(LittleGroup previews, SignalComponentType type) {
         List<String> values = new ArrayList<>();
-        for (int i = 0; i < previews.childrenCount(); i++) {
-            LittlePreviews child = previews.getChild(i);
+        int i = 0;
+        for (LittleGroup child : previews.children.children()) {
             LittleStructureType structure = child.getStructureType();
-            if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == type) {
+            if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getComponentType() == type) {
                 String name = child.getStructureName();
                 try {
                     values.add(ChatFormatting.BOLD + (type == SignalComponentType.INPUT ? "i" : "o") + i + " " + (name != null ? "(" + name + ") " : "") + "" + ChatFormatting.RESET + ((ISignalComponent) structure)
                             .getBandwidth() + "-bit");
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             }
+            i++;
         }
         return values;
     }
     
-    @Override
-    public void create() {
-        
-        GuiScrollBox box = new GuiScrollBox("content", 0, 0, 170, 172);
-        
-        List<String> values = new ArrayList<>();
-        values.add("Components:");
-        
-        for (GuiSignalComponent component : button.inputs)
-            values.add(component.display());
-        
-        GuiListBox components = new GuiListBox("components", 180, 0, 120, 180, values);
-        
-        controls.add(components);
-        controls.add(box);
-        
-        for (GuiSignalEvent event : events)
-            addEntry(event);
-        
-        controls.add(new GuiButton("save", 146, 180) {
-            
-            @Override
-            public void onClicked(int x, int y, int button) {
-                SubGuiSignalEvents.this.button.events = events;
-                closeGui();
-            }
-        });
-        controls.add(new GuiButton("cancel", 0, 180) {
-            
-            @Override
-            public void onClicked(int x, int y, int button) {
-                closeGui();
-            }
-        });
-    }
-    
     public static class GuiSignalEventsButton extends GuiButton {
         
-        public SubGuiSignalEvents gui;
+        public GuiLayerSignalEvents gui;
         public LittleGroup previews;
         public LittleStructureType type;
         public LittleStructure activator;
@@ -146,7 +139,11 @@ public class SubGuiSignalEvents extends GuiLayer {
         
         public GuiSignalEventsButton(String name, LittleGroup previews, LittleStructure structure, LittleStructureType type) {
             super(name, null);
-            pressed = x -> openClientLayer(new SubGuiSignalEvents(GuiSignalEventsButton.this));
+            pressed = button -> {
+                GuiLayerSignalEvents layer = (GuiLayerSignalEvents) this.getParent().openLayer(new LayerOpenPacket(SIGNAL_LAYER, new CompoundTag()));
+                layer.setButton(this);
+                layer.init();
+            };
             setTranslate("gui.signal.events");
             this.previews = previews;
             this.activator = structure;
@@ -158,26 +155,26 @@ public class SubGuiSignalEvents extends GuiLayer {
             
             events = new ArrayList<>();
             for (GuiSignalComponent output : outputs) {
-                NBTTagCompound nbt = previews.structureNBT;
+                CompoundTag nbt = previews.getStructureTag();
                 if (output.external) {
                     if (nbt == null)
-                        events.add(new GuiSignalEvent(output, new NBTTagCompound()));
+                        events.add(new GuiSignalEvent(output, new CompoundTag()));
                     else {
                         boolean found = false;
-                        NBTTagList list = nbt.getTagList("signal", 10);
-                        for (int i = 0; i < list.tagCount(); i++) {
-                            NBTTagCompound outputNBT = list.getCompoundTagAt(i);
-                            if (outputNBT.getInteger("index") == output.index) {
+                        ListTag list = nbt.getList("signal", Tag.TAG_COMPOUND);
+                        for (int i = 0; i < list.size(); i++) {
+                            CompoundTag outputNBT = list.getCompound(i);
+                            if (outputNBT.getInt("index") == output.index) {
                                 events.add(new GuiSignalEvent(output, outputNBT));
                                 found = true;
                                 break;
                             }
                         }
                         if (!found)
-                            events.add(new GuiSignalEvent(output, new NBTTagCompound()));
+                            events.add(new GuiSignalEvent(output, new CompoundTag()));
                     }
                 } else
-                    events.add(new GuiSignalEvent(output, nbt == null ? new NBTTagCompound() : nbt.getCompoundTag(output.totalName)));
+                    events.add(new GuiSignalEvent(output, nbt == null ? new CompoundTag() : nbt.getCompound(output.totalName)));
             }
         }
         
@@ -199,10 +196,10 @@ public class SubGuiSignalEvents extends GuiLayer {
     
     private static class ComponentSearch {
         
-        public LittlePreviews previews;
+        public LittleGroup previews;
         public LittleStructureType type;
         
-        public ComponentSearch(LittlePreviews previews, LittleStructureType type) {
+        public ComponentSearch(LittleGroup previews, LittleStructureType type) {
             this.previews = previews;
             this.type = type;
         }
@@ -216,26 +213,27 @@ public class SubGuiSignalEvents extends GuiLayer {
             return list;
         }
         
-        protected void addInput(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
+        protected void addInput(LittleGroup previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
             if (type != null && type.inputs != null)
                 for (int i = 0; i < type.inputs.size(); i++)
                     list.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
                 
-            for (int i = 0; i < previews.childrenCount(); i++) {
-                LittlePreviews child = previews.getChild(i);
+            int i = 0;
+            for (LittleGroup child : previews.children.children()) {
                 if (child == this.previews)
                     continue;
                 LittleStructureType structure = child.getStructureType();
                 String name = child.getStructureName();
-                if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.INPUT)
+                if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getComponentType() == SignalComponentType.INPUT)
                     list.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), (ISignalComponent) structure, true, i));
                 else if (includeRelations)
                     gatherInputs(child, child
                             .getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+                i++;
             }
         }
         
-        protected void gatherInputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
+        protected void gatherInputs(LittleGroup previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
             if (previews == this.previews)
                 addInput(previews, type, "", "", list, includeRelations);
             
@@ -248,26 +246,28 @@ public class SubGuiSignalEvents extends GuiLayer {
                 addInput(previews, type, prefix, totalNamePrefix, list, includeRelations);
         }
         
-        protected void addOutput(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
+        protected void addOutput(LittleGroup previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
             if (type != null && type.outputs != null)
                 for (int i = 0; i < type.outputs.size(); i++)
                     list.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
                 
-            for (int i = 0; i < previews.childrenCount(); i++) {
-                LittlePreviews child = previews.getChild(i);
+            int i = 0;
+            for (LittleGroup child : previews.children.children()) {
                 if (child == this.previews)
                     continue;
                 LittleStructureType structure = child.getStructureType();
                 String name = child.getStructureName();
-                if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getType() == SignalComponentType.OUTPUT)
+                if (structure instanceof ISignalComponent && ((ISignalComponent) structure).getComponentType() == SignalComponentType.OUTPUT)
                     list.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), (ISignalComponent) structure, true, i));
                 else if (includeRelations)
                     gatherOutputs(child, child
                             .getStructureType(), prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+                
+                i++;
             }
         }
         
-        protected void gatherOutputs(LittlePreviews previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
+        protected void gatherOutputs(LittleGroup previews, LittleStructureType type, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
             if (previews == this.previews)
                 addOutput(previews, type, "", "", list, includeRelations);
             
@@ -287,12 +287,12 @@ public class SubGuiSignalEvents extends GuiLayer {
         public final GuiSignalComponent component;
         public SignalInputCondition condition;
         public GuiSignalModeConfiguration modeConfig;
-        public GuiPanel panel;
+        public GuiParent panel;
         
-        public GuiSignalEvent(GuiSignalComponent component, NBTTagCompound nbt) {
+        public GuiSignalEvent(GuiSignalComponent component, CompoundTag nbt) {
             this.component = component;
             try {
-                if (nbt.hasKey("con"))
+                if (nbt.contains("con"))
                     condition = SignalInputCondition.parseInput(nbt.getString("con"));
                 else
                     condition = null;
@@ -317,12 +317,12 @@ public class SubGuiSignalEvents extends GuiLayer {
         @Override
         public void update() {
             GuiLabel label = (GuiLabel) panel.get("label");
-            label.setCaption(component.name + ": " + condition);
+            label.setTitle(Component.literal(component.name + ": " + condition));
             GuiLabel mode = (GuiLabel) panel.get("mode");
             int delay = modeConfig.delay;
             if (condition != null)
                 delay = Math.max(delay, (int) Math.ceil(condition.calculateDelay()));
-            mode.setCaption(translate(modeConfig.getMode().translateKey) + " delay: " + delay);
+            mode.setTitle(Component.translatable(modeConfig.getMode().translateKey).append(" ").append(Component.translatable("gui.delay")).append(": " + delay));
         }
         
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {

@@ -15,6 +15,7 @@ import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.handler.GuiLayerHandler;
 import team.creative.littletiles.common.gui.signal.GuiSignalController.GeneratePatternException;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponent;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
@@ -29,11 +30,17 @@ import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
 public class SubGuiDialogSignal extends GuiLayer {
     
-    public final List<GuiSignalComponent> inputs;
-    protected final IConditionConfiguration event;
+    public static final GuiLayerHandler SIGNAL_DIALOG = (parent, nbt) -> new SubGuiDialogSignal();
     
-    public SubGuiDialogSignal(List<GuiSignalComponent> inputs, IConditionConfiguration event) {
-        super(300, 200);
+    public List<GuiSignalComponent> inputs;
+    protected IConditionConfiguration event;
+    
+    public SubGuiDialogSignal() {
+        super("dialog_signal", 300, 200);
+        
+    }
+    
+    public void set(List<GuiSignalComponent> inputs, IConditionConfiguration event) {
         this.inputs = inputs;
         this.event = event;
     }
@@ -47,6 +54,8 @@ public class SubGuiDialogSignal extends GuiLayer {
     
     @Override
     public void create() {
+        if (inputs == null)
+            return;
         add(new GuiLabel("result", translate("gui.signal.configuration.result"), 0, 0));
         
         GuiSignalController controller = new GuiSignalController("controller", 0, 22, 294, 150, event.getOutput(), inputs);

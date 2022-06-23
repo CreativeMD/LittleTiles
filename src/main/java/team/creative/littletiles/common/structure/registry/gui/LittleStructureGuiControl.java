@@ -8,49 +8,42 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
-import team.creative.littletiles.common.gui.dialogs.SubGuiSignalEvents.GuiSignalEventsButton;
+import team.creative.littletiles.common.gui.dialogs.GuiLayerSignalEvents.GuiSignalEventsButton;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class LittleStructureGuiControl implements IAnimationControl {
+public abstract class LittleStructureGuiControl extends GuiParent implements IAnimationControl {
     
-    public final GuiParent parent;
+    public final LittleStructureType type;
     public final AnimationGuiHandler handler;
     
-    public LittleStructureGuiControl(GuiParent parent, AnimationGuiHandler handler) {
-        this.parent = parent;
+    public LittleStructureGuiControl(LittleStructureType type, AnimationGuiHandler handler) {
+        this.type = type;
         this.handler = handler;
     }
     
-    public void create(LittleGroup previews, @Nullable LittleStructure structure) {
-        createControls(previews, structure);
-        parent.add(new GuiSignalEventsButton("signal", previews, structure, getStructureType()));
-        
+    @Override
+    public GuiParent getParent() {
+        return (GuiParent) super.getParent();
     }
     
-    public LittleStructure parse(LittleGroup previews) {
-        LittleStructure structure = parseStructure(previews);
-        GuiSignalEventsButton button = (GuiSignalEventsButton) parent.get("signal");
-        button.setEventsInStructure(structure);
+    public void create(LittleGroup group, @Nullable LittleStructure structure) {
+        create(group, structure);
+        add(new GuiSignalEventsButton("signal", group, structure, type));
+    }
+    
+    protected abstract void createExtra(LittleGroup group, @Nullable LittleStructure structure);
+    
+    public LittleStructure save(LittleGroup group) {
+        LittleStructure structure = type.createStructure(null);
+        saveExtra(structure, group);
+        get("signal", GuiSignalEventsButton.class).setEventsInStructure(structure);
         return structure;
     }
     
-    protected abstract void createControls(LittleGroup previews, @Nullable LittleStructure structure);
-    
-    protected abstract LittleStructure parseStructure(LittleGroup previews);
-    
-    protected abstract LittleStructureType getStructureType();
-    
-    public <T extends LittleStructure> T createStructure(Class<T> structureClass, StructureParentCollection parent) {
-        LittleStructureType type = LittleStructureRegistry.getStructureType(structureClass);
-        if (type == null)
-            throw new RuntimeException("Could find structure for " + structureClass);
-        return (T) type.createStructure(parent);
-    }
+    protected abstract void saveExtra(LittleStructure structure, LittleGroup previews);
     
     @Override
     public void onLoaded(AnimationPreview animationPreview) {}
