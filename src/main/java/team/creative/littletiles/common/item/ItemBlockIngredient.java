@@ -63,11 +63,6 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {}
     
     @Override

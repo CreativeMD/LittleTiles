@@ -587,7 +587,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         }
         
         public int getColor(LittleGroup group) {
-            if (group.getStructureTag().contains("color"))
+            if (group.hasStructure() && group.getStructureTag().contains("color"))
                 return group.getStructureTag().getInt("color");
             return DEFAULT_CABLE_COLOR;
         }

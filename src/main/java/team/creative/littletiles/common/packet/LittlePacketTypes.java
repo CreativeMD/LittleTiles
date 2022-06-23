@@ -418,6 +418,6 @@ public class LittlePacketTypes {
                 return SignalState.read(buffer);
             }
             
-        });
+        }, SignalState.class);
     }
 }

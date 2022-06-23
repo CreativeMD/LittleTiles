@@ -106,11 +106,6 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {}
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn) {
         ColorIngredient entry = loadIngredient(stack);
         if (entry != null)

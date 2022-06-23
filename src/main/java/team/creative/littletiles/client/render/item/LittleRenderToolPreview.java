@@ -45,6 +45,10 @@ public class LittleRenderToolPreview extends LittleRenderToolBackground {
             return;
         }
         pose.pushPose();
+        
+        if (model == null)
+            load();
+        
         ForgeHooksClient
                 .handleCameraTransforms(pose, model, cameraTransformType, cameraTransformType == TransformType.FIRST_PERSON_LEFT_HAND || cameraTransformType == TransformType.THIRD_PERSON_LEFT_HAND);
         MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();

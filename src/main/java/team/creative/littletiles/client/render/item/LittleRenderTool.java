@@ -25,7 +25,7 @@ public class LittleRenderTool extends CreativeRenderItem {
     
     @Override
     public boolean hasTranslucentLayer(ItemStack stack) {
-        return stack.getTag().getBoolean("translucent");
+        return stack.hasTag() ? stack.getTag().getBoolean("translucent") : false;
     }
     
     @Override

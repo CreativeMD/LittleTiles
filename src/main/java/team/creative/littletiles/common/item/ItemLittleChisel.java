@@ -57,11 +57,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
     }

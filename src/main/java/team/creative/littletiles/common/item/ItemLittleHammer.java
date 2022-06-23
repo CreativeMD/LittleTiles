@@ -70,11 +70,6 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
         tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getKey())));

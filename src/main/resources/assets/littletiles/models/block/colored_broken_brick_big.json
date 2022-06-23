@@ -1,6 +1,6 @@
 {
     "parent": "block/cube_all",
     "textures": {
-        "all": "littletiles:blocks/ltcolored9"
+        "all": "littletiles:block/colored_broken_brick_big"
     }
 }

@@ -114,6 +114,9 @@ public class PlacementPreview {
     
     @OnlyIn(Dist.CLIENT)
     public static PlacementPreview relative(Level level, ItemStack stack, LittleGroup tiles, PlacementPosition position, boolean centered, boolean fixed) {
+        if (tiles == null)
+            return null;
+        
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         LittleGrid original = tiles.getGrid();
         PlacementMode mode = iTile.getPlacementMode(stack);

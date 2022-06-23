@@ -39,11 +39,6 @@ public class ItemLittleBag extends Item implements ItemGuiCreator, ILittleIngred
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public GuiLayer create(CompoundTag nbt, Player player) {
         return new GuiBag(ContainerSlotView.mainHand(player));
     }

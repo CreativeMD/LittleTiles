@@ -60,11 +60,6 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public Component getName(ItemStack stack) {
         if (stack.getOrCreateTag().contains("structure") && stack.getOrCreateTagElement("structure").contains("name"))
             return Component.literal(stack.getOrCreateTagElement("structure").getString("name"));

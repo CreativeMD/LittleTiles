@@ -1,9 +1,9 @@
 {
     "parent": "littletiles:block/orientable_advanced",
     "textures": {
-        "top": "littletiles:blocks/signal_converter_side",
-        "front": "littletiles:blocks/signal_converter_front",
-        "back": "littletiles:blocks/signal_converter_back",
-        "side": "littletiles:blocks/signal_converter_side"
+        "top": "littletiles:block/signal_converter_side",
+        "front": "littletiles:block/signal_converter_front",
+        "back": "littletiles:block/signal_converter_back",
+        "side": "littletiles:block/signal_converter_side"
     }
 }

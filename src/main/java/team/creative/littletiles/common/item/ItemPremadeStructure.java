@@ -36,11 +36,6 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public String getDescriptionId(ItemStack stack) {
         return super.getDescriptionId(stack) + "." + getPremadeId(stack);
     }

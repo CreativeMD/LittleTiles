@@ -40,11 +40,6 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public Component getName(ItemStack stack) {
         if (stack.getOrCreateTag().contains("content") && stack.getOrCreateTagElement("content").contains("structure") && stack.getOrCreateTagElement("content")
                 .getCompound("structure").contains("name"))

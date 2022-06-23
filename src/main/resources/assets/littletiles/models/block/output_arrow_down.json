@@ -1,6 +1,6 @@
 {
     "parent": "block/cube_all",
     "textures": {
-        "all": "littletiles:blocks/ltoutput1"
+        "all": "littletiles:block/output_arrow_down"
     }
 }

@@ -1,6 +1,6 @@
 {
     "parent": "item/handheld",
     "textures": {
-        "layer0": "littletiles:items/ltscrewdriver"
+        "layer0": "littletiles:item/screwdriver"
     }
 }

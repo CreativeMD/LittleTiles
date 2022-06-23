@@ -64,7 +64,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.IBlockRenderProperties;
 import net.minecraftforge.common.util.ForgeSoundType;
-import team.chisel.ctm.api.IFacade;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -97,7 +96,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.type.bed.ILittleBedPlayerExtension;
 import team.creative.littletiles.server.LittleTilesServer;
 
-public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicBlock {
+public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     public static BETiles loadBE(BlockGetter level, BlockPos pos) {
         if (level == null)
@@ -756,7 +755,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
         return structureResistance;
     }
     
-    @Override
+    /*@Override
     public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side) {
         return defaultBlockState();
     }
@@ -771,7 +770,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
                     return lookingFor;
         }
         return this.defaultBlockState();
-    }
+    }*/
     
     @Override
     public void onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {

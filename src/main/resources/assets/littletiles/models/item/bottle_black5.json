@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "littletiles:items/black_5"
+        "layer0": "littletiles:item/black_5"
     }
 }

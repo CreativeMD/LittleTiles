@@ -20,7 +20,7 @@ public abstract class ChildrenList<T> {
     protected T parent;
     private Iterable<T> all;
     private List<T> children;
-    protected HashMap<String, T> extensions;
+    protected HashMap<String, T> extensions = new HashMap<>();
     
     public ChildrenList(List<T> children) {
         set(children);

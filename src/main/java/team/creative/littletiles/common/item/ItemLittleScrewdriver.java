@@ -31,11 +31,6 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
     }
     
-    @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
     public void onClick(Player player, boolean rightClick, BlockPos pos, ItemStack stack) {
         if (rightClick) {
             stack.getOrCreateTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });

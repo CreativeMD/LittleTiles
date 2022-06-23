@@ -10,8 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
@@ -22,16 +20,15 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -39,7 +36,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
-import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
@@ -47,17 +43,14 @@ import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActi
 import team.creative.littletiles.common.action.LittleActionDestroy;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
-import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
-import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.LittleToolHandler;
-import team.creative.littletiles.common.level.LittleAnimationHandler;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
@@ -76,13 +69,9 @@ import team.creative.littletiles.common.packet.update.OutputUpdate;
 import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.recipe.StructureIngredient.StructureIngredientSerializer;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
-import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
-import team.creative.littletiles.common.structure.type.door.LittleDoor;
-import team.creative.littletiles.common.structure.type.door.LittleDoor.DoorActivator;
 import team.creative.littletiles.common.structure.type.premade.LittleExporter;
 import team.creative.littletiles.common.structure.type.premade.LittleImporter;
 import team.creative.littletiles.server.LittleTilesServer;
@@ -162,7 +151,8 @@ public class LittleTiles {
         
         LittleTilesServer.init(event);
         
-        TheOneProbeManager.init();
+        if (ModList.get().isLoaded(TheOneProbeManager.modid))
+            TheOneProbeManager.init();
         
         //MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
         
@@ -231,7 +221,7 @@ public class LittleTiles {
             return 0;
         }));
         
-        event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-open").then(Commands.argument("position", BlockPosArgument.blockPos()).executes((x) -> {
+        /*event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-open").then(Commands.argument("position", BlockPosArgument.blockPos()).executes((x) -> {
             List<LittleDoor> doors = new ArrayList<>();
             
             BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
@@ -301,10 +291,10 @@ public class LittleTiles {
                 } catch (LittleActionException e) {}
             }
             return 0;
-        })));
+        })));*/
     }
     
-    public static List<LittleDoor> findDoors(LittleAnimationHandler handler, AABB box) {
+    /*public static List<LittleDoor> findDoors(LittleAnimationHandler handler, AABB box) {
         List<LittleDoor> doors = new ArrayList<>();
         for (LittleLevelEntity entity : handler.entities)
             try {
@@ -312,7 +302,7 @@ public class LittleTiles {
                     doors.add(((LittleDoor) entity.getStructure()).getParentDoor());
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         return doors;
-    }
+    }*/
     
     protected boolean checkStructureName(LittleStructure structure, String[] args) {
         for (int i = 0; i < args.length; i++)

@@ -76,11 +76,6 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
     }
