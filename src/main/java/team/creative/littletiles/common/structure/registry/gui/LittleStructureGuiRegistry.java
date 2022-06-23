@@ -79,13 +79,13 @@ public class LittleStructureGuiRegistry {
         register("simple.light", get("light"), LittleLightGui::new);
         register("simple.message", get("message"), LittleMessageGui::new);
         
-        LittleStructureType machine = get("machine");
-        LittleStructureGui axisDoor = new LittleStructureGui(machine, LittleDoorAxisGui::new);
-        LittleStructureGui slidingDoor = new LittleStructureGui(machine, LittleDoorSlidingGui::new);
-        LittleStructureGui advancedDoor = new LittleStructureGui(machine, LittleDoorAdvancedGui::new);
-        LittleStructureGui activatorDoor = new LittleStructureGui(machine, LittleDoorActivatorGui::new);
+        LittleStructureType door = get("door");
+        LittleStructureGui axisDoor = new LittleStructureGui(door, LittleDoorAxisGui::new);
+        LittleStructureGui slidingDoor = new LittleStructureGui(door, LittleDoorSlidingGui::new);
+        LittleStructureGui advancedDoor = new LittleStructureGui(door, LittleDoorAdvancedGui::new);
+        LittleStructureGui activatorDoor = new LittleStructureGui(door, LittleDoorActivatorGui::new);
         register((type, group) -> {
-            if (type != machine)
+            if (type != door)
                 return null;
             return switch (group.getStructureTag().getString("parser")) {
                 case "axis" -> axisDoor;

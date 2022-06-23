@@ -28,7 +28,7 @@ import team.creative.littletiles.common.structure.type.LittleStorage;
 import team.creative.littletiles.common.structure.type.LittleStorage.LittleStorageType;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
-import team.creative.littletiles.common.structure.type.machine.LittleStateMachine;
+import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 
@@ -70,7 +70,7 @@ public class LittleStructureRegistry {
                 .register(new LittleStructureBuilderType(register("item_holder", LittleItemHolder.class, LittleItemHolder::new, new LittleAttributeBuilder().extraRendering())
                         .addInput("filled", 1), "frame"));
         
-        register("state", LittleStateMachine.class, LittleStateMachine::new, LittleAttributeBuilder.NONE);
+        register("door", LittleDoor.class, LittleDoor::new, LittleAttributeBuilder.NONE);
         
         LittlePremadeRegistry.initStructures();
     }

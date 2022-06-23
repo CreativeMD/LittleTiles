@@ -8,7 +8,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
-public class LittleStateMachine extends LittleStructure {
+public abstract class LittleStateMachine extends LittleStructure {
     
     public String parser;
     
