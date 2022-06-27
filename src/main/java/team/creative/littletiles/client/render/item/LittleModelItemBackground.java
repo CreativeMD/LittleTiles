@@ -1,5 +1,7 @@
 package team.creative.littletiles.client.render.item;
 
+import java.util.function.Supplier;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -9,47 +11,51 @@ import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.model.CreativeItemModel;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 
-public class LittleRenderToolBackground extends LittleRenderTool {
+@OnlyIn(Dist.CLIENT)
+public class LittleModelItemBackground extends CreativeItemModel {
     
-    private ItemStack stack;
-    public final ResourceLocation location;
-    public BakedModel model;
+    public final Supplier<ItemStack> top;
+    protected ItemStack stack;
     
-    public LittleRenderToolBackground(ResourceLocation location) {
-        this.location = location;
+    public LittleModelItemBackground(ModelResourceLocation location, Supplier<ItemStack> top) {
+        super(location);
+        this.top = top;
     }
     
-    public void load() {
-        model = mc.getItemRenderer().getItemModelShaper().getModelManager().getModel(new ModelResourceLocation(location, "inventory"));
-    }
-    
-    protected ItemStack getFakeStack() {
+    protected ItemStack getFakeStack(ItemStack current) {
         if (stack == null)
-            stack = new ItemStack(Items.PAPER);
+            stack = top.get();
+        stack.setTag(current.getTag());
         return stack;
+    }
+    
+    public boolean shouldRenderFake(ItemStack stack) {
+        return ((ILittlePlacer) stack.getItem()).hasTiles(stack);
     }
     
     @Override
     public void applyCustomOpenGLHackery(PoseStack pose, ItemStack stack, TransformType cameraTransformType) {
-        ILittlePlacer placer = (ILittlePlacer) stack.getItem();
-        
-        if (cameraTransformType == TransformType.GUI || placer.hasTiles(stack)) {
+        if (cameraTransformType == TransformType.GUI || shouldRenderFake(stack)) {
+            
             if (cameraTransformType == TransformType.GUI)
                 RenderSystem.disableDepthTest();
-            if (model == null)
-                load();
             
             pose.pushPose();
-            ForgeHooksClient.handleCameraTransforms(pose, model, cameraTransformType, false);
+            
+            ItemStack toFake = getFakeStack(stack);
+            Minecraft mc = Minecraft.getInstance();
+            BakedModel model = mc.getItemRenderer().getModel(toFake, null, null, 0);
+            
+            prepareRenderer(pose);
             
             MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-            mc.getItemRenderer().render(getFakeStack(), cameraTransformType, false, pose, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, model);
+            mc.getItemRenderer().render(toFake, cameraTransformType, false, pose, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, model);
             multibuffersource$buffersource.endBatch();
             
             if (cameraTransformType == TransformType.GUI)
@@ -59,9 +65,6 @@ public class LittleRenderToolBackground extends LittleRenderTool {
         }
     }
     
-    @Override
-    public void reload() {
-        model = null;
-    }
+    public void prepareRenderer(PoseStack pose) {}
     
 }

@@ -63,7 +63,7 @@ public class ItemModelCache {
     
     public List<BakedQuad> getQuads(RenderType type, Facing facing) {
         lastUsed = System.currentTimeMillis();
-        if (type != Sheets.cutoutBlockSheet())
+        if (type != null && type != Sheets.cutoutBlockSheet())
             return Collections.EMPTY_LIST;
         if (facing == null)
             return Collections.EMPTY_LIST;

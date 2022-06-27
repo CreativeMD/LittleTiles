@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
-public class LittleRenderToolBig extends LittleRenderTool {
+public class LittleModelItemTilesBig extends LittleModelItemTiles {
     
     @Override
     public List<? extends RenderBox> getBoxes(ItemStack stack, RenderType layer) {

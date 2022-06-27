@@ -100,6 +100,7 @@ public class LittleTiles {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(this::client));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(LittleTilesClient::initColors));
         
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
         

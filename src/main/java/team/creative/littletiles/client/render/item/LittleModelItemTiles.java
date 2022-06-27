@@ -6,14 +6,19 @@ import java.util.List;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.CreativeRenderItem;
+import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 
-public class LittleRenderTool extends CreativeRenderItem {
+public class LittleModelItemTiles extends CreativeItemBoxModel {
+    
+    public LittleModelItemTiles() {
+        super(new ModelResourceLocation("minecraft", "stone", "inventory"));
+    }
     
     @Override
     public List<? extends RenderBox> getBoxes(ItemStack stack, RenderType layer) {

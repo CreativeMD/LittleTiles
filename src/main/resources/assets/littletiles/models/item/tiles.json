@@ -1,3 +1,4 @@
 {
-    "parent": "littletiles:block/tiles"
+    "loader": "creativecore:rendered",
+    "item": "littletiles:tiles"
 }
