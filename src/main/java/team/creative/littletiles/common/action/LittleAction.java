@@ -105,8 +105,8 @@ public abstract class LittleAction<T> extends CreativePacket {
     public static boolean canConvertBlock(Player player, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
         if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)
             throw new NotAllowedToConvertBlockException(player);
-        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable)
-            return state.getBlock().defaultDestroyTime() > 0;
+        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable && state.getBlock().defaultDestroyTime() < 0)
+            throw new NotAllowedToConvertBlockException(player);
         return LittleTiles.CONFIG.canEditBlock(player, state, pos);
     }
     
