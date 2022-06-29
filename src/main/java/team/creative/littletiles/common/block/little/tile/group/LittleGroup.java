@@ -50,7 +50,6 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         this.grid = grid;
         this.structure = structure;
         this.children = new ItemChildrenList(this, children);
-        convertToSmallest();
     }
     
     public LittleGroup(LittleGroup group, List<LittleGroup> children) {
@@ -521,8 +520,9 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     @OnlyIn(Dist.CLIENT)
     public boolean hasTranslucentBlocks() {
-        if (hasTranslucentBlocks())
-            return true;
+        for (LittleTile tile : content)
+            if (tile.isTranslucent())
+                return true;
         if (hasStructure() && getStructureType().hasTranslucentItemPreview(this))
             return true;
         for (LittleGroup child : children.all())
