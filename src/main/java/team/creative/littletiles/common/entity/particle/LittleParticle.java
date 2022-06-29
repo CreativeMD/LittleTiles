@@ -20,7 +20,6 @@ public class LittleParticle extends TextureSheetParticle {
         this.xd = speed.x * (Math.random() * 0.1 + 0.95);
         this.yd = speed.y * (Math.random() * 0.1 + 0.95);
         this.zd = speed.z * (Math.random() * 0.1 + 0.95);
-        this.scaleDeviation = settings.startSize;
         this.lifetime = (int) (settings.lifetime + settings.lifetimeDeviation * Math.random());
         this.gravity = settings.gravity;
         this.alpha = ColorUtils.alphaF(settings.color);
@@ -35,6 +34,7 @@ public class LittleParticle extends TextureSheetParticle {
         this.settings = settings;
         this.scaleDeviation = (float) (Math.random() * settings.sizeDeviation);
         settings.texture.setTextureInit(this);
+        this.setSize(0.2F * settings.startSize, 0.2F * settings.startSize);
     }
     
     @Override
