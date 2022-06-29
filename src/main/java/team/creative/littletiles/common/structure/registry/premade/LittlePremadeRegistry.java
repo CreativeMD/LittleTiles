@@ -70,7 +70,6 @@ public class LittlePremadeRegistry {
                 stack.setTag(stackNBT);
                 
                 PREVIEWS.put(type.id, new LittlePremadePreview(previews, stack));
-                //LittleTiles.LOGGER.info("Loaded {} model", type.id);
                 loaded++;
             } catch (Exception e) {
                 e.printStackTrace();
