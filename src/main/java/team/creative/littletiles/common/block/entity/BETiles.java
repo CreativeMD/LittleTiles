@@ -900,30 +900,15 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         }
         
         protected SideState calculate(Facing facing) {
-            LittleBox box;
-            switch (facing) {
-                case EAST:
-                    box = new LittleBox(grid.count - 1, 0, 0, grid.count, grid.count, grid.count);
-                    break;
-                case WEST:
-                    box = new LittleBox(0, 0, 0, 1, grid.count, grid.count);
-                    break;
-                case UP:
-                    box = new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count);
-                    break;
-                case DOWN:
-                    box = new LittleBox(0, 0, 0, grid.count, 1, grid.count);
-                    break;
-                case SOUTH:
-                    box = new LittleBox(0, 0, grid.count - 1, grid.count, grid.count, grid.count);
-                    break;
-                case NORTH:
-                    box = new LittleBox(0, 0, 0, grid.count, grid.count, 1);
-                    break;
-                default:
-                    box = null;
-                    break;
-            }
+            LittleBox box = switch (facing) {
+                case EAST -> new LittleBox(grid.count - 1, 0, 0, grid.count, grid.count, grid.count);
+                case WEST -> new LittleBox(0, 0, 0, 1, grid.count, grid.count);
+                case UP -> new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count);
+                case DOWN -> new LittleBox(0, 0, 0, grid.count, 1, grid.count);
+                case SOUTH -> new LittleBox(0, 0, grid.count - 1, grid.count, grid.count, grid.count);
+                case NORTH -> new LittleBox(0, 0, 0, grid.count, grid.count, 1);
+                default -> null;
+            };
             return calculateState(facing, box);
         }
         
@@ -942,42 +927,25 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
                         noclip = true;
                 }
             
-            for (int x = 0; x < filled.length; x++) {
-                for (int y = 0; y < filled[x].length; y++) {
-                    for (int z = 0; z < filled[x][y].length; z++) {
+            for (int x = 0; x < filled.length; x++)
+                for (int y = 0; y < filled[x].length; y++)
+                    for (int z = 0; z < filled[x][y].length; z++)
                         if (!filled[x][y][z])
                             return SideState.EMPTY;
-                    }
-                }
-            }
+                        
             return SideState.getState(false, noclip, translucent);
         }
         
         public SideState get(Facing facing) {
-            SideState result;
-            
-            switch (facing) {
-                case DOWN:
-                    result = DOWN;
-                    break;
-                case UP:
-                    result = UP;
-                    break;
-                case NORTH:
-                    result = NORTH;
-                    break;
-                case SOUTH:
-                    result = SOUTH;
-                    break;
-                case WEST:
-                    result = WEST;
-                    break;
-                case EAST:
-                    result = EAST;
-                    break;
-                default:
-                    result = SideState.EMPTY;
-            }
+            SideState result = switch (facing) {
+                case DOWN -> DOWN;
+                case UP -> UP;
+                case NORTH -> NORTH;
+                case SOUTH -> SOUTH;
+                case WEST -> WEST;
+                case EAST -> EAST;
+                default -> SideState.EMPTY;
+            };
             
             if (result == null)
                 set(facing, result = calculate(facing));
@@ -1009,7 +977,10 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         }
         
         public boolean isCollisionFullBlock() {
-            return EAST.isFilled() && WEST.isFilled() && UP.isFilled() && DOWN.isFilled() && SOUTH.isFilled() && NORTH.isFilled();
+            for (int i = 0; i < Facing.VALUES.length; i++)
+                if (!get(Facing.VALUES[i]).isFilled())
+                    return false;
+            return true;
         }
         
     }
