@@ -273,18 +273,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        /*// get Selection shape and it's also used for some other stuff I don't know (only works on client side) TODO CHECK if that is the case
-        LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
-        if (tileContext.isComplete()) {
-            if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode()))
-                return tileContext.parent.getBE().getBlockShape();
-            if (LittleTiles.CONFIG.rendering.highlightStructureBox && tileContext.parent.isStructure())
-                try {
-                    return tileContext.parent.getStructure().getSurroundingBox().getShape();
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            return tileContext.tile.getShapes(tileContext.parent);
-        }
-        return Shapes.empty();*/
         BETiles be = loadBE(level, pos);
         VoxelShape shape = Shapes.empty();
         
