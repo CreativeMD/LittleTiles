@@ -2,6 +2,7 @@ package team.creative.littletiles.common.entity.physic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.mojang.math.Vector3d;
 
@@ -30,10 +31,13 @@ import team.creative.littletiles.common.animation.entity.EntityPlayerMP;
 import team.creative.littletiles.common.animation.entity.EnumFacing;
 import team.creative.littletiles.common.animation.entity.OrientatedBoundingBox;
 import team.creative.littletiles.common.api.block.LittlePhysicBlock;
+import team.creative.littletiles.common.entity.INoPushEntity;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public class LittleLevelEntityPhysic implements LevelBoundsListener {
+    
+    protected static final Predicate<Entity> noAnimation = x -> !(x.getFirstPassenger() instanceof INoPushEntity);
     
     public final LittleLevelEntity parent;
     
@@ -138,7 +142,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         noCollision = true;
         
         Level level = parent.getRealLevel();
-        List<Entity> entities = level.getEntitiesWithinAABB(Entity.class, coordinator.computeSurroundingBox(orientatedBB), EntityAnimation.noAnimation);
+        List<Entity> entities = level.getEntities(Entity.class, coordinator.computeSurroundingBox(orientatedBB), noAnimation);
         if (!entities.isEmpty()) {
             
             // PHASE ONE

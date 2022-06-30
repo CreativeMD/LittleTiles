@@ -38,7 +38,7 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
-public abstract class LittleLevelEntity extends Entity implements OrientationAwareEntity {
+public abstract class LittleLevelEntity extends Entity implements OrientationAwareEntity, INoPushEntity {
     
     private CreativeLevel fakeLevel;
     private StructureAbsolute center;
