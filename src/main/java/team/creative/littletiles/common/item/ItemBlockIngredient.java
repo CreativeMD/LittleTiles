@@ -99,7 +99,7 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
         if (blocks != null && !blocks.isEmpty())
             for (BlockIngredientEntry entry : blocks)
                 if (!entry.isEmpty() || entry.block instanceof AirBlock) {
-                    if (inventory != null && entry.value > 1) {
+                    if (inventory != null && entry.value >= 1) {
                         ItemStack overflow = entry.getBlockStack();
                         overflow.setCount((int) entry.value);
                         entry.value -= overflow.getCount();
