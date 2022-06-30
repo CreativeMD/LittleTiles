@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -32,6 +33,8 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     public void onClick(Player player, boolean rightClick, BlockPos pos, ItemStack stack) {
+        if (!stack.hasTag())
+            stack.setTag(new CompoundTag());
         if (rightClick) {
             stack.getOrCreateTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
             if (!player.level.isClientSide)
