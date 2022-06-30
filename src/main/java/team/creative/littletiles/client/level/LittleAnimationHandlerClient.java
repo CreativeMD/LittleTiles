@@ -112,8 +112,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         
         Player player = event.player;
         
-        if (InputEventHandler.onPickBlock(target.asBlockHit(), player, target.level))
+        if (InputEventHandler.onPickBlock(target.asBlockHit(), player, target.level)) {
+            event.setCanceled(true);
             return;
+        }
         
         BlockState state = target.level.getBlockState(target.asBlockHit().getBlockPos());
         
