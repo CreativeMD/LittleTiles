@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -210,7 +211,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
         
         Boolean neighbourBlock = neighbours.get(facing);
         if (neighbourBlock == null) {
-            neighbourBlock = checkforNeighbour(be.getLevel(), facing.toVanilla(), be.getBlockPos());
+            neighbourBlock = checkforNeighbour(be.getLevel(), facing.toVanilla(), be.getBlockPos(), tile.getState(), tile.color);
             neighbours.put(facing, neighbourBlock);
         }
         if (neighbourBlock)
@@ -237,9 +238,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
         return null;
     }
     
-    private static boolean checkforNeighbour(Level level, Direction facing, BlockPos pos) {
-        BlockPos newPos = pos.relative(facing);
-        BlockState state = level.getBlockState(newPos);
-        return state.skipRendering(state, facing);
+    private static boolean checkforNeighbour(Level level, Direction facing, BlockPos pos, BlockState state, int color) {
+        return state.skipRendering(state, facing) || (ColorUtils.WHITE == color && state == level.getBlockState(pos.relative(facing)));
     }
 }
