@@ -559,6 +559,7 @@ public class LittleTransformableBox extends LittleBox {
             
             LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data.clone());
             CornerCache cache = result.new CornerCache(false);
+            ((LittleTransformableBox) box).setAbsoluteCornersTakeBounds(cache);
             setAbsoluteCornersTakeBounds(cache);
             result.data = cache.getData();
             
