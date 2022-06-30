@@ -160,6 +160,8 @@ public class SignalTicker {
         int delay;
         int tick = ticket.getExactDelayValue();
         if (tick <= queueLength) {
+            if (tick < 0)
+                tick = 1;
             delay = queueIndex + tick - 1;
             if (delay >= queueLength)
                 delay -= queueLength;
@@ -176,6 +178,8 @@ public class SignalTicker {
     public synchronized ISignalScheduleTicket openTicket(SignalOutputHandler handler, SignalState result, int tick) {
         int delay;
         if (tick <= queueLength) {
+            if (tick < 0)
+                tick = 1;
             delay = queueIndex + tick - 1;
             if (delay >= queueLength)
                 delay -= queueLength;
