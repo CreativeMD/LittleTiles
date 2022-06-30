@@ -273,7 +273,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // get Selection shape and it's also used for some other stuff I don't know (only works on client side) TODO CHECK if that is the case
+        /*// get Selection shape and it's also used for some other stuff I don't know (only works on client side) TODO CHECK if that is the case
         LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
         if (tileContext.isComplete()) {
             if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode()))
@@ -284,7 +284,25 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             return tileContext.tile.getShapes(tileContext.parent);
         }
-        return Shapes.empty();
+        return Shapes.empty();*/
+        BETiles be = loadBE(level, pos);
+        VoxelShape shape = Shapes.empty();
+        
+        if (be != null) {
+            for (IParentCollection list : be.groups()) {
+                if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
+                    continue;
+                if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
+                    try {
+                        shape = Shapes.or(shape, list.getStructure().getExtraShape(state, level, pos, context));
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                
+                for (LittleTile tile : list)
+                    if (!tile.getBlock().noCollision())
+                        shape = Shapes.or(shape, tile.getShapes(list));
+            }
+        }
+        return shape;
     }
     
     @Override
