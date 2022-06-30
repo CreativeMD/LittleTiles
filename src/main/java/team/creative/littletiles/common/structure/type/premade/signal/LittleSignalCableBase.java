@@ -406,6 +406,9 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     @OnlyIn(Dist.CLIENT)
     public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+        if (ColorUtils.isInvisible(color))
+            return;
+        
         if (layer != (ColorUtils.isTransparent(color) ? RenderType.translucent() : RenderType.solid()))
             return;
         
