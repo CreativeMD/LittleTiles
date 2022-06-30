@@ -59,6 +59,15 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
         };
     }
     
+    public boolean isInCreativeTab(CreativeModeTab targetTab, LittlePremadeType type) {
+        CreativeModeTab tab = type.getCustomTab();
+        if (tab == null)
+            tab = getItemCategory();
+        if (tab == targetTab)
+            return true;
+        return tab != null && (targetTab == CreativeModeTab.TAB_SEARCH || targetTab == tab);
+    }
+    
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
         if (allowedIn(tab))
