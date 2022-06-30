@@ -309,15 +309,16 @@ public class RenderingThread extends Thread {
                             if (LittleTilesProfilerOverlay.isActive())
                                 LittleTilesProfilerOverlay.finishBuildingCache(System.nanoTime() - duration);
                         } catch (Exception e) {
-                            if (!(e instanceof RenderingException))
-                                e.printStackTrace();
+                            
+                            e.printStackTrace();
                             if (!finish(data, -1, false))
                                 QUEUE.add(data);
                         }
                     } catch (RemovedBlockEntityException e) {
                         finish(data, -1, true);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        if (!(e instanceof RenderingException))
+                            e.printStackTrace();
                         QUEUE.add(data);
                     } catch (OutOfMemoryError error) {
                         QUEUE.add(data);
