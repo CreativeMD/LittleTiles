@@ -58,7 +58,6 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
         if (boxes.isEmpty())
             return true;
         
-        boolean placed = false;
         Level level = player.level;
         if (levelUUID != null) {
             LittleLevelEntity animation = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
@@ -103,15 +102,13 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
                 continue;
             }
             
-            placed = true;
-            
             actionDone(level, player);
             
             action(level, player, pos, state, entry.getValue(), boxes.grid);
         }
         
         level.playSound(null, player, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
-        return placed;
+        return true;
     }
     
     public void actionDone(Level level, Player player) {}
