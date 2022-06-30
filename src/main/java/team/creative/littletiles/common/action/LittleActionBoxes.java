@@ -56,7 +56,7 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
     @Override
     public Boolean action(Player player) throws LittleActionException {
         if (boxes.isEmpty())
-            return false;
+            return true;
         
         boolean placed = false;
         Level level = player.level;
