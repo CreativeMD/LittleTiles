@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -63,10 +64,15 @@ public class LittleShapePillar extends LittleShape {
         Facing minFacing = originalMin.facing;
         Facing maxFacing = originalMax.facing;
         
-        if (box.getSize(minFacing.axis) == 1)
+        if (selection.getNBT().getBoolean("simple")) {
             minFacing = null;
-        if (box.getSize(maxFacing.axis) == 1)
             maxFacing = null;
+        } else {
+            if (box.getSize(minFacing.axis) == 1)
+                minFacing = null;
+            if (box.getSize(maxFacing.axis) == 1)
+                maxFacing = null;
+        }
         
         int invSize = thickness / 2;
         int size = thickness - invSize;
@@ -125,6 +131,7 @@ public class LittleShapePillar extends LittleShape {
     public List<GuiControl> getCustomSettings(CompoundTag nbt, LittleGrid grid) {
         List<GuiControl> controls = new ArrayList<>();
         controls.add(new GuiSteppedSlider("thickness", nbt.getInt("thickness"), 1, grid.count));
+        controls.add(new GuiCheckBox("simple", nbt.getBoolean("simple")));
         return controls;
     }
     
@@ -133,6 +140,7 @@ public class LittleShapePillar extends LittleShape {
     public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {
         GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
         nbt.putInt("thickness", (int) slider.value);
+        nbt.putBoolean("simple", gui.get("simple", GuiCheckBox.class).value);
     }
     
     @Override
