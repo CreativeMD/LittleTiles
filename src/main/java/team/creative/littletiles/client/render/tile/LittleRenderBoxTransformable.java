@@ -3,8 +3,6 @@ package team.creative.littletiles.client.render.tile;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.client.render.face.IFaceRenderType;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -112,8 +110,33 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     }
     
     @Override
-    protected void setupPreviewRendering(PoseStack pose) {
-        pose.scale(scale, scale, scale);
+    public float getPreviewOffX() {
+        return 0;
+    }
+    
+    @Override
+    public float getPreviewOffY() {
+        return 0;
+    }
+    
+    @Override
+    public float getPreviewOffZ() {
+        return 0;
+    }
+    
+    @Override
+    public float getPreviewScaleX() {
+        return scale;
+    }
+    
+    @Override
+    public float getPreviewScaleY() {
+        return scale;
+    }
+    
+    @Override
+    public float getPreviewScaleZ() {
+        return scale;
     }
     
     @Override
