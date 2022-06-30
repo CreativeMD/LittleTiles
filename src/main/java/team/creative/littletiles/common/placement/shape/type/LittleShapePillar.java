@@ -74,6 +74,16 @@ public class LittleShapePillar extends LittleShape {
                 maxFacing = null;
         }
         
+        if (minFacing != null && minFacing == maxFacing) {
+            if (originalMinVec.get(axis) <= originalMaxVec.get(axis)) {
+                minFacing = Facing.get(axis, false);
+                maxFacing = minFacing.opposite();
+            } else {
+                minFacing = Facing.get(axis, true);
+                maxFacing = minFacing.opposite();
+            }
+        }
+        
         int invSize = thickness / 2;
         int size = thickness - invSize;
         minBox.growCentered(thickness);
