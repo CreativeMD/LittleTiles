@@ -116,8 +116,8 @@ public class LittleGrid {
     }
     
     public final int count;
-    public final int count2d;
-    public final int count3d;
+    public final long count2d;
+    public final long count3d;
     public final double pixelLength;
     public final double halfPixelLength;
     public final double pixelVolume;
@@ -134,9 +134,9 @@ public class LittleGrid {
         this.count = gridSize;
         this.pixelLength = 1D / gridSize;
         this.halfPixelLength = pixelLength * 0.5;
-        this.count2d = gridSize * gridSize;
-        this.count3d = gridSize * gridSize * gridSize;
-        this.pixelVolume = Math.max(Double.MIN_VALUE, 1D / ((long) gridSize * (long) gridSize * gridSize));
+        this.count2d = (long) gridSize * gridSize;
+        this.count3d = gridSize * count2d;
+        this.pixelVolume = Math.max(Double.MIN_VALUE, 1D / count3d);
         this.isDefault = LittleGrid.OVERALL_DEFAULT == gridSize;
         
         this.minSizes = new int[this.count];

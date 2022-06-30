@@ -214,14 +214,14 @@ public class LittleTilesClient {
                         
                         double volume = Math.min(1, ingredient.value);
                         LittleGrid context = LittleGrid.defaultGrid();
-                        int pixels = (int) (volume * context.count3d);
+                        long pixels = (long) (volume * context.count3d);
                         if (pixels < context.count * context.count)
                             cubes.add(new RenderBox(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block.getState()));
                         else {
-                            int remainingPixels = pixels;
-                            int planes = pixels / context.count2d;
+                            long remainingPixels = pixels;
+                            long planes = pixels / context.count2d;
                             remainingPixels -= planes * context.count2d;
-                            int rows = remainingPixels / context.count;
+                            long rows = remainingPixels / context.count;
                             remainingPixels -= rows * context.count;
                             
                             float height = (float) (planes * context.pixelLength);
