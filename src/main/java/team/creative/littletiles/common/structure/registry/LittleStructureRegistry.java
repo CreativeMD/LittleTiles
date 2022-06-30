@@ -51,10 +51,10 @@ public class LittleStructureRegistry {
         REGISTRY.registerDefault("fixed", new LittleStructureType("fixed", LittleFixedStructure.class, LittleFixedStructure::new, LittleAttributeBuilder.NONE));
         
         register("ladder", LittleLadder.class, LittleLadder::new, new LittleAttributeBuilder().ladder())
-                .addIngredient(StructureIngredientRule.LONGEST_SIDE, new StackIngredient(new ItemStack(Blocks.LADDER)));
+                .addIngredient(StructureIngredientRule.LONGEST_SIDE, () -> new StackIngredient(new ItemStack(Blocks.LADDER)));
         
         register("bed", LittleBed.class, LittleBed::new, LittleAttributeBuilder.NONE).addInput("occupied", 1)
-                .addIngredient(StructureIngredientRule.SINGLE, new ItemIngredient(CreativeIngredient.parse(ItemTags.BEDS)));
+                .addIngredient(StructureIngredientRule.SINGLE, () -> new ItemIngredient(CreativeIngredient.parse(ItemTags.BEDS)));
         register("chair", LittleChair.class, LittleChair::new, LittleAttributeBuilder.NONE).addInput("occupied", 1);
         
         register(new LittleStorageType("storage", LittleStorage.class, LittleStorage::new, LittleAttributeBuilder.NONE).addInput("accessed", 1).addInput("filled", 16));
@@ -62,7 +62,7 @@ public class LittleStructureRegistry {
                 .addInput("entities", 4);
         
         register("light", LittleLight.class, LittleLight::new, new LittleAttributeBuilder().lightEmitter()).addOutput("enabled", 1, SignalMode.TOGGLE, true)
-                .addIngredient(new StructureIngredientScalerVolume(8), new StackIngredient(new ItemStack(Items.GLOWSTONE_DUST)));
+                .addIngredient(new StructureIngredientScalerVolume(8), () -> new StackIngredient(new ItemStack(Items.GLOWSTONE_DUST)));
         
         register("message", LittleStructureMessage.class, LittleStructureMessage::new, LittleAttributeBuilder.NONE).addOutput("message", 1, SignalMode.EQUAL);
         

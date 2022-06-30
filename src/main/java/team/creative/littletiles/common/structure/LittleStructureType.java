@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
@@ -92,7 +93,7 @@ public class LittleStructureType {
         return addOutput(name, bandwidth, defaultMode, false);
     }
     
-    public LittleStructureType addIngredient(StructureIngredientScaler scale, LittleIngredient ingredient) {
+    public LittleStructureType addIngredient(StructureIngredientScaler scale, Supplier<LittleIngredient> ingredient) {
         return addIngredient(new StructureIngredientRule(scale, ingredient));
     }
     

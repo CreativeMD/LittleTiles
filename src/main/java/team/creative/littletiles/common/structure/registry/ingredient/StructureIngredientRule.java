@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.structure.registry.ingredient;
 
+import java.util.function.Supplier;
+
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
@@ -22,9 +24,9 @@ public class StructureIngredientRule implements IStructureIngredientRule {
     public static final StructureIngredientScaler VOLUME = group -> group.getVolume();
     
     public final StructureIngredientScaler scale;
-    public final LittleIngredient ingredient;
+    public final Supplier<LittleIngredient> ingredient;
     
-    public StructureIngredientRule(StructureIngredientScaler scale, LittleIngredient ingredient) {
+    public StructureIngredientRule(StructureIngredientScaler scale, Supplier<LittleIngredient> ingredient) {
         this.scale = scale;
         this.ingredient = ingredient;
     }
@@ -33,7 +35,7 @@ public class StructureIngredientRule implements IStructureIngredientRule {
     public void add(LittleGroup group, LittleIngredients ingredients) {
         double volume = scale.calculate(group);
         if (volume > 0) {
-            LittleIngredient toAdd = ingredient.copy();
+            LittleIngredient toAdd = ingredient.get();
             toAdd.scaleAdvanced(volume);
             ingredients.add(toAdd);
         }
