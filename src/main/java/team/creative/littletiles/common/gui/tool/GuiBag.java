@@ -144,7 +144,8 @@ public class GuiBag extends GuiLayer {
                                 
                                 LittleInventory inventory = new LittleInventory(player);
                                 try {
-                                    inventory.give(overflow);
+                                    if (overflow != null)
+                                        inventory.give(overflow);
                                 } catch (NotEnoughSpaceException e) {}
                                 
                                 if (containsBlocks) {
