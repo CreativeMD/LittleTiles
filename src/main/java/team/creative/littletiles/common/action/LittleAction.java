@@ -161,7 +161,7 @@ public abstract class LittleAction<T> extends CreativePacket {
                 BETiles te = (BETiles) level.getBlockEntity(pos);
                 te.convertTo(tiles.getGrid());
                 final LittleGroup toAdd = tiles;
-                te.updateTiles((x) -> {
+                te.updateTilesSecretly((x) -> {
                     for (LittleTile tile : toAdd)
                         x.noneStructureTiles().add(tile);
                 });
