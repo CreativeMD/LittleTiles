@@ -149,6 +149,9 @@ public class RenderingThread extends Thread {
                 if (level != null && !QUEUE.isEmpty()) {
                     RenderingBlockContext data = QUEUE.poll();
                     
+                    if (data == null)
+                        continue;
+                    
                     try {
                         if (LittleTilesProfilerOverlay.isActive())
                             duration = System.nanoTime();

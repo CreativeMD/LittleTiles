@@ -19,7 +19,7 @@ public class LittleFaces {
     }
     
     public LittleFaces(int tiles) {
-        buffer = ByteBufAllocator.DEFAULT.directBuffer(tiles * 3 * 2);
+        buffer = ByteBufAllocator.DEFAULT.directBuffer(tiles * 3);
     }
     
     public void resetReader() {
@@ -34,8 +34,12 @@ public class LittleFaces {
         buffer.writeMedium(cache.value);
     }
     
-    public void jump(int size) {
+    public void jumpWriter(int size) {
         buffer.writerIndex(buffer.writerIndex() + size * 3);
+    }
+    
+    public void jumpReader(int size) {
+        buffer.readerIndex(buffer.readerIndex() + size * 3);
     }
     
     public synchronized void pull(LittleFaceSideCache cache) {
@@ -59,7 +63,7 @@ public class LittleFaces {
         LittleServerFace face = new LittleServerFace(be);
         int index = buffer.readerIndex();
         resetReader();
-        buffer.resetWriterIndex();
+        buffer.writerIndex(buffer.capacity());
         for (Pair<IParentCollection, LittleTile> entry : be.allTiles()) {
             for (LittleBox box : entry.getValue()) {
                 cache.value = buffer.readMedium();
@@ -67,7 +71,13 @@ public class LittleFaces {
                     face.set(entry.getKey(), entry.getValue(), box, facing);
                     cache.set(facing, face.calculate());
                 }
+                
+                int readerIndex = buffer.readerIndex() - 3;
+                buffer.resetReaderIndex();
+                buffer.writerIndex(readerIndex);
                 buffer.writeMedium(cache.value);
+                buffer.readerIndex(buffer.writerIndex());
+                buffer.writerIndex(buffer.capacity());
             }
         }
         buffer.readerIndex(index);

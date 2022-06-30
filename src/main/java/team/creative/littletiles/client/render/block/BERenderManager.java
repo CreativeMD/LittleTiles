@@ -259,7 +259,7 @@ public class BERenderManager {
             LittleTile tile = pair.value;
             
             if (!tile.getBlock().canRenderInLayer(tile, layer)) {
-                be.faces.jump(tile.size());
+                be.faces.jumpReader(tile.size());
                 continue;
             }
             
