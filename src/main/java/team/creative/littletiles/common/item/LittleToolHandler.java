@@ -127,19 +127,15 @@ public class LittleToolHandler {
     
     @OnlyIn(Dist.CLIENT)
     public boolean onRightInteractClient(ILittleTool iTile, Player player, InteractionHand hand, Level level, ItemStack stack, BlockPos pos, Facing facing) {
-        if (iTile instanceof ILittlePlacer placer) {
-            HitResult result = Minecraft.getInstance().hitResult;
-            if (!(result instanceof BlockHitResult))
-                return false;
-            PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
-            if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && ((ILittlePlacer) iTile).hasTiles(stack)) {
-                if (!stack.isEmpty()) {
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, placer.getPlacement(level, stack, position, false)));
-                    LittleTilesClient.PREVIEW_RENDERER.removeMarked();
-                }
-                iTile.onDeselect(level, stack, player);
-                return true;
-            }
+        HitResult result = Minecraft.getInstance().hitResult;
+        if (!(result instanceof BlockHitResult))
+            return false;
+        PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
+        if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && iTile instanceof ILittlePlacer placer && placer.hasTiles(stack)) {
+            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, placer.getPlacement(level, stack, position, false)));
+            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
+            iTile.onDeselect(level, stack, player);
+            return true;
         }
         return false;
     }

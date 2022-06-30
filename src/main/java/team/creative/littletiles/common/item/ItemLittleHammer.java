@@ -112,6 +112,14 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
+    public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        if (selection != null)
+            selection.click(player);
+        return true;
+    }
+    
+    @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
     }

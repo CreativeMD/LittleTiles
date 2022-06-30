@@ -145,6 +145,14 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
+    public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        if (selection != null)
+            selection.click(player);
+        return true;
+    }
+    
+    @Override
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
         if (client && selection != null)
             selection.rotate(player, stack, rotation);
