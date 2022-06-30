@@ -97,7 +97,7 @@ public class LittlePacketTypes {
                 buffer.writeInt(content.size());
                 for (LittleBox box : content)
                     buffer.writeVarIntArray(box.getArray());
-                buffer.writeUtf(content.getState().toString());
+                buffer.writeUtf(content.getBlockName());
                 buffer.writeInt(content.color);
             }
             
