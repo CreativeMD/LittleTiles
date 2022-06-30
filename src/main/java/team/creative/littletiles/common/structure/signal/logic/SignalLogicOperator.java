@@ -381,12 +381,24 @@ public enum SignalLogicOperator {
         
         @Override
         public int perform(int first, int second) {
-            return first / second;
+            try {
+                return first / second;
+            } catch (ArithmeticException e) {
+                if (second == 0 && first != 0)
+                    return 1;
+                return 0;
+            }
         }
         
         @Override
         public long perform(long first, long second) {
-            return first / second;
+            try {
+                return first / second;
+            } catch (ArithmeticException e) {
+                if (second == 0 && first != 0)
+                    return 1;
+                return 0;
+            }
         }
         
         @Override
