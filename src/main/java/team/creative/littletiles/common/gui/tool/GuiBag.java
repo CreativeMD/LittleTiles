@@ -29,6 +29,7 @@ import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
+import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
@@ -77,6 +78,7 @@ public class GuiBag extends GuiLayer {
         RELOAD.send(EndTag.INSTANCE);
         
         registerEventChanged(x -> {
+            Player player = getPlayer();
             if (x.control instanceof GuiSlotBase) {
                 if (x.control instanceof SlotControlBlockIngredient) {
                     SlotControlBlockIngredient slot = (SlotControlBlockIngredient) event.source;
@@ -134,10 +136,16 @@ public class GuiBag extends GuiLayer {
                             boolean containsBlocks = ingredients.contains(BlockIngredient.class);
                             boolean containsColor = ingredients.contains(ColorIngredient.class);
                             
-                            if (bag.add(ingredients) == null) {
+                            LittleIngredients overflow = bag.add(ingredients);
+                            if (overflow == null || (!overflow.contains(BlockIngredient.class) && !overflow.contains(ColorIngredient.class))) {
                                 
                                 input.setCount(0);
                                 ((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
+                                
+                                LittleInventory inventory = new LittleInventory(player);
+                                try {
+                                    inventory.give(overflow);
+                                } catch (NotEnoughSpaceException e) {}
                                 
                                 if (containsBlocks) {
                                     updateSlots();
