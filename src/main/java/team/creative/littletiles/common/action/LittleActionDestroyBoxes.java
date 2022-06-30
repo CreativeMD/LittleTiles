@@ -239,7 +239,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         
     }
     
-    public static LittleCollection removeBox(BETiles be, LittleGrid grid, LittleBox toCut, boolean update) {
+    public static LittleCollection removeBox(BETiles be, LittleGrid grid, LittleBox toCut, boolean update, LittleBoxReturnedVolume returnedVolume) {
         if (grid != be.getGrid()) {
             if (grid.count > be.getGrid().count)
                 be.convertTo(grid);

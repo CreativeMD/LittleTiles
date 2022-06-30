@@ -6,6 +6,7 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.placement.Placement.PlacementBlock;
 
 public class PlacementContext {
@@ -43,12 +44,21 @@ public class PlacementContext {
         placement.removedTiles.add(parent, tile);
     }
     
-    public void removeTile(LittleTile tile) {
-        for (LittleBox box : tile)
-            for (LittleTile removedTile : LittleActionDestroyBoxes.removeBox(block.getBE(), parent.getGrid(), box, false))
-                placement.removedTiles.add(parent, removedTile);
-            
+    public boolean removeTile(LittleTile tile) {
+        boolean changed = false;
+        LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
+        for (LittleBox box : tile) {
+            for (LittleTile removedTile : LittleActionDestroyBoxes.removeBox(block.getBE(), parent.getGrid(), box, false, volume)) {
+                addRemoved(removedTile);
+                changed = true;
+            }
+            if (volume.has())
+                placement.addRemovedIngredient(block, tile, volume);
+            volume.clear();
+        }
+        
         getBE().convertTo(block.getGrid());
+        return changed;
     }
     
     public void addUnplaceable(LittleElement element, LittleBox box) {

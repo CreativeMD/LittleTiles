@@ -100,7 +100,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
                 
                 if (!player.level.isClientSide) {
                     checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
-                    checkAndGive(player, inventory, getIngredients(placement.removedTiles));
+                    checkAndGive(player, inventory, placement.overflow());
                 }
                 
                 if (!placement.removedTiles.isEmpty())
