@@ -9,6 +9,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -250,6 +252,17 @@ public abstract class LittleAction<T> extends CreativePacket {
             return true;
         
         if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.mayBuild())))
+            return false;
+        
+        if (player.isSpectator())
+            return false;
+        
+        if (!rightClick && PlayerUtils.isAdventure(player)) {
+            ItemStack stack = player.getMainHandItem();
+            BlockInWorld blockinworld = new BlockInWorld(level, pos, false);
+            if (!stack.hasAdventureModePlaceTagForBlock(level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY), blockinworld))
+                return false;
+        } else if (!rightClick && !player.mayBuild())
             return false;
         
         if (WorldEditEvent != null) {
