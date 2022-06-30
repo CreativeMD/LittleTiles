@@ -136,7 +136,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     public LittleBoxes getBoxes(boolean allowLowResolution) {
-        if ((marked && this.allowLowResolution) || allowLowResolution)
+        if (this.allowLowResolution && allowLowResolution)
             return getCache().get(true);
         return getCache().get(false);
     }
