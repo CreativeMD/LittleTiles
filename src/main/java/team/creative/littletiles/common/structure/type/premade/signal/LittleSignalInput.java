@@ -129,28 +129,30 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         float sizeTwo = cube.getSize(two);
         float sizeAxis = cube.getSize(facing.axis);
         
-        LittleRenderBox top = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(color);
+        LittleRenderBox top = new LittleRenderBox(cube, cleanState).setColor(color);
         top.allowOverlap = true;
         top.setMin(one, top.getMax(one) - sizeOne * sizePercentage);
         cubes.add(top);
         
-        LittleRenderBox bottom = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(color);
+        LittleRenderBox bottom = new LittleRenderBox(cube, cleanState).setColor(color);
         bottom.allowOverlap = true;
         bottom.setMax(one, bottom.getMin(one) + sizeOne * sizePercentage);
         cubes.add(bottom);
         
-        LittleRenderBox left = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(color);
+        LittleRenderBox left = new LittleRenderBox(cube, cleanState).setColor(color);
         left.allowOverlap = true;
         left.setMin(two, top.getMax(two) - sizeTwo * sizePercentage);
         cubes.add(left);
         
-        LittleRenderBox right = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(color);
+        LittleRenderBox right = new LittleRenderBox(cube, cleanState).setColor(color);
         right.allowOverlap = true;
         right.setMax(two, right.getMin(two) + sizeTwo * sizePercentage);
         cubes.add(right);
         
-        LittleRenderBox behind = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(color);
+        LittleRenderBox behind = new LittleRenderBox(cube, cleanState).setColor(color);
         behind.allowOverlap = true;
+        
+        float depth = sizeAxis * 0.12F;
         
         behind.setMin(one, behind.getMin(one) + sizeOne * sizePercentage);
         behind.setMax(one, behind.getMax(one) - sizeOne * sizePercentage);
@@ -164,7 +166,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
             behind.setMin(facing.axis, behind.getMax(facing.axis) - sizeAxis * 0.5F);
         cubes.add(behind);
         
-        LittleRenderBox front = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
+        LittleRenderBox front = new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
         
         front.allowOverlap = true;
         
@@ -176,15 +178,15 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         
         if (facing.positive) {
             front.setMin(facing.axis, front.getMax(facing.axis) - sizeAxis * 0.5F);
-            front.setMax(facing.axis, front.getMax(facing.axis) - sizeAxis * sizePercentage);
+            front.setMax(facing.axis, front.getMax(facing.axis) - depth);
         } else {
             front.setMax(facing.axis, front.getMin(facing.axis) + sizeAxis * 0.5F);
-            front.setMin(facing.axis, front.getMin(facing.axis) + sizeAxis * sizePercentage);
+            front.setMin(facing.axis, front.getMin(facing.axis) + depth);
         }
         cubes.add(front);
         
         float thickness = 0.0001F;
-        LittleRenderBox frontTop = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
+        LittleRenderBox frontTop = new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
         
         frontTop.allowOverlap = true;
         
@@ -201,7 +203,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         
         cubes.add(frontTop);
         
-        LittleRenderBox frontBottom = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
+        LittleRenderBox frontBottom = new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
         
         frontBottom.allowOverlap = true;
         frontBottom.setMax(one, frontBottom.getMax(one) - sizeOne * sizePercentage);
@@ -217,7 +219,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         
         cubes.add(frontBottom);
         
-        LittleRenderBox frontRight = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
+        LittleRenderBox frontRight = new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
         
         frontRight.allowOverlap = true;
         frontRight.setMin(one, frontRight.getMin(one) + sizeOne * sizePercentage);
@@ -233,7 +235,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         
         cubes.add(frontRight);
         
-        LittleRenderBox frontLeft = (LittleRenderBox) new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
+        LittleRenderBox frontLeft = new LittleRenderBox(cube, cleanState).setColor(ColorUtils.LIGHT_BLUE);
         
         frontLeft.allowOverlap = true;
         frontLeft.setMin(one, frontLeft.getMin(one) + sizeOne * sizePercentage);
