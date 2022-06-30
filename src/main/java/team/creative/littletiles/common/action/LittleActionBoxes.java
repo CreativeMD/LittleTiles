@@ -105,12 +105,16 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
             
             placed = true;
             
+            actionDone(level, player);
+            
             action(level, player, pos, state, entry.getValue(), boxes.grid);
         }
         
         level.playSound(null, player, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
         return placed;
     }
+    
+    public void actionDone(Level level, Player player) {}
     
     protected LittleActionBoxes assignMirror(LittleActionBoxes action, Axis axis, LittleBoxAbsolute box) {
         action.boxes = this.boxes.copy();
