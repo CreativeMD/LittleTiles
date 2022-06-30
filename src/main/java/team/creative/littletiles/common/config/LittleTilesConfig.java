@@ -180,7 +180,8 @@ public class LittleTilesConfig {
         
         @Override
         public void configured(Side side) {
-            RenderingThread.initThreads(renderingThreadCount);
+            if (side.isClient())
+                RenderingThread.initThreads(renderingThreadCount);
         }
     }
     
