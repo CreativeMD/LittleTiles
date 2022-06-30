@@ -143,6 +143,22 @@ public class LittleTilesConfig {
         
     }
     
+    public static class AreaTooLarge extends LittleActionException {
+        
+        public LittleBuildingConfig config;
+        
+        public AreaTooLarge(Player player) {
+            super("exception.permission.recipe.size");
+            config = LittleTiles.CONFIG.build.get(player);
+        }
+        
+        @Override
+        public String getLocalizedMessage() {
+            return LanguageUtils.translate(getMessage(), config.recipeBlocksLimit);
+        }
+        
+    }
+    
     public static class Rendering implements ICreativeConfig {
         
         @CreativeConfig

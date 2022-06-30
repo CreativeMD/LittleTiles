@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
@@ -44,7 +45,7 @@ public abstract class SelectionMode {
     
     public abstract void clear(ItemStack stack);
     
-    public abstract LittleGroup getGroup(Level world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure);
+    public abstract LittleGroup getGroup(Level world, Player player, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException;
     
     public void save(ItemStack stack) {}
     

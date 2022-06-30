@@ -89,6 +89,7 @@ exception.pattern.circular=circular reference
 exception.pattern.novalidchildren=broken children
 exception.permission.convert=Cannot edit more than %s blocks
 exception.permission.area-protected=area protected
+exception.permission.recipe.size=Recipe area is too large (maximum %s blocks allowed)
 
 color.unit.black=black
 color.unit.cyan=cyan
@@ -267,6 +268,8 @@ gui.frame_builder.height=Height:
 gui.frame_builder.thickness=Thickness:
 gui.frame_builder.craft=Craft
 gui.frame_builder.failed=Missing blueprint
+
+gui.ok=Okay
 
 animation.event.child.name=Activate Child
 animation.event.sound-event.name=Play Sound Event

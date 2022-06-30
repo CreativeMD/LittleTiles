@@ -20,6 +20,7 @@ import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
@@ -34,27 +35,31 @@ public class GuiRecipeSelection extends GuiConfigure {
     public final GuiSyncLocal<CompoundTag> SAVE_SELECTION = getSyncHolder().register("save_selection", nbt -> {
         ItemStack stack = tool.get();
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
-        LittleGroup previews = mode.getGroup(getPlayer().level, stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt
-                .getBoolean("remember_structure"));
-        
-        if (nbt.contains("grid")) {
-            LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
-            previews.convertTo(grid);
-            LittleGrid aimedGrid = LittleGrid.get(nbt.getInt("aimedGrid"));
-            if (aimedGrid.count > grid.count)
-                LittleGroup.setGridSecretly(previews, aimedGrid);
-            else
-                LittleGroup.advancedScale(previews, aimedGrid.count, grid.count);
-            previews.combineBlockwise();
+        try {
+            LittleGroup previews = mode.getGroup(getPlayer().level, getPlayer(), stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt
+                    .getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
+            if (nbt.contains("grid")) {
+                LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
+                previews.convertTo(grid);
+                LittleGrid aimedGrid = LittleGrid.get(nbt.getInt("aimedGrid"));
+                if (aimedGrid.count > grid.count)
+                    LittleGroup.setGridSecretly(previews, aimedGrid);
+                else
+                    LittleGroup.advancedScale(previews, aimedGrid.count, grid.count);
+                previews.combineBlockwise();
+            }
+            
+            previews.removeOffset();
+            
+            ((ItemLittleBlueprint) stack.getItem()).saveTiles(stack, previews);
+            mode.clear(stack);
+            
+            tool.changed();
+            GuiCreator.ITEM_OPENER.open(getPlayer(), InteractionHand.MAIN_HAND);
+        } catch (LittleActionException e) {
+            GuiDialogHandler.openDialog(getParent(), "info", Component.translatable("gui.ok"), (x, y) -> {}, DialogButton.OK);
+            return;
         }
-        
-        previews.removeOffset();
-        
-        ((ItemLittleBlueprint) stack.getItem()).saveTiles(stack, previews);
-        mode.clear(stack);
-        
-        tool.changed();
-        GuiCreator.ITEM_OPENER.open(getPlayer(), InteractionHand.MAIN_HAND);
     });
     
     public GuiRecipeSelection(ContainerSlotView view) {
@@ -120,8 +125,13 @@ public class GuiRecipeSelection extends GuiConfigure {
             boolean includeCB = ((GuiCheckBox) get("includeCB")).value;
             boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
             
-            if (rememberStructure && mode.getGroup(getPlayer().level, stack, includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
-                GuiDialogHandler.openDialog(this, "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
+            try {
+                if (rememberStructure && mode.getGroup(getPlayer().level, getPlayer(), stack, includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
+                    GuiDialogHandler.openDialog(this, "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
+                    return;
+                }
+            } catch (LittleActionException e) {
+                GuiDialogHandler.openDialog(getParent(), "info", Component.translatable("gui.ok"), (g, b) -> {}, DialogButton.OK);
                 return;
             }
             
