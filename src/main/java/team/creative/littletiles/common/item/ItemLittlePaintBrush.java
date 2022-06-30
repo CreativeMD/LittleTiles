@@ -109,8 +109,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public void onDeselect(Level level, ItemStack stack, Player player) {
-        if (selection != null)
-            selection = null;
+        selection = null;
     }
     
     @Override
@@ -140,6 +139,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
                 else
                     LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, selection.getBoxes(false), getColor(stack), false));
                 selection = null;
+                LittleTilesClient.PREVIEW_RENDERER.removeMarked();
             }
         return false;
     }

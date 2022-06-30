@@ -106,6 +106,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
                 else
                     LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxes(level, selection.getBoxes(false)));
                 selection = null;
+                LittleTilesClient.PREVIEW_RENDERER.removeMarked();
             }
         return false;
     }
@@ -117,8 +118,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public void onDeselect(Level level, ItemStack stack, Player player) {
-        if (selection != null)
-            selection = null;
+        selection = null;
     }
     
     @Override
