@@ -355,10 +355,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.pos = position;
             this.ray = result;
             this.result = LittleTileContext.selectFocused(player.level, result.getBlockPos(), player);
-            this.box = pos.getBox().inflate(0.002);
             if (inside && result.getDirection().getAxisDirection() == AxisDirection.POSITIVE && grid
                     .isAtEdge(VectorUtils.get(result.getDirection().getAxis(), result.getLocation())))
                 pos.getVec().sub(Facing.get(result.getDirection()));
+            this.box = pos.getBox().inflate(0.002);
         }
         
         public ShapeSelectPos(PlacementPosition position, BlockHitResult ray, LittleTileContext result) {
