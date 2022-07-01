@@ -25,7 +25,7 @@ public class BlockBufferCache {
     
     private UploadableBufferHolder getUploaded(RenderType layer) {
         UploadableBufferHolder holder = uploaded.get(layer);
-        if (holder.isInvalid()) {
+        if (holder != null && holder.isInvalid()) {
             uploaded.remove(layer);
             return null;
         }

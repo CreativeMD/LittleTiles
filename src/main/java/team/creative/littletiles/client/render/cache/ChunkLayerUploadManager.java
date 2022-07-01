@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
@@ -38,6 +39,8 @@ public class ChunkLayerUploadManager {
     public synchronized void bindBuffer() {
         if (this.uploaded != null)
             backToRAM();
+        if (cache != null && cache.isEmpty())
+            cache = null;
         uploaded = cache;
         cache = null;
         if (uploaded != null)
@@ -55,7 +58,7 @@ public class ChunkLayerUploadManager {
                     uploaded = null;
                     return false;
                 }
-                buffer.bind();
+                GlStateManager._glBindBuffer(34962, ((VertexBufferLittle) buffer).getVertexBufferId());
                 try {
                     ByteBuffer uploadedData = RenderUploader.glMapBufferRange(uploaded.totalSize());
                     if (uploadedData != null)

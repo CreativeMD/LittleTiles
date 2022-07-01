@@ -29,9 +29,12 @@ public class StructureBlockConnector {
     }
     
     public BETiles getBlockEntity() throws CorruptedConnectionException, NotYetConnectedException {
-        if (cachedBE != null && !cachedBE.isRemoved())
-            return cachedBE;
-        
+        if (cachedBE != null)
+            if (cachedBE.isRemoved())
+                cachedBE = null;
+            else
+                return cachedBE;
+            
         Level level = structure.getLevel();
         
         BlockPos absoluteCoord = getAbsolutePos();

@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
@@ -28,8 +29,9 @@ public abstract class VertexBufferMixin implements VertexBufferLittle {
     }
     
     @Inject(at = @At("HEAD"), method = "bind()V")
-    public void bind() {
-        manager.bindBuffer();
+    public void bind(CallbackInfo info) {
+        if (manager != null)
+            manager.bindBuffer();
     }
     
     @Override

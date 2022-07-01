@@ -19,7 +19,7 @@ public class ChunkLayerCache {
     
     public UploadableBufferHolder add(BufferBuilder builder, BufferHolder data) {
         int index = BufferBuilderUtils.getBufferSizeByte(builder);
-        BufferBuilderUtils.addBuffer(builder, data.byteBuffer(), data.length(), data.vertexCount());
+        builder.putBulkData(data.byteBuffer());
         UploadableBufferHolder holder = new UploadableBufferHolder(data.byteBuffer(), index, data.vertexCount());
         holders.add(holder);
         totalSize = BufferBuilderUtils.getBufferSizeByte(builder);
