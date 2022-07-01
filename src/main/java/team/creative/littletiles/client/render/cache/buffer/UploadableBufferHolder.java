@@ -1,15 +1,16 @@
-package team.creative.littletiles.client.render.cache;
+package team.creative.littletiles.client.render.cache.buffer;
 
 import java.nio.ByteBuffer;
 
-public class BufferLink implements IRenderDataCache {
+public class UploadableBufferHolder implements BufferHolder {
     
     public int index;
     public final int length;
     public final int vertexCount;
     private ByteBuffer byteBuffer;
+    private boolean invalid;
     
-    public BufferLink(ByteBuffer buffer, int length, int count) {
+    public UploadableBufferHolder(ByteBuffer buffer, int length, int count) {
         this.byteBuffer = buffer;
         this.length = length;
         this.vertexCount = count;
@@ -40,6 +41,14 @@ public class BufferLink implements IRenderDataCache {
     @Override
     public int vertexCount() {
         return vertexCount;
+    }
+    
+    public boolean isInvalid() {
+        return invalid;
+    }
+    
+    public void invalidate() {
+        invalid = true;
     }
     
 }

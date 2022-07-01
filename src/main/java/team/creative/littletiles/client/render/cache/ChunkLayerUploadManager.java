@@ -13,19 +13,23 @@ import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.level.RenderUploader.NotSupportedException;
 import team.creative.littletiles.client.render.mc.VertexBufferLittle;
 
-public class ChunkBlockLayerManager {
+public class ChunkLayerUploadManager {
     
     private final VertexBuffer buffer;
     
-    private ChunkBlockLayerCache cache;
-    private ChunkBlockLayerCache uploaded;
+    private ChunkLayerCache cache;
+    private ChunkLayerCache uploaded;
     
-    public ChunkBlockLayerManager(RenderChunk chunk, RenderType layer) {
+    public ChunkLayerUploadManager(RenderChunk chunk, RenderType layer) {
         this.buffer = chunk.getBuffer(layer);
         ((VertexBufferLittle) buffer).setManager(this);
     }
     
-    public synchronized void set(ChunkBlockLayerCache cache) {
+    public ChunkLayerCache get() {
+        return cache;
+    }
+    
+    public synchronized void set(ChunkLayerCache cache) {
         if (this.cache != null)
             this.cache.discard();
         this.cache = cache;
@@ -45,7 +49,7 @@ public class ChunkBlockLayerManager {
             return;
         Supplier<Boolean> run = () -> {
             synchronized (this) {
-                if (Minecraft.getInstance().level == null || uploaded == null || RenderUploader.getBufferId(buffer) == -1) {
+                if (Minecraft.getInstance().level == null || uploaded == null || ((VertexBufferLittle) buffer).getVertexBufferId() == -1) {
                     if (uploaded != null)
                         uploaded.discard();
                     uploaded = null;

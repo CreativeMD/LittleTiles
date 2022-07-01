@@ -20,7 +20,7 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 
 public class LittleTilesProfilerOverlay {
     

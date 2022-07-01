@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.render.cache;
+package team.creative.littletiles.client.render.cache.build;
 
 import java.util.HashMap;
 
@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.client.render.cache.RenderingThread.RemovedBlockEntityException;
-import team.creative.littletiles.client.render.cache.RenderingThread.RenderingException;
+import team.creative.littletiles.client.render.cache.build.RenderingThread.RemovedBlockEntityException;
+import team.creative.littletiles.client.render.cache.build.RenderingThread.RenderingException;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 public class RenderingBlockContext {

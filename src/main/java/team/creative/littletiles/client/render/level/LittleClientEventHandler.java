@@ -15,6 +15,7 @@ import com.mojang.math.Vector3d;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +34,7 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
-import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -97,7 +98,7 @@ public class LittleClientEventHandler {
                         RenderSystem.setShaderTexture(0, RES_UNDERWATER_OVERLAY);
                         
                         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-                        float f = mc.player.getBrightness();
+                        float f = LightTexture.getBrightness(player.level.dimensionType(), player.level.getMaxLocalRawBrightness(blockpos));
                         RenderSystem.enableBlend();
                         RenderSystem.defaultBlendFunc();
                         RenderSystem.setShaderColor(f, f, f, 0.1F);
@@ -111,8 +112,7 @@ public class LittleClientEventHandler {
                         bufferbuilder.vertex(matrix4f, 1.0F, -1.0F, -0.5F).uv(0.0F + f7, 4.0F + f8).endVertex();
                         bufferbuilder.vertex(matrix4f, 1.0F, 1.0F, -0.5F).uv(0.0F + f7, 0.0F + f8).endVertex();
                         bufferbuilder.vertex(matrix4f, -1.0F, 1.0F, -0.5F).uv(4.0F + f7, 0.0F + f8).endVertex();
-                        bufferbuilder.end();
-                        BufferUploader.end(bufferbuilder);
+                        BufferUploader.drawWithShader(bufferbuilder.end());
                         RenderSystem.disableBlend();
                         
                         event.setCanceled(true);

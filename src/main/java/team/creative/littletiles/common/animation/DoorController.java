@@ -24,7 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.creativecore.common.util.type.map.HashMapList;
-import team.creative.littletiles.client.render.cache.ChunkBlockLayerManager;
+import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.world.RenderUtils;
@@ -246,7 +246,7 @@ public class DoorController extends AnimationController {
                             VertexBuffer buffer = ((RenderChunk) chunk).getVertexBufferByLayer(i);
                             if (buffer == null)
                                 continue;
-                            ChunkBlockLayerManager manager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(buffer);
+                            ChunkLayerUploadManager manager = (ChunkLayerUploadManager) ChunkLayerUploadManager.blockLayerManager.get(buffer);
                             if (manager != null)
                                 manager.backToRAM();
                         }

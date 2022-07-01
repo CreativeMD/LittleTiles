@@ -618,6 +618,11 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return tiles.isCompletelyEmpty();
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public boolean isRenderingEmpty() {
+        return tiles.isCompletelyEmpty() && !render.getBufferCache().hasAdditional();
+    }
+    
     @Override
     public void setRemoved() {
         super.setRemoved();

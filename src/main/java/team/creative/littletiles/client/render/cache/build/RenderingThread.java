@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.render.cache;
+package team.creative.littletiles.client.render.cache.build;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,8 +43,8 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.client.render.LittleRenderUtils;
+import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
-import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -100,7 +100,7 @@ public class RenderingThread extends Thread {
             return false;
         }
         
-        if (be.isEmpty()) {
+        if (be.isRenderingEmpty()) {
             int index = be.render.startBuildingCache();
             be.render.boxCache.clear();
             synchronized (be.render) {
@@ -165,7 +165,7 @@ public class RenderingThread extends Thread {
                         
                         data.beforeBuilding();
                         
-                        for (RenderType layer : LittleRenderUtils.CHUNK_RENDER_TYPES) {
+                        for (RenderType layer : RenderType.chunkBufferLayers()) {
                             List<LittleRenderBox> cubes = data.be.render.getRenderingBoxes(data, layer);
                             
                             for (int j = 0; j < cubes.size(); j++) {
@@ -200,7 +200,7 @@ public class RenderingThread extends Thread {
                         level = mc.level;
                         
                         int renderState = LittleChunkDispatcher.currentRenderState;
-                        LayeredRenderBufferCache layerBuffer = data.be.render.getBufferCache();
+                        BlockBufferCache layerBuffer = data.be.render.getBufferCache();
                         VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
                             Level renderLevel = data.be.getLevel();
@@ -235,7 +235,7 @@ public class RenderingThread extends Thread {
                                 BufferBuilder buffer = null;
                                 
                                 if (cubes != null && cubes.size() > 0)
-                                    buffer = LayeredRenderBufferCache.createVertexBuffer(format, cubes);
+                                    buffer = BlockBufferCache.createVertexBuffer(format, cubes);
                                 
                                 if (buffer != null) {
                                     buffer.begin(VertexFormat.Mode.QUADS, format);
@@ -348,13 +348,13 @@ public class RenderingThread extends Thread {
                     CHUNKS.put(data.chunk, count - 1);
         }
         
-        if (data.subWorld)
-            ((LittleRenderChunk) data.chunk).addRenderData(data.be);
+        //if (data.subWorld)
+        //((LittleRenderChunk) data.chunk).addRenderData(data.be);
         
         if (complete) {
             if (data.subWorld) {
                 LittleTilesProfilerOverlay.ltChunksUpdates++;
-                ((LittleRenderChunk) data.chunk).markCompleted();
+                //((LittleRenderChunk) data.chunk).markCompleted();
             } else {
                 LittleTilesProfilerOverlay.vanillaChunksUpdates++;
                 ((RenderChunk) data.chunk).setDirty(true);

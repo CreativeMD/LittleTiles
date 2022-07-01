@@ -19,9 +19,9 @@ import team.creative.creativecore.client.render.face.FaceRenderType;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
-import team.creative.littletiles.client.render.cache.LayeredRenderBufferCache;
-import team.creative.littletiles.client.render.cache.RenderingBlockContext;
-import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.cache.BlockBufferCache;
+import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -55,7 +55,7 @@ public class BERenderManager {
     private AABB cachedRenderBoundingBox = null;
     private boolean requireRenderingBoundingBoxUpdate = false;
     
-    private final LayeredRenderBufferCache bufferCache = new LayeredRenderBufferCache();
+    private final BlockBufferCache bufferCache = new BlockBufferCache();
     public final HashMap<RenderType, List<LittleRenderBox>> boxCache = new HashMap<>();
     
     public BERenderManager(BETiles be) {
@@ -168,6 +168,7 @@ public class BERenderManager {
             if (done)
                 queued = false;
             this.hasLightChanged = false;
+            bufferCache.afterRendered();
             return done;
         }
     }
@@ -185,7 +186,7 @@ public class BERenderManager {
         }
     }
     
-    public LayeredRenderBufferCache getBufferCache() {
+    public BlockBufferCache getBufferCache() {
         return bufferCache;
     }
     

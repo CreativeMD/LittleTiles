@@ -9,7 +9,9 @@
     "client": [
         "RebuildTaskMixin",
         "RenderChunkMixin",
-        "VertexBufferMixin"
+        "VertexBufferMixin",
+        "CompiledChunkAccessor",
+        "LevelRendererMixin"
     ],
     "minVersion": "0.8"
 }

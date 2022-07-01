@@ -58,7 +58,6 @@ import team.creative.littletiles.client.render.item.LittleModelItemTilesBig;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
-import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.render.overlay.TooltipOverlay;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -100,10 +99,8 @@ public class LittleTilesClient {
     
     public static BETilesRenderer blockEntityRenderer;
     
-    public static OverlayRenderer overlay;
-    
     public static void displayActionMessage(List<Component> message) {
-        overlay.addMessage(message);
+        // TODO Readd action message overlay
     }
     
     public static void setup(final FMLClientSetupEvent event) {

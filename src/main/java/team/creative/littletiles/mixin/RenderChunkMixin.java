@@ -1,13 +1,16 @@
 package team.creative.littletiles.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+
+import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import team.creative.littletiles.client.render.mc.RenderChunkLittle;
 
 @Mixin(RenderChunk.class)
-public class RenderChunkMixin implements RenderChunkLittle {
+public abstract class RenderChunkMixin implements RenderChunkLittle {
     
     @Unique
     public int updateQueue;
@@ -24,5 +27,9 @@ public class RenderChunkMixin implements RenderChunkLittle {
     public void dynamicLightUpdate(boolean value) {
         dynamicLightUpdate = value;
     }
+    
+    @Override
+    @Shadow
+    public void beginLayer(BufferBuilder builder) {}
     
 }
