@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.client.render.model.CreativeBakedQuad;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -39,14 +41,14 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     }
     
     @Override
-    public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, BlockState state, IBakedModel blockModel, Facing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
+    public List<BakedQuad> getBakedQuad(LevelAccessor level, BlockPos pos, BlockPos offset, BlockState state, BakedModel blockModel, Facing facing, RenderType layer, RandomSource rand, boolean overrideTint, int defaultColor) {
         if (facing != structure.facing)
             return Collections.EMPTY_LIST;
-        BakedModel bakedmodel = Minecraft.getInstance().getRenderItem().getItemModelWithOverrides(structure.stack, null, null);
-        List<BakedQuad> blockQuads = new ArrayList<>(bakedmodel.getQuads(null, null, 0L));
+        BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(structure.stack, null, null, 0);
+        List<BakedQuad> blockQuads = new ArrayList<>(bakedmodel.getQuads(null, null, rand));
         
-        for (Facing face : Facing.values()) {
-            List<BakedQuad> newQuads = bakedmodel.getQuads(null, face, 0L);
+        for (Direction direction : Direction.values()) {
+            List<BakedQuad> newQuads = bakedmodel.getQuads(null, direction, rand);
             blockQuads.addAll(newQuads);
         }
         
@@ -57,32 +59,32 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         boolean flipY = false;
         boolean flipZ = false;
         switch (structure.facing) {
-        case EAST:
-            rotation = Rotation.Y_COUNTER_CLOCKWISE;
-            flipX = true;
-            break;
-        case WEST:
-            rotation = Rotation.Y_CLOCKWISE;
-            flipX = true;
-            break;
-        case UP:
-            flipY = true;
-            rotation = Rotation.X_CLOCKWISE;
-            break;
-        case DOWN:
-            rotation = Rotation.X_CLOCKWISE;
-            break;
-        case SOUTH:
-            rotation = null;
-            break;
-        case NORTH:
-            rotation = Rotation.Y_COUNTER_CLOCKWISE;
-            rotationSteps = 2;
-            flipZ = true;
-            break;
-        default:
-            rotation = null;
-            break;
+            case EAST:
+                rotation = Rotation.Y_COUNTER_CLOCKWISE;
+                flipX = true;
+                break;
+            case WEST:
+                rotation = Rotation.Y_CLOCKWISE;
+                flipX = true;
+                break;
+            case UP:
+                flipY = true;
+                rotation = Rotation.X_CLOCKWISE;
+                break;
+            case DOWN:
+                rotation = Rotation.X_CLOCKWISE;
+                break;
+            case SOUTH:
+                rotation = null;
+                break;
+            case NORTH:
+                rotation = Rotation.Y_COUNTER_CLOCKWISE;
+                rotationSteps = 2;
+                flipZ = true;
+                break;
+            default:
+                rotation = null;
+                break;
         }
         
         if (rotation != null)
@@ -97,18 +99,18 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         
         float scale;
         switch (structure.facing.axis) {
-        case X:
-            scale = Math.min(getSize(Axis.Y), getSize(Axis.Z));
-            break;
-        case Y:
-            scale = Math.min(getSize(Axis.X), getSize(Axis.Z));
-            break;
-        case Z:
-            scale = Math.min(getSize(Axis.X), getSize(Axis.Y));
-            break;
-        default:
-            scale = 1;
-            break;
+            case X:
+                scale = Math.min(getSize(Axis.Y), getSize(Axis.Z));
+                break;
+            case Y:
+                scale = Math.min(getSize(Axis.X), getSize(Axis.Z));
+                break;
+            case Z:
+                scale = Math.min(getSize(Axis.X), getSize(Axis.Y));
+                break;
+            default:
+                scale = 1;
+                break;
         }
         
         float offsetX = (minX + maxX) * 0.5F - 0.5F;
@@ -117,13 +119,15 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         
         boolean reverse = ((flipX ? 1 : 0) + (flipY ? 1 : 0) + (flipZ ? 1 : 0)) % 2 == 1;
         
+        VertexFormat format = DefaultVertexFormat.BLOCK;
+        
         List<BakedQuad> quads = new ArrayList<>();
         for (int i = 0; i < blockQuads.size(); i++) {
             int[] originalData = blockQuads.get(i).getVertices();
             CreativeBakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, defaultColor, overrideTint, null);
             
             for (int k = 0; k < 4; k++) {
-                int index = k * quad.getFormat().getIntegerSize();
+                int index = k * format.getIntegerSize();
                 Vec3f vec = new Vec3f(Float.intBitsToFloat(originalData[index]), Float.intBitsToFloat(originalData[index + 1]), Float.intBitsToFloat(originalData[index + 2]));
                 
                 vec.sub(center);
@@ -149,12 +153,12 @@ public class LittleRenderBoxItem extends LittleRenderBox {
                 
                 int newIndex = index;
                 if (reverse)
-                    newIndex = (3 - k) * quad.getFormat().getIntegerSize();
+                    newIndex = (3 - k) * format.getIntegerSize();
                 quad.getVertices()[newIndex] = Float.floatToIntBits(vec.x + offset.getX());
                 quad.getVertices()[newIndex + 1] = Float.floatToIntBits(vec.y + offset.getY());
                 quad.getVertices()[newIndex + 2] = Float.floatToIntBits(vec.z + offset.getZ());
                 if (reverse)
-                    for (int j = 3; j < quad.getFormat().getIntegerSize(); j++)
+                    for (int j = 3; j < format.getIntegerSize(); j++)
                         quad.getVertices()[newIndex + j] = originalData[index + j];
             }
             quads.add(quad);
