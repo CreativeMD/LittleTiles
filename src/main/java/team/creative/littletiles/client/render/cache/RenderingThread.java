@@ -319,7 +319,6 @@ public class RenderingThread extends Thread {
                     } catch (Exception e) {
                         if (!(e instanceof RenderingException))
                             e.printStackTrace();
-                        QUEUE.add(data);
                     } catch (OutOfMemoryError error) {
                         QUEUE.add(data);
                         error.printStackTrace();
