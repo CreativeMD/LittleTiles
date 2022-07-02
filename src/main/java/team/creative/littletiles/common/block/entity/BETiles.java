@@ -14,8 +14,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -30,6 +28,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.extensions.IForgeBlockEntity;
+import team.creative.creativecore.common.be.BlockEntityCreative;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -62,7 +61,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 
-public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
+public class BETiles extends BlockEntityCreative implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
     
     private boolean hasLoaded = false;
     private boolean preventUnload = false;
@@ -95,12 +94,6 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
-    }
-    
-    private boolean isClient() {
-        if (level != null)
-            return level.isClientSide;
-        return false;
     }
     
     @Override
@@ -431,6 +424,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         sideCache.load(nbt);
         if (nbt.contains("faces"))
             faces = new LittleFaces(nbt.getByteArray("faces"));
+        else
+            rebuildFaces();
         
         if (level != null && !level.isClientSide) {
             level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
@@ -453,10 +448,16 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        load(pkt.getTag());
-        updateTiles(false);
-        super.onDataPacket(net, pkt);
+    public void handleUpdate(CompoundTag nbt, boolean chunkUpdate) {
+        //if (isClient())
+        //    render.beforeClientReceivesUpdate();
+        
+        load(nbt);
+        if (!chunkUpdate)
+            updateTiles(false);
+        
+        //if (isClient())
+        //    render.afterClientReceivesUpdate();
     }
     
     public BlockHitResult rayTrace(Player player) {
