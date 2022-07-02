@@ -593,7 +593,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             structure = null;
         LittleGrid grid = LittleGrid.get(nbt);
         LittleGroup group = new LittleGroup(structure, grid, children);
-        LittleCollection.load(group.content, nbt.getList("t", Tag.TAG_COMPOUND));
+        LittleCollection.load(group.content, nbt.getCompound("t"));
         
         CompoundTag extensions = nbt.getCompound("e");
         for (String id : extensions.getAllKeys())

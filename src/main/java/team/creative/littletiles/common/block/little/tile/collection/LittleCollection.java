@@ -215,18 +215,17 @@ public class LittleCollection implements Iterable<LittleTile> {
         return content.get(0);
     }
     
-    public static void load(LittleCollection collection, ListTag list) {
+    public static void load(LittleCollection collection, CompoundTag nbt) {
         collection.clear();
-        for (int i = 0; i < list.size(); i++) {
-            CompoundTag nbt = list.getCompound(i);
-            String name = nbt.getString("s");
+        
+        for (String name : nbt.getAllKeys()) {
+            ListTag boxes = nbt.getList(name, Tag.TAG_INT_ARRAY);
             BlockState state = LittleBlockRegistry.loadState(name);
             LittleBlock block;
             if (state.getBlock() instanceof AirBlock)
                 block = LittleBlockRegistry.getMissing(name);
             else
                 block = LittleBlockRegistry.get(state);
-            ListTag boxes = nbt.getList("b", Tag.TAG_INT_ARRAY);
             List<LittleBox> tileBoxes = null;
             for (int j = 0; j < boxes.size(); j++) {
                 int[] data = boxes.getIntArray(j);
@@ -237,27 +236,26 @@ public class LittleCollection implements Iterable<LittleTile> {
                     tileBoxes.add(LittleBox.create(data));
             }
         }
+        
     }
     
-    public static ListTag save(LittleCollection collection) {
+    public static CompoundTag save(LittleCollection collection) {
         HashMapList<String, LittleTile> sorted = new HashMapList<>();
         
         for (LittleTile tile : collection)
             sorted.add(tile.getBlockName(), tile);
         
-        ListTag list = new ListTag();
+        CompoundTag nbt = new CompoundTag();
         for (Entry<String, ArrayList<LittleTile>> entry : sorted.entrySet()) {
-            CompoundTag nbt = new CompoundTag();
-            nbt.putString("s", entry.getKey());
             ListTag boxes = new ListTag();
             for (LittleTile tile : entry.getValue()) {
                 boxes.add(new IntArrayTag(new int[] { tile.color }));
                 for (LittleBox box : tile)
                     boxes.add(box.getArrayTag());
             }
-            nbt.put("b", boxes);
+            nbt.put(entry.getKey(), boxes);
         }
-        return list;
+        return nbt;
     }
     
 }
