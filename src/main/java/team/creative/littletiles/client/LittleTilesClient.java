@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -20,21 +21,27 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
@@ -43,13 +50,17 @@ import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeBlockModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
+import team.creative.creativecore.common.mod.OptifineHelper;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
+import team.creative.littletiles.client.render.block.BEModelData;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
+import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import team.creative.littletiles.client.render.item.ItemRenderCache;
 import team.creative.littletiles.client.render.item.LittleModelItemBackground;
@@ -60,6 +71,8 @@ import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.render.overlay.TooltipOverlay;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -262,8 +275,42 @@ public class LittleTilesClient {
         CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
             
             @Override
-            public List<? extends RenderBox> getBoxes(BlockState state) {
-                return Collections.EMPTY_LIST;
+            public List<? extends RenderBox> getBoxes(BlockState state, IModelData data, RandomSource rand) {
+                if (!(data instanceof BEModelData))
+                    return Collections.EMPTY_LIST;
+                
+                BETiles be = ((BEModelData) data).tiles;
+                Level level = be.getLevel();
+                RenderType layer = RenderType.solid();
+                BlockPos pos = be.getBlockPos();
+                
+                List<LittleRenderBox> cubes = be.render.getRenderingBoxes(new RenderingBlockContext(be, null), layer);
+                
+                for (int j = 0; j < cubes.size(); j++) {
+                    RenderBox cube = cubes.get(j);
+                    if (cube.doesNeedQuadUpdate) {
+                        BlockState modelState = cube.state;
+                        rand.setSeed(modelState.getSeed(pos));
+                        BakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRenderer().getBlockModel(modelState), level, modelState, pos);
+                        BlockPos offset = cube.getOffset();
+                        for (int h = 0; h < Facing.VALUES.length; h++) {
+                            Facing facing = Facing.VALUES[h];
+                            if (cube.renderSide(facing)) {
+                                if (cube.getQuad(facing) == null)
+                                    cube.setQuad(facing, cube.getBakedQuad(level, pos, offset, modelState, blockModel, facing, layer, rand, true, ColorUtils.WHITE));
+                            } else
+                                cube.setQuad(facing, null);
+                        }
+                        cube.doesNeedQuadUpdate = false;
+                    }
+                }
+                
+                return cubes;
+            }
+            
+            @Override
+            public @NotNull IModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull IModelData modelData) {
+                return new BEModelData((BETiles) level.getBlockEntity(pos));
             }
         });
         
