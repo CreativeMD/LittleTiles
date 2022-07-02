@@ -1,5 +1,7 @@
 package team.creative.littletiles.mixin;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,23 +13,33 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.littletiles.client.render.cache.ChunkLayerCache;
+import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.mc.RebuildTaskLittle;
 import team.creative.littletiles.client.render.mc.RenderChunkLittle;
+import team.creative.littletiles.client.render.mc.VertexBufferLittle;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 @Mixin(targets = "net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask")
-public abstract class RebuildTaskMixin {
+public abstract class RebuildTaskMixin implements RebuildTaskLittle {
     
     @Unique
     public Set<RenderType> renderTypes;
     
     @Unique
     public ChunkBufferBuilderPack pack;
+    
+    @Unique
+    public HashMap<RenderType, ChunkLayerCache> caches;
     
     public RenderChunk this$1;
     
@@ -44,6 +56,12 @@ public abstract class RebuildTaskMixin {
             require = 1)
     private void compile(CallbackInfoReturnable info) {
         ((RenderChunkLittle) this$1).dynamicLightUpdate(false);
+        if (caches != null)
+            for (Entry<RenderType, ChunkLayerCache> entry : caches.entrySet()) {
+                VertexBuffer vertexBuffer = this$1.getBuffer(entry.getKey());
+                ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
+                manager.set(entry.getValue());
+            }
     }
     
     @Redirect(at = @At(value = "NEW", target = "(I)Lit/unimi/dsi/fastutil/objects/ReferenceArraySet;", remap = false),
@@ -59,7 +77,25 @@ public abstract class RebuildTaskMixin {
             require = 1)
     private void handleBlockEntity(@Coerce Object object, BlockEntity block, CallbackInfo info) {
         if (block instanceof BETiles tiles)
-            LittleChunkDispatcher.add(pack, this$1, tiles, renderTypes);
+            LittleChunkDispatcher.add(this$1, tiles, this);
+    }
+    
+    @Override
+    public BufferBuilder builder(RenderType layer) {
+        BufferBuilder builder = pack.builder(layer);
+        if (renderTypes.add(layer))
+            ((RenderChunkLittle) this$1).beginLayer(builder);
+        return builder;
+    }
+    
+    @Override
+    public ChunkLayerCache getOrCreate(RenderType layer) {
+        if (caches == null)
+            caches = new HashMap<>();
+        ChunkLayerCache cache = caches.get(layer);
+        if (cache == null)
+            caches.put(layer, cache = new ChunkLayerCache());
+        return cache;
     }
     
 }

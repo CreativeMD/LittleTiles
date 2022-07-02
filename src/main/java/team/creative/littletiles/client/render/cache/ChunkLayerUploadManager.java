@@ -39,8 +39,6 @@ public class ChunkLayerUploadManager {
     public synchronized void bindBuffer() {
         if (this.uploaded != null)
             backToRAM();
-        if (cache != null && cache.isEmpty())
-            cache = null;
         uploaded = cache;
         cache = null;
         if (uploaded != null)

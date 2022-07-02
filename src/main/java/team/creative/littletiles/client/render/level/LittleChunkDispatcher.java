@@ -1,17 +1,13 @@
 package team.creative.littletiles.client.render.level;
 
-import java.util.Set;
-
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
-import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
+import team.creative.littletiles.client.render.mc.RebuildTaskLittle;
 import team.creative.littletiles.client.render.mc.RenderChunkLittle;
 import team.creative.littletiles.client.render.mc.VertexBufferLittle;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -38,26 +34,21 @@ public class LittleChunkDispatcher {
                 manager.backToRAM();
             else
                 ((VertexBufferLittle) vertexBuffer).setManager(manager = new ChunkLayerUploadManager(chunk, layer));
-            
-            manager.set(new ChunkLayerCache());
         }
     }
     
-    public static void add(ChunkBufferBuilderPack pack, RenderChunk chunk, BETiles be, Set<RenderType> types) {
+    public static void add(RenderChunk chunk, BETiles be, RebuildTaskLittle rebuildTask) {
         if (((RenderChunkLittle) chunk).dynamicLightUpdate())
             be.render.hasLightChanged = true;
         be.updateQuadCache(chunk);
         
         for (RenderType layer : RenderType.chunkBufferLayers()) {
-            if (!be.render.getBufferCache().has(layer))
-                continue;
-            
-            ChunkLayerUploadManager manager = ((VertexBufferLittle) chunk.getBuffer(layer)).getManager();
-            BufferBuilder builder = pack.builder(layer);
-            if (types.add(layer))
-                ((RenderChunkLittle) chunk).beginLayer(builder);
-            
-            be.render.getBufferCache().add(layer, builder, manager.get());
+            synchronized (be.render.getBufferCache()) {
+                if (!be.render.getBufferCache().has(layer))
+                    continue;
+                
+                be.render.getBufferCache().add(layer, rebuildTask.builder(layer), rebuildTask.getOrCreate(layer));
+            }
         }
     }
 }
