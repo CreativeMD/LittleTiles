@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL15;
 
+import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -99,7 +100,7 @@ public class RenderUploader {
     
     public static ByteBuffer glMapBufferRange(long length) throws NotSupportedException {
         try {
-            ByteBuffer result = ByteBuffer.allocateDirect((int) length);
+            ByteBuffer result = MemoryTracker.create((int) length);
             GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0, result);
             return result;
         } catch (IllegalArgumentException | IllegalStateException e) {

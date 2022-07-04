@@ -90,7 +90,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             setLevel(getLevel());
             tiles.be = this;
             if (isClient())
-                render.setTe(this);
+                render.setBe(this);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -449,15 +449,9 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     
     @Override
     public void handleUpdate(CompoundTag nbt, boolean chunkUpdate) {
-        //if (isClient())
-        //    render.beforeClientReceivesUpdate();
-        
         load(nbt);
         if (!chunkUpdate)
             updateTiles(false);
-        
-        //if (isClient())
-        //    render.afterClientReceivesUpdate();
     }
     
     public BlockHitResult rayTrace(Player player) {

@@ -10,14 +10,11 @@ public class UploadableBufferHolder implements BufferHolder {
     private ByteBuffer byteBuffer;
     private boolean invalid;
     
-    public UploadableBufferHolder(ByteBuffer buffer, int length, int count) {
+    public UploadableBufferHolder(ByteBuffer buffer, int index, int length, int count) {
         this.byteBuffer = buffer;
+        this.index = index;
         this.length = length;
         this.vertexCount = count;
-    }
-    
-    public void merged(int index) {
-        this.index = index;
     }
     
     public void uploaded() {
@@ -26,6 +23,10 @@ public class UploadableBufferHolder implements BufferHolder {
     
     public void downloaded(ByteBuffer buffer) {
         byteBuffer = buffer;
+    }
+    
+    public boolean isAvailable() {
+        return byteBuffer != null;
     }
     
     @Override

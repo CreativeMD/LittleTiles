@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
-import team.creative.creativecore.client.render.model.BufferBuilderUtils;
+import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
 
@@ -18,11 +18,13 @@ public class ChunkLayerCache {
     public ChunkLayerCache() {}
     
     public UploadableBufferHolder add(BufferBuilder builder, BufferHolder data) {
-        int index = BufferBuilderUtils.getBufferSizeByte(builder);
-        builder.putBulkData(data.byteBuffer());
-        UploadableBufferHolder holder = new UploadableBufferHolder(data.byteBuffer(), index, data.vertexCount());
+        int index = ((BufferBuilderAccessor) builder).getNextElementByte();
+        ByteBuffer buffer = data.byteBuffer();
+        builder.putBulkData(buffer);
+        ((BufferBuilderAccessor) builder).getBuffer().position(0);
+        UploadableBufferHolder holder = new UploadableBufferHolder(buffer, index, data.length(), data.vertexCount());
         holders.add(holder);
-        totalSize = BufferBuilderUtils.getBufferSizeByte(builder);
+        totalSize = ((BufferBuilderAccessor) builder).getNextElementByte();
         return holder;
     }
     
@@ -37,14 +39,9 @@ public class ChunkLayerCache {
     
     public void download(ByteBuffer buffer) {
         for (UploadableBufferHolder holder : holders)
-            if (buffer.capacity() >= holder.index + holder.length) {
-                ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length);
-                buffer.position(holder.index);
-                int end = holder.index + holder.length;
-                while (buffer.position() < end)
-                    newBuffer.put(buffer.get());
-                holder.downloaded(newBuffer);
-            } else
+            if (buffer.capacity() >= holder.index + holder.length)
+                holder.downloaded(buffer.slice(holder.index, holder.length));
+            else
                 holder.invalidate();
     }
     

@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
+import org.lwjgl.opengl.GL15;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
@@ -36,7 +38,7 @@ public class ChunkLayerUploadManager {
         this.cache = cache;
     }
     
-    public synchronized void bindBuffer() {
+    public synchronized void uploaded() {
         if (this.uploaded != null)
             backToRAM();
         uploaded = cache;
@@ -56,7 +58,7 @@ public class ChunkLayerUploadManager {
                     uploaded = null;
                     return false;
                 }
-                GlStateManager._glBindBuffer(34962, ((VertexBufferLittle) buffer).getVertexBufferId());
+                GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, ((VertexBufferLittle) buffer).getVertexBufferId());
                 try {
                     ByteBuffer uploadedData = RenderUploader.glMapBufferRange(uploaded.totalSize());
                     if (uploadedData != null)

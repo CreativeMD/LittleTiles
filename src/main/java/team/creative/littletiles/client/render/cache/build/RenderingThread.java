@@ -17,13 +17,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -210,21 +209,23 @@ public class RenderingThread extends Thread {
                             boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0;
                             VertexLighterFlat lighter = CreativeBlockModelRenderer.getLighter(smooth);
                             
+                            lighter.setVertexFormat(format);
                             lighter.setWorld(renderLevel);
                             lighter.setBlockPos(pos);
-                            lighter.setState(Blocks.AIR.defaultBlockState());
+                            lighter.setState(data.state);
                             lighter.updateBlockInfo();
                             
                             BlockInfoExtension blockInfo = CreativeBlockModelRenderer.getBlockInfo(lighter);
                             
                             VertexBufferConsumer consumer = CreativeBlockModelRenderer.getConsumer(smooth);
+                            consumer.setPackedOverlay(OverlayTexture.NO_OVERLAY);
                             //ModelBlockRenderer.enableCaching();
                             
-                            int chunkX = Mth.intFloorDiv(pos.getX(), 16);
-                            int chunkY = Mth.intFloorDiv(pos.getY(), 16);
-                            int chunkZ = Mth.intFloorDiv(pos.getZ(), 16);
                             posestack.pushPose();
-                            posestack.translate(-chunkX * 16, -chunkY * 16, -chunkZ * 16);
+                            posestack.translate(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+                            
+                            lighter.setTransform(posestack.last());
+                            lighter.setParent(consumer);
                             
                             // Render vertex buffer
                             for (Entry<RenderType, List<LittleRenderBox>> entry : data.be.render.boxCache.entrySet()) {
@@ -241,8 +242,6 @@ public class RenderingThread extends Thread {
                                     buffer.begin(VertexFormat.Mode.QUADS, format);
                                     
                                     consumer.setBuffer(buffer);
-                                    lighter.setParent(consumer);
-                                    lighter.setTransform(posestack.last());
                                     
                                     for (int j = 0; j < cubes.size(); j++) {
                                         RenderBox cube = cubes.get(j);
@@ -284,10 +283,8 @@ public class RenderingThread extends Thread {
                                     if (OptifineHelper.isShaders())
                                         OptifineHelper.calcNormalChunkLayer(buffer);
                                     
-                                    buffer.end();
-                                    
                                     synchronized (data.be.render) {
-                                        layerBuffer.set(layer, buffer);
+                                        layerBuffer.set(layer, buffer.end());
                                     }
                                 } else
                                     synchronized (data.be.render) {

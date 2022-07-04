@@ -62,7 +62,7 @@ public class BERenderManager {
         this.be = be;
     }
     
-    public void setTe(BETiles be) {
+    public void setBe(BETiles be) {
         this.be = be;
     }
     
@@ -72,7 +72,7 @@ public class BERenderManager {
     
     public void chunkUpdate(Object chunk) {
         synchronized (this) {
-            boolean doesNeedUpdate = BooleanUtils.any(neighbourChanged) || hasLightChanged || requestedIndex == -1;
+            boolean doesNeedUpdate = BooleanUtils.any(neighbourChanged) || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
             if (renderState != LittleChunkDispatcher.currentRenderState) {
                 eraseBoxCache = true;
                 doesNeedUpdate = true;

@@ -10,8 +10,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.littletiles.client.render.cache.buffer.BufferBuilderHolder;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.RenderedBufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
 
 public class BlockBufferCache {
@@ -70,7 +70,7 @@ public class BlockBufferCache {
         uploaded.put(layer, cache.add(builder, holder));
     }
     
-    public void set(RenderType layer, BufferBuilder buffer) {
+    public void set(RenderType layer, BufferBuilder.RenderedBuffer buffer) {
         synchronized (this) {
             if (buffer == null && additional == null)
                 uploaded.remove(layer);
@@ -78,7 +78,7 @@ public class BlockBufferCache {
             if (buffer == null)
                 queue.remove(layer);
             else
-                queue.put(layer, new BufferBuilderHolder(buffer));
+                queue.put(layer, new RenderedBufferHolder(buffer));
         }
     }
     
@@ -147,13 +147,20 @@ public class BlockBufferCache {
             secondBuffer.limit(second.length());
             byteBuffer.put(secondBuffer);
         }
-        return new UploadableBufferHolder(byteBuffer, length, vertexCount);
+        return new UploadableBufferHolder(byteBuffer, 0, length, vertexCount);
     }
     
     public static BufferBuilder createVertexBuffer(VertexFormat format, List<? extends RenderBox> cubes) {
         int size = 1;
         for (RenderBox cube : cubes)
             size += cube.countQuads();
-        return new BufferBuilder(format.getVertexSize() * size);
+        return new BufferBuilder(format.getVertexSize() * size / 6);
+    }
+    
+    public boolean hasInvalidBuffers() {
+        for (Entry<RenderType, UploadableBufferHolder> entry : uploaded.entrySet())
+            if ((entry.getValue().isInvalid() || !entry.getValue().isAvailable()) && !queue.containsKey(entry.getKey()))
+                return true;
+        return false;
     }
 }

@@ -28,10 +28,10 @@ public abstract class VertexBufferMixin implements VertexBufferLittle {
         this.manager = manager;
     }
     
-    @Inject(at = @At("HEAD"), method = "bind()V")
-    public void bind(CallbackInfo info) {
-        if (manager != null)
-            manager.bindBuffer();
+    @Inject(at = @At("TAIL"), method = "upload(Lcom/mojang/blaze3d/vertex/BufferBuilder$RenderedBuffer;)V")
+    public void upload(CallbackInfo info) {
+        if (!((VertexBuffer) (Object) this).isInvalid() && manager != null)
+            manager.uploaded();
     }
     
     @Override

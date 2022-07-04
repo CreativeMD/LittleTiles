@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
-import team.creative.creativecore.client.render.model.BufferBuilderUtils;
+import team.creative.creativecore.mixin.BufferBuilderAccessor;
 
 public class BufferBuilderHolder implements BufferHolder {
     
@@ -16,17 +16,17 @@ public class BufferBuilderHolder implements BufferHolder {
     
     @Override
     public ByteBuffer byteBuffer() {
-        return BufferBuilderUtils.getBuffer(builder);
+        return ((BufferBuilderAccessor) builder).getBuffer();
     }
     
     @Override
     public int length() {
-        return BufferBuilderUtils.getBufferSizeByte(builder);
+        return ((BufferBuilderAccessor) builder).getNextElementByte();
     }
     
     @Override
     public int vertexCount() {
-        return BufferBuilderUtils.getVertexCount(builder);
+        return ((BufferBuilderAccessor) builder).getVertices();
     }
     
 }
