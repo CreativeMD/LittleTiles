@@ -102,7 +102,7 @@ public class LittleTilesProfilerOverlay {
     
     @SubscribeEvent
     public static void onRender(RenderTickEvent event) {
-        if (event.phase == Phase.END && mc.isWindowActive() && !mc.options.hideGui && mc.level != null) {
+        if (event.phase == Phase.END && mc.isWindowActive() && !mc.options.hideGui && mc.level != null && RenderingThread.THREADS != null) {
             
             PoseStack pose = new PoseStack();
             
