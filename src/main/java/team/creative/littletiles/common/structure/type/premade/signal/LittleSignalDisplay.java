@@ -10,9 +10,9 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.minecraft.client.renderer.GlStateManager.CullFace;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
@@ -89,8 +89,8 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderTick(PoseStack pose, BlockPos pos, float partialTickTime) {
-        super.renderTick(pose, pos, partialTickTime);
+    public void renderTick(PoseStack pose, MultiBufferSource buffer, BlockPos pos, float partialTickTime) {
+        super.renderTick(pose, buffer, pos, partialTickTime);
         if (textureId == -1)
             updateTexture();
         
@@ -101,8 +101,6 @@ public class LittleSignalDisplay extends LittleStructurePremade {
         
         pose.pushPose();
         
-        GlStateManager.translate(x, y, z);
-        
         AlignedBox box = frame.getBox().getBox(frame.getGrid());
         BoxFace face = BoxFace.get(facing);
         if (facing.positive)
@@ -112,23 +110,18 @@ public class LittleSignalDisplay extends LittleStructurePremade {
         Axis uAxis = face.getTexUAxis();
         Axis vAxis = face.getTexVAxis();
         
-        GlStateManager.enableRescaleNormal();
-        
-        Tesselator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-        builder.begin(GL11.GL_POLYGON, DefaultVertexFormat.POSITION_TEX);
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder builder = tessellator.getBuilder();
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         for (BoxCorner corner : face.corners)
             builder.vertex(pose.last().pose(), box.get(corner.x), box.get(corner.y), box.get(corner.z))
                     .uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).endVertex();
-        tessellator.draw();
+        tessellator.end();
         
         pose.popPose();
         
-        GlStateManager.cullFace(CullFace.BACK);
-        
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.disableBlend();
-        GlStateManager.enableLighting();
+        RenderSystem.disableCull();
+        RenderSystem.disableBlend();
     }
     
     @Override

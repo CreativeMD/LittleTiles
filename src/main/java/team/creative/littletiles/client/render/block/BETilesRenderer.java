@@ -32,6 +32,6 @@ public class BETilesRenderer implements BlockEntityRenderer<BETiles> {
     @Override
     public void render(BETiles be, float partialTickTime, PoseStack pose, MultiBufferSource buffer, int destroyStage, int p_112312_) {
         for (LittleStructure structure : be.loadedStructures(LittleStructureAttribute.TICK_RENDERING))
-            structure.renderTick(pose, be.getBlockPos(), partialTickTime);
+            structure.renderTick(pose, buffer, be.getBlockPos(), partialTickTime);
     }
 }
