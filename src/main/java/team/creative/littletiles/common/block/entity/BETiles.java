@@ -53,8 +53,6 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
-import team.creative.littletiles.common.math.face.LittleFaces;
-import team.creative.littletiles.common.math.face.LittleFaces.LittleFaceSideCache;
 import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.transformation.LittleBlockTransformer;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -69,7 +67,6 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     private LittleGrid grid = LittleGrid.min();
     private BlockParentCollection tiles;
     public final SideSolidCache sideCache = new SideSolidCache();
-    public LittleFaces faces;
     
     @OnlyIn(Dist.CLIENT)
     public BERenderManager render;
@@ -215,11 +212,24 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         }
     }
     
-    public void onNeighbourChanged(Facing facing) {
-        faces.neighbourChanged(this, facing);
+    private void updateNeighbour(Facing facing) {
+        LittleServerFace face = new LittleServerFace(this);
+        for (Pair<IParentCollection, LittleTile> pair : allTiles())
+            for (LittleBox box : pair.value) {
+                if (box.hasOrCreateFaceState(pair.key, pair.value, face) && box.getFaceState(facing).outside())
+                    box.setFaceState(facing, face.set(pair.key, pair.value, box, facing).calculate());
+            }
+    }
+    
+    public void onNeighbourChanged(@Nullable Facing facing) {
+        if (facing == null)
+            for (int i = 0; i < Facing.VALUES.length; i++)
+                updateNeighbour(Facing.VALUES[i]);
+        else
+            updateNeighbour(facing);
         
         if (isClient())
-            render.onNeighbourChanged(facing);
+            render.onNeighbourChanged();
         
         notifyStructure();
     }
@@ -335,24 +345,16 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public void rebuildFaces() {
-        LittleFaces newFaces = new LittleFaces(tilesCount());
-        LittleFaceSideCache cache = new LittleFaceSideCache();
         LittleServerFace face = new LittleServerFace(this);
-        for (Pair<IParentCollection, LittleTile> entry : allTiles()) {
-            for (LittleBox box : entry.getValue()) {
-                cache.clear();
+        for (Pair<IParentCollection, LittleTile> entry : allTiles())
+            for (LittleBox box : entry.value)
                 for (int i = 0; i < Facing.VALUES.length; i++) {
                     Facing facing = Facing.VALUES[i];
-                    face.set(entry.getKey(), entry.getValue(), box, facing);
-                    cache.set(facing, face.calculate());
+                    box.setFaceState(facing, face.set(entry.getKey(), entry.getValue(), box, facing).calculate());
                 }
-                newFaces.push(cache);
-            }
-        }
-        this.faces = newFaces;
     }
     
-    public boolean shouldFaceBeRendered(Facing facing, LittleFace face, LittleTile rendered) {
+    public boolean shouldFaceBeRendered(LittleFace face, LittleTile rendered) {
         face.ensureGrid(grid);
         
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
@@ -422,10 +424,6 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         tiles.load(nbt.getCompound("content"));
         sideCache.load(nbt);
-        if (nbt.contains("faces"))
-            faces = new LittleFaces(nbt.getByteArray("faces"));
-        else
-            rebuildFaces();
         
         if (level != null && !level.isClientSide) {
             level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
@@ -441,10 +439,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     public void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
         grid.set(nbt);
-        nbt.put("content", tiles.save());
+        nbt.put("content", tiles.save(new LittleServerFace(this)));
         sideCache.write(nbt);
-        if (faces != null)
-            nbt.putByteArray("faces", faces.array());
     }
     
     @Override
@@ -664,6 +660,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public Iterable<Pair<IParentCollection, LittleTile>> allTiles() {
+        return tiles.allTiles();
+    }
+    
+    public Iterable<Pair<IParentCollection, LittleTile>> allBoxes() {
         return tiles.allTiles();
     }
     

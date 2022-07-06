@@ -9,6 +9,7 @@ import net.minecraft.nbt.ListTag;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -42,10 +43,10 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, LittleServerFace face) {
         ListTag list = new ListTag();
         for (StructureParentCollection child : structures.values())
-            list.add(child.save());
+            list.add(child.save(face));
         nbt.put("children", list);
     }
     

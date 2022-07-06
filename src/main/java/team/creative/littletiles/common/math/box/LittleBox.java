@@ -28,10 +28,13 @@ import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.ILittleFace;
 import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.face.LittleFaceState;
 import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
@@ -47,6 +50,8 @@ public class LittleBox {
     public int maxX;
     public int maxY;
     public int maxZ;
+    
+    private int faceCache;
     
     // ================Constructors================
     
@@ -132,6 +137,15 @@ public class LittleBox {
         return new IntArrayTag(getArray());
     }
     
+    public int[] getArrayExtended(IParentCollection parent, LittleTile tile, LittleServerFace face) {
+        hasOrCreateFaceState(parent, tile, face);
+        return new int[] { faceCache, minX, minY, minZ, maxX, maxY, maxZ };
+    }
+    
+    public IntArrayTag getArrayTagExtended(IParentCollection parent, LittleTile tile, LittleServerFace face) {
+        return new IntArrayTag(getArrayExtended(parent, tile, face));
+    }
+    
     // ================Size & Volume================
     
     public int getSmallest(LittleGrid grid) {
@@ -196,19 +210,19 @@ public class LittleBox {
     
     public int get(Facing facing) {
         switch (facing) {
-        case EAST:
-            return maxX;
-        case WEST:
-            return minX;
-        case UP:
-            return maxY;
-        case DOWN:
-            return minY;
-        case SOUTH:
-            return maxZ;
-        case NORTH:
-            return minZ;
-        
+            case EAST:
+                return maxX;
+            case WEST:
+                return minX;
+            case UP:
+                return maxY;
+            case DOWN:
+                return minY;
+            case SOUTH:
+                return maxZ;
+            case NORTH:
+                return minZ;
+            
         }
         return 0;
     }
@@ -235,66 +249,66 @@ public class LittleBox {
     
     public int getSize(Axis axis) {
         switch (axis) {
-        case X:
-            return maxX - minX;
-        case Y:
-            return maxY - minY;
-        case Z:
-            return maxZ - minZ;
+            case X:
+                return maxX - minX;
+            case Y:
+                return maxY - minY;
+            case Z:
+                return maxZ - minZ;
         }
         return 0;
     }
     
     public void setMin(Axis axis, int value) {
         switch (axis) {
-        case X:
-            minX = value;
-            break;
-        case Y:
-            minY = value;
-            break;
-        case Z:
-            minZ = value;
-            break;
+            case X:
+                minX = value;
+                break;
+            case Y:
+                minY = value;
+                break;
+            case Z:
+                minZ = value;
+                break;
         }
         changed();
     }
     
     public int getMin(Axis axis) {
         switch (axis) {
-        case X:
-            return minX;
-        case Y:
-            return minY;
-        case Z:
-            return minZ;
+            case X:
+                return minX;
+            case Y:
+                return minY;
+            case Z:
+                return minZ;
         }
         return 0;
     }
     
     public void setMax(Axis axis, int value) {
         switch (axis) {
-        case X:
-            maxX = value;
-            break;
-        case Y:
-            maxY = value;
-            break;
-        case Z:
-            maxZ = value;
-            break;
+            case X:
+                maxX = value;
+                break;
+            case Y:
+                maxY = value;
+                break;
+            case Z:
+                maxZ = value;
+                break;
         }
         changed();
     }
     
     public int getMax(Axis axis) {
         switch (axis) {
-        case X:
-            return maxX;
-        case Y:
-            return maxY;
-        case Z:
-            return maxZ;
+            case X:
+                return maxX;
+            case Y:
+                return maxY;
+            case Z:
+                return maxZ;
         }
         return 0;
     }
@@ -372,30 +386,30 @@ public class LittleBox {
     public LittleBox createOutsideBlockBox(LittleGrid context, Facing facing) {
         LittleBox box = this.copy();
         switch (facing) {
-        case EAST:
-            box.minX = 0;
-            box.maxX -= context.count;
-            break;
-        case WEST:
-            box.minX += context.count;
-            box.maxX = context.count;
-            break;
-        case UP:
-            box.minY = 0;
-            box.maxY -= context.count;
-            break;
-        case DOWN:
-            box.minY += context.count;
-            box.maxY = context.count;
-            break;
-        case SOUTH:
-            box.minZ = 0;
-            box.maxZ -= context.count;
-            break;
-        case NORTH:
-            box.minZ += context.count;
-            box.maxZ = context.count;
-            break;
+            case EAST:
+                box.minX = 0;
+                box.maxX -= context.count;
+                break;
+            case WEST:
+                box.minX += context.count;
+                box.maxX = context.count;
+                break;
+            case UP:
+                box.minY = 0;
+                box.maxY -= context.count;
+                break;
+            case DOWN:
+                box.minY += context.count;
+                box.maxY = context.count;
+                break;
+            case SOUTH:
+                box.minZ = 0;
+                box.maxZ -= context.count;
+                break;
+            case NORTH:
+                box.minZ += context.count;
+                box.maxZ = context.count;
+                break;
         }
         return box;
     }
@@ -852,12 +866,12 @@ public class LittleBox {
     
     public boolean intersectsWithAxis(LittleGrid context, Axis axis, Vec3 vec) {
         switch (axis) {
-        case X:
-            return intersectsWithYZ(context, vec);
-        case Y:
-            return intersectsWithXZ(context, vec);
-        case Z:
-            return intersectsWithXY(context, vec);
+            case X:
+                return intersectsWithYZ(context, vec);
+            case Y:
+                return intersectsWithXZ(context, vec);
+            case Z:
+                return intersectsWithXY(context, vec);
         }
         return false;
     }
@@ -1143,12 +1157,12 @@ public class LittleBox {
         Axis one = facing.one();
         Axis two = facing.two();
         
-        return new LittleFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
+        return new LittleFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), get(facing));
     }
     
     @Nullable
     public boolean set(LittleServerFace face, LittleGrid grid, Facing facing) {
-        face.set(getMin(face.one), getMin(face.two), getMax(face.one), getMax(face.two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
+        face.set(getMin(face.one), getMin(face.two), getMax(face.one), getMax(face.two), get(facing));
         return true;
     }
     
@@ -1184,16 +1198,52 @@ public class LittleBox {
     
     protected void fillAdvanced(ILittleFace face) {}
     
+    public void resetFaceState() {
+        faceCache = 0;
+    }
+    
+    public boolean hasFaceState() {
+        return faceCache != 0;
+    }
+    
+    /** @return whether the facestate was available before or not */
+    public boolean hasOrCreateFaceState(IParentCollection parent, LittleTile tile, LittleServerFace face) {
+        if (hasFaceState())
+            return true;
+        for (int i = 0; i < Facing.VALUES.length; i++)
+            setFaceState(Facing.VALUES[i], face.set(parent, tile, this, Facing.VALUES[i]).calculate());
+        return false;
+    }
+    
+    public void setFaceState(Facing facing, LittleFaceState state) {
+        faceCache &= ~(15 << (facing.ordinal() * 4));
+        faceCache |= state.ordinal() << (facing.ordinal() * 4);
+    }
+    
+    public LittleFaceState getFaceState(Facing facing) {
+        return LittleFaceState.values()[(faceCache >> (facing.ordinal() * 4)) & 15];
+    }
+    
     // ================Static Helpers================
     
+    public static LittleBox createExtended(int[] array) {
+        LittleBox box = create(1, array);
+        box.faceCache = array[0];
+        return box;
+    }
+    
     public static LittleBox create(int[] array) {
-        if (array.length == 6)
-            return new LittleBox(array[0], array[1], array[2], array[3], array[4], array[5]);
+        return create(0, array);
+    }
+    
+    private static LittleBox create(int offset, int[] array) {
+        if (array.length == offset + 6)
+            return new LittleBox(array[offset], array[offset + 1], array[offset + 2], array[offset + 3], array[offset + 4], array[offset + 5]);
         
-        if (array.length < 6)
+        if (array.length < offset + 6)
             throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
         
-        int identifier = array[6];
+        int identifier = array[offset + 6];
         if (identifier < 0)
             return new LittleTransformableBox(array);
         

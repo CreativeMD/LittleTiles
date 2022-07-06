@@ -2,6 +2,24 @@ package team.creative.littletiles.common.math.face;
 
 public enum LittleFaceState {
     
+    UNLOADED {
+        
+        @Override
+        public boolean coveredFully() {
+            return false;
+        }
+        
+        @Override
+        public boolean partially() {
+            return false;
+        }
+        
+        @Override
+        public boolean outside() {
+            return false;
+        }
+        
+    },
     INSIDE_UNCOVERED {
         
         @Override

@@ -182,7 +182,7 @@ public class RenderingThread extends Thread {
                                     BlockPos offset = cube.getOffset();
                                     for (int h = 0; h < Facing.VALUES.length; h++) {
                                         Facing facing = Facing.VALUES[h];
-                                        if (cube.renderSide(facing)) {
+                                        if (cube.shouldRenderFace(facing)) {
                                             if (cube.getQuad(facing) == null)
                                                 cube.setQuad(facing, cube.getBakedQuad(level, pos, offset, modelState, blockModel, facing, layer, rand, true, ColorUtils.WHITE));
                                         } else

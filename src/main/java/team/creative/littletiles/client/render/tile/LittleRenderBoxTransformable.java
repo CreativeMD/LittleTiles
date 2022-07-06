@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.creativecore.client.render.face.IFaceRenderType;
+import team.creative.creativecore.client.render.face.RenderBoxFace;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -66,23 +66,23 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     }
     
     @Override
-    public boolean renderSide(Facing facing) {
+    public boolean shouldRenderFace(Facing facing) {
         VectorFanFaceCache cache = getFaceCache(facing);
         if (cache == null)
             return false;
-        if (super.renderSide(facing))
+        if (super.shouldRenderFace(facing))
             return true;
         return cache.hasTiltedStrip();
     }
     
     @Override
     protected Object getRenderQuads(Facing facing) {
-        if (getType(facing).hasCachedFans())
-            return getType(facing).getCachedFans();
+        if (getFace(facing).hasCachedFans())
+            return getFace(facing).getCachedFans();
         VectorFanFaceCache cache = getFaceCache(facing);
         
         if (cache.hasTiltedStrip()) {
-            if (super.renderSide(facing) && cache.hasAxisStrip()) {
+            if (super.shouldRenderFace(facing) && cache.hasAxisStrip()) {
                 List<VectorFan> strips = new ArrayList<>(cache.axisStrips);
                 if (cache.tiltedStrip1 != null)
                     strips.add(cache.tiltedStrip1);
@@ -104,7 +104,7 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
                 strips.add(cache.tiltedStrip2);
             return strips;
         }
-        if (super.renderSide(facing))
+        if (super.shouldRenderFace(facing))
             return cache.axisStrips;
         return null;
     }
@@ -151,7 +151,7 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     
     @Override
     protected float getOverallScale(Facing facing) {
-        IFaceRenderType type = getType(facing);
+        RenderBoxFace type = getFace(facing);
         if (type.hasCachedFans())
             return type.getScale();
         return scale;

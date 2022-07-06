@@ -11,6 +11,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -63,7 +64,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, LittleServerFace face) {
         if (isMain()) {
             CompoundTag structureNBT = new CompoundTag();
             ((LittleStructure) cache).save(structureNBT);

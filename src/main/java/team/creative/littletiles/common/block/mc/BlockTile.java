@@ -691,7 +691,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos origin, boolean p_60514_) {
         BETiles te = loadBE(level, pos);
         if (te != null) {
-            te.onNeighbourChanged(Facing.direction(pos, origin));
+            te.onNeighbourChanged(origin.equals(pos) ? null : Facing.direction(origin, pos));
             if (!level.isClientSide)
                 LittleTilesServer.NEIGHBOR.add(level, pos);
         }

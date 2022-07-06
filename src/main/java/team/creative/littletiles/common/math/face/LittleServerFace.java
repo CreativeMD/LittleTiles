@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -46,7 +47,8 @@ public non-sealed class LittleServerFace implements ILittleFace {
         this.be = be;
     }
     
-    public void set(IParentCollection parent, LittleTile tile, LittleBox box, Facing facing) {
+    public LittleServerFace set(IParentCollection parent, LittleTile tile, LittleBox box, Facing facing) {
+        this.box = box;
         this.facing = facing;
         this.one = facing.one();
         this.two = facing.two();
@@ -54,6 +56,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
         this.tile = tile;
         validFace = this.box.set(this, grid, facing);
         partiallyFilled = false;
+        return this;
     }
     
     public void set(int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
@@ -204,7 +207,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
     
     public LittleFaceState calculate() {
         if (!validFace)
-            return LittleFaceState.INSIDE_COVERED;
+            return LittleFaceState.UNLOADED;
         
         if (isFaceInsideBlock())
             return calculate(be, facing, this, tile, false);
@@ -239,6 +242,6 @@ public non-sealed class LittleServerFace implements ILittleFace {
     }
     
     private static boolean checkforNeighbour(Level level, Direction facing, BlockPos pos, BlockState state, int color) {
-        return state.skipRendering(state, facing) || (ColorUtils.WHITE == color && state == level.getBlockState(pos.relative(facing)));
+        return !Block.shouldRenderFace(state, level, pos, facing, pos.relative(facing)) || (ColorUtils.WHITE == color && state == level.getBlockState(pos.relative(facing)));
     }
 }

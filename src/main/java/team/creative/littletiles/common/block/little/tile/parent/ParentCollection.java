@@ -8,6 +8,7 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollectionSafe;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -41,20 +42,20 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     
     public void load(CompoundTag nbt) {
         this.clear();
-        LittleCollection.load(this, nbt.getCompound("tiles"));
+        LittleCollection.loadExtended(this, nbt.getCompound("tiles"));
         loadExtra(nbt);
     }
     
     protected abstract void loadExtra(CompoundTag nbt);
     
-    public CompoundTag save() {
+    public CompoundTag save(LittleServerFace face) {
         CompoundTag nbt = new CompoundTag();
-        nbt.put("tiles", LittleCollection.save(this));
-        saveExtra(nbt);
+        nbt.put("tiles", LittleCollection.saveExtended(this, face));
+        saveExtra(nbt, face);
         return nbt;
     }
     
-    protected abstract void saveExtra(CompoundTag nbt);
+    protected abstract void saveExtra(CompoundTag nbt, LittleServerFace face);
     
     public Iterable<LittleTile> filter(BiFilter<IParentCollection, LittleTile> selector) {
         return new Iterable<LittleTile>() {

@@ -5,19 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.face.CachedFaceRenderType;
-import team.creative.creativecore.client.render.face.FaceRenderType;
+import team.creative.creativecore.client.render.face.RenderBoxFace;
+import team.creative.creativecore.client.render.face.RenderBoxFaceSpecial;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -27,11 +23,10 @@ import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.face.LittleFaceState;
-import team.creative.littletiles.common.math.face.LittleFaces.LittleFaceSideCache;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -49,7 +44,7 @@ public class BERenderManager {
     private boolean eraseBoxCache = false;
     
     public boolean hasLightChanged = false;
-    private boolean[] neighbourChanged = new boolean[Facing.VALUES.length];
+    private boolean neighbourChanged = false;
     
     private double cachedRenderDistance = 0;
     private AABB cachedRenderBoundingBox = null;
@@ -72,14 +67,14 @@ public class BERenderManager {
     
     public void chunkUpdate(Object chunk) {
         synchronized (this) {
-            boolean doesNeedUpdate = BooleanUtils.any(neighbourChanged) || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
+            boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
             if (renderState != LittleChunkDispatcher.currentRenderState) {
                 eraseBoxCache = true;
                 doesNeedUpdate = true;
             }
             
             hasLightChanged = false;
-            BooleanUtils.reset(neighbourChanged);
+            neighbourChanged = false;
             
             if (doesNeedUpdate)
                 queue(eraseBoxCache);
@@ -134,8 +129,8 @@ public class BERenderManager {
         return cachedRenderBoundingBox;
     }
     
-    public void onNeighbourChanged(Facing facing) {
-        neighbourChanged[facing.ordinal()] = true;
+    public void onNeighbourChanged() {
+        neighbourChanged = true;
         queue(false);
     }
     
@@ -191,59 +186,43 @@ public class BERenderManager {
     }
     
     public void beforeBuilding(RenderingBlockContext context) {
-        for (int k = 0; k < neighbourChanged.length; k++) {
-            if (neighbourChanged[k]) {
-                neighbourChanged[k] = false;
-                Facing facing = Facing.VALUES[k];
-                Direction direction = Direction.values()[k];
-                BlockPos neighbourPos = be.getBlockPos().relative(direction);
-                Level level = be.getLevel();
-                BlockState neighbourState = level.getBlockState(neighbourPos);
-                BETiles neighbourBE = BlockTile.loadBE(level, neighbourPos);
-                
-                for (Entry<RenderType, List<LittleRenderBox>> entry : boxCache.entrySet()) {
-                    List<LittleRenderBox> renderCubes = entry.getValue();
-                    if (renderCubes == null)
-                        continue;
-                    
-                    for (int i = 0; i < renderCubes.size(); i++) {
-                        LittleRenderBox cube = renderCubes.get(i);
+        if (neighbourChanged) {
+            neighbourChanged = false;
+            
+            for (Entry<RenderType, List<LittleRenderBox>> entry : boxCache.entrySet())
+                for (LittleRenderBox cube : entry.getValue())
+                    for (int k = 0; k < Facing.VALUES.length; k++) {
+                        Facing facing = Facing.VALUES[k];
+                        LittleFaceState state = cube.box.getFaceState(facing);
                         
-                        if (cube.getType(facing).isOutside()) {
-                            boolean shouldRenderBefore = cube.renderSide(facing);
-                            
-                            if (neighbourState.skipRendering(cube.state, direction)) {
-                                cube.setType(facing, FaceRenderType.OUTSIDE_NOT_RENDERD);
-                                continue;
-                            } else if (neighbourBE == null)
-                                cube.setType(facing, FaceRenderType.OUTSIDE_RENDERED);
-                            else {
-                                LittleFace face = cube.box.generateFace(be.getGrid(), facing);
-                                if (face == null)
-                                    cube.setType(facing, FaceRenderType.OUTSIDE_NOT_RENDERD);
-                                else {
-                                    face.move(facing);
-                                    LittleTile tile = (LittleTile) cube.customData;
-                                    if (neighbourBE.shouldFaceBeRendered(facing.opposite(), face, tile)) {
-                                        if (tile.isTranslucent() && face.isPartiallyFilled())
-                                            cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) face.grid.pixelLength, true, true));
-                                        else
-                                            cube.setType(facing, FaceRenderType.OUTSIDE_RENDERED);
-                                    } else
-                                        cube.setType(facing, FaceRenderType.OUTSIDE_NOT_RENDERD);
-                                }
-                            }
-                            
-                            if (cube.renderSide(facing)) {
-                                if (!shouldRenderBefore)
-                                    cube.doesNeedQuadUpdate = true;
-                            } else
-                                cube.setQuad(facing, null);
-                        }
+                        if (state.outside())
+                            calculateFaces(facing, state, context, (LittleTile) cube.customData, cube);
                     }
-                }
-            }
+                
         }
+    }
+    
+    private void calculateFaces(Facing facing, LittleFaceState state, RenderingBlockContext context, @Nullable LittleTile tile, LittleRenderBox cube) {
+        if (state.coveredFully()) {
+            cube.setFace(facing, RenderBoxFace.NOT_RENDER);
+            return;
+        }
+        
+        if (tile != null && tile.isTranslucent() && state.partially()) {
+            LittleFace face = cube.box.generateFace(be.getGrid(), facing);
+            BETiles toCheck = be;
+            if (state.outside()) {
+                toCheck = context.getNeighbour(facing);
+                face.move(facing);
+            }
+            if (toCheck.shouldFaceBeRendered(face, tile))
+                cube.setFace(facing, new RenderBoxFaceSpecial(face.generateFans(), (float) face.grid.pixelLength));
+            else
+                cube.setFace(facing, RenderBoxFace.NOT_RENDER);
+            
+            cube.customData = tile;
+        } else
+            cube.setFace(facing, RenderBoxFace.RENDER);
     }
     
     public List<LittleRenderBox> getRenderingBoxes(RenderingBlockContext context, RenderType layer) {
@@ -252,77 +231,37 @@ public class BERenderManager {
             return cachedCubes;
         
         List<LittleRenderBox> boxes = new ArrayList<>();
-        
-        be.faces.resetReader();
-        LittleFaceSideCache faceCache = new LittleFaceSideCache();
+        LittleServerFace serverFace = new LittleServerFace(be);
         
         for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
             LittleTile tile = pair.value;
             
-            if (!tile.getBlock().canRenderInLayer(tile, layer)) {
-                be.faces.jumpReader(tile.size());
+            if (!tile.getBlock().canRenderInLayer(tile, layer))
                 continue;
-            }
             
             for (LittleBox box : tile) {
-                be.faces.pull(faceCache);
+                box.hasOrCreateFaceState(pair.key, tile, serverFace);
                 
                 // Check for sides which does not need to be rendered
                 LittleRenderBox cube = pair.key.getRenderingBox(tile, box, layer);
                 if (cube == null)
                     continue;
-                for (int k = 0; k < Facing.VALUES.length; k++) {
-                    Facing facing = Facing.VALUES[k];
-                    LittleFaceState state = faceCache.get(facing);
-                    
-                    if (state.outside())
-                        cube.customData = tile;
-                    
-                    if (state.coveredFully()) {
-                        cube.setType(facing, state.outside() ? FaceRenderType.OUTSIDE_NOT_RENDERD : FaceRenderType.INSIDE_NOT_RENDERED);
-                        continue;
-                    }
-                    
-                    if (state.outside()) {
-                        if (tile.isTranslucent() && state.partially())
-                            setFaceOutside(context, tile, facing, cube, cube.box.generateFace(be.getGrid(), facing));
-                        else
-                            cube.setType(facing, FaceRenderType.OUTSIDE_RENDERED);
-                        
-                    } else {
-                        if (tile.isTranslucent() && state.partially()) {
-                            LittleFace face = cube.box.generateFace(be.getGrid(), facing);
-                            if (be.shouldFaceBeRendered(facing, face, tile))
-                                cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) face.grid.pixelLength, true, false));
-                            else
-                                cube.setType(facing, FaceRenderType.OUTSIDE_NOT_RENDERD);
-                        } else
-                            cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
-                    }
-                }
+                
+                for (int k = 0; k < Facing.VALUES.length; k++)
+                    calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, cube);
+                
                 boxes.add(cube);
             }
             
         }
         
-        for (LittleStructure structure : be.loadedStructures(LittleStructureAttribute.EXTRA_RENDERING)) {
+        for (LittleStructure structure : be.loadedStructures(LittleStructureAttribute.EXTRA_RENDERING))
             try {
                 structure.checkConnections();
                 structure.getRenderingBoxes(be.getBlockPos(), layer, boxes);
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            
-        }
         
         boxCache.put(layer, boxes);
         return boxes;
-    }
-    
-    private static void setFaceOutside(RenderingBlockContext context, LittleTile tile, Facing facing, RenderBox cube, LittleFace face) {
-        BETiles neighbour = context.getNeighbour(facing);
-        face.move(facing);
-        if (neighbour.shouldFaceBeRendered(facing, face, tile))
-            cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) face.grid.pixelLength, true, false));
-        else
-            cube.setType(facing, FaceRenderType.OUTSIDE_NOT_RENDERD);
     }
 }

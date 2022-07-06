@@ -16,8 +16,10 @@ import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.face.LittleServerFace;
 
 public class LittleCollection implements Iterable<LittleTile> {
     
@@ -239,6 +241,30 @@ public class LittleCollection implements Iterable<LittleTile> {
         
     }
     
+    public static void loadExtended(LittleCollection collection, CompoundTag nbt) {
+        collection.clear();
+        
+        for (String name : nbt.getAllKeys()) {
+            ListTag boxes = nbt.getList(name, Tag.TAG_INT_ARRAY);
+            BlockState state = LittleBlockRegistry.loadState(name);
+            LittleBlock block;
+            if (state.getBlock() instanceof AirBlock)
+                block = LittleBlockRegistry.getMissing(name);
+            else
+                block = LittleBlockRegistry.get(state);
+            List<LittleBox> tileBoxes = null;
+            for (int j = 0; j < boxes.size(); j++) {
+                int[] data = boxes.getIntArray(j);
+                if (data.length == 1) {
+                    tileBoxes = new ArrayList<>();
+                    collection.content.add(new LittleTile(state, block, data[0], tileBoxes));
+                } else
+                    tileBoxes.add(LittleBox.createExtended(data));
+            }
+        }
+        
+    }
+    
     public static CompoundTag save(LittleCollection collection) {
         HashMapList<String, LittleTile> sorted = new HashMapList<>();
         
@@ -252,6 +278,25 @@ public class LittleCollection implements Iterable<LittleTile> {
                 boxes.add(new IntArrayTag(new int[] { tile.color }));
                 for (LittleBox box : tile)
                     boxes.add(box.getArrayTag());
+            }
+            nbt.put(entry.getKey(), boxes);
+        }
+        return nbt;
+    }
+    
+    public static CompoundTag saveExtended(IParentCollection collection, LittleServerFace face) {
+        HashMapList<String, LittleTile> sorted = new HashMapList<>();
+        
+        for (LittleTile tile : collection)
+            sorted.add(tile.getBlockName(), tile);
+        
+        CompoundTag nbt = new CompoundTag();
+        for (Entry<String, ArrayList<LittleTile>> entry : sorted.entrySet()) {
+            ListTag boxes = new ListTag();
+            for (LittleTile tile : entry.getValue()) {
+                boxes.add(new IntArrayTag(new int[] { tile.color }));
+                for (LittleBox box : tile)
+                    boxes.add(box.getArrayTagExtended(collection, tile, face));
             }
             nbt.put(entry.getKey(), boxes);
         }
