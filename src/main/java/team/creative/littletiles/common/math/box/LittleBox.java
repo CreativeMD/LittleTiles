@@ -901,9 +901,9 @@ public class LittleBox {
     
     @Nullable
     public static Vec3 getIntermediateWithAxisValue(Vec3 first, Vec3 second, Axis axis, double value) {
-        double d0 = first.x - second.x;
-        double d1 = first.y - second.y;
-        double d2 = first.z - second.z;
+        double d0 = second.x - first.x;
+        double d1 = second.y - first.y;
+        double d2 = second.z - first.z;
         
         double axisValue = axis.get(d0, d1, d2);
         
@@ -928,8 +928,9 @@ public class LittleBox {
         Vec3 collision = null;
         Facing collided = null;
         
-        for (Facing facing : Facing.values()) {
-            Vec3 temp = collideWithPlane(grid, facing.axis, (double) get(facing) / grid.count, pos, look);
+        for (int i = 0; i < Facing.VALUES.length; i++) {
+            Facing facing = Facing.VALUES[i];
+            Vec3 temp = collideWithPlane(grid, facing.axis, grid.toVanillaGrid(get(facing)), pos, look);
             if (temp != null && isClosest(pos, collision, temp)) {
                 collided = facing;
                 collision = temp;

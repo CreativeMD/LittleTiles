@@ -485,7 +485,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     public LittleTileContext getFocusedTile(Player player, float partialTickTime) {
         if (!isClient())
             return null;
-        Vec3 pos = player.getPosition(partialTickTime);
+        Vec3 pos = player.getEyePosition(partialTickTime);
         double distance = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
