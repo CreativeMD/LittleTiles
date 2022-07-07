@@ -279,6 +279,13 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return changed;
     }
     
+    public boolean fillInSpaceInaccurate(LittleBox otherBox, Axis one, Axis two, Axis axis, boolean[][] filled) {
+        boolean changed = false;
+        for (LittleBox box : boxes)
+            changed |= box.fillInSpaceInaccurate(otherBox, one, two, axis, filled);
+        return changed;
+    }
+    
     public boolean fillInSpaceInaccurate(LittleBox otherBox, boolean[][][] filled) {
         boolean changed = false;
         for (LittleBox box : boxes)

@@ -864,6 +864,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         SideState SOUTH;
         SideState NORTH;
         
+        SideState YAXIS;
+        
         public SideSolidCache() {}
         
         public void load(CompoundTag nbt) {
@@ -873,6 +875,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             DOWN = nbt.contains("down") ? SideState.values()[nbt.getInt("down")] : null;
             SOUTH = nbt.contains("south") ? SideState.values()[nbt.getInt("south")] : null;
             NORTH = nbt.contains("north") ? SideState.values()[nbt.getInt("north")] : null;
+            YAXIS = nbt.contains("y_axis") ? SideState.values()[nbt.getInt("y_axis")] : null;
         }
         
         public void write(CompoundTag nbt) {
@@ -888,6 +891,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
                 nbt.putInt("south", SOUTH.ordinal());
             if (NORTH != null)
                 nbt.putInt("north", NORTH.ordinal());
+            if (YAXIS != null)
+                nbt.putInt("y_axis", YAXIS.ordinal());
         }
         
         public void reset() {
@@ -897,6 +902,34 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             SOUTH = null;
             WEST = null;
             EAST = null;
+            YAXIS = null;
+        }
+        
+        public SideState getYAxis() {
+            if (YAXIS != null)
+                return YAXIS;
+            
+            LittleBox box = new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
+            boolean[][] filled = new boolean[grid.count][grid.count];
+            
+            boolean translucent = false;
+            boolean noclip = false;
+            
+            for (Pair<IParentCollection, LittleTile> pair : BETiles.this.tiles.allTiles())
+                if (pair.value.fillInSpaceInaccurate(box, Axis.X, Axis.Z, Axis.Y, filled)) {
+                    if (!pair.value.doesProvideSolidFace())
+                        translucent = true;
+                    if (LittleStructureAttribute.noCollision(pair.key.getAttribute()) || pair.value.getBlock().noCollision())
+                        noclip = true;
+                }
+            
+            for (int one = 0; one < filled.length; one++)
+                for (int two = 0; two < filled[one].length; two++)
+                    if (!filled[one][two])
+                        return SideState.EMPTY;
+                    
+            YAXIS = SideState.getState(false, noclip, translucent);
+            return YAXIS;
         }
         
         protected SideState calculate(Facing facing) {

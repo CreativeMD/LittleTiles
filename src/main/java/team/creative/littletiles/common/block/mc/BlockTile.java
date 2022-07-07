@@ -20,7 +20,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,8 +46,12 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -98,12 +101,15 @@ import team.creative.littletiles.server.LittleTilesServer;
 
 public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
+    public static final SoundType SILENT = new ForgeSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    
     public static BETiles loadBE(BlockGetter level, BlockPos pos) {
         if (level == null)
             return null;
         BlockEntity be = null;
         try {
-            be = level.getBlockEntity(pos);
+            be = level.getExistingBlockEntity(pos);
         } catch (Exception e) {
             return null;
         }
@@ -114,17 +120,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     public static boolean selectEntireBlock(Player player, boolean secondMode) {
         return secondMode && !(player.getMainHandItem().getItem() instanceof ItemLittleSaw) && !(player.getMainHandItem().getItem() instanceof ItemLittlePaintBrush);
-    }
-    
-    public static final SoundType SILENT = new ForgeSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
-    
-    public final boolean ticking;
-    public final boolean rendered;
-    
-    public BlockTile(Material material, boolean ticking, boolean rendered) {
-        super(BlockBehaviour.Properties.of(material).destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape());
-        this.ticking = ticking;
-        this.rendered = rendered;
     }
     
     public static BlockState getStateByAttribute(int attribute) {
@@ -153,6 +148,25 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
                 break;
         }
         return getState(ticking, rendered);
+    }
+    
+    public final boolean ticking;
+    public final boolean rendered;
+    
+    public BlockTile(Material material, boolean ticking, boolean rendered) {
+        super(BlockBehaviour.Properties.of(material).destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape());
+        this.ticking = ticking;
+        this.rendered = rendered;
+    }
+    
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+    
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> definition) {
+        definition.add(WATERLOGGED);
     }
     
     @Override
@@ -190,21 +204,26 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     @Deprecated
-    public float getShadeBrightness(BlockState p_60472_, BlockGetter p_60473_, BlockPos p_60474_) {
-        // TODO Not sure if this should be used or not
-        return p_60472_.isCollisionShapeFullBlock(p_60473_, p_60474_) ? 0.2F : 1.0F;
+    public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
+        BETiles be = loadBE(level, pos);
+        if (be != null)
+            return be.sideCache.isCollisionFullBlock() ? 0.2F : 1.0F;
+        return 0.2F;
     }
     
     @Override
     public boolean useShapeForLightOcclusion(BlockState state) {
-        // TODO expensive but accurate, maybe it can be set to false by an option
         return true;
     }
     
     @Override
     public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
-        // TODO Interesting thing to add (note this runs on sever side)
-        return !isShapeFullBlock(state.getShape(level, pos)) && state.getFluidState().isEmpty();
+        if (!state.getFluidState().isEmpty())
+            return false;
+        BETiles be = loadBE(level, pos);
+        if (be != null)
+            return be.sideCache.getYAxis().doesBlockLight();
+        return true;
     }
     
     @Override
@@ -246,9 +265,8 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     @Deprecated
-    public VoxelShape getBlockSupportShape(BlockState p_60581_, BlockGetter p_60582_, BlockPos p_60583_) {
-        //TODO Shape that other stuff can be placed on, same as collision shape but maybe should exclude materials like glass not sure yet.
-        return this.getCollisionShape(p_60581_, p_60582_, p_60583_, CollisionContext.empty());
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return getCollisionShape(state, level, pos, CollisionContext.empty());
     }
     
     @Override
@@ -269,6 +287,20 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         }
         
         return shape;
+    }
+    
+    public VoxelShape getSelectionShape(BlockGetter level, BlockPos pos) {
+        LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
+        if (tileContext.isComplete()) {
+            if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode()))
+                return tileContext.parent.getBE().getBlockShape();
+            if (LittleTiles.CONFIG.rendering.highlightStructureBox && tileContext.parent.isStructure())
+                try {
+                    return tileContext.parent.getStructure().getSurroundingBox().getShape();
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            return tileContext.box.getShape(tileContext.parent.getGrid());
+        }
+        return Shapes.empty();
     }
     
     @Override
@@ -295,8 +327,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
-        //TODO requires some more work
-        return false;
+        return super.isPathfindable(state, level, pos, type);
     }
     
     @Override
@@ -321,27 +352,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     public Direction getBedDirection(BlockState state, LevelReader world, BlockPos pos) {
         return Direction.SOUTH;
     }
-    
-    /*@Override
-    public MaterialColor getMapColor(BlockGetter level, BlockPos pos) {
-        // TODO Needs custom state? Not sure if this is even possible
-        BETiles te = loadBE(level, pos);
-        if (te != null) {
-            double biggest = 0;
-            LittleTile tile = null;
-            for (Pair<IParentCollection, LittleTile> pair : te.allTiles()) {
-                double tempVolume = pair.value.getVolume();
-                if (tempVolume > biggest) {
-                    biggest = tempVolume;
-                    tile = pair.value;
-                }
-            }
-            
-            if (tile != null)
-                return tile.getBlock().getState().getMapColor(level, pos);
-        }
-        return super.defaultMaterialColor();
-    }*/
     
     @Override
     public Optional<Vec3> getRespawnPosition(BlockState state, EntityType<?> type, LevelReader level, BlockPos pos, float orientation, @Nullable LivingEntity entity) {
@@ -387,19 +397,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     }
     
     @Override
-    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float height) {
-        entity.causeFallDamage(height, 1.0F, DamageSource.FALL);
-        //TODO Implement bed and slime block
-    }
-    
-    @Override
-    public void updateEntityAfterFallOn(BlockGetter level, Entity entity) {
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D));
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D));
-        //TODO Implement bed and slime block
-    }
-    
-    @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {}
     
     @Override
@@ -422,14 +419,26 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState removed, boolean p_50941_) {
-        BETiles te = loadBE(level, pos); // TODO CHECK which method to use maybe playerWillDestroy is better
-        if (te != null && te.isEmpty())
+        BETiles be = loadBE(level, pos);
+        if (be != null && be.isEmpty())
             super.onRemove(state, level, pos, removed, p_50941_);
     }
     
     @Override
-    public boolean canSustainPlant(BlockState state, BlockGetter world, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
-        // TODO Could be added support for
+    public boolean canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
+        BETiles be = loadBE(level, pos);
+        if (be != null && be.sideCache.get(Facing.get(facing)).doesBlockCollision()) {
+            LittleBox box = new LittleBox(0, be.getGrid().count - 1, 0, be.getGrid().count, be.getGrid().count, be.getGrid().count);
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
+                if (pair.value.intersectsWith(box)) {
+                    BlockState toCheck = pair.value.getState();
+                    if (toCheck.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED).booleanValue())
+                        toCheck = toCheck.setValue(BlockStateProperties.WATERLOGGED, true);
+                    if (toCheck.canSustainPlant(level, pos, facing, plantable))
+                        return true;
+                }
+            
+        }
         return false;
     }
     
@@ -823,8 +832,10 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     public boolean hidesNeighborFace(BlockGetter level, BlockPos pos, BlockState state, BlockState neighborState, Direction dir) {
-        // TODO Implement it
-        return super.hidesNeighborFace(level, pos, state, neighborState, dir);
+        BETiles be = loadBE(level, pos);
+        if (be != null && be.sideCache.get(Facing.get(dir)).doesBlockLight())
+            return neighborState.isSolidRender(level, pos);
+        return false;
     }
     
 }

@@ -698,6 +698,23 @@ public class LittleBox {
                     filled[x][y][z] = true;
     }
     
+    public boolean fillInSpaceInaccurate(LittleBox otherBox, Axis one, Axis two, Axis axis, boolean[][] filled) {
+        boolean changed = false;
+        if (isSolid()) {
+            int minOne = Math.max(this.getMin(one), otherBox.getMin(one));
+            int maxOne = Math.min(this.getMax(one), otherBox.getMax(one));
+            int minTwo = Math.max(this.getMin(two), otherBox.getMin(two));
+            int maxTwo = Math.min(this.getMax(two), otherBox.getMax(two));
+            for (int valueOne = minOne; valueOne < maxOne; valueOne++)
+                for (int valueTwo = minTwo; valueTwo < maxTwo; valueTwo++) {
+                    filled[valueOne - otherBox.getMin(one)][valueTwo - otherBox.getMin(two)] = true;
+                    changed = true;
+                }
+        }
+        return changed;
+        
+    }
+    
     public boolean fillInSpaceInaccurate(LittleBox otherBox, boolean[][][] filled) {
         boolean changed = false;
         if (isSolid()) {

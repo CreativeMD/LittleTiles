@@ -5,9 +5,11 @@ import java.util.List;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,6 +18,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,6 +27,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,6 +47,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -317,7 +324,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     }
     
     @SubscribeEvent
-    public void drawHighlight(DrawSelectionEvent event) {
+    public void drawHighlight(DrawSelectionEvent.HighlightBlock event) {
         Player player = mc.player;
         Level level = player.level;
         ItemStack stack = player.getMainHandItem();
@@ -325,7 +332,12 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (!LittleAction.canPlace(player))
             return;
         
+        Vec3 vec = mc.gameRenderer.getMainCamera().getPosition();
+        
         PoseStack pose = event.getPoseStack();
+        
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
         
         if ((event.getTarget() instanceof BlockHitResult || marked != null) && stack.getItem() instanceof ILittleTool) {
             
@@ -345,6 +357,8 @@ public class PreviewRenderer implements LevelAwareHandler {
                 if (selector.hasCustomBoxes(level, stack, player, state, result, blockHit) || marked != null) {
                     LittleBoxes boxes = ((ILittleEditor) stack.getItem()).getBoxes(level, stack, player, result, blockHit);
                     
+                    RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+                    bufferbuilder.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                     pose.pushPose();
                     pose.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
                     RenderSystem.lineWidth(4.0F);
@@ -356,6 +370,15 @@ public class PreviewRenderer implements LevelAwareHandler {
                         }
                     }
                     pose.popPose();
+                    
+                    tesselator.end();
+                    
+                    bufferbuilder.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                    RenderSystem.lineWidth(2.0F);
+                    renderHitOutline(pose, level, bufferbuilder, player, 0, 0, 0, pos);
+                    tesselator.end();
+                    
+                    event.setCanceled(true);
                 }
             } else if (stack.getItem() instanceof ILittlePlacer) {
                 ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
@@ -373,18 +396,20 @@ public class PreviewRenderer implements LevelAwareHandler {
                         pose.pushPose();
                         pose.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
                         
+                        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+                        bufferbuilder.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                        
                         RenderSystem.lineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
                         
                         int colorAlpha = 102;
-                        BufferBuilder builder = (BufferBuilder) consumer;
                         for (RenderBox box : result.previews.getPlaceBoxes())
-                            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.002);
+                            box.renderLines(pose, bufferbuilder, colorAlpha, box.getCenter(), 0.002);
                         
                         if (LittleActionHandlerClient.isUsingSecondMode() != iTile.snapToGridByDefault(stack)) {
                             List<RenderBox> cubes = iTile.getPositingCubes(level, pos, stack);
                             if (cubes != null)
                                 for (RenderBox cube : cubes)
-                                    cube.renderLines(pose, builder, colorAlpha, cube.getCenter(), 0.002);
+                                    cube.renderLines(pose, bufferbuilder, colorAlpha, cube.getCenter(), 0.002);
                         }
                         
                         pose.popPose();
@@ -392,5 +417,37 @@ public class PreviewRenderer implements LevelAwareHandler {
                 }
             }
         }
+        
+        if (level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget().getBlockPos())) {
+            renderHitOutline(pose, level, event.getMultiBufferSource().getBuffer(RenderType.lines()), player, vec.x, vec.y, vec.z, event.getTarget().getBlockPos());
+            event.setCanceled(true);
+        }
+    }
+    
+    private void renderHitOutline(PoseStack pose, Level level, VertexConsumer consumer, Entity entity, double x, double y, double z, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        VoxelShape shape;
+        if (state.getBlock() instanceof BlockTile block)
+            shape = block.getSelectionShape(level, pos);
+        else
+            shape = state.getShape(level, pos, CollisionContext.of(entity));
+        renderShape(pose, consumer, shape, pos.getX() - x, pos.getY() - y, pos.getZ() - z, 0.0F, 0.0F, 0.0F, 0.4F);
+    }
+    
+    private static void renderShape(PoseStack pose, VertexConsumer consumer, VoxelShape shape, double x, double y, double z, float red, float green, float blue, float alpha) {
+        PoseStack.Pose posestack$pose = pose.last();
+        shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
+            float f = (float) (x2 - x1);
+            float f1 = (float) (y2 - y1);
+            float f2 = (float) (z2 - z1);
+            float f3 = Mth.sqrt(f * f + f1 * f1 + f2 * f2);
+            f /= f3;
+            f1 /= f3;
+            f2 /= f3;
+            consumer.vertex(posestack$pose.pose(), (float) (x1 + x), (float) (y1 + y), (float) (z1 + z)).color(red, green, blue, alpha).normal(posestack$pose.normal(), f, f1, f2)
+                    .endVertex();
+            consumer.vertex(posestack$pose.pose(), (float) (x2 + x), (float) (y2 + y), (float) (z2 + z)).color(red, green, blue, alpha).normal(posestack$pose.normal(), f, f1, f2)
+                    .endVertex();
+        });
     }
 }
