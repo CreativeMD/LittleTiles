@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.block.little.tile.collection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.common.util.type.list.CopyArrayCollection;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -31,11 +33,9 @@ public class LittleCollection implements Iterable<LittleTile> {
         }
     };
     
-    protected List<LittleTile> content = createInternalList();
+    protected Collection<LittleTile> content = createInternalCollection();
     
-    public LittleCollection() {
-        
-    }
+    public LittleCollection() {}
     
     public void add(LittleElement element, Iterable<LittleBox> boxes) {
         for (LittleTile other : this)
@@ -109,7 +109,7 @@ public class LittleCollection implements Iterable<LittleTile> {
         refresh();
     }
     
-    protected List<LittleTile> createInternalList() {
+    protected Collection<LittleTile> createInternalCollection() {
         return new ArrayList<>();
     }
     
@@ -214,7 +214,11 @@ public class LittleCollection implements Iterable<LittleTile> {
     }
     
     public LittleTile first() {
-        return content.get(0);
+        if (content instanceof CopyArrayCollection)
+            return ((CopyArrayCollection<LittleTile>) content).first();
+        if (content instanceof List)
+            return ((List<LittleTile>) content).get(0);
+        return content.iterator().next();
     }
     
     public static void load(LittleCollection collection, CompoundTag nbt) {
