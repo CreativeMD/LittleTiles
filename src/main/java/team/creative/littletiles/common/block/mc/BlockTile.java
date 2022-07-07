@@ -155,6 +155,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     public BlockTile(Material material, boolean ticking, boolean rendered) {
         super(BlockBehaviour.Properties.of(material).destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape());
+        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
         this.ticking = ticking;
         this.rendered = rendered;
     }
