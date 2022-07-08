@@ -1,0 +1,19 @@
+{
+    "result": {
+        "item": "littletiles:signal_converter",
+        "data": 0
+    },
+    "pattern": [
+        "R",
+        "C"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "C": {
+            "item": "minecraft:cobblestone"
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        }
+    }
+}
