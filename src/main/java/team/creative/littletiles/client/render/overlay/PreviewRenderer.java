@@ -339,15 +339,21 @@ public class PreviewRenderer implements LevelAwareHandler {
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
         
-        if ((event.getTarget() instanceof BlockHitResult || marked != null) && stack.getItem() instanceof ILittleTool) {
+        if ((event.getTarget().getType() == Type.BLOCK || marked != null) && stack.getItem() instanceof ILittleTool) {
             
-            BlockHitResult blockHit = event.getTarget() instanceof BlockHitResult ? (BlockHitResult) event.getTarget() : null;
+            BlockHitResult blockHit = event.getTarget().getType() == Type.BLOCK ? (BlockHitResult) event.getTarget() : null;
             BlockPos pos = marked != null ? marked.getPosition().getPos() : blockHit.getBlockPos();
             BlockState state = level.getBlockState(pos);
             
             Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
             
-            VertexConsumer consumer = event.getMultiBufferSource().getBuffer(RenderType.lineStrip());
+            RenderSystem.depthMask(true);
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableTexture();
+            RenderSystem.enableDepthTest();
+            
             if (stack.getItem() instanceof ILittleEditor) {
                 ILittleEditor selector = (ILittleEditor) stack.getItem();
                 
@@ -358,26 +364,23 @@ public class PreviewRenderer implements LevelAwareHandler {
                     LittleBoxes boxes = ((ILittleEditor) stack.getItem()).getBoxes(level, stack, player, result, blockHit);
                     
                     RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-                    bufferbuilder.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                     pose.pushPose();
-                    pose.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
+                    pose.translate(boxes.pos.getX() - cam.x, boxes.pos.getY() - cam.y, boxes.pos.getZ() - cam.z);
                     RenderSystem.lineWidth(4.0F);
                     for (LittleBox box : boxes.all()) {
                         LittleRenderBox cube = box.getRenderingBox(boxes.getGrid());
                         if (cube != null) {
                             cube.color = 0;
-                            cube.renderLines(pose, (BufferBuilder) consumer, 102, cube.getCenter(), 0.002);
+                            cube.renderLines(pose, bufferbuilder, 102, cube.getCenter(), 0.002);
                         }
                     }
                     pose.popPose();
                     
+                    bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                    RenderSystem.lineWidth(1.0F);
+                    renderHitOutline(pose, level, bufferbuilder, player, vec.x, vec.y, vec.z, pos);
                     tesselator.end();
-                    
-                    bufferbuilder.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-                    RenderSystem.lineWidth(2.0F);
-                    renderHitOutline(pose, level, bufferbuilder, player, 0, 0, 0, pos);
-                    tesselator.end();
-                    
+                    RenderSystem.lineWidth(1.0F);
                     event.setCanceled(true);
                 }
             } else if (stack.getItem() instanceof ILittlePlacer) {
