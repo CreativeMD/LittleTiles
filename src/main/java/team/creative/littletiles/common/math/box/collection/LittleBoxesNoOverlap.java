@@ -48,6 +48,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
             if (missing)
                 blockMap.add(entry.getKey(), existingBoxes);
         }
+        tempMap.clear();
     }
     
     @Override
