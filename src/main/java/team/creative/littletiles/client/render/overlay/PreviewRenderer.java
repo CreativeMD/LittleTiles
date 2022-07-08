@@ -397,11 +397,10 @@ public class PreviewRenderer implements LevelAwareHandler {
                         processMarkKey(player, iTile, stack, result);
                         
                         pose.pushPose();
-                        pose.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
+                        BlockPos renderCenter = result.position.getPos();
+                        pose.translate(renderCenter.getX() - cam.x, renderCenter.getY() - cam.y, renderCenter.getZ() - cam.z);
                         
                         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-                        bufferbuilder.begin(VertexFormat.Mode.LINE_STRIP, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-                        
                         RenderSystem.lineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
                         
                         int colorAlpha = 102;
