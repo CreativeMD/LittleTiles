@@ -5,7 +5,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -56,16 +55,10 @@ public class LittleLight extends LittleStructure {
     
     @Override
     public void performInternalOutputChange(InternalSignalOutput output) {
-        if (output.component.is("enabled")) {
-            Level world = getLevel();
+        if (output.component.is("enabled"))
             try {
                 tryAttributeChangeForBlocks();
-                for (IStructureParentCollection list : blocksList()) {
-                    BlockState state = world.getBlockState(list.getPos());
-                    world.neighborChanged(list.getPos(), state.getBlock(), getPos());
-                }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-        }
     }
     
     @Override
