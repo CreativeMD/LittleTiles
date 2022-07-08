@@ -451,9 +451,9 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public BlockHitResult rayTrace(Player player) {
-        Vec3 pos = player.getPosition(TickUtils.getDeltaFrameTime(level));
+        Vec3 pos = player.getPosition(TickUtils.getFrameTime(level));
         double distance = PlayerUtils.getReach(player);
-        Vec3 view = player.getViewVector(TickUtils.getDeltaFrameTime(level));
+        Vec3 view = player.getViewVector(TickUtils.getFrameTime(level));
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
         if (level != player.level && level instanceof CreativeLevel) {

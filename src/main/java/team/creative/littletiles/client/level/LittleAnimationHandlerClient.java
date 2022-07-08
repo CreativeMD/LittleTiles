@@ -54,7 +54,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     }
     
     public static void renderTick(PoseStack pose, Frustum frustum) {
-        float partialTicks = TickUtils.getDeltaFrameTime(mc.level);
+        float partialTicks = TickUtils.getFrameTime(mc.level);
         
         Entity renderViewEntity = mc.getCameraEntity();
         if (renderViewEntity == null || LittleTilesClient.ANIMATION_HANDLER == null || LittleTilesClient.ANIMATION_HANDLER.entities.isEmpty())
@@ -433,7 +433,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
     public LittleHitResult getHit() {
         Player player = mc.player;
         HitResult result = mc.hitResult;
-        float partialTicks = TickUtils.getDeltaFrameTime(level);
+        float partialTicks = TickUtils.getFrameTime(level);
         
         Vec3 pos = player.getEyePosition(partialTicks);
         double reachDistance = result != null ? pos.distanceTo(result.getLocation()) : PlayerUtils.getReach(player);
@@ -455,7 +455,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         BlockState state = result.level.getBlockState(pos);
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
         LittleLevelEntity entity = result.getHolder();
-        float partialTicks = TickUtils.getDeltaFrameTime(level);
+        float partialTicks = TickUtils.getFrameTime(level);
         entity.getOrigin().setupRendering(event.getPoseStack(), entity, partialTicks);
         Vec3 position = mc.gameRenderer.getMainCamera().getPosition();
         double d0 = pos.getX() - position.x();

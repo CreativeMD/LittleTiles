@@ -153,7 +153,7 @@ public class BlockPacket extends CreativePacket {
     public BlockPacket(Level level, BlockPos blockPos, Player player, BlockPacketAction action, CompoundTag nbt) {
         this.blockPos = blockPos;
         this.action = action;
-        float partialTickTime = TickUtils.getDeltaFrameTime(level);
+        float partialTickTime = TickUtils.getFrameTime(level);
         this.pos = player.getPosition(partialTickTime);
         double distance = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
