@@ -251,7 +251,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         rebuildFaces();
         
         if (level != null) {
-            level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
+            markDirty();
             if (updateNeighbour)
                 updateNeighbour();
             updateLighting();
