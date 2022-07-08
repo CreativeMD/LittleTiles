@@ -46,7 +46,9 @@ public class RenderingBlockContext {
     }
     
     public BETiles getNeighbour(Facing facing) {
-        if (neighboursBEs.containsKey(facing))
+        if (neighboursBEs == null)
+            neighboursBEs = new HashMap<>();
+        else if (neighboursBEs.containsKey(facing))
             return neighboursBEs.get(facing);
         BlockEntity be = this.be.getLevel().getBlockEntity(this.be.getBlockPos().relative(facing.toVanilla()));
         BETiles result = be instanceof BETiles ? (BETiles) be : null;
