@@ -175,7 +175,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                 PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
                         .getPosition(level, blockHit, ((ILittleTool) stack.getItem()).getPositionGrid(stack), (ILittleTool) stack.getItem(), stack);
                 
-                processKeys(stack, position.getGrid());
+                processKeys(stack, ((ILittleTool) stack.getItem()).getPositionGrid(stack));
                 
                 ((ILittleTool) stack.getItem()).tick(player, stack, position, blockHit);
                 
@@ -240,7 +240,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                 
                 ((ILittleTool) stack.getItem()).render(player, stack, pose);
                 if (marked != null)
-                    marked.render(pose);
+                    marked.render(((ILittleTool) stack.getItem()).getPositionGrid(stack), pose);
             } else
                 marked = null;
         }

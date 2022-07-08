@@ -15,9 +15,9 @@ public interface IMarkMode {
     
     public GuiConfigure getConfigurationGui();
     
-    public void render(PoseStack pose);
+    public void render(LittleGrid positionGrid, PoseStack pose);
     
-    public void move(LittleGrid context, Facing facing);
+    public void move(LittleGrid positionGrid, Facing facing);
     
     public void done();
     

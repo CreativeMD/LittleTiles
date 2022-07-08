@@ -17,6 +17,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.GuiMarkMode;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 
@@ -85,9 +86,10 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void render(PoseStack pose) {
+    public void render(LittleGrid positionGrid, PoseStack pose) {
         Minecraft mc = Minecraft.getInstance();
-        AABB box = position.getBox().inflate(0.002);
+        
+        AABB box = position.getBox(positionGrid).inflate(0.002);
         VertexConsumer consumer = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
         RenderSystem.lineWidth(4.0F);
         LevelRenderer.renderLineBox(pose, consumer, box, 0, 0, 0, 1F);
@@ -96,10 +98,10 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void move(LittleGrid grid, Facing facing) {
+    public void move(LittleGrid positionGrid, Facing facing) {
         LittleVec vec = new LittleVec(facing);
-        vec.scale(Screen.hasControlDown() ? grid.count : 1);
-        position.subVec(vec);
+        vec.scale(Screen.hasControlDown() ? positionGrid.count : 1);
+        position.sub(new LittleVecGrid(vec, positionGrid));
     }
     
     @Override

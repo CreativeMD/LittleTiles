@@ -50,11 +50,11 @@ public class PlacementPosition extends LittleVecAbsolute {
         return new PlacementPosition(pos, gridVec.copy(), facing);
     }
     
-    public AABB getBox() {
+    public AABB getBox(LittleGrid grid) {
         double x = getPosX();
         double y = getPosY();
         double z = getPosZ();
-        return new AABB(x, y, z, x + getGrid().pixelLength, y + getGrid().pixelLength, z + getGrid().pixelLength);
+        return new AABB(x, y, z, x + grid.pixelLength, y + grid.pixelLength, z + grid.pixelLength);
     }
     
     public void mirror(Axis axis, LittleBoxAbsolute box) {
