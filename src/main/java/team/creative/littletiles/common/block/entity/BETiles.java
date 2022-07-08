@@ -66,6 +66,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
     private LittleGrid grid = LittleGrid.min();
     private BlockParentCollection tiles;
+    private boolean unloaded = false;
     public final SideSolidCache sideCache = new SideSolidCache();
     
     @OnlyIn(Dist.CLIENT)
@@ -190,6 +191,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
             newBE.assign(this);
             newBE.tiles.be = newBE;
+            setRemoved();
             preventUnload = false;
             return newBE;
         }
@@ -208,6 +210,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
             newBE.assign(this);
             newBE.tiles.be = newBE;
+            setRemoved();
             preventUnload = false;
         }
     }
@@ -621,8 +624,13 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             tiles.unload();
     }
     
+    public boolean unloaded() {
+        return unloaded;
+    }
+    
     @Override
     public void onChunkUnloaded() {
+        unloaded = true;
         super.onChunkUnloaded();
         tiles.unload();
         if (level.isClientSide) {

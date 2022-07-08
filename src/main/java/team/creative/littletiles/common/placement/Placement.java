@@ -3,7 +3,6 @@ package team.creative.littletiles.common.placement;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.function.BiPredicate;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +44,7 @@ import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
@@ -218,7 +217,7 @@ public class Placement {
         
         result.parentStructure = origin.isStructure() ? origin.getStructure() : null;
         
-        HashSet<BlockPos> blocksToUpdate = new HashSet<>(blocks.keySet());
+        LittleNeighborUpdateCollector neighbor = new LittleNeighborUpdateCollector(level, blocks.keySet());
         
         for (Iterator iterator = blocks.values().iterator(); iterator.hasNext();) {
             PlacementBlock block = (PlacementBlock) iterator.next();
@@ -241,25 +240,7 @@ public class Placement {
         if (origin.isStructure())
             origin.getStructure().notifyAfterPlaced();
         
-        HashSet<BlockPos> blocksToNotify = new HashSet<>();
-        for (BlockPos pos : blocksToUpdate) {
-            for (int i = 0; i < 6; i++) {
-                BlockPos neighbour = pos.relative(Direction.values()[i]);
-                if (!blocksToNotify.contains(neighbour) && !blocksToUpdate.contains(neighbour))
-                    blocksToNotify.add(neighbour);
-            }
-            
-            BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof BETiles)
-                ((BETiles) be).updateTiles(false);
-            level.getBlockState(pos).onNeighborChange(level, pos, preview.position.getPos());
-        }
-        
-        for (BlockPos pos : blocksToNotify) {
-            BlockState state = level.getBlockState(pos);
-            if (state.getBlock() instanceof BlockTile)
-                level.getBlockState(pos).onNeighborChange(level, pos, preview.position.getPos());
-        }
+        neighbor.process();
         
         if (playSounds)
             for (int i = 0; i < soundsToBePlayed.size(); i++)

@@ -11,6 +11,7 @@ import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.IStructureConnection;
@@ -75,9 +76,9 @@ public class StructureChildConnection implements IStructureConnection {
         return nbt;
     }
     
-    public void destroyStructure() throws CorruptedConnectionException, NotYetConnectedException {
+    public void destroyStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         if (!isChild())
-            getStructure().removeStructure();
+            getStructure().removeStructure(neighbor);
     }
     
     public LittleLevelEntity getAnimation() {
@@ -105,7 +106,7 @@ public class StructureChildConnection implements IStructureConnection {
     }
     
     protected BETiles getBlockEntity() throws CorruptedConnectionException, NotYetConnectedException {
-        if (cachedBE != null && !cachedBE.isRemoved())
+        if (cachedBE != null && !cachedBE.isRemoved() && !cachedBE.unloaded())
             return cachedBE;
         
         if (relativePos == null)

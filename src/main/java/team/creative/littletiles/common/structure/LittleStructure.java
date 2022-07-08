@@ -49,6 +49,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolde
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -496,22 +497,27 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         }
         
         checkConnections();
-        removeStructure();
+        LittleNeighborUpdateCollector neighbor = new LittleNeighborUpdateCollector(getLevel());
+        removeStructure(neighbor);
+        neighbor.process();
     }
     
-    public void removeStructure() throws CorruptedConnectionException, NotYetConnectedException {
+    public void removeStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         checkConnections();
         onStructureDestroyed();
         
         for (StructureChildConnection child : children.all())
-            child.destroyStructure();
+            child.destroyStructure(neighbor);
         
         if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
             ((IAnimatedStructure) this).destroyAnimation();
         else {
-            mainBlock.getBE().updateTiles((x) -> x.removeStructure(getIndex()));
-            for (StructureBlockConnector block : blocks)
+            neighbor.add(mainBlock.getPos());
+            for (StructureBlockConnector block : blocks) {
+                neighbor.add(block.getAbsolutePos());
                 block.remove();
+            }
+            mainBlock.getBE().updateTilesSecretly((x) -> x.removeStructure(getIndex()));
         }
         
     }

@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -39,7 +40,7 @@ public class StructureChildFromSubLevelConnection extends StructureChildConnecti
     }
     
     @Override
-    public void destroyStructure() {
+    public void destroyStructure(LittleNeighborUpdateCollector neighbor) {
         IOrientatedLevel fakeWorld = (IOrientatedLevel) parent.getLevel();
         ((LittleLevelEntity) fakeWorld.getHolder()).markRemoved();
         parent.onStructureDestroyed();
