@@ -31,14 +31,19 @@ public interface ISignalStructureBase {
     
     public void disconnect(Facing facing, ISignalStructureBase base);
     
+    public void unload(Facing facing, ISignalStructureBase base);
+    
     public default boolean hasNetwork() {
         return getNetwork() != null;
     }
     
     public default SignalNetwork findNetwork() {
         if (hasNetwork())
-            return getNetwork();
-        
+            if (getNetwork().requiresResearch())
+                getNetwork().deleteNetwork();
+            else
+                return getNetwork();
+            
         Iterator<ISignalStructureBase> connections = connections();
         while (connections.hasNext()) {
             ISignalStructureBase connection = connections.next();

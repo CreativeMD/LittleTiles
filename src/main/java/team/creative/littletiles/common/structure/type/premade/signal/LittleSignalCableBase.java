@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -44,6 +45,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
+import team.creative.littletiles.common.structure.signal.component.InvalidSignalComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.network.SignalNetwork;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
@@ -282,8 +284,11 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         };
     }
     
-    protected LittleConnectResult checkConnection(Level level, LittleBoxAbsolute box, Facing facing, BlockPos pos) throws ConnectionException {
+    protected LittleConnectResult checkConnection(Level level, LittleBoxAbsolute box, Facing facing, BlockPos pos) throws ConnectionException, NotYetConnectedException {
         try {
+            LevelChunk chunk = level.getChunkAt(pos); // TODO Check if this can even happen, not sure if chunk can be null
+            if (chunk == null)
+                throw new NotYetConnectedException();
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof BETiles) {
                 BETiles be = (BETiles) blockEntity;
@@ -380,7 +385,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         return null;
     }
     
-    public LittleConnectResult checkConnection(Facing facing, LittleBoxAbsolute box) {
+    public LittleConnectResult checkConnection(Facing facing, LittleBoxAbsolute box) throws NotYetConnectedException {
         if (!canConnect(facing))
             return null;
         
@@ -499,8 +504,18 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     public void unload() {
         super.unload();
+        for (int i = 0; i < faces.length; i++)
+            if (faces[i] != null)
+                faces[i].unload(getFacing(i));
         if (network != null)
             network.unload(this);
+    }
+    
+    @Override
+    public void unload(Facing facing, ISignalStructureBase base) {
+        int index = getIndex(facing);
+        if (faces[index] != null)
+            faces[index].connection = null;
     }
     
     public class LittleConnectionFace {
@@ -509,6 +524,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         public int distance;
         public LittleGrid grid;
         public boolean oneSidedRenderer;
+        private boolean invalid;
         
         public LittleConnectionFace() {
             
@@ -521,6 +537,12 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                 getNetwork().remove(connection);
             connection = null;
             updateStructure();
+        }
+        
+        public void unload(Facing facing) {
+            if (connection != null)
+                connection.unload(facing.opposite(), LittleSignalCableBase.this);
+            connection = null;
         }
         
         public void connect(ISignalStructureBase connection, LittleGrid grid, int distance, boolean oneSidedRenderer) {
@@ -540,17 +562,25 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             if (connection != null)
                 return true;
             
-            LittleConnectResult result = checkConnection(facing, box);
-            if (result != null) {
-                this.connection = result.base;
-                this.grid = result.grid;
-                this.distance = result.distance;
-                return true;
+            try {
+                LittleConnectResult result = checkConnection(facing, box);
+                invalid = false;
+                if (result != null) {
+                    this.connection = result.base;
+                    this.grid = result.grid;
+                    this.distance = result.distance;
+                    return true;
+                }
+            } catch (NotYetConnectedException e) {
+                invalid = true;
             }
             return false;
+            
         }
         
         public ISignalStructureBase getConnection() {
+            if (invalid)
+                return InvalidSignalComponent.INSTANCE;
             return connection;
         }
     }

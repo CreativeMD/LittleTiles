@@ -168,6 +168,13 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
         }
     }
     
+    @Override
+    public void unload(Facing facing, ISignalStructureBase base) {
+        int index = indexOf(base);
+        if (index != -1)
+            connections.remove(index);
+    }
+    
     public class SignalConnection {
         
         public final Facing facing;

@@ -10,6 +10,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
 
 public class SignalNetwork implements ISignalSchedulable {
@@ -18,6 +19,7 @@ public class SignalNetwork implements ISignalSchedulable {
     private SignalState state;
     private boolean changed = false;
     private boolean forceUpdate = false;
+    private boolean containsUnloadedComponents = false;
     private List<ISignalStructureTransmitter> transmitters = new ArrayList<>();
     /** are outputs of the network's perspective as they are inputs of machines (receive signals) */
     private List<ISignalStructureComponent> inputs = new ArrayList<>();
@@ -31,6 +33,10 @@ public class SignalNetwork implements ISignalSchedulable {
     
     public List<ISignalStructureComponent> getOutputs() {
         return outputs;
+    }
+    
+    public boolean requiresResearch() {
+        return containsUnloadedComponents;
     }
     
     @Override
@@ -135,6 +141,9 @@ public class SignalNetwork implements ISignalSchedulable {
     }
     
     public void add(ISignalStructureBase base) {
+        if (base.getComponentType() == SignalComponentType.INVALID)
+            containsUnloadedComponents = true;
+        
         if (base.getNetwork() == this)
             return;
         
@@ -211,6 +220,11 @@ public class SignalNetwork implements ISignalSchedulable {
                 return false;
         }
         return false;
+    }
+    
+    @Override
+    public String toString() {
+        return Integer.toHexString(hashCode());
     }
     
     @Override
