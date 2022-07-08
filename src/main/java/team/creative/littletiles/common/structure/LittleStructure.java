@@ -65,6 +65,7 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.MissingChildException;
 import team.creative.littletiles.common.structure.exception.MissingParentException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.exception.RemovedStructureException;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
@@ -147,6 +148,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void checkConnections() throws CorruptedConnectionException, NotYetConnectedException {
+        if (mainBlock.isRemoved())
+            throw new RemovedStructureException();
+        
         for (StructureBlockConnector block : blocks)
             block.connect();
         
