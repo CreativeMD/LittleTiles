@@ -128,6 +128,11 @@ public class LittleElement {
         return element.state == state && element.block == block && element.color == color;
     }
     
+    @Override
+    public String toString() {
+        return "[" + getBlockName() + "|" + color + "]";
+    }
+    
     public static class NotBlockException extends Exception {}
     
 }

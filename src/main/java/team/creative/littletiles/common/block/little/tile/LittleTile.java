@@ -479,4 +479,9 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     public BlockIngredientEntry getBlockIngredient(LittleGrid context) {
         return IngredientUtils.getBlockIngredient(block, getPercentVolume(context));
     }
+    
+    @Override
+    public String toString() {
+        return "[" + getBlockName() + "|" + color + "|" + boxes + "]";
+    }
 }
