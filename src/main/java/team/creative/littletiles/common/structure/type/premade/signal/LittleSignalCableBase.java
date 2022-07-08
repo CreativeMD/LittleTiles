@@ -152,7 +152,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         if (!preview && faces != null) {
             int[] result = new int[getNumberOfConnections() * 3];
             for (int i = 0; i < faces.length; i++) {
-                if (faces[i] != null) {
+                if (faces[i] != null && !faces[i].invalid) {
                     result[i * 3] = faces[i].distance;
                     result[i * 3 + 1] = faces[i].grid.count;
                     result[i * 3 + 2] = faces[i].oneSidedRenderer ? 1 : 0;
@@ -515,7 +515,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     public void unload(Facing facing, ISignalStructureBase base) {
         int index = getIndex(facing);
         if (faces[index] != null)
-            faces[index].connection = null;
+            faces[index].connection.unload(facing, base);
     }
     
     public class LittleConnectionFace {
