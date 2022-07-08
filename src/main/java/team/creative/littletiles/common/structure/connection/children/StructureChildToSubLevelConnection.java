@@ -53,7 +53,7 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
         LittleLevelEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
         if (animation != null)
             animation.markRemoved();
-        neighbor = new LittleNeighborUpdateCollector(animation.getFakeLevel());
+        neighbor = animation != null ? new LittleNeighborUpdateCollector(animation.getFakeLevel()) : LittleNeighborUpdateCollector.EMPTY;
         for (StructureChildConnection child : getStructure().children.all())
             child.destroyStructure(neighbor);
         neighbor.process();
