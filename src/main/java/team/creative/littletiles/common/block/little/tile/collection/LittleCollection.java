@@ -233,14 +233,19 @@ public class LittleCollection implements Iterable<LittleTile> {
             else
                 block = LittleBlockRegistry.get(state);
             List<LittleBox> tileBoxes = null;
+            int color = -1;
             for (int j = 0; j < boxes.size(); j++) {
                 int[] data = boxes.getIntArray(j);
                 if (data.length == 1) {
+                    if (tileBoxes != null)
+                        collection.content.add(new LittleTile(state, block, color, tileBoxes));
                     tileBoxes = new ArrayList<>();
-                    collection.content.add(new LittleTile(state, block, data[0], tileBoxes));
+                    color = data[0];
                 } else
                     tileBoxes.add(LittleBox.create(data));
             }
+            if (tileBoxes != null && !tileBoxes.isEmpty())
+                collection.content.add(new LittleTile(state, block, color, tileBoxes));
         }
         
     }
@@ -257,14 +262,19 @@ public class LittleCollection implements Iterable<LittleTile> {
             else
                 block = LittleBlockRegistry.get(state);
             List<LittleBox> tileBoxes = null;
+            int color = -1;
             for (int j = 0; j < boxes.size(); j++) {
                 int[] data = boxes.getIntArray(j);
                 if (data.length == 1) {
+                    if (tileBoxes != null)
+                        collection.content.add(new LittleTile(state, block, color, tileBoxes));
                     tileBoxes = new ArrayList<>();
-                    collection.content.add(new LittleTile(state, block, data[0], tileBoxes));
+                    color = data[0];
                 } else
                     tileBoxes.add(LittleBox.createExtended(data));
             }
+            if (tileBoxes != null && !tileBoxes.isEmpty())
+                collection.content.add(new LittleTile(state, block, color, tileBoxes));
         }
         
     }
