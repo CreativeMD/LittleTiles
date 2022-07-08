@@ -99,7 +99,7 @@ public class MarkMode implements IMarkMode {
     
     @Override
     public void move(LittleGrid positionGrid, Facing facing) {
-        LittleVec vec = new LittleVec(facing);
+        LittleVec vec = new LittleVec(facing.opposite());
         vec.scale(Screen.hasControlDown() ? positionGrid.count : 1);
         position.sub(new LittleVecGrid(vec, positionGrid));
     }
