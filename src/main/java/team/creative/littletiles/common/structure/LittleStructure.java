@@ -201,6 +201,35 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.add(new StructureBlockConnector(this, block.getPos().subtract(getPos())));
     }
     
+    public Iterable<BlockPos> positions() {
+        return new Iterable<BlockPos>() {
+            
+            @Override
+            public Iterator<BlockPos> iterator() {
+                
+                return new Iterator<BlockPos>() {
+                    
+                    boolean first = true;
+                    Iterator<StructureBlockConnector> iterator = blocks.iterator();
+                    
+                    @Override
+                    public boolean hasNext() {
+                        return first || iterator.hasNext();
+                    }
+                    
+                    @Override
+                    public BlockPos next() {
+                        if (first) {
+                            first = false;
+                            return mainBlock.getPos();
+                        }
+                        return iterator.next().getAbsolutePos();
+                    }
+                };
+            }
+        };
+    }
+    
     public Iterable<BETiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
         checkConnections();
         return new Iterable<BETiles>() {
@@ -708,10 +737,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public MutableBlockPos getMinPos(MutableBlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
-        for (StructureBlockConnector block : blocks) {
-            BlockPos tePos = block.getAbsolutePos();
+        for (BlockPos tePos : positions())
             pos.set(Math.min(pos.getX(), tePos.getX()), Math.min(pos.getY(), tePos.getY()), Math.min(pos.getZ(), tePos.getZ()));
-        }
         
         for (StructureChildConnection child : children.all())
             child.getStructure().getMinPos(pos);
