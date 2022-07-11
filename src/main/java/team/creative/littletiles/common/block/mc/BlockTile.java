@@ -53,6 +53,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootContext.Builder;
@@ -65,7 +66,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.IBlockRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 import net.minecraftforge.common.util.ForgeSoundType;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -172,7 +173,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void initializeClient(Consumer<IBlockRenderProperties> consumer) {
+    public void initializeClient(Consumer<IClientBlockExtensions> consumer) {
         consumer.accept(BlockTileRenderProperties.INSTANCE);
     }
     
@@ -488,6 +489,26 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         if (found)
             return slipperiness;
         return super.getFriction(state, level, pos, entity);
+    }
+    
+    @Override
+    public MaterialColor getMapColor(BlockState state, BlockGetter level, BlockPos pos, MaterialColor defaultColor) {
+        BETiles be = loadBE(level, pos);
+        if (be != null) {
+            double biggest = 0;
+            LittleTile tile = null;
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
+                double tempVolume = pair.value.getVolume();
+                if (tempVolume > biggest) {
+                    biggest = tempVolume;
+                    tile = pair.value;
+                }
+            }
+            
+            if (tile != null)
+                return tile.getState().getMapColor(level, pos);
+        }
+        return super.getMapColor(state, level, pos, defaultColor);
     }
     
     private boolean lightLoopPreventer = true;

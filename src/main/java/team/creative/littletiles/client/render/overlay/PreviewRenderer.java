@@ -29,7 +29,7 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.event.DrawSelectionEvent;
+import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -324,7 +324,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     }
     
     @SubscribeEvent
-    public void drawHighlight(DrawSelectionEvent.HighlightBlock event) {
+    public void drawHighlight(RenderHighlightEvent.Block event) {
         Player player = mc.player;
         Level level = player.level;
         ItemStack stack = player.getMainHandItem();

@@ -36,13 +36,14 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ClientRegistry;
-import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -108,7 +109,27 @@ public class LittleTilesClient {
         // TODO Readd action message overlay
     }
     
-    public static void setup(final FMLClientSetupEvent event) {
+    public static void load(IEventBus bus) {
+        bus.addListener(LittleTilesClient::setup);
+        MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands);
+        bus.addListener(LittleTilesClient::initColors);
+        bus.addListener(LittleTilesClient::registerKeys);
+    }
+    
+    private static void registerKeys(RegisterKeyMappingsEvent event) {
+        event.register(up);
+        event.register(down);
+        event.register(right);
+        event.register(left);
+        event.register(flip);
+        event.register(mark);
+        event.register(configure);
+        
+        event.register(undo);
+        event.register(redo);
+    }
+    
+    private static void setup(final FMLClientSetupEvent event) {
         mc.getItemColors().register((stack, layer) -> {
             if (layer == 0)
                 return ColorUtils.WHITE;
@@ -138,17 +159,6 @@ public class LittleTilesClient {
         
         undo = new KeyMapping("key.little.undo", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Z, "key.categories.littletiles");
         redo = new KeyMapping("key.little.redo", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Y, "key.categories.littletiles");
-        
-        ClientRegistry.registerKeyBinding(up);
-        ClientRegistry.registerKeyBinding(down);
-        ClientRegistry.registerKeyBinding(right);
-        ClientRegistry.registerKeyBinding(left);
-        ClientRegistry.registerKeyBinding(flip);
-        ClientRegistry.registerKeyBinding(mark);
-        ClientRegistry.registerKeyBinding(configure);
-        
-        ClientRegistry.registerKeyBinding(undo);
-        ClientRegistry.registerKeyBinding(redo);
         
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "tiles"), new LittleModelItemTilesBig());
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
@@ -267,12 +277,12 @@ public class LittleTilesClient {
         CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
             
             @Override
-            public List<? extends RenderBox> getBoxes(BlockState state, IModelData data, RandomSource rand) {
+            public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
                 return Collections.EMPTY_LIST;
             }
             
             @Override
-            public @NotNull IModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull IModelData modelData) {
+            public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
                 return modelData;
             }
         });
@@ -285,7 +295,7 @@ public class LittleTilesClient {
         ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
     }
     
-    public static void initColors(ColorHandlerEvent.Item event) {
+    public static void initColors(RegisterColorHandlersEvent.Item event) {
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.PREMADE.get());
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.ITEM_TILES.get());
     }

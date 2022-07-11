@@ -24,8 +24,8 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
+import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
+import net.minecraftforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.world.WorldEvent.Unload;
@@ -80,7 +80,7 @@ public class LittleClientEventHandler {
     }
     
     @SubscribeEvent
-    public void renderOverlay(RenderBlockOverlayEvent event) {
+    public void renderOverlay(RenderBlockScreenEffectEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (event.getOverlayType() == OverlayType.WATER) {
             PoseStack pose = new PoseStack();

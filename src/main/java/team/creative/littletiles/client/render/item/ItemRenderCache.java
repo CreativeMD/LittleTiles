@@ -83,10 +83,10 @@ public class ItemRenderCache implements LevelAwareHandler {
                     CreativeItemBoxModel renderer = get(pair.getKey());
                     
                     if (renderer != null) {
-                        RenderType[] layers = renderer.getLayers(pair.key, true);
+                        List<RenderType> layers = renderer.getLayers(pair.key, true);
                         RandomSource rand = RandomSource.create();
-                        for (int i = 0; i < layers.length; i++) {
-                            RenderType layer = layers[i];
+                        for (int i = 0; i < layers.size(); i++) {
+                            RenderType layer = layers.get(i);
                             for (int j = 0; j < Facing.values().length; j++) {
                                 Facing facing = Facing.values()[j];
                                 pair.value.setQuads(layer, facing, CreativeBakedBoxModel.compileBoxes(renderer.getBoxes(pair.key, layer), facing, layer, rand, true));

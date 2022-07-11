@@ -2,7 +2,7 @@ package team.creative.littletiles.common.api.block;
 
 import com.mojang.math.Vector3d;
 
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -18,6 +18,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -31,6 +32,8 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public interface ILittleMCBlock extends LittleBlock {
+    
+    static final RandomSource RANDOM = RandomSource.create();
     
     public static boolean isTranslucent(Block block) {
         return !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid() || block.defaultBlockState().canOcclude();
@@ -183,7 +186,7 @@ public interface ILittleMCBlock extends LittleBlock {
     @Override
     @OnlyIn(Dist.CLIENT)
     public default boolean canRenderInLayer(LittleTile tile, RenderType layer) {
-        return ItemBlockRenderTypes.canRenderInLayer(asBlock().defaultBlockState(), layer);
+        return Minecraft.getInstance().getBlockRenderer().getBlockModel(getState()).getRenderTypes(getState(), RANDOM, ModelData.EMPTY).contains(layer);
     }
     
 }

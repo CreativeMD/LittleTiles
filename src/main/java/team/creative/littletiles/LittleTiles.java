@@ -30,7 +30,6 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
@@ -98,9 +97,7 @@ public class LittleTiles {
     
     public LittleTiles() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(this::client));
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands));
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(LittleTilesClient::initColors));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> LittleTilesClient.load(FMLJavaModLoadingContext.get().getModEventBus()));
         
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
         
@@ -162,10 +159,6 @@ public class LittleTiles {
         STORAGE_BLOCKS = BlockTags.create(new ResourceLocation(MODID, "storage_blocks"));
         
         CraftingHelper.register(new ResourceLocation(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
-    }
-    
-    private void client(final FMLClientSetupEvent event) {
-        LittleTilesClient.setup(event);
     }
     
     private void serverStarting(final ServerStartingEvent event) {

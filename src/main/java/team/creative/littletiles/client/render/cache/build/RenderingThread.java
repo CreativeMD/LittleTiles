@@ -26,12 +26,9 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
-import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
+import net.minecraftforge.client.model.lighting.QuadLighter;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.BlockInfoExtension;
-import team.creative.creativecore.client.render.model.CreativeBlockModelRenderer;
+import team.creative.creativecore.client.render.model.CreativeQuadLighter;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.LevelAccesorFake;
 import team.creative.creativecore.common.level.SubClientLevel;
@@ -39,6 +36,7 @@ import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
+import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.client.render.LittleRenderUtils;
@@ -206,31 +204,21 @@ public class RenderingThread extends Thread {
                             if (renderLevel instanceof SubClientLevel && !((SubClientLevel) renderLevel).shouldRender)
                                 renderLevel = ((SubClientLevel) renderLevel).getRealLevel();
                             
+                            ForgeModelBlockRendererAccessor renderer = (ForgeModelBlockRendererAccessor) mc.getBlockRenderer().getModelRenderer();
                             boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0;
-                            VertexLighterFlat lighter = CreativeBlockModelRenderer.getLighter(smooth);
+                            QuadLighter lighter = smooth ? renderer.getSmoothLighter().get() : renderer.getFlatLighter().get();
                             
-                            lighter.setVertexFormat(format);
-                            lighter.setWorld(renderLevel);
-                            lighter.setBlockPos(pos);
-                            lighter.setState(data.state);
-                            lighter.updateBlockInfo();
+                            lighter.setup(renderLevel, pos, data.state);
                             
-                            BlockInfoExtension blockInfo = CreativeBlockModelRenderer.getBlockInfo(lighter);
-                            
-                            VertexBufferConsumer consumer = CreativeBlockModelRenderer.getConsumer(smooth);
-                            consumer.setPackedOverlay(OverlayTexture.NO_OVERLAY);
+                            int overlay = OverlayTexture.NO_OVERLAY;
                             //ModelBlockRenderer.enableCaching();
                             
                             posestack.pushPose();
                             posestack.translate(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
                             
-                            lighter.setTransform(posestack.last());
-                            lighter.setParent(consumer);
-                            
                             // Render vertex buffer
                             for (Entry<RenderType, List<LittleRenderBox>> entry : data.be.render.boxCache.entrySet()) {
                                 RenderType layer = entry.getKey();
-                                ForgeHooksClient.setRenderType(layer);
                                 
                                 List<LittleRenderBox> cubes = entry.getValue();
                                 BufferBuilder buffer = null;
@@ -241,14 +229,12 @@ public class RenderingThread extends Thread {
                                 if (buffer != null) {
                                     buffer.begin(VertexFormat.Mode.QUADS, format);
                                     
-                                    consumer.setBuffer(buffer);
-                                    
                                     for (int j = 0; j < cubes.size(); j++) {
                                         RenderBox cube = cubes.get(j);
                                         BlockState state = cube.state;
                                         
-                                        lighter.setState(state);
-                                        blockInfo.setCustomTint(cube.color);
+                                        ((CreativeQuadLighter) lighter).setState(state);
+                                        ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
                                         
                                         if (OptifineHelper.isShaders()) {
                                             if (state.getBlock() instanceof IFakeRenderingBlock)
@@ -268,7 +254,7 @@ public class RenderingThread extends Thread {
                                             }
                                             if (quads != null && !quads.isEmpty())
                                                 for (BakedQuad quad : quads)
-                                                    quad.pipe(lighter);
+                                                    lighter.process(buffer, posestack.last(), quad, overlay);
                                         }
                                         
                                         bakedQuadWrapper.setElement(null);
@@ -292,11 +278,10 @@ public class RenderingThread extends Thread {
                                     }
                             }
                             
-                            blockInfo.setCustomTint(-1);
+                            ((CreativeQuadLighter) lighter).setCustomTint(-1);
                             posestack.popPose();
                             //ModelBlockRenderer.clearCache();
-                            lighter.resetBlockInfo();
-                            net.minecraftforge.client.ForgeHooksClient.setRenderType(null);
+                            lighter.reset();
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
                                 data.be.render.boxCache.clear();
