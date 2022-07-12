@@ -57,7 +57,7 @@ public class LittleBlockRegistry {
     public static BlockState loadState(String name) {
         String[] parts;
         if (name.contains("["))
-            parts = name.split("[");
+            parts = name.split("\\[");
         else
             parts = new String[] { name };
         if (parts.length == 0)
@@ -72,7 +72,7 @@ public class LittleBlockRegistry {
             throw new IllegalArgumentException(name);
         
         BlockState state = block.defaultBlockState();
-        String[] properties = parts[1].substring(0, parts[1].length() - 2).split(",");
+        String[] properties = parts[1].substring(0, parts[1].length() - 1).split(",");
         for (int i = 0; i < properties.length; i++) {
             String[] data = properties[i].split("=");
             if (data.length != 2)
