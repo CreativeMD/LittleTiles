@@ -13,7 +13,8 @@
         "CompiledChunkAccessor",
         "LevelRendererMixin",
         "LevelRendererAccessor",
-        "ViewAreaAccessor"
+        "ViewAreaAccessor",
+        "ParticleEngineAccessor"
     ],
     "minVersion": "0.8"
 }
