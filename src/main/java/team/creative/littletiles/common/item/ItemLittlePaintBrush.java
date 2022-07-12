@@ -3,6 +3,7 @@ package team.creative.littletiles.common.item;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -54,10 +55,6 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     public static ShapeSelection selection;
     
-    public ItemLittlePaintBrush() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
-    }
-    
     public static int getColor(ItemStack stack) {
         if (stack == null)
             return ColorUtils.WHITE;
@@ -74,6 +71,15 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
         if (!stack.hasTag())
             stack.setTag(new CompoundTag());
         stack.getTag().putInt("color", color);
+    }
+    
+    public ItemLittlePaintBrush() {
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+    }
+    
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
     }
     
     @Override

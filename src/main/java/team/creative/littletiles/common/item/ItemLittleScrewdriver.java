@@ -66,6 +66,11 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
+    }
+    
+    @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
     }

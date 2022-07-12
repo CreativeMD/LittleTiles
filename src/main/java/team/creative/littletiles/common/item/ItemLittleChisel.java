@@ -3,6 +3,7 @@ package team.creative.littletiles.common.item;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -54,6 +55,11 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     public ItemLittleChisel() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+    }
+    
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
     }
     
     @Override

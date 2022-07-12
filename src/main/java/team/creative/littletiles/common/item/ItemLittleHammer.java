@@ -2,6 +2,7 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -117,6 +118,11 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         if (selection != null)
             selection.click(player);
         return true;
+    }
+    
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
     }
     
     @Override

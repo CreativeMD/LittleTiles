@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.item;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -77,6 +78,11 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
         if (!((ItemLittleBlueprint) view.get().getItem()).hasTiles(view.get()))
             return new GuiRecipeSelection(view);
         return new SubGuiRecipe(view);
+    }
+    
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
     }
     
     @Override
