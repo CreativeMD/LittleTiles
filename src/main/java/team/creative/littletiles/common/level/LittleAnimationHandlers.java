@@ -3,6 +3,7 @@ package team.creative.littletiles.common.level;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -71,6 +72,10 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     public void collision(GetVoxelShapesEvent event) {
         if (!event.level.isClientSide)
             getHandlers(event.level).forEach(x -> x.collision(event));
+    }
+    
+    public static void setPushedByDoor(ServerPlayer entity) {
+        // TODO Readd implement pushed by door
     }
     
 }

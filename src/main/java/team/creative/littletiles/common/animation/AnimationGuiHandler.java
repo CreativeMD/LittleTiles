@@ -5,17 +5,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
-import com.mojang.math.Vector3d;
-
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
-import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
-public class AnimationGuiHandler implements IAnimationHandler {
+public class AnimationGuiHandler {
     
     public double offX;
     public double offY;
@@ -38,7 +34,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
         
     }
     
-    public void takeInitialState(EntityAnimation animation) {
+    public void takeInitialState(LittleLevelEntity animation) {
         this.offX = animation.initalOffX;
         this.offY = animation.initalOffY;
         this.offZ = animation.initalOffZ;
@@ -49,26 +45,26 @@ public class AnimationGuiHandler implements IAnimationHandler {
     
     private int setDuration = 0;
     private int lastTick = -1;
-    private StructureAbsolute center = null;
+    //private StructureAbsolute center = null;
     private boolean loop = true;
     private boolean playing = false;
     private int tick = 0;
     private AnimationTimeline timeline;
-    private AnimationState state = new AnimationState();
+    //private AnimationState state = new AnimationState();
     
     public List<AnimationGuiHolder> subHolders = new ArrayList<>();
-    private List<AnimationEvent> events;
-    private boolean eventsChanged = false;
+    //private List<AnimationEvent> events;
+    //private boolean eventsChanged = false;
     
     public boolean hasTimeline() {
         return timeline != null;
     }
     
     public void setCenter(StructureAbsolute center) {
-        this.center = center;
+        //this.center = center;
     }
     
-    @Override
+    /* @Override
     public void loop(boolean loop) {
         this.loop = loop;
         for (AnimationGuiHolder holder : subHolders)
@@ -174,7 +170,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
         
         animation.moveAndRotateAnimation(offset.x - animation.origin.offX() + offX, offset.y - animation.origin.offY() + offY, offset.z - animation.origin
                 .offZ() + offZ, rotation.x - animation.origin.rotX() + rotX, rotation.y - animation.origin.rotY() + -rotY, rotation.z - animation.origin.rotZ() + rotZ);
-    }
+    }*/
     
     public int getMaxDuration() {
         int duration = setDuration;
@@ -183,9 +179,11 @@ public class AnimationGuiHandler implements IAnimationHandler {
         return duration;
     }
     
+    /*
     public void updateTimeline() {
         syncTimelineDuration(getMaxDuration());
     }
+    
     
     public void syncTimelineDuration(int duration) {
         this.timeline.duration = duration;
@@ -205,7 +203,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
         
         this.events = events == null ? new ArrayList<>() : new ArrayList<>(events);
         this.eventsChanged = true;
-    }
+    }*/
     
     public static class AnimationGuiHolder {
         
@@ -213,9 +211,9 @@ public class AnimationGuiHandler implements IAnimationHandler {
         public final AnimationGuiHandler handler;
         public final LittleStructure structure;
         @Nullable
-        public final EntityAnimation animation;
+        public final LittleLevelEntity animation;
         
-        public AnimationGuiHolder(LittleGroup previews, AnimationGuiHandler handler, LittleStructure structure, @Nullable EntityAnimation animation) {
+        public AnimationGuiHolder(LittleGroup previews, AnimationGuiHandler handler, LittleStructure structure, @Nullable LittleLevelEntity animation) {
             this.previews = previews;
             this.handler = handler;
             this.structure = structure;

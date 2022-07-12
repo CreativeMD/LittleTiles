@@ -17,16 +17,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.level.CreativeClientLevel;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.FakeServerLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.level.SubServerLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
@@ -153,25 +149,25 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     // ================Blocks================
     
     public Iterable<TickingBlockEntity> tickingBlockEntities() {
-        
+        return null; // TODO Implement ticking blocks 
     }
     
     // ================Children================
     
     public Iterable<Entity> entities() {
-        
+        return null; // TODO Implement children and other entities
     }
     
     public Iterable<OrientationAwareEntity> children() {
-        
+        return null; // TODO Iterate over entities and select the children
     }
     
     // ================Rendering================
     
-    @OnlyIn(Dist.CLIENT)
+    /*@OnlyIn(Dist.CLIENT)
     public LittleRenderChunkSuppilier getRenderChunkSuppilier() {
         return (LittleRenderChunkSuppilier) ((CreativeClientLevel) fakeLevel).renderChunkSupplier;
-    }
+    }*/
     
     // ================Ticking================
     
@@ -207,7 +203,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     protected void readAdditionalSaveData(CompoundTag nbt) {
         // TODO TAKE CARE OF EXISTING LOADED ENTITIES
         
-        setFakeLevel(nbt.getBoolean("subworld") ? SubServerLevel.createSubLevel(level) : FakeServerLevel.createFakeLevel(getServer(), getStringUUID(), level.isClientSide));
+        setFakeLevel(nbt.getBoolean("subworld") ? SubServerLevel.createSubLevel(level) : FakeServerLevel.createFakeLevel(getStringUUID(), level.isClientSide));
         
         this.initalOffX = nbt.getDouble("initOffX");
         this.initalOffY = nbt.getDouble("initOffY");

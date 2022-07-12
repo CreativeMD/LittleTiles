@@ -2,18 +2,11 @@ package team.creative.littletiles.common.structure.registry.gui;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
-import team.creative.littletiles.common.gui.dialogs.SubGuiDoorSettings.GuiDoorSettingsButton;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.type.door.LittleDoor;
-import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
@@ -28,7 +21,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
     @Override
     protected void createExtra(LittleGroup group, LittleStructure structure) {
-        boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
+        /*boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
         boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
         boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
         boolean playPlaceSounds = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).playPlaceSounds : true;
@@ -39,12 +32,12 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         parent.controls
                 .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
         
-        updateTimeline();
+        updateTimeline();*/
     }
     
     @Override
     protected void saveExtra(LittleStructure structure, LittleGroup previews) {
-        LittleDoorBase door = (LittleDoorBase) structure;
+        /*LittleDoorBase door = (LittleDoorBase) structure;
         
         GuiDoorSettingsButton settings = get("settings", GuiDoorSettingsButton.class);
         
@@ -54,16 +47,16 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         door.noClip = settings.noClip;
         door.playPlaceSounds = settings.playPlaceSounds;
         door.events = get("children_activate", GuiDoorEventsButton.class).events;
-        door.interpolation = get("interpolation", GuiStateButton.class).getState();
+        door.interpolation = get("interpolation", GuiStateButton.class).getState();*/
     }
     
     public abstract void populateTimeline(AnimationTimeline timeline, int interpolation);
     
     public void updateTimeline() {
-        AnimationTimeline timeline = new AnimationTimeline((int) get("duration_s", GuiSteppedSlider.class).value);
+        /*AnimationTimeline timeline = new AnimationTimeline((int) get("duration_s", GuiSteppedSlider.class).value);
         
         populateTimeline(timeline, get("interpolation", GuiStateButton.class).getState());
-        handler.setTimeline(timeline, get("children_activate", GuiDoorEventsButton.class).events);
+        handler.setTimeline(timeline, get("children_activate", GuiDoorEventsButton.class).events);*/
     }
     
 }
