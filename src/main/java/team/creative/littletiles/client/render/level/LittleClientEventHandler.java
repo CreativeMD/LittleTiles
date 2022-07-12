@@ -28,7 +28,7 @@ import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
-import net.minecraftforge.event.world.WorldEvent.Unload;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -74,8 +74,8 @@ public class LittleClientEventHandler {
     }
     
     @SubscribeEvent
-    public synchronized void worldUnload(Unload event) {
-        if (event.getWorld().isClientSide())
+    public synchronized void levelUnload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide())
             RenderingThread.unload();
     }
     

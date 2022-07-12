@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
@@ -87,8 +87,8 @@ public class NeighborUpdateOrganizer {
     }
     
     @SubscribeEvent
-    public void unload(WorldEvent.Unload event) {
-        positions.removeKey((Level) event.getWorld());
+    public void unload(LevelEvent.Unload event) {
+        positions.removeKey((Level) event.getLevel());
     }
     
 }

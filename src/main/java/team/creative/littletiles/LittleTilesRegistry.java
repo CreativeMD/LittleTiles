@@ -132,7 +132,7 @@ public class LittleTilesRegistry {
     
     // BLOCK_ENTITY
     
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, LittleTiles.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, LittleTiles.MODID);
     
     public static final RegistryObject<BlockEntityType<BETiles>> BE_TILES_TYPE = BLOCK_ENTITIES
             .register("tiles", () -> BlockEntityType.Builder.of(BETiles::new, BLOCK_TILES.get(), BLOCK_TILES_TICKING.get()).build(null));
@@ -143,7 +143,7 @@ public class LittleTilesRegistry {
     
     // ENTITIES
     
-    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, LittleTiles.MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, LittleTiles.MODID);
     
     public static final RegistryObject<EntityType<PrimedSizedTnt>> SIZED_TNT_TYPE = ENTITIES
             .register("primed_size_tnt", () -> EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt"));

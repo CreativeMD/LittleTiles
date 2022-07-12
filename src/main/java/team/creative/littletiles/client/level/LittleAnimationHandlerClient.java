@@ -99,7 +99,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
             if (result != null && result.level instanceof ISubLevel) {
                 Entity entity = ((ISubLevel) result.level).getHolder();
                 if (entity instanceof LittleLevelEntity levelEntity)
-                    levelEntity.onRightClick(event.getPlayer(), result.hit);
+                    levelEntity.onRightClick(event.getEntity(), result.hit);
             }
         }
     }
@@ -193,229 +193,229 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         } else {
         	this.damagedBlocks.remove(Integer.valueOf(breakerId));
         }*//*
-                                        }
-                                        
-                                        public void addBlockHitEffects(LittleHitResult result) {
-                                        BlockState state = level.getBlockState(result.asBlockHit().getBlockPos());
-                                        if (!net.minecraftforge.client.RenderProperties.get(state).addHitEffects(state, level, result.asBlockHit(), mc.particleEngine))
-                                         mc.particleEngine.crack(result.asBlockHit().getBlockPos(), result.asBlockHit().getDirection());
-                                        }
-                                        
-                                        @SubscribeEvent
-                                        public void holdClick(HoldLeftClick event) {
-                                        LittleHitResult result = getHit();
-                                        if (result == null || !event.leftClick) {
-                                         if (isHittingBlock)
-                                             resetBlockRemoving();
-                                         return;
-                                        }
-                                        
-                                        Player player = event.player;
-                                        
-                                        try {
-                                         if (leftClickCounterField.getInt(mc) <= 0 && !player.isUsingItem()) {
-                                             if (onPlayerDamageBlock(player, result, event)) {
-                                                 addBlockHitEffects(result);
-                                                 player.swing(InteractionHand.MAIN_HAND);
-                                                 event.setLeftClickResult(false);
-                                             }
                                          }
-                                        } catch (IllegalArgumentException | IllegalAccessException e) {
-                                         e.printStackTrace();
-                                        }
-                                        
-                                        }
-                                        
-                                        public boolean onPlayerDamageBlock(Player player, LittleHitResult result, HoldLeftClick event) {
-                                        try {
-                                         syncCurrentPlayItemMethod.invoke(mc.playerController);
-                                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                                         e.printStackTrace();
-                                        }
-                                        
-                                        try {
-                                         if (blockHitDelayField.getInt(mc.playerController) > 0) {
-                                             blockHitDelayField.setInt(mc.playerController, blockHitDelayField.getInt(mc.playerController) - 1);
-                                             event.setLeftClickResult(false);
-                                             return false;
+                                         
+                                         public void addBlockHitEffects(LittleHitResult result) {
+                                         BlockState state = level.getBlockState(result.asBlockHit().getBlockPos());
+                                         if (!net.minecraftforge.client.RenderProperties.get(state).addHitEffects(state, level, result.asBlockHit(), mc.particleEngine))
+                                          mc.particleEngine.crack(result.asBlockHit().getBlockPos(), result.asBlockHit().getDirection());
                                          }
-                                        } catch (IllegalArgumentException | IllegalAccessException e) {
-                                         e.printStackTrace();
-                                        }
-                                        
-                                        if (mc.playerController.getCurrentGameType().isCreative() && LittleAnimationHandlerClient.mc.world.getWorldBorder()
-                                             .contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos)) {
+                                         
+                                         @SubscribeEvent
+                                         public void holdClick(HoldLeftClick event) {
+                                         LittleHitResult result = getHit();
+                                         if (result == null || !event.leftClick) {
+                                          if (isHittingBlock)
+                                              resetBlockRemoving();
+                                          return;
+                                         }
+                                         
+                                         Player player = event.player;
+                                         
                                          try {
-                                             blockHitDelayField.setInt(mc.playerController, 5);
+                                          if (leftClickCounterField.getInt(mc) <= 0 && !player.isUsingItem()) {
+                                              if (onPlayerDamageBlock(player, result, event)) {
+                                                  addBlockHitEffects(result);
+                                                  player.swing(InteractionHand.MAIN_HAND);
+                                                  event.setLeftClickResult(false);
+                                              }
+                                          }
                                          } catch (IllegalArgumentException | IllegalAccessException e) {
-                                             e.printStackTrace();
+                                          e.printStackTrace();
                                          }
-                                         //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, posBlock, directionFacing));
-                                         if (clickBlockCreative(world, player, pos, facing))
-                                             return true;
-                                        } else if (isHittingPos(world, pos)) {
+                                         
+                                         }
+                                         
+                                         public boolean onPlayerDamageBlock(Player player, LittleHitResult result, HoldLeftClick event) {
+                                         try {
+                                          syncCurrentPlayItemMethod.invoke(mc.playerController);
+                                         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                                          e.printStackTrace();
+                                         }
+                                         
+                                         try {
+                                          if (blockHitDelayField.getInt(mc.playerController) > 0) {
+                                              blockHitDelayField.setInt(mc.playerController, blockHitDelayField.getInt(mc.playerController) - 1);
+                                              event.setLeftClickResult(false);
+                                              return false;
+                                          }
+                                         } catch (IllegalArgumentException | IllegalAccessException e) {
+                                          e.printStackTrace();
+                                         }
+                                         
+                                         if (mc.playerController.getCurrentGameType().isCreative() && LittleAnimationHandlerClient.mc.world.getWorldBorder()
+                                              .contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos)) {
+                                          try {
+                                              blockHitDelayField.setInt(mc.playerController, 5);
+                                          } catch (IllegalArgumentException | IllegalAccessException e) {
+                                              e.printStackTrace();
+                                          }
+                                          //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, posBlock, directionFacing));
+                                          if (clickBlockCreative(world, player, pos, facing))
+                                              return true;
+                                         } else if (isHittingPos(world, pos)) {
+                                          IBlockState iblockstate = world.getBlockState(pos);
+                                          Block block = iblockstate.getBlock();
+                                          
+                                          if (iblockstate.getMaterial() == Material.AIR)
+                                              return false;
+                                          this.curBlockDamageMP += iblockstate.getPlayerRelativeBlockHardness(player, world, pos);
+                                          
+                                          if (this.stepSoundTickCounter % 4 == 0) {
+                                              SoundType soundtype = block.getSoundType(iblockstate, world, pos, mc.player);
+                                              LittleAnimationHandlerClient.mc.getSoundHandler()
+                                                      .playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype
+                                                              .getPitch() * 0.5F, world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos));
+                                          }
+                                          
+                                          ++this.stepSoundTickCounter;
+                                          if (this.curBlockDamageMP >= 1.0F) {
+                                              this.isHittingBlock = false;
+                                              //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, posBlock, directionFacing));
+                                              onPlayerDestroyBlock(player, world, pos);
+                                              this.curBlockDamageMP = 0.0F;
+                                              this.stepSoundTickCounter = 0;
+                                          }
+                                          
+                                          sendBlockBreakProgress(LittleAnimationHandlerClient.mc.player.getEntityId(), world, pos, (int) (this.curBlockDamageMP * 10.0F) - 1);
+                                          return true;
+                                         } else if (this.clickBlock(world, pos, facing))
+                                          return true;
+                                         return false;
+                                         }
+                                         
+                                         public boolean clickBlock(LittleHitResult result) {
+                                         if (mc.playerController.getCurrentGameType().hasLimitedInteractions()) {
+                                          if (mc.playerController.getCurrentGameType() == GameType.SPECTATOR)
+                                              return false;
+                                          
+                                          if (!LittleAnimationHandlerClient.mc.player.isAllowEdit()) {
+                                              ItemStack itemstack = LittleAnimationHandlerClient.mc.player.getHeldItemMainhand();
+                                              
+                                              if (itemstack.isEmpty())
+                                                  return false;
+                                              
+                                              if (!itemstack.canDestroy(LittleAnimationHandlerClient.mc.world.getBlockState(loc).getBlock()))
+                                                  return false;
+                                          }
+                                         }
+                                         
+                                         if (!LittleAnimationHandlerClient.mc.world.getWorldBorder().contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(loc) : loc))
+                                          return false;
+                                         
+                                         if (mc.playerController.getCurrentGameType().isCreative()) {
+                                          //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
+                                          clickBlockCreative(world, mc.player, loc, face);
+                                          try {
+                                              blockHitDelayField.setInt(mc.playerController, 5);
+                                          } catch (IllegalArgumentException | IllegalAccessException e) {
+                                              e.printStackTrace();
+                                          }
+                                         } else if (!this.isHittingBlock || !this.isHittingPos(world, loc)) {
+                                          
+                                          //if (this.isHittingBlock)
+                                          //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, this.currentBlock, face));
+                                          
+                                          IBlockState iblockstate = LittleAnimationHandlerClient.mc.world.getBlockState(loc);
+                                          //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
+                                          boolean flag = iblockstate.getMaterial() != Material.AIR;
+                                          
+                                          if (flag && this.curBlockDamageMP == 0.0F)
+                                              iblockstate.getBlock().onBlockClicked(LittleAnimationHandlerClient.mc.world, loc, LittleAnimationHandlerClient.mc.player);
+                                          
+                                          if (flag && iblockstate.getPlayerRelativeBlockHardness(LittleAnimationHandlerClient.mc.player, LittleAnimationHandlerClient.mc.player.world, loc) >= 1.0F)
+                                              this.onPlayerDestroyBlock(mc.player, world, loc);
+                                          else {
+                                              this.isHittingBlock = true;
+                                              this.currentDestroyPos = loc;
+                                              this.currentDestroyWorld = world;
+                                              this.currentItemHittingBlock = LittleAnimationHandlerClient.mc.player.getHeldItemMainhand();
+                                              this.curBlockDamageMP = 0.0F;
+                                              this.stepSoundTickCounter = 0;
+                                              sendBlockBreakProgress(LittleAnimationHandlerClient.mc.player.getEntityId(), currentDestroyWorld, currentDestroyPos, (int) (this.curBlockDamageMP * 10.0F) - 1);
+                                          }
+                                         }
+                                         
+                                         return true;
+                                         }
+                                         
+                                         @SubscribeEvent
+                                         public void leftClick(LeftClick event) {
+                                         LittleHitResult result = getHit();
+                                         if (result == null)
+                                          return;
+                                         
+                                         if (clickBlock(result))
+                                          event.setCanceled(true);
+                                         }
+                                         
+                                         public boolean onPlayerDestroyBlock(Player player, Level world, BlockPos pos) {
+                                         if (mc.playerController.getCurrentGameType().hasLimitedInteractions()) {
+                                          if (mc.playerController.getCurrentGameType() == GameType.SPECTATOR)
+                                              return false;
+                                          
+                                          if (!mc.player.isAllowEdit()) {
+                                              ItemStack itemstack = mc.player.getHeldItemMainhand();
+                                              
+                                              if (itemstack.isEmpty()) {
+                                                  return false;
+                                              }
+                                              
+                                              if (!itemstack.canDestroy(world.getBlockState(pos).getBlock())) {
+                                                  return false;
+                                              }
+                                          }
+                                         }
+                                         
+                                         ItemStack stack = mc.player.getHeldItemMainhand();
+                                         if (!stack.isEmpty() && stack.getItem().onBlockStartBreak(stack, pos, mc.player))
+                                          return false;
+                                         
+                                         if (mc.playerController.getCurrentGameType().isCreative() && !stack.isEmpty() && !stack.getItem().canDestroyBlockInCreative(world, pos, stack, mc.player))
+                                          return false;
+                                         
                                          IBlockState iblockstate = world.getBlockState(pos);
                                          Block block = iblockstate.getBlock();
                                          
+                                         if ((block instanceof BlockCommandBlock || block instanceof BlockStructure) && !player.canUseCommandBlock())
+                                          return false;
+                                         
                                          if (iblockstate.getMaterial() == Material.AIR)
-                                             return false;
-                                         this.curBlockDamageMP += iblockstate.getPlayerRelativeBlockHardness(player, world, pos);
+                                          return false;
                                          
-                                         if (this.stepSoundTickCounter % 4 == 0) {
-                                             SoundType soundtype = block.getSoundType(iblockstate, world, pos, mc.player);
-                                             LittleAnimationHandlerClient.mc.getSoundHandler()
-                                                     .playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype
-                                                             .getPitch() * 0.5F, world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos));
+                                         world.playEvent(2001, pos, Block.getStateId(iblockstate));
+                                         
+                                         currentDestroyPos = new BlockPos(currentDestroyPos.getX(), -1, currentDestroyPos.getZ());
+                                         
+                                         if (!mc.playerController.getCurrentGameType().isCreative()) {
+                                          ItemStack itemstack1 = player.getHeldItemMainhand();
+                                          ItemStack copyBeforeUse = itemstack1.copy();
+                                          
+                                          if (!itemstack1.isEmpty()) {
+                                              itemstack1.onBlockDestroyed(world, iblockstate, pos, player);
+                                              
+                                              if (itemstack1.isEmpty()) {
+                                                  net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, copyBeforeUse, EnumHand.MAIN_HAND);
+                                                  player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
+                                              }
+                                          }
                                          }
                                          
-                                         ++this.stepSoundTickCounter;
-                                         if (this.curBlockDamageMP >= 1.0F) {
-                                             this.isHittingBlock = false;
-                                             //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, posBlock, directionFacing));
-                                             onPlayerDestroyBlock(player, world, pos);
-                                             this.curBlockDamageMP = 0.0F;
-                                             this.stepSoundTickCounter = 0;
+                                         boolean destroyed = block.removedByPlayer(iblockstate, world, pos, player, false);
+                                         
+                                         if (destroyed) {
+                                          block.onBlockDestroyedByPlayer(world, pos, iblockstate);
+                                          
+                                          try {
+                                              blockHitDelayField.setInt(mc.playerController, 5);
+                                          } catch (IllegalArgumentException | IllegalAccessException e) {
+                                              e.printStackTrace();
+                                          }
                                          }
                                          
-                                         sendBlockBreakProgress(LittleAnimationHandlerClient.mc.player.getEntityId(), world, pos, (int) (this.curBlockDamageMP * 10.0F) - 1);
-                                         return true;
-                                        } else if (this.clickBlock(world, pos, facing))
-                                         return true;
-                                        return false;
-                                        }
-                                        
-                                        public boolean clickBlock(LittleHitResult result) {
-                                        if (mc.playerController.getCurrentGameType().hasLimitedInteractions()) {
-                                         if (mc.playerController.getCurrentGameType() == GameType.SPECTATOR)
-                                             return false;
+                                         return destroyed;
                                          
-                                         if (!LittleAnimationHandlerClient.mc.player.isAllowEdit()) {
-                                             ItemStack itemstack = LittleAnimationHandlerClient.mc.player.getHeldItemMainhand();
-                                             
-                                             if (itemstack.isEmpty())
-                                                 return false;
-                                             
-                                             if (!itemstack.canDestroy(LittleAnimationHandlerClient.mc.world.getBlockState(loc).getBlock()))
-                                                 return false;
-                                         }
-                                        }
-                                        
-                                        if (!LittleAnimationHandlerClient.mc.world.getWorldBorder().contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(loc) : loc))
-                                         return false;
-                                        
-                                        if (mc.playerController.getCurrentGameType().isCreative()) {
-                                         //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
-                                         clickBlockCreative(world, mc.player, loc, face);
-                                         try {
-                                             blockHitDelayField.setInt(mc.playerController, 5);
-                                         } catch (IllegalArgumentException | IllegalAccessException e) {
-                                             e.printStackTrace();
-                                         }
-                                        } else if (!this.isHittingBlock || !this.isHittingPos(world, loc)) {
-                                         
-                                         //if (this.isHittingBlock)
-                                         //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, this.currentBlock, face));
-                                         
-                                         IBlockState iblockstate = LittleAnimationHandlerClient.mc.world.getBlockState(loc);
-                                         //this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
-                                         boolean flag = iblockstate.getMaterial() != Material.AIR;
-                                         
-                                         if (flag && this.curBlockDamageMP == 0.0F)
-                                             iblockstate.getBlock().onBlockClicked(LittleAnimationHandlerClient.mc.world, loc, LittleAnimationHandlerClient.mc.player);
-                                         
-                                         if (flag && iblockstate.getPlayerRelativeBlockHardness(LittleAnimationHandlerClient.mc.player, LittleAnimationHandlerClient.mc.player.world, loc) >= 1.0F)
-                                             this.onPlayerDestroyBlock(mc.player, world, loc);
-                                         else {
-                                             this.isHittingBlock = true;
-                                             this.currentDestroyPos = loc;
-                                             this.currentDestroyWorld = world;
-                                             this.currentItemHittingBlock = LittleAnimationHandlerClient.mc.player.getHeldItemMainhand();
-                                             this.curBlockDamageMP = 0.0F;
-                                             this.stepSoundTickCounter = 0;
-                                             sendBlockBreakProgress(LittleAnimationHandlerClient.mc.player.getEntityId(), currentDestroyWorld, currentDestroyPos, (int) (this.curBlockDamageMP * 10.0F) - 1);
-                                         }
-                                        }
-                                        
-                                        return true;
-                                        }
-                                        
-                                        @SubscribeEvent
-                                        public void leftClick(LeftClick event) {
-                                        LittleHitResult result = getHit();
-                                        if (result == null)
-                                         return;
-                                        
-                                        if (clickBlock(result))
-                                         event.setCanceled(true);
-                                        }
-                                        
-                                        public boolean onPlayerDestroyBlock(Player player, Level world, BlockPos pos) {
-                                        if (mc.playerController.getCurrentGameType().hasLimitedInteractions()) {
-                                         if (mc.playerController.getCurrentGameType() == GameType.SPECTATOR)
-                                             return false;
-                                         
-                                         if (!mc.player.isAllowEdit()) {
-                                             ItemStack itemstack = mc.player.getHeldItemMainhand();
-                                             
-                                             if (itemstack.isEmpty()) {
-                                                 return false;
-                                             }
-                                             
-                                             if (!itemstack.canDestroy(world.getBlockState(pos).getBlock())) {
-                                                 return false;
-                                             }
-                                         }
-                                        }
-                                        
-                                        ItemStack stack = mc.player.getHeldItemMainhand();
-                                        if (!stack.isEmpty() && stack.getItem().onBlockStartBreak(stack, pos, mc.player))
-                                         return false;
-                                        
-                                        if (mc.playerController.getCurrentGameType().isCreative() && !stack.isEmpty() && !stack.getItem().canDestroyBlockInCreative(world, pos, stack, mc.player))
-                                         return false;
-                                        
-                                        IBlockState iblockstate = world.getBlockState(pos);
-                                        Block block = iblockstate.getBlock();
-                                        
-                                        if ((block instanceof BlockCommandBlock || block instanceof BlockStructure) && !player.canUseCommandBlock())
-                                         return false;
-                                        
-                                        if (iblockstate.getMaterial() == Material.AIR)
-                                         return false;
-                                        
-                                        world.playEvent(2001, pos, Block.getStateId(iblockstate));
-                                        
-                                        currentDestroyPos = new BlockPos(currentDestroyPos.getX(), -1, currentDestroyPos.getZ());
-                                        
-                                        if (!mc.playerController.getCurrentGameType().isCreative()) {
-                                         ItemStack itemstack1 = player.getHeldItemMainhand();
-                                         ItemStack copyBeforeUse = itemstack1.copy();
-                                         
-                                         if (!itemstack1.isEmpty()) {
-                                             itemstack1.onBlockDestroyed(world, iblockstate, pos, player);
-                                             
-                                             if (itemstack1.isEmpty()) {
-                                                 net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, copyBeforeUse, EnumHand.MAIN_HAND);
-                                                 player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
-                                             }
-                                         }
-                                        }
-                                        
-                                        boolean destroyed = block.removedByPlayer(iblockstate, world, pos, player, false);
-                                        
-                                        if (destroyed) {
-                                         block.onBlockDestroyedByPlayer(world, pos, iblockstate);
-                                         
-                                         try {
-                                             blockHitDelayField.setInt(mc.playerController, 5);
-                                         } catch (IllegalArgumentException | IllegalAccessException e) {
-                                             e.printStackTrace();
-                                         }
-                                        }
-                                        
-                                        return destroyed;
-                                        
-                                        }*/
+                                         }*/
     
     @SubscribeEvent
     public void tickClient(ClientTickEvent event) {

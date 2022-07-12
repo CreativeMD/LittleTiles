@@ -6,7 +6,7 @@ import java.util.UUID;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -62,9 +62,9 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     }
     
     @SubscribeEvent
-    public void tick(WorldTickEvent event) {
-        if (!event.world.isClientSide)
-            getHandlers(event.world).forEach(x -> x.tickServer(event));
+    public void tick(LevelTickEvent event) {
+        if (!event.level.isClientSide)
+            getHandlers(event.level).forEach(x -> x.tickServer(event));
     }
     
     @SubscribeEvent

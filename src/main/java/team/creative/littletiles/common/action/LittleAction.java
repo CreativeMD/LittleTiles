@@ -34,7 +34,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent.BreakEvent;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -180,7 +181,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     public static void fireBlockBreakEvent(Level level, BlockPos pos, Player player) throws AreaProtected {
         if (level.isClientSide)
             return;
-        BreakEvent event = new BreakEvent(level, pos, level.getBlockState(pos), player);
+        BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             sendBlockResetToClient(level, player, pos);
