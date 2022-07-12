@@ -90,7 +90,7 @@ public class RenderingThread extends Thread {
         if (be.getLevel() instanceof IOrientatedLevel)
             chunk = LittleRenderUtils.getRenderChunk((IOrientatedLevel) be.getLevel(), be.getBlockPos());
         else
-            chunk = LittleRenderUtils.getRenderChunk(LittleRenderUtils.getViewArea(), be.getBlockPos());
+            chunk = LittleRenderUtils.getRenderChunk(be.getBlockPos());
         
         if (chunk == null) {
             System.out.println("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());

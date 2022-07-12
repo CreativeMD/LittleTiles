@@ -11,7 +11,9 @@
         "RenderChunkMixin",
         "VertexBufferMixin",
         "CompiledChunkAccessor",
-        "LevelRendererMixin"
+        "LevelRendererMixin",
+        "LevelRendererAccessor",
+        "ViewAreaAccessor"
     ],
     "minVersion": "0.8"
 }
