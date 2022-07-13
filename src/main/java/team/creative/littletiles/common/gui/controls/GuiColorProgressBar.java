@@ -5,7 +5,6 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvents;
 import team.creative.creativecore.client.render.GuiRenderHelper;
 import team.creative.creativecore.common.gui.GuiChildControl;
@@ -18,8 +17,8 @@ public class GuiColorProgressBar extends GuiProgressbar {
     
     public Color color;
     
-    public GuiColorProgressBar(String name, double max, double pos, Color color) {
-        super(name, max, pos);
+    public GuiColorProgressBar(String name, double pos, double max, Color color) {
+        super(name, pos, max);
         this.color = color;
     }
     
@@ -32,7 +31,7 @@ public class GuiColorProgressBar extends GuiProgressbar {
     public List<Component> getTooltip() {
         List<Component> tooltip = super.getTooltip();
         if (tooltip != null)
-            tooltip.add(new TranslatableComponent("gui.color.rightclick"));
+            tooltip.add(Component.translatable("gui.color.rightclick"));
         return tooltip;
     }
     
@@ -46,9 +45,8 @@ public class GuiColorProgressBar extends GuiProgressbar {
     }
     
     @Override
-    protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
-        GuiRenderHelper.colorRect(pose, 0, 0, (int) rect.getWidth(), (int) rect.getHeight(), color.toInt());
-        super.renderContent(pose, control, rect, mouseX, mouseY);
+    protected void renderProgress(PoseStack pose, GuiChildControl control, Rect rect, double percent) {
+        GuiRenderHelper.colorRect(pose, 0, 0, (int) (rect.getWidth() * percent), (int) rect.getHeight(), color.toInt());
     }
     
 }

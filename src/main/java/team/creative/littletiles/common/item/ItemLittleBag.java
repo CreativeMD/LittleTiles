@@ -10,13 +10,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
-import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.handler.GuiCreator;
-import team.creative.creativecore.common.gui.handler.ItemGuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiBag;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -25,7 +27,7 @@ import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 
-public class ItemLittleBag extends Item implements ItemGuiCreator, ILittleIngredientInventory {
+public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredientInventory {
     
     public static int colorUnitMaximum = 10000000;
     public static int inventoryWidth = 6;
@@ -39,8 +41,8 @@ public class ItemLittleBag extends Item implements ItemGuiCreator, ILittleIngred
     }
     
     @Override
-    public GuiLayer create(CompoundTag nbt, Player player) {
-        return new GuiBag(ContainerSlotView.mainHand(player));
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return new GuiBag(view);
     }
     
     @Override
@@ -104,6 +106,21 @@ public class ItemLittleBag extends Item implements ItemGuiCreator, ILittleIngred
         nbt.putInt("cyan", color.cyan);
         nbt.putInt("magenta", color.magenta);
         nbt.putInt("yellow", color.yellow);
+    }
+    
+    @Override
+    public LittleGrid getPositionGrid(ItemStack stack) {
+        return LittleGrid.defaultGrid();
+    }
+    
+    @Override
+    public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
+        
+    }
+    
+    @Override
+    public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
+        
     }
     
 }

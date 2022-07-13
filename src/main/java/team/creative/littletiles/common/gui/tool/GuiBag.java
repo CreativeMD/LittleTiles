@@ -2,48 +2,40 @@ package team.creative.littletiles.common.gui.tool;
 
 import java.util.List;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.GuiSlotBase;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.common.gui.EntityPlayerMP;
-import team.creative.littletiles.common.gui.NBTTagCompound;
-import team.creative.littletiles.common.gui.SlotControl;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.controls.GuiColorProgressBar;
-import team.creative.littletiles.common.gui.controls.SlotControlBlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
-import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
-import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
 import team.creative.littletiles.common.item.ItemLittleBag;
 
-public class GuiBag extends GuiLayer {
+public class GuiBag extends GuiConfigure {
     
-    public ContainerSlotView item;
     public SimpleContainer bagInventory;
     public LittleIngredients bag;
     public SimpleContainer input = new SimpleContainer(1);
     
     public final GuiSyncLocal<EndTag> RELOAD = getSyncHolder().register("reload", v -> {
-        item.changed();
+        tool.changed();
         reinit();
     });
     
@@ -61,7 +53,7 @@ public class GuiBag extends GuiLayer {
                 if (!inventory.addStack(colorStack))
                     LevelUtils.dropItem(player, colorStack);
                 
-                ((ItemLittleBag) item.get().getItem()).setInventory(item.get(), bag, null);
+                ((ItemLittleBag) tool.get().getItem()).setInventory(tool.get(), bag, null);
                 RELOAD.send(EndTag.INSTANCE);
                 tick();
             }
@@ -69,15 +61,13 @@ public class GuiBag extends GuiLayer {
     });
     
     public GuiBag(ContainerSlotView view) {
-        super("bag");
-        this.item = view;
+        super("bag", view);
         registerEventClick(x -> {
             if (x.control instanceof GuiColorProgressBar)
                 DROP_COLOR.send(StringTag.valueOf(x.control.name));
         });
-        RELOAD.send(EndTag.INSTANCE);
         
-        registerEventChanged(x -> {
+        /*registerEventChanged(x -> {
             Player player = getPlayer();
             if (x.control instanceof GuiSlotBase) {
                 if (x.control instanceof SlotControlBlockIngredient) {
@@ -167,23 +157,35 @@ public class GuiBag extends GuiLayer {
                         ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
                 }
             }
-        });
+        });*/
     }
     
     @Override
     public void create() {
-        item.get().getOrCreateTag();
+        RELOAD.send(EndTag.INSTANCE);
         
-        bag = ((ItemLittleBag) item.get().getItem()).getInventory(item.get());
+        flow = GuiFlow.STACK_Y;
+        
+        tool.get().getOrCreateTag();
+        
+        bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
         ColorIngredient unit = bag.get(ColorIngredient.class);
         
-        add(new GuiColorProgressBar("black", ItemLittleBag.colorUnitMaximum, unit.black, Color.BLACK));
-        add(new GuiColorProgressBar("cyan", ItemLittleBag.colorUnitMaximum, unit.cyan, Color.CYAN));
-        add(new GuiColorProgressBar("magenta", ItemLittleBag.colorUnitMaximum, unit.magenta, Color.MAGENTA));
-        add(new GuiColorProgressBar("yellow", ItemLittleBag.colorUnitMaximum, unit.yellow, Color.YELLOW));
+        GuiParent upper = new GuiParent(GuiFlow.STACK_X);
+        add(upper.setExpandableX());
+        GuiParent left = new GuiParent();
+        upper.add(left);
         
-        bag = ((ItemLittleBag) item.get().getItem()).getInventory(item.get());
-        List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
+        GuiParent right = new GuiParent(GuiFlow.STACK_Y);
+        upper.add(right);
+        
+        right.add(new GuiColorProgressBar("black", unit.black, ItemLittleBag.colorUnitMaximum, Color.BLACK));
+        right.add(new GuiColorProgressBar("cyan", unit.cyan, ItemLittleBag.colorUnitMaximum, Color.CYAN));
+        right.add(new GuiColorProgressBar("magenta", unit.magenta, ItemLittleBag.colorUnitMaximum, Color.MAGENTA));
+        right.add(new GuiColorProgressBar("yellow", unit.yellow, ItemLittleBag.colorUnitMaximum, Color.YELLOW));
+        
+        bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
+        /*List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
         
         bagInventory = new SimpleContainer(ItemLittleBag.inventorySize) {
             @Override
@@ -212,7 +214,7 @@ public class GuiBag extends GuiLayer {
                 }));
             }
         }
-        addSlotToContainer(new Slot(input, 0, 120, 5));
+        addSlotToContainer(new Slot(input, 0, 120, 5));*/
         
         add(new GuiPlayerInventoryGrid(getPlayer()));
     }
@@ -239,12 +241,13 @@ public class GuiBag extends GuiLayer {
     }
     
     @Override
-    public void closed() {
-        ItemStack stack = ((SlotControl) get("input0")).slot.getStack();
-        if (!stack.isEmpty())
-            LevelUtils.dropItem(player, stack);
-        if (player instanceof EntityPlayerMP)
-            ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
+    public CompoundTag saveConfiguration(CompoundTag nbt) {
+        //ItemStack stack = ((SlotControl) get("input0")).slot.getStack();
+        //if (!stack.isEmpty())
+        //    LevelUtils.dropItem(getPlayer(), stack);
+        //if (getPlayer() instanceof ServerPlayer sPlayer)
+        //    sPlayer.sendContainerToPlayer(player.inventoryContainer);
+        return null;
     }
     
 }

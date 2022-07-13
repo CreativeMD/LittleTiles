@@ -10,7 +10,6 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
-import team.creative.littletiles.common.gui.controls.GuiTileViewer;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -20,8 +19,7 @@ public class LittleBedGui extends LittleStructureGuiControl {
     
     public LittleBedGui(LittleStructureType type, AnimationGuiHandler handler) {
         super(type, handler);
-        registerEventClick(x -> get("tileviewer", GuiTileViewer.class)
-                .updateIndicator(((GuiStateButtonMapped<Facing>) get("direction")).getSelected().opposite(), get("relativeDirection", GuiDirectionIndicator.class)));
+        //registerEventClick(x -> get("tileviewer", GuiTileViewer.class).updateIndicator(((GuiStateButtonMapped<Facing>) get("direction")).getSelected().opposite(), get("relativeDirection", GuiDirectionIndicator.class)));
     }
     
     @Override
@@ -29,9 +27,9 @@ public class LittleBedGui extends LittleStructureGuiControl {
         GuiParent right = new GuiParent();
         add(right);
         
-        GuiTileViewer tile = new GuiTileViewer("tileviewer", group.getGrid());
+        /*GuiTileViewer tile = new GuiTileViewer("tileviewer", group.getGrid());
         tile.setViewDirection(Facing.UP);
-        right.add(tile);
+        right.add(tile);*/
         
         GuiParent left = new GuiParent();
         add(left);
@@ -49,7 +47,7 @@ public class LittleBedGui extends LittleStructureGuiControl {
         
         GuiDirectionIndicator indicator = new GuiDirectionIndicator("relativeDirection", Facing.UP);
         left.add(indicator);
-        tile.updateIndicator(facing.opposite(), indicator);
+        //tile.updateIndicator(facing.opposite(), indicator);
     }
     
     @Override

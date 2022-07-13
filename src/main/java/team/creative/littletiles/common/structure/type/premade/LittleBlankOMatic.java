@@ -11,14 +11,14 @@ import team.creative.creativecore.common.gui.handler.GuiCreator;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.gui.SubGuiBlankOMatic;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
+import team.creative.littletiles.common.gui.structure.GuiBlankOMatic;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class LittleBlankOMatic extends LittleStructurePremade {
     
     public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("blankomatic", new LittleStructureGuiCreator((nbt, player, structure) -> new SubGuiBlankOMatic((LittleBlankOMatic) structure)));
+            .register("blankomatic", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiBlankOMatic((LittleBlankOMatic) structure)));
     
     public SimpleContainer inventory;
     public int whiteColor;

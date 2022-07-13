@@ -36,6 +36,8 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ModelEvent.RegisterAdditional;
+import net.minecraftforge.client.event.ModelEvent.RegisterGeometryLoaders;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -114,6 +116,8 @@ public class LittleTilesClient {
         MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands);
         bus.addListener(LittleTilesClient::initColors);
         bus.addListener(LittleTilesClient::registerKeys);
+        bus.addListener(LittleTilesClient::modelEvent);
+        bus.addListener(LittleTilesClient::modelLoader);
     }
     
     private static void registerKeys(RegisterKeyMappingsEvent event) {
@@ -160,6 +164,54 @@ public class LittleTilesClient {
         LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
         LEVEL_HANDLERS.register(ITEM_RENDER_CACHE = new ItemRenderCache());
         
+        // Init overlays
+        MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
+        MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
+        
+        ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
+        reloadableResourceManager.registerReloadListener(new PreparableReloadListener() {
+            
+            @Override
+            public CompletableFuture<Void> reload(PreparationBarrier p_10638_, ResourceManager p_10639_, ProfilerFiller p_10640_, ProfilerFiller p_10641_, Executor p_10642_, Executor p_10643_) {
+                return CompletableFuture.runAsync(() -> LittleChunkDispatcher.currentRenderState++, p_10643_);
+            }
+        });
+        
+        CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
+        
+        EntityRenderers.register(LittleTilesRegistry.SIZED_TNT_TYPE.get(), RenderSizedTNTPrimed::new);
+        
+        blockEntityRenderer = new BETilesRenderer();
+        BlockEntityRenderers.register(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), x -> blockEntityRenderer);
+        
+        ResourceLocation filled = new ResourceLocation(LittleTiles.MODID, "filled");
+        ClampedItemPropertyFunction function = (stack, level, entity, x) -> ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
+        ItemProperties.register(LittleTilesRegistry.BLACK_COLOR.get(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.get(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.get(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
+    }
+    
+    public static void modelLoader(RegisterAdditional event) {
+        event.register(new ModelResourceLocation(LittleTiles.MODID, "glove_background", "inventory"));
+        event.register(new ModelResourceLocation(LittleTiles.MODID, "chisel_background", "inventory"));
+        event.register(new ModelResourceLocation(LittleTiles.MODID, "blueprint_background", "inventory"));
+    }
+    
+    public static void modelEvent(RegisterGeometryLoaders event) {
+        CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
+            
+            @Override
+            public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
+                return Collections.EMPTY_LIST;
+            }
+            
+            @Override
+            public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
+                return modelData;
+            }
+        });
+        
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "tiles"), new LittleModelItemTilesBig());
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
             @Override
@@ -182,11 +234,6 @@ public class LittleTilesClient {
                 return cubes;
             }
         });
-        
-        CreativeCoreClient.registerModel(new ModelResourceLocation(LittleTiles.MODID, "glove_background", "inventory"));
-        CreativeCoreClient.registerModel(new ModelResourceLocation(LittleTiles.MODID, "chisel_background", "inventory"));
-        CreativeCoreClient.registerModel(new ModelResourceLocation(LittleTiles.MODID, "blueprint_background", "inventory"));
-        
         CreativeCoreClient
                 .registerItemModel(new ResourceLocation(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(LittleTiles.MODID, "glove_background", "inventory"), null) {
                     
@@ -253,46 +300,6 @@ public class LittleTilesClient {
                         return cubes;
                     }
                 });
-        
-        // Init overlays
-        MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
-        MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
-        
-        ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
-        reloadableResourceManager.registerReloadListener(new PreparableReloadListener() {
-            
-            @Override
-            public CompletableFuture<Void> reload(PreparationBarrier p_10638_, ResourceManager p_10639_, ProfilerFiller p_10640_, ProfilerFiller p_10641_, Executor p_10642_, Executor p_10643_) {
-                return CompletableFuture.runAsync(() -> LittleChunkDispatcher.currentRenderState++, p_10643_);
-            }
-        });
-        
-        CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
-        
-        EntityRenderers.register(LittleTilesRegistry.SIZED_TNT_TYPE.get(), RenderSizedTNTPrimed::new);
-        
-        blockEntityRenderer = new BETilesRenderer();
-        BlockEntityRenderers.register(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), x -> blockEntityRenderer);
-        
-        CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
-            
-            @Override
-            public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
-                return Collections.EMPTY_LIST;
-            }
-            
-            @Override
-            public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
-                return modelData;
-            }
-        });
-        
-        ResourceLocation filled = new ResourceLocation(LittleTiles.MODID, "filled");
-        ClampedItemPropertyFunction function = (stack, level, entity, x) -> ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
-        ItemProperties.register(LittleTilesRegistry.BLACK_COLOR.get(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.get(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.get(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
     }
     
     public static void initColors(RegisterColorHandlersEvent.Item event) {

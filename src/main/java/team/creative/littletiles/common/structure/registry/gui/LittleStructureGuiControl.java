@@ -9,7 +9,6 @@ import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
-import team.creative.littletiles.common.gui.dialogs.GuiLayerSignalEvents.GuiSignalEventsButton;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
@@ -31,7 +30,7 @@ public abstract class LittleStructureGuiControl extends GuiParent implements IAn
     
     public void create(LittleGroup group, @Nullable LittleStructure structure) {
         create(group, structure);
-        add(new GuiSignalEventsButton("signal", group, structure, type));
+        //add(new GuiSignalEventsButton("signal", group, structure, type));
     }
     
     protected abstract void createExtra(LittleGroup group, @Nullable LittleStructure structure);
@@ -39,7 +38,7 @@ public abstract class LittleStructureGuiControl extends GuiParent implements IAn
     public LittleStructure save(LittleGroup group) {
         LittleStructure structure = type.createStructure(null);
         saveExtra(structure, group);
-        get("signal", GuiSignalEventsButton.class).setEventsInStructure(structure);
+        //get("signal", GuiSignalEventsButton.class).setEventsInStructure(structure);
         return structure;
     }
     
