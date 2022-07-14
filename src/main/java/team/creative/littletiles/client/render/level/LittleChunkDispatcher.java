@@ -30,16 +30,19 @@ public class LittleChunkDispatcher {
         for (RenderType layer : RenderType.chunkBufferLayers()) {
             VertexBuffer vertexBuffer = chunk.getBuffer(layer);
             ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
-            if (manager != null)
+            if (manager != null) {
+                manager.doNotErase = true;
                 manager.backToRAM();
-            else
+            } else
                 ((VertexBufferLittle) vertexBuffer).setManager(manager = new ChunkLayerUploadManager(chunk, layer));
+            
         }
     }
     
     public static void add(RenderChunk chunk, BETiles be, RebuildTaskLittle rebuildTask) {
         if (((RenderChunkLittle) chunk).dynamicLightUpdate())
             be.render.hasLightChanged = true;
+        
         be.updateQuadCache(chunk);
         
         for (RenderType layer : RenderType.chunkBufferLayers()) {

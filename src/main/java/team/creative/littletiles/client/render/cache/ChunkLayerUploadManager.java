@@ -23,6 +23,8 @@ public class ChunkLayerUploadManager {
     private ChunkLayerCache cache;
     private ChunkLayerCache uploaded;
     
+    public boolean doNotErase;
+    
     public ChunkLayerUploadManager(RenderChunk chunk, RenderType layer) {
         this.buffer = chunk.getBuffer(layer);
         ((VertexBufferLittle) buffer).setManager(this);
@@ -38,13 +40,15 @@ public class ChunkLayerUploadManager {
         this.cache = cache;
     }
     
-    public synchronized void uploaded() {
-        if (this.uploaded != null)
-            backToRAM();
-        uploaded = cache;
-        cache = null;
-        if (uploaded != null)
-            uploaded.uploaded();
+    public void uploaded() {
+        synchronized (this) {
+            if (this.uploaded != null)
+                backToRAM();
+            uploaded = cache;
+            cache = null;
+            if (uploaded != null)
+                uploaded.uploaded(doNotErase);
+        }
     }
     
     public void backToRAM() {

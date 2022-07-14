@@ -17,8 +17,9 @@ public class UploadableBufferHolder implements BufferHolder {
         this.vertexCount = count;
     }
     
-    public void uploaded() {
-        byteBuffer = null;
+    public void uploaded(boolean doNotErase) {
+        if (!doNotErase)
+            byteBuffer = null;
     }
     
     public void downloaded(ByteBuffer buffer) {

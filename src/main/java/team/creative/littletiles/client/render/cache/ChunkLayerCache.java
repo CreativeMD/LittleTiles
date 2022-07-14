@@ -23,6 +23,7 @@ public class ChunkLayerCache {
         if (buffer == null)
             return null;
         builder.putBulkData(buffer);
+        buffer.rewind();
         UploadableBufferHolder holder = new UploadableBufferHolder(buffer, index, data.length(), data.vertexCount());
         holders.add(holder);
         totalSize = ((BufferBuilderAccessor) builder).getNextElementByte();
@@ -46,9 +47,9 @@ public class ChunkLayerCache {
                 holder.invalidate();
     }
     
-    public void uploaded() {
+    public void uploaded(boolean doNotErase) {
         for (UploadableBufferHolder holder : holders)
-            holder.uploaded();
+            holder.uploaded(doNotErase);
     }
     
     public boolean isEmpty() {

@@ -11,7 +11,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
-import team.creative.littletiles.client.render.cache.buffer.RenderedBufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
 
 public class BlockBufferCache {
@@ -65,6 +65,8 @@ public class BlockBufferCache {
     
     public void add(RenderType layer, BufferBuilder builder, ChunkLayerCache cache) {
         BufferHolder holder = get(layer);
+        if (holder == null)
+            return;
         
         queue.remove(layer);
         uploaded.put(layer, cache.add(builder, holder));
@@ -78,7 +80,7 @@ public class BlockBufferCache {
             if (buffer == null)
                 queue.remove(layer);
             else
-                queue.put(layer, new RenderedBufferHolder(buffer));
+                queue.put(layer, new ByteBufferHolder(buffer));
         }
     }
     
