@@ -2,14 +2,11 @@ package team.creative.littletiles.client.render.cache;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.renderer.RenderType;
-import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
@@ -150,13 +147,6 @@ public class BlockBufferCache {
             byteBuffer.put(secondBuffer);
         }
         return new UploadableBufferHolder(byteBuffer, 0, length, vertexCount);
-    }
-    
-    public static BufferBuilder createVertexBuffer(VertexFormat format, List<? extends RenderBox> cubes) {
-        int size = 1;
-        for (RenderBox cube : cubes)
-            size += cube.countQuads();
-        return new BufferBuilder(format.getVertexSize() * size / 6);
     }
     
     public boolean hasInvalidBuffers() {

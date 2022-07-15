@@ -142,6 +142,7 @@ public class RenderingThread extends Thread {
                 long duration = 0;
                 RandomSource rand = RandomSource.create();
                 PoseStack posestack = new PoseStack();
+                BufferBuilder builder = null;
                 
                 if (level != null && !QUEUE.isEmpty()) {
                     RenderingBlockContext data = QUEUE.poll();
@@ -221,13 +222,12 @@ public class RenderingThread extends Thread {
                                 RenderType layer = entry.getKey();
                                 
                                 List<LittleRenderBox> cubes = entry.getValue();
-                                BufferBuilder buffer = null;
                                 
-                                if (cubes != null && cubes.size() > 0)
-                                    buffer = BlockBufferCache.createVertexBuffer(format, cubes);
+                                if (builder == null)
+                                    builder = new BufferBuilder(131072);
                                 
-                                if (buffer != null) {
-                                    buffer.begin(VertexFormat.Mode.QUADS, format);
+                                if (cubes != null && cubes.size() > 0) {
+                                    builder.begin(VertexFormat.Mode.QUADS, format);
                                     
                                     for (int j = 0; j < cubes.size(); j++) {
                                         RenderBox cube = cubes.get(j);
@@ -239,7 +239,7 @@ public class RenderingThread extends Thread {
                                         if (OptifineHelper.isShaders()) {
                                             if (state.getBlock() instanceof IFakeRenderingBlock)
                                                 state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
-                                            OptifineHelper.pushBuffer(state, pos, data.be.getLevel(), buffer);
+                                            OptifineHelper.pushBuffer(state, pos, data.be.getLevel(), builder);
                                         }
                                         
                                         for (int h = 0; h < Facing.VALUES.length; h++) {
@@ -254,23 +254,23 @@ public class RenderingThread extends Thread {
                                             }
                                             if (quads != null && !quads.isEmpty())
                                                 for (BakedQuad quad : quads)
-                                                    lighter.process(buffer, posestack.last(), quad, overlay);
+                                                    lighter.process(builder, posestack.last(), quad, overlay);
                                         }
                                         
                                         bakedQuadWrapper.setElement(null);
                                         
                                         if (OptifineHelper.isShaders())
-                                            OptifineHelper.popBuffer(buffer);
+                                            OptifineHelper.popBuffer(builder);
                                         
                                         if (!LittleTiles.CONFIG.rendering.useQuadCache)
                                             cube.deleteQuadCache();
                                     }
                                     
                                     if (OptifineHelper.isShaders())
-                                        OptifineHelper.calcNormalChunkLayer(buffer);
+                                        OptifineHelper.calcNormalChunkLayer(builder);
                                     
                                     synchronized (data.be.render) {
-                                        layerBuffer.set(layer, buffer.end());
+                                        layerBuffer.set(layer, builder.end());
                                     }
                                 } else
                                     synchronized (data.be.render) {
