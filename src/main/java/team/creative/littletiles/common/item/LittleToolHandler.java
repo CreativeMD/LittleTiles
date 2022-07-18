@@ -20,8 +20,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
-import team.creative.creativecore.common.gui.handler.GuiCreator.GuiCreatorBasic;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator.GuiCreatorBasic;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.LittleTilesClient;

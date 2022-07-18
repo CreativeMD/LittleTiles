@@ -34,7 +34,7 @@ import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;

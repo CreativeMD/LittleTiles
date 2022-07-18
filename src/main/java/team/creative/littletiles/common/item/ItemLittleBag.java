@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -114,13 +114,9 @@ public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredien
     }
     
     @Override
-    public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        
-    }
+    public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {}
     
     @Override
-    public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
-        
-    }
+    public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {}
     
 }
