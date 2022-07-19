@@ -56,11 +56,19 @@ public abstract class RebuildTaskMixin implements RebuildTaskLittle {
             require = 1)
     private void compile(CallbackInfoReturnable info) {
         ((RenderChunkLittle) this$1).dynamicLightUpdate(false);
+        
+        for (RenderType layer : RenderType.chunkBufferLayers()) {
+            VertexBuffer vertexBuffer = this$1.getBuffer(layer);
+            ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
+            synchronized (manager) {
+                manager.queued--;
+            }
+        }
+        
         if (caches != null)
             for (Entry<RenderType, ChunkLayerCache> entry : caches.entrySet()) {
                 VertexBuffer vertexBuffer = this$1.getBuffer(entry.getKey());
                 ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
-                manager.doNotErase = false;
                 manager.set(entry.getValue());
             }
     }

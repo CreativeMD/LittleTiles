@@ -23,7 +23,7 @@ public class ChunkLayerUploadManager {
     private ChunkLayerCache cache;
     private ChunkLayerCache uploaded;
     
-    public boolean doNotErase;
+    public int queued;
     
     public ChunkLayerUploadManager(RenderChunk chunk, RenderType layer) {
         this.buffer = chunk.getBuffer(layer);
@@ -47,7 +47,7 @@ public class ChunkLayerUploadManager {
             uploaded = cache;
             cache = null;
             if (uploaded != null)
-                uploaded.uploaded(doNotErase);
+                uploaded.uploaded(queued == 0);
         }
     }
     

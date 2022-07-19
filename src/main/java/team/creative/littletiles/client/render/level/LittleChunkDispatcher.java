@@ -31,11 +31,12 @@ public class LittleChunkDispatcher {
             VertexBuffer vertexBuffer = chunk.getBuffer(layer);
             ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
             if (manager != null) {
-                manager.doNotErase = true;
+                synchronized (manager) {
+                    manager.queued++;
+                }
                 manager.backToRAM();
             } else
                 ((VertexBufferLittle) vertexBuffer).setManager(manager = new ChunkLayerUploadManager(chunk, layer));
-            
         }
     }
     
