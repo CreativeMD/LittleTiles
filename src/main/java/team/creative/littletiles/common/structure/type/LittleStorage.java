@@ -135,6 +135,9 @@ public class LittleStorage extends LittleStructure {
     public void onInventoryChanged() {
         if (getLevel().isClientSide)
             return;
+        if (!openContainers.isEmpty())
+            for (GuiStorage gui : openContainers)
+                gui.inventoryChanged();
         int used = 0;
         boolean allSlotsFilled = true;
         for (int i = 0; i < inventory.getContainerSize(); i++) {
