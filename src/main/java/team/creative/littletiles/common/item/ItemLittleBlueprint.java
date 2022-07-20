@@ -20,9 +20,9 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiRecipe;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.GuiRecipeSelection;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -77,7 +77,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         if (!((ItemLittleBlueprint) view.get().getItem()).hasTiles(view.get()))
             return new GuiRecipeSelection(view);
-        return new SubGuiRecipe(view);
+        return new GuiRecipe(view);
     }
     
     @Override

@@ -9,13 +9,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.gui.SubGuiWorkbench;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
+import team.creative.littletiles.common.gui.structure.GuiWorkbench;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class LittleWorkbench extends LittleStructurePremade {
     
-    public static final LittleStructureGuiCreator GUI = GuiCreator.register("workbench", new LittleStructureGuiCreator((nbt, player, structure) -> new SubGuiWorkbench()));
+    public static final LittleStructureGuiCreator GUI = GuiCreator.register("workbench", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiWorkbench()));
     
     public LittleWorkbench(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);

@@ -30,8 +30,8 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.entity.particle.LittleParticle;
 import team.creative.littletiles.common.entity.particle.LittleParticlePresets;
 import team.creative.littletiles.common.entity.particle.LittleParticleTexture;
-import team.creative.littletiles.common.gui.SubGuiParticle;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
+import team.creative.littletiles.common.gui.structure.GuiParticle;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
@@ -45,7 +45,7 @@ import team.creative.littletiles.common.structure.registry.premade.LittlePremade
 public class LittleParticleEmitter extends LittleStructurePremade {
     
     public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("particle", new LittleStructureGuiCreator((nbt, player, structure) -> new SubGuiParticle((LittleParticleEmitter) structure)));
+            .register("particle", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiParticle((LittleParticleEmitter) structure)));
     
     @StructureDirectional
     public Facing facing = Facing.UP;
