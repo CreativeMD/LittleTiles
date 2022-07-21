@@ -43,7 +43,7 @@ public class GuiActionDisplay extends GuiControl {
     }
     
     @Override
-    public void flowY(int height, int preferred) {}
+    public void flowY(int width, int height, int preferred) {}
     
     @Override
     public int getMinWidth() {
@@ -59,12 +59,12 @@ public class GuiActionDisplay extends GuiControl {
     }
     
     @Override
-    public int getMinHeight() {
+    public int getMinHeight(int width) {
         return Minecraft.getInstance().font.lineHeight;
     }
     
     @Override
-    public int preferredHeight() {
+    public int preferredHeight(int width) {
         int height = 0;
         for (int i = 0; i < messages.size(); i++)
             height += messages.get(i).getTotalHeight();
