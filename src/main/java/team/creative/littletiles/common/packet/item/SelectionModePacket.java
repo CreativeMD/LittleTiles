@@ -31,9 +31,9 @@ public class SelectionModePacket extends CreativePacket {
         ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof ItemLittleBlueprint)
             if (rightClick)
-                ItemLittleBlueprint.getSelectionMode(stack).onRightClick(player, stack, pos);
+                ItemLittleBlueprint.getSelectionMode(stack).rightClick(player, stack, pos);
             else
-                ItemLittleBlueprint.getSelectionMode(stack).onLeftClick(player, stack, pos);
+                ItemLittleBlueprint.getSelectionMode(stack).leftClick(player, stack, pos);
     }
     
 }

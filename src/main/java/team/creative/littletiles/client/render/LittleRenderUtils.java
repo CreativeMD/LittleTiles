@@ -3,6 +3,7 @@ package team.creative.littletiles.client.render;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -13,25 +14,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.CreativeClientLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 
 public class LittleRenderUtils {
     
-    public static final RenderType[] BLOCK_LAYERS = new RenderType[] { RenderType.solid(), RenderType.cutoutMipped(), RenderType.cutout(), RenderType.translucent() };
-    public static final int TRANSLUCENT = 3;
-    
-    public static RenderType layer(int layer) {
-        return BLOCK_LAYERS[layer];
-    }
-    
-    public static int id(RenderType layer) {
-        for (int i = 0; i < BLOCK_LAYERS.length; i++)
-            if (BLOCK_LAYERS[i] == layer)
-                return i;
-        return -1;
-    }
+    public static List<RenderType> CHUNK_RENDER_TYPES = RenderType.chunkBufferLayers();
     
     // ViewFrustum
     private static Field viewAreaField;
@@ -68,8 +57,8 @@ public class LittleRenderUtils {
     }
     
     public static LittleRenderChunk getRenderChunk(IOrientatedLevel level, BlockPos pos) {
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).renderChunkSupplier != null)
-            return (LittleRenderChunk) ((CreativeLevel) level).renderChunkSupplier.getRenderChunk((Level) level, pos);
+        if (level instanceof CreativeClientLevel && ((CreativeClientLevel) level).renderChunkSupplier != null)
+            return (LittleRenderChunk) ((CreativeClientLevel) level).renderChunkSupplier.getRenderChunk((Level) level, pos);
         return null;
     }
     

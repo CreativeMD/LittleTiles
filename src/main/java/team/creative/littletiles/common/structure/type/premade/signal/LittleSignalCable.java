@@ -7,7 +7,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -45,7 +45,7 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
     public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
         super.render(box, overallBox, cubes);
         
-        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(box.getGrid(), overallBox, LittleTiles.CLEAN.defaultBlockState()).setColor(color);
+        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(box.getGrid(), overallBox, LittleTilesRegistry.CLEAN.get().defaultBlockState()).setColor(color);
         block.allowOverlap = true;
         cubes.add(block);
     }
@@ -63,10 +63,10 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
             int color = getColor(previews);
             float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
             cubes = new ArrayList<>();
-            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.CLEAN).setColor(color));
-            cubes.add(new RenderBox(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.SINGLE_CABLE)
-                    .setColor(color).setKeepUV(true));
-            cubes.add(new RenderBox(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.CLEAN).setColor(color));
+            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.get()).setColor(color));
+            cubes.add(new RenderBox(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTilesRegistry.SINGLE_CABLE
+                    .get()).setColor(color).setKeepUV(true));
+            cubes.add(new RenderBox(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.get()).setColor(color));
             return cubes;
         }
         

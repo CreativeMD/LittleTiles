@@ -5,21 +5,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Strings;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.mod.OptifineHelper;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.RenderingThread;
-import team.creative.littletiles.client.render.item.ItemModelCache;
 
 public class LittleTilesProfilerOverlay {
     
@@ -101,57 +102,47 @@ public class LittleTilesProfilerOverlay {
     
     @SubscribeEvent
     public static void onRender(RenderTickEvent event) {
-        if (event.phase == Phase.END && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
+        if (event.phase == Phase.END && mc.isWindowActive() && !mc.options.hideGui && mc.level != null) {
+            
+            PoseStack pose = new PoseStack();
+            
             List<String> warnings = new ArrayList<>();
-            if (OptifineHelper.isActive() && OptifineHelper.isRenderRegions())
+            if (OptifineHelper.installed() && OptifineHelper.isRenderRegions())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Render Regions");
-            if (OptifineHelper.isActive() && OptifineHelper.isAnisotropicFiltering())
+            if (OptifineHelper.installed() && OptifineHelper.isAnisotropicFiltering())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Anisotropic Filtering");
-            if (OptifineHelper.isActive() && OptifineHelper.isAntialiasing())
+            if (OptifineHelper.installed() && OptifineHelper.isAntialiasing())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Antialiasing");
-            if (!LittleTiles.CONFIG.rendering.hideVBOWarning && !mc.gameSettings.useVbo)
-                warnings.add(ChatFormatting.YELLOW + "(LittleTiles) Please enable VBO and restart the world!");
-            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.isActive() && mc.gameSettings.mipmapLevels == 0)
+            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.installed() && mc.options.mipmapLevels == 0)
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Enable mipmap levels (needs to be > 0)");
             if (!warnings.isEmpty()) {
-                GlStateManager.pushMatrix();
                 for (int i = 0; i < warnings.size(); i++) {
                     String warning = warnings.get(i);
-                    int k = mc.fontRenderer.getStringWidth(warning);
-                    int i1 = 2 + mc.fontRenderer.FONT_HEIGHT * i;
-                    Gui.drawRect(1, i1 - 1, 2 + k + 1, i1 + mc.fontRenderer.FONT_HEIGHT - 1, -1873784752);
-                    mc.fontRenderer.drawString(warning, 2, i1, 14737632);
+                    int k = mc.font.width(warning);
+                    int i1 = 2 + mc.font.lineHeight * i;
+                    Gui.fill(pose, 1, i1 - 1, 2 + k + 1, i1 + mc.font.lineHeight - 1, -1873784752);
+                    mc.font.draw(pose, warning, 2, i1, 14737632);
                 }
-                GlStateManager.popMatrix();
             }
             
             if (showDebugInfo) {
-                GlStateManager.pushMatrix();
                 List<String> list = new ArrayList<>();
                 
                 PairList<String, Object> details = new PairList<>();
-                details.add("ThreadCount", RenderingThread.threads.size());
-                details.add("Chunks", RenderingThread.chunks.size());
+                details.add("ThreadCount", RenderingThread.THREADS.size());
+                details.add("Chunks", RenderingThread.CHUNKS.size());
                 details.add("Triggered", uploaded + "(" + vanillaChunksUpdates + ")/" + ltChunksUpdates);
-                int queued = 0;
-                for (RenderingThread thread : RenderingThread.threads)
-                    if (thread != null)
-                        queued += thread.updateCoords.size();
-                details.add("Queue", queued);
+                details.add("Queue", RenderingThread.queueSize());
                 
                 if (averageDuration > 1000)
                     details.add("Average", averageDuration / 1000 + "ms");
                 else
                     details.add("Average", averageDuration + "ns");
                 
-                for (RenderingThread thread : RenderingThread.threads)
-                    if (thread != null)
-                        details.add("" + thread.getThreadIndex(), thread.updateCoords.size());
-                    
                 list.add(format(details));
                 details.clear();
                 
-                details.add("Item Cache", ItemModelCache.countCaches());
+                details.add("Item Cache", LittleTilesClient.ITEM_RENDER_CACHE.countCaches());
                 
                 list.add(format(details));
                 details.clear();
@@ -160,15 +151,13 @@ public class LittleTilesProfilerOverlay {
                     String s = list.get(i);
                     
                     if (!Strings.isNullOrEmpty(s)) {
-                        int j = mc.fontRenderer.FONT_HEIGHT;
-                        int k = mc.fontRenderer.getStringWidth(s);
-                        int l = 2;
+                        int j = mc.font.lineHeight;
+                        int k = mc.font.width(s);
                         int i1 = 2 + j * i;
-                        Gui.drawRect(1, i1 - 1, 2 + k + 1, i1 + j - 1, -1873784752);
-                        mc.fontRenderer.drawString(s, 2, i1, 14737632);
+                        GuiComponent.fill(pose, 1, i1 - 1, 2 + k + 1, i1 + j - 1, -1873784752);
+                        mc.font.draw(pose, s, 2, i1, 14737632);
                     }
                 }
-                GlStateManager.popMatrix();
             }
         }
     }

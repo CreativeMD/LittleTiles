@@ -57,7 +57,7 @@ public class SubContainerBlankOMatic extends SubContainer {
                 added = true;
             }
             if (added)
-                player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
+                player.playSound(SoundEvents.BREWING_STAND_BREW, 1.0F, 1.0F);
             updateVolume();
         }
     }

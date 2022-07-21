@@ -1,7 +1,10 @@
 package team.creative.littletiles.common.action;
 
+import java.util.List;
+
 import net.minecraft.client.resources.language.I18n;
-import team.creative.littletiles.common.item.tooltip.ActionMessage;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class LittleActionException extends Exception {
     
@@ -13,13 +16,17 @@ public class LittleActionException extends Exception {
         super(msg, e);
     }
     
-    public ActionMessage getActionMessage() {
+    public List<Component> getActionMessage() {
         return null;
     }
     
     @Override
     public String getLocalizedMessage() {
         return I18n.get(getMessage());
+    }
+    
+    public TranslatableComponent getTranslatable() {
+        return new TranslatableComponent(getMessage());
     }
     
     public boolean isHidden() {

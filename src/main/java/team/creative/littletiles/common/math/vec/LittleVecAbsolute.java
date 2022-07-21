@@ -212,7 +212,6 @@ public class LittleVecAbsolute implements IGridBased {
     }
     
     @Deprecated
-    @SuppressWarnings("deprecation")
     public void overwriteGrid(LittleGrid grid) {
         gridVec.overwriteGrid(grid);
     }

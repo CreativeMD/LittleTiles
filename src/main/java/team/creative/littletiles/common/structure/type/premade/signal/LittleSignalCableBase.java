@@ -21,9 +21,9 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.HashMapList;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.littletiles.LittleTiles;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.map.HashMapList;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -403,7 +403,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingCubes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
         if (layer != (ColorUtils.isTransparent(color) ? RenderType.translucent() : RenderType.solid()))
             return;
         
@@ -430,7 +430,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             renderBox.setMin(axis, renderBox.getMin(axis) - distance);
         }
         
-        LittleRenderBox cube = renderBox.getRenderingCube(grid, LittleTiles.SINGLE_CABLE.defaultBlockState().setValue(BlockStateProperties.AXIS, axis.toVanilla()));
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.SINGLE_CABLE.get().defaultBlockState().setValue(BlockStateProperties.AXIS, axis.toVanilla()));
         if (!oneSidedRenderer) {
             if (positive)
                 cube.setMax(axis, cube.getMin(axis) + cube.getSize(axis) / 2);

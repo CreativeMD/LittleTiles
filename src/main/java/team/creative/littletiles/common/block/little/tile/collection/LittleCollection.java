@@ -11,7 +11,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
@@ -92,6 +92,13 @@ public class LittleCollection implements Iterable<LittleTile> {
             removed(tile);
             return true;
         }
+        return false;
+    }
+    
+    public boolean remove(LittleElement element, LittleBox box) {
+        for (LittleTile other : this)
+            if (other.is(element))
+                return other.remove(this, box);
         return false;
     }
     

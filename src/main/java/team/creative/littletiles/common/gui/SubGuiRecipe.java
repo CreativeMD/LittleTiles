@@ -11,7 +11,9 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -19,19 +21,27 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
-import team.creative.littletiles.common.gui.configure.SubGuiConfigure;
+import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
-public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
+public class SubGuiRecipe extends GuiConfigure implements IAnimationControl {
+    
+    public final GuiSyncLocal<StringTag> CLEAR_CONTENT = getSyncHolder().register("clear_content", tag -> {
+        GuiHandler.openGui("recipeadvanced", new CompoundTag(), getPlayer());
+    });
     
     public LittleStructure structure;
     public LittleStructureGuiParser parser;
@@ -48,8 +58,8 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
     
     public AnimationGuiHandler handler = new AnimationGuiHandler();
     
-    public SubGuiRecipe(ItemStack stack) {
-        super(350, 200, stack);
+    public SubGuiRecipe(ContainerSlotView view) {
+        super("recipe", 350, 200, view);
         
         PairList<String, Class<? extends LittleStructureGuiParser>> noneCategory = new PairList<>();
         noneCategory.add("structure.none.name", null);
@@ -134,12 +144,12 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
     }
     
     @Override
-    public void saveConfiguration() {
-        
+    public CompoundTag saveConfiguration(CompoundTag nbt) {
+        return null;
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         controls.add(new GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>>("types", 0, 5, 90, craftables));
         
         controls.add(new GuiButton("clear", translate("selection.clear"), 105, 176, 38) {

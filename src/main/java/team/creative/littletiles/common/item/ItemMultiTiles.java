@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import com.google.common.base.Charsets;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -17,12 +18,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
@@ -31,11 +36,29 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 
 public class ItemMultiTiles extends Item implements ILittlePlacer {
     
-    public static PlacementMode currentMode = PlacementMode.REGISTRY.getDefault();
+    public static ItemStack of(LittleElement element) {
+        return of(element, LittleGrid.min(), LittleGrid.min().box());
+    }
+    
+    public static ItemStack of(LittleElement element, LittleGrid grid, LittleBox box) {
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+        LittleGroup group = new LittleGroup();
+        group.add(grid, element, box);
+        stack.setTag(LittleGroup.save(group));
+        return stack;
+    }
+    
+    public static PlacementMode currentMode = PlacementMode.getDefault();
     public static LittleGrid currentContext;
     
     public ItemMultiTiles() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
+    }
+    
+    public static String getStructure(ItemStack stack) {
+        if (stack.getOrCreateTag().contains("structure"))
+            return stack.getTag().getCompound("structure").getString("id");
+        return "";
     }
     
     @Override
@@ -98,13 +121,14 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGrid grid, PlacementMode mode) {
-                ItemMultiTiles.currentContext = context;
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
+                ItemMultiTiles.currentContext = grid;
                 ItemMultiTiles.currentMode = mode;
+                return nbt;
             }
             
         };
@@ -133,7 +157,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     public static void reloadExampleStructures() {
         for (ExampleStructures example : ExampleStructures.values()) {
             try {
-                example.stack = new ItemStack(LittleTiles.ITEM_TILES);
+                example.stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
                 example.stack
                         .setTag(TagParser.parseTag(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(example.getFileName()), Charsets.UTF_8)));
             } catch (Exception e) {

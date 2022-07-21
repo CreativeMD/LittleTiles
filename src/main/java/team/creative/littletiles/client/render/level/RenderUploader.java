@@ -6,29 +6,28 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.lwjgl.opengl.ARBBufferObject;
-import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL15;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.model.BufferBuilderUtils;
 import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.render.LittleRenderUtils;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerCache;
+import team.creative.littletiles.common.block.entity.BETiles;
 
 @SideOnly(Side.CLIENT)
 public class RenderUploader {
@@ -48,29 +47,28 @@ public class RenderUploader {
         return -1;
     }
     
-    public static void uploadRenderData(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
-        if ((FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions()) || !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
+    public static void uploadRenderData(RenderChunk chunk, List<BETiles> tiles) {
+        if (OptifineHelper.isRenderRegions() || !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
             return;
         
         try {
-            for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-                BlockRenderLayer layer = BlockRenderLayer.values()[i];
+            for (RenderType layer : LittleRenderUtils.CHUNK_RENDER_TYPES) {
                 
-                ChunkBlockLayerCache cache = new ChunkBlockLayerCache(layer.ordinal());
+                ChunkBlockLayerCache cache = new ChunkBlockLayerCache(layer);
                 
-                for (TileEntityLittleTiles te : tiles)
-                    cache.add(te.render, te.render.getBufferCache().get(i));
+                for (BETiles te : tiles)
+                    cache.add(te.render, te.render.getBufferCache().get(layer));
                 
                 try {
                     ByteBuffer toUpload;
                     if (cache.expanded() > 0) {
                         CompiledChunk compiled = chunk.getCompiledChunk();
-                        VertexBuffer uploadBuffer = chunk.getVertexBufferByLayer(i);
+                        VertexBuffer uploadBuffer = chunk.getBuffer(layer);
                         
                         if (uploadBuffer == null)
                             return;
                         
-                        if (layer == BlockRenderLayer.TRANSLUCENT) {
+                        if (layer == RenderType.translucent()) {
                             boolean empty = compiled.getState() == null || compiled.isLayerEmpty(BlockRenderLayer.TRANSLUCENT);
                             BufferBuilder builder = new BufferBuilder((empty ? 0 : compiled.getState().getRawBuffer().length * 4) + cache.expanded() + DefaultVertexFormats.BLOCK
                                     .getNextOffset());
@@ -98,10 +96,10 @@ public class RenderUploader {
                             int uploadedVertexCount = vertexCountField.getInt(uploadBuffer);
                             
                             // Retrieve vanilla buffered data
-                            uploadBuffer.bindBuffer();
+                            uploadBuffer.bind();
                             boolean empty = compiled.isLayerEmpty(layer);
                             ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(uploadedVertexCount * format.getNextOffset());
-                            uploadBuffer.unbindBuffer();
+                            VertexBuffer.unbind();
                             
                             toUpload = ByteBuffer
                                     .allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + cache.expanded() + DefaultVertexFormats.BLOCK.getNextOffset());
@@ -114,7 +112,7 @@ public class RenderUploader {
                         uploadBuffer.deleteGlBuffers();
                         bufferIdField.setInt(uploadBuffer, OpenGlHelper.glGenBuffers());
                         toUpload.position(0);
-                        uploadBuffer.bufferData(toUpload);
+                        uploadBuffer.upload(toUpload);
                         if (compiled != CompiledChunk.DUMMY)
                             setLayerUsed.invoke(compiled, layer);
                     }
@@ -125,21 +123,10 @@ public class RenderUploader {
         } catch (NotSupportedException e) {}
     }
     
-    private static Field arbVboField = ReflectionHelper.findField(OpenGlHelper.class, new String[] { "arbVbo", "field_176090_Y" });
-    
     public static ByteBuffer glMapBufferRange(long length) throws NotSupportedException {
         try {
             ByteBuffer result = ByteBuffer.allocateDirect((int) length);
-            if (arbVboField.getBoolean(null)) {
-                System.out.println("Using arb buffers ...");
-                ARBBufferObject.glGetBufferSubDataARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0, result);
-            }
-            //return ARBVertexBufferObject.glMapBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, ARBVertexBufferObject.GL_READ_ONLY_ARB, length, null);
-            //else if (GLContext.getCapabilities().OpenGL30)
-            //return GL30.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, 0, length, GL30.GL_MAP_READ_BIT, null);
-            //else if (OpenGlHelper.useVbo())
-            else
-                GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0, result);
+            GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0, result);
             return result;
         } catch (IllegalArgumentException | IllegalAccessException | IllegalStateException e) {
             if (e instanceof IllegalStateException)

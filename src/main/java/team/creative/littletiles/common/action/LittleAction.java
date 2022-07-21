@@ -34,14 +34,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
-import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -54,6 +53,7 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
@@ -69,7 +69,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
-public abstract class LittleAction extends CreativePacket {
+public abstract class LittleAction<T> extends CreativePacket {
     
     /** Must be implemented by every action **/
     public LittleAction() {
@@ -83,7 +83,11 @@ public abstract class LittleAction extends CreativePacket {
     @OnlyIn(Dist.CLIENT)
     public abstract LittleAction revert(Player player) throws LittleActionException;
     
-    public abstract boolean action(Player player) throws LittleActionException;
+    public abstract T action(Player player) throws LittleActionException;
+    
+    public abstract boolean wasSuccessful(T result);
+    
+    public abstract T failed();
     
     @Override
     public final void executeClient(Player player) {}
@@ -200,15 +204,11 @@ public abstract class LittleAction extends CreativePacket {
     public static void sendBlockResetToClient(Level level, Player player, PlacementPreview preview) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
-            return;
         LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, preview.getPositions()), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, BlockPos pos) {
         if (!(player instanceof ServerPlayer))
-            return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null)
@@ -220,15 +220,11 @@ public abstract class LittleAction extends CreativePacket {
     public static void sendBlockResetToClient(Level level, Player player, BlockEntity be) {
         if (!(player instanceof ServerPlayer))
             return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
-            return;
         LittleTiles.NETWORK.sendToClient(new BlockUpdate(level, be.getBlockPos(), be), (ServerPlayer) player);
     }
     
     public static void sendBlockResetToClient(Level level, Player player, Iterable<BETiles> blockEntities) {
         if (!(player instanceof ServerPlayer))
-            return;
-        if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
             return;
         LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, blockEntities), (ServerPlayer) player);
     }
@@ -237,15 +233,13 @@ public abstract class LittleAction extends CreativePacket {
         if (!(player instanceof ServerPlayer))
             return;
         try {
-            if (level instanceof CreativeLevel && ((CreativeLevel) level).parent == null)
-                return;
             sendBlockResetToClient(level, player, structure.blocks());
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             e.printStackTrace();
         }
     }
     
-    public static boolean isAllowedToInteract(Player player, EntityAnimation animation, boolean rightClick) {
+    public static boolean isAllowedToInteract(Player player, LittleLevelEntity entity, boolean rightClick) {
         if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.mayBuild())))
             return false;
         
@@ -351,7 +345,7 @@ public abstract class LittleAction extends CreativePacket {
         
         String id = ItemPremadeStructure.getPremadeId(toDrain);
         for (ItemStack stack : inventory) {
-            if (stack.getItem() == LittleTiles.PREMADE && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
+            if (stack.getItem() == LittleTilesRegistry.PREMADE.get() && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
                 stack.shrink(1);
                 return true;
             }
@@ -412,13 +406,18 @@ public abstract class LittleAction extends CreativePacket {
         return inventories;
     }
     
-    public static boolean isBlockValid(BlockState state) {
-        Block block = state.getBlock();
-        if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
-            return true;
+    public static boolean isBlockValid(Block block) {
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
-        return state.isSolidRender(null, null) || block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock;
+        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock;
+    }
+    
+    public static boolean isBlockValid(BlockState state) {
+        if (isBlockValid(state.getBlock()))
+            return true;
+        if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
+            return true;
+        return state.isSolidRender(null, null);
     }
     
 }

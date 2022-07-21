@@ -5,26 +5,26 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.gui.GuiControl;
-import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.AnimationEventGuiParser;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
-public class SubGuiDoorEvents extends SubGui {
+public class SubGuiDoorEvents extends GuiLayer {
     
     public GuiDoorEventsButton button;
     
@@ -74,7 +74,7 @@ public class SubGuiDoorEvents extends SubGui {
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         GuiScrollBox box = new GuiScrollBox("content", 0, 0, 170, 110);
         controls.add(box);
         GuiComboBox type = new GuiComboBox("type", 0, 120, 100, AnimationEvent.typeNamestranslated());

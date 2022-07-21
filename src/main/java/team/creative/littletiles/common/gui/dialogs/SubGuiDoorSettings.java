@@ -1,16 +1,16 @@
 package team.creative.littletiles.common.gui.dialogs;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 
 import net.minecraft.nbt.NBTTagCompound;
+import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 
-public class SubGuiDoorSettings extends SubGui {
+public class SubGuiDoorSettings extends GuiLayer {
     
     public GuiDoorSettingsButton button;
     
@@ -19,9 +19,9 @@ public class SubGuiDoorSettings extends SubGui {
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 0, button.stayAnimated)
-            .setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")).setEnabled(button.stayAnimatedPossible));
+                .setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")).setEnabled(button.stayAnimatedPossible));
         controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 15, button.disableRightClick));
         controls.add(new GuiCheckBox("noClip", CoreControl.translate("gui.door.noClip"), 0, 45, button.noClip));
         controls.add(new GuiCheckBox("playPlaceSounds", CoreControl.translate("gui.door.playPlaceSounds"), 0, 65, button.playPlaceSounds));

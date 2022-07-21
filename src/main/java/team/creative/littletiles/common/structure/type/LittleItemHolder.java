@@ -62,13 +62,14 @@ public class LittleItemHolder extends LittleStructure {
             return InteractionResult.SUCCESS;
         ItemStack mainStack = player.getMainHandItem();
         if (mainStack.isEmpty() && !stack.isEmpty()) {
-            player.replaceItemInInventory(player.getInventory().selected, stack.copy());
-            stack = ItemStack.EMPTY;
+            if (player.getInventory().add(player.getInventory().selected, stack))
+                stack = ItemStack.EMPTY;
             updateInput();
             updateStructure();
         } else if (stack.isEmpty()) {
-            player.replaceItemInInventory(player.getInventory().selected, ItemStack.EMPTY);
             stack = mainStack.copy();
+            if (!player.getAbilities().instabuild)
+                mainStack.shrink(1);
             updateInput();
             updateStructure();
         }
@@ -80,7 +81,7 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    public void getRenderingCubes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
         if (layer == RenderType.cutout()) {
             AlignedBox box = frame.getBox().getBox(frame.getGrid());
             if (!stack.isEmpty())

@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.filter.Filter;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.common.api.block.LittleBlock;
 
 public class LittleBlockRegistry {
@@ -55,7 +55,11 @@ public class LittleBlockRegistry {
     }
     
     public static BlockState loadState(String name) {
-        String[] parts = name.split("[");
+        String[] parts;
+        if (name.contains("["))
+            parts = name.split("[");
+        else
+            parts = new String[] { name };
         if (parts.length == 0)
             return Blocks.AIR.defaultBlockState();
         ResourceLocation location = new ResourceLocation(parts[0]);

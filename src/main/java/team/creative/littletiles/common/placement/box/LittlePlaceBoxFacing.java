@@ -1,12 +1,11 @@
 package team.creative.littletiles.common.placement.box;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.core.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -27,9 +26,9 @@ public class LittlePlaceBoxFacing extends LittlePlaceBox {
     }
     
     @Override
-    public List<LittleRenderBox> getRenderBoxes(LittleGrid grid) {
-        List<LittleRenderBox> cubes = new ArrayList<>();
-        LittleRenderBox cube = new LittleRenderBox(grid, box, new LittleElement(LittleTiles.CLEAN.defaultBlockState(), color));
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderBox(LittleGrid grid) {
+        LittleRenderBox cube = new LittleRenderBox(grid, box, new LittleElement(LittleTilesRegistry.CLEAN.get().defaultBlockState(), color));
         float thickness = 1 / 32F;
         Axis axis = facing.axis;
         if (facing.positive) {
@@ -39,8 +38,7 @@ public class LittlePlaceBoxFacing extends LittlePlaceBox {
             cube.setMax(axis, cube.getMin(axis));
             cube.setMin(axis, cube.getMin(axis) - thickness);
         }
-        cubes.add(cube);
-        return cubes;
+        return cube;
     }
     
     @Override

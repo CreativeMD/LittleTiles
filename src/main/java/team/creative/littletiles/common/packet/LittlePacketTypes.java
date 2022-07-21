@@ -10,7 +10,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import team.creative.creativecore.common.network.type.NetworkFieldTypeClass;
 import team.creative.creativecore.common.network.type.NetworkFieldTypes;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -19,8 +19,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.item.tooltip.ActionMessage;
-import team.creative.littletiles.common.item.tooltip.ActionMessage.ActionMessageObjectType;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -208,7 +206,7 @@ public class LittlePacketTypes {
             
             @Override
             protected PlacementMode readContent(FriendlyByteBuf buffer) {
-                return PlacementMode.REGISTRY.get(buffer.readUtf());
+                return PlacementMode.getMode(buffer.readUtf());
             }
             
         }, PlacementMode.class);
@@ -384,32 +382,6 @@ public class LittlePacketTypes {
             
         }, LittleBoxes.class, LittleBoxesNoOverlap.class, LittleBoxesSimple.class);
         
-        NetworkFieldTypes.register(new NetworkFieldTypeClass<ActionMessage>() {
-            
-            @Override
-            protected void writeContent(ActionMessage content, FriendlyByteBuf buffer) {
-                buffer.writeUtf(content.text);
-                buffer.writeInt(content.objects.length);
-                for (int i = 0; i < content.objects.length; i++) {
-                    ActionMessageObjectType type = ActionMessage.getType(content.objects[i]);
-                    buffer.writeInt(type.index());
-                    type.write(content.objects[i], buffer);
-                }
-            }
-            
-            @Override
-            protected ActionMessage readContent(FriendlyByteBuf buffer) {
-                String text = buffer.readUtf();
-                Object[] objects = new Object[buffer.readInt()];
-                for (int i = 0; i < objects.length; i++) {
-                    ActionMessageObjectType type = ActionMessage.getType(buffer.readInt());
-                    objects[i] = type.read(buffer);
-                }
-                return new ActionMessage(text, objects);
-            }
-            
-        }, ActionMessage.class);
-        
         NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementPreview>() {
             
             @Override
@@ -423,12 +395,13 @@ public class LittlePacketTypes {
                 NetworkFieldTypes.write(LittleGroup.class, content.previews, buffer);
                 NetworkFieldTypes.write(PlacementMode.class, content.mode, buffer);
                 NetworkFieldTypes.write(PlacementPosition.class, content.position, buffer);
+                NetworkFieldTypes.write(LittleBoxAbsolute.class, content.box, buffer);
             }
             
             @Override
             protected PlacementPreview readContent(FriendlyByteBuf buffer) {
-                return new PlacementPreview(buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes.read(LittleGroup.class, buffer), NetworkFieldTypes
-                        .read(PlacementMode.class, buffer), NetworkFieldTypes.read(PlacementPosition.class, buffer));
+                return PlacementPreview.load(buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes.read(LittleGroup.class, buffer), NetworkFieldTypes
+                        .read(PlacementMode.class, buffer), NetworkFieldTypes.read(PlacementPosition.class, buffer), NetworkFieldTypes.read(LittleBoxAbsolute.class, buffer));
             }
             
         }, PlacementPreview.class);

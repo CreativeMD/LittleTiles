@@ -12,7 +12,7 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
@@ -51,8 +51,8 @@ public class SignalTicker {
     public static synchronized SignalTicker get(Level level) {
         if (level.isClientSide)
             throw new RuntimeException("Client should never ask for a signal ticker");
-        if (level instanceof IOrientatedLevel)
-            level = ((IOrientatedLevel) level).getRealLevel();
+        if (level instanceof ISubLevel)
+            level = ((ISubLevel) level).getRealLevel();
         SignalTicker ticker = tickers.get(level);
         if (ticker == null) {
             ticker = new SignalTicker(level);

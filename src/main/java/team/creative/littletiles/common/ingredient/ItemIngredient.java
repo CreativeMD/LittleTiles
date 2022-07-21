@@ -133,22 +133,13 @@ public class ItemIngredient extends LittleIngredient<ItemIngredient> implements 
     }
     
     @Override
-    public String print(List<Object> objects) {
-        if (content.size() <= 4) {
-            String message = "";
-            for (ItemIngredientEntry entry : content) {
-                message += "{" + objects.size() + "} " + entry.count + " " + entry.toString() + "\n";
-                objects.add(entry.ingredient.getExample());
-            }
-            return message;
-        }
-        
-        String message = "";
-        for (ItemIngredientEntry entry : content) {
-            message += "{" + objects.size() + "} " + entry.count + " ";
-            objects.add(entry.ingredient.getExample());
-        }
-        return message;
+    public void print(TextBuilder text) {
+        if (content.size() <= 4)
+            for (ItemIngredientEntry entry : content)
+                text.stack(entry.ingredient.getExample()).text(" " + entry.count + " " + entry.toString()).newLine();
+        else
+            for (ItemIngredientEntry entry : content)
+                text.stack(entry.ingredient.getExample()).text(" " + entry.count + " ");
     }
     
     @Override

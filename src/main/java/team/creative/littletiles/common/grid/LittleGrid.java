@@ -7,7 +7,10 @@ import java.util.List;
 import com.google.common.math.IntMath;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.math.LittleUtils;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleGrid {
@@ -22,6 +25,7 @@ public class LittleGrid {
     private static int base;
     private static int scale;
     private static int exponent;
+    private static TextMapBuilder<LittleGrid> map;
     
     public static void loadGrid(int base, int scale, int exponent, int defaultGrid) {
         LittleGrid.overallDefaultIndex = -1;
@@ -48,6 +52,8 @@ public class LittleGrid {
         for (int i = 0; i < grids.length; i++)
             names.add(grids[i].count + "");
         names = Collections.unmodifiableList(names);
+        
+        map = new TextMapBuilder<LittleGrid>().addComponent(grids, x -> new TextComponent("" + x.count));
     }
     
     public static int getScale() {
@@ -60,6 +66,14 @@ public class LittleGrid {
     
     public static List<String> names() {
         return names;
+    }
+    
+    public static LittleGrid[] getGrids() {
+        return grids;
+    }
+    
+    public static TextMapBuilder<LittleGrid> mapBuilder() {
+        return map;
     }
     
     public static LittleGrid overallDefault() {
@@ -143,6 +157,10 @@ public class LittleGrid {
             nbt.remove("grid");
     }
     
+    public int getIndex() {
+        return index;
+    }
+    
     public int getMinGrid(int value) {
         return minSizes[Math.abs(value % count)];
     }
@@ -201,6 +219,10 @@ public class LittleGrid {
     @Override
     public String toString() {
         return "" + count;
+    }
+    
+    public LittleBox box() {
+        return new LittleBox(0, 0, 0, count, count, count);
     }
     
 }

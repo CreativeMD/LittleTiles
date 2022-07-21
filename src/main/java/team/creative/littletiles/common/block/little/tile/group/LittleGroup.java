@@ -53,6 +53,14 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         convertToSmallest();
     }
     
+    public LittleGroup(LittleGroup group, List<LittleGroup> children) {
+        this.grid = group.getGrid();
+        this.structure = group.structure;
+        this.content = group.content;
+        this.children = new ItemChildrenList(this, children);
+        convertToSmallest();
+    }
+    
     public LittleGroup(LittleGrid grid) {
         this(null, grid, Collections.EMPTY_LIST);
     }
@@ -442,6 +450,12 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         return Collections.EMPTY_LIST;
     }
     
+    public void add(LittleGroup group) {
+        sameGrid(group, () -> {
+            content.addAll(group);
+        });
+    }
+    
     public void add(LittleGrid grid, LittleElement element, Iterable<LittleBox> boxes) {
         if (grid != this.grid) {
             if (grid.count > this.grid.count)
@@ -486,6 +500,27 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     @OnlyIn(Dist.CLIENT)
+    public List<RenderBox> getPlaceBoxes() {
+        List<RenderBox> boxes = new ArrayList<>();
+        addPlaceBoxes(boxes);
+        return boxes;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    protected void addPlaceBoxes(List<RenderBox> boxes) {
+        for (LittleTile tile : content)
+            tile.addPlaceBoxes(grid, boxes);
+        if (hasStructure()) {
+            List<LittlePlaceBox> structureBoxes = getStructureType().getSpecialBoxes(this);
+            if (structureBoxes != null)
+                for (LittlePlaceBox box : structureBoxes)
+                    boxes.add(box.getRenderBox(grid));
+        }
+        for (LittleGroup child : children.all())
+            child.addPlaceBoxes(boxes);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
     public boolean hasTranslucentBlocks() {
         if (hasTranslucentBlocks())
             return true;
@@ -507,7 +542,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     @OnlyIn(Dist.CLIENT)
     protected void addRenderingBoxes(List<RenderBox> boxes, boolean translucent) {
         for (LittleTile tile : content)
-            if (tile.isTranslucent())
+            if (tile.isTranslucent() == translucent)
                 tile.addRenderingBoxes(grid, boxes);
         if (hasStructure()) {
             List<RenderBox> structureBoxes = getStructureType().getItemPreview(this, translucent);

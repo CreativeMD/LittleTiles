@@ -17,8 +17,8 @@ import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.level.SubLevel;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
 
@@ -57,8 +57,8 @@ public class NeighborUpdateOrganizer {
                             LittleTiles.NETWORK.sendToClient(new NeighborUpdate(level, collected), (ServerPlayer) player);
                     }
                     
-                } else if (level instanceof SubLevel)
-                    LittleTiles.NETWORK.sendToClientTracking(new NeighborUpdate(level, entry.getValue()), ((SubLevel) level).parent);
+                } else if (level instanceof ISubLevel)
+                    LittleTiles.NETWORK.sendToClientTracking(new NeighborUpdate(level, entry.getValue()), ((ISubLevel) level).getHolder());
             }
             
             positions.clear();

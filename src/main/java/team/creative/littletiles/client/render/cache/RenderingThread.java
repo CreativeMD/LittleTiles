@@ -1,43 +1,45 @@
 package team.creative.littletiles.client.render.cache;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
-import com.creativemd.creativecore.common.world.IBlockAccessFake;
-import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.optifine.shaders.SVertexBuilder;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
+import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.client.render.model.BlockInfoExtension;
+import team.creative.creativecore.client.render.model.CreativeBlockModelRenderer;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.level.SubLevel;
+import team.creative.creativecore.common.level.LevelAccesorFake;
+import team.creative.creativecore.common.level.SubClientLevel;
 import team.creative.creativecore.common.mod.OptifineHelper;
-import team.creative.creativecore.common.util.type.SingletonList;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.client.render.LittleRenderUtils;
@@ -46,59 +48,52 @@ import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.mc.BlockTile;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderingThread extends Thread {
     
-    private static final String[] fakeWorldMods = new String[] { "chisel" };
-    
-    public static List<RenderingThread> threads;
-    
-    private static int threadIndex;
-    
-    public static synchronized RenderingThread getNextThread() {
-        synchronized (threads) {
-            RenderingThread thread = threads.get(threadIndex);
-            if (thread == null)
-                threads.set(threadIndex, thread = new RenderingThread(threadIndex));
-            threadIndex++;
-            if (threadIndex >= threads.size())
-                threadIndex = 0;
-            
-            return thread;
-        }
-    }
+    private static final String[] fakeLeveldMods = new String[] { "chisel" };
+    public static List<RenderingThread> THREADS;
+    public static final HashMap<Object, Integer> CHUNKS = new HashMap<>();
+    public static final Minecraft mc = Minecraft.getInstance();
+    private static final ConcurrentLinkedQueue<RenderingBlockContext> QUEUE = new ConcurrentLinkedQueue<>();
     
     public static void initThreads(int count) {
         if (count <= 0)
             throw new IllegalArgumentException("count has to be at least equal or greater than one");
-        if (threads != null) {
-            for (RenderingThread thread : threads)
+        if (THREADS != null) {
+            for (RenderingThread thread : THREADS)
                 if (thread != null)
                     thread.interrupt();
                 
-            for (RenderingThread thread : threads)
-                while (thread != null && thread.updateCoords.size() > 0)
-                    thread.updateCoords.poll().be.render.resetRenderingState();
+            while (QUEUE.size() > 0)
+                QUEUE.poll().be.render.resetRenderingState();
         }
-        threadIndex = 0;
-        threads = new ArrayList<>();
+        THREADS = new ArrayList<>();
         for (int i = 0; i < count; i++)
-            threads.add(null);
+            THREADS.add(new RenderingThread());
     }
     
-    public static final HashMap<Object, Integer> chunks = new HashMap<>();
-    public static Minecraft mc = Minecraft.getInstance();
+    public static void unload() {
+        for (RenderingThread thread : THREADS)
+            if (thread != null)
+                thread.interrupt();
+            
+        THREADS = null;
+        
+        QUEUE.clear();
+        CHUNKS.clear();
+    }
     
-    public static boolean addCoordToUpdate(BETiles be) {
-        RenderingThread renderer = getNextThread();
+    public static boolean queue(BETiles be) {
+        if (THREADS == null)
+            initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
         
         Object chunk;
         if (be.getLevel() instanceof IOrientatedLevel)
             chunk = LittleRenderUtils.getRenderChunk((IOrientatedLevel) be.getLevel(), be.getBlockPos());
         else
-            chunk = LittleRenderUtils.getRenderChunk(LittleRenderUtils.getViewFrustum(), be.getBlockPos());
+            chunk = LittleRenderUtils.getRenderChunk(LittleRenderUtils.getViewArea(), be.getBlockPos());
         
         if (chunk == null) {
             System.out.println("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());
@@ -107,97 +102,87 @@ public class RenderingThread extends Thread {
         
         if (be.isEmpty()) {
             int index = be.render.startBuildingCache();
-            be.render.getBoxCache().clear();
+            be.render.boxCache.clear();
             synchronized (be.render) {
                 be.render.getBufferCache().setEmpty();
             }
             if (!be.render.finishBuildingCache(index, LittleChunkDispatcher.currentRenderState, true))
-                return addCoordToUpdate(be);
+                return queue(be);
             return false;
         }
         
-        synchronized (chunks) {
-            Integer count = RenderingThread.chunks.get(chunk);
+        synchronized (CHUNKS) {
+            Integer count = CHUNKS.get(chunk);
             if (count == null)
                 count = 0;
-            RenderingThread.chunks.put(chunk, count + 1);
+            RenderingThread.CHUNKS.put(chunk, count + 1);
         }
-        renderer.updateCoords.add(new RenderingData(be, chunk));
+        QUEUE.add(new RenderingBlockContext(be, chunk));
         return true;
+    }
+    
+    public static int queueSize() {
+        return QUEUE.size();
     }
     
     static {
         initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
     }
     
-    public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
-    
-    final int index;
-    
-    public RenderingThread(int index) {
-        this.index = index;
+    public RenderingThread() {
         start();
     }
     
-    public int getThreadIndex() {
-        return index;
-    }
-    
     private final SingletonList<BakedQuad> bakedQuadWrapper = new SingletonList<BakedQuad>(null);
-    private final IBlockAccessFake fakeAccess = new IBlockAccessFake();
+    private final LevelAccesorFake fakeAccess = new LevelAccesorFake();
     public boolean active = true;
     
     @Override
     public void run() {
         try {
             while (active) {
-                Level world = mc.level;
+                LevelAccessor level = mc.level;
                 long duration = 0;
+                Random rand = new Random();
+                PoseStack posestack = new PoseStack();
                 
-                if (world != null && !updateCoords.isEmpty()) {
-                    RenderingData data = updateCoords.poll();
+                if (level != null && !QUEUE.isEmpty()) {
+                    RenderingBlockContext data = QUEUE.poll();
                     
                     try {
                         if (LittleTilesProfilerOverlay.isActive())
                             duration = System.nanoTime();
                         
-                        if (data.be.isRemoved())
-                            throw new InvalidTileEntityException(data.be.getBlockPos() + "");
+                        data.checkRemoved();
                         
                         data.index = data.be.render.startBuildingCache();
-                        
                         BlockPos pos = data.be.getBlockPos();
-                        LayeredRenderBoxCache cubeCache = data.be.render.getBoxCache();
                         
-                        if (cubeCache == null)
-                            throw new InvalidTileEntityException(data.be.getBlockPos() + "");
+                        data.checkLoaded();
                         
-                        if (data.be.getLevel() == null || !data.be.hasLoaded())
-                            throw new RenderingException("Tileentity is not loaded yet");
+                        data.beforeBuilding();
                         
-                        for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-                            cubeCache.set(BlockTile.getRenderingCubes(data.state, data.be, null, layer), layer);
+                        for (RenderType layer : LittleRenderUtils.CHUNK_RENDER_TYPES) {
+                            List<LittleRenderBox> cubes = data.be.render.getRenderingBoxes(data, layer);
                             
-                            List<LittleRenderBox> cubes = cubeCache.get(layer);
                             for (int j = 0; j < cubes.size(); j++) {
                                 RenderBox cube = cubes.get(j);
                                 if (cube.doesNeedQuadUpdate) {
-                                    if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
-                                        fakeAccess.set(data.te.getWorld(), pos, cube.getBlockState());
-                                        world = fakeAccess;
+                                    if (ArrayUtils.contains(fakeLeveldMods, cube.state.getBlock().getRegistryName().getNamespace())) {
+                                        fakeAccess.set(data.be.getLevel(), pos, cube.state);
+                                        level = fakeAccess;
                                     } else
-                                        world = data.te.getWorld();
+                                        level = data.be.getLevel();
                                     
-                                    BlockState modelState = cube.getBlockState().getActualState(world, pos);
-                                    IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
-                                    modelState = cube.getModelState(modelState, world, pos);
+                                    BlockState modelState = cube.state;
+                                    rand.setSeed(modelState.getSeed(pos));
+                                    BakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRenderer().getBlockModel(modelState), level, modelState, pos);
                                     BlockPos offset = cube.getOffset();
-                                    for (int h = 0; h < EnumFacing.VALUES.length; h++) {
-                                        EnumFacing facing = EnumFacing.VALUES[h];
+                                    for (int h = 0; h < Facing.VALUES.length; h++) {
+                                        Facing facing = Facing.VALUES[h];
                                         if (cube.renderSide(facing)) {
                                             if (cube.getQuad(facing) == null)
-                                                cube.setQuad(facing, CreativeBakedModel
-                                                        .getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, Mth.getPositionRandom(pos), false));
+                                                cube.setQuad(facing, cube.getBakedQuad(level, pos, offset, modelState, blockModel, facing, layer, rand, true, ColorUtils.WHITE));
                                         } else
                                             cube.setQuad(facing, null);
                                     }
@@ -206,77 +191,71 @@ public class RenderingThread extends Thread {
                             }
                         }
                         
-                        cubeCache.sort();
+                        data.clearQuadBuilding();
                         fakeAccess.set(null, null, null);
-                        if (data.be.isRemoved())
-                            throw new InvalidTileEntityException(data.be.getBlockPos() + "");
-                        world = mc.level;
+                        data.checkRemoved();
+                        level = mc.level;
                         
                         int renderState = LittleChunkDispatcher.currentRenderState;
                         LayeredRenderBufferCache layerBuffer = data.be.render.getBufferCache();
-                        VertexFormat format = DefaultVertexFormats.BLOCK;
+                        VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
-                            Level renderWorld = data.be.getLevel();
-                            if (renderWorld instanceof SubLevel && !((SubLevel) renderWorld).shouldRender)
-                                renderWorld = ((SubLevel) renderWorld).getRealLevel();
+                            Level renderLevel = data.be.getLevel();
+                            if (renderLevel instanceof SubClientLevel && !((SubClientLevel) renderLevel).shouldRender)
+                                renderLevel = ((SubClientLevel) renderLevel).getRealLevel();
+                            
+                            boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0;
+                            VertexLighterFlat lighter = CreativeBlockModelRenderer.getLighter(smooth);
+                            
+                            lighter.setWorld(renderLevel);
+                            lighter.setBlockPos(pos);
+                            lighter.setState(Blocks.AIR.defaultBlockState());
+                            lighter.updateBlockInfo();
+                            
+                            BlockInfoExtension blockInfo = CreativeBlockModelRenderer.getBlockInfo(lighter);
+                            
+                            VertexBufferConsumer consumer = CreativeBlockModelRenderer.getConsumer(smooth);
+                            //ModelBlockRenderer.enableCaching();
+                            
+                            int chunkX = Mth.intFloorDiv(pos.getX(), 16);
+                            int chunkY = Mth.intFloorDiv(pos.getY(), 16);
+                            int chunkZ = Mth.intFloorDiv(pos.getZ(), 16);
+                            posestack.pushPose();
+                            posestack.translate(-chunkX * 16, -chunkY * 16, -chunkZ * 16);
                             
                             // Render vertex buffer
-                            for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-                                BlockRenderLayer layer = BlockRenderLayer.values()[i];
+                            for (Entry<RenderType, List<LittleRenderBox>> entry : data.be.render.boxCache.entrySet()) {
+                                RenderType layer = entry.getKey();
+                                ForgeHooksClient.setRenderType(layer);
                                 
-                                net.minecraftforge.client.ForgeHooksClient.setRenderLayer(layer);
-                                
-                                List<LittleRenderBox> cubes = cubeCache.get(layer);
+                                List<LittleRenderBox> cubes = entry.getValue();
                                 BufferBuilder buffer = null;
                                 
                                 if (cubes != null && cubes.size() > 0)
                                     buffer = LayeredRenderBufferCache.createVertexBuffer(format, cubes);
                                 
                                 if (buffer != null) {
-                                    buffer.begin(7, format);
-                                    if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !data.subWorld) {
-                                        int bits = 8;
-                                        RenderChunk chunk = (RenderChunk) data.chunk;
-                                        int dx = chunk.getPosition().getX() >> bits << bits;
-                                        int dy = chunk.getPosition().getY() >> bits << bits;
-                                        int dz = chunk.getPosition().getZ() >> bits << bits;
-                                        
-                                        dx = OptifineHelper.getRenderChunkRegionX(chunk);
-                                        dz = OptifineHelper.getRenderChunkRegionZ(chunk);
-                                        
-                                        buffer.setTranslation(-dx, -dy, -dz);
-                                    } else {
-                                        int chunkX = Mth.intFloorDiv(pos.getX(), 16);
-                                        int chunkY = Mth.intFloorDiv(pos.getY(), 16);
-                                        int chunkZ = Mth.intFloorDiv(pos.getZ(), 16);
-                                        buffer.setTranslation(-chunkX * 16, -chunkY * 16, -chunkZ * 16);
-                                    }
+                                    buffer.begin(VertexFormat.Mode.QUADS, format);
                                     
-                                    boolean smooth = Minecraft.isAmbientOcclusionEnabled() && data.state.getLightValue(renderWorld, pos) == 0; //&& modelIn.isAmbientOcclusion(stateIn);
-                                    
-                                    BitSet bitset = null;
-                                    float[] afloat = null;
-                                    Object ambientFace = null;
-                                    if (FMLClientHandler.instance().hasOptifine())
-                                        ambientFace = OptifineHelper.getEnv(buffer, renderWorld, data.state, pos);
-                                    else if (smooth) {
-                                        bitset = new BitSet(3);
-                                        afloat = new float[EnumFacing.VALUES.length * 2];
-                                        ambientFace = CreativeModelPipeline.createAmbientOcclusionFace();
-                                    }
+                                    consumer.setBuffer(buffer);
+                                    lighter.setParent(consumer);
+                                    lighter.setTransform(posestack.last());
                                     
                                     for (int j = 0; j < cubes.size(); j++) {
                                         RenderBox cube = cubes.get(j);
-                                        BlockState state = cube.getBlockState();
+                                        BlockState state = cube.state;
                                         
-                                        if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders()) {
+                                        lighter.setState(state);
+                                        blockInfo.setCustomTint(cube.color);
+                                        
+                                        if (OptifineHelper.isShaders()) {
                                             if (state.getBlock() instanceof IFakeRenderingBlock)
                                                 state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
-                                            SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
+                                            OptifineHelper.pushBuffer(state, pos, data.be.getLevel(), buffer);
                                         }
                                         
-                                        for (int h = 0; h < EnumFacing.VALUES.length; h++) {
-                                            EnumFacing facing = EnumFacing.VALUES[h];
+                                        for (int h = 0; h < Facing.VALUES.length; h++) {
+                                            Facing facing = Facing.VALUES[h];
                                             Object quadObject = cube.getQuad(facing);
                                             List<BakedQuad> quads = null;
                                             if (quadObject instanceof List) {
@@ -286,42 +265,43 @@ public class RenderingThread extends Thread {
                                                 quads = bakedQuadWrapper;
                                             }
                                             if (quads != null && !quads.isEmpty())
-                                                if (smooth)
-                                                    CreativeModelPipeline
-                                                            .renderBlockFaceSmooth(renderWorld, state, pos, buffer, layer, quads, afloat, facing, bitset, ambientFace, cube);
-                                                else
-                                                    CreativeModelPipeline.renderBlockFaceFlat(renderWorld, state, pos, buffer, layer, quads, facing, bitset, cube, ambientFace);
+                                                for (BakedQuad quad : quads)
+                                                    quad.pipe(lighter);
                                         }
                                         
                                         bakedQuadWrapper.setElement(null);
                                         
-                                        if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-                                            SVertexBuilder.popEntity(buffer);
+                                        if (OptifineHelper.isShaders())
+                                            OptifineHelper.popBuffer(buffer);
                                         
                                         if (!LittleTiles.CONFIG.rendering.useQuadCache)
                                             cube.deleteQuadCache();
                                     }
                                     
-                                    if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-                                        SVertexBuilder.calcNormalChunkLayer(buffer);
+                                    if (OptifineHelper.isShaders())
+                                        OptifineHelper.calcNormalChunkLayer(buffer);
                                     
-                                    buffer.finishDrawing();
+                                    buffer.end();
                                     
                                     synchronized (data.be.render) {
-                                        layerBuffer.set(layer.ordinal(), buffer);
+                                        layerBuffer.set(layer, buffer);
                                     }
                                 } else
                                     synchronized (data.be.render) {
-                                        layerBuffer.set(layer.ordinal(), null);
+                                        layerBuffer.set(layer, null);
                                     }
                             }
                             
-                            net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
+                            blockInfo.setCustomTint(-1);
+                            posestack.popPose();
+                            //ModelBlockRenderer.clearCache();
+                            lighter.resetBlockInfo();
+                            net.minecraftforge.client.ForgeHooksClient.setRenderType(null);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
-                                cubeCache.clear();
+                                data.be.render.boxCache.clear();
                             if (!finish(data, renderState, false))
-                                updateCoords.add(data);
+                                QUEUE.add(data);
                             
                             if (LittleTilesProfilerOverlay.isActive())
                                 LittleTilesProfilerOverlay.finishBuildingCache(System.nanoTime() - duration);
@@ -329,24 +309,19 @@ public class RenderingThread extends Thread {
                             if (!(e instanceof RenderingException))
                                 e.printStackTrace();
                             if (!finish(data, -1, false))
-                                updateCoords.add(data);
+                                QUEUE.add(data);
                         }
-                    } catch (InvalidTileEntityException e) {
+                    } catch (RemovedBlockEntityException e) {
                         finish(data, -1, true);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        updateCoords.add(data);
+                        QUEUE.add(data);
                     } catch (OutOfMemoryError error) {
-                        updateCoords.add(data);
+                        QUEUE.add(data);
                         error.printStackTrace();
                     }
                     data = null;
-                } else if (world == null && (!updateCoords.isEmpty() || !chunks.isEmpty())) {
-                    updateCoords.clear();
-                    chunks.clear();
-                }
-                
-                if (updateCoords.isEmpty())
+                } else if (level == null || QUEUE.isEmpty())
                     sleep(1);
                 if (Thread.currentThread().isInterrupted())
                     throw new InterruptedException();
@@ -354,32 +329,20 @@ public class RenderingThread extends Thread {
         } catch (InterruptedException e) {}
     }
     
-    public static final Field compileTaskField = ReflectionHelper.findField(RenderChunk.class, new String[] { "compileTask", "field_178599_i" });
-    
-    public static boolean finish(RenderingData data, int renderState, boolean force) {
-        if (!data.te.render.finishBuildingCache(data.index, renderState, force))
+    public static boolean finish(RenderingBlockContext data, int renderState, boolean force) {
+        if (!data.be.render.finishBuildingCache(data.index, renderState, force))
             return false;
         
         boolean complete = false;
         
-        synchronized (chunks) {
-            Integer count = chunks.get(data.chunk);
+        synchronized (CHUNKS) {
+            Integer count = CHUNKS.get(data.chunk);
             if (count != null)
                 if (count <= 1) {
-                    chunks.remove(data.chunk);
+                    CHUNKS.remove(data.chunk);
                     complete = true;
                 } else
-                    chunks.put(data.chunk, count - 1);
-                
-            /*boolean finished = true;
-            for (RenderingThread thread : threads) {
-            	if (thread != null && !thread.updateCoords.isEmpty()) {
-            		finished = false;
-            		break;
-            	}
-            }*/
-            //if (finished && !chunks.isEmpty())
-            //chunks.clear();
+                    CHUNKS.put(data.chunk, count - 1);
         }
         
         if (data.subWorld)
@@ -391,42 +354,16 @@ public class RenderingThread extends Thread {
                 ((LittleRenderChunk) data.chunk).markCompleted();
             } else {
                 LittleTilesProfilerOverlay.vanillaChunksUpdates++;
-                markRenderUpdate((RenderChunk) data.chunk);
+                ((RenderChunk) data.chunk).setDirty(true);
             }
         }
-        
         return true;
         
     }
     
-    public static void markRenderUpdate(RenderChunk chunk) {
-        try {
-            chunk.getLockCompileTask().lock();
-            
-            if (isChunkCurrentlyUpdating(chunk))
-                LittleEventHandler.queueChunkUpdate(chunk);
-            else
-                chunk.setNeedsUpdate(false);
-            
-        } finally {
-            chunk.getLockCompileTask().unlock();
-        }
-    }
-    
-    public static boolean isChunkCurrentlyUpdating(RenderChunk chunk) {
-        try {
-            ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
-            return chunk.needsUpdate() || (compileTask != null && compileTask
-                    .getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && (compileTask.getStatus() != Status.COMPILING || compileTask.getStatus() != Status.UPLOADING));
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-    public static class InvalidTileEntityException extends Exception {
+    public static class RemovedBlockEntityException extends Exception {
         
-        public InvalidTileEntityException(String arg0) {
+        public RemovedBlockEntityException(String arg0) {
             super(arg0);
         }
     }
@@ -435,22 +372,6 @@ public class RenderingThread extends Thread {
         
         public RenderingException(String arg0) {
             super(arg0);
-        }
-    }
-    
-    private static class RenderingData {
-        
-        public final BETiles be;
-        public final BlockState state;
-        public final Object chunk;
-        public final boolean subWorld;
-        public int index;
-        
-        public RenderingData(BETiles be, Object chunk) {
-            this.be = be;
-            this.state = be.getBlockTileState();
-            this.chunk = chunk;
-            this.subWorld = !(chunk instanceof RenderChunk);
         }
     }
 }

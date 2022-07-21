@@ -4,7 +4,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import team.creative.creativecore.common.level.CreativeLevel;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.LittleAnimationHandler;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {
@@ -13,23 +13,15 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
         super(level);
     }
     
-    public void tick(WorldTickEvent event) {
+    public void tickServer(WorldTickEvent event) {
         if (event.phase == Phase.END && level == event.world) {
-            for (EntityAnimation door : openDoors) {
-                
-                if (door.level != level || door.level instanceof CreativeLevel)
-                    continue;
-                
-                door.onUpdateForReal();
-            }
+            tick();
             
-            openDoors.removeIf((x) -> {
-                if (x.isRemoved()) {
-                    x.markRemoved();
-                    return true;
-                }
-                return false;
-            });
+            for (LittleLevelEntity entity : entities) {
+                if (entity.level != level || entity.level instanceof CreativeLevel)
+                    continue;
+                entity.performTick();
+            }
         }
     }
     

@@ -3,8 +3,8 @@ package team.creative.littletiles.common.ingredient.rules;
 import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.filter.premade.BlockFilters;
-import team.creative.creativecore.common.util.type.PairList;
-import team.creative.littletiles.LittleTiles;
+import team.creative.creativecore.common.util.type.list.PairList;
+import team.creative.littletiles.LittleTilesRegistry;
 
 public class IngredientRules {
     
@@ -19,9 +19,9 @@ public class IngredientRules {
     }
     
     public static void loadRules() {
-        registerBlockRule(BlockFilters.block(LittleTiles.FLOWING_WATER), x -> LittleTiles.WATER);
-        registerBlockRule(BlockFilters.block(LittleTiles.WHITE_FLOWING_WATER), x -> LittleTiles.WHITE_WATER);
-        registerBlockRule(BlockFilters.block(LittleTiles.FLOWING_LAVA), x -> LittleTiles.LAVA);
-        registerBlockRule(BlockFilters.block(LittleTiles.WHITE_FLOWING_LAVA), x -> LittleTiles.WHITE_LAVA);
+        registerBlockRule(BlockFilters.block(LittleTilesRegistry.FLOWING_WATER.get()), x -> LittleTilesRegistry.WATER.get());
+        registerBlockRule(BlockFilters.block(LittleTilesRegistry.WHITE_FLOWING_WATER.get()), x -> LittleTilesRegistry.WHITE_WATER.get());
+        registerBlockRule(BlockFilters.block(LittleTilesRegistry.FLOWING_LAVA.get()), x -> LittleTilesRegistry.LAVA.get());
+        registerBlockRule(BlockFilters.block(LittleTilesRegistry.WHITE_FLOWING_LAVA.get()), x -> LittleTilesRegistry.WHITE_LAVA.get());
     }
 }

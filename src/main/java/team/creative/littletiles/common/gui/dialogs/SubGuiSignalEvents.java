@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiListBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
@@ -15,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -33,7 +33,7 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
-public class SubGuiSignalEvents extends SubGui {
+public class SubGuiSignalEvents extends GuiLayer {
     
     public GuiSignalEventsButton button;
     public List<GuiSignalEvent> events;
@@ -99,7 +99,7 @@ public class SubGuiSignalEvents extends SubGui {
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         
         GuiScrollBox box = new GuiScrollBox("content", 0, 0, 170, 172);
         

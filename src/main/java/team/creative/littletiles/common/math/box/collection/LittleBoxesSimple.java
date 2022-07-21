@@ -6,7 +6,7 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -120,7 +120,7 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     }
     
     @Override
-    public void flip(Axis axis, LittleBoxAbsolute absoluteBox) {
+    public void mirror(Axis axis, LittleBoxAbsolute absoluteBox) {
         sameGrid(absoluteBox, () -> {
             LittleVec center = absoluteBox.getDoubledCenter(pos);
             for (LittleBox box : boxes)

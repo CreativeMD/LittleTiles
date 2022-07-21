@@ -23,6 +23,12 @@ public class LittleGroupAbsolute implements IGridBased {
         this.group = group;
     }
     
+    public LittleGroupAbsolute(LittleBoxes boxes, LittleElement element) {
+        this.pos = boxes.pos;
+        this.group = new LittleGroup(boxes.getGrid());
+        this.group.add(boxes.getGrid(), element, boxes.all());
+    }
+    
     public LittleGroupAbsolute(BlockPos pos, LittleGrid grid) {
         this(pos, new LittleGroup(null, grid, null));
     }
@@ -73,6 +79,18 @@ public class LittleGroupAbsolute implements IGridBased {
             
         tile.move(new LittleVec(getGrid(), parent.getPos().subtract(pos)));
         addDirectly(tile);
+    }
+    
+    public void add(IParentCollection parent, LittleElement element, LittleBox box) {
+        box = box.copy();
+        
+        if (this.getGrid() != parent.getGrid())
+            if (this.getGrid().count > parent.getGrid().count)
+                box.convertTo(parent.getGrid(), this.getGrid());
+            else
+                convertTo(parent.getGrid());
+        box.add(new LittleVec(getGrid(), parent.getPos().subtract(pos)));
+        group.add(getGrid(), element, box);
     }
     
     @SuppressWarnings("deprecation")

@@ -1,50 +1,45 @@
 package team.creative.littletiles.client.render.overlay;
 
-import com.creativemd.littletiles.LittleTiles;
 import com.google.common.base.Strings;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 
 public class TooltipOverlay {
     
-    private static Minecraft mc = Minecraft.getMinecraft();
-    private static ItemStack lastRenderedItem;
+    private static Minecraft mc = Minecraft.getInstance();
     
     @SubscribeEvent
     public static void onRender(RenderTickEvent event) {
-        if (event.phase == Phase.END && LittleTiles.CONFIG.rendering.showTooltip && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
-            EntityPlayer player = mc.player;
-            if (player != null && player.getHeldItemMainhand().getItem() instanceof IItemTooltip) {
-                ItemStack stack = player.getHeldItemMainhand();
-                String tooltipKey = stack.getItem().getRegistryName().getResourceDomain() + "." + stack.getItem().getRegistryName().getResourcePath() + ".tooltip";
-                if (I18n.canTranslate(tooltipKey)) {
-                    String[] lines = I18n.translateToLocalFormatted(tooltipKey, ((IItemTooltip) stack.getItem()).tooltipData(stack)).split("\\\\n");
-                    GlStateManager.pushMatrix();
-                    ScaledResolution res = new ScaledResolution(mc);
-                    int y = res.getScaledHeight() - 2;
+        if (event.phase == Phase.END && LittleTiles.CONFIG.rendering.showTooltip && mc.isWindowActive() && !mc.options.hideGui) {
+            Player player = mc.player;
+            if (player != null && player.getMainHandItem().getItem() instanceof IItemTooltip) {
+                ItemStack stack = player.getMainHandItem();
+                String tooltipKey = stack.getItem().getRegistryName().getNamespace() + "." + stack.getItem().getRegistryName().getPath() + ".tooltip";
+                if (LanguageUtils.can(tooltipKey)) {
+                    String[] lines = LanguageUtils.translate(tooltipKey, ((IItemTooltip) stack.getItem()).tooltipData(stack)).split("\\\\n");
+                    PoseStack pose = new PoseStack();
+                    int y = mc.getWindow().getGuiScaledHeight() - 2;
                     for (int i = lines.length - 1; i >= 0; i--) {
                         String s = lines[i];
                         
                         if (!Strings.isNullOrEmpty(s)) {
-                            y -= mc.fontRenderer.FONT_HEIGHT;
-                            int k = mc.fontRenderer.getStringWidth(s);
-                            int l = 2;
+                            y -= mc.font.lineHeight;
+                            int k = mc.font.width(s);
                             int i1 = 2 + y;
-                            Gui.drawRect(1, i1 - 1, 2 + k + 1, i1 + mc.fontRenderer.FONT_HEIGHT - 1, -1873784752);
-                            mc.fontRenderer.drawString(s, 2, i1, 14737632);
+                            Gui.fill(pose, 1, i1 - 1, 2 + k + 1, i1 + mc.font.lineHeight - 1, -1873784752);
+                            mc.font.draw(pose, s, 2, i1, 14737632);
                         }
                     }
-                    GlStateManager.popMatrix();
                 }
             }
         }

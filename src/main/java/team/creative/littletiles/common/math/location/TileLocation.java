@@ -9,13 +9,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
@@ -46,7 +46,7 @@ public class TileLocation {
         this.pos = context.parent.getPos();
         this.box = context.box.copy();
         if (context.parent.getLevel() instanceof CreativeLevel)
-            this.levelUUID = ((CreativeLevel) context.parent.getLevel()).parent.getUUID();
+            this.levelUUID = ((CreativeLevel) context.parent.getLevel()).getHolder().getUUID();
         else
             this.levelUUID = null;
     }
@@ -78,11 +78,11 @@ public class TileLocation {
     
     public LittleTileContext find(Level level) throws LittleActionException {
         if (levelUUID != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
-            if (animation == null)
+            LittleLevelEntity entity = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
+            if (entity == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = animation.fakeWorld;
+            level = entity.getFakeLevel();
         }
         
         BlockEntity be = level.getBlockEntity(pos);

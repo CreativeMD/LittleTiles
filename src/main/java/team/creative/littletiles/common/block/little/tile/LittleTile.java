@@ -7,6 +7,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
@@ -21,26 +23,24 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.HashMapList;
-import team.creative.creativecore.common.util.type.SingletonList;
+import team.creative.creativecore.common.util.type.list.SingletonList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
-import team.creative.littletiles.common.math.face.LittleFace;
+import team.creative.littletiles.common.math.face.ILittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public final class LittleTile extends LittleElement implements Iterable<LittleBox> {
@@ -69,7 +69,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     @Deprecated
-    @SuppressWarnings("deprecation")
     public LittleTile(BlockState state, LittleBlock block, int color, List<LittleBox> boxes) {
         super(state, block, color);
         this.boxes = boxes;
@@ -118,10 +117,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             this.boxes.add(box);
     }
     
-    public void remove(ParentCollection parent, LittleBox box) {
-        boxes.remove(box);
+    public boolean remove(LittleCollection parent, LittleBox box) {
+        boolean result = boxes.remove(box);
         if (boxes.isEmpty())
             parent.remove(this);
+        return result;
     }
     
     public void move(LittleVec vec) {
@@ -253,11 +253,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return true;
     }
     
-    public void fillFace(IParentCollection parent, LittleFace face, LittleGrid grid) {
+    public void fillFace(IParentCollection parent, ILittleFace face, LittleGrid grid) {
         for (LittleBox box : boxes) {
-            if (face.grid != parent.getGrid()) {
+            if (face.getGrid() != parent.getGrid()) {
                 box = box.copy();
-                box.convertTo(parent.getGrid(), face.grid);
+                box.convertTo(parent.getGrid(), face.getGrid());
             }
             box.fill(face);
         }
@@ -384,14 +384,18 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     // ================Rendering================
     
-    @OnlyIn(Dist.CLIENT)
     public boolean canBeRenderCombined(LittleTile tile) {
         return block.canBeRenderCombined(this, tile);
     }
     
+    public void addPlaceBoxes(LittleGrid grid, List<RenderBox> boxes) {
+        for (LittleBox box : this.boxes)
+            boxes.add(new RenderBox(box.getBox(grid)));
+    }
+    
     public void addRenderingBoxes(LittleGrid grid, List<RenderBox> boxes) {
         for (LittleBox box : this.boxes)
-            boxes.add(box.getRenderingCube(grid));
+            boxes.add(box.getRenderingBox(grid));
     }
     
     // ================Sound================
@@ -442,7 +446,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.isLiquid();
     }
     
-    public Vec3d getFogColor(IParentCollection parent, Entity entity, Vec3d originalColor, float partialTicks) {
+    public Vector3d getFogColor(IParentCollection parent, Entity entity, Vector3d originalColor, float partialTicks) {
         return block.getFogColor(parent, this, entity, originalColor, partialTicks);
     }
     

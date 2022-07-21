@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeRenderItem;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 
 public class LittleRenderTool extends CreativeRenderItem {
@@ -32,7 +33,7 @@ public class LittleRenderTool extends CreativeRenderItem {
     
     @Override
     public List<BakedQuad> getCachedModel(Facing facing, RenderType layer, ItemStack stack, boolean threaded) {
-        return ItemRenderCache.INSTANCE.requestCache(stack, layer, facing);
+        return LittleTilesClient.ITEM_RENDER_CACHE.requestCache(stack, layer, facing);
     }
     
 }

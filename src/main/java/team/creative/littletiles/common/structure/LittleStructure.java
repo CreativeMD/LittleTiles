@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.RenderType;
@@ -25,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -37,11 +35,11 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.type.HashMapList;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -66,6 +64,7 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.MissingChildException;
 import team.creative.littletiles.common.structure.exception.MissingParentException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -322,8 +321,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     /** takes name of stack and connects the structure to its children (does so recursively)
      * 
-     * @param stack
-     */
+     * @param stack */
     public void placedStructure(@Nullable ItemStack stack) {
         CompoundTag nbt;
         if (name == null && stack != null && (nbt = stack.getTagElement("display")) != null && nbt.contains("Name", 8))
@@ -721,58 +719,6 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return pos;
     }
     
-    // ====================Transform & Transfer====================
-    
-    public void transferChildrenToAnimation(EntityAnimation animation) throws CorruptedConnectionException, NotYetConnectedException {
-        for (StructureChildConnection child : children.all()) {
-            LittleStructure childStructure = child.getStructure();
-            if (child.isLinkToAnotherWorld()) {
-                EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
-                int l1 = subAnimation.chunkCoordX;
-                int i2 = subAnimation.chunkCoordZ;
-                Level level = getLevel();
-                if (subAnimation.addedToChunk) {
-                    LevelChunk chunk = level.getChunk(l1, i2);
-                    if (chunk != null)
-                        chunk.removeEntity(subAnimation);
-                    subAnimation.addedToChunk = false;
-                }
-                level.loadedEntityList.remove(subAnimation);
-                subAnimation.setParentLevel(animation.fakeWorld);
-                animation.fakeWorld.addFreshEntity(subAnimation);
-                subAnimation.updateTickState();
-                
-                childStructure.updateParentConnection(child.childId, this, child.dynamic);
-                this.updateChildConnection(child.childId, childStructure, child.dynamic);
-                
-            } else
-                childStructure.transferChildrenToAnimation(animation);
-        }
-    }
-    
-    public void transferChildrenFromAnimation(EntityAnimation animation) throws CorruptedConnectionException, NotYetConnectedException {
-        Level parentLevel = animation.fakeWorld.getParent();
-        for (StructureChildConnection child : children.all()) {
-            LittleStructure childStructure = child.getStructure();
-            if (child.isLinkToAnotherWorld()) {
-                EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
-                int l1 = subAnimation.chunkCoordX;
-                int i2 = subAnimation.chunkCoordZ;
-                if (subAnimation.addedToChunk) {
-                    LevelChunk chunk = animation.fakeWorld.getChunk(l1, i2);
-                    if (chunk != null)
-                        chunk.removeEntity(subAnimation);
-                    subAnimation.addedToChunk = false;
-                }
-                animation.fakeWorld.loadedEntityList.remove(subAnimation);
-                subAnimation.setParentLevel(parentLevel);
-                parentLevel.addFreshEntity(subAnimation);
-                subAnimation.updateTickState();
-            } else
-                childStructure.transferChildrenFromAnimation(animation);
-        }
-    }
-    
     // ====================Helpers====================
     
     public SurroundingBox getSurroundingBox() throws CorruptedConnectionException, NotYetConnectedException {
@@ -800,7 +746,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public void updateStructure() {
         if (getLevel() == null || getLevel().isClientSide)
             return;
-        LittleEventHandler.queueStructureForUpdatePacket(this);
+        LittleSignalHandler.queueStructureForUpdatePacket(this);
     }
     
     public void sendUpdatePacket() {
@@ -820,7 +766,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         checkConnections();
         BlockPos pos = getMinPos(getPos().mutable());
         
-        ItemStack stack = new ItemStack(LittleTiles.ITEM_TILES);
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
         stack.setTag(LittleGroup.save(getPreviews(pos)));
         
         if (name != null) {
@@ -877,7 +823,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     /** only server side **/
     public void queueForNextTick() {
-        LittleEventHandler.queueStructureForNextTick(this);
+        LittleSignalHandler.queueStructureForNextTick(this);
     }
     
     /** only server side **/
@@ -899,7 +845,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingCubes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {}
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> boxes) {}
     
     public VoxelShape getExtraShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.empty();

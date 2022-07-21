@@ -3,8 +3,9 @@ package team.creative.littletiles.common.structure.connection.children;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import team.creative.creativecore.common.level.SubLevel;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -28,19 +29,19 @@ public class StructureChildFromSubLevelConnection extends StructureChildConnecti
     
     @Override
     protected Level getLevel() throws CorruptedConnectionException, NotYetConnectedException {
-        return ((SubLevel) parent.getLevel()).parentLevel;
+        return ((ISubLevel) parent.getLevel()).getParent();
     }
     
     @Override
-    public EntityAnimation getAnimation() {
-        SubLevel fakeWorld = (SubLevel) parent.getLevel();
-        return (EntityAnimation) fakeWorld.parent;
+    public LittleLevelEntity getAnimation() {
+        IOrientatedLevel fakeWorld = (IOrientatedLevel) parent.getLevel();
+        return (LittleLevelEntity) fakeWorld.getHolder();
     }
     
     @Override
     public void destroyStructure() {
-        SubLevel fakeWorld = (SubLevel) parent.getLevel();
-        ((EntityAnimation) fakeWorld.parent).markRemoved();
+        IOrientatedLevel fakeWorld = (IOrientatedLevel) parent.getLevel();
+        ((LittleLevelEntity) fakeWorld.getHolder()).markRemoved();
         parent.onStructureDestroyed();
     }
     

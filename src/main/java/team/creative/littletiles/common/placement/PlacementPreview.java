@@ -11,17 +11,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -41,7 +41,7 @@ public class PlacementPreview {
     public final LittleBoxAbsolute box;
     
     PlacementPreview(Level level, LittleGroup previews, PlacementMode mode, PlacementPosition position, LittleBoxAbsolute box) {
-        this(level instanceof CreativeLevel ? ((CreativeLevel) level).parent.getUUID() : null, previews, mode, position, box);
+        this(level instanceof ISubLevel ? ((ISubLevel) level).getHolder().getUUID() : null, previews, mode, position, box);
     }
     
     PlacementPreview(UUID levelUUID, LittleGroup previews, PlacementMode mode, PlacementPosition position, LittleBoxAbsolute box) {
@@ -55,7 +55,7 @@ public class PlacementPreview {
     }
     
     PlacementPreview(Level level, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
-        this(level instanceof CreativeLevel ? ((CreativeLevel) level).parent.getUUID() : null, previews, mode, facing);
+        this(level instanceof ISubLevel ? ((ISubLevel) level).getHolder().getUUID() : null, previews, mode, facing);
     }
     
     PlacementPreview(UUID levelUUID, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
@@ -71,13 +71,21 @@ public class PlacementPreview {
     public Level getLevel(Entity entity) throws MissingAnimationException {
         Level level = entity.level;
         if (levelUUID != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
-            if (animation == null)
+            LittleLevelEntity levelEntity = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
+            if (levelEntity == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = animation.fakeWorld;
+            level = levelEntity.getFakeLevel();
         }
         return level;
+    }
+    
+    public static PlacementPreview load(UUID levelUUID, LittleGroup previews, PlacementMode mode, PlacementPosition position, LittleBoxAbsolute box) {
+        return new PlacementPreview(levelUUID, previews, mode, position, box);
+    }
+    
+    public static PlacementPreview load(UUID levelUUID, PlacementMode mode, LittleGroupAbsolute previews, Facing facing) {
+        return new PlacementPreview(levelUUID, previews, mode, facing);
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -87,21 +95,36 @@ public class PlacementPreview {
     }
     
     @OnlyIn(Dist.CLIENT)
-    @SuppressWarnings("deprecation")
+    public static PlacementPreview absolute(Level level, PlacementMode mode, LittleGroupAbsolute previews, Facing facing) {
+        return new PlacementPreview(level, previews, mode, facing);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
     public static PlacementPreview relative(Level level, ItemStack stack, PlacementPosition position, boolean low) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-        LittleGroup tiles = iTile.get(stack, low);
+        return relative(level, stack, iTile.get(stack, low), position, LittleTilesClient.PREVIEW_RENDERER.isCentered(stack, iTile), LittleTilesClient.PREVIEW_RENDERER
+                .isFixed(stack, iTile));
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static PlacementPreview relative(Level level, ItemStack stack, PlacementPosition position, boolean low, boolean centered, boolean fixed) {
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
+        return relative(level, stack, iTile.get(stack, low), position, centered, fixed);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("deprecation")
+    public static PlacementPreview relative(Level level, ItemStack stack, LittleGroup tiles, PlacementPosition position, boolean centered, boolean fixed) {
+        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         LittleGrid original = tiles.getGrid();
         PlacementMode mode = iTile.getPlacementMode(stack);
-        boolean centered = PreviewRenderer.isCentered(stack, iTile);
-        boolean fixed = PreviewRenderer.isFixed(stack, iTile);
         
         if (!tiles.isEmpty() || tiles.hasChildren()) {
             
             tiles.forceSameGrid(position);
             LittleGrid grid = tiles.getGrid();
             
-            LittleVec size = PlacementHelper.getSize(iTile, stack, tiles, low, original);
+            LittleVec size = PlacementHelper.getSize(iTile, stack, tiles, original);
             
             List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
             

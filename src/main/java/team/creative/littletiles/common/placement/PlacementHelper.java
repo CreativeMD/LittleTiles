@@ -1,12 +1,8 @@
 package team.creative.littletiles.common.placement;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,9 +10,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -49,7 +43,7 @@ public class PlacementHelper {
     }
     
     public static LittleVec getInternalOffset(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles, LittleGrid original) {
-        LittleVec offset = iTile.getCachedOffset(stack);
+        LittleVec offset = iTile.getCachedMin(stack);
         if (offset != null) {
             if (tiles.getGrid() != original)
                 offset.convertTo(original, tiles.getGrid());
@@ -66,7 +60,7 @@ public class PlacementHelper {
         return new LittleVec(minX, minY, minZ);
     }
     
-    public static LittleVec getSize(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles, boolean allowLowResolution, LittleGrid original) {
+    public static LittleVec getSize(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles, LittleGrid original) {
         LittleVec cached = iTile.getCachedSize(stack);
         if (cached != null) {
             if (tiles.getGrid() != original)
@@ -93,8 +87,6 @@ public class PlacementHelper {
     
     @OnlyIn(Dist.CLIENT)
     public static PlacementPosition getPosition(Level level, BlockHitResult moving, LittleGrid context, ILittleTool tile, ItemStack stack) {
-        Player player = Minecraft.getInstance().player;
-        
         int x = moving.getBlockPos().getX();
         int y = moving.getBlockPos().getY();
         int z = moving.getBlockPos().getZ();
@@ -127,17 +119,7 @@ public class PlacementHelper {
             canBePlacedInsideBlock = false;
         }
         
-        BlockPos pos = new BlockPos(x, y, z);
-        
-        PlacementPosition result = new PlacementPosition(pos, getHitVec(moving, context, canBePlacedInsideBlock).getVecGrid(), Facing.get(moving.getDirection()));
-        
-        if (tile instanceof ILittlePlacer && stack != null && (LittleActionHandlerClient.isUsingSecondMode() != ((ILittlePlacer) tile).snapToGridByDefault(stack))) {
-            List<RenderBox> cubes = ((ILittlePlacer) tile).getPositingCubes(level, pos, stack);
-            if (cubes != null)
-                result.positingCubes = cubes;
-        }
-        
-        return result;
+        return new PlacementPosition(new BlockPos(x, y, z), getHitVec(moving, context, canBePlacedInsideBlock).getVecGrid(), Facing.get(moving.getDirection()));
     }
     
     public static LittleBox getTilesBox(LittleVecAbsolute pos, LittleVec size, boolean centered, @Nullable Facing facing, PlacementMode mode) {

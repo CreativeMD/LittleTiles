@@ -14,21 +14,23 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
-public abstract class LittleActionBoxes extends LittleAction {
+public abstract class LittleActionBoxes extends LittleAction<Boolean> {
     
     public LittleBoxes boxes;
     @CanBeNull
@@ -36,8 +38,8 @@ public abstract class LittleActionBoxes extends LittleAction {
     
     public LittleActionBoxes(Level level, LittleBoxes boxes) {
         this.boxes = boxes;
-        if (level instanceof CreativeLevel)
-            this.levelUUID = ((CreativeLevel) level).parent.getUUID();
+        if (level instanceof ISubLevel)
+            this.levelUUID = ((ISubLevel) level).getHolder().getUUID();
         else
             this.levelUUID = null;
     }
@@ -47,25 +49,23 @@ public abstract class LittleActionBoxes extends LittleAction {
         this.levelUUID = levelUUID;
     }
     
-    public LittleActionBoxes() {
-        
-    }
+    public LittleActionBoxes() {}
     
     public abstract void action(Level level, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException;
     
     @Override
-    public boolean action(Player player) throws LittleActionException {
+    public Boolean action(Player player) throws LittleActionException {
         if (boxes.isEmpty())
             return false;
         
         boolean placed = false;
         Level level = player.level;
         if (levelUUID != null) {
-            EntityAnimation animation = WorldAnimationHandler.findAnimation(level.isClientSide, levelUUID);
+            LittleLevelEntity animation = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
             if (animation == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = animation.fakeWorld;
+            level = animation.getFakeLevel();
         }
         
         if (LittleTiles.CONFIG.isEditLimited(player)) {
@@ -110,6 +110,22 @@ public abstract class LittleActionBoxes extends LittleAction {
         
         level.playSound(null, player, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
         return placed;
+    }
+    
+    protected LittleActionBoxes assignMirror(LittleActionBoxes action, Axis axis, LittleBoxAbsolute box) {
+        action.boxes = this.boxes.copy();
+        action.boxes.mirror(axis, box);
+        return action;
+    }
+    
+    @Override
+    public boolean wasSuccessful(Boolean result) {
+        return result;
+    }
+    
+    @Override
+    public Boolean failed() {
+        return false;
     }
     
 }

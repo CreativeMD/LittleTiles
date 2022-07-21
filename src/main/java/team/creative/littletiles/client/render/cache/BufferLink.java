@@ -8,7 +8,6 @@ public class BufferLink implements IRenderDataCache {
     public final int length;
     public final int vertexCount;
     private ByteBuffer byteBuffer;
-    private boolean uploaded = false;
     
     public BufferLink(ByteBuffer buffer, int length, int count) {
         this.byteBuffer = buffer;
@@ -21,12 +20,10 @@ public class BufferLink implements IRenderDataCache {
     }
     
     public void uploaded() {
-        uploaded = true;
         byteBuffer = null;
     }
     
     public void downloaded(ByteBuffer buffer) {
-        uploaded = false;
         byteBuffer = buffer;
     }
     

@@ -18,6 +18,7 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.NBTUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -234,7 +235,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         }
         
         public ItemStack createItemStackEmpty() {
-            return new ItemStack(LittleTiles.PREMADE);
+            return new ItemStack(LittleTilesRegistry.PREMADE.get());
         }
         
         public ItemStack createItemStack() {

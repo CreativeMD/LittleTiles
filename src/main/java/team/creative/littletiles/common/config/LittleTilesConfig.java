@@ -3,7 +3,7 @@ package team.creative.littletiles.common.config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
+import team.creative.creativecore.Side;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.api.ICreativeConfig;
 import team.creative.creativecore.common.config.premade.Permission;
@@ -146,9 +146,6 @@ public class LittleTilesConfig {
     public static class Rendering implements ICreativeConfig {
         
         @CreativeConfig
-        public boolean hideVBOWarning = false;
-        
-        @CreativeConfig
         public boolean hideMipmapWarning = false;
         
         @CreativeConfig
@@ -182,7 +179,7 @@ public class LittleTilesConfig {
         public int itemCacheDuration = 5000;
         
         @Override
-        public void configured(Dist side) {
+        public void configured(Side side) {
             RenderingThread.initThreads(renderingThreadCount);
         }
     }
@@ -246,7 +243,7 @@ public class LittleTilesConfig {
         public int exponent = 2;
         
         @Override
-        public void configured(Dist side) {
+        public void configured(Side side) {
             LittleGrid.loadGrid(base, scale, exponent, LittleTiles.CONFIG.general.defaultSelectedGrid);
             ItemMultiTiles.currentContext = LittleGrid.defaultGrid();
             ItemLittleBag.maxStackSizeOfTiles = ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d;

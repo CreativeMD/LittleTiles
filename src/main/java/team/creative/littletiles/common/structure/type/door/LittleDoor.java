@@ -14,9 +14,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -28,6 +28,7 @@ import team.creative.littletiles.common.animation.event.AnimationEvent;
 import team.creative.littletiles.common.animation.event.ChildActivateEvent;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.packet.LittleActivateDoorPacket;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -62,14 +63,14 @@ public abstract class LittleDoor extends LittleStructure {
         nbt.putBoolean("opened", opened);
     }
     
-    public EntityAnimation activate(DoorActivator activator, @Nullable Player player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
+    public LittleLevelEntity activate(DoorActivator activator, @Nullable Player player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
         if (waitingForApproval)
             throw new LittleActionExceptionHidden("Door has not been approved yet!");
         
         if (activator == DoorActivator.RIGHTCLICK && disableRightClick)
             throw new LittleActionExceptionHidden("Door is locked!");
         
-        load();
+        checkConnections();
         
         if (activateParent && getParent() != null) {
             LittleStructure parentStructure = getParent().getStructure();
@@ -83,18 +84,18 @@ public abstract class LittleDoor extends LittleStructure {
         
         if (!canOpenDoor(player)) {
             if (player != null)
-                player.sendStatusMessage(new TextComponentTranslation("exception.door.notenoughspace"), true);
+                player.displayClientMessage(new TranslatableComponent("exception.door.notenoughspace"), true);
             throw new LittleActionException("Cannot open door");
         }
         
         if (uuid == null)
             if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
-                uuid = ((IAnimatedStructure) this).getAnimation().getUniqueID();
+                uuid = ((IAnimatedStructure) this).getAnimation().getUUID();
             else
                 uuid = UUID.randomUUID();
             
         opened = !opened;
-        if (activator != DoorActivator.SIGNAL && !getWorld().isRemote)
+        if (activator != DoorActivator.SIGNAL && !getLevel().isClientSide)
             getOutput(0).toggle();
         
         if (sendUpdate) {

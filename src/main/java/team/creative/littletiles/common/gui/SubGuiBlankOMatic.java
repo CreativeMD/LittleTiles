@@ -6,7 +6,6 @@ import java.util.List;
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.common.gui.client.style.ColoredDisplayStyle;
 import com.creativemd.creativecore.common.gui.client.style.DisplayStyle;
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.container.SlotControlNoSync;
 import com.creativemd.creativecore.common.gui.controls.container.client.GuiSlotControl;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
@@ -21,6 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
@@ -30,7 +30,7 @@ import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry;
 import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry.BleachRecipe;
 import team.creative.littletiles.common.structure.type.premade.LittleBlankOMatic;
 
-public class SubGuiBlankOMatic extends SubGui {
+public class SubGuiBlankOMatic extends GuiLayer {
     
     private static final DisplayStyle SELECTED_DISPLAY = new ColoredDisplayStyle(ColorUtils.YELLOW);
     public LittleBlankOMatic whitener;

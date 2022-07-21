@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.block.little.tile.parent;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -62,8 +63,8 @@ public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider 
     }
     
     @OnlyIn(value = Dist.CLIENT)
-    public default LittleRenderBox getTileRenderingCube(LittleTile tile, LittleBox box, LittleGrid grid) {
-        LittleRenderBox renderBox = box.getRenderingCube(grid, tile);
+    public default LittleRenderBox getRenderingBox(LittleTile tile, LittleBox box, RenderType layer) {
+        LittleRenderBox renderBox = box.getRenderingBox(getGrid(), tile);
         if (renderBox != null && isStructure() && LittleStructureAttribute.emissive(getAttribute()))
             renderBox.emissive = true;
         return renderBox;

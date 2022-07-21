@@ -4,7 +4,7 @@ import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
-public class LittleActions extends LittleAction {
+public class LittleActions extends LittleAction<Boolean> {
     
     public LittleAction[] actions;
     
@@ -12,9 +12,7 @@ public class LittleActions extends LittleAction {
         this.actions = actions;
     }
     
-    public LittleActions() {
-        
-    }
+    public LittleActions() {}
     
     @Override
     public boolean canBeReverted() {
@@ -36,12 +34,12 @@ public class LittleActions extends LittleAction {
     }
     
     @Override
-    public boolean action(Player player) throws LittleActionException {
+    public Boolean action(Player player) throws LittleActionException {
         if (actions.length == 0)
             return true;
         boolean success = false;
         for (int i = 0; i < actions.length; i++) {
-            if (actions[i] != null && actions[i].action(player))
+            if (actions[i] != null && actions[i].wasSuccessful(actions[i].action(player)))
                 success = true;
         }
         return success;
@@ -53,6 +51,16 @@ public class LittleActions extends LittleAction {
         for (int i = 0; i < actions.length; i++)
             newActions[i] = actions[i].mirror(axis, box);
         return new LittleActions(newActions);
+    }
+    
+    @Override
+    public boolean wasSuccessful(Boolean result) {
+        return result;
+    }
+    
+    @Override
+    public Boolean failed() {
+        return false;
     }
     
 }

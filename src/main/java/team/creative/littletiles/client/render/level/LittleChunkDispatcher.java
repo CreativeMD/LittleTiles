@@ -1,25 +1,20 @@
 package team.creative.littletiles.client.render.level;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.FloatBuffer;
 import java.util.List;
+import java.util.Set;
 
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.client.render.model.BufferBuilderUtils;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerCache;
@@ -29,14 +24,19 @@ import team.creative.littletiles.common.block.entity.BETiles;
 
 public class LittleChunkDispatcher {
     
+    private static final Field hasBlocks = ObfuscationReflectionHelper.findField(CompiledChunk.class, "f_112749_");
+    private static final Field hasLayer = ObfuscationReflectionHelper.findField(CompiledChunk.class, "f_112750_");
+    private static final Field isCompletelyEmpty = ObfuscationReflectionHelper.findField(CompiledChunk.class, "f_112751_");
+    
+    private static final Field littleTiles = ObfuscationReflectionHelper.findField(RenderChunk.class, "littleTiles");
+    private static final Field dynamicLightUpdate = ObfuscationReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");
+    public static final Field added = ObfuscationReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
+    
     public static int currentRenderState = Integer.MIN_VALUE;
     
     public static void onReloadRenderers(LevelRenderer levelRenderer) {
-        if (mc.levelRenderer == levelRenderer) {
+        if (mc.levelRenderer == levelRenderer)
             currentRenderState++;
-            if (mc.world != null)
-                mc.world.addEventListener(new LightChangeEventListener());
-        }
     }
     
     public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunk chunk) {
@@ -46,14 +46,6 @@ public class LittleChunkDispatcher {
             e.printStackTrace();
         }
     }
-    
-    private static Method setLayerUseMethod = ObfuscationReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
-    
-    private static Field setTileEntities = ObfuscationReflectionHelper.findField(RenderChunk.class, new String[] { "setTileEntities", "field_181056_j" });
-    
-    private static Field littleTiles = ObfuscationReflectionHelper.findField(RenderChunk.class, "littleTiles");
-    private static Field updateQueue = ObfuscationReflectionHelper.findField(RenderChunk.class, "updateQueue");
-    private static Field dynamicLightUpdate = ObfuscationReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");
     
     private static Minecraft mc = Minecraft.getInstance();
     
@@ -65,103 +57,68 @@ public class LittleChunkDispatcher {
     public static void onDoneRendering(RenderChunk chunk, List<BETiles> tiles) {
         try {
             littleTiles.set(chunk, tiles);
-            updateQueue.setInt(chunk, updateQueue.getInt(chunk) + 1);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
         
     }
     
-    public static List<BETiles> getLittleTE(RenderChunk chunk) {
+    // New hook ChunkRenderDispatcher:553 for rebuilding chunk
+    public static void beforeUploadRebuild(final ChunkBufferBuilderPack bufferPack, final CompiledChunk compiled, final RenderChunk chunk) {
         try {
-            return (List<BETiles>) littleTiles.get(chunk);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
-    public static final Field added = ObfuscationReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
-    //public static final Field blockLayerManager = ReflectionHelper.findField(BufferBuilder.class, "blockLayerManager");
-    
-    public static void uploadChunk(final RenderType layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_) {
-        try {
-            if (added.getBoolean(buffer))
-                return;
+            List<BETiles> blocks = (List<BETiles>) littleTiles.get(chunk);
             
-            if (buffer.getVertexFormat() != null && (layer != BlockRenderLayer.TRANSLUCENT || (compiled
-                    .getState() != emptyState && !(compiled.getState() instanceof LittleVertexBufferState)))) {
-                List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
+            if (blocks.isEmpty()) {
+                dynamicLightUpdate.setBoolean(chunk, false);
+                return;
+            }
+            
+            boolean dynamicUpdate = dynamicLightUpdate.getBoolean(chunk);
+            for (RenderType layer : RenderType.chunkBufferLayers()) {
+                VertexBuffer vertexBuffer = chunk.getBuffer(layer);
+                ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
+                if (oldManager != null)
+                    oldManager.backToRAM();
                 
-                if (tiles == null || tiles.isEmpty()) {
-                    added.setBoolean(buffer, true);
-                    return;
-                }
+                ChunkBlockLayerCache cache = new ChunkBlockLayerCache(layer);
                 
-                if (!tiles.isEmpty()) {
-                    VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());
-                    if (vertexBuffer != null) {
-                        ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
-                        if (oldManager != null)
-                            oldManager.backToRAM();
-                    }
-                }
-                
-                boolean dynamicUpdate = false;
-                if (layer == BlockRenderLayer.SOLID)
-                    dynamicUpdate = dynamicLightUpdate.getBoolean(chunk);
-                
-                ChunkBlockLayerCache cache = new ChunkBlockLayerCache(layer.ordinal());
-                
-                if (!tiles.isEmpty()) {
-                    for (TileEntityLittleTiles te : tiles) {
-                        if (!te.hasLoaded())
-                            continue;
+                for (BETiles be : blocks) {
+                    if (!be.hasLoaded())
+                        continue;
+                    
+                    if (layer == RenderType.solid()) {
+                        if (dynamicUpdate)
+                            be.render.hasLightChanged = true;
                         
-                        if (layer == BlockRenderLayer.SOLID) {
-                            if (dynamicUpdate)
-                                te.render.hasLightChanged = true;
-                            
-                            te.updateQuadCache(chunk);
-                        }
-                        
-                        cache.add(te.render, te.render.getBufferCache().get(layer.ordinal()));
+                        be.updateQuadCache(chunk);
                     }
+                    
+                    cache.add(be.render, be.render.getBufferCache().get(layer));
                 }
-                
-                if (layer == BlockRenderLayer.SOLID)
-                    dynamicLightUpdate.setBoolean(chunk, false);
                 
                 if (cache.expanded() > 0) {
-                    if (compiled.isLayerEmpty(layer)) {
-                        if (compiled != CompiledChunk.DUMMY)
-                            setLayerUseMethod.invoke(compiled, layer);
-                        if (chunk.getCompiledChunk() != CompiledChunk.DUMMY)
-                            setLayerUseMethod.invoke(chunk.getCompiledChunk(), layer);
+                    if (compiled.isEmpty(layer) && compiled != CompiledChunk.UNCOMPILED) {
+                        ((Set<RenderType>) hasBlocks.get(compiled)).add(layer);
+                        ((Set<RenderType>) hasLayer.get(compiled)).add(layer);
+                        isCompletelyEmpty.setBoolean(compiled, false);
                     }
                     
-                    BufferBuilderUtils.growBufferSmall(buffer, cache.expanded() + buffer.getVertexFormat().getNextOffset());
+                    BufferBuilder buffer = bufferPack.builder(layer);
+                    
+                    BufferBuilderUtils.growBufferSmall(buffer, cache.expanded() + buffer.getVertexFormat().getVertexSize());
                     cache.fillBuilder(buffer);
                     
-                    if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null && mc.getRenderViewEntity() != null) {
-                        Entity entity = mc.getRenderViewEntity();
-                        float x = (float) entity.posX;
-                        float y = (float) entity.posY + entity.getEyeHeight();
-                        float z = (float) entity.posZ;
-                        
-                        BlockPos pos = chunk.getPosition();
-                        buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
-                        
-                        buffer.sortVertexData(x, y, z);
-                        compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
+                    if (layer == RenderType.translucent() && buffer.getVertexFormat() != null && mc.getCameraEntity() != null) { // Not sure if that is even necessary
+                        Vec3 camera = mc.gameRenderer.getMainCamera().getPosition();
+                        buffer.setQuadSortOrigin((float) camera.x - chunk.getOrigin().getX(), (float) camera.y - chunk.getOrigin().getY(), (float) camera.z - chunk.getOrigin()
+                                .getZ());
                     }
                     
-                    buffer.getByteBuffer().position(0);
-                    buffer.getByteBuffer().limit(buffer.getVertexFormat().getNextOffset() * buffer.getVertexCount());
+                    BufferBuilderUtils.getBuffer(buffer).position(0);
+                    BufferBuilderUtils.getBuffer(buffer).limit(buffer.getVertexFormat().getVertexSize() * BufferBuilderUtils.getVertexCount(buffer));
                     added.setBoolean(buffer, true);
                     
-                    VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());
-                    if (layer != BlockRenderLayer.TRANSLUCENT && vertexBuffer != null) {
+                    if (layer != RenderType.translucent() && vertexBuffer != null) {
                         ChunkBlockLayerManager manager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
                         if (manager == null)
                             manager = new ChunkBlockLayerManager(chunk, layer);
@@ -169,95 +126,16 @@ public class LittleChunkDispatcher {
                         manager.set(cache);
                     }
                     LittleTilesProfilerOverlay.uploaded++;
+                    
                 }
-            }
-            
-            int index = layer.ordinal(); // Check if another layer needs to be added if yes abort
-            while (index < 3) {
-                index++;
-                if (compiled.isLayerStarted(BlockRenderLayer.values()[index]))
-                    return;
-            }
-            
-            updateQueue.setInt(chunk, updateQueue.getInt(chunk) - 1);
-            if (updateQueue.getInt(chunk) == 0)
-                littleTiles.set(chunk, null); // Clear LTTiles cache
                 
-        } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e2) {}
-    }
-    
-    public static BufferBuilder.State emptyState = loadEmptyState();
-    
-    private static BufferBuilder.State loadEmptyState() {
-        BufferBuilder buffer = new BufferBuilder(0);
-        buffer.begin(7, DefaultVertexFormats.BLOCK);
-        BufferBuilder.State state = buffer.getVertexState();
-        buffer.finishDrawing();
-        return state;
-    }
-    
-    public static void resortTransparency(RenderChunk chunk, float x, float y, float z, ChunkCompileTaskGenerator generator) {
-        CompiledChunk compiledchunk = generator.getCompiledChunk();
-        
-        if (compiledchunk.getState() != null && !compiledchunk.isLayerEmpty(BlockRenderLayer.TRANSLUCENT)) {
-            BufferBuilder worldRendererIn = generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT);
-            BlockPos pos = chunk.getPosition();
-            worldRendererIn.begin(7, DefaultVertexFormats.BLOCK);
-            worldRendererIn.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
+                littleTiles.set(chunk, null); // Clear LTTiles cache
+            }
             
-            worldRendererIn.setVertexState(compiledchunk.getState());
-            
-            worldRendererIn.sortVertexData(x, y, z);
-            compiledchunk.setState(new LittleVertexBufferState(worldRendererIn, worldRendererIn.getVertexState()));
-            
-            worldRendererIn.finishDrawing();
-        } else
-            compiledchunk.setState(emptyState);
-        
-    }
-    
-    private static float minAbs(float var0, float var1) {
-        return Math.abs(var0) > Math.abs(var1) ? var1 : var0;
-    }
-    
-    private static float closest(float to, float pos0, float pos1, float pos2, float pos3) {
-        float f = pos0 - to;
-        float f1 = pos1 - to;
-        float f2 = pos2 - to;
-        float f3 = pos3 - to;
-        if ((f > 0 || f1 > 0 || f2 > 0 || f3 > 0) && (f < 0 || f1 < 0 || f2 < 0 || f3 < 0))
-            return 0;
-        return minAbs(f, minAbs(f1, minAbs(f2, f3)));
-    }
-    
-    public static float getDistanceSq(FloatBuffer buffer, float x, float y, float z, int size, int index) {
-        float f = buffer.get(index + 0);
-        float f1 = buffer.get(index + 1);
-        float f2 = buffer.get(index + 2);
-        
-        float f3 = buffer.get(index + size + 0);
-        float f4 = buffer.get(index + size + 1);
-        float f5 = buffer.get(index + size + 2);
-        
-        float f6 = buffer.get(index + size * 2 + 0);
-        float f7 = buffer.get(index + size * 2 + 1);
-        float f8 = buffer.get(index + size * 2 + 2);
-        
-        float f9 = buffer.get(index + size * 3 + 0);
-        float f10 = buffer.get(index + size * 3 + 1);
-        float f11 = buffer.get(index + size * 3 + 2);
-        
-        float closeX = closest(x, f, f3, f6, f9);
-        float closeY = closest(y, f1, f4, f7, f10);
-        float closeZ = closest(z, f2, f5, f8, f11);
-        return closeX * closeX + closeY * closeY + closeZ * closeZ;
-    }
-    
-    public static class LittleVertexBufferState extends BufferBuilder.State {
-        
-        public LittleVertexBufferState(BufferBuilder buffer, BufferBuilder.State state) {
-            buffer.super(state.getRawBuffer(), state.getVertexFormat());
+            dynamicLightUpdate.setBoolean(chunk, false);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
         }
-        
     }
+    
 }

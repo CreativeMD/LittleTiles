@@ -3,20 +3,27 @@ package team.creative.littletiles.common.filter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.CompoundSerializer;
 import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 
 public class TileFilters {
     
     static {
-        BiFilter.SERIALIZER.register("b", TileBlockFilter.class).register("c", TileColorFilter.class).register("no", TileNoStructureFilter.class);
+        BiFilter.SERIALIZER.register("b", TileBlockFilter.class).register("c", TileColorFilter.class).register("no", TileNoStructureFilter.class)
+                .register("s", TileBlockStateFilter.class);
     }
     
     public static BiFilter<IParentCollection, LittleTile> block(Block block) {
         return new TileBlockFilter(block);
+    }
+    
+    public static BiFilter<IParentCollection, LittleTile> state(BlockState state) {
+        return new TileBlockStateFilter(state);
     }
     
     public static BiFilter<IParentCollection, LittleTile> color(int color) {
@@ -61,6 +68,31 @@ public class TileFilters {
         @Override
         public boolean is(IParentCollection parent, LittleTile tile) {
             return tile.getBlock().is(block);
+        }
+    }
+    
+    public static class TileBlockStateFilter implements BiFilter<IParentCollection, LittleTile>, CompoundSerializer {
+        
+        public final BlockState state;
+        
+        public TileBlockStateFilter(BlockState state) {
+            this.state = state;
+        }
+        
+        public TileBlockStateFilter(CompoundTag nbt) {
+            state = LittleBlockRegistry.loadState(nbt.getString("state"));
+        }
+        
+        @Override
+        public CompoundTag write() {
+            CompoundTag tag = new CompoundTag();
+            tag.putString("state", state.toString());
+            return tag;
+        }
+        
+        @Override
+        public boolean is(IParentCollection parent, LittleTile tile) {
+            return tile.getState() == state;
         }
     }
     

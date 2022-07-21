@@ -7,7 +7,7 @@ import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.type.LittleBed;
+import team.creative.littletiles.common.structure.type.bed.LittleBed;
 
 public class BedUpdate extends CreativePacket {
     

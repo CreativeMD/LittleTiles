@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -21,15 +22,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.mc.WorldUtils;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.mc.LevelUtils;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.client.render.cache.ChunkBlockLayerManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.world.RenderUtils;
-import team.creative.littletiles.common.math.transformation.LittleTransformation;
+import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.packet.LittlePlacedAnimationPacket;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementHelper;
@@ -41,12 +41,9 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
 
-public class DoorController extends EntityAnimationController {
+public class DoorController extends AnimationController {
     
-    protected boolean placedOnServer = false;
-    protected boolean isWaitingForApprove = false;
-    protected int ticksToWait = -1;
-    protected static final int waitTimeApprove = 300;
+    public LittleLevelEntity parent;
     protected Boolean placed = null;
     
     public static final String openedState = "opened";
@@ -98,11 +95,6 @@ public class DoorController extends EntityAnimationController {
     }
     
     @Override
-    public boolean noClip() {
-        return noClip;
-    }
-    
-    @Override
     public AnimationController addTransition(String from, String to, AnimationTimeline animation) {
         modifiedTransition = true;
         return super.addTransition(from, to, animation);
@@ -124,13 +116,8 @@ public class DoorController extends EntityAnimationController {
         return interpolation;
     }
     
-    @Override
     public Player activator() {
         return activator;
-    }
-    
-    public void markWaitingForApprove() {
-        isWaitingForApprove = true;
     }
     
     public boolean activate() {
@@ -161,14 +148,14 @@ public class DoorController extends EntityAnimationController {
         
         if (isChanging()) {
             try {
-                parent.structure.checkConnections();
+                parent.getStructure().checkConnections();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 return currentState.state;
             }
             
-            ((LittleDoor) parent.structure).beforeTick(parent, tick);
+            ((LittleDoor) parent.getStructure()).beforeTick(parent, tick);
             AnimationState state = super.tick();
-            ((LittleDoor) parent.structure).afterTick(parent, tick);
+            ((LittleDoor) parent.getStructure()).afterTick(parent, tick);
             return state;
         } else
             return super.tick();
@@ -177,36 +164,36 @@ public class DoorController extends EntityAnimationController {
     @Override
     public void startTransition(String key) {
         super.startTransition(key);
-        ((LittleDoor) parent.structure).startAnimation(parent);
+        ((LittleDoor) parent.getStructure()).startAnimation(parent);
     }
     
     @Override
     public void endTransition() {
         super.endTransition();
-        ((LittleDoor) parent.structure).finishAnimation(parent);
+        ((LittleDoor) parent.getStructure()).finishAnimation(parent);
         if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
             if (isWaitingForApprove)
                 placed = false;
             else
                 place();
         } else
-            ((LittleDoor) parent.structure).completeAnimation();
+            ((LittleDoor) parent.getStructure()).completeAnimation();
     }
     
     public void place() {
         try {
-            parent.structure.checkConnections();
+            parent.getStructure().checkConnections();
             
             World world = parent.world;
-            LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
+            LittleAbsolutePreviews previews = parent.getStructure().getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
             
-            parent.structure.callStructureDestroyedToSameWorld();
+            parent.getStructure().callStructureDestroyedToSameWorld();
             
             if (world.isRemote)
                 parent.getRenderChunkSuppilier().backToRAM(); //Just doesn't work you cannot get the render data after everything happened
                 
             Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all))
-                    .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
+                    .setPlaySounds(((LittleDoorBase) parent.getStructure()).playPlaceSounds);
             
             LittleDoor newDoor;
             PlacementResult result;
@@ -218,11 +205,11 @@ public class DoorController extends EntityAnimationController {
                 
                 newDoor.transferChildrenFromAnimation(parent);
                 
-                if (parent.structure.getParent() != null) {
-                    boolean dynamic = parent.structure.getParent().dynamic;
-                    LittleStructure parentStructure = parent.structure.getParent().getStructure();
-                    newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure, dynamic);
-                    parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor, dynamic);
+                if (parent.getStructure().getParent() != null) {
+                    boolean dynamic = parent.getStructure().getParent().dynamic;
+                    LittleStructure parentStructure = parent.getStructure().getParent().getStructure();
+                    newDoor.updateParentConnection(parent.getStructure().getParent().getChildId(), parentStructure, dynamic);
+                    parentStructure.updateChildConnection(parent.getStructure().getParent().getChildId(), newDoor, dynamic);
                 }
                 
                 if (!world.isRemote) {
@@ -234,7 +221,7 @@ public class DoorController extends EntityAnimationController {
             } else {
                 parent.markRemoved();
                 if (!world.isRemote)
-                    WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
+                    LevelUtils.dropItem(world, parent.getStructure().getStructureDrop(), parent.center.baseOffset);
                 return;
             }
             
@@ -284,8 +271,7 @@ public class DoorController extends EntityAnimationController {
         }
     }
     
-    @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
+    protected void save(CompoundTag nbt) {
         nbt.setTag("closed", getState(closedState).state.writeToNBT(new NBTTagCompound()));
         nbt.setTag("opened", getState(openedState).state.writeToNBT(new NBTTagCompound()));
         
@@ -316,8 +302,7 @@ public class DoorController extends EntityAnimationController {
         
     }
     
-    @Override
-    protected void readFromNBT(NBTTagCompound nbt) {
+    protected void load(CompoundTag nbt) {
         addState(closedState, new AnimationState(nbt.getCompoundTag("closed")));
         addState(openedState, new AnimationState(nbt.getCompoundTag("opened")));
         
@@ -353,46 +338,6 @@ public class DoorController extends EntityAnimationController {
         byte turnBackData = nbt.getByte("turnBack");
         turnBack = turnBackData == 0 ? null : (turnBackData > 0 ? true : false);
         noClip = nbt.getBoolean("noClip");
-    }
-    
-    @Override
-    public void onServerApproves() {
-        isWaitingForApprove = false;
-    }
-    
-    @Override
-    public void onServerPlaces() {
-        placedOnServer = true;
-    }
-    
-    @Override
-    public void transform(LittleTransformation transformation) {
-        for (AnimationControllerState state : states.values())
-            state.transform(transformation);
-        for (AnimationTimeline timeline : stateTransition.values()) {
-            if (transformation.rotX != 0) {
-                Rotation rotation = transformation.getRotation(Axis.X);
-                for (int i = 0; i < Math.abs(transformation.rotX); i++)
-                    timeline.transform(rotation);
-            }
-            if (transformation.rotY != 0) {
-                Rotation rotation = transformation.getRotation(Axis.Y);
-                for (int i = 0; i < Math.abs(transformation.rotY); i++)
-                    timeline.transform(rotation);
-            }
-            if (transformation.rotZ != 0) {
-                Rotation rotation = transformation.getRotation(Axis.Z);
-                for (int i = 0; i < Math.abs(transformation.rotZ); i++)
-                    timeline.transform(rotation);
-            }
-        }
-        
-        if (tickingState != null)
-            tickingState.clear();
-        else if (isChanging())
-            tickingState = new AnimationState();
-        if (isChanging())
-            animation.tick(tick, tickingState);
     }
     
 }

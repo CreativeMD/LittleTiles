@@ -1,57 +1,73 @@
 package team.creative.littletiles.common.animation;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import com.mojang.math.Vector3d;
-
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.LongArrayTag;
+import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.math.vec.Vec1d;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.math.vec.VecNd;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.common.animation.key.AnimationKey;
+import team.creative.littletiles.common.animation.key.AnimationKeys;
 
 public class AnimationState {
     
-    private PairList<AnimationKey, Double> values = new PairList<>();
+    private HashMap<AnimationKey, VecNd> values = new HashMap<>();
     
-    public double get(AnimationKey key) {
-        Double value = values.getValue(key);
+    public <T extends VecNd> T get(AnimationKey<T> key) {
+        VecNd value = values.get(key);
         if (value == null)
-            return key.getDefault();
-        return value;
+            return key.defaultValue();
+        return (T) value;
     }
     
-    public AnimationState set(AnimationKey key, double value) {
-        Pair<AnimationKey, Double> pair = values.getPair(key);
+    public <T extends VecNd> AnimationState set(AnimationKey<T> key, T value) {
+        T savedValue = (T) values.get(key);
         
-        if (key.getDefault() == value) {
-            if (pair != null)
-                values.removeKey(key);
+        if (key.defaultValue().equals(value)) {
+            if (savedValue != null)
+                values.remove(key);
             return this;
         }
         
-        if (pair != null)
-            pair.setValue(value);
+        if (savedValue != null)
+            savedValue.set(value);
         else
-            values.add(key, value);
+            values.put(key, savedValue);
         return this;
     }
     
     public AnimationState(CompoundTag nbt) {
-        for (AnimationKey key : AnimationKey.getKeys())
-            if (nbt.contains(key.name))
-                values.add(key, nbt.getDouble(key.name));
+        for (String key : nbt.getAllKeys()) {
+            AnimationKey an = AnimationKeys.REGISTRY.get(key);
+            if (an == null)
+                continue;
+            
+            Tag tag = nbt.get(key);
+            if (tag instanceof DoubleTag doubleTag)
+                values.put(an, new Vec1d(doubleTag.getAsDouble()));
+            else if (tag instanceof LongArrayTag longTag)
+                values.put(an, VecNd.load(longTag.getAsLongArray()));
+        }
     }
     
-    public AnimationState() {
-        
+    public AnimationState() {}
+    
+    public Vec3d rotation() {
+        return new Vec3d(get(AnimationKeys.ROTX).x, get(AnimationKeys.ROTY).x, get(AnimationKeys.ROTZ).x);
     }
     
-    public Vector3d getRotation() {
-        return new Vector3d(get(AnimationKey.rotX), get(AnimationKey.rotY), get(AnimationKey.rotZ));
-    }
-    
-    public Vector3d getOffset() {
-        return new Vector3d(get(AnimationKey.offX), get(AnimationKey.offY), get(AnimationKey.offZ));
+    public Vec3d offset() {
+        Vec3d path = (Vec3d) values.get(AnimationKeys.OFF_PATH);
+        if (path != null)
+            return path;
+        return new Vec3d(get(AnimationKeys.OFFX).x, get(AnimationKeys.OFFY).x, get(AnimationKeys.OFFZ).x);
     }
     
     public void clear() {
@@ -59,35 +75,31 @@ public class AnimationState {
     }
     
     public Set<AnimationKey> keys() {
-        return values.keys();
+        return values.keySet();
     }
     
-    public PairList<AnimationKey, Double> getValues() {
-        return values;
-    }
-    
-    public boolean isAligned() {
-        for (Pair<AnimationKey, Double> pair : values)
-            if (!pair.key.isAligned(pair.value))
+    public boolean aligned() {
+        for (Entry<AnimationKey, VecNd> pair : values.entrySet())
+            if (!pair.getKey().aligned(pair.getValue()))
                 return false;
         return true;
     }
     
-    public CompoundTag writeToNBT(CompoundTag nbt) {
-        for (Pair<AnimationKey, Double> pair : values)
-            nbt.putDouble(pair.key.name, pair.value);
+    public CompoundTag save(CompoundTag nbt) {
+        for (Entry<AnimationKey, VecNd> pair : values.entrySet())
+            if (pair.getValue() instanceof Vec1d)
+                nbt.putDouble(pair.getKey().name(), ((Vec1d) pair.getValue()).x);
+            else
+                nbt.putLongArray(pair.getKey().name(), pair.getValue().toLong());
         return nbt;
     }
     
-    public void transform(Rotation rotation) {
-        PairList<AnimationKey, Double> newPairs = new PairList<>();
-        for (Pair<AnimationKey, Double> pair : values) {
-            Pair<AnimationKey, Double> result = pair.key.transform(rotation, pair.value);
-            if (result != null)
-                newPairs.add(result);
-            else
-                newPairs.add(pair);
+    public void rotate(Rotation rotation) {
+        HashMap<AnimationKey, VecNd> newValues = new HashMap<>();
+        for (Entry<AnimationKey, VecNd> pair : values.entrySet()) {
+            Pair<AnimationKey, VecNd> result = pair.getKey().rotate(rotation, pair.getValue());
+            newValues.put(result.key, result.value);
         }
-        this.values = newPairs;
+        this.values = newValues;
     }
 }

@@ -3,43 +3,83 @@ package team.creative.littletiles.common.gui.controls;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import team.creative.creativecore.client.render.GuiRenderHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.text.CompiledText;
+import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
-import team.creative.littletiles.client.action.CompiledActionMessage;
+import team.creative.creativecore.common.gui.style.ControlFormatting;
+import team.creative.creativecore.common.util.math.geo.Rect;
 
 public class GuiActionDisplay extends GuiControl {
     
-    protected List<CompiledActionMessage> messages = new ArrayList<>();
+    protected List<ActionMessage> messages = new ArrayList<>();
     
     private int maxActions;
     private int displayTime;
     private int fadeTime;
     private int totalTime;
-    protected int lines = 0;
     
-    public GuiActionDisplay(String name, int x, int y, int width) {
-        super(name, x, y, width, 10);
+    public GuiActionDisplay(String name) {
+        super(name);
         setTimer(5, 1);
         setMessageCount(6);
     }
     
+    @Override
+    public ControlFormatting getControlFormatting() {
+        return ControlFormatting.TRANSPARENT;
+    }
+    
+    @Override
+    public void flowX(int width, int preferred) {
+        for (int i = 0; i < messages.size(); i++)
+            messages.get(i).setDimension(width, Integer.MAX_VALUE);
+    }
+    
+    @Override
+    public void flowY(int height, int preferred) {}
+    
+    @Override
+    public int getMinWidth() {
+        return 10;
+    }
+    
+    @Override
+    public int preferredWidth() {
+        int max = 0;
+        for (int i = 0; i < messages.size(); i++)
+            max = Math.max(max, messages.get(i).getTotalWidth());
+        return max;
+    }
+    
+    @Override
+    public int getMinHeight() {
+        return Minecraft.getInstance().font.lineHeight;
+    }
+    
+    @Override
+    public int preferredHeight() {
+        int height = 0;
+        for (int i = 0; i < messages.size(); i++)
+            height += messages.get(i).getTotalHeight();
+        return height;
+    }
+    
     public GuiActionDisplay setMessageCount(int count) {
         this.maxActions = count;
-        List<CompiledActionMessage> newMessages = new ArrayList<>();
+        List<ActionMessage> newMessages = new ArrayList<>();
         for (int i = 0; i < messages.size(); i++) {
             if (i >= count)
                 break;
             newMessages.add(messages.get(i));
         }
         this.messages = newMessages;
-        this.height = (font.FONT_HEIGHT + 3) * maxActions;
-        return this;
-    }
-    
-    public GuiActionDisplay setLinesCount(int count) {
-        this.height = (font.FONT_HEIGHT + 3) * count;
         return this;
     }
     
@@ -50,57 +90,64 @@ public class GuiActionDisplay extends GuiControl {
         return this;
     }
     
-    public void addMessage(CompiledActionMessage message) {
-        messages.add(0, message);
+    public void addMessage(List<Component> message) {
+        messages.add(0, new ActionMessage(message));
         if (messages.size() > maxActions)
             for (int i = maxActions; i < messages.size(); i++)
                 messages.remove(i);
-            
-        updateLineCount();
-    }
-    
-    public void addMessage(String text, Object... objects) {
-        addMessage(new CompiledActionMessage(text, objects));
+        reflow();
     }
     
     protected void removeMessage(int index) {
         messages.remove(index);
-        updateLineCount();
-    }
-    
-    protected void updateLineCount() {
-        lines = 0;
-        for (int i = 0; i < messages.size(); i++)
-            if (messages.get(i) != null)
-                lines += messages.get(i).lines.size();
+        reflow();
     }
     
     @Override
-    protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
+    @OnlyIn(value = Dist.CLIENT)
+    protected void renderContent(PoseStack matrix, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
         int i = 0;
-        GlStateManager.pushMatrix();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableBlend();
-        
-        int requiredHeight = (font.FONT_HEIGHT + 3) * (lines - 1);
-        GlStateManager.translate(width / 2, height - requiredHeight, 0);
-        
+        matrix.pushPose();
         while (i < messages.size()) {
-            CompiledActionMessage message = messages.get(i);
+            ActionMessage message = messages.get(i);
             
             long timer = System.currentTimeMillis() - message.timestamp;
             if (timer >= totalTime)
                 removeMessage(i);
             else {
-                GlStateManager.pushMatrix();
+                
                 float alpha = timer > displayTime ? (1 - Math.max(0F, timer - displayTime) / fadeTime) : 1;
-                message.render(helper, Math.max(0.05F, alpha));
+                message.render(matrix, Math.max(0.05F, alpha));
                 i++;
-                GlStateManager.popMatrix();
+                matrix.translate(0, message.getTotalHeight(), 0);
             }
         }
-        GlStateManager.disableAlpha();
-        GlStateManager.popMatrix();
+        matrix.popPose();
+    }
+    
+    @Override
+    public void closed() {}
+    
+    @Override
+    public void init() {}
+    
+    @Override
+    public void tick() {}
+    
+    private static class ActionMessage extends CompiledText {
+        
+        long timestamp;
+        
+        public ActionMessage(List<Component> message) {
+            super(Integer.MAX_VALUE, Integer.MAX_VALUE);
+            setText(message);
+            this.timestamp = System.currentTimeMillis();
+        }
+        
+        public void render(PoseStack stack, float alpha) {
+            RenderSystem.setShaderColor(1, 1, 1, alpha);
+            super.render(stack);
+        }
         
     }
     

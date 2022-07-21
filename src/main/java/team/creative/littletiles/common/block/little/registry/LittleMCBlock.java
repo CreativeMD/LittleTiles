@@ -3,7 +3,11 @@ package team.creative.littletiles.common.block.little.registry;
 import java.lang.reflect.Field;
 import java.util.Random;
 
+import com.mojang.math.Vector3d;
+
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +19,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -68,6 +74,12 @@ public class LittleMCBlock implements LittleBlock {
     @Override
     public boolean is(Block block) {
         return this.block == block;
+    }
+    
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean is(TagKey<Block> tag) {
+        return block.builtInRegistryHolder().is(tag);
     }
     
     @Override
@@ -171,12 +183,18 @@ public class LittleMCBlock implements LittleBlock {
     public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity) {}
     
     @Override
-    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
-        return originalColor;
+    public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
+        return tile.getFogColor(parent, entity, originalColor, partialTicks);
     }
     
     @Override
     public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
         return motion;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public boolean canRenderInLayer(LittleTile tile, RenderType layer) {
+        return ItemBlockRenderTypes.canRenderInLayer(getState(), layer);
     }
 }

@@ -7,7 +7,7 @@ import com.creativemd.creativecore.common.gui.container.SubContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import team.creative.littletiles.common.animation.entity.EntityAnimation;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public class SubContainerDiagnose extends SubContainer {
     
@@ -22,7 +22,7 @@ public class SubContainerDiagnose extends SubContainer {
     
     @Override
     public void onPacketReceive(NBTTagCompound nbt) {
-        EntityAnimation animation = WorldAnimationHandler.getHandler(player.world).findAnimation(UUID.fromString(nbt.getString("uuid")));
+        EntityAnimation animation = LittleAnimationHandlers.getHandler(player.world).findAnimation(UUID.fromString(nbt.getString("uuid")));
         if (animation != null)
             animation.destroyAnimation();
     }

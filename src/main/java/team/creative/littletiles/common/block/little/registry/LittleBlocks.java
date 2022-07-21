@@ -2,6 +2,7 @@ package team.creative.littletiles.common.block.little.registry;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -44,7 +45,8 @@ public class LittleBlocks {
                 Minecraft mc = Minecraft.getInstance();
                 ItemStack itemstack = mc.player.getMainHandItem();
                 if (mc.player.isCreative() && itemstack.is(Blocks.BARRIER.asItem()))
-                    mc.level.addParticle(ParticleTypes.BARRIER, parent.getPos().getX() + 0.5D, parent.getPos().getY() + 0.5D, parent.getPos().getZ() + 0.5D, 0.0D, 0.0D, 0.0D);
+                    mc.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK_MARKER, tile.getState()), parent.getPos().getX() + 0.5D, parent.getPos().getY() + 0.5D, parent
+                            .getPos().getZ() + 0.5D, 0.0D, 0.0D, 0.0D);
             }
         });
         

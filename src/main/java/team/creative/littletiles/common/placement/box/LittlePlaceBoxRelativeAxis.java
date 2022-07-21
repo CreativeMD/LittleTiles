@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.placement.box;
 
-import java.util.List;
-
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -19,9 +19,9 @@ public class LittlePlaceBoxRelativeAxis extends LittlePlaceBoxRelative {
     }
     
     @Override
-    public List<LittleRenderBox> getRenderBoxes(LittleGrid grid) {
-        List<LittleRenderBox> cubes = super.getRenderBoxes(grid);
-        LittleRenderBox cube = cubes.get(0);
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderBox(LittleGrid grid) {
+        LittleRenderBox cube = super.getRenderBox(grid);
         int max = 40 * grid.count;
         int min = -max;
         switch (axis) {
@@ -40,7 +40,6 @@ public class LittlePlaceBoxRelativeAxis extends LittlePlaceBoxRelative {
         default:
             break;
         }
-        cubes.add(cube);
-        return cubes;
+        return cube;
     }
 }

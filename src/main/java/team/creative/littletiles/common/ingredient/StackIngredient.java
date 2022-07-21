@@ -9,7 +9,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import team.creative.creativecore.common.util.text.TextBuilder;
-import team.creative.creativecore.common.util.type.LinkedHashMapInteger;
+import team.creative.creativecore.common.util.type.map.LinkedHashMapInteger;
 
 public class StackIngredient extends LittleIngredient<StackIngredient> implements Iterable<StackIngredientEntry> {
     
@@ -197,22 +197,13 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     }
     
     @Override
-    public String print(List<Object> objects) {
-        if (content.size() <= 4) {
-            String message = "";
-            for (StackIngredientEntry entry : content) {
-                message += "{" + objects.size() + "} " + entry.count + " " + entry.stack.getDisplayName() + "\n";
-                objects.add(entry.stack);
-            }
-            return message;
-        }
-        
-        String message = "";
-        for (StackIngredientEntry entry : content) {
-            message += "{" + objects.size() + "} " + entry.count + " ";
-            objects.add(entry.stack);
-        }
-        return message;
+    public void print(TextBuilder text) {
+        if (content.size() <= 4)
+            for (StackIngredientEntry entry : content)
+                text.stack(entry.stack).text(" " + entry.count + " " + entry.stack.getDisplayName()).newLine();
+        else
+            for (StackIngredientEntry entry : content)
+                text.stack(entry.stack).text(" " + entry.count + " ");
     }
     
     @Override

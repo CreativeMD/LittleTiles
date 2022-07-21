@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.block.mc;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
@@ -27,6 +29,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
 import team.creative.littletiles.common.api.block.ILittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -120,7 +123,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;
             if (index >= Direction.values().length)
-                tile.setState(LittleTiles.WATER.defaultBlockState());
+                tile.setState(LittleTilesRegistry.WATER.get().defaultBlockState());
             else
                 tile.setState(tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]));
             parent.getBE().updateTiles();
@@ -134,13 +137,13 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
         if (tile.getBlock() == this)
             return true;
-        if (tile.getBlock() == LittleTiles.WATER)
+        if (tile.getBlock() == LittleTilesRegistry.WATER.get())
             return true;
         return false;
     }
     
     @Override
-    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
+    public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         float f12 = 0.0F;
         if (entity instanceof LivingEntity) {
             LivingEntity ent = (LivingEntity) entity;
@@ -149,7 +152,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
             if (ent.hasEffect(MobEffects.WATER_BREATHING))
                 f12 = f12 * 0.3F + 0.6F;
         }
-        return new Vec3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
+        return new Vector3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
     }
     
     @Override

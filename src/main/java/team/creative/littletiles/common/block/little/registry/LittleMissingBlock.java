@@ -2,7 +2,10 @@ package team.creative.littletiles.common.block.little.registry;
 
 import java.util.Random;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +17,9 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.RenderProperties;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -51,6 +57,11 @@ public class LittleMissingBlock implements LittleBlock {
     
     @Override
     public boolean is(Block block) {
+        return false;
+    }
+    
+    @Override
+    public boolean is(TagKey<Block> tag) {
         return false;
     }
     
@@ -128,8 +139,8 @@ public class LittleMissingBlock implements LittleBlock {
     }
     
     @Override
-    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
-        return originalColor;
+    public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
+        return RenderProperties.get(tile.getState()).getFogColor(getState(), parent.getLevel(), parent.getPos(), entity, originalColor, partialTicks);
     }
     
     @Override
@@ -165,4 +176,9 @@ public class LittleMissingBlock implements LittleBlock {
         return false;
     }
     
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public boolean canRenderInLayer(LittleTile tile, RenderType layer) {
+        return layer == RenderType.solid();
+    }
 }

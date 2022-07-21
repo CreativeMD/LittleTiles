@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -14,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
@@ -22,9 +21,9 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.SubGuiRecipe;
-import team.creative.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiRecipeSelection;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -80,10 +79,10 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        if (!((ItemLittleBlueprint) stack.getItem()).hasLittlePreview(stack))
-            return new SubGuiRecipeAdvancedSelection(stack);
-        return new SubGuiRecipe(stack);
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        if (!((ItemLittleBlueprint) view.get().getItem()).hasTiles(view.get()))
+            return new GuiRecipeSelection(view);
+        return new SubGuiRecipe(view);
     }
     
     @Override
@@ -114,7 +113,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
+        getSelectionMode(stack).rightClick(player, stack, result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), true));
         return true;
     }
@@ -124,19 +123,20 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).onLeftClick(player, stack, result.getBlockPos());
+        getSelectionMode(stack).leftClick(player, stack, result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), false));
         return true;
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
-                ItemMultiTiles.currentContext = context;
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
+                ItemMultiTiles.currentContext = grid;
                 ItemMultiTiles.currentMode = mode;
+                return nbt;
             }
             
         };
@@ -169,10 +169,10 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     public static SelectionMode getSelectionMode(ItemStack stack) {
-        return SelectionMode.getOrDefault(stack.getOrCreateTag().getString("selmode"));
+        return SelectionMode.REGISTRY.get(stack.getOrCreateTag().getString("selmode"));
     }
     
     public static void setSelectionMode(ItemStack stack, SelectionMode mode) {
-        stack.getOrCreateTag().putString("selmode", mode.name);
+        stack.getOrCreateTag().putString("selmode", mode.getName());
     }
 }

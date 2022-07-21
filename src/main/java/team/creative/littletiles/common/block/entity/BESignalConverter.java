@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.mc.BlockSignalConverter;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -32,7 +32,7 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     private List<SignalConnection> connections = new ArrayList<>();
     
     public BESignalConverter(BlockPos pos, BlockState state) {
-        super(LittleTiles.BE_SIGNALCONVERTER_TYPE, pos, state);
+        super(LittleTilesRegistry.BE_SIGNALCONVERTER_TYPE.get(), pos, state);
     }
     
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Facing side) {

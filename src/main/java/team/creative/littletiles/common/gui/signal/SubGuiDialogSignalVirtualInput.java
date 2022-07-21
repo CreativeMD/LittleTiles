@@ -2,13 +2,13 @@ package team.creative.littletiles.common.gui.signal;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCounter;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCounter;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
@@ -20,7 +20,7 @@ import team.creative.littletiles.common.structure.signal.input.SignalInputCondit
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputBit;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
-public class SubGuiDialogSignalVirtualInput extends SubGui {
+public class SubGuiDialogSignalVirtualInput extends GuiLayer {
     
     public final GuiSignalNodeVirtualInput input;
     public final List<GuiSignalComponent> inputs;
@@ -32,7 +32,7 @@ public class SubGuiDialogSignalVirtualInput extends SubGui {
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         controls.add(new GuiCounter("bandwidth", 0, 0, 40, input.conditions.length, 0, 256));
         controls.add(new GuiScrollBox("config", 0, 20, 170, 116));
         controls.add(new GuiButton("cancel", 0, 146) {

@@ -14,7 +14,7 @@ import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
@@ -31,7 +31,7 @@ public class PrimedSizedTnt extends PrimedTnt {
     }
     
     public PrimedSizedTnt(Level level, double x, double y, double z, @Nullable LivingEntity igniter, LittleGrid grid, LittleVec size) {
-        super(LittleTiles.SIZED_TNT_TYPE, level);
+        super(LittleTilesRegistry.SIZED_TNT_TYPE.get(), level);
         this.setPos(x, y, z);
         double d0 = level.random.nextDouble() * ((float) Math.PI * 2F);
         this.setDeltaMovement(-Math.sin(d0) * 0.02D, 0.2F, -Math.cos(d0) * 0.02D);

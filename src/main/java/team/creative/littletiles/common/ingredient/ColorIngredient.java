@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.ingredient;
 
-import java.util.List;
-
 import net.minecraft.ChatFormatting;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
@@ -236,21 +234,21 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     }
     
     @Override
-    public String print(List<Object> objects) {
-        String text = "";
+    public void print(TextBuilder text) {
+        String message = "";
         if (black > 0)
-            text += getBlackDescription();
+            message += getBlackDescription();
         if (cyan > 0)
-            text += (text.isEmpty() ? "" : " ") + getCyanDescription();
+            message += (message.isEmpty() ? "" : " ") + getCyanDescription();
         if (magenta > 0)
-            text += (text.isEmpty() ? "" : " ") + getMagentaDescription();
+            message += (message.isEmpty() ? "" : " ") + getMagentaDescription();
         if (yellow > 0)
-            text += (text.isEmpty() ? "" : " ") + getYellowDescription();
-        return text;
+            message += (message.isEmpty() ? "" : " ") + getYellowDescription();
+        text.text(message);
     }
     
     public static float dyeToBlockPercentage = 4096;
-    public static int bottleSize = (int) (dyeToBlockPercentage * 64);
+    public static final int BOTTLE_SIZE = (int) (dyeToBlockPercentage * 64);
     
     public static ColorIngredient getColors(LittleElement tile, double volume) {
         if (tile.hasColor()) {

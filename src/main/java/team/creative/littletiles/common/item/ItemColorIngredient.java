@@ -15,14 +15,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 
 public class ItemColorIngredient extends Item implements ILittleIngredientInventory {
-    
-    public static int states = 6;
     
     public ColorIngredientType type;
     
@@ -35,16 +34,16 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         ItemStack stack;
         switch (type) {
         case black:
-            stack = new ItemStack(LittleTiles.BLACK_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.BLACK_COLOR.get());
             break;
         case cyan:
-            stack = new ItemStack(LittleTiles.CYAN_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.CYAN_COLOR.get());
             break;
         case magenta:
-            stack = new ItemStack(LittleTiles.MAGENTA_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.MAGENTA_COLOR.get());
             break;
         case yellow:
-            stack = new ItemStack(LittleTiles.YELLOW_COLOR);
+            stack = new ItemStack(LittleTilesRegistry.YELLOW_COLOR.get());
             break;
         default:
             stack = ItemStack.EMPTY;
@@ -77,16 +76,16 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             
             switch (type) {
             case black:
-                ingredient.setLimit(ColorIngredient.bottleSize, 0, 0, 0);
+                ingredient.setLimit(ColorIngredient.BOTTLE_SIZE, 0, 0, 0);
                 break;
             case cyan:
-                ingredient.setLimit(0, ColorIngredient.bottleSize, 0, 0);
+                ingredient.setLimit(0, ColorIngredient.BOTTLE_SIZE, 0, 0);
                 break;
             case magenta:
-                ingredient.setLimit(0, 0, ColorIngredient.bottleSize, 0);
+                ingredient.setLimit(0, 0, ColorIngredient.BOTTLE_SIZE, 0);
                 break;
             case yellow:
-                ingredient.setLimit(0, 0, 0, ColorIngredient.bottleSize);
+                ingredient.setLimit(0, 0, 0, ColorIngredient.BOTTLE_SIZE);
                 break;
             default:
                 break;
@@ -94,6 +93,10 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             return ingredient;
         }
         return null;
+    }
+    
+    public int getColor(ItemStack stack) {
+        return stack.getOrCreateTag().getInt("value");
     }
     
     public void saveIngredient(ItemStack stack, ColorIngredient color) {
@@ -139,9 +142,6 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
         ColorIngredient color = ingredients.get(ColorIngredient.class);
         if (color != null && type.getIngredient(color) > 0) {
             saveIngredient(stack, color);
-            double stateSize = (double) ColorIngredient.bottleSize / states;
-            int state = Math.min(5, (int) (type.getIngredient(color) / stateSize));
-            stack.setDamageValue(state);
             return;
         }
         

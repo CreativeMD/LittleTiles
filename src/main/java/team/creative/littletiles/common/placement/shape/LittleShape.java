@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -24,12 +25,15 @@ public abstract class LittleShape {
     }
     
     public String getKey() {
-        return ShapeRegistry.getShapeName(this);
+        return ShapeRegistry.REGISTRY.getId(this);
     }
     
-    @OnlyIn(Dist.CLIENT)
-    public String getLocalizedName() {
-        return GuiControl.translateOrDefault("shape." + getKey(), getKey());
+    public String getTranslatableName() {
+        return "shape." + getKey();
+    }
+    
+    public TranslatableComponent getTranslatable() {
+        return new TranslatableComponent(getTranslatableName());
     }
     
     public int maxAllowed() {

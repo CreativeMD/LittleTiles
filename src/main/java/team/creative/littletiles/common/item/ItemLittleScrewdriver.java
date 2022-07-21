@@ -15,14 +15,15 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiScrewdriver;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiScrewdriver;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -65,8 +66,8 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new SubGuiScrewdriver(stack);
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return new GuiScrewdriver(view);
     }
     
     @Override

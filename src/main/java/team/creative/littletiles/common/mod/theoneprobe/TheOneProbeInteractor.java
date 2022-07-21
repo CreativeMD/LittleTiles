@@ -9,8 +9,8 @@ import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 
 public class TheOneProbeInteractor implements IEntityDisplayOverride, IBlockDisplayOverride {
     
@@ -21,7 +21,7 @@ public class TheOneProbeInteractor implements IEntityDisplayOverride, IBlockDisp
     
     @Override
     public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, net.minecraft.world.entity.Entity entity, IProbeHitEntityData data) {
-        return entity instanceof EntityAnimation;
+        return entity instanceof LittleLevelEntity;
     }
     
 }

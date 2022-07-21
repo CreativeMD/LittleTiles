@@ -2,7 +2,11 @@ package team.creative.littletiles.common.api.block;
 
 import java.util.Random;
 
+import com.mojang.math.Vector3d;
+
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -13,6 +17,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -41,6 +47,12 @@ public interface ILittleMCBlock extends LittleBlock {
     @Override
     public default boolean is(ItemStack stack) {
         return Block.byItem(stack.getItem()) == asBlock();
+    }
+    
+    @Override
+    @SuppressWarnings("deprecation")
+    public default boolean is(TagKey<Block> tag) {
+        return asBlock().builtInRegistryHolder().is(tag);
     }
     
     @Override
@@ -164,13 +176,19 @@ public interface ILittleMCBlock extends LittleBlock {
     public default void entityCollided(IParentCollection parent, LittleTile tile, Entity entity) {}
     
     @Override
-    public default Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
+    public default Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         return originalColor;
     }
     
     @Override
     public default Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
         return motion;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public default boolean canRenderInLayer(LittleTile tile, RenderType layer) {
+        return ItemBlockRenderTypes.canRenderInLayer(asBlock().defaultBlockState(), layer);
     }
     
 }

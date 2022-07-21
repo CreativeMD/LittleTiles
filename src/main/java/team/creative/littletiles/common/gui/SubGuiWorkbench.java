@@ -2,7 +2,6 @@ package team.creative.littletiles.common.gui;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemListBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -10,6 +9,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -22,17 +22,17 @@ import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.ingredient.StackIngredientEntry;
-import team.creative.littletiles.common.item.ItemLittleRecipe;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
+import team.creative.littletiles.common.item.ItemLittleRecipe;
 
-public class SubGuiWorkbench extends SubGui {
+public class SubGuiWorkbench extends GuiLayer {
     
     public SubGuiWorkbench() {
-        super(200, 200);
+        super("workbench", 200, 200);
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         controls.add(new GuiLabel("->", 25, 6));
         controls.add(new GuiButton("Craft", 70, 3, 40) {
             

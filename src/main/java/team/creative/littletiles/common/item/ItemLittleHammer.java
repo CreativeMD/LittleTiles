@@ -13,29 +13,31 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.handler.GuiHandler;
-import team.creative.creativecore.common.util.filter.Filter;
+import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.handler.ItemGuiCreator;
+import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiHammer;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiGridSelector;
+import team.creative.littletiles.common.gui.configure.GuiGridSelector;
+import team.creative.littletiles.common.gui.tool.GuiHammer;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -45,22 +47,22 @@ import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
-public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip, GuiHandler {
+public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip, ItemGuiCreator {
     
     private static boolean activeFilter = false;
-    private static Filter<Block> currentFilter = null;
+    private static BiFilter<IParentCollection, LittleTile> currentFilter = null;
     public static ShapeSelection selection;
     
     public static boolean isFiltered() {
         return activeFilter;
     }
     
-    public static void setFilter(boolean active, Filter<Block> filter) {
+    public static void setFilter(boolean active, BiFilter<IParentCollection, LittleTile> filter) {
         activeFilter = active;
         currentFilter = filter;
     }
     
-    public static Filter<Block> getFilter() {
+    public static BiFilter<IParentCollection, LittleTile> getFilter() {
         return currentFilter;
     }
     
@@ -85,7 +87,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         if (hand == InteractionHand.OFF_HAND)
             return new InteractionResultHolder(InteractionResult.PASS, player.getItemInHand(hand));
         if (!level.isClientSide)
-            GuiHandler.openItemGui(player, hand);
+            GuiCreator.ITEM_OPENER.open(player, hand);
         return new InteractionResultHolder(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
     
@@ -102,13 +104,13 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (LittleActionHandlerClient.isUsingSecondMode()) {
             selection = null;
-            PreviewRenderer.marked = null;
+            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (isFiltered())
-                    new LittleActionDestroyBoxesFiltered(selection.getBoxes(false), getFilter()).execute();
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxesFiltered(level, selection.getBoxes(false), getFilter()));
                 else
-                    new LittleActionDestroyBoxes(selection.getBoxes(false)).execute();
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxes(level, selection.getBoxes(false)));
                 selection = null;
             }
         return false;
@@ -131,13 +133,13 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
-    public GuiLayer create(Player player, CompoundTag nbt) {
-        return getConfigure(player, player.getMainHandItem());
+    public GuiLayer create(CompoundTag nbt, Player player) {
+        return getConfigure(player, ContainerSlotView.mainHand(player));
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return new SubGuiHammer(stack);
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return new GuiHammer(view);
     }
     
     @Override
@@ -166,21 +168,22 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiGridSelector(view, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {
                 setFilter(activeFilter, selector);
                 if (selection != null)
-                    selection.convertTo(context);
-                ItemMultiTiles.currentContext = context;
+                    selection.convertTo(grid);
+                ItemMultiTiles.currentContext = grid;
+                return nbt;
             }
         };
     }
     
     public static LittleShape getShape(ItemStack stack) {
-        return ShapeRegistry.getShape(stack.getOrCreateTag().getString("shape"));
+        return ShapeRegistry.REGISTRY.get(stack.getOrCreateTag().getString("shape"));
     }
     
     @Override
@@ -190,7 +193,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getLocalizedName(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.configure
+        return new Object[] { getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.configure
                 .getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
     }
 }

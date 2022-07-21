@@ -1,30 +1,14 @@
 package team.creative.littletiles.common.item;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import com.creativemd.creativecore.client.avatar.AvatarItemStack;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
-import com.creativemd.littletiles.common.action.block.LittleActionReplace;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -35,31 +19,39 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
+import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
+import team.creative.creativecore.common.gui.controls.simple.GuiShowItem;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
-import team.creative.creativecore.common.gui.event.GuiControlClickEvent;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.creativecore.common.util.type.Color;
+import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionPlace;
+import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.LittleSubGuiUtils;
-import team.creative.littletiles.common.gui.SubGuiGrabber;
+import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.SubGuiModeSelector;
+import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiGlove;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
+import team.creative.littletiles.common.level.LittleLevelScanner;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -72,6 +64,14 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip {
+    
+    public static final NamedHandlerRegistry<GloveMode> MODES = new NamedHandlerRegistry<>(null);
+    
+    static {
+        MODES.registerDefault("pixel", new PixelMode());
+        MODES.register("place_preview", new PlacePreviewMode());
+        MODES.register("replace", new ReplaceMode());
+    }
     
     public ItemLittleGlove() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
@@ -125,25 +125,25 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     @Override
     @OnlyIn(Dist.CLIENT)
     public void onClickAir(Player player, ItemStack stack) {
-        getMode(stack).onClickBlock(null, player, stack, null);
+        getMode(stack).leftClickAir(player.level, player, stack);
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        getMode(stack).onClickBlock(level, player, stack, result);
+        getMode(stack).leftClickBlock(level, player, stack, result);
         return true;
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
     public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        return getMode(stack).onRightClick(level, player, stack, result);
+        return getMode(stack).rightClickBlock(level, player, stack, result);
     }
     
     @Override
     public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        return getMode(stack).onMouseWheelClickBlock(level, player, stack, result);
+        return getMode(stack).wheelClickBlock(level, player, stack, result);
     }
     
     @Override
@@ -152,18 +152,19 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ItemStack stack) {
-        return ItemLittleGlove.getMode(stack).getGui(player, stack, ((ILittlePlacer) stack.getItem()).getPositionGrid(stack));
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return ItemLittleGlove.getMode(view.get()).getGui(player, view, ((ILittlePlacer) view.get().getItem()).getPositionGrid(view.get()));
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
-        return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
             
             @Override
-            public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
-                ItemMultiTiles.currentContext = context;
+            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
+                ItemMultiTiles.currentContext = grid;
                 ItemMultiTiles.currentMode = mode;
+                return null;
             }
             
         };
@@ -174,84 +175,49 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         return ItemMultiTiles.currentContext;
     }
     
-    public static GrabberMode getMode(String name) {
-        GrabberMode mode = GrabberMode.modes.get(name);
-        if (mode != null)
-            return mode;
-        return GrabberMode.defaultMode;
+    public static GloveMode getMode(ItemStack stack) {
+        return MODES.get(stack.getOrCreateTag().getString("mode"));
     }
     
-    public static GrabberMode getMode(ItemStack stack) {
-        GrabberMode mode = GrabberMode.modes.get(stack.getOrCreateTag().getString("mode"));
-        if (mode != null)
-            return mode;
-        return GrabberMode.defaultMode;
-    }
-    
-    public static void setMode(ItemStack stack, GrabberMode mode) {
-        stack.getOrCreateTag().putString("mode", mode.name);
-    }
-    
-    public static GrabberMode[] getModes() {
-        return GrabberMode.modes.values().toArray(new GrabberMode[0]);
-    }
-    
-    public static int indexOf(GrabberMode mode) {
-        GrabberMode[] modes = getModes();
-        for (int i = 0; i < modes.length; i++) {
-            if (modes[i] == mode)
-                return i;
-        }
-        return -1;
+    public static void setMode(ItemStack stack, GloveMode mode) {
+        stack.getOrCreateTag().putString("mode", MODES.getId(mode));
     }
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getMode(stack).getLocalizedName(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced
+        return new Object[] { new TranslatableComponent(getMode(stack).title), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced
                 .getTranslatedKeyMessage() };
     }
     
-    public static abstract class GrabberMode {
+    public static abstract class GloveMode {
         
-        public static HashMap<String, GrabberMode> modes = new LinkedHashMap<>();
-        
-        public static PixelMode pixelMode = new PixelMode();
-        public static PlacePreviewMode placePreviewMode = new PlacePreviewMode();
-        public static ReplaceMode replaceMode = new ReplaceMode();
-        
-        public static GrabberMode defaultMode = pixelMode;
-        
-        public final String name;
         public final String title;
         
-        public GrabberMode(String name) {
-            this.name = name;
+        public GloveMode(String name) {
             this.title = "grabber.mode." + name;
-            modes.put(name, this);
         }
         
         public void addExtraInformation(CompoundTag nbt, List<Component> tooltip) {}
         
-        public String getLocalizedName() {
-            return LanguageUtils.translate(title);
-        }
+        @OnlyIn(Dist.CLIENT)
+        public void leftClickAir(Level level, Player player, ItemStack stack) {}
         
         @OnlyIn(Dist.CLIENT)
-        public void onClickBlock(@Nullable Level level, Player player, ItemStack stack, @Nullable BlockHitResult result) {}
+        public void leftClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {}
         
         @OnlyIn(Dist.CLIENT)
-        public boolean onRightClick(Level level, Player player, ItemStack stack, BlockHitResult result) {
+        public boolean rightClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
             return true;
         }
         
         @OnlyIn(Dist.CLIENT)
-        public abstract boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result);
+        public abstract boolean wheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result);
         
         @OnlyIn(Dist.CLIENT)
         public abstract boolean renderBlockSeparately(ItemStack stack);
         
         @OnlyIn(Dist.CLIENT)
-        public abstract GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid);
+        public abstract GuiConfigure getGui(Player player, ContainerSlotView view, LittleGrid grid);
         
         public boolean hasTiles(ItemStack stack) {
             return true;
@@ -269,7 +235,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
     }
     
-    public static abstract class SimpleMode extends GrabberMode {
+    public static abstract class SimpleMode extends GloveMode {
         
         public SimpleMode(String name) {
             super(name);
@@ -277,7 +243,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
+        public boolean wheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
             BlockState state = level.getBlockState(result.getBlockPos());
             if (LittleAction.isBlockValid(state)) {
                 LittleTiles.NETWORK.sendToServer(new VanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
@@ -337,6 +303,10 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         public static void setElement(ItemStack stack, LittleElement element) {
             element.save(stack.getOrCreateTagElement("element"));
         }
+        
+        public static void setElement(CompoundTag nbt, LittleElement element) {
+            nbt.put("element", element.save(new CompoundTag()));
+        }
     }
     
     public static class PixelMode extends SimpleMode {
@@ -346,111 +316,81 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         }
         
         @Override
-        public GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid) {
-            return new SubGuiGrabber(this, stack, 140, 140, context) {
+        public GuiConfigure getGui(Player player, ContainerSlotView view, LittleGrid grid) {
+            return new GuiGlove(this, view, 140, 140, grid) {
+                
                 public LittleVec size;
-                public boolean isColored = false;
+                
+                {
+                    registerEventClick(x -> {
+                        if (x.control.is("sliced"))
+                            updateLabel();
+                    });
+                    registerEventChanged(x -> {
+                        size.x = (int) ((GuiSteppedSlider) get("sizeX")).value;
+                        size.y = (int) ((GuiSteppedSlider) get("sizeY")).value;
+                        size.z = (int) ((GuiSteppedSlider) get("sizeZ")).value;
+                        updateLabel();
+                    });
+                }
                 
                 @Override
-                public void createControls() {
-                    super.createControls();
-                    LittleGridContext oldContext = LittleGridContext.get(stack.getTagCompound());
-                    LittlePreview preview = ItemLittleGlove.SimpleMode.getPreview(stack);
-                    preview.convertTo(oldContext, context);
-                    if (preview.box.minX == preview.box.maxX)
-                        preview.box.maxX++;
-                    if (preview.box.minY == preview.box.maxY)
-                        preview.box.maxY++;
-                    if (preview.box.minZ == preview.box.maxZ)
-                        preview.box.maxZ++;
-                    size = preview.box.getSize();
+                public void create() {
+                    super.create();
+                    LittleGrid oldContext = LittleGrid.get(view.get().getTag());
+                    LittleElement element = ItemLittleGlove.SimpleMode.getElement(view.get());
+                    LittleBox box = PixelMode.getBox(view.get());
+                    if (oldContext != grid)
+                        box.convertTo(oldContext, grid);
+                    if (box.minX == box.maxX)
+                        box.maxX++;
+                    if (box.minY == box.maxY)
+                        box.maxY++;
+                    if (box.minZ == box.maxZ)
+                        box.maxZ++;
+                    size = box.getSize();
                     
-                    controls.add(new GuiSteppedSlider("sizeX", 25, 20, 50, 10, size.x, 1, context.size));
-                    controls.add(new GuiSteppedSlider("sizeY", 25, 35, 50, 10, size.y, 1, context.size));
-                    controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.z, 1, context.size));
+                    add(new GuiSteppedSlider("sizeX", size.x, 1, grid.count));
+                    add(new GuiSteppedSlider("sizeY", size.y, 1, grid.count));
+                    add(new GuiSteppedSlider("sizeZ", size.z, 1, grid.count));
                     
-                    Color color = ColorUtils.IntToRGBA(preview.getColor());
-                    controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
+                    add(new GuiColorPicker("picker", new Color(element.color), LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
                             .getMinimumTransparency(getPlayer())));
                     
-                    GuiAvatarLabel label = new GuiAvatarLabel("", 110, 20, 0, null);
-                    label.name = "avatar";
-                    label.height = 60;
-                    label.avatarSize = 32;
-                    controls.add(label);
+                    add(new GuiShowItem("item", 32, 32, ItemStack.EMPTY));
                     
-                    GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
-                    selector.setSelectedForce(preview.getBlockStack());
-                    controls.add(selector);
+                    GuiStackSelector selector = new GuiStackSelector("preview", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
+                    selector.setSelectedForce(element.getBlock().getStack());
+                    add(selector);
                     
                     updateLabel();
                 }
                 
-                public LittlePreview getPreview(LittleGridContext context) {
-                    GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
+                public LittleElement getElement() {
+                    GuiStackSelector selector = (GuiStackSelector) get("preview");
+                    GuiColorPicker picker = (GuiColorPicker) get("picker");
                     ItemStack selected = selector.getSelected();
                     
-                    if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-                        LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-                        tile.setBox(new LittleBox(0, 0, 0, context.size, context.size, context.size));
-                        return tile.getPreviewTile();
-                    } else
-                        return ItemLittleGlove.SimpleMode.getPreview(stack);
+                    if (!selected.isEmpty() && selected.getItem() instanceof BlockItem)
+                        return new LittleElement(Block.byItem(selected.getItem()).defaultBlockState(), picker.color.toInt());
+                    else
+                        return ItemLittleGlove.SimpleMode.getElement(view.get());
+                }
+                
+                public LittleBox getBox() {
+                    return new LittleBox(0, 0, 0, size.x, size.y, size.z);
                 }
                 
                 public void updateLabel() {
-                    GuiAvatarLabel label = (GuiAvatarLabel) get("avatar");
-                    
-                    LittlePreview preview = getPreview(context);
-                    
-                    GuiColorPicker picker = (GuiColorPicker) get("picker");
-                    preview.setColor(ColorUtils.RGBAToInt(picker.color));
-                    preview.box.set(0, 0, 0, size.x, size.y, size.z);
-                    
-                    label.avatar = new AvatarItemStack(ItemBlockTiles.getStackFromPreview(context, preview));
-                }
-                
-                @CustomEventSubscribe
-                public void onSlotChange(SlotChangeEvent event) {
-                    ItemStack slotStack = container.getSlots().get(0).getStack();
-                    Block block = Block.getBlockFromItem(slotStack.getItem());
-                    if (block instanceof BlockTile) {
-                        LittlePreviews previews = ((ILittlePlacer) slotStack.getItem()).getLittlePreview(slotStack);
-                        if (previews.size() > 0) {
-                            int colorInt = previews.get(0).getColor();
-                            Vec3i color = ColorUtils.IntToRGB(colorInt);
-                            if (colorInt == -1)
-                                color = new Vec3i(255, 255, 255);
-                            
-                            GuiColorPicker picker = (GuiColorPicker) get("picker");
-                            picker.color.set(color.getX(), color.getY(), color.getZ());
-                        }
-                    }
-                    updateLabel();
-                }
-                
-                @CustomEventSubscribe
-                public void onClick(GuiControlClickEvent event) {
-                    if (event.source.is("sliced"))
-                        updateLabel();
-                }
-                
-                @CustomEventSubscribe
-                public void onChange(GuiControlChangedEvent event) {
-                    size.x = (int) ((GuiSteppedSlider) get("sizeX")).value;
-                    size.y = (int) ((GuiSteppedSlider) get("sizeY")).value;
-                    size.z = (int) ((GuiSteppedSlider) get("sizeZ")).value;
-                    updateLabel();
+                    ((GuiShowItem) get("avatar")).stack = ItemMultiTiles.of(getElement(), grid, getBox());
                 }
                 
                 @Override
-                public void saveConfiguration() {
-                    LittlePreview preview = getPreview(context);
-                    preview.box.set(0, 0, 0, size.x, size.y, size.z);
-                    GuiColorPicker picker = (GuiColorPicker) get("picker");
-                    preview.setColor(ColorUtils.RGBAToInt(picker.color));
-                    setPreview(stack, preview);
-                    context.set(stack.getTagCompound());
+                public CompoundTag saveConfiguration(CompoundTag nbt) {
+                    SimpleMode.setElement(nbt, getElement());
+                    setBox(nbt, getBox());
+                    grid.set(nbt);
+                    return super.saveConfiguration(nbt);
                 }
             };
         }
@@ -473,12 +413,12 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
             if (stack.getOrCreateTag().contains("box"))
                 return LittleBox.create(stack.getTag().getIntArray("box"));
             LittleBox box = new LittleBox(0, 0, 0, 1, 1, 1);
-            setBox(stack, box);
+            setBox(stack.getOrCreateTag(), box);
             return box;
         }
         
-        public static void setBox(ItemStack stack, LittleBox box) {
-            stack.getOrCreateTag().putIntArray("box", box.getArray());
+        public static void setBox(CompoundTag nbt, LittleBox box) {
+            nbt.putIntArray("box", box.getArray());
         }
         
         @Override
@@ -486,7 +426,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
     }
     
-    public static class PlacePreviewMode extends GrabberMode {
+    public static class PlacePreviewMode extends GloveMode {
         
         public PlacePreviewMode() {
             super("place_preview");
@@ -494,7 +434,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
+        public boolean wheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
             BlockState state = level.getBlockState(result.getBlockPos());
             if (state.getBlock() instanceof BlockTile) {
                 CompoundTag nbt = new CompoundTag();
@@ -546,13 +486,8 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiConfigure getGui(Player player, ItemStack stack, LittleGrid grid) {
-            return new SubGuiGrabber(this, stack, 140, 140, grid) {
-                
-                @Override
-                public CompoundTag saveConfiguration(CompoundTag nbt) {}
-                
-            };
+        public GuiConfigure getGui(Player player, ContainerSlotView view, LittleGrid grid) {
+            return new GuiGlove(this, view, 140, 140, grid) {};
         }
         
         @Override
@@ -565,6 +500,14 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
             stack.getOrCreateTag().put("tiles", LittleGroup.save(previews));
         }
         
+        @Override
+        public LittleElement getSeparateRenderingPreview(ItemStack stack) {
+            return null;
+        }
+        
+        @Override
+        public void vanillaBlockAction(Level level, ItemStack stack, BlockPos pos, BlockState state) {}
+        
     }
     
     public static class ReplaceMode extends SimpleMode {
@@ -575,47 +518,37 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public SubGuiGrabber getGui(Player player, ItemStack stack, LittleGrid grid) {
-            return new SubGuiGrabber(this, stack, 140, 140, grid) {
+        public GuiGlove getGui(Player player, ContainerSlotView view, LittleGrid grid) {
+            return new GuiGlove(this, view, 140, 140, grid) {
                 
                 @Override
-                public void createControls() {
-                    LittlePreview preview = ItemLittleGlove.SimpleMode.getPreview(stack);
+                public void create() {
+                    super.create();
+                    LittleElement element = SimpleMode.getElement(view.get());
                     
-                    Color color = ColorUtils.IntToRGBA(preview.getColor());
-                    controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
+                    add(new GuiColorPicker("picker", new Color(element.color), LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
                             .getMinimumTransparency(getPlayer())));
                     
-                    GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
-                    selector.setSelectedForce(preview.getBlockStack());
-                    controls.add(selector);
-                    super.createControls();
+                    GuiStackSelector selector = new GuiStackSelector("preview", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
+                    selector.setSelectedForce(element.getBlock().getStack());
+                    add(selector);
                 }
                 
-                public LittlePreview getPreview(LittleGridContext context) {
-                    GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
+                public LittleElement getElement() {
+                    GuiStackSelector selector = (GuiStackSelector) get("preview");
+                    GuiColorPicker picker = (GuiColorPicker) get("picker");
                     ItemStack selected = selector.getSelected();
                     
-                    if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-                        LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-                        tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
-                        return tile.getPreviewTile();
-                    } else
-                        return ItemLittleGlove.SimpleMode.getPreview(stack);
+                    if (!selected.isEmpty() && selected.getItem() instanceof BlockItem)
+                        return new LittleElement(Block.byItem(selected.getItem()).defaultBlockState(), picker.color.toInt());
+                    else
+                        return ItemLittleGlove.SimpleMode.getElement(view.get());
                 }
                 
                 @Override
-                public void saveConfiguration() {
-                    LittlePreview preview = getPreview(context);
-                    GuiColorPicker picker = (GuiColorPicker) get("picker");
-                    preview.setColor(ColorUtils.RGBAToInt(picker.color));
-                    if (stack.getTagCompound().hasKey("preview")) {
-                        LittlePreview oldPreview = LittleTileRegistry.loadPreview(stack.getTagCompound().getCompoundTag("preview"));
-                        if (oldPreview != null)
-                            preview.box = oldPreview.box;
-                    }
-                    setPreview(stack, preview);
-                    context.set(stack.getTagCompound());
+                public CompoundTag saveConfiguration(CompoundTag nbt) {
+                    SimpleMode.setElement(nbt, getElement());
+                    return super.saveConfiguration(nbt);
                 }
             };
         }
@@ -626,9 +559,11 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         }
         
         @Override
-        public boolean onRightClick(Level level, Player player, ItemStack stack, BlockHitResult result) {
+        public boolean rightClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
             if (PlacementHelper.canBlockBeUsed(level, result.getBlockPos()))
-                new LittleActionReplace(level, result.getBlockPos(), player, getPreview(stack)).execute();
+                return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview
+                        .absolute(level, PlacementMode.replace, new LittleGroupAbsolute(LittleLevelScanner.scan(level, result.getBlockPos(), null), getElement(stack)), Facing
+                                .get(result.getDirection()))));
             return false;
         }
         
@@ -636,6 +571,14 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         public LittleElement getSeparateRenderingPreview(ItemStack stack) {
             return SimpleMode.getElement(stack);
         }
+        
+        @Override
+        public LittleGroup getTiles(ItemStack stack) {
+            return null;
+        }
+        
+        @Override
+        public void setTiles(LittleGroup previews, ItemStack stack) {}
         
     }
     

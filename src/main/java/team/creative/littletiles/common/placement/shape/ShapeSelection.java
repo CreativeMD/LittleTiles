@@ -5,15 +5,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -31,7 +33,7 @@ import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiMarkShapeSelection;
+import team.creative.littletiles.common.gui.GuiMarkShapeSelection;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -68,7 +70,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         this.stack = stack;
         
         shapeKey = getNBT().getString("shape");
-        shape = ShapeRegistry.getShape(shapeKey);
+        shape = ShapeRegistry.REGISTRY.get(shapeKey);
     }
     
     public CompoundTag getNBT() {
@@ -85,7 +87,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         CompoundTag nbt = getNBT();
         if (!shapeKey.equals(nbt.getString("shape"))) {
             shapeKey = nbt.getString("shape");
-            shape = ShapeRegistry.getShape(shapeKey);
+            shape = ShapeRegistry.REGISTRY.get(shapeKey);
             if (!cache.shapeKey.equals(shapeKey))
                 return true;
         }
@@ -198,7 +200,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     @Override
     public GuiConfigure getConfigurationGui() {
-        return new SubGuiMarkShapeSelection(this);
+        return new GuiMarkShapeSelection(this);
     }
     
     @Override
@@ -325,7 +327,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.grid = grid;
             CompoundTag nbt = getNBT();
             shapeKey = nbt.getString("shape");
-            shape = ShapeRegistry.getShape(shapeKey);
+            shape = ShapeRegistry.REGISTRY.get(shapeKey);
             
             this.positions = positions;
             cachedBoxesLowRes = shape.getBoxes(ShapeSelection.this, true);
@@ -387,26 +389,13 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         
         @OnlyIn(Dist.CLIENT)
         public void render(PoseStack pose, boolean selected) {
-            GlStateManager.enableBlend();
-            GlStateManager
-                    .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            
-            GlStateManager.disableTexture2D();
-            GlStateManager.depthMask(false);
-            AxisAlignedBB box = this.box.offset(-x, -y, -z);
-            
-            GlStateManager.glLineWidth(4.0F);
-            RenderGlobal.drawSelectionBoundingBox(box, 0.0F, 0.0F, 0.0F, 1F);
-            
-            GlStateManager.disableDepth();
-            GlStateManager.glLineWidth(1.0F);
-            if (selected)
-                RenderGlobal.drawSelectionBoundingBox(box, 1F, 0.3F, 0.0F, 1F);
-            GlStateManager.enableDepth();
-            
-            GlStateManager.depthMask(true);
-            GlStateManager.enableTexture2D();
-            GlStateManager.disableBlend();
+            Minecraft mc = Minecraft.getInstance();
+            AABB box = this.box.inflate(0.002);
+            VertexConsumer consumer = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
+            RenderSystem.lineWidth(4.0F);
+            LevelRenderer.renderLineBox(pose, consumer, box, 0, 0, 0, 1F);
+            RenderSystem.lineWidth(1.0F);
+            LevelRenderer.renderLineBox(pose, consumer, box, 1F, 0.3F, 0.0F, 1F);
         }
         
         @Override

@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.api.tool;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -7,6 +9,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -29,11 +32,11 @@ public interface ILittleTool {
         stack.setTag(nbt);
     }
     
-    public default GuiConfigure getConfigure(Player player, ItemStack stack) {
+    public default GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         return null;
     }
     
-    public default GuiConfigure getConfigureAdvanced(Player player, ItemStack stack) {
+    public default GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
         return null;
     }
     
@@ -52,7 +55,7 @@ public interface ILittleTool {
     public default void tick(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {}
     
     @OnlyIn(Dist.CLIENT)
-    public default void render(Player player, ItemStack stack, double x, double y, double z) {}
+    public default void render(Player player, ItemStack stack, PoseStack pose) {}
     
     @OnlyIn(Dist.CLIENT)
     public default void onDeselect(Level level, ItemStack stack, Player player) {}

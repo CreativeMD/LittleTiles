@@ -1,20 +1,22 @@
 package team.creative.littletiles.common.placement.mark;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiMarkMode;
+import team.creative.littletiles.common.gui.GuiMarkMode;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 
@@ -22,8 +24,8 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 public class MarkMode implements IMarkMode {
     
     public static PlacementPosition loadPosition(PlacementPosition position, PlacementPreview preview) {
-        if (!preview.previews.isAbsolute()) {
-            position.setVecContext(new LittleVecGrid(preview.box.getCenter(), preview.context));
+        /*if (!preview.previews.isAbsolute()) {
+            position.setVecContext(new LittleVecGrid(preview.box.getCenter(), preview.previews.getGrid()));
             
             Facing facing = position.facing;
             if (preview.mode.placeInside)
@@ -56,7 +58,7 @@ public class MarkMode implements IMarkMode {
             
             if (preview.previews.size() > 1 && preview.fixed)
                 position.addVec(preview.cachedOffset);
-        }
+        }*/
         return position;
     }
     
@@ -74,7 +76,7 @@ public class MarkMode implements IMarkMode {
     
     @Override
     public GuiConfigure getConfigurationGui() {
-        return new SubGuiMarkMode(this);
+        return new GuiMarkMode(this);
     }
     
     @Override
@@ -84,25 +86,13 @@ public class MarkMode implements IMarkMode {
     
     @Override
     public void render(PoseStack pose) {
-        GlStateManager.enableBlend();
-        GlStateManager
-                .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        
-        GlStateManager.disableTexture2D();
-        GlStateManager.depthMask(false);
-        AxisAlignedBB box = position.getBox().grow(0.002).offset(-x, -y, -z);
-        
-        GlStateManager.glLineWidth(4.0F);
-        RenderGlobal.drawSelectionBoundingBox(box, 0.0F, 0.0F, 0.0F, 1F);
-        
-        GlStateManager.disableDepth();
-        GlStateManager.glLineWidth(1.0F);
-        RenderGlobal.drawSelectionBoundingBox(box, 1F, 0.3F, 0.0F, 1F);
-        GlStateManager.enableDepth();
-        
-        GlStateManager.depthMask(true);
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
+        Minecraft mc = Minecraft.getInstance();
+        AABB box = position.getBox().inflate(0.002);
+        VertexConsumer consumer = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
+        RenderSystem.lineWidth(4.0F);
+        LevelRenderer.renderLineBox(pose, consumer, box, 0, 0, 0, 1F);
+        RenderSystem.lineWidth(1.0F);
+        LevelRenderer.renderLineBox(pose, consumer, box, 1F, 0.3F, 0.0F, 1F);
     }
     
     @Override
@@ -113,8 +103,6 @@ public class MarkMode implements IMarkMode {
     }
     
     @Override
-    public void done() {
-        
-    }
+    public void done() {}
     
 }

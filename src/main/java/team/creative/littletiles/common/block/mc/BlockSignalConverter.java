@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Material;
-import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 
 public class BlockSignalConverter extends BaseEntityBlock {
@@ -60,7 +60,7 @@ public class BlockSignalConverter extends BaseEntityBlock {
     }
     
     public void changed(LevelReader level, BlockPos pos) {
-        Optional<BESignalConverter> result = level.getBlockEntity(pos, LittleTiles.BE_SIGNALCONVERTER_TYPE);
+        Optional<BESignalConverter> result = level.getBlockEntity(pos, LittleTilesRegistry.BE_SIGNALCONVERTER_TYPE.get());
         if (result.isEmpty())
             return;
         
@@ -78,7 +78,7 @@ public class BlockSignalConverter extends BaseEntityBlock {
     @Override
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         if (state.getValue(FACING) == side.getOpposite()) {
-            Optional<BESignalConverter> result = level.getBlockEntity(pos, LittleTiles.BE_SIGNALCONVERTER_TYPE);
+            Optional<BESignalConverter> result = level.getBlockEntity(pos, LittleTilesRegistry.BE_SIGNALCONVERTER_TYPE.get());
             if (result.isPresent())
                 return result.get().getPower();
         }

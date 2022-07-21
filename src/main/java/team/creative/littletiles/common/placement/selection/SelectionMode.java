@@ -1,61 +1,52 @@
 package team.creative.littletiles.common.placement.selection;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.animation.entity.EntityAnimation;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.WorldAnimationHandler;
+import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 
 public abstract class SelectionMode {
     
-    private static LinkedHashMap<String, SelectionMode> modes = new LinkedHashMap<>();
+    public static final NamedHandlerRegistry<SelectionMode> REGISTRY = new NamedHandlerRegistry<>(null);
     
-    public static SelectionMode getMode(String id) {
-        return modes.get(id);
+    static {
+        REGISTRY.registerDefault("area", new AreaSelectionMode());
     }
     
-    public static SelectionMode getOrDefault(String id) {
-        return modes.getOrDefault(id, area);
+    public SelectionMode() {}
+    
+    public String getName() {
+        return REGISTRY.getId(this);
     }
     
-    public static List<String> names() {
-        return new ArrayList<>(modes.keySet());
+    public TranslatableComponent getTranslation() {
+        return new TranslatableComponent("mode.selection." + REGISTRY.getId(this));
     }
     
-    public static SelectionMode area = new AreaSelectionMode();
+    public abstract SelectionResult generateResult(Level level, ItemStack stack);
     
-    public final String name;
+    public abstract void leftClick(Player player, ItemStack stack, BlockPos pos);
     
-    public SelectionMode(String name) {
-        this.name = "mode.selection." + name;
-        modes.put(this.name, this);
-    }
+    public abstract void rightClick(Player player, ItemStack stack, BlockPos pos);
     
-    public abstract SelectionResult generateResult(Level world, ItemStack stack);
+    public abstract void clear(ItemStack stack);
     
-    public abstract void onLeftClick(Player player, ItemStack stack, BlockPos pos);
+    public abstract LittleGroup getGroup(Level world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure);
     
-    public abstract void onRightClick(Player player, ItemStack stack, BlockPos pos);
-    
-    public abstract void clearSelection(ItemStack stack);
-    
-    public abstract LittleGroup getPreviews(Level world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure);
-    
-    public void saveSelection(ItemStack stack) {}
+    public void save(ItemStack stack) {}
     
     public static class SelectionResult {
         
@@ -134,8 +125,8 @@ public abstract class SelectionMode {
             
             addBlocksWorld(level, pos, pos2);
             
-            for (EntityAnimation animation : WorldAnimationHandler.getHandler(level).findAnimations(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
-                addBlocksWorld(animation.fakeWorld, pos, pos2);
+            for (LittleLevelEntity entity : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
+                addBlocksWorld(entity.getFakeLevel(), pos, pos2);
         }
         
         public MutableBlockPos min = null;

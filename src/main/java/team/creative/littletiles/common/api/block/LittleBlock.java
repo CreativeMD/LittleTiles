@@ -4,7 +4,10 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.mojang.math.Vector3d;
+
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +18,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -33,6 +38,8 @@ public interface LittleBlock {
     public boolean is(ItemStack stack);
     
     public boolean is(Block block);
+    
+    public boolean is(TagKey<Block> tag);
     
     public boolean noCollision();
     
@@ -70,7 +77,7 @@ public interface LittleBlock {
     
     public boolean isLiquid();
     
-    public Vec3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks);
+    public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks);
     
     public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion);
     
@@ -81,5 +88,8 @@ public interface LittleBlock {
     public boolean checkEntityCollision();
     
     public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity);
+    
+    @OnlyIn(Dist.CLIENT)
+    public boolean canRenderInLayer(LittleTile tile, RenderType layer);
     
 }

@@ -2,7 +2,7 @@ package team.creative.littletiles.common.math.box.collection;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.type.HashMapList;
+import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.IGridBased;
@@ -65,7 +65,7 @@ public abstract class LittleBoxes implements IGridBased {
     
     public abstract Iterable<LittleBox> all();
     
-    public abstract void flip(Axis axis, LittleBoxAbsolute absoluteBox);
+    public abstract void mirror(Axis axis, LittleBoxAbsolute absoluteBox);
     
     public abstract LittleBoxes copy();
     

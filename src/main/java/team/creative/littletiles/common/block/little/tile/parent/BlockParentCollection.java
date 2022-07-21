@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import team.creative.creativecore.common.util.type.Pair;
+import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -173,7 +173,7 @@ public class BlockParentCollection extends ParentCollection {
                                     try {
                                         next = structure.getStructure();
                                     } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                    
+                                        
                                     }
                                     return;
                                 }

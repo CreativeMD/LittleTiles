@@ -5,24 +5,25 @@ import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 
 import net.minecraft.client.renderer.GlStateManager.CullFace;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
-import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -91,41 +92,35 @@ public class LittleSignalDisplay extends LittleStructurePremade {
         if (textureId == -1)
             updateTexture();
         
-        GlStateManager.enableBlend();
-        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        GlStateManager.disableLighting();
-        GlStateManager.bindTexture(textureId);
+        RenderSystem.bindTexture(textureId);
         
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         
-        GlStateManager.pushMatrix();
+        pose.pushPose();
         
         GlStateManager.translate(x, y, z);
         
-        AlignedBox box = frame.getBox().getCube(frame.getContext());
+        AlignedBox box = frame.getBox().getBox(frame.getGrid());
         BoxFace face = BoxFace.get(facing);
-        if (facing.getAxisDirection() == AxisDirection.POSITIVE)
-            box.setMax(facing.getAxis(), box.getMin(facing.getAxis()) + 0.01F);
+        if (facing.positive)
+            box.setMax(facing.axis, box.getMin(facing.axis) + 0.01F);
         else
-            box.setMin(facing.getAxis(), box.getMax(facing.getAxis()) - 0.01F);
+            box.setMin(facing.axis, box.getMax(facing.axis) - 0.01F);
         Axis uAxis = face.getTexUAxis();
         Axis vAxis = face.getTexVAxis();
         
         GlStateManager.enableRescaleNormal();
         
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
-        builder.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
+        builder.begin(GL11.GL_POLYGON, DefaultVertexFormat.POSITION_TEX);
         for (BoxCorner corner : face.corners)
-            builder.pos(box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                    
-                    .tex(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner
-                            .isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0)
-                    .endVertex();
+            builder.vertex(pose.last().pose(), box.get(corner.x), box.get(corner.y), box.get(corner.z))
+                    .uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).endVertex();
         tessellator.draw();
         
-        GlStateManager.popMatrix();
+        pose.popPose();
         
         GlStateManager.cullFace(CullFace.BACK);
         

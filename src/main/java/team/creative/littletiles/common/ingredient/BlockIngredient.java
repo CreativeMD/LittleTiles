@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
-import team.creative.creativecore.common.util.type.LinkedHashMapDouble;
+import team.creative.creativecore.common.util.type.map.LinkedHashMapDouble;
 import team.creative.littletiles.common.grid.LittleGrid;
 
 public class BlockIngredient extends LittleIngredient<BlockIngredient> implements Iterable<BlockIngredientEntry> {
@@ -180,24 +180,15 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
     }
     
     @Override
-    public String print(List<Object> objects) {
-        if (content.size() <= 4) {
-            String message = "";
+    public void print(TextBuilder text) {
+        if (content.size() <= 4)
             for (BlockIngredientEntry entry : content) {
                 ItemStack stack = entry.getBlockStack();
-                message += "{" + objects.size() + "} " + printVolume(entry.value, false) + " " + stack.getDisplayName() + "\n";
-                objects.add(stack);
+                text.stack(stack).text(" " + printVolume(entry.value, false) + " " + stack.getDisplayName()).newLine();
             }
-            return message;
-        }
-        
-        String message = "";
-        for (BlockIngredientEntry entry : content) {
-            ItemStack stack = entry.getBlockStack();
-            message += "{" + objects.size() + "} " + printVolume(entry.value, false) + " ";
-            objects.add(stack);
-        }
-        return message;
+        else
+            for (BlockIngredientEntry entry : content)
+                text.stack(entry.getBlockStack()).text(" " + printVolume(entry.value, false) + " ");
     }
     
     @Override

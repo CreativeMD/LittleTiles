@@ -13,7 +13,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
 
-public class LittleFace {
+public non-sealed class LittleFace implements ILittleFace {
     
     public LittleGrid grid;
     public LittleBox box;
@@ -50,7 +50,13 @@ public class LittleFace {
         this.filled = new boolean[maxOne - minOne][maxTwo - minTwo];
     }
     
-    public void ensureContext(LittleGrid context) {
+    @Override
+    public LittleGrid getGrid() {
+        return grid;
+    }
+    
+    @Override
+    public void ensureGrid(LittleGrid context) {
         if (context == this.grid || this.grid.count > grid.count)
             return;
         
@@ -114,6 +120,15 @@ public class LittleFace {
         return oldOrigin;
     }
     
+    @Override
+    public void setPartiallyFilled() {}
+    
+    @Override
+    public boolean supportsCutting() {
+        return true;
+    }
+    
+    @Override
     public void cut(List<VectorFan> fans) {
         if (toCut == null)
             toCut = new ArrayList<>();
@@ -198,6 +213,51 @@ public class LittleFace {
     
     public void move(Facing facing) {
         origin = facing.positive ? 0 : grid.count;
+    }
+    
+    @Override
+    public Facing facing() {
+        return facing;
+    }
+    
+    @Override
+    public Axis one() {
+        return one;
+    }
+    
+    @Override
+    public Axis two() {
+        return two;
+    }
+    
+    @Override
+    public int origin() {
+        return origin;
+    }
+    
+    @Override
+    public int minOne() {
+        return minOne;
+    }
+    
+    @Override
+    public int minTwo() {
+        return minTwo;
+    }
+    
+    @Override
+    public int maxOne() {
+        return maxOne;
+    }
+    
+    @Override
+    public int maxTwo() {
+        return maxTwo;
+    }
+    
+    @Override
+    public void set(int one, int two, boolean value) {
+        filled[one][two] = value;
     }
     
 }

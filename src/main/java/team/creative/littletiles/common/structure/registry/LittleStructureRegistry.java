@@ -11,8 +11,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
-import team.creative.creativecore.common.util.type.Pair;
-import team.creative.creativecore.common.util.type.PairList;
+import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.ingredient.ItemIngredient;
 import team.creative.littletiles.common.ingredient.StackIngredient;
@@ -22,8 +22,6 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser.LittleStructureGuiParserNotFoundHandler;
 import team.creative.littletiles.common.structure.registry.StructureIngredientRule.StructureIngredientScalerVolume;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
-import team.creative.littletiles.common.structure.type.LittleBed;
-import team.creative.littletiles.common.structure.type.LittleBed.LittleBedParser;
 import team.creative.littletiles.common.structure.type.LittleChair;
 import team.creative.littletiles.common.structure.type.LittleChair.LittleChairParser;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
@@ -40,7 +38,8 @@ import team.creative.littletiles.common.structure.type.LittleStorage.LittleStora
 import team.creative.littletiles.common.structure.type.LittleStorage.LittleStorageType;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage.LittleMessageStructureParser;
-import team.creative.littletiles.common.structure.type.door.LittleDoorBase;
+import team.creative.littletiles.common.structure.type.bed.LittleBed;
+import team.creative.littletiles.common.structure.type.bed.LittleBed.LittleBedParser;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
@@ -177,7 +176,7 @@ public class LittleStructureRegistry {
                 .register(new LittleStructureBuilderType(registerStructureType("item_holder", "simple", LittleItemHolder.class, new LittleAttributeBuilder().extraRendering(), null)
                         .addInput("filled", 1), "frame"));
         
-        LittleDoorBase.initDoors();
+        // LittleDoorBase.initDoors();
         
         LittleStructurePremade.initPremadeStructures();
     }

@@ -3,7 +3,6 @@ package team.creative.littletiles.client.render.tile;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.world.level.block.state.BlockState;
@@ -113,9 +112,8 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     }
     
     @Override
-    protected void setupPreviewRendering(PoseStack stack) {
-        GlStateManager.translate(x, y, z);
-        GlStateManager.scale(scale, scale, scale);
+    protected void setupPreviewRendering(PoseStack pose) {
+        pose.scale(scale, scale, scale);
     }
     
     @Override

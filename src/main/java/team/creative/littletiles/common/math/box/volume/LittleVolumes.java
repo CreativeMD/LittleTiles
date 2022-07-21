@@ -3,7 +3,7 @@ package team.creative.littletiles.common.math.box.volume;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import team.creative.creativecore.common.util.type.HashMapInteger;
+import team.creative.creativecore.common.util.type.map.HashMapInteger;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;

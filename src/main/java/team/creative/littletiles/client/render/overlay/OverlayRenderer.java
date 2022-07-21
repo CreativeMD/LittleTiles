@@ -1,31 +1,29 @@
 package team.creative.littletiles.client.render.overlay;
 
+import java.util.List;
+
 import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.creativecore.client.render.GuiRenderHelper;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.action.CompiledActionMessage;
 import team.creative.littletiles.common.gui.controls.GuiActionDisplay;
 
-@SideOnly(Side.CLIENT)
 public class OverlayRenderer {
     
     private static Minecraft mc = Minecraft.getInstance();
-    protected static ScaledResolution scaledResolution;
     
     private OverlayGui gui = new OverlayGui();
-    private GuiActionDisplay actionDisplay = new GuiActionDisplay("action", 0, 0, 100).setMessageCount(1).setLinesCount(4);
+    private GuiActionDisplay actionDisplay = new GuiActionDisplay("action").setMessageCount(1);
     
     public OverlayRenderer() {
         add(new OverlayControl(actionDisplay, OverlayPositionType.ACTION_BAR) {
@@ -37,7 +35,7 @@ public class OverlayRenderer {
         });
     }
     
-    public void addMessage(CompiledActionMessage message) {
+    public void addMessage(List<Component> message) {
         actionDisplay.addMessage(message);
     }
     

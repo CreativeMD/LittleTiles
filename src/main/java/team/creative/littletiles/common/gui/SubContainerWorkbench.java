@@ -9,7 +9,7 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import team.creative.creativecore.common.util.mc.WorldUtils;
+import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
@@ -64,7 +64,7 @@ public class SubContainerWorkbench extends SubContainer {
                                 ItemStack stack = new ItemStack(LittleTiles.multiTiles);
                                 stack.setTagCompound(stack1.getTagCompound().copy());
                                 if (!player.inventory.addItemStackToInventory(stack))
-                                    WorldUtils.dropItem(player, stack);
+                                    LevelUtils.dropItem(player, stack);
                             }
                         } catch (NotEnoughIngredientsException e) {
                             e.printStackTrace();
