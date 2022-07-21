@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.type;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -12,17 +13,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
-import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -33,12 +27,11 @@ import team.creative.littletiles.common.gui.structure.GuiStorage;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleStorage extends LittleStructure {
     
@@ -109,7 +102,7 @@ public class LittleStorage extends LittleStructure {
     
     public static int getSizeOfInventory(LittleGroup previews) {
         double size = 0;
-        String name = LittleTilesRegistry.STORAGE_BLOCK.get().getRegistryName().toString();
+        String name = LittleTilesRegistry.STORAGE_BLOCK.get().builtInRegistryHolder().key().location().toString();
         for (LittleTile tile : previews)
             if (tile.getBlock().blockName().equals(name))
                 size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
@@ -136,12 +129,15 @@ public class LittleStorage extends LittleStructure {
     }
     
     protected void updateInput() {
-        getInput(0).updateState(new boolean[] { !openContainers.isEmpty() });
+        getInput(0).updateState(SignalState.of(!openContainers.isEmpty()));
     }
     
     public void onInventoryChanged() {
         if (getLevel().isClientSide)
             return;
+        if (!openContainers.isEmpty())
+            for (GuiStorage gui : openContainers)
+                gui.inventoryChanged();
         int used = 0;
         boolean allSlotsFilled = true;
         for (int i = 0; i < inventory.getContainerSize(); i++) {
@@ -154,7 +150,7 @@ public class LittleStorage extends LittleStructure {
         if (allSlotsFilled)
             used = inventorySize;
         int filled = (int) (Math.ceil((double) used / inventorySize * 65535));
-        getInput(1).updateState(BooleanUtils.toBits(filled, 16));
+        getInput(1).updateState(SignalState.of(filled));
     }
     
     public void openContainer(GuiStorage container) {
@@ -186,48 +182,10 @@ public class LittleStorage extends LittleStructure {
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
-    public static class LittleStorageParser extends LittleStructureGuiParser {
-        
-        public LittleStorageParser(GuiParent parent, AnimationGuiHandler handler) {
-            super(parent, handler);
-        }
-        
-        @Override
-        public void createControls(LittleGroup previews, LittleStructure structure) {
-            parent.add(new GuiLabel("space").setTitle(new TextBuilder().text("space: " + getSizeOfInventory(previews)).build()));
-            boolean invisible = false;
-            if (structure instanceof LittleStorage)
-                invisible = ((LittleStorage) structure).invisibleStorageTiles;
-            parent.add(new GuiCheckBox("invisible", "invisible storage tiles", invisible));
-        }
-        
-        @Override
-        public LittleStorage parseStructure(LittleGroup previews) {
-            LittleStorage storage = createStructure(LittleStorage.class, null);
-            storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
-            
-            for (LittleTile tile : previews)
-                if (tile.getBlock().is(LittleTiles.STORAGE_BLOCKS))
-                    tile.color = ColorUtils.setAlpha(tile.color, 0);
-                
-            storage.inventorySize = getSizeOfInventory(previews);
-            storage.stackSizeLimit = maxSlotStackSize;
-            storage.updateNumberOfSlots();
-            storage.inventory = new SimpleContainer(storage.numberOfSlots);
-            
-            return storage;
-        }
-        
-        @Override
-        protected LittleStructureType getStructureType() {
-            return LittleStructureRegistry.getStructureType(LittleStorage.class);
-        }
-    }
-    
     public static class LittleStorageType extends LittleStructureType {
         
-        public LittleStorageType(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute) {
-            super(id, category, structureClass, attribute);
+        public <T extends LittleStructure> LittleStorageType(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
+            super(id, structureClass, factory, attribute);
         }
         
         @Override

@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -33,7 +34,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
@@ -49,6 +49,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolde
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -64,6 +65,7 @@ import team.creative.littletiles.common.structure.exception.CorruptedConnectionE
 import team.creative.littletiles.common.structure.exception.MissingChildException;
 import team.creative.littletiles.common.structure.exception.MissingParentException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.exception.RemovedStructureException;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
@@ -146,6 +148,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void checkConnections() throws CorruptedConnectionException, NotYetConnectedException {
+        if (mainBlock.isRemoved())
+            throw new RemovedStructureException();
+        
         for (StructureBlockConnector block : blocks)
             block.connect();
         
@@ -199,6 +204,35 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public void addBlock(StructureParentCollection block) {
         blocks.add(new StructureBlockConnector(this, block.getPos().subtract(getPos())));
+    }
+    
+    public Iterable<BlockPos> positions() {
+        return new Iterable<BlockPos>() {
+            
+            @Override
+            public Iterator<BlockPos> iterator() {
+                
+                return new Iterator<BlockPos>() {
+                    
+                    boolean first = true;
+                    Iterator<StructureBlockConnector> iterator = blocks.iterator();
+                    
+                    @Override
+                    public boolean hasNext() {
+                        return first || iterator.hasNext();
+                    }
+                    
+                    @Override
+                    public BlockPos next() {
+                        if (first) {
+                            first = false;
+                            return mainBlock.getPos();
+                        }
+                        return iterator.next().getAbsolutePos();
+                    }
+                };
+            }
+        };
     }
     
     public Iterable<BETiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
@@ -446,10 +480,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         }
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
-                inputs[i].write(preview, nbt);
+                inputs[i].save(preview, nbt);
         if (outputs != null)
             for (int i = 0; i < outputs.length; i++)
-                nbt.put(outputs[i].component.identifier, outputs[i].write(preview, new CompoundTag()));
+                nbt.put(outputs[i].component.identifier, outputs[i].save(preview, new CompoundTag()));
             
         saveExtra(nbt);
     }
@@ -467,22 +501,27 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         }
         
         checkConnections();
-        removeStructure();
+        LittleNeighborUpdateCollector neighbor = new LittleNeighborUpdateCollector(getLevel());
+        removeStructure(neighbor);
+        neighbor.process();
     }
     
-    public void removeStructure() throws CorruptedConnectionException, NotYetConnectedException {
+    public void removeStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         checkConnections();
         onStructureDestroyed();
         
         for (StructureChildConnection child : children.all())
-            child.destroyStructure();
+            child.destroyStructure(neighbor);
         
         if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
             ((IAnimatedStructure) this).destroyAnimation();
         else {
-            mainBlock.getBE().updateTiles((x) -> x.removeStructure(getIndex()));
-            for (StructureBlockConnector block : blocks)
+            neighbor.add(mainBlock.getPos());
+            for (StructureBlockConnector block : blocks) {
+                neighbor.add(block.getAbsolutePos());
                 block.remove();
+            }
+            mainBlock.getBE().updateTilesSecretly((x) -> x.removeStructure(getIndex()));
         }
         
     }
@@ -708,10 +747,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public MutableBlockPos getMinPos(MutableBlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
-        for (StructureBlockConnector block : blocks) {
-            BlockPos tePos = block.getAbsolutePos();
+        for (BlockPos tePos : positions())
             pos.set(Math.min(pos.getX(), tePos.getX()), Math.min(pos.getY(), tePos.getY()), Math.min(pos.getZ(), tePos.getZ()));
-        }
         
         for (StructureChildConnection child : children.all())
             child.getStructure().getMinPos(pos);
@@ -832,7 +869,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void renderTick(PoseStack pose, BlockPos pos, float partialTickTime) {}
+    public void renderTick(PoseStack pose, MultiBufferSource buffer, BlockPos pos, float partialTickTime) {}
     
     @OnlyIn(Dist.CLIENT)
     public double getMaxRenderDistance() {
@@ -889,19 +926,19 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         List<String> infos = new ArrayList<>();
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
-                infos.add("a" + i + ":" + BooleanUtils.print(inputs[i].getState()));
+                infos.add("a" + i + ":" + inputs[i].getState().print(inputs[i].getBandwidth()));
         for (ISignalStructureComponent component : inputs())
             try {
-                infos.add("i" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+                infos.add("i" + component.getId() + ":" + component.getState().print(component.getBandwidth()) + component.getNetwork());
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("i" + component.getId() + ":broken");
             }
         if (outputs != null)
             for (int i = 0; i < outputs.length; i++)
-                infos.add("b" + i + ":" + BooleanUtils.print(outputs[i].getState()));
+                infos.add("b" + i + ":" + outputs[i].getState().print(outputs[i].getBandwidth()));
         for (ISignalStructureComponent component : outputs())
             try {
-                infos.add("o" + component.getId() + ":" + BooleanUtils.print(component.getState()));
+                infos.add("o" + component.getId() + ":" + component.getState().print(component.getBandwidth()) + component.getNetwork());
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("o" + component.getId() + ":broken");
             }

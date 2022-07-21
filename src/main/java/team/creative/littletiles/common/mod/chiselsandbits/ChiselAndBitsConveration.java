@@ -4,8 +4,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -17,9 +17,9 @@ public class ChiselAndBitsConveration {
     public static ConcurrentLinkedQueue<BlockEntity> blockEntities = new ConcurrentLinkedQueue<>();
     
     @SubscribeEvent
-    public static void worldTick(WorldTickEvent event) {
-        Level world = event.world;
-        if (!world.isClientSide && event.phase == Phase.END) {
+    public static void worldTick(LevelTickEvent event) {
+        Level level = event.level;
+        if (!level.isClientSide && event.phase == Phase.END) {
             LittleGrid chiselContext = LittleGrid.get(ChiselsAndBitsManager.convertingFrom);
             int progress = 0;
             int size = blockEntities.size();

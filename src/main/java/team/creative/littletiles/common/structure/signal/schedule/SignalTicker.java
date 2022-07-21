@@ -8,13 +8,14 @@ import java.util.List;
 
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.WorldTickEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
@@ -67,7 +68,7 @@ public class SignalTicker {
         get(level).schedule(schedulable);
     }
     
-    public static ISignalScheduleTicket schedule(SignalOutputHandler handler, boolean[] result, int tick) {
+    public static ISignalScheduleTicket schedule(SignalOutputHandler handler, SignalState result, int tick) {
         Level level = handler.component.getStructureLevel();
         if (level == null) {
             SignalScheduleTicket ticket = new SignalScheduleTicket(handler, result, tick);
@@ -99,8 +100,8 @@ public class SignalTicker {
     }
     
     @SubscribeEvent
-    public synchronized void tick(WorldTickEvent event) {
-        if (event.phase == Phase.END && level == event.world) {
+    public synchronized void tick(LevelTickEvent event) {
+        if (event.phase == Phase.END && level == event.level) {
             
             for (int i = 0; i < scheduled.size(); i++)
                 try {
@@ -128,8 +129,8 @@ public class SignalTicker {
     }
     
     @SubscribeEvent
-    public void levelUnload(WorldEvent.Unload event) {
-        if (event.getWorld() == level)
+    public void levelUnload(LevelEvent.Unload event) {
+        if (event.getLevel() == level)
             unload(this);
     }
     
@@ -174,7 +175,7 @@ public class SignalTicker {
         return ticket;
     }
     
-    public synchronized ISignalScheduleTicket openTicket(SignalOutputHandler handler, boolean[] result, int tick) {
+    public synchronized ISignalScheduleTicket openTicket(SignalOutputHandler handler, SignalState result, int tick) {
         int delay;
         if (tick <= queueLength) {
             if (tick <= 0)

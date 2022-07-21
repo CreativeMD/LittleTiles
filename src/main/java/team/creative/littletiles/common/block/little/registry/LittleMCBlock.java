@@ -1,13 +1,13 @@
 package team.creative.littletiles.common.block.little.registry;
 
 import java.lang.reflect.Field;
-import java.util.Random;
 
 import com.mojang.math.Vector3d;
 
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -21,11 +21,13 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.common.api.block.ILittleMCBlock;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -77,7 +79,6 @@ public class LittleMCBlock implements LittleBlock {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public boolean is(TagKey<Block> tag) {
         return block.builtInRegistryHolder().is(tag);
     }
@@ -103,13 +104,11 @@ public class LittleMCBlock implements LittleBlock {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public SoundType getSoundType() {
         return block.getSoundType(getState());
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public float getExplosionResistance(LittleTile tile) {
         return block.getExplosionResistance();
     }
@@ -118,10 +117,9 @@ public class LittleMCBlock implements LittleBlock {
     public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {}
     
     @Override
-    public void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand) {}
+    public void randomDisplayTick(IParentCollection parent, LittleTile tile, RandomSource rand) {}
     
     @Override
-    @SuppressWarnings("deprecation")
     public int getLightValue() {
         return getState().getLightEmission();
     }
@@ -133,7 +131,7 @@ public class LittleMCBlock implements LittleBlock {
     
     @Override
     public String blockName() {
-        return block.getRegistryName().toString();
+        return block.builtInRegistryHolder().key().location().toString();
     }
     
     @Override
@@ -195,6 +193,6 @@ public class LittleMCBlock implements LittleBlock {
     @Override
     @OnlyIn(Dist.CLIENT)
     public boolean canRenderInLayer(LittleTile tile, RenderType layer) {
-        return ItemBlockRenderTypes.canRenderInLayer(getState(), layer);
+        return Minecraft.getInstance().getBlockRenderer().getBlockModel(getState()).getRenderTypes(getState(), ILittleMCBlock.RANDOM, ModelData.EMPTY).contains(layer);
     }
 }

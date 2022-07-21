@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
@@ -211,6 +210,6 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
                     .translate("volume.unit.small.multiple")) : LanguageUtils.translate("volume.unit.small.short"));
         }
         
-        return new TextComponent(text);
+        return Component.literal(text);
     }
 }

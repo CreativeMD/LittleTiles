@@ -32,24 +32,24 @@ public class ItemModelCache {
         if (type != Sheets.cutoutBlockSheet())
             return;
         switch (facing) {
-        case DOWN:
-            this.down = baked;
-            break;
-        case EAST:
-            this.east = baked;
-            break;
-        case NORTH:
-            this.north = baked;
-            break;
-        case SOUTH:
-            this.south = baked;
-            break;
-        case UP:
-            this.up = baked;
-            break;
-        case WEST:
-            this.west = baked;
-            break;
+            case DOWN:
+                this.down = baked;
+                break;
+            case EAST:
+                this.east = baked;
+                break;
+            case NORTH:
+                this.north = baked;
+                break;
+            case SOUTH:
+                this.south = baked;
+                break;
+            case UP:
+                this.up = baked;
+                break;
+            case WEST:
+                this.west = baked;
+                break;
         }
     }
     
@@ -63,24 +63,18 @@ public class ItemModelCache {
     
     public List<BakedQuad> getQuads(RenderType type, Facing facing) {
         lastUsed = System.currentTimeMillis();
-        if (type != Sheets.cutoutBlockSheet())
+        if (type != null && type != Sheets.cutoutBlockSheet())
             return Collections.EMPTY_LIST;
-        switch (facing) {
-        case DOWN:
-            return down;
-        case EAST:
-            return east;
-        case NORTH:
-            return north;
-        case SOUTH:
-            return south;
-        case UP:
-            return up;
-        case WEST:
-            return west;
-        default:
+        if (facing == null)
             return Collections.EMPTY_LIST;
-        }
+        return switch (facing) {
+            case DOWN -> down;
+            case EAST -> east;
+            case NORTH -> north;
+            case SOUTH -> south;
+            case UP -> up;
+            case WEST -> west;
+        };
     }
     
 }

@@ -41,9 +41,9 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
     public LittleActionInteract(Level level, BlockPos blockPos, Player player) {
         super();
         this.blockPos = blockPos;
-        this.pos = player.getEyePosition(TickUtils.getDeltaFrameTime(level));
+        this.pos = player.getEyePosition(TickUtils.getFrameTime(level));
         double reach = PlayerUtils.getReach(player);
-        Vec3 look = player.getViewVector(TickUtils.getDeltaFrameTime(level));
+        Vec3 look = player.getViewVector(TickUtils.getFrameTime(level));
         this.look = pos.add(look.x * reach, look.y * reach, look.z * reach);
         this.secondMode = LittleActionHandlerClient.isUsingSecondMode();
         if (level instanceof ISubLevel)

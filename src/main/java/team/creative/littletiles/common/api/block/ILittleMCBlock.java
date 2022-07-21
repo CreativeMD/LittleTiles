@@ -1,12 +1,11 @@
 package team.creative.littletiles.common.api.block;
 
-import java.util.Random;
-
 import com.mojang.math.Vector3d;
 
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -32,6 +32,8 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public interface ILittleMCBlock extends LittleBlock {
+    
+    static final RandomSource RANDOM = RandomSource.create();
     
     public static boolean isTranslucent(Block block) {
         return !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid() || block.defaultBlockState().canOcclude();
@@ -50,7 +52,6 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public default boolean is(TagKey<Block> tag) {
         return asBlock().builtInRegistryHolder().is(tag);
     }
@@ -96,13 +97,11 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public default SoundType getSoundType() {
         return asBlock().getSoundType(getState());
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public default float getExplosionResistance(LittleTile tile) {
         return asBlock().getExplosionResistance();
     }
@@ -111,10 +110,9 @@ public interface ILittleMCBlock extends LittleBlock {
     public default void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {}
     
     @Override
-    public default void randomDisplayTick(IParentCollection parent, LittleTile tile, Random rand) {}
+    public default void randomDisplayTick(IParentCollection parent, LittleTile tile, RandomSource rand) {}
     
     @Override
-    @SuppressWarnings("deprecation")
     public default int getLightValue() {
         return getState().getLightEmission();
     }
@@ -126,7 +124,7 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default String blockName() {
-        return asBlock().getRegistryName().toString();
+        return asBlock().builtInRegistryHolder().key().location().toString();
     }
     
     @Override
@@ -188,7 +186,7 @@ public interface ILittleMCBlock extends LittleBlock {
     @Override
     @OnlyIn(Dist.CLIENT)
     public default boolean canRenderInLayer(LittleTile tile, RenderType layer) {
-        return ItemBlockRenderTypes.canRenderInLayer(asBlock().defaultBlockState(), layer);
+        return Minecraft.getInstance().getBlockRenderer().getBlockModel(getState()).getRenderTypes(getState(), RANDOM, ModelData.EMPTY).contains(layer);
     }
     
 }

@@ -136,7 +136,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     public LittleBoxes getBoxes(boolean allowLowResolution) {
-        if ((marked && this.allowLowResolution) || allowLowResolution)
+        if (this.allowLowResolution && allowLowResolution)
             return getCache().get(true);
         return getCache().get(false);
     }
@@ -163,6 +163,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     @OnlyIn(Dist.CLIENT)
     public void setLast(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         this.stack = stack;
+        if (result == null)
+            return;
         if (positions.isEmpty())
             pos = position.getPos();
         last = new ShapeSelectPos(player, position, result);
@@ -180,6 +182,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         if (marked) {
             while (shape.maxAllowed() != -1 && positions.size() >= shape.maxAllowed())
                 positions.remove(positions.size() - 1);
+            markedPosition = positions.size() - 1;
             marked = false;
         } else {
             markedPosition = positions.size();
@@ -216,10 +219,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack pose) {
+    public void render(LittleGrid positionGrid, PoseStack pose) {
         if (marked)
             for (int i = 0; i < positions.size(); i++)
-                positions.get(i).render(pose, markedPosition == i);
+                positions.get(i).render(positionGrid, pose, markedPosition == i);
     }
     
     public void rotate(Player player, ItemStack stack, Rotation rotation) {
@@ -238,13 +241,13 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             return;
         int index = -1;
         double distance = Double.MAX_VALUE;
-        float partialTickTime = TickUtils.getDeltaFrameTime(player.level);
+        float partialTickTime = TickUtils.getFrameTime(player.level);
         Vec3 pos = player.getPosition(partialTickTime);
         double reach = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
         for (int i = 0; i < positions.size(); i++) {
-            Optional<Vec3> result = positions.get(i).box.clip(pos, look);
+            Optional<Vec3> result = positions.get(i).getBox().clip(pos, look);
             if (result.isPresent()) {
                 double tempDistance = pos.distanceToSqr(result.get());
                 if (tempDistance < distance) {
@@ -291,6 +294,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     public ShapeSelectPos getLast() {
+        if (marked)
+            return positions.get(positions.size() - 1);
         return last;
     }
     
@@ -347,13 +352,11 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         public final PlacementPosition pos;
         public final BlockHitResult ray;
         public final LittleTileContext result;
-        public AABB box;
         
         public ShapeSelectPos(Player player, PlacementPosition position, BlockHitResult result) {
             this.pos = position;
             this.ray = result;
             this.result = LittleTileContext.selectFocused(player.level, result.getBlockPos(), player);
-            this.box = pos.getBox().inflate(0.002);
             if (inside && result.getDirection().getAxisDirection() == AxisDirection.POSITIVE && grid
                     .isAtEdge(VectorUtils.get(result.getDirection().getAxis(), result.getLocation())))
                 pos.getVec().sub(Facing.get(result.getDirection()));
@@ -363,14 +366,12 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.pos = position;
             this.ray = ray;
             this.result = result;
-            this.box = pos.getBox().inflate(0.002);
         }
         
         public void move(LittleGrid context, Facing facing) {
             LittleVec vec = new LittleVec(facing);
             vec.scale(Screen.hasControlDown() ? context.count : 1);
             pos.subVec(vec);
-            box = pos.getBox().inflate(0.002);
         }
         
         @Override
@@ -388,14 +389,18 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         }
         
         @OnlyIn(Dist.CLIENT)
-        public void render(PoseStack pose, boolean selected) {
+        public void render(LittleGrid grid, PoseStack pose, boolean selected) {
             Minecraft mc = Minecraft.getInstance();
-            AABB box = this.box.inflate(0.002);
+            AABB box = this.getBox().inflate(0.002);
             VertexConsumer consumer = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
             RenderSystem.lineWidth(4.0F);
             LevelRenderer.renderLineBox(pose, consumer, box, 0, 0, 0, 1F);
             RenderSystem.lineWidth(1.0F);
             LevelRenderer.renderLineBox(pose, consumer, box, 1F, 0.3F, 0.0F, 1F);
+        }
+        
+        public AABB getBox() {
+            return pos.getBox(grid);
         }
         
         @Override

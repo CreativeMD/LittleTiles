@@ -45,14 +45,17 @@ public abstract class LittleShapeSelectable extends LittleShape {
     
     public void addBox(LittleBoxes boxes, boolean inside, LittleGrid grid, BlockPos pos, Facing facing) {
         LittleBox box = new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
-        if (facing.positive)
-            box.setMax(facing.axis, 1);
-        else
-            box.setMin(facing.axis, grid.count - 1);
+        
         if (inside)
             boxes.addBox(grid, pos, box);
-        else
+        else {
+            if (facing.positive)
+                box.setMax(facing.axis, 1);
+            else
+                box.setMin(facing.axis, grid.count - 1);
             boxes.addBox(grid, pos.relative(facing.toVanilla()), box);
+        }
+        
     }
     
 }

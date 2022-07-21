@@ -93,7 +93,6 @@ public class LittleGroupAbsolute implements IGridBased {
         group.add(getGrid(), element, box);
     }
     
-    @SuppressWarnings("deprecation")
     protected void addDirectly(LittleTile tile) {
         group.addDirectly(tile);
     }
@@ -109,7 +108,6 @@ public class LittleGroupAbsolute implements IGridBased {
         return new LittleBoxAbsolute(pos, new LittleBox(min, vec), getGrid());
     }
     
-    @SuppressWarnings("deprecation")
     public static void add(LittleGroup group, BlockPos pos, IParentCollection parent, LittleTile tile) {
         tile = tile.copy();
         

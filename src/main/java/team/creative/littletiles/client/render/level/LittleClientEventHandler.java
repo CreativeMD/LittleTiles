@@ -15,6 +15,7 @@ import com.mojang.math.Vector3d;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -23,17 +24,17 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
+import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
+import net.minecraftforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
-import net.minecraftforge.event.world.WorldEvent.Unload;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
-import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -73,18 +74,18 @@ public class LittleClientEventHandler {
     }
     
     @SubscribeEvent
-    public synchronized void worldUnload(Unload event) {
-        if (event.getWorld().isClientSide())
+    public synchronized void levelUnload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide())
             RenderingThread.unload();
     }
     
     @SubscribeEvent
-    public void renderOverlay(RenderBlockOverlayEvent event) {
+    public void renderOverlay(RenderBlockScreenEffectEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (event.getOverlayType() == OverlayType.WATER) {
             PoseStack pose = new PoseStack();
             Player player = event.getPlayer();
-            BlockPos blockpos = new BlockPos(player.getEyePosition(TickUtils.getDeltaFrameTime(player.level)));
+            BlockPos blockpos = new BlockPos(player.getEyePosition(TickUtils.getFrameTime(player.level)));
             BlockEntity blockEntity = player.level.getBlockEntity(blockpos);
             if (blockEntity instanceof BETiles be) {
                 AABB bb = player.getBoundingBox();
@@ -97,7 +98,7 @@ public class LittleClientEventHandler {
                         RenderSystem.setShaderTexture(0, RES_UNDERWATER_OVERLAY);
                         
                         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-                        float f = mc.player.getBrightness();
+                        float f = LightTexture.getBrightness(player.level.dimensionType(), player.level.getMaxLocalRawBrightness(blockpos));
                         RenderSystem.enableBlend();
                         RenderSystem.defaultBlendFunc();
                         RenderSystem.setShaderColor(f, f, f, 0.1F);
@@ -111,8 +112,7 @@ public class LittleClientEventHandler {
                         bufferbuilder.vertex(matrix4f, 1.0F, -1.0F, -0.5F).uv(0.0F + f7, 4.0F + f8).endVertex();
                         bufferbuilder.vertex(matrix4f, 1.0F, 1.0F, -0.5F).uv(0.0F + f7, 0.0F + f8).endVertex();
                         bufferbuilder.vertex(matrix4f, -1.0F, 1.0F, -0.5F).uv(4.0F + f7, 0.0F + f8).endVertex();
-                        bufferbuilder.end();
-                        BufferUploader.end(bufferbuilder);
+                        BufferUploader.drawWithShader(bufferbuilder.end());
                         RenderSystem.disableBlend();
                         
                         event.setCanceled(true);

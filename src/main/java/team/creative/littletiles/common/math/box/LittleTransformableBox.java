@@ -222,18 +222,18 @@ public class LittleTransformableBox extends LittleBox {
             BoxCorner corner = toCheck[j];
             
             switch (axis) {
-            case X:
-                if (corners[corner.ordinal()].x != otherCorners[corner.ordinal()].x)
-                    return false;
-                break;
-            case Y:
-                if (corners[corner.ordinal()].y != otherCorners[corner.ordinal()].y)
-                    return false;
-                break;
-            case Z:
-                if (corners[corner.ordinal()].z != otherCorners[corner.ordinal()].z)
-                    return false;
-                break;
+                case X:
+                    if (corners[corner.ordinal()].x != otherCorners[corner.ordinal()].x)
+                        return false;
+                    break;
+                case Y:
+                    if (corners[corner.ordinal()].y != otherCorners[corner.ordinal()].y)
+                        return false;
+                    break;
+                case Z:
+                    if (corners[corner.ordinal()].z != otherCorners[corner.ordinal()].z)
+                        return false;
+                    break;
             }
         }
         
@@ -338,13 +338,6 @@ public class LittleTransformableBox extends LittleBox {
                 }
             }
             
-            for (int j = 0; j < planes.length; j++) {
-                if (faceCache.tiltedStrip1 != null)
-                    faceCache.tiltedStrip1 = faceCache.tiltedStrip1.cut(planes[j]);
-                if (faceCache.tiltedStrip2 != null)
-                    faceCache.tiltedStrip2 = faceCache.tiltedStrip2.cut(planes[j]);
-            }
-            
             if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
                 for (int j = 0; j < faceCache.tiltedStrip2.count(); j++) {
                     Vec3f vec = faceCache.tiltedStrip2.get(j);
@@ -354,6 +347,14 @@ public class LittleTransformableBox extends LittleBox {
                     }
                 }
             }
+            
+            for (int j = 0; j < planes.length; j++) {
+                if (faceCache.tiltedStrip1 != null)
+                    faceCache.tiltedStrip1 = faceCache.tiltedStrip1.cut(planes[j]);
+                if (faceCache.tiltedStrip2 != null)
+                    faceCache.tiltedStrip2 = faceCache.tiltedStrip2.cut(planes[j]);
+            }
+            
         }
         
         // Axis strips against transformed box
@@ -367,14 +368,19 @@ public class LittleTransformableBox extends LittleBox {
             for (int j = 0; j < Facing.values().length; j++) {
                 VectorFanFaceCache faceCache = cache.faces[j];
                 if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null) {
-                    if (tiltedPlanes[j * 2] != null)
-                        axisFaceCache.cutAxisStrip(tiltedPlanes[j * 2]);
-                    if (tiltedPlanes[j * 2 + 1] != null)
-                        axisFaceCache.cutAxisStrip(tiltedPlanes[j * 2 + 1]);
+                    NormalPlane cutPlane1 = tiltedPlanes[j * 2];
+                    NormalPlane cutPlane2 = tiltedPlanes[j * 2 + 1];
+                    if (faceCache.convex) {
+                        if (cutPlane1 != null)
+                            axisFaceCache.cutAxisStrip(cutPlane1);
+                        if (cutPlane2 != null)
+                            axisFaceCache.cutAxisStrip(cutPlane2);
+                    } else
+                        axisFaceCache.cutAxisStrip(facing, cutPlane1, cutPlane2);
                 } else {
                     NormalPlane cutPlane1 = null;
                     NormalPlane cutPlane2 = null;
-                    if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
+                    if (!faceCache.convex || (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null)) {
                         cutPlane1 = tiltedPlanes[j * 2];
                         cutPlane2 = tiltedPlanes[j * 2 + 1];
                     } else if (faceCache.tiltedStrip1 != null)
@@ -553,6 +559,7 @@ public class LittleTransformableBox extends LittleBox {
             
             LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data.clone());
             CornerCache cache = result.new CornerCache(false);
+            ((LittleTransformableBox) box).setAbsoluteCornersTakeBounds(cache);
             setAbsoluteCornersTakeBounds(cache);
             result.data = cache.getData();
             
@@ -650,10 +657,15 @@ public class LittleTransformableBox extends LittleBox {
                 } else { // concave requires two separate shapes
                     int sizeBefore = shapes.size();
                     for (int j = 0; j < sizeBefore; j++) {
-                        List<NormalPlane> newList = new ArrayList<>(shapes.get(j));
-                        shapes.get(j).add(plane1);
-                        newList.add(plane2);
-                        shapes.add(newList);
+                        if (plane1 != null && plane2 != null) {
+                            List<NormalPlane> newList = new ArrayList<>(shapes.get(j));
+                            shapes.get(j).add(plane1);
+                            newList.add(plane2);
+                            shapes.add(newList);
+                        } else if (plane1 != null)
+                            shapes.get(j).add(plane1);
+                        else if (plane2 != null)
+                            shapes.get(j).add(plane2);
                     }
                 }
             }
@@ -696,9 +708,17 @@ public class LittleTransformableBox extends LittleBox {
         super.rotate(rotation, doubledCenter);
         this.data = cache.getData();
         
-        for (int i = 0; i < Facing.values().length; i++)
+        boolean[] cachedFlipped = new boolean[6];
+        for (int i = 0; i < Facing.VALUES.length; i++)
+            cachedFlipped[i] = getFlipped(i);
+        
+        for (int i = 0; i < Facing.VALUES.length; i++) {
+            Facing facing = rotation.rotate(Facing.get(i));
             if (flipRotationMatrix[rotation.ordinal()][i])
-                setFlipped(i, !getFlipped(i));
+                setFlipped(facing.ordinal(), !cachedFlipped[i]);
+            else
+                setFlipped(facing.ordinal(), cachedFlipped[i]);
+        }
     }
     
     @Override
@@ -713,15 +733,15 @@ public class LittleTransformableBox extends LittleBox {
             long tempZ = (vec.getAbsoluteZ()) * 2 - doubledCenter.z;
             LittleVec flippedVec = new LittleVec(0, 0, 0);
             switch (axis) {
-            case X:
-                tempX = -tempX;
-                break;
-            case Y:
-                tempY = -tempY;
-                break;
-            case Z:
-                tempZ = -tempZ;
-                break;
+                case X:
+                    tempX = -tempX;
+                    break;
+                case Y:
+                    tempY = -tempY;
+                    break;
+                case Z:
+                    tempZ = -tempZ;
+                    break;
             }
             
             flippedVec.x = (int) ((tempX + doubledCenter.x) / 2);
@@ -734,9 +754,17 @@ public class LittleTransformableBox extends LittleBox {
         
         this.data = cache.getData();
         
-        for (int i = 0; i < Facing.values().length; i++)
+        boolean[] cachedFlipped = new boolean[6];
+        for (int i = 0; i < Facing.VALUES.length; i++)
+            cachedFlipped[i] = getFlipped(i);
+        
+        for (int i = 0; i < Facing.VALUES.length; i++) {
+            Facing facing = axis.mirror(Facing.get(i));
             if (flipMirrorMatrix[axis.ordinal()][i])
-                setFlipped(i, !getFlipped(i));
+                setFlipped(facing.ordinal(), !cachedFlipped[i]);
+            else
+                setFlipped(facing.ordinal(), cachedFlipped[i]);
+        }
     }
     
     protected void setAbsoluteCorners(CornerCache cache) {
@@ -776,29 +804,21 @@ public class LittleTransformableBox extends LittleBox {
         for (int i = 0; i < BoxCorner.values().length; i++) {
             BoxCorner corner = BoxCorner.values()[i];
             
-            int x = 0;
-            int y = 0;
-            int z = 0;
             int index = i * 3;
             if (IntegerUtils.bitIs(indicator, index)) {
-                x = getData(activeBits) + get(corner.x);
+                cache.setAbsolute(corner, Axis.X, getData(activeBits) + get(corner.x));
                 activeBits++;
-            } else
-                x = get(corner.x);
+            }
             
             if (IntegerUtils.bitIs(indicator, index + 1)) {
-                y = getData(activeBits) + get(corner.y);
+                cache.setAbsolute(corner, Axis.Y, getData(activeBits) + get(corner.y));
                 activeBits++;
-            } else
-                y = get(corner.y);
+            }
             
             if (IntegerUtils.bitIs(indicator, index + 2)) {
-                z = getData(activeBits) + get(corner.z);
+                cache.setAbsolute(corner, Axis.Z, getData(activeBits) + get(corner.z));
                 activeBits++;
-            } else
-                z = get(corner.z);
-            
-            cache.setAbsolute(corner, new LittleVec(x, y, z));
+            }
         }
     }
     
@@ -1060,7 +1080,7 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     protected void fillAdvanced(ILittleFace face) {
-        List<VectorFan> axis = requestCache().get(face.facing()).axisStrips;
+        List<VectorFan> axis = requestCache().get(face.facing().opposite()).axisStrips;
         if (axis != null && !axis.isEmpty())
             face.cut(axis);
     }
@@ -1103,12 +1123,12 @@ public class LittleTransformableBox extends LittleBox {
         
         public int getAbsolute(Axis axis) {
             switch (axis) {
-            case X:
-                return getAbsoluteX();
-            case Y:
-                return getAbsoluteY();
-            case Z:
-                return getAbsoluteZ();
+                case X:
+                    return getAbsoluteX();
+                case Y:
+                    return getAbsoluteY();
+                case Z:
+                    return getAbsoluteZ();
             }
             return 0;
         }
@@ -1127,12 +1147,12 @@ public class LittleTransformableBox extends LittleBox {
         
         public int getRelative(Axis axis) {
             switch (axis) {
-            case X:
-                return getRelativeX();
-            case Y:
-                return getRelativeY();
-            case Z:
-                return getRelativeZ();
+                case X:
+                    return getRelativeX();
+                case Y:
+                    return getRelativeY();
+                case Z:
+                    return getRelativeZ();
             }
             return 0;
         }
@@ -1585,8 +1605,10 @@ public class LittleTransformableBox extends LittleBox {
                 for (int i = 0; i < sizeBefore; i++) {
                     CenterPoint first = centers.get(i);
                     CenterPoint second = first.copy();
-                    first.add(tiltedStrip1);
-                    second.add(tiltedStrip2);
+                    if (tiltedStrip1 != null)
+                        first.add(tiltedStrip1);
+                    if (tiltedStrip2 != null)
+                        second.add(tiltedStrip2);
                     centers.add(second);
                 }
             }

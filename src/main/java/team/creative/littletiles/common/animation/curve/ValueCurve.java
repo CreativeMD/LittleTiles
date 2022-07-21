@@ -6,7 +6,7 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.VecNd;
 import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
 import team.creative.creativecore.common.util.registry.exception.RegistryException;
-import team.creative.littletiles.common.animation.key.AnimationKey;
+import team.creative.littletiles.common.animation.property.AnimationProperty;
 
 public abstract class ValueCurve<T extends VecNd> {
     
@@ -24,9 +24,9 @@ public abstract class ValueCurve<T extends VecNd> {
     
     public abstract T value(int tick);
     
-    public abstract T first(AnimationKey<T> key);
+    public abstract T first(AnimationProperty<T> key);
     
-    public abstract T last(AnimationKey<T> key);
+    public abstract T last(AnimationProperty<T> key);
     
     public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();

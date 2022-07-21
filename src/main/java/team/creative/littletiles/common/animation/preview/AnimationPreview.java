@@ -2,7 +2,6 @@ package team.creative.littletiles.common.animation.preview;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +9,7 @@ import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.level.FakeClientLevel;
 import team.creative.creativecore.common.level.FakeServerLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.client.render.level.LittleRenderChunkSuppilier;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -35,16 +34,16 @@ public class AnimationPreview {
     public final LittleGrid grid;
     public final AABB box;
     
-    @SuppressWarnings("deprecation")
     public AnimationPreview(LittleGroup previews) {
         this.previews = previews;
+        this.grid = previews.getGrid();
         BlockPos pos = new BlockPos(0, 75, 0);
         FakeClientLevel fakeWorld = FakeServerLevel.createClient("animationViewer");
-        fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+        //fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
         
         if (!previews.hasStructure()) {
             CompoundTag nbt = new CompoundTag();
-            new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), null).save(nbt);
+            new LittleFixedStructure(LittleStructureRegistry.REGISTRY.get("fixed"), null).save(nbt);
             List<LittleGroup> newChildren = new ArrayList<>();
             for (LittleGroup group : previews.children.children())
                 newChildren.add(group.copy());
@@ -53,20 +52,33 @@ public class AnimationPreview {
                 group.addDirectly(tile.copy());
         }
         
-        Placement placement = new Placement(null, PlacementPreview.absolute(fakeWorld, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
+        Placement placement;
         PlacementResult result = null;
         try {
+            placement = new Placement(null, PlacementPreview.absolute(fakeWorld, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
             result = placement.place();
         } catch (LittleActionException e) {
             e.printStackTrace();
         }
         
         entireBox = previews.getSurroundingBox();
-        grid = previews.getGrid();
         box = entireBox.getBB(grid);
-        
-        animation = new LittleLevelEntity(fakeWorld, fakeWorld, pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews
-                .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
+        animation = new LittleLevelEntity(LittleTilesRegistry.ANIMATION.get(), fakeWorld, fakeWorld, new StructureAbsolute(pos, entireBox, previews
+                .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure)) {
+            
+            @Override
+            public void initialTick() {}
+            
+            @Override
+            public void onTick() {}
+            
+            @Override
+            public void loadLevelEntity(CompoundTag nbt) {}
+            
+            @Override
+            public void saveLevelEntity(CompoundTag nbt) {}
+            
+        };
         
     }
     

@@ -2,10 +2,9 @@ package team.creative.littletiles.common.packet.action;
 
 import java.util.UUID;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -77,7 +76,7 @@ public class BlockPacket extends CreativePacket {
             
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
-                player.sendMessage(new TextComponent("grid:" + be.getGrid()), Util.NIL_UUID);
+                player.sendSystemMessage(Component.literal("grid:" + be.getGrid()));
                 be.combineTiles();
                 be.convertBlockToVanilla();
                 be.updateTiles();
@@ -92,7 +91,7 @@ public class BlockPacket extends CreativePacket {
                     try {
                         String info = context.parent.getStructure().info();
                         if (!info.isEmpty())
-                            player.sendMessage(new TextComponent(info), Util.NIL_UUID);
+                            player.sendSystemMessage(Component.literal(info));
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             }
             
@@ -100,7 +99,6 @@ public class BlockPacket extends CreativePacket {
         RECIPE(false) {
             
             @Override
-            @SuppressWarnings("deprecation")
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
                 LittleGroup previews;
                 if (context.parent.isStructure()) {
@@ -155,7 +153,7 @@ public class BlockPacket extends CreativePacket {
     public BlockPacket(Level level, BlockPos blockPos, Player player, BlockPacketAction action, CompoundTag nbt) {
         this.blockPos = blockPos;
         this.action = action;
-        float partialTickTime = TickUtils.getDeltaFrameTime(level);
+        float partialTickTime = TickUtils.getFrameTime(level);
         this.pos = player.getPosition(partialTickTime);
         double distance = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);

@@ -31,7 +31,7 @@ public interface ISignalStructureBase {
     
     public void disconnect(Facing facing, ISignalStructureBase base);
     
-    public void unload(EnumFacing facing, ISignalStructureBase base);
+    public void unload(Facing facing, ISignalStructureBase base);
     
     public default boolean hasNetwork() {
         return getNetwork() != null;

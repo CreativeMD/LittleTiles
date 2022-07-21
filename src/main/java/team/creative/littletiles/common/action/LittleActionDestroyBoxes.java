@@ -7,12 +7,14 @@ import java.util.function.Consumer;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.action.LittleActionDestroy.StructurePreview;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -156,11 +158,6 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         }
         
         if (!simulate) {
-            for (StructurePreview structure : destroyedStructures)
-                try {
-                    if (!structure.structure.mainBlock.isRemoved())
-                        structure.structure.onLittleTileDestroy();
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             be.updateTiles(x -> {
                 ParentCollection parent = x.noneStructureTiles();
                 parent.removeAll(toRemove);
@@ -242,7 +239,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         
     }
     
-    public static LittleCollection removeBox(BETiles be, LittleGrid grid, LittleBox toCut, boolean update) {
+    public static LittleCollection removeBox(BETiles be, LittleGrid grid, LittleBox toCut, boolean update, LittleBoxReturnedVolume returnedVolume) {
         if (grid != be.getGrid()) {
             if (grid.count > be.getGrid().count)
                 be.convertTo(grid);
@@ -338,6 +335,22 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         });
         
         return removed;
+    }
+    
+    @Override
+    public void actionDone(Level level, Player player) {
+        for (StructurePreview structure : destroyedStructures) {
+            try {
+                if (!structure.structure.mainBlock.isRemoved()) {
+                    if (needIngredients(player) && !level.isClientSide) {
+                        ItemStack stack = structure.structure.getStructureDrop();
+                        if (!stack.isEmpty() && !player.addItem(stack))
+                            LevelUtils.dropItem(player, stack);
+                    }
+                    structure.structure.onLittleTileDestroy();
+                }
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        }
     }
     
     @Override

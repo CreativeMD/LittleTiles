@@ -1,0 +1,28 @@
+{
+    "variants": {
+        "facing=up": {
+            "model": "littletiles:block/output_arrow_up"
+        },
+        "facing=south": {
+            "model": "littletiles:block/output_arrow_up",
+            "x": 90
+        },
+        "facing=east": {
+            "model": "littletiles:block/output_arrow_up",
+            "x": 90,
+            "y": 90
+        },
+        "facing=down": {
+            "model": "littletiles:block/output_arrow_down"
+        },
+        "facing=north": {
+            "model": "littletiles:block/output_arrow_down",
+            "x": 90
+        },
+        "facing=west": {
+            "model": "littletiles:block/output_arrow_down",
+            "x": 90,
+            "y": 90
+        }
+    }
+}

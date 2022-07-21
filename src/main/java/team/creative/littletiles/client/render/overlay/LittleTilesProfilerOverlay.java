@@ -20,7 +20,7 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 
 public class LittleTilesProfilerOverlay {
     
@@ -102,7 +102,7 @@ public class LittleTilesProfilerOverlay {
     
     @SubscribeEvent
     public static void onRender(RenderTickEvent event) {
-        if (event.phase == Phase.END && mc.isWindowActive() && !mc.options.hideGui && mc.level != null) {
+        if (event.phase == Phase.END && mc.isWindowActive() && !mc.options.hideGui && mc.level != null && RenderingThread.THREADS != null) {
             
             PoseStack pose = new PoseStack();
             
@@ -113,7 +113,7 @@ public class LittleTilesProfilerOverlay {
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Anisotropic Filtering");
             if (OptifineHelper.installed() && OptifineHelper.isAntialiasing())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Antialiasing");
-            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.installed() && mc.options.mipmapLevels == 0)
+            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.installed() && mc.options.mipmapLevels().get() == 0)
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Enable mipmap levels (needs to be > 0)");
             if (!warnings.isEmpty()) {
                 for (int i = 0; i < warnings.size(); i++) {

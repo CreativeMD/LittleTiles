@@ -54,23 +54,4 @@ public class SignalUtils {
         return null;
     }
     
-    public static boolean is(boolean[] state, int[] indexes) {
-        for (int i = 0; i < state.length; i++) {
-            if (i >= indexes.length)
-                continue;
-            int indexState = indexes[i];
-            if (indexState == 2)
-                continue;
-            if (indexState != (state[i] ? 1 : 0))
-                return false;
-        }
-        return true;
-    }
-    
-    public static void combine(boolean[] state, boolean[] second) {
-        int count = Math.min(state.length, second.length);
-        for (int i = 0; i < count; i++)
-            state[i] = second[i];
-    }
-    
 }

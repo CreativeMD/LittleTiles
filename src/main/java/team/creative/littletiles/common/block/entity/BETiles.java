@@ -14,8 +14,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -30,6 +28,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.extensions.IForgeBlockEntity;
+import team.creative.creativecore.common.be.BlockEntityCreative;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -54,23 +53,21 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
-import team.creative.littletiles.common.math.face.LittleFaces;
-import team.creative.littletiles.common.math.face.LittleFaces.LittleFaceSideCache;
 import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.transformation.LittleBlockTransformer;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 
-public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
+public class BETiles extends BlockEntityCreative implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
     
     private boolean hasLoaded = false;
     private boolean preventUnload = false;
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
-    private LittleGrid grid;
+    private LittleGrid grid = LittleGrid.min();
     private BlockParentCollection tiles;
+    private boolean unloaded = false;
     public final SideSolidCache sideCache = new SideSolidCache();
-    public LittleFaces faces;
     
     @OnlyIn(Dist.CLIENT)
     public BERenderManager render;
@@ -91,16 +88,17 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             setLevel(getLevel());
             tiles.be = this;
             if (isClient())
-                render.setTe(this);
+                render.setBe(this);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
     
-    private boolean isClient() {
-        if (level != null)
-            return level.isClientSide;
-        return false;
+    @Override
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        if (tiles == null)
+            init();
     }
     
     private void init() {
@@ -193,6 +191,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
             newBE.assign(this);
             newBE.tiles.be = newBE;
+            setRemoved();
             preventUnload = false;
             return newBE;
         }
@@ -211,15 +210,29 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
             newBE.assign(this);
             newBE.tiles.be = newBE;
+            setRemoved();
             preventUnload = false;
         }
     }
     
-    public void onNeighbourChanged(Facing facing) {
-        faces.neighbourChanged(this, facing);
+    private void updateNeighbour(Facing facing) {
+        LittleServerFace face = new LittleServerFace(this);
+        for (Pair<IParentCollection, LittleTile> pair : allTiles())
+            for (LittleBox box : pair.value) {
+                if (box.hasOrCreateFaceState(pair.key, pair.value, face) && box.getFaceState(facing).outside())
+                    box.setFaceState(facing, face.set(pair.key, pair.value, box, facing).calculate());
+            }
+    }
+    
+    public void onNeighbourChanged(@Nullable Facing facing) {
+        if (facing == null)
+            for (int i = 0; i < Facing.VALUES.length; i++)
+                updateNeighbour(Facing.VALUES[i]);
+        else
+            updateNeighbour(facing);
         
         if (isClient())
-            render.onNeighbourChanged(facing);
+            render.onNeighbourChanged();
         
         notifyStructure();
     }
@@ -241,7 +254,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         rebuildFaces();
         
         if (level != null) {
-            level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
+            markDirty();
             if (updateNeighbour)
                 updateNeighbour();
             updateLighting();
@@ -335,24 +348,16 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public void rebuildFaces() {
-        LittleFaces newFaces = new LittleFaces(tilesCount());
-        LittleFaceSideCache cache = new LittleFaceSideCache();
         LittleServerFace face = new LittleServerFace(this);
-        for (Pair<IParentCollection, LittleTile> entry : allTiles()) {
-            for (LittleBox box : entry.getValue()) {
-                cache.clear();
+        for (Pair<IParentCollection, LittleTile> entry : allTiles())
+            for (LittleBox box : entry.value)
                 for (int i = 0; i < Facing.VALUES.length; i++) {
                     Facing facing = Facing.VALUES[i];
-                    face.set(entry.getKey(), entry.getValue(), box, facing);
-                    cache.set(facing, face.calculate());
+                    box.setFaceState(facing, face.set(entry.getKey(), entry.getValue(), box, facing).calculate());
                 }
-                newFaces.push(cache);
-            }
-        }
-        this.faces = newFaces;
     }
     
-    public boolean shouldFaceBeRendered(Facing facing, LittleFace face, LittleTile rendered) {
+    public boolean shouldFaceBeRendered(LittleFace face, LittleTile rendered) {
         face.ensureGrid(grid);
         
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
@@ -422,8 +427,6 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         
         tiles.load(nbt.getCompound("content"));
         sideCache.load(nbt);
-        if (nbt.contains("faces"))
-            faces = new LittleFaces(nbt.getByteArray("faces"));
         
         if (level != null && !level.isClientSide) {
             level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
@@ -439,23 +442,21 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
         grid.set(nbt);
-        nbt.put("content", tiles.save());
+        nbt.put("content", tiles.save(new LittleServerFace(this)));
         sideCache.write(nbt);
-        if (faces != null)
-            nbt.putByteArray("faces", faces.array());
     }
     
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        load(pkt.getTag());
-        updateTiles(false);
-        super.onDataPacket(net, pkt);
+    public void handleUpdate(CompoundTag nbt, boolean chunkUpdate) {
+        load(nbt);
+        if (!chunkUpdate)
+            updateTiles(false);
     }
     
     public BlockHitResult rayTrace(Player player) {
-        Vec3 pos = player.getPosition(TickUtils.getDeltaFrameTime(level));
+        Vec3 pos = player.getPosition(TickUtils.getFrameTime(level));
         double distance = PlayerUtils.getReach(player);
-        Vec3 view = player.getViewVector(TickUtils.getDeltaFrameTime(level));
+        Vec3 view = player.getViewVector(TickUtils.getFrameTime(level));
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
         if (level != player.level && level instanceof CreativeLevel) {
@@ -487,7 +488,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     public LittleTileContext getFocusedTile(Player player, float partialTickTime) {
         if (!isClient())
             return null;
-        Vec3 pos = player.getPosition(partialTickTime);
+        Vec3 pos = player.getEyePosition(partialTickTime);
         double distance = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
@@ -519,6 +520,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
                 }
             }
         
+        if (tileFocus == null)
+            return LittleTileContext.FAILED;
         return new LittleTileContext(parent, tileFocus, boxFocus);
     }
     
@@ -609,6 +612,11 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         return tiles.isCompletelyEmpty();
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public boolean isRenderingEmpty() {
+        return tiles.isCompletelyEmpty() && !render.getBufferCache().hasAdditional();
+    }
+    
     @Override
     public void setRemoved() {
         super.setRemoved();
@@ -616,8 +624,13 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             tiles.unload();
     }
     
+    public boolean unloaded() {
+        return unloaded;
+    }
+    
     @Override
     public void onChunkUnloaded() {
+        unloaded = true;
         super.onChunkUnloaded();
         tiles.unload();
         if (level.isClientSide) {
@@ -655,6 +668,10 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
     }
     
     public Iterable<Pair<IParentCollection, LittleTile>> allTiles() {
+        return tiles.allTiles();
+    }
+    
+    public Iterable<Pair<IParentCollection, LittleTile>> allBoxes() {
         return tiles.allTiles();
     }
     
@@ -855,6 +872,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         SideState SOUTH;
         SideState NORTH;
         
+        SideState YAXIS;
+        
         public SideSolidCache() {}
         
         public void load(CompoundTag nbt) {
@@ -864,6 +883,7 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             DOWN = nbt.contains("down") ? SideState.values()[nbt.getInt("down")] : null;
             SOUTH = nbt.contains("south") ? SideState.values()[nbt.getInt("south")] : null;
             NORTH = nbt.contains("north") ? SideState.values()[nbt.getInt("north")] : null;
+            YAXIS = nbt.contains("y_axis") ? SideState.values()[nbt.getInt("y_axis")] : null;
         }
         
         public void write(CompoundTag nbt) {
@@ -879,6 +899,8 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
                 nbt.putInt("south", SOUTH.ordinal());
             if (NORTH != null)
                 nbt.putInt("north", NORTH.ordinal());
+            if (YAXIS != null)
+                nbt.putInt("y_axis", YAXIS.ordinal());
         }
         
         public void reset() {
@@ -888,33 +910,46 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
             SOUTH = null;
             WEST = null;
             EAST = null;
+            YAXIS = null;
+        }
+        
+        public SideState getYAxis() {
+            if (YAXIS != null)
+                return YAXIS;
+            
+            LittleBox box = new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
+            boolean[][] filled = new boolean[grid.count][grid.count];
+            
+            boolean translucent = false;
+            boolean noclip = false;
+            
+            for (Pair<IParentCollection, LittleTile> pair : BETiles.this.tiles.allTiles())
+                if (pair.value.fillInSpaceInaccurate(box, Axis.X, Axis.Z, Axis.Y, filled)) {
+                    if (!pair.value.doesProvideSolidFace())
+                        translucent = true;
+                    if (LittleStructureAttribute.noCollision(pair.key.getAttribute()) || pair.value.getBlock().noCollision())
+                        noclip = true;
+                }
+            
+            for (int one = 0; one < filled.length; one++)
+                for (int two = 0; two < filled[one].length; two++)
+                    if (!filled[one][two])
+                        return SideState.EMPTY;
+                    
+            YAXIS = SideState.getState(false, noclip, translucent);
+            return YAXIS;
         }
         
         protected SideState calculate(Facing facing) {
-            LittleBox box;
-            switch (facing) {
-            case EAST:
-                box = new LittleBox(grid.count - 1, 0, 0, grid.count, grid.count, grid.count);
-                break;
-            case WEST:
-                box = new LittleBox(0, 0, 0, 1, grid.count, grid.count);
-                break;
-            case UP:
-                box = new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count);
-                break;
-            case DOWN:
-                box = new LittleBox(0, 0, 0, grid.count, 1, grid.count);
-                break;
-            case SOUTH:
-                box = new LittleBox(0, 0, grid.count - 1, grid.count, grid.count, grid.count);
-                break;
-            case NORTH:
-                box = new LittleBox(0, 0, 0, grid.count, grid.count, 1);
-                break;
-            default:
-                box = null;
-                break;
-            }
+            LittleBox box = switch (facing) {
+                case EAST -> new LittleBox(grid.count - 1, 0, 0, grid.count, grid.count, grid.count);
+                case WEST -> new LittleBox(0, 0, 0, 1, grid.count, grid.count);
+                case UP -> new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count);
+                case DOWN -> new LittleBox(0, 0, 0, grid.count, 1, grid.count);
+                case SOUTH -> new LittleBox(0, 0, grid.count - 1, grid.count, grid.count, grid.count);
+                case NORTH -> new LittleBox(0, 0, 0, grid.count, grid.count, 1);
+                default -> null;
+            };
             return calculateState(facing, box);
         }
         
@@ -933,42 +968,25 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
                         noclip = true;
                 }
             
-            for (int x = 0; x < filled.length; x++) {
-                for (int y = 0; y < filled[x].length; y++) {
-                    for (int z = 0; z < filled[x][y].length; z++) {
+            for (int x = 0; x < filled.length; x++)
+                for (int y = 0; y < filled[x].length; y++)
+                    for (int z = 0; z < filled[x][y].length; z++)
                         if (!filled[x][y][z])
                             return SideState.EMPTY;
-                    }
-                }
-            }
+                        
             return SideState.getState(false, noclip, translucent);
         }
         
         public SideState get(Facing facing) {
-            SideState result;
-            
-            switch (facing) {
-            case DOWN:
-                result = DOWN;
-                break;
-            case UP:
-                result = UP;
-                break;
-            case NORTH:
-                result = NORTH;
-                break;
-            case SOUTH:
-                result = SOUTH;
-                break;
-            case WEST:
-                result = WEST;
-                break;
-            case EAST:
-                result = EAST;
-                break;
-            default:
-                result = SideState.EMPTY;
-            }
+            SideState result = switch (facing) {
+                case DOWN -> DOWN;
+                case UP -> UP;
+                case NORTH -> NORTH;
+                case SOUTH -> SOUTH;
+                case WEST -> WEST;
+                case EAST -> EAST;
+                default -> SideState.EMPTY;
+            };
             
             if (result == null)
                 set(facing, result = calculate(facing));
@@ -978,29 +996,32 @@ public class BETiles extends BlockEntity implements IGridBased, ILittleBlockEnti
         
         public void set(Facing facing, SideState value) {
             switch (facing) {
-            case DOWN:
-                DOWN = value;
-                break;
-            case UP:
-                UP = value;
-                break;
-            case NORTH:
-                NORTH = value;
-                break;
-            case SOUTH:
-                SOUTH = value;
-                break;
-            case WEST:
-                WEST = value;
-                break;
-            case EAST:
-                EAST = value;
-                break;
+                case DOWN:
+                    DOWN = value;
+                    break;
+                case UP:
+                    UP = value;
+                    break;
+                case NORTH:
+                    NORTH = value;
+                    break;
+                case SOUTH:
+                    SOUTH = value;
+                    break;
+                case WEST:
+                    WEST = value;
+                    break;
+                case EAST:
+                    EAST = value;
+                    break;
             }
         }
         
         public boolean isCollisionFullBlock() {
-            return EAST.isFilled() && WEST.isFilled() && UP.isFilled() && DOWN.isFilled() && SOUTH.isFilled() && NORTH.isFilled();
+            for (int i = 0; i < Facing.VALUES.length; i++)
+                if (!get(Facing.VALUES[i]).isFilled())
+                    return false;
+            return true;
         }
         
     }

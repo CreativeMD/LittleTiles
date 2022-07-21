@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.gui.structure;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -77,7 +77,7 @@ public class GuiBuilder extends GuiLayer {
         config.add(new GuiCounter("thickness", builder.lastThickness, 1, Integer.MAX_VALUE));
         
         GuiComboBoxMapped<LittleStructureBuilderType> box = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureBuilderType>()
-                .addEntrySet(LittleStructureBuilder.REGISTRY.entrySet(), x -> new TranslatableComponent("structure." + x.getKey() + ".name")));
+                .addEntrySet(LittleStructureBuilder.REGISTRY.entrySet(), x -> Component.translatable("structure." + x.getKey() + ".name")));
         box.select(LittleStructureBuilder.REGISTRY.get(builder.lastStructureType));
         add(box.setExpandableX());
         
@@ -103,7 +103,7 @@ public class GuiBuilder extends GuiLayer {
                 nbt.putInt("grid", grid.count);
                 ItemStack stack = selector.getSelected();
                 Block block = Block.byItem(stack.getItem());
-                nbt.putString("block", block.getRegistryName().toString());
+                nbt.putString("block", block.builtInRegistryHolder().key().location().toString());
                 CRAFT.send(nbt);
             } else
                 get("failed").visible = true;

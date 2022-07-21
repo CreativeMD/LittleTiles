@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -61,15 +60,15 @@ public class LittleShapeCurveWall extends LittleShape {
         
         Interpolation<Vec2d> interpolation;
         switch (selection.getNBT().getInt("interpolation")) {
-        case 0:
-            interpolation = new HermiteInterpolation<>(points.toArray(new Vec2d[0]));
-            break;
-        case 1:
-            interpolation = new CubicInterpolation<>(points.toArray(new Vec2d[0]));
-            break;
-        default:
-            interpolation = new LinearInterpolation<>(points.toArray(new Vec2d[0]));
-            break;
+            case 0:
+                interpolation = new HermiteInterpolation<>(points.toArray(new Vec2d[0]));
+                break;
+            case 1:
+                interpolation = new CubicInterpolation<>(points.toArray(new Vec2d[0]));
+                break;
+            default:
+                interpolation = new LinearInterpolation<>(points.toArray(new Vec2d[0]));
+                break;
         }
         
         Vec2d origin = new Vec2d(VectorUtils.get(one, boxes.pos), VectorUtils.get(two, boxes.pos));
@@ -105,22 +104,22 @@ public class LittleShapeCurveWall extends LittleShape {
     
     @Override
     public void addExtraInformation(CompoundTag nbt, List<Component> list) {
-        list.add(new TranslatableComponent("gui.interpolation").append(": ").append(new TranslatableComponent("gui." + interpolationTypes[nbt.getInt("interpolation")])));
+        list.add(Component.translatable("gui.interpolation").append(": ").append(Component.translatable("gui." + interpolationTypes[nbt.getInt("interpolation")])));
         
         int facing = nbt.getInt("direction");
         String text;
         switch (facing) {
-        case 1:
-            text = "x";
-            break;
-        case 2:
-            text = "z";
-            break;
-        default:
-            text = "y";
-            break;
+            case 1:
+                text = "x";
+                break;
+            case 2:
+                text = "z";
+                break;
+            default:
+                text = "y";
+                break;
         }
-        list.add(new TranslatableComponent("gui.facing").append(": ").append(new TranslatableComponent("gui.axis." + text)));
+        list.add(Component.translatable("gui.facing").append(": ").append(Component.translatable("gui.axis." + text)));
     }
     
     @Override

@@ -25,24 +25,24 @@ public class ItemModelCacheLayered extends ItemModelCache {
     public void setQuads(RenderType type, Facing facing, List<BakedQuad> baked) {
         if (type == Sheets.translucentCullBlockSheet())
             switch (facing) {
-            case DOWN:
-                this.down = baked;
-                break;
-            case EAST:
-                this.east = baked;
-                break;
-            case NORTH:
-                this.north = baked;
-                break;
-            case SOUTH:
-                this.south = baked;
-                break;
-            case UP:
-                this.up = baked;
-                break;
-            case WEST:
-                this.west = baked;
-                break;
+                case DOWN:
+                    this.down = baked;
+                    break;
+                case EAST:
+                    this.east = baked;
+                    break;
+                case NORTH:
+                    this.north = baked;
+                    break;
+                case SOUTH:
+                    this.south = baked;
+                    break;
+                case UP:
+                    this.up = baked;
+                    break;
+                case WEST:
+                    this.west = baked;
+                    break;
             }
         
         super.setQuads(type, facing, baked);
@@ -52,21 +52,23 @@ public class ItemModelCacheLayered extends ItemModelCache {
     public List<BakedQuad> getQuads(RenderType type, Facing facing) {
         if (type != Sheets.translucentCullBlockSheet())
             return super.getQuads(type, facing);
-        switch (facing) {
-        case DOWN:
-            return down;
-        case EAST:
-            return east;
-        case NORTH:
-            return north;
-        case SOUTH:
-            return south;
-        case UP:
-            return up;
-        case WEST:
-            return west;
-        default:
+        if (facing == null)
             return Collections.EMPTY_LIST;
+        switch (facing) {
+            case DOWN:
+                return down;
+            case EAST:
+                return east;
+            case NORTH:
+                return north;
+            case SOUTH:
+                return south;
+            case UP:
+                return up;
+            case WEST:
+                return west;
+            default:
+                return Collections.EMPTY_LIST;
         }
     }
     

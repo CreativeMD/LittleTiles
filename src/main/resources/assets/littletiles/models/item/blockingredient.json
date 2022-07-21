@@ -1,3 +1,4 @@
 {
-	"loader": "creativecore:rendered"
+    "loader": "creativecore:rendered",
+    "item": "littletiles:blockingredient"
 }

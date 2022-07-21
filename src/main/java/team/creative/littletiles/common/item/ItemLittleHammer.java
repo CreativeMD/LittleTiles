@@ -2,9 +2,9 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -18,8 +18,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
-import team.creative.creativecore.common.gui.handler.ItemGuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
+import team.creative.creativecore.common.gui.creator.ItemGuiCreator;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -71,14 +71,9 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
-        tooltip.add(new TranslatableComponent("gui.shape").append(": ").append(new TranslatableComponent(shape.getKey())));
+        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getKey())));
         shape.addExtraInformation(stack.getTag(), tooltip);
     }
     
@@ -112,7 +107,21 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
                 else
                     LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxes(level, selection.getBoxes(false)));
                 selection = null;
+                LittleTilesClient.PREVIEW_RENDERER.removeMarked();
             }
+        return false;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        if (selection != null)
+            selection.click(player);
+        return true;
+    }
+    
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
         return false;
     }
     
@@ -123,8 +132,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public void onDeselect(Level level, ItemStack stack, Player player) {
-        if (selection != null)
-            selection = null;
+        selection = null;
     }
     
     @Override

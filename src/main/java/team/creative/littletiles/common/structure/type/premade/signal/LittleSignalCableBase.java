@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,12 +38,14 @@ import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
+import team.creative.littletiles.common.structure.signal.component.InvalidSignalComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.network.SignalNetwork;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
@@ -148,7 +152,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         if (!preview && faces != null) {
             int[] result = new int[getNumberOfConnections() * 3];
             for (int i = 0; i < faces.length; i++) {
-                if (faces[i] != null) {
+                if (faces[i] != null && !faces[i].invalid) {
                     result[i * 3] = faces[i].distance;
                     result[i * 3 + 1] = faces[i].grid.count;
                     result[i * 3 + 2] = faces[i].oneSidedRenderer ? 1 : 0;
@@ -280,8 +284,11 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         };
     }
     
-    protected LittleConnectResult checkConnection(Level level, LittleBoxAbsolute box, Facing facing, BlockPos pos) throws ConnectionException {
+    protected LittleConnectResult checkConnection(Level level, LittleBoxAbsolute box, Facing facing, BlockPos pos) throws ConnectionException, NotYetConnectedException {
         try {
+            LevelChunk chunk = level.getChunkAt(pos); // TODO Check if this can even happen, not sure if chunk can be null
+            if (chunk == null)
+                throw new NotYetConnectedException();
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof BETiles) {
                 BETiles be = (BETiles) blockEntity;
@@ -378,7 +385,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         return null;
     }
     
-    public LittleConnectResult checkConnection(Facing facing, LittleBoxAbsolute box) {
+    public LittleConnectResult checkConnection(Facing facing, LittleBoxAbsolute box) throws NotYetConnectedException {
         if (!canConnect(facing))
             return null;
         
@@ -404,6 +411,9 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     @OnlyIn(Dist.CLIENT)
     public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+        if (ColorUtils.isInvisible(color))
+            return;
+        
         if (layer != (ColorUtils.isTransparent(color) ? RenderType.translucent() : RenderType.solid()))
             return;
         
@@ -494,8 +504,18 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     @Override
     public void unload() {
         super.unload();
+        for (int i = 0; i < faces.length; i++)
+            if (faces[i] != null)
+                faces[i].unload(getFacing(i));
         if (network != null)
             network.unload(this);
+    }
+    
+    @Override
+    public void unload(Facing facing, ISignalStructureBase base) {
+        int index = getIndex(facing);
+        if (faces[index] != null)
+            faces[index].connection = null;
     }
     
     public class LittleConnectionFace {
@@ -504,18 +524,26 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         public int distance;
         public LittleGrid grid;
         public boolean oneSidedRenderer;
+        private boolean invalid;
         
         public LittleConnectionFace() {
             
         }
         
         public void disconnect(Facing facing) {
-            if (connection != null)
+            if (connection != null) {
                 connection.disconnect(facing.opposite(), LittleSignalCableBase.this);
-            if (hasNetwork())
-                getNetwork().remove(connection);
+                if (hasNetwork())
+                    getNetwork().remove(connection);
+            }
             connection = null;
             updateStructure();
+        }
+        
+        public void unload(Facing facing) {
+            if (connection != null)
+                connection.unload(facing.opposite(), LittleSignalCableBase.this);
+            connection = null;
         }
         
         public void connect(ISignalStructureBase connection, LittleGrid grid, int distance, boolean oneSidedRenderer) {
@@ -535,17 +563,25 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             if (connection != null)
                 return true;
             
-            LittleConnectResult result = checkConnection(facing, box);
-            if (result != null) {
-                this.connection = result.base;
-                this.grid = result.grid;
-                this.distance = result.distance;
-                return true;
+            try {
+                LittleConnectResult result = checkConnection(facing, box);
+                invalid = false;
+                if (result != null) {
+                    this.connection = result.base;
+                    this.grid = result.grid;
+                    this.distance = result.distance;
+                    return true;
+                }
+            } catch (NotYetConnectedException e) {
+                invalid = true;
             }
             return false;
+            
         }
         
         public ISignalStructureBase getConnection() {
+            if (invalid)
+                return InvalidSignalComponent.INSTANCE;
             return connection;
         }
     }
@@ -573,19 +609,19 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         
     }
     
-    public static abstract class LittleStructureTypeNetwork extends LittleStructureTypePremade implements ISignalComponent {
+    public static abstract class LittleStructureTypeNetwork extends LittlePremadeType implements ISignalComponent {
         
         public final int bandwidth;
         public final int numberOfConnections;
         
-        public LittleStructureTypeNetwork(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid, int bandwidth, int numberOfConnections) {
-            super(id, category, structureClass, attribute.neighborListener(), modid);
+        public <T extends LittleStructure> LittleStructureTypeNetwork(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth, int numberOfConnections) {
+            super(id, structureClass, factory, attribute.neighborListener(), modid);
             this.bandwidth = bandwidth;
             this.numberOfConnections = numberOfConnections;
         }
         
         public int getColor(LittleGroup group) {
-            if (group.getStructureTag().contains("color"))
+            if (group.hasStructure() && group.getStructureTag().contains("color"))
                 return group.getStructureTag().getInt("color");
             return DEFAULT_CABLE_COLOR;
         }

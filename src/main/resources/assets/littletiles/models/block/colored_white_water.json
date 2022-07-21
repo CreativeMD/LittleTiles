@@ -1,6 +1,6 @@
 {
     "parent": "block/cube_all",
     "textures": {
-        "all": "littletiles:blocks/white_opaque_water"
+        "all": "littletiles:block/white_water"
     }
 }

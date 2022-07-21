@@ -4,7 +4,7 @@ import net.minecraft.data.models.blockstates.PropertyDispatch.TriFunction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.structure.LittleStructure;

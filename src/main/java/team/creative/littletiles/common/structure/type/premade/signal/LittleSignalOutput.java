@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.type.premade.signal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -11,7 +12,6 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -23,23 +23,24 @@ import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 
 public class LittleSignalOutput extends LittleSignalCableBase implements ISignalStructureComponent {
     
-    private final boolean[] state;
+    private SignalState state;
     @StructureDirectional
     public Facing facing;
     
     public LittleSignalOutput(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
-        this.state = new boolean[getBandwidth()];
+        this.state = SignalState.create(getBandwidth());
     }
     
     @Override
@@ -48,20 +49,26 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     }
     
     @Override
-    public boolean[] getState() {
+    public SignalState getState() {
         return state;
+    }
+    
+    @Override
+    public void overwriteState(SignalState state) {
+        this.state = this.state.overwrite(state);
+        this.state.shrinkTo(getBandwidth());
     }
     
     @Override
     protected void loadExtra(CompoundTag nbt) {
         super.loadExtra(nbt);
-        BooleanUtils.intToBool(nbt.getInt("state"), state);
+        state = state.load(nbt.get("state"));
     }
     
     @Override
     protected void saveExtra(CompoundTag nbt) {
         super.saveExtra(nbt);
-        nbt.putInt("state", BooleanUtils.boolToInt(state));
+        nbt.put("state", state.save());
     }
     
     @Override
@@ -165,14 +172,14 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     @Override
     public String info() {
         if (getParent() != null)
-            return "o" + getId() + ":" + BooleanUtils.print(getState());
+            return "o" + getId() + ":" + getState().print(getBandwidth());
         return "";
     }
     
     public static class LittleStructureTypeOutput extends LittleStructureTypeNetwork {
         
-        public LittleStructureTypeOutput(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid, int bandwidth) {
-            super(id, category, structureClass, attribute, modid, bandwidth, 1);
+        public <T extends LittleStructure> LittleStructureTypeOutput(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth) {
+            super(id, structureClass, factory, attribute, modid, bandwidth, 1);
         }
         
         @Override
@@ -206,9 +213,12 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
         }
         
         @Override
-        public boolean[] getState() {
+        public SignalState getState() {
             return null;
         }
+        
+        @Override
+        public void overwriteState(SignalState state) {}
         
         @Override
         public SignalComponentType getComponentType() {

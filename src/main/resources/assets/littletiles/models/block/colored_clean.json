@@ -1,6 +1,6 @@
 {
     "parent": "block/cube_all",
     "textures": {
-        "all": "littletiles:blocks/ltcolored0"
+        "all": "littletiles:block/colored_clean"
     }
 }

@@ -18,7 +18,7 @@ public class LittleBedEventHandler {
     
     @SubscribeEvent
     public void isSleepingLocationAllowed(SleepingLocationCheckEvent event) {
-        if (event.getEntityLiving() instanceof Player player) {
+        if (event.getEntity() instanceof Player player) {
             LittleBed bed = ((ILittleBedPlayerExtension) player).getBed();
             if (bed != null && bed.getSleepingPlayer() == player)
                 event.setResult(Result.ALLOW);
@@ -27,29 +27,29 @@ public class LittleBedEventHandler {
     
     @SubscribeEvent
     public void onPlayerLogout(PlayerLoggedOutEvent event) {
-        LittleBed bed = ((ILittleBedPlayerExtension) event.getPlayer()).getBed();
+        LittleBed bed = ((ILittleBedPlayerExtension) event.getEntity()).getBed();
         if (bed != null)
             bed.setSleepingPlayer(null);
-        ((ILittleBedPlayerExtension) event.getPlayer()).setBed(null);
+        ((ILittleBedPlayerExtension) event.getEntity()).setBed(null);
     }
     
     @SubscribeEvent
     public void onWakeUp(PlayerWakeUpEvent event) {
-        LittleBed bed = ((ILittleBedPlayerExtension) event.getPlayer()).getBed();
+        LittleBed bed = ((ILittleBedPlayerExtension) event.getEntity()).getBed();
         if (bed != null)
             bed.setSleepingPlayer(null);
-        ((ILittleBedPlayerExtension) event.getPlayer()).setBed(null);
+        ((ILittleBedPlayerExtension) event.getEntity()).setBed(null);
     }
     
     @SubscribeEvent
     public void onPlayerSleep(PlayerSleepInBedEvent event) {
-        if (event.getPlayer().level.getBlockState(event.getPos()).getBlock() instanceof BlockTile) {
-            BETiles be = BlockTile.loadBE(event.getPlayer().level, event.getPos());
+        if (event.getEntity().level.getBlockState(event.getPos()).getBlock() instanceof BlockTile) {
+            BETiles be = BlockTile.loadBE(event.getEntity().level, event.getPos());
             if (be != null) {
                 for (LittleStructure structure : be.loadedStructures()) {
                     if (structure instanceof LittleBed && ((LittleBed) structure).hasBeenActivated) {
                         try {
-                            ((LittleBed) structure).trySleep(event.getPlayer(), structure.getHighestCenterVec());
+                            ((LittleBed) structure).trySleep(event.getEntity(), structure.getHighestCenterVec());
                             event.setResult((BedSleepingProblem) null);
                             ((LittleBed) structure).hasBeenActivated = false;
                             return;

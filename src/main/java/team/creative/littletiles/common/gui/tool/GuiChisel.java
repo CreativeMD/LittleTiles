@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.gui.tool;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
@@ -41,14 +41,14 @@ public class GuiChisel extends GuiConfigureTool {
         Color color = new Color(element.color);
         add(new GuiColorPicker("picker", color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
         
-        GuiShowItem show = new GuiShowItem("preview", 60, 60);
+        GuiShowItem show = new GuiShowItem("item", 60, 60);
         add(show);
         
         GuiStackSelector selector = new GuiStackSelector("preview", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         selector.setSelectedForce(element.getBlock().getStack());
         add(selector);
         GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>()
-                .addComponent(ShapeRegistry.placingShapes(), x -> new TranslatableComponent(x.getTranslatableName())));
+                .addComponent(ShapeRegistry.placingShapes(), x -> Component.translatable(x.getTranslatableName())));
         box.select(ItemLittleChisel.getShape(tool.get()));
         add(box);
         add(new GuiScrollY("settings").setExpandable());
@@ -78,7 +78,7 @@ public class GuiChisel extends GuiConfigureTool {
             element = new LittleElement(ItemLittleChisel.getElement(tool.get()), picker.color.toInt());
         }
         
-        ((GuiShowItem) get("preview")).stack = ItemMultiTiles.of(element);
+        get("item", GuiShowItem.class).stack = ItemMultiTiles.of(element);
     }
     
     @Override

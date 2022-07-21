@@ -17,9 +17,9 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -46,9 +46,14 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootContext.Builder;
@@ -61,9 +66,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.IBlockRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 import net.minecraftforge.common.util.ForgeSoundType;
-import team.chisel.ctm.api.IFacade;
 import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -90,20 +94,23 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.type.bed.ILittleBedPlayerExtension;
 import team.creative.littletiles.server.LittleTilesServer;
 
-public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicBlock {
+public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
+    
+    public static final SoundType SILENT = new ForgeSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     
     public static BETiles loadBE(BlockGetter level, BlockPos pos) {
         if (level == null)
             return null;
         BlockEntity be = null;
         try {
-            be = level.getBlockEntity(pos);
+            be = level.getExistingBlockEntity(pos);
         } catch (Exception e) {
             return null;
         }
@@ -114,17 +121,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     
     public static boolean selectEntireBlock(Player player, boolean secondMode) {
         return secondMode && !(player.getMainHandItem().getItem() instanceof ItemLittleSaw) && !(player.getMainHandItem().getItem() instanceof ItemLittlePaintBrush);
-    }
-    
-    public static final SoundType SILENT = new ForgeSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
-    
-    public final boolean ticking;
-    public final boolean rendered;
-    
-    public BlockTile(Material material, boolean ticking, boolean rendered) {
-        super(BlockBehaviour.Properties.of(material).explosionResistance(3.0F).sound(SILENT).dynamicShape());
-        this.ticking = ticking;
-        this.rendered = rendered;
     }
     
     public static BlockState getStateByAttribute(int attribute) {
@@ -155,9 +151,29 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
         return getState(ticking, rendered);
     }
     
+    public final boolean ticking;
+    public final boolean rendered;
+    
+    public BlockTile(Material material, boolean ticking, boolean rendered) {
+        super(BlockBehaviour.Properties.of(material).destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape());
+        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
+        this.ticking = ticking;
+        this.rendered = rendered;
+    }
+    
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+    
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> definition) {
+        definition.add(WATERLOGGED);
+    }
+    
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void initializeClient(Consumer<IBlockRenderProperties> consumer) {
+    public void initializeClient(Consumer<IClientBlockExtensions> consumer) {
         consumer.accept(BlockTileRenderProperties.INSTANCE);
     }
     
@@ -190,21 +206,26 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     
     @Override
     @Deprecated
-    public float getShadeBrightness(BlockState p_60472_, BlockGetter p_60473_, BlockPos p_60474_) {
-        // TODO Not sure if this should be used or not
-        return p_60472_.isCollisionShapeFullBlock(p_60473_, p_60474_) ? 0.2F : 1.0F;
+    public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
+        BETiles be = loadBE(level, pos);
+        if (be != null)
+            return be.sideCache.isCollisionFullBlock() ? 0.2F : 1.0F;
+        return 0.2F;
     }
     
     @Override
     public boolean useShapeForLightOcclusion(BlockState state) {
-        // TODO expensive but accurate, maybe it can be set to false by an option
         return true;
     }
     
     @Override
     public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
-        // TODO Interesting thing to add (note this runs on sever side)
-        return !isShapeFullBlock(state.getShape(level, pos)) && state.getFluidState().isEmpty();
+        if (!state.getFluidState().isEmpty())
+            return false;
+        BETiles be = loadBE(level, pos);
+        if (be != null)
+            return be.sideCache.getYAxis().doesBlockLight();
+        return true;
     }
     
     @Override
@@ -246,9 +267,8 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     
     @Override
     @Deprecated
-    public VoxelShape getBlockSupportShape(BlockState p_60581_, BlockGetter p_60582_, BlockPos p_60583_) {
-        //TODO Shape that other stuff can be placed on, same as collision shape but maybe should exclude materials like glass not sure yet.
-        return this.getCollisionShape(p_60581_, p_60582_, p_60583_, CollisionContext.empty());
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return getCollisionShape(state, level, pos, CollisionContext.empty());
     }
     
     @Override
@@ -271,9 +291,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
         return shape;
     }
     
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // get Selection shape and it's also used for some other stuff I don't know (only works on client side) TODO CHECK if that is the case
+    public VoxelShape getSelectionShape(BlockGetter level, BlockPos pos) {
         LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
         if (tileContext.isComplete()) {
             if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode()))
@@ -282,21 +300,41 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
                 try {
                     return tileContext.parent.getStructure().getSurroundingBox().getShape();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            return tileContext.tile.getShapes(tileContext.parent);
+            return tileContext.box.getShape(tileContext.parent.getGrid());
         }
         return Shapes.empty();
     }
     
     @Override
-    public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
-        //TODO requires some more work
-        return false;
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        BETiles be = loadBE(level, pos);
+        VoxelShape shape = Shapes.empty();
+        
+        if (be != null) {
+            for (IParentCollection list : be.groups()) {
+                if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
+                    continue;
+                if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
+                    try {
+                        shape = Shapes.or(shape, list.getStructure().getExtraShape(state, level, pos, context));
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                
+                for (LittleTile tile : list)
+                    if (!tile.getBlock().noCollision())
+                        shape = Shapes.or(shape, tile.getShapes(list));
+            }
+        }
+        return shape;
     }
     
     @Override
-    @Nullable
-    public BlockPathTypes getAiPathNodeType(BlockState state, BlockGetter world, BlockPos pos, @Nullable Mob entity) {
-        return state.getBlock() == Blocks.LAVA ? BlockPathTypes.LAVA : state.isBurning(world, pos) ? BlockPathTypes.DAMAGE_FIRE : null;
+    public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
+        return super.isPathfindable(state, level, pos, type);
+    }
+    
+    @Override
+    public @org.jetbrains.annotations.Nullable BlockPathTypes getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @org.jetbrains.annotations.Nullable Mob mob) {
+        return state.getBlock() == Blocks.LAVA ? BlockPathTypes.LAVA : state.isBurning(level, pos) ? BlockPathTypes.DAMAGE_FIRE : null;
     }
     
     @Override
@@ -316,27 +354,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     public Direction getBedDirection(BlockState state, LevelReader world, BlockPos pos) {
         return Direction.SOUTH;
     }
-    
-    /*@Override
-    public MaterialColor getMapColor(BlockGetter level, BlockPos pos) {
-        // TODO Needs custom state? Not sure if this is even possible
-        BETiles te = loadBE(level, pos);
-        if (te != null) {
-            double biggest = 0;
-            LittleTile tile = null;
-            for (Pair<IParentCollection, LittleTile> pair : te.allTiles()) {
-                double tempVolume = pair.value.getVolume();
-                if (tempVolume > biggest) {
-                    biggest = tempVolume;
-                    tile = pair.value;
-                }
-            }
-            
-            if (tile != null)
-                return tile.getBlock().getState().getMapColor(level, pos);
-        }
-        return super.defaultMaterialColor();
-    }*/
     
     @Override
     public Optional<Vec3> getRespawnPosition(BlockState state, EntityType<?> type, LevelReader level, BlockPos pos, float orientation, @Nullable LivingEntity entity) {
@@ -361,7 +378,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
         if (context.isComplete()) {
@@ -380,19 +396,6 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
             }
         } else
             return super.getDestroyProgress(state, player, level, pos);
-    }
-    
-    @Override
-    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float height) {
-        entity.causeFallDamage(height, 1.0F, DamageSource.FALL);
-        //TODO Implement bed and slime block
-    }
-    
-    @Override
-    public void updateEntityAfterFallOn(BlockGetter level, Entity entity) {
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D));
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D));
-        //TODO Implement bed and slime block
     }
     
     @Override
@@ -417,22 +420,33 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState removed, boolean p_50941_) {
-        BETiles te = loadBE(level, pos); // TODO CHECK which method to use maybe playerWillDestroy is better
-        if (te != null && te.isEmpty())
+        BETiles be = loadBE(level, pos);
+        if (be != null && be.isEmpty())
             super.onRemove(state, level, pos, removed, p_50941_);
     }
     
     @Override
-    public boolean canSustainPlant(BlockState state, BlockGetter world, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
-        // TODO Could be added support for
+    public boolean canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
+        BETiles be = loadBE(level, pos);
+        if (be != null && be.sideCache.get(Facing.get(facing)).doesBlockCollision()) {
+            LittleBox box = new LittleBox(0, be.getGrid().count - 1, 0, be.getGrid().count, be.getGrid().count, be.getGrid().count);
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
+                if (pair.value.intersectsWith(box)) {
+                    BlockState toCheck = pair.value.getState();
+                    if (toCheck.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED).booleanValue())
+                        toCheck = toCheck.setValue(BlockStateProperties.WATERLOGGED, true);
+                    if (toCheck.canSustainPlant(level, pos, facing, plantable))
+                        return true;
+                }
+            
+        }
         return false;
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void animateTick(BlockState state, Level level, BlockPos pos, Random rand) {
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource rand) {
         if (LittleTiles.CONFIG.rendering.enableRandomDisplayTick) {
             BETiles be = loadBE(level, pos);
             if (be != null)
@@ -475,6 +489,26 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
         if (found)
             return slipperiness;
         return super.getFriction(state, level, pos, entity);
+    }
+    
+    @Override
+    public MaterialColor getMapColor(BlockState state, BlockGetter level, BlockPos pos, MaterialColor defaultColor) {
+        BETiles be = loadBE(level, pos);
+        if (be != null) {
+            double biggest = 0;
+            LittleTile tile = null;
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
+                double tempVolume = pair.value.getVolume();
+                if (tempVolume > biggest) {
+                    biggest = tempVolume;
+                    tile = pair.value;
+                }
+            }
+            
+            if (tile != null)
+                return tile.getState().getMapColor(level, pos);
+        }
+        return super.getMapColor(state, level, pos, defaultColor);
     }
     
     private boolean lightLoopPreventer = true;
@@ -688,7 +722,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos origin, boolean p_60514_) {
         BETiles te = loadBE(level, pos);
         if (te != null) {
-            te.onNeighbourChanged(Facing.direction(pos, origin));
+            te.onNeighbourChanged(origin.equals(pos) ? null : Facing.direction(origin, pos));
             if (!level.isClientSide)
                 LittleTilesServer.NEIGHBOR.add(level, pos);
         }
@@ -758,7 +792,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
         return structureResistance;
     }
     
-    @Override
+    /*@Override
     public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side) {
         return defaultBlockState();
     }
@@ -773,7 +807,7 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
                     return lookingFor;
         }
         return this.defaultBlockState();
-    }
+    }*/
     
     @Override
     public void onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {
@@ -820,8 +854,10 @@ public class BlockTile extends BaseEntityBlock implements IFacade, LittlePhysicB
     
     @Override
     public boolean hidesNeighborFace(BlockGetter level, BlockPos pos, BlockState state, BlockState neighborState, Direction dir) {
-        // TODO Implement it
-        return super.hidesNeighborFace(level, pos, state, neighborState, dir);
+        BETiles be = loadBE(level, pos);
+        if (be != null && be.sideCache.get(Facing.get(dir)).doesBlockLight())
+            return neighborState.isSolidRender(level, pos);
+        return false;
     }
     
 }

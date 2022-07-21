@@ -24,7 +24,8 @@ public class TooltipOverlay {
             Player player = mc.player;
             if (player != null && player.getMainHandItem().getItem() instanceof IItemTooltip) {
                 ItemStack stack = player.getMainHandItem();
-                String tooltipKey = stack.getItem().getRegistryName().getNamespace() + "." + stack.getItem().getRegistryName().getPath() + ".tooltip";
+                String tooltipKey = stack.getItem().builtInRegistryHolder().key().location().getNamespace() + "." + stack.getItem().builtInRegistryHolder().key().location()
+                        .getPath() + ".tooltip";
                 if (LanguageUtils.can(tooltipKey)) {
                     String[] lines = LanguageUtils.translate(tooltipKey, ((IItemTooltip) stack.getItem()).tooltipData(stack)).split("\\\\n");
                     PoseStack pose = new PoseStack();

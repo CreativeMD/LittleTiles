@@ -19,8 +19,8 @@ import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadePreview;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 
 public class LittleActionPlace extends LittleAction<Boolean> {
     
@@ -100,7 +100,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
                 
                 if (!player.level.isClientSide) {
                     checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
-                    checkAndGive(player, inventory, getIngredients(placement.removedTiles));
+                    checkAndGive(player, inventory, placement.overflow());
                 }
                 
                 if (!placement.removedTiles.isEmpty())
@@ -119,9 +119,6 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     
     public PlacementResult placeTile(Player player, ItemStack stack, PlacementPreview preview) throws LittleActionException {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-        if (result == null)
-            return null;
-        
         ItemStack toPlace = stack.copy();
         
         LittleInventory inventory = new LittleInventory(player);
@@ -157,7 +154,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         if (action != PlaceAction.PREMADE)
             return canTake(player, inventory, getIngredients(preview.previews));
         
-        LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(preview.previews.getStructureId());
+        LittlePremadePreview entry = LittlePremadeRegistry.getPreview(preview.previews.getStructureId());
         
         try {
             inventory.startSimulation();
@@ -169,7 +166,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     
     protected void drainIngredientsAfterPlacing(Player player, LittleInventory inventory, PlacementResult placedTiles, LittleGroup previews) throws LittleActionException {
         if (action == PlaceAction.PREMADE) {
-            take(player, inventory, LittleStructurePremade.getStructurePremadeEntry(previews.getStructureId()).stack);
+            take(player, inventory, LittlePremadeRegistry.getPreview(previews.getStructureId()).stack);
             return;
         }
         LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);

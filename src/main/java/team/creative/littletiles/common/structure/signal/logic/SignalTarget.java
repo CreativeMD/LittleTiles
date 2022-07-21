@@ -4,10 +4,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.SignalUtils;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 
@@ -86,15 +86,23 @@ public abstract class SignalTarget {
         this.child = child;
     }
     
-    public final boolean[] getState(LittleStructure structure) {
+    public final SignalState getState(LittleStructure structure) {
         try {
             return getState(getTarget(structure));
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
-            return BooleanUtils.asArray(false);
+            return SignalState.FALSE;
         }
     }
     
-    protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+    public final int bandwidth(LittleStructure structure) {
+        try {
+            return getTarget(structure).getBandwidth();
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+            return 1;
+        }
+    }
+    
+    protected SignalState getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
         if (component == null)
             throw new NotYetConnectedException();
         return component.getState();
@@ -129,7 +137,7 @@ public abstract class SignalTarget {
         }
         
         @Override
-        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+        protected SignalState getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
             return subTarget.getState(component);
         }
         
@@ -182,7 +190,7 @@ public abstract class SignalTarget {
         }
         
         @Override
-        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+        protected SignalState getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
             return subTarget.getState(component);
         }
         
@@ -283,11 +291,11 @@ public abstract class SignalTarget {
         }
         
         @Override
-        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
-            boolean[] state = component.getState();
-            if (state.length > index)
-                return BooleanUtils.asArray(state[index]);
-            return BooleanUtils.asArray(false);
+        protected SignalState getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            SignalState state = component.getState();
+            if (component.getBandwidth() > index)
+                return SignalState.of(state.is(index));
+            return SignalState.FALSE;
         }
         
         @Override
@@ -314,12 +322,12 @@ public abstract class SignalTarget {
         }
         
         @Override
-        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
-            boolean[] state = component.getState();
-            boolean[] newState = new boolean[length];
-            for (int i = 0; i < newState.length; i++)
-                if (state.length > i + index)
-                    newState[i] = state[index + 1];
+        protected SignalState getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            SignalState state = component.getState();
+            SignalState newState = SignalState.create(length);
+            for (int i = 0; i < length; i++)
+                if (component.getBandwidth() > i + index)
+                    newState = newState.set(i, state.is(index + 1));
             return newState;
         }
         
@@ -345,9 +353,12 @@ public abstract class SignalTarget {
         }
         
         @Override
-        protected boolean[] getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
-            boolean[] state = component.getState();
-            boolean[] newState = new boolean[component.getBandwidth()];
+        protected SignalState getState(ISignalComponent component) throws CorruptedConnectionException, NotYetConnectedException {
+            SignalState state = component.getState();
+            int bandwidth = getBandwidth(component.getStructure());
+            if (bandwidth == 1)
+                return SignalState.of(indexes[0].is(state));
+            SignalState newState = SignalState.create(bandwidth);
             int index = 0;
             for (int i = 0; i < indexes.length; i++)
                 index += indexes[i].set(newState, index, state);
@@ -381,7 +392,9 @@ public abstract class SignalTarget {
         
         public abstract int length();
         
-        public abstract int set(boolean[] toModify, int index, boolean[] value);
+        public abstract boolean is(SignalState state);
+        
+        public abstract int set(SignalState toModify, int index, SignalState value);
         
     }
     
@@ -394,10 +407,13 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public int set(boolean[] toModify, int index, boolean[] value) {
-            if (toModify.length <= index)
-                return 0;
-            toModify[index] = value[index];
+        public boolean is(SignalState state) {
+            return state.is(index);
+        }
+        
+        @Override
+        public int set(SignalState toModify, int index, SignalState value) {
+            toModify.set(index, value.is(index));
             return 1;
         }
         
@@ -417,21 +433,21 @@ public abstract class SignalTarget {
         public final int index;
         public final int length;
         
-        public SignalCustomIndexRange(int index, int length) {
-            this.index = index;
-            this.length = length - index + 1;
+        public SignalCustomIndexRange(int start, int end) {
+            this.index = start;
+            this.length = end - index + 1;
         }
         
         @Override
-        public int set(boolean[] toModify, int index, boolean[] value) {
-            int added = 0;
-            for (int i = 0; i < length; i++) {
-                if (toModify.length <= index + i)
-                    break;
-                toModify[index + i] = value[this.index + i];
-                added++;
-            }
-            return added;
+        public boolean is(SignalState state) {
+            return state.is(index);
+        }
+        
+        @Override
+        public int set(SignalState toModify, int index, SignalState value) {
+            for (int i = 0; i < length; i++)
+                toModify.set(index + i, value.is(index + i));
+            return length;
         }
         
         @Override

@@ -13,21 +13,21 @@ import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VecNd;
 import team.creative.creativecore.common.util.type.list.Pair;
-import team.creative.littletiles.common.animation.key.AnimationKey;
-import team.creative.littletiles.common.animation.key.AnimationKeys;
+import team.creative.littletiles.common.animation.property.AnimationProperties;
+import team.creative.littletiles.common.animation.property.AnimationProperty;
 
 public class AnimationState {
     
-    private HashMap<AnimationKey, VecNd> values = new HashMap<>();
+    private HashMap<AnimationProperty, VecNd> values = new HashMap<>();
     
-    public <T extends VecNd> T get(AnimationKey<T> key) {
+    public <T extends VecNd> T get(AnimationProperty<T> key) {
         VecNd value = values.get(key);
         if (value == null)
             return key.defaultValue();
         return (T) value;
     }
     
-    public <T extends VecNd> AnimationState set(AnimationKey<T> key, T value) {
+    public <T extends VecNd> AnimationState set(AnimationProperty<T> key, T value) {
         T savedValue = (T) values.get(key);
         
         if (key.defaultValue().equals(value)) {
@@ -45,7 +45,7 @@ public class AnimationState {
     
     public AnimationState(CompoundTag nbt) {
         for (String key : nbt.getAllKeys()) {
-            AnimationKey an = AnimationKeys.REGISTRY.get(key);
+            AnimationProperty an = AnimationProperties.REGISTRY.get(key);
             if (an == null)
                 continue;
             
@@ -60,33 +60,33 @@ public class AnimationState {
     public AnimationState() {}
     
     public Vec3d rotation() {
-        return new Vec3d(get(AnimationKeys.ROTX).x, get(AnimationKeys.ROTY).x, get(AnimationKeys.ROTZ).x);
+        return new Vec3d(get(AnimationProperties.ROTX).x, get(AnimationProperties.ROTY).x, get(AnimationProperties.ROTZ).x);
     }
     
     public Vec3d offset() {
-        Vec3d path = (Vec3d) values.get(AnimationKeys.OFF_PATH);
+        Vec3d path = (Vec3d) values.get(AnimationProperties.OFF_PATH);
         if (path != null)
             return path;
-        return new Vec3d(get(AnimationKeys.OFFX).x, get(AnimationKeys.OFFY).x, get(AnimationKeys.OFFZ).x);
+        return new Vec3d(get(AnimationProperties.OFFX).x, get(AnimationProperties.OFFY).x, get(AnimationProperties.OFFZ).x);
     }
     
     public void clear() {
         values.clear();
     }
     
-    public Set<AnimationKey> keys() {
+    public Set<AnimationProperty> keys() {
         return values.keySet();
     }
     
     public boolean aligned() {
-        for (Entry<AnimationKey, VecNd> pair : values.entrySet())
+        for (Entry<AnimationProperty, VecNd> pair : values.entrySet())
             if (!pair.getKey().aligned(pair.getValue()))
                 return false;
         return true;
     }
     
     public CompoundTag save(CompoundTag nbt) {
-        for (Entry<AnimationKey, VecNd> pair : values.entrySet())
+        for (Entry<AnimationProperty, VecNd> pair : values.entrySet())
             if (pair.getValue() instanceof Vec1d)
                 nbt.putDouble(pair.getKey().name(), ((Vec1d) pair.getValue()).x);
             else
@@ -95,9 +95,9 @@ public class AnimationState {
     }
     
     public void rotate(Rotation rotation) {
-        HashMap<AnimationKey, VecNd> newValues = new HashMap<>();
-        for (Entry<AnimationKey, VecNd> pair : values.entrySet()) {
-            Pair<AnimationKey, VecNd> result = pair.getKey().rotate(rotation, pair.getValue());
+        HashMap<AnimationProperty, VecNd> newValues = new HashMap<>();
+        for (Entry<AnimationProperty, VecNd> pair : values.entrySet()) {
+            Pair<AnimationProperty, VecNd> result = pair.getKey().rotate(rotation, pair.getValue());
             newValues.put(result.key, result.value);
         }
         this.values = newValues;

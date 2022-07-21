@@ -3,10 +3,9 @@ package team.creative.littletiles.common.placement.selection;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,13 +14,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.config.LittleTilesConfig.AreaTooLarge;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -65,14 +67,14 @@ public class AreaSelectionMode extends SelectionMode {
     public void leftClick(Player player, ItemStack stack, BlockPos pos) {
         stack.getTag().putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
-            player.sendMessage(new TranslatableComponent("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
+            player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
     }
     
     @Override
     public void rightClick(Player player, ItemStack stack, BlockPos pos) {
         stack.getTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
-            player.sendMessage(new TranslatableComponent("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()), Util.NIL_UUID);
+            player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
     }
     
     @Override
@@ -81,13 +83,16 @@ public class AreaSelectionMode extends SelectionMode {
         stack.getTag().remove("pos2");
     }
     
-    public LittleGroup getGroup(Level level, BlockPos pos, BlockPos pos2, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
+    public LittleGroup getGroup(Level level, Player player, BlockPos pos, BlockPos pos2, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException {
         int minX = Math.min(pos.getX(), pos2.getX());
         int minY = Math.min(pos.getY(), pos2.getY());
         int minZ = Math.min(pos.getZ(), pos2.getZ());
         int maxX = Math.max(pos.getX(), pos2.getX());
         int maxY = Math.max(pos.getY(), pos2.getY());
         int maxZ = Math.max(pos.getZ(), pos2.getZ());
+        
+        if (LittleTiles.CONFIG.build.get(player).limitRecipeSize && (maxX - minX) * (maxY - minY) * (maxZ - minZ) > LittleTiles.CONFIG.build.get(player).recipeBlocksLimit)
+            throw new AreaTooLarge(player);
         
         LittleGroup previews = new LittleGroup();
         List<LittleGroup> children = new ArrayList<>();
@@ -164,7 +169,7 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public LittleGroup getGroup(Level level, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
+    public LittleGroup getGroup(Level level, Player player, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException {
         BlockPos pos = null;
         if (stack.getTag().contains("pos1")) {
             int[] array = stack.getTag().getIntArray("pos1");
@@ -186,7 +191,7 @@ public class AreaSelectionMode extends SelectionMode {
             pos2 = pos;
         
         List<LittleGroup> children = new ArrayList<>();
-        LittleGroup previews = getGroup(level, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
+        LittleGroup previews = getGroup(level, player, pos, pos2, includeVanilla, includeCB, includeLT, rememberStructure);
         
         int minX = Math.min(pos.getX(), pos2.getX());
         int minY = Math.min(pos.getY(), pos2.getY());

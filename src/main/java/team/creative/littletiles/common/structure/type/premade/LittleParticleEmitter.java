@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.type.premade;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import net.minecraft.client.Minecraft;
@@ -16,7 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -29,21 +30,22 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.entity.particle.LittleParticle;
 import team.creative.littletiles.common.entity.particle.LittleParticlePresets;
 import team.creative.littletiles.common.entity.particle.LittleParticleTexture;
-import team.creative.littletiles.common.gui.SubGuiParticle;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
+import team.creative.littletiles.common.gui.structure.GuiParticle;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureAttribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
     
     public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("particle", new LittleStructureGuiCreator((nbt, player, structure) -> new SubGuiParticle((LittleParticleEmitter) structure)));
+            .register("particle", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiParticle((LittleParticleEmitter) structure)));
     
     @StructureDirectional
     public Facing facing = Facing.UP;
@@ -59,7 +61,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     
     @Override
     public void tick() {
-        if (getOutput(0).getState()[0])
+        if (getOutput(0).getState().any())
             return;
         if (ticker >= delay) {
             if (getLevel().isClientSide)
@@ -97,26 +99,26 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             
             Rotation rotation = null;
             switch (facing) {
-            case DOWN:
-                pos.scale(-1);
-                speed.scale(-1);
-                break;
-            case EAST:
-                rotation = Rotation.Z_COUNTER_CLOCKWISE;
-                break;
-            case WEST:
-                rotation = Rotation.Z_CLOCKWISE;
-                break;
-            case SOUTH:
-                rotation = Rotation.X_CLOCKWISE;
-                break;
-            case NORTH:
-                rotation = Rotation.X_COUNTER_CLOCKWISE;
-                break;
-            case UP:
-                break;
-            default:
-                break;
+                case DOWN:
+                    pos.scale(-1);
+                    speed.scale(-1);
+                    break;
+                case EAST:
+                    rotation = Rotation.Z_COUNTER_CLOCKWISE;
+                    break;
+                case WEST:
+                    rotation = Rotation.Z_CLOCKWISE;
+                    break;
+                case SOUTH:
+                    rotation = Rotation.X_CLOCKWISE;
+                    break;
+                case NORTH:
+                    rotation = Rotation.X_COUNTER_CLOCKWISE;
+                    break;
+                case UP:
+                    break;
+                default:
+                    break;
             }
             
             if (rotation != null) {
@@ -359,13 +361,13 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         }
     }
     
-    public static class LittleStructureTypeParticleEmitter extends LittleStructureTypePremade {
+    public static class LittleStructureTypeParticleEmitter extends LittlePremadeType {
         
         @OnlyIn(Dist.CLIENT)
         public List<RenderBox> cubes;
         
-        public LittleStructureTypeParticleEmitter(String id, String category, Class<? extends LittleStructure> structureClass, LittleAttributeBuilder attribute, String modid) {
-            super(id, category, structureClass, attribute, modid);
+        public <T extends LittleStructure> LittleStructureTypeParticleEmitter(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
+            super(id, structureClass, factory, attribute, modid);
         }
         
         @Override

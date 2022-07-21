@@ -97,7 +97,7 @@ public class LittleElement {
         else {
             StringBuilder name = new StringBuilder();
             BlockState state = getState();
-            name.append(state.getBlock().getRegistryName());
+            name.append(state.getBlock().builtInRegistryHolder().key().location());
             if (!state.getValues().isEmpty()) {
                 name.append('[');
                 try {
@@ -126,6 +126,11 @@ public class LittleElement {
     
     public boolean is(LittleElement element) {
         return element.state == state && element.block == block && element.color == color;
+    }
+    
+    @Override
+    public String toString() {
+        return "[" + getBlockName() + "|" + color + "]";
     }
     
     public static class NotBlockException extends Exception {}

@@ -10,12 +10,12 @@ import team.creative.creativecore.common.config.premade.Permission;
 import team.creative.creativecore.common.config.sync.ConfigSynchronization;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.ItemLittleBag;
 import team.creative.littletiles.common.item.ItemMultiTiles;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 
 public class LittleTilesConfig {
     
@@ -143,6 +143,22 @@ public class LittleTilesConfig {
         
     }
     
+    public static class AreaTooLarge extends LittleActionException {
+        
+        public LittleBuildingConfig config;
+        
+        public AreaTooLarge(Player player) {
+            super("exception.permission.recipe.size");
+            config = LittleTiles.CONFIG.build.get(player);
+        }
+        
+        @Override
+        public String getLocalizedMessage() {
+            return LanguageUtils.translate(getMessage(), config.recipeBlocksLimit);
+        }
+        
+    }
+    
     public static class Rendering implements ICreativeConfig {
         
         @CreativeConfig
@@ -180,7 +196,8 @@ public class LittleTilesConfig {
         
         @Override
         public void configured(Side side) {
-            RenderingThread.initThreads(renderingThreadCount);
+            if (side.isClient())
+                RenderingThread.initThreads(renderingThreadCount);
         }
     }
     
@@ -246,8 +263,8 @@ public class LittleTilesConfig {
         public void configured(Side side) {
             LittleGrid.loadGrid(base, scale, exponent, LittleTiles.CONFIG.general.defaultSelectedGrid);
             ItemMultiTiles.currentContext = LittleGrid.defaultGrid();
-            ItemLittleBag.maxStackSizeOfTiles = ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d;
-            LittleStructurePremade.reloadPremadeStructures();
+            ItemLittleBag.maxStackSizeOfTiles = (int) (ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d);
+            LittlePremadeRegistry.reload();
             ItemMultiTiles.reloadExampleStructures();
         }
     }

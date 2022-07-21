@@ -1,0 +1,75 @@
+{
+    "parent": "block/block",
+    "textures": {
+        "particle": "minecraft:block/water_flow",
+        "0": "minecraft:block/water_flow",
+        "1": "minecraft:block/water_still"
+    },
+    "elements": [
+        {
+            "from": [
+                0,
+                0,
+                0
+            ],
+            "to": [
+                16,
+                16,
+                16
+            ],
+            "faces": {
+                "down": {
+                    "texture": "#0",
+                    "cullface": "down",
+                    "uv": [
+                        0.0,
+                        0.0,
+                        8.0,
+                        8.0
+                    ],
+                    "rotation": 180
+                },
+                "up": {
+                    "texture": "#0",
+                    "cullface": "up",
+                    "uv": [
+                        0.0,
+                        0.0,
+                        8.0,
+                        8.0
+                    ]
+                },
+                "north": {
+                    "texture": "#1",
+                    "cullface": "north"
+                },
+                "south": {
+                    "texture": "#1",
+                    "cullface": "south"
+                },
+                "west": {
+                    "texture": "#0",
+                    "cullface": "west",
+                    "uv": [
+                        0.0,
+                        0.0,
+                        8.0,
+                        8.0
+                    ],
+                    "rotation": 270
+                },
+                "east": {
+                    "texture": "#0",
+                    "cullface": "east",
+                    "uv": [
+                        0.0,
+                        0.0,
+                        8.0,
+                        8.0
+                    ],
+                    "rotation": 90
+                }
+            }
+        }
+    ]
+}

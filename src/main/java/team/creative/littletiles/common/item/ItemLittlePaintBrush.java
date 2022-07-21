@@ -3,10 +3,9 @@ package team.creative.littletiles.common.item;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -20,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -56,10 +55,6 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     public static ShapeSelection selection;
     
-    public ItemLittlePaintBrush() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
-    }
-    
     public static int getColor(ItemStack stack) {
         if (stack == null)
             return ColorUtils.WHITE;
@@ -78,6 +73,15 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
         stack.getTag().putInt("color", color);
     }
     
+    public ItemLittlePaintBrush() {
+        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+    }
+    
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
+    }
+    
     @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
         return 0F;
@@ -86,9 +90,9 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
-        tooltip.add(new TranslatableComponent("gui.shape").append(": ").append(new TranslatableComponent(shape.getKey())));
+        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getKey())));
         shape.addExtraInformation(stack.getTag(), tooltip);
-        tooltip.add(new TextComponent(TooltipUtils.printColor(getColor(stack))));
+        tooltip.add(Component.literal(TooltipUtils.printColor(getColor(stack))));
     }
     
     @Override
@@ -111,8 +115,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public void onDeselect(Level level, ItemStack stack, Player player) {
-        if (selection != null)
-            selection = null;
+        selection = null;
     }
     
     @Override
@@ -142,8 +145,17 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
                 else
                     LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, selection.getBoxes(false), getColor(stack), false));
                 selection = null;
+                LittleTilesClient.PREVIEW_RENDERER.removeMarked();
             }
         return false;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
+        if (selection != null)
+            selection.click(player);
+        return true;
     }
     
     @Override

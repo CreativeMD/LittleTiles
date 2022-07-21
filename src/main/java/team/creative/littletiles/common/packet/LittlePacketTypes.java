@@ -32,6 +32,7 @@ import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittlePacketTypes {
     
@@ -96,7 +97,7 @@ public class LittlePacketTypes {
                 buffer.writeInt(content.size());
                 for (LittleBox box : content)
                     buffer.writeVarIntArray(box.getArray());
-                buffer.writeUtf(content.getState().toString());
+                buffer.writeUtf(content.getBlockName());
                 buffer.writeInt(content.color);
             }
             
@@ -161,7 +162,6 @@ public class LittlePacketTypes {
             }
             
             @Override
-            @SuppressWarnings("deprecation")
             protected LittleGroup readContent(FriendlyByteBuf buffer) {
                 int size = buffer.readInt();
                 List<LittleGroup> children = new ArrayList<>(size);
@@ -405,5 +405,19 @@ public class LittlePacketTypes {
             }
             
         }, PlacementPreview.class);
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<SignalState>() {
+            
+            @Override
+            protected void writeContent(SignalState content, FriendlyByteBuf buffer) {
+                content.write(buffer);
+            }
+            
+            @Override
+            protected SignalState readContent(FriendlyByteBuf buffer) {
+                return SignalState.read(buffer);
+            }
+            
+        }, SignalState.class);
     }
 }

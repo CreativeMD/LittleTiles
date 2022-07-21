@@ -1,236 +1,286 @@
 package team.creative.littletiles.common.entity.particle;
 
-import java.util.Random;
-
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.resources.ResourceLocation;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 
 public enum LittleParticleTexture {
     
-    dust_fade_out {
+    dust_fade_out(new ResourceLocation("minecraft", "smoke"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {}
+        public void init(LittleParticle particle) {}
         
         @Override
-        public void setTextureTick(LittleParticle particle) {
-            particle.setParticleTextureIndex(7 - particle.getAge() * 8 / particle.getMaxAge());
+        public void tick(LittleParticle particle) {
+            particle.setSpriteFromAge(particle.sprites);
         }
         
     },
-    dust {
+    dust(new ResourceLocation("minecraft", "smoke"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex((int) (Math.random() * 8.0D));
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    dust_grow {
+    dust_grow(new ResourceLocation("minecraft", "smoke"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {}
+        public void init(LittleParticle particle) {}
         
         @Override
-        public void setTextureTick(LittleParticle particle) {
-            particle.setParticleTextureIndex(8 * particle.getAge() / particle.getMaxAge() - 1);
-        }
-        
-    },
-    bubble {
-        
-        @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(32);
-        }
-        
-        @Override
-        public void setTextureTick(LittleParticle particle) {}
-        
-    },
-    diamond {
-        
-        @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(176 + (8 - 1 - particle.getAge() * 8 / particle.getMaxAge()));
-        }
-        
-        @Override
-        public void setTextureTick(LittleParticle particle) {}
-        
-    },
-    square {
-        
-        @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(113);
-        }
-        
-        @Override
-        public void setTextureTick(LittleParticle particle) {}
-        
-    },
-    spark {
-        
-        @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(160 + (8 - 1 - particle.getAge() * 8 / particle.getMaxAge()));
-        }
-        
-        @Override
-        public void setTextureTick(LittleParticle particle) {}
-        
-    },
-    spiral {
-        
-        @Override
-        public void setTextureInit(LittleParticle particle) {}
-        
-        @Override
-        public void setTextureTick(LittleParticle particle) {
-            particle.setParticleTextureIndex(128 + (7 - particle.getAge() * 8 / particle.getMaxAge()));
+        public void tick(LittleParticle particle) {
+            particle.setSpriteFromAgeReverse(particle.sprites);
         }
         
     },
-    star {
+    bubble(new ResourceLocation("minecraft", "bubble"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(65);
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    note {
+    diamond(new ResourceLocation("minecraft", "totem_of_undying"), ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(64);
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    flame {
+    square(new ResourceLocation("minecraft", "smoke"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(48);
+        public void init(LittleParticle particle) {
+            particle.setSpriteFirst(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    happy {
+    spark(new ResourceLocation("minecraft", "firework"), ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(82);
+        public void init(LittleParticle particle) {
+            particle.setSpriteFirst(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    angry {
+    spark_fade_out(new ResourceLocation("minecraft", "firework"), ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(81);
+        public void init(LittleParticle particle) {}
+        
+        @Override
+        public void tick(LittleParticle particle) {
+            particle.setSpriteFromAge(particle.sprites);
         }
-        
-        @Override
-        public void setTextureTick(LittleParticle particle) {}
         
     },
-    damage {
+    spiral(new ResourceLocation("minecraft", "entity_effect"), ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(67);
+        public void init(LittleParticle particle) {}
+        
+        @Override
+        public void tick(LittleParticle particle) {
+            particle.setSpriteFromAge(particle.sprites);
         }
-        
-        @Override
-        public void setTextureTick(LittleParticle particle) {}
         
     },
-    letter {
+    note(new ResourceLocation("minecraft", "note"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex((int) (Math.random() * 26.0D + 1.0D + 224.0D));
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    water {
+    flame(new ResourceLocation("minecraft", "flame"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(19 + rand.nextInt(4));
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    heart {
+    happy(new ResourceLocation("minecraft", "happy_villager"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(80);
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    suspend {
+    angry(new ResourceLocation("minecraft", "angry_villager"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(0);
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
         
     },
-    lava {
+    damage(new ResourceLocation("minecraft", "damage_indicator"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
         
         @Override
-        public void setTextureInit(LittleParticle particle) {
-            particle.setParticleTextureIndex(49);
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
         }
         
         @Override
-        public void setTextureTick(LittleParticle particle) {}
+        public void tick(LittleParticle particle) {}
+        
+    },
+    letter(new ResourceLocation("minecraft", "enchant"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
+        
+        @Override
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
+        }
+        
+        @Override
+        public void tick(LittleParticle particle) {}
+        
+    },
+    dripping(new ResourceLocation("minecraft", "dripping_water"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
+        
+        @Override
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
+        }
+        
+        @Override
+        public void tick(LittleParticle particle) {}
+        
+    },
+    falling(new ResourceLocation("minecraft", "falling_water"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
+        
+        @Override
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
+        }
+        
+        @Override
+        public void tick(LittleParticle particle) {}
+        
+    },
+    heart(new ResourceLocation("minecraft", "heart"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
+        
+        @Override
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
+        }
+        
+        @Override
+        public void tick(LittleParticle particle) {}
+        
+    },
+    lava(new ResourceLocation("minecraft", "lava"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
+        
+        @Override
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
+        }
+        
+        @Override
+        public void tick(LittleParticle particle) {}
+        
+    },
+    soul(new ResourceLocation("minecraft", "soul"), ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT) {
+        
+        @Override
+        public void init(LittleParticle particle) {}
+        
+        @Override
+        public void tick(LittleParticle particle) {
+            particle.setSpriteFromAge(particle.sprites);
+        }
+        
+    },
+    soul_flame(new ResourceLocation("minecraft", "soul_fire_flame"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
+        
+        @Override
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
+        }
+        
+        @Override
+        public void tick(LittleParticle particle) {}
+        
+    },
+    big_smoke(new ResourceLocation("minecraft", "campfire_cosy_smoke"), ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT) {
+        
+        @Override
+        public void init(LittleParticle particle) {}
+        
+        @Override
+        public void tick(LittleParticle particle) {
+            particle.setSpriteFromAge(particle.sprites);
+        }
+        
+    },
+    nautilus(new ResourceLocation("minecraft", "nautilus"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
+        
+        @Override
+        public void init(LittleParticle particle) {
+            particle.pickSprite(particle.sprites);
+        }
+        
+        @Override
+        public void tick(LittleParticle particle) {}
         
     };
-    
-    private static Random rand = new Random();
-    
-    public abstract void setTextureInit(LittleParticle particle);
-    
-    public abstract void setTextureTick(LittleParticle particle);
-    
-    public String translatedName() {
-        return LanguageUtils.translateOr("particle.texture." + name(), name());
-    }
     
     public static LittleParticleTexture get(String name) {
         for (int i = 0; i < values().length; i++)
             if (values()[i].name().equals(name))
                 return values()[i];
         return dust_fade_out;
+    }
+    
+    public final ResourceLocation particleTexture;
+    public final ParticleRenderType type;
+    
+    private LittleParticleTexture(ResourceLocation particleTexture, ParticleRenderType type) {
+        this.particleTexture = particleTexture;
+        this.type = type;
+    }
+    
+    public abstract void init(LittleParticle particle);
+    
+    public abstract void tick(LittleParticle particle);
+    
+    public String translatedName() {
+        return LanguageUtils.translateOr("particle.texture." + name(), name());
     }
     
 }

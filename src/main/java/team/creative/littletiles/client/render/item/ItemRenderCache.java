@@ -3,16 +3,16 @@ package team.creative.littletiles.client.render.item;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import team.creative.creativecore.client.CreativeCoreClient;
-import team.creative.creativecore.client.render.model.CreativeBakedModel;
-import team.creative.creativecore.client.render.model.CreativeRenderItem;
+import team.creative.creativecore.client.render.model.CreativeBakedBoxModel;
+import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.client.level.LevelAwareHandler;
@@ -20,6 +20,13 @@ import team.creative.littletiles.client.level.LevelAwareHandler;
 public class ItemRenderCache implements LevelAwareHandler {
     
     public static final RenderingThreadItem THREAD = new RenderingThreadItem();
+    
+    public static CreativeItemBoxModel get(ItemStack stack) {
+        BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, null, null, 0);
+        if (model instanceof CreativeBakedBoxModel)
+            return (CreativeItemBoxModel) ((CreativeBakedBoxModel) model).item;
+        return null;
+    }
     
     private HashMap<ItemStack, ItemModelCache> caches = new HashMap<>();
     
@@ -34,7 +41,7 @@ public class ItemRenderCache implements LevelAwareHandler {
             ItemModelCache cache = caches.get(stack);
             if (cache != null)
                 return cache.getQuads(layer, facing);
-            CreativeRenderItem renderer = CreativeCoreClient.RENDERED_ITEMS.get(stack.getItem());
+            CreativeItemBoxModel renderer = get(stack);
             if (renderer != null) {
                 if (renderer.hasTranslucentLayer(stack))
                     cache = new ItemModelCacheLayered();
@@ -73,16 +80,16 @@ public class ItemRenderCache implements LevelAwareHandler {
             while (true) {
                 if (Minecraft.getInstance().level != null && !items.isEmpty()) {
                     Pair<ItemStack, ItemModelCache> pair = items.poll();
-                    CreativeRenderItem renderer = CreativeCoreClient.RENDERED_ITEMS.get(pair.key.getItem());
+                    CreativeItemBoxModel renderer = get(pair.getKey());
                     
                     if (renderer != null) {
-                        RenderType[] layers = renderer.getLayers(pair.key, true);
-                        Random rand = new Random();
-                        for (int i = 0; i < layers.length; i++) {
-                            RenderType layer = layers[i];
+                        List<RenderType> layers = renderer.getLayers(pair.key, true);
+                        RandomSource rand = RandomSource.create();
+                        for (int i = 0; i < layers.size(); i++) {
+                            RenderType layer = layers.get(i);
                             for (int j = 0; j < Facing.values().length; j++) {
                                 Facing facing = Facing.values()[j];
-                                pair.value.setQuads(layer, facing, CreativeBakedModel.compileBoxes(renderer.getBoxes(pair.key, layer), facing, layer, rand, true));
+                                pair.value.setQuads(layer, facing, CreativeBakedBoxModel.compileBoxes(renderer.getBoxes(pair.key, layer), facing, layer, rand, true));
                             }
                         }
                         pair.value.complete();

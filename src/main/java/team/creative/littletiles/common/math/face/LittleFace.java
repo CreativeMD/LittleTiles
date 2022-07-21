@@ -132,7 +132,14 @@ public non-sealed class LittleFace implements ILittleFace {
     public void cut(List<VectorFan> fans) {
         if (toCut == null)
             toCut = new ArrayList<>();
-        toCut.addAll(fans);
+        Axis axis = Axis.third(one, two);
+        for (VectorFan fan : fans) {
+            fan = fan.copy();
+            for (int i = 0; i < fan.count(); i++)
+                fan.get(i).set(axis, oldOrigin);
+            toCut.add(fan);
+        }
+        
     }
     
     public List<VectorFan> generateFans() {
@@ -195,7 +202,7 @@ public non-sealed class LittleFace implements ILittleFace {
         
         List<VectorFan> result = new ArrayList<>();
         for (VectorFan fan : fans)
-            result.addAll(fan.cut2d(toCut, one, two, facing.positive, false));
+            result.addAll(fan.cut2d(toCut, one, two, !facing.positive, false));
         if (tiltedFans != null)
             for (VectorFan fan : tiltedFans)
                 result.add(fan);

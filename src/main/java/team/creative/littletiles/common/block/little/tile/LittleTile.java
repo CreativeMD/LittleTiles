@@ -3,7 +3,7 @@ package team.creative.littletiles.common.block.little.tile;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 
@@ -11,6 +11,7 @@ import com.mojang.math.Vector3d;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +29,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.list.SingletonList;
+import team.creative.creativecore.common.util.type.list.CopyArrayCollection;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -45,74 +46,54 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 
 public final class LittleTile extends LittleElement implements Iterable<LittleBox> {
     
-    private List<LittleBox> boxes;
+    private CopyArrayCollection<LittleBox> boxes;
     
     public LittleTile(LittleElement element, Iterable<LittleBox> boxes) {
         super(element);
-        if (boxes instanceof SingletonList)
-            this.boxes = new SingletonList<LittleBox>(((SingletonList<LittleBox>) boxes).get(0));
-        else {
-            this.boxes = new ArrayList<>();
-            for (LittleBox box : boxes)
-                this.boxes.add(box);
-        }
+        this.boxes = new CopyArrayCollection<>();
+        for (LittleBox box : boxes)
+            this.boxes.add(box);
     }
     
     public LittleTile(LittleElement element, LittleBox box) {
         super(element);
-        this.boxes = new SingletonList<>(box);
+        this.boxes = new CopyArrayCollection<>(box);
     }
     
     public LittleTile(BlockState state, int color, LittleBox box) {
         super(state, color);
-        this.boxes = new SingletonList<>(box);
+        this.boxes = new CopyArrayCollection<>(box);
     }
     
     @Deprecated
     public LittleTile(BlockState state, LittleBlock block, int color, List<LittleBox> boxes) {
         super(state, block, color);
-        this.boxes = boxes;
+        this.boxes = new CopyArrayCollection<LittleBox>(boxes);
     }
     
     public LittleTile(BlockState state, int color, Iterable<LittleBox> boxes) {
         super(state, color);
-        if (boxes instanceof SingletonList)
-            this.boxes = new SingletonList<LittleBox>(((SingletonList<LittleBox>) boxes).get(0));
-        else {
-            this.boxes = new ArrayList<>();
-            for (LittleBox box : boxes)
-                this.boxes.add(box);
-        }
+        this.boxes = new CopyArrayCollection<>(boxes);
     }
     
     public LittleTile(BlockState state, int color, List<LittleBox> boxes) {
         super(state, color);
-        this.boxes = new ArrayList<>(boxes);
+        this.boxes = new CopyArrayCollection<>(boxes);
         
     }
     
     public LittleTile(String name, int color, List<LittleBox> boxes) {
         super(name, color);
-        this.boxes = new ArrayList<>(boxes);
+        this.boxes = new CopyArrayCollection<>(boxes);
     }
     
     // ================Basics================
     
-    private void prepareExpand() {
-        if (boxes instanceof SingletonList) {
-            LittleBox box = boxes.get(0);
-            boxes = new ArrayList<>();
-            boxes.add(box);
-        }
-    }
-    
     public void add(LittleBox box) {
-        prepareExpand();
         boxes.add(box);
     }
     
     public void add(Iterable<LittleBox> boxes) {
-        prepareExpand();
         for (LittleBox box : boxes)
             this.boxes.add(box);
     }
@@ -143,7 +124,13 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     public boolean combine() {
-        return LittleBoxCombiner.combine(boxes);
+        List<LittleBox> tempBoxes = new ArrayList<>(boxes);
+        if (LittleBoxCombiner.combine(tempBoxes)) {
+            boxes.clear();
+            boxes.addAll(tempBoxes);
+            return true;
+        }
+        return false;
     }
     
     public void combineBlockwise(LittleGrid grid) {
@@ -159,7 +146,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     public void split(HashMapList<BlockPos, LittleBox> boxes, BlockPos pos, LittleGrid grid, LittleVec offset, LittleBoxReturnedVolume volume) {
-        for (LittleBox box : boxes)
+        for (LittleBox box : this.boxes)
             box.split(grid, pos, offset, boxes, volume);
     }
     
@@ -170,7 +157,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     public LittleTile copy() {
-        List<LittleBox> boxes = new ArrayList<>();
+        List<LittleBox> boxes = new CopyOnWriteArrayList<>();
         for (LittleBox box : this.boxes)
             boxes.add(box.copy());
         return new LittleTile(this, boxes);
@@ -181,7 +168,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     public LittleTile copyEmpty() {
-        return new LittleTile(this, new ArrayList<>());
+        return new LittleTile(this, new CopyOnWriteArrayList<>());
     }
     
     @Override
@@ -212,35 +199,36 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     public int getSmallest(LittleGrid grid) {
         int smallest = 0;
-        for (int i = 0; i < boxes.size(); i++)
-            smallest = Math.max(smallest, boxes.get(i).getSmallest(grid));
+        for (LittleBox box : boxes)
+            smallest = Math.max(smallest, box.getSmallest(grid));
         return smallest;
     }
     
     public void convertTo(LittleGrid from, LittleGrid to) {
-        for (int i = 0; i < boxes.size(); i++)
-            boxes.get(i).convertTo(from, to);
+        for (LittleBox box : boxes)
+            box.convertTo(from, to);
     }
     
     // ================Math================
     
     public int getVolume() {
         int volume = 0;
-        for (int i = 0; i < boxes.size(); i++)
-            volume += boxes.get(i).getVolume();
+        for (LittleBox box : boxes)
+            volume += box.getVolume();
         return volume;
     }
     
     public double getPercentVolume(LittleGrid grid) {
         double volume = 0;
-        for (int i = 0; i < boxes.size(); i++)
-            volume += boxes.get(i).getPercentVolume(grid);
+        for (LittleBox box : boxes)
+            volume += box.getPercentVolume(grid);
         return volume;
     }
     
     public boolean doesFillEntireBlock(LittleGrid grid) {
         if (boxes.size() == 1)
-            return boxes.get(0).doesFillEntireBlock(grid);
+            return boxes.first().doesFillEntireBlock(grid);
+        
         boolean[][][] filled = new boolean[grid.count][grid.count][grid.count];
         for (LittleBox box : boxes)
             box.fillInSpace(filled);
@@ -276,6 +264,13 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             }
         }
         
+        return changed;
+    }
+    
+    public boolean fillInSpaceInaccurate(LittleBox otherBox, Axis one, Axis two, Axis axis, boolean[][] filled) {
+        boolean changed = false;
+        for (LittleBox box : boxes)
+            changed |= box.fillInSpaceInaccurate(otherBox, one, two, axis, filled);
         return changed;
     }
     
@@ -414,7 +409,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         block.exploded(parent, this, explosion);
     }
     
-    public void randomDisplayTick(IParentCollection parent, Random rand) {
+    public void randomDisplayTick(IParentCollection parent, RandomSource rand) {
         block.randomDisplayTick(parent, this, rand);
     }
     
@@ -483,5 +478,10 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     @Nullable
     public BlockIngredientEntry getBlockIngredient(LittleGrid context) {
         return IngredientUtils.getBlockIngredient(block, getPercentVolume(context));
+    }
+    
+    @Override
+    public String toString() {
+        return "[" + getBlockName() + "|" + color + "|" + boxes + "]";
     }
 }

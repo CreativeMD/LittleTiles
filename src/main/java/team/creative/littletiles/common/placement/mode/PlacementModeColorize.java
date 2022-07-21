@@ -8,6 +8,7 @@ import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
@@ -38,13 +39,18 @@ public class PlacementModeColorize extends PlacementMode {
             return false;
         
         boolean changed = false;
-        for (LittleBox box : tile)
-            for (LittleTile lt : LittleActionDestroyBoxes.removeBox(context.getBE(), context.block.getGrid(), box, false)) {
+        LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
+        for (LittleBox box : tile) {
+            for (LittleTile lt : LittleActionDestroyBoxes.removeBox(context.getBE(), context.block.getGrid(), box, false, volume)) {
                 context.addRemoved(lt);
                 lt.color = tile.color;
                 context.placeTile(lt);
                 changed = true;
             }
+            if (volume.has())
+                context.placement.addRemovedIngredient(context.block, tile, volume);
+            volume.clear();
+        }
         return changed;
     }
 }

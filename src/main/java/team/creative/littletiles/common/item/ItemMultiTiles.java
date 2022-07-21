@@ -10,8 +10,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -62,14 +60,9 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public Component getName(ItemStack stack) {
         if (stack.getOrCreateTag().contains("structure") && stack.getOrCreateTagElement("structure").contains("name"))
-            return new TextComponent(stack.getOrCreateTagElement("structure").getString("name"));
+            return Component.literal(stack.getOrCreateTagElement("structure").getString("name"));
         return super.getName(stack);
     }
     
@@ -103,13 +96,13 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
         String id = "none";
         if (stack.getOrCreateTag().contains("structure"))
             id = stack.getOrCreateTagElement("structure").getString("id");
-        tooltip.add(new TranslatableComponent("gui.structure").append(": ").append(new TranslatableComponent("structure." + id)));
-        tooltip.add(new TextComponent("" + stack.getOrCreateTag().getInt("count")).append(new TranslatableComponent("gui.tile.count")));
+        tooltip.add(Component.translatable("gui.structure").append(": ").append(Component.translatable("structure." + id)));
+        tooltip.add(Component.literal("" + stack.getOrCreateTag().getInt("count")).append(Component.translatable("gui.tile.count")));
     }
     
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
-        if (allowdedIn(tab))
+        if (allowedIn(tab))
             for (ExampleStructures example : ExampleStructures.values())
                 if (example.stack != null)
                     list.add(example.stack);

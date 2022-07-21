@@ -3,7 +3,7 @@ package team.creative.littletiles.common.placement.selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
@@ -32,8 +33,8 @@ public abstract class SelectionMode {
         return REGISTRY.getId(this);
     }
     
-    public TranslatableComponent getTranslation() {
-        return new TranslatableComponent("mode.selection." + REGISTRY.getId(this));
+    public Component getTranslation() {
+        return Component.translatable("mode.selection." + REGISTRY.getId(this));
     }
     
     public abstract SelectionResult generateResult(Level level, ItemStack stack);
@@ -44,7 +45,7 @@ public abstract class SelectionMode {
     
     public abstract void clear(ItemStack stack);
     
-    public abstract LittleGroup getGroup(Level world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure);
+    public abstract LittleGroup getGroup(Level world, Player player, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException;
     
     public void save(ItemStack stack) {}
     

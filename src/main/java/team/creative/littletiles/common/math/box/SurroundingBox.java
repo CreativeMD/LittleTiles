@@ -147,7 +147,6 @@ public class SurroundingBox {
         return 0.125 * grid.toVanillaGrid(minX + maxX) * grid.toVanillaGrid(minY + maxY) * grid.toVanillaGrid(minZ + maxZ);
     }
     
-    @SuppressWarnings("deprecation")
     public LittleVecAbsolute getHighestCenterPoint() {
         int centerX = (int) Math.floor((minX + maxX) / (double) grid.count / 2D);
         int centerZ = (int) Math.floor((minZ + maxZ) / (double) grid.count / 2D);
@@ -192,7 +191,6 @@ public class SurroundingBox {
         return pos;
     }
     
-    @SuppressWarnings("deprecation")
     public Vec3d getHighestCenterVec() {
         int centerX = (int) Math.floor((minX + maxX) / (double) grid.count / 2D);
         int centerZ = (int) Math.floor((minZ + maxZ) / (double) grid.count / 2D);
@@ -269,24 +267,24 @@ public class SurroundingBox {
     
     public long getMin(Axis axis) {
         switch (axis) {
-        case X:
-            return minX;
-        case Y:
-            return minY;
-        case Z:
-            return minZ;
+            case X:
+                return minX;
+            case Y:
+                return minY;
+            case Z:
+                return minZ;
         }
         return 0;
     }
     
     public long getMax(Axis axis) {
         switch (axis) {
-        case X:
-            return maxX;
-        case Y:
-            return maxY;
-        case Z:
-            return maxZ;
+            case X:
+                return maxX;
+            case Y:
+                return maxY;
+            case Z:
+                return maxZ;
         }
         return 0;
     }

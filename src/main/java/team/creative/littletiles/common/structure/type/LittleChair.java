@@ -10,14 +10,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.level.CreativeServerLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
@@ -26,8 +22,7 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.common.structure.registry.LittleStructureGuiParser;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleChair extends LittleStructure {
     
@@ -57,7 +52,7 @@ public class LittleChair extends LittleStructure {
     public void setPlayer(Player player) {
         this.player = player;
         if (!getLevel().isClientSide)
-            getInput(0).updateState(BooleanUtils.asArray(player != null));
+            getInput(0).updateState(SignalState.of(player != null));
         if (this.player == null)
             sitUUID = null;
     }
@@ -120,25 +115,5 @@ public class LittleChair extends LittleStructure {
             
         }
         return InteractionResult.SUCCESS;
-    }
-    
-    public static class LittleChairParser extends LittleStructureGuiParser {
-        
-        public LittleChairParser(GuiParent parent, AnimationGuiHandler handler) {
-            super(parent, handler);
-        }
-        
-        @Override
-        public void createControls(LittleGroup previews, LittleStructure structure) {}
-        
-        @Override
-        public LittleStructure parseStructure(LittleGroup previews) {
-            return createStructure(LittleChair.class, null);
-        }
-        
-        @Override
-        protected LittleStructureType getStructureType() {
-            return LittleStructureRegistry.getStructureType(LittleChair.class);
-        }
     }
 }

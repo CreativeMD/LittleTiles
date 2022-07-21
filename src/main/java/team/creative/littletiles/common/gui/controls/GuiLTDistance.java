@@ -2,10 +2,11 @@ package team.creative.littletiles.common.gui.controls;
 
 import net.minecraft.util.Mth;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiEvent;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 
@@ -13,10 +14,9 @@ public class GuiLTDistance extends GuiParent {
     
     public GuiLTDistance(String name, LittleGrid context, int distance) {
         super(name);
-        add(new GuiTextfield("blocks", "").setNumbersIncludingNegativeOnly().setTooltip("blocks"));
-        GuiStateButton contextBox = new GuiStateButton("grid", LittleGrid.getNames().indexOf(context + ""), 30, 0, 15, 12, LittleGrid.getNames().toArray(new String[0]));
-        add(contextBox);
-        add(new GuiTextfield("ltdistance", "").setNumbersIncludingNegativeOnly().setTooltip("grid distance"));
+        add(new GuiTextfield("blocks", "").setNumbersIncludingNegativeOnly().setTooltip(new TextBuilder().translate("gui.distance.blocks").build()));
+        add(new GuiStateButtonMapped<LittleGrid>("grid", LittleGrid.mapBuilder()));
+        add(new GuiTextfield("ltdistance", "").setNumbersIncludingNegativeOnly().setTooltip(new TextBuilder().translate("gui.distance.pixels").build()));
         setDistance(context, distance);
     }
     
@@ -33,19 +33,19 @@ public class GuiLTDistance extends GuiParent {
     }
     
     public void setDistance(LittleGrid context, int distance) {
-        int max = LittleTiles.CONFIG.general.maxDoorDistance * context.size;
+        int max = LittleTiles.CONFIG.general.maxDoorDistance * context.count;
         distance = Mth.clamp(distance, -max, max);
         
-        GuiStateButton contextBox = (GuiStateButton) get("grid");
-        contextBox.setState(LittleGrid.getNames().indexOf(context + ""));
+        GuiStateButtonMapped<LittleGrid> contextBox = (GuiStateButtonMapped<LittleGrid>) get("grid");
+        contextBox.select(context);
         
-        int blocks = distance / context.size;
+        int blocks = distance / context.count;
         GuiTextfield blocksTF = (GuiTextfield) get("blocks");
-        blocksTF.text = "" + blocks;
+        blocksTF.setText("" + blocks);
         blocksTF.setCursorPositionZero();
         
         GuiTextfield ltdistanceTF = (GuiTextfield) get("ltdistance");
-        ltdistanceTF.text = "" + (distance - blocks * context.size);
+        ltdistanceTF.setText("" + (distance - blocks * context.count));
         ltdistanceTF.setCursorPositionZero();
     }
     
@@ -55,8 +55,8 @@ public class GuiLTDistance extends GuiParent {
         LittleGrid context = getDistanceContext();
         
         try {
-            int distance = Integer.parseInt(blocksTF.text) * context.size + Integer.parseInt(ltdistanceTF.text);
-            int max = LittleTiles.CONFIG.general.maxDoorDistance * context.size;
+            int distance = Integer.parseInt(blocksTF.getText()) * context.count + Integer.parseInt(ltdistanceTF.getText());
+            int max = LittleTiles.CONFIG.general.maxDoorDistance * context.count;
             distance = Mth.clamp(distance, -max, max);
             return distance;
         } catch (NumberFormatException e) {
@@ -65,12 +65,8 @@ public class GuiLTDistance extends GuiParent {
     }
     
     public LittleGrid getDistanceContext() {
-        GuiStateButton contextBox = (GuiStateButton) get("grid");
-        try {
-            return LittleGrid.get(Integer.parseInt(contextBox.getCaption()));
-        } catch (NumberFormatException e) {
-            return LittleGrid.defaultGrid();
-        }
+        GuiStateButtonMapped<LittleGrid> contextBox = (GuiStateButtonMapped<LittleGrid>) get("grid");
+        return contextBox.getSelected(LittleGrid.defaultGrid());
     }
     
 }

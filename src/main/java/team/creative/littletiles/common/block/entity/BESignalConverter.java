@@ -13,11 +13,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.mc.BlockSignalConverter;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -26,8 +28,8 @@ import team.creative.littletiles.common.structure.signal.network.SignalNetwork;
 public class BESignalConverter extends BlockEntity implements ISignalStructureComponent {
     
     private SignalNetwork network;
-    private boolean[] inputSignalState = new boolean[4];
-    private boolean[] inputRedstoneState = new boolean[4];
+    private SignalState inputSignalState = SignalState.create(4);
+    private SignalState inputRedstoneState = SignalState.create(4);
     
     private List<SignalConnection> connections = new ArrayList<>();
     
@@ -42,11 +44,6 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     @Override
     public Level getStructureLevel() {
         return level;
-    }
-    
-    @Override
-    public void handleUpdate(NBTTagCompound nbt, boolean chunkUpdate) {
-        readFromNBT(nbt);
     }
     
     @Override
@@ -115,9 +112,9 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     }
     
     @Override
-    public void updateState(boolean[] state) {
-        if (!BooleanUtils.equals(state, inputSignalState)) {
-            BooleanUtils.set(inputSignalState, state);
+    public void updateState(SignalState state) {
+        if (!state.equals(inputSignalState)) {
+            inputSignalState = inputSignalState.overwrite(state);
             changed();
         }
     }
@@ -130,15 +127,21 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     }
     
     public int getPower() {
-        boolean[] toReturn = new boolean[4];
-        BooleanUtils.or(toReturn, inputRedstoneState);
-        BooleanUtils.or(toReturn, inputSignalState);
-        return BooleanUtils.toNumber(toReturn);
+        SignalState toReturn = SignalState.create(4);
+        toReturn = toReturn.or(inputRedstoneState);
+        toReturn = toReturn.or(inputSignalState);
+        return toReturn.number();
     }
     
     @Override
-    public boolean[] getState() {
+    public SignalState getState() {
         return inputRedstoneState;
+    }
+    
+    @Override
+    public void overwriteState(SignalState state) throws CorruptedConnectionException, NotYetConnectedException {
+        inputRedstoneState = inputRedstoneState.overwrite(state);
+        inputRedstoneState.shrinkTo(4);
     }
     
     @Override
@@ -157,16 +160,16 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     }
     
     public void setPower(int level) {
-        boolean[] newLevel = BooleanUtils.toBits(level, 4);
-        if (!BooleanUtils.equals(inputRedstoneState, newLevel)) {
-            BooleanUtils.set(inputRedstoneState, newLevel);
+        SignalState newLevel = SignalState.of(4);
+        if (!inputRedstoneState.equals(newLevel)) {
+            inputRedstoneState = inputRedstoneState.overwrite(newLevel);
             changed();
             findNetwork().update();
         }
     }
     
     @Override
-    public void unload(EnumFacing facing, ISignalStructureBase base) {
+    public void unload(Facing facing, ISignalStructureBase base) {
         int index = indexOf(base);
         if (index != -1)
             connections.remove(index);

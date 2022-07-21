@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -69,7 +69,7 @@ public class GuiImport extends GuiLayer {
                     LittleGrid.get(nbt);
                     IMPORT_DATA.send(nbt);
                 } catch (RuntimeException e) {
-                    GuiDialogHandler.openDialog(this, "invalid_grid", new TranslatableComponent("invalid_grid", nbt.getString("grid")), (y, z) -> {}, DialogButton.OK);
+                    GuiDialogHandler.openDialog(this, "invalid_grid", Component.translatable("invalid_grid", nbt.getString("grid")), (y, z) -> {}, DialogButton.OK);
                 }
             } catch (CommandSyntaxException e) {}
         }));

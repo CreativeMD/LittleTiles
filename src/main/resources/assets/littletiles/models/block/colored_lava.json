@@ -1,6 +1,6 @@
 {
     "parent": "block/cube_all",
     "textures": {
-        "all": "minecraft:blocks/lava_still"
+        "all": "minecraft:block/lava_still"
     }
 }

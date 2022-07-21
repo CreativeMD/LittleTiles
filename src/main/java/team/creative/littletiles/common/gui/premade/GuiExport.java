@@ -4,7 +4,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +47,7 @@ public class GuiExport extends GuiLayer {
         }));
         
         add(new GuiComboBoxMapped<LittleExportType>("type", new TextMapBuilder<LittleExportType>()
-                .addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> new TranslatableComponent("gui.export." + x.getKey()))));
+                .addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> Component.translatable("gui.export." + x.getKey()))));
         
         add(new GuiPlayerInventoryGrid(getPlayer()));
         

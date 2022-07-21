@@ -1,0 +1,27 @@
+{
+    "variants": {
+        "facing=east": {
+            "model": "littletiles:block/colored_white_flowing_lava",
+            "y": 270
+        },
+        "facing=west": {
+            "model": "littletiles:block/colored_white_flowing_lava",
+            "y": 90
+        },
+        "facing=north": {
+            "model": "littletiles:block/colored_white_flowing_lava",
+            "y": 180
+        },
+        "facing=south": {
+            "model": "littletiles:block/colored_white_flowing_lava"
+        },
+        "facing=up": {
+            "model": "littletiles:block/colored_white_flowing_lava",
+            "x": 90
+        },
+        "facing=down": {
+            "model": "littletiles:block/colored_white_flowing_lava",
+            "x": 270
+        }
+    }
+}

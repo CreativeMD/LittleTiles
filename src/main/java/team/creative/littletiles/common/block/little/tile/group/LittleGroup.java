@@ -30,8 +30,8 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
-import team.creative.littletiles.common.structure.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.connection.children.ItemChildrenList;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
@@ -50,7 +50,6 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         this.grid = grid;
         this.structure = structure;
         this.children = new ItemChildrenList(this, children);
-        convertToSmallest();
     }
     
     public LittleGroup(LittleGroup group, List<LittleGroup> children) {
@@ -104,7 +103,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     public LittleStructureType getStructureType() {
         if (hasStructure())
-            return LittleStructureRegistry.getStructureType(structure.getString("id"));
+            return LittleStructureRegistry.REGISTRY.get(structure.getString("id"));
         return null;
     }
     
@@ -125,7 +124,6 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         return true;
     }
     
-    @SuppressWarnings("deprecation")
     public void move(LittleVecGrid vec) {
         if (!transformable())
             throw new RuntimeException("Cannot transform group with links");
@@ -522,8 +520,9 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     @OnlyIn(Dist.CLIENT)
     public boolean hasTranslucentBlocks() {
-        if (hasTranslucentBlocks())
-            return true;
+        for (LittleTile tile : content)
+            if (tile.isTranslucent())
+                return true;
         if (hasStructure() && getStructureType().hasTranslucentItemPreview(this))
             return true;
         for (LittleGroup child : children.all())
@@ -594,7 +593,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             structure = null;
         LittleGrid grid = LittleGrid.get(nbt);
         LittleGroup group = new LittleGroup(structure, grid, children);
-        LittleCollection.load(group.content, nbt.getList("t", Tag.TAG_COMPOUND));
+        LittleCollection.load(group.content, nbt.getCompound("t"));
         
         CompoundTag extensions = nbt.getCompound("e");
         for (String id : extensions.getAllKeys())

@@ -5,28 +5,36 @@ import java.util.List;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.DrawSelectionEvent;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
@@ -39,7 +47,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -59,7 +67,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     
     private boolean lastLowResolution;
     private CompoundTag lastCached;
-    private LittleGroup lastPreviews;
+    private PlacementPreview lastPreviews;
     private IMarkMode marked;
     
     public PreviewRenderer() {
@@ -80,23 +88,22 @@ public class PreviewRenderer implements LevelAwareHandler {
     public PlacementPreview getPreviews(Level level, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         
-        LittleGroup tiles = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews.copy() : null;
-        if (tiles == null && iTile != null)
-            tiles = iTile.get(stack, allowLowResolution);
+        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews
+                .copy() : null;
+        if (preview == null && iTile != null)
+            preview = iTile.getPlacement(level, stack, position, allowLowResolution);
         
-        PlacementPreview result = PlacementPreview.relative(level, stack, tiles, position, centered, fixed);
-        
-        if (result != null) {
+        if (preview != null) {
             if (stack.getTag() == null) {
                 lastCached = null;
                 lastPreviews = null;
             } else {
                 lastLowResolution = allowLowResolution;
                 lastCached = stack.getTag().copy();
-                lastPreviews = tiles.copy();
+                lastPreviews = preview.copy();
             }
         }
-        return result;
+        return preview;
     }
     
     public void removeMarked() {
@@ -162,13 +169,13 @@ public class PreviewRenderer implements LevelAwareHandler {
             
             handleUndoAndRedo();
             
-            if (stack.getItem() instanceof ILittleTool && (marked != null || (mc.hitResult != null && mc.hitResult instanceof BlockHitResult))) {
+            if (stack.getItem() instanceof ILittleTool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
                 BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult ? (BlockHitResult) mc.hitResult : null;
                 
                 PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
                         .getPosition(level, blockHit, ((ILittleTool) stack.getItem()).getPositionGrid(stack), (ILittleTool) stack.getItem(), stack);
                 
-                processKeys(stack, position.getGrid());
+                processKeys(stack, ((ILittleTool) stack.getItem()).getPositionGrid(stack));
                 
                 ((ILittleTool) stack.getItem()).tick(player, stack, position, blockHit);
                 
@@ -182,11 +189,13 @@ public class PreviewRenderer implements LevelAwareHandler {
                         RenderSystem.enableBlend();
                         RenderSystem
                                 .blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.4F);
+                        RenderSystem.setShaderColor(1, 1, 1, 1);
                         RenderSystem.enableTexture();
                         
                         RenderSystem.setShaderTexture(0, WHITE_TEXTURE);
                         mc.textureManager.bindForSetup(WHITE_TEXTURE);
+                        
+                        RenderSystem.setShader(GameRenderer::getPositionColorShader);
                         
                         RenderSystem.depthMask(false);
                         
@@ -203,10 +212,9 @@ public class PreviewRenderer implements LevelAwareHandler {
                             
                             processMarkKey(player, iTile, stack, result);
                             
-                            Tesselator tesselator = Tesselator.getInstance();
-                            BufferBuilder builder = tesselator.getBuilder();
+                            BufferBuilder builder = Tesselator.getInstance().getBuilder();
                             
-                            float alpha = (float) (Math.sin(System.nanoTime() / 200000000F) * 0.2F + 0.5F);
+                            double alpha = (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5);
                             int colorAlpha = (int) (alpha * iTile.getPreviewAlphaFactor() * 255);
                             
                             for (RenderBox box : result.previews.getPlaceBoxes())
@@ -214,11 +222,10 @@ public class PreviewRenderer implements LevelAwareHandler {
                             
                             if (LittleActionHandlerClient.isUsingSecondMode() != iTile.snapToGridByDefault(stack)) {
                                 List<RenderBox> cubes = iTile.getPositingCubes(level, pos, stack);
-                                for (RenderBox cube : cubes)
-                                    cube.renderPreview(pose, builder, colorAlpha);
+                                if (cubes != null)
+                                    for (RenderBox cube : cubes)
+                                        cube.renderPreview(pose, builder, colorAlpha);
                             }
-                            
-                            tesselator.end();
                             
                             pose.popPose();
                         }
@@ -233,7 +240,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                 
                 ((ILittleTool) stack.getItem()).render(player, stack, pose);
                 if (marked != null)
-                    marked.render(pose);
+                    marked.render(((ILittleTool) stack.getItem()).getPositionGrid(stack), pose);
             } else
                 marked = null;
         }
@@ -317,7 +324,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     }
     
     @SubscribeEvent
-    public void drawHighlight(DrawSelectionEvent event) {
+    public void drawHighlight(RenderHighlightEvent.Block event) {
         Player player = mc.player;
         Level level = player.level;
         ItemStack stack = player.getMainHandItem();
@@ -325,17 +332,28 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (!LittleAction.canPlace(player))
             return;
         
+        Vec3 vec = mc.gameRenderer.getMainCamera().getPosition();
+        
         PoseStack pose = event.getPoseStack();
         
-        if ((event.getTarget() instanceof BlockHitResult || marked != null) && stack.getItem() instanceof ILittleTool) {
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        
+        if ((event.getTarget().getType() == Type.BLOCK || marked != null) && stack.getItem() instanceof ILittleTool) {
             
-            BlockHitResult blockHit = event.getTarget() instanceof BlockHitResult ? (BlockHitResult) event.getTarget() : null;
+            BlockHitResult blockHit = event.getTarget().getType() == Type.BLOCK ? (BlockHitResult) event.getTarget() : null;
             BlockPos pos = marked != null ? marked.getPosition().getPos() : blockHit.getBlockPos();
             BlockState state = level.getBlockState(pos);
             
             Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
             
-            VertexConsumer consumer = event.getMultiBufferSource().getBuffer(RenderType.lineStrip());
+            RenderSystem.depthMask(true);
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableTexture();
+            RenderSystem.enableDepthTest();
+            
             if (stack.getItem() instanceof ILittleEditor) {
                 ILittleEditor selector = (ILittleEditor) stack.getItem();
                 
@@ -345,17 +363,25 @@ public class PreviewRenderer implements LevelAwareHandler {
                 if (selector.hasCustomBoxes(level, stack, player, state, result, blockHit) || marked != null) {
                     LittleBoxes boxes = ((ILittleEditor) stack.getItem()).getBoxes(level, stack, player, result, blockHit);
                     
+                    RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
                     pose.pushPose();
-                    pose.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
+                    pose.translate(boxes.pos.getX() - cam.x, boxes.pos.getY() - cam.y, boxes.pos.getZ() - cam.z);
                     RenderSystem.lineWidth(4.0F);
                     for (LittleBox box : boxes.all()) {
                         LittleRenderBox cube = box.getRenderingBox(boxes.getGrid());
                         if (cube != null) {
                             cube.color = 0;
-                            cube.renderLines(pose, (BufferBuilder) consumer, 102, cube.getCenter(), 0.002);
+                            cube.renderLines(pose, bufferbuilder, 102, cube.getCenter(), 0.002);
                         }
                     }
                     pose.popPose();
+                    
+                    bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                    RenderSystem.lineWidth(1.0F);
+                    renderHitOutline(pose, level, bufferbuilder, player, vec.x, vec.y, vec.z, pos);
+                    tesselator.end();
+                    RenderSystem.lineWidth(1.0F);
+                    event.setCanceled(true);
                 }
             } else if (stack.getItem() instanceof ILittlePlacer) {
                 ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
@@ -371,19 +397,21 @@ public class PreviewRenderer implements LevelAwareHandler {
                         processMarkKey(player, iTile, stack, result);
                         
                         pose.pushPose();
-                        pose.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
+                        BlockPos renderCenter = result.position.getPos();
+                        pose.translate(renderCenter.getX() - cam.x, renderCenter.getY() - cam.y, renderCenter.getZ() - cam.z);
                         
+                        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
                         RenderSystem.lineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
                         
                         int colorAlpha = 102;
-                        BufferBuilder builder = (BufferBuilder) consumer;
                         for (RenderBox box : result.previews.getPlaceBoxes())
-                            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.002);
+                            box.renderLines(pose, bufferbuilder, colorAlpha, box.getCenter(), 0.002);
                         
                         if (LittleActionHandlerClient.isUsingSecondMode() != iTile.snapToGridByDefault(stack)) {
                             List<RenderBox> cubes = iTile.getPositingCubes(level, pos, stack);
-                            for (RenderBox cube : cubes)
-                                cube.renderLines(pose, builder, colorAlpha, cube.getCenter(), 0.002);
+                            if (cubes != null)
+                                for (RenderBox cube : cubes)
+                                    cube.renderLines(pose, bufferbuilder, colorAlpha, cube.getCenter(), 0.002);
                         }
                         
                         pose.popPose();
@@ -391,5 +419,37 @@ public class PreviewRenderer implements LevelAwareHandler {
                 }
             }
         }
+        
+        if (level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget().getBlockPos())) {
+            renderHitOutline(pose, level, event.getMultiBufferSource().getBuffer(RenderType.lines()), player, vec.x, vec.y, vec.z, event.getTarget().getBlockPos());
+            event.setCanceled(true);
+        }
+    }
+    
+    private void renderHitOutline(PoseStack pose, Level level, VertexConsumer consumer, Entity entity, double x, double y, double z, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        VoxelShape shape;
+        if (state.getBlock() instanceof BlockTile block)
+            shape = block.getSelectionShape(level, pos);
+        else
+            shape = state.getShape(level, pos, CollisionContext.of(entity));
+        renderShape(pose, consumer, shape, pos.getX() - x, pos.getY() - y, pos.getZ() - z, 0.0F, 0.0F, 0.0F, 0.4F);
+    }
+    
+    private static void renderShape(PoseStack pose, VertexConsumer consumer, VoxelShape shape, double x, double y, double z, float red, float green, float blue, float alpha) {
+        PoseStack.Pose posestack$pose = pose.last();
+        shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
+            float f = (float) (x2 - x1);
+            float f1 = (float) (y2 - y1);
+            float f2 = (float) (z2 - z1);
+            float f3 = Mth.sqrt(f * f + f1 * f1 + f2 * f2);
+            f /= f3;
+            f1 /= f3;
+            f2 /= f3;
+            consumer.vertex(posestack$pose.pose(), (float) (x1 + x), (float) (y1 + y), (float) (z1 + z)).color(red, green, blue, alpha).normal(posestack$pose.normal(), f, f1, f2)
+                    .endVertex();
+            consumer.vertex(posestack$pose.pose(), (float) (x2 + x), (float) (y2 + y), (float) (z2 + z)).color(red, green, blue, alpha).normal(posestack$pose.normal(), f, f1, f2)
+                    .endVertex();
+        });
     }
 }

@@ -1,9 +1,9 @@
 package team.creative.littletiles.common.item;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,9 +20,9 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.SubGuiRecipe;
 import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.GuiRecipeSelection;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -41,15 +41,10 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
-    public boolean isComplex() {
-        return true;
-    }
-    
-    @Override
     public Component getName(ItemStack stack) {
         if (stack.getOrCreateTag().contains("content") && stack.getOrCreateTagElement("content").contains("structure") && stack.getOrCreateTagElement("content")
                 .getCompound("structure").contains("name"))
-            return new TextComponent(stack.getOrCreateTagElement("content").getCompound("structure").getString("name"));
+            return Component.literal(stack.getOrCreateTagElement("content").getCompound("structure").getString("name"));
         return super.getName(stack);
     }
     
@@ -82,7 +77,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         if (!((ItemLittleBlueprint) view.get().getItem()).hasTiles(view.get()))
             return new GuiRecipeSelection(view);
-        return new SubGuiRecipe(view);
+        return new GuiRecipe(view);
+    }
+    
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
     }
     
     @Override

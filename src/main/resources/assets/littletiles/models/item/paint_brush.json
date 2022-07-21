@@ -1,7 +1,7 @@
 {
     "parent": "item/handheld",
     "textures": {
-        "layer0": "littletiles:items/ltcolortube",
-        "layer1": "littletiles:items/ltcolortube-overlay"
+        "layer0": "littletiles:item/paint_brush",
+        "layer1": "littletiles:item/paint_brush_overlay"
     }
 }

@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -27,13 +27,15 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.BlockEvent.BreakEvent;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -97,7 +99,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         try {
             action(player);
         } catch (LittleActionException e) {
-            player.sendMessage(new TextComponent(e.getLocalizedMessage()), Util.NIL_UUID);
+            player.sendSystemMessage(Component.literal(e.getLocalizedMessage()));
         }
     }
     
@@ -106,8 +108,8 @@ public abstract class LittleAction<T> extends CreativePacket {
     public static boolean canConvertBlock(Player player, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
         if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)
             throw new NotAllowedToConvertBlockException(player);
-        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable)
-            return state.getBlock().defaultDestroyTime() > 0;
+        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable && state.getBlock().defaultDestroyTime() < 0)
+            throw new NotAllowedToConvertBlockException(player);
         return LittleTiles.CONFIG.canEditBlock(player, state, pos);
     }
     
@@ -162,7 +164,7 @@ public abstract class LittleAction<T> extends CreativePacket {
                 BETiles te = (BETiles) level.getBlockEntity(pos);
                 te.convertTo(tiles.getGrid());
                 final LittleGroup toAdd = tiles;
-                te.updateTiles((x) -> {
+                te.updateTilesSecretly((x) -> {
                     for (LittleTile tile : toAdd)
                         x.noneStructureTiles().add(tile);
                 });
@@ -179,7 +181,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     public static void fireBlockBreakEvent(Level level, BlockPos pos, Player player) throws AreaProtected {
         if (level.isClientSide)
             return;
-        BreakEvent event = new BreakEvent(level, pos, level.getBlockState(pos), player);
+        BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             sendBlockResetToClient(level, player, pos);
@@ -251,6 +253,17 @@ public abstract class LittleAction<T> extends CreativePacket {
             return true;
         
         if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.mayBuild())))
+            return false;
+        
+        if (player.isSpectator())
+            return false;
+        
+        if (!rightClick && PlayerUtils.isAdventure(player)) {
+            ItemStack stack = player.getMainHandItem();
+            BlockInWorld blockinworld = new BlockInWorld(level, pos, false);
+            if (!stack.hasAdventureModePlaceTagForBlock(level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY), blockinworld))
+                return false;
+        } else if (!rightClick && !player.mayBuild())
             return false;
         
         if (WorldEditEvent != null) {

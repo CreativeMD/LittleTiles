@@ -20,8 +20,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.gui.handler.GuiCreator;
-import team.creative.creativecore.common.gui.handler.GuiCreator.GuiCreatorBasic;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
+import team.creative.creativecore.common.gui.creator.GuiCreator.GuiCreatorBasic;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -37,7 +37,6 @@ import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
 import team.creative.littletiles.common.placement.PlacementPosition;
-import team.creative.littletiles.common.placement.PlacementPreview;
 
 public class LittleToolHandler {
     
@@ -71,17 +70,17 @@ public class LittleToolHandler {
     
     @SubscribeEvent
     public void onLeftClickAir(LeftClickEmpty event) {
-        if (event.getWorld().isClientSide) {
+        if (event.getLevel().isClientSide) {
             ItemStack stack = event.getItemStack();
             
             if (stack.getItem() instanceof ILittleTool)
-                ((ILittleTool) stack.getItem()).onClickAir(event.getPlayer(), stack);
+                ((ILittleTool) stack.getItem()).onClickAir(event.getEntity(), stack);
         }
     }
     
     @SubscribeEvent
     public void onLeftClick(LeftClickBlock event) {
-        if (event.getWorld().isClientSide) {
+        if (event.getLevel().isClientSide) {
             if (!leftClicked) {
                 ItemStack stack = event.getItemStack();
                 
@@ -90,13 +89,13 @@ public class LittleToolHandler {
                 
                 BlockHitResult ray = (BlockHitResult) Minecraft.getInstance().hitResult;
                 if (lastSelectedItem != null && lastSelectedItem.getItem() != stack.getItem()) {
-                    tool.onClickAir(event.getPlayer(), lastSelectedItem);
+                    tool.onClickAir(event.getEntity(), lastSelectedItem);
                     lastSelectedItem = null;
                 }
                 
                 if (stack.getItem() instanceof ILittleTool) {
-                    PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(event.getWorld(), stack, ray);
-                    if (((ILittleTool) stack.getItem()).onClickBlock(event.getWorld(), event.getPlayer(), stack, position, ray))
+                    PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(event.getLevel(), stack, ray);
+                    if (((ILittleTool) stack.getItem()).onClickBlock(event.getLevel(), event.getEntity(), stack, position, ray))
                         event.setCanceled(true);
                     tool = (ILittleTool) stack.getItem();
                     lastSelectedItem = stack;
@@ -110,37 +109,33 @@ public class LittleToolHandler {
     
     @SubscribeEvent
     public void breakSpeed(BreakSpeed event) {
-        ItemStack stack = event.getPlayer().getMainHandItem();
+        ItemStack stack = event.getEntity().getMainHandItem();
         if (stack.getItem() instanceof ILittleTool)
             event.setNewSpeed(0);
     }
     
     @SubscribeEvent
     public void onInteract(RightClickBlock event) {
-        ItemStack stack = event.getPlayer().getMainHandItem();
+        ItemStack stack = event.getEntity().getMainHandItem();
         
         if (stack.getItem() instanceof ILittleTool) {
-            if (event.getHand() == InteractionHand.MAIN_HAND && event.getWorld().isClientSide)
-                if (onRightInteractClient((ILittleTool) stack.getItem(), event.getPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), Facing.get(event.getFace())))
+            if (event.getHand() == InteractionHand.MAIN_HAND && event.getLevel().isClientSide)
+                if (onRightInteractClient((ILittleTool) stack.getItem(), event.getEntity(), event.getHand(), event.getLevel(), stack, event.getPos(), Facing.get(event.getFace())))
                     event.setCanceled(true);
         }
     }
     
     @OnlyIn(Dist.CLIENT)
     public boolean onRightInteractClient(ILittleTool iTile, Player player, InteractionHand hand, Level level, ItemStack stack, BlockPos pos, Facing facing) {
-        if (iTile instanceof ILittlePlacer) {
-            HitResult result = Minecraft.getInstance().hitResult;
-            if (!(result instanceof BlockHitResult))
-                return false;
-            PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
-            if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && ((ILittlePlacer) iTile).hasTiles(stack)) {
-                if (!stack.isEmpty()) {
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, PlacementPreview.relative(level, stack, position, false)));
-                    LittleTilesClient.PREVIEW_RENDERER.removeMarked();
-                }
-                iTile.onDeselect(level, stack, player);
-                return true;
-            }
+        HitResult result = Minecraft.getInstance().hitResult;
+        if (!(result instanceof BlockHitResult))
+            return false;
+        PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
+        if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && iTile instanceof ILittlePlacer placer && placer.hasTiles(stack)) {
+            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, placer.getPlacement(level, stack, position, false)));
+            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
+            iTile.onDeselect(level, stack, player);
+            return true;
         }
         return false;
     }
@@ -181,7 +176,7 @@ public class LittleToolHandler {
     
     @SubscribeEvent
     public void onPickup(EntityItemPickupEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         ItemEntity entityItem = event.getItem();
         ItemStack stack = entityItem.getItem();
         
