@@ -26,6 +26,7 @@ import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.utils.IntegerUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxTransformable;
@@ -1056,16 +1057,18 @@ public class LittleTransformableBox extends LittleBox {
         
         vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
         
-        Vec3 collision = null;
+        Vec3d startA = new Vec3d(vecA);
+        
+        Vec3d collision = null;
         Facing collided = null;
         
         for (int i = 0; i < Facing.values().length; i++) {
             VectorFanFaceCache face = cache.get(Facing.values()[i]);
             for (VectorFan strip : face) {
-                Vec3 temp = strip.calculateIntercept(ray).toVanilla();
+                Vec3d temp = strip.calculateIntercept(ray);
                 if (temp != null)
-                    temp = temp.scale(grid.pixelLength);
-                if (temp != null && isClosest(vecA, collision, temp)) {
+                    temp.scale(grid.pixelLength);
+                if (temp != null && isClosest(startA, collision, temp)) {
                     collided = Facing.values()[i];
                     collision = temp;
                 }
@@ -1075,7 +1078,7 @@ public class LittleTransformableBox extends LittleBox {
         if (collision == null)
             return null;
         
-        return new BlockHitResult(collision.add(pos.getX(), pos.getY(), pos.getZ()), collided.toVanilla(), pos, true);
+        return new BlockHitResult(collision.toVanilla().add(pos.getX(), pos.getY(), pos.getZ()), collided.toVanilla(), pos, true);
     }
     
     @Override

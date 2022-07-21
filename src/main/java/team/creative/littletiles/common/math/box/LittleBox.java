@@ -24,6 +24,7 @@ import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.RangedBitSet;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -1270,6 +1271,10 @@ public class LittleBox {
     
     public static boolean isClosest(Vec3 from, @Nullable Vec3 optional, Vec3 toCheck) {
         return optional == null || from.distanceToSqr(toCheck) < from.distanceToSqr(optional);
+    }
+    
+    public static boolean isClosest(Vec3d from, @Nullable Vec3d optional, Vec3d toCheck) {
+        return optional == null || from.distanceSqr(toCheck) < from.distanceSqr(optional);
     }
     
     public static boolean intersectsWith(LittleBox box, LittleBox box2) {
