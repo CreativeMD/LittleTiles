@@ -28,6 +28,8 @@ public class LittleStructureAttribute {
     public static final int LISTENER_MASK = 0b00000000_11111111_00000000_00000000;
     public static final int NON_ACTIVE_MASK = 0b00000000_11111111_00000000_11111111;
     
+    public static final int INVALID = -1;
+    
     public static boolean ladder(int attribute) {
         return (attribute & LADDER) != 0;
     }
@@ -88,6 +90,70 @@ public class LittleStructureAttribute {
             return PREMADE;
         default:
             return NONE;
+        }
+    }
+    
+    public static class LittleAttributeBuilder {
+        
+        private int attribute = 0;
+        
+        public int build() {
+            return attribute;
+        }
+        
+        public LittleAttributeBuilder ladder() {
+            attribute |= LADDER;
+            return this;
+        }
+        
+        public LittleAttributeBuilder noCollision() {
+            attribute |= NOCOLLISION;
+            return this;
+        }
+        
+        public LittleAttributeBuilder premade() {
+            attribute |= PREMADE;
+            return this;
+        }
+        
+        public LittleAttributeBuilder emissive() {
+            attribute |= EMISSIVE;
+            return this;
+        }
+        
+        public LittleAttributeBuilder extraCollision() {
+            attribute |= EXTRA_COLLSION;
+            return this;
+        }
+        
+        public LittleAttributeBuilder extraRendering() {
+            attribute |= EXTRA_RENDERING;
+            return this;
+        }
+        
+        public LittleAttributeBuilder ticking() {
+            attribute |= TICKING;
+            return this;
+        }
+        
+        public LittleAttributeBuilder tickRendering() {
+            attribute |= TICK_RENDERING;
+            return this;
+        }
+        
+        public LittleAttributeBuilder neighborListener() {
+            attribute |= NEIGHBOR_LISTENER;
+            return this;
+        }
+        
+        public LittleAttributeBuilder collisionListener() {
+            attribute |= COLLISION_LISTENER;
+            return this;
+        }
+        
+        public LittleAttributeBuilder lightEmitter() {
+            attribute |= LIGHT_EMITTER;
+            return this;
         }
     }
     

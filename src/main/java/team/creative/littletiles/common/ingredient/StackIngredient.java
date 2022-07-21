@@ -5,10 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.utils.type.LinkedHashMapInteger;
-
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
+import team.creative.creativecore.common.util.text.TextBuilder;
+import team.creative.creativecore.common.util.type.LinkedHashMapInteger;
 
 public class StackIngredient extends LittleIngredient<StackIngredient> implements Iterable<StackIngredientEntry> {
     
@@ -17,9 +18,7 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     private int stackLimit = -1;
     private int maxEntries = -1;
     
-    public StackIngredient() {
-        
-    }
+    public StackIngredient() {}
     
     public StackIngredient(ItemStack... stacks) {
         for (int i = 0; i < stacks.length; i++)
@@ -30,8 +29,16 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
         stacks.forEach((x) -> content.add(new StackIngredientEntry(x, x.getCount())));
     }
     
-    public StackIngredient(IInventory inventory) {
-        for (int i = 0; i < inventory.getSizeInventory(); i++) {
+    public StackIngredient(Container inventory) {
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (!stack.isEmpty())
+                add(new StackIngredientEntry(stack, stack.getCount())); // Might be bad for performance (for huge inventories)
+        }
+    }
+    
+    public StackIngredient(IItemHandler inventory) {
+        for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty())
                 add(new StackIngredientEntry(stack, stack.getCount())); // Might be bad for performance (for huge inventories)
@@ -59,11 +66,11 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     }
     
     @Override
-    public void print(List<String> lines, List<ItemStack> stacks) {
-        for (StackIngredientEntry entry : content) {
-            lines.add(entry.stack.getDisplayName());
-            stacks.add(entry.stack);
-        }
+    public TextBuilder toText() {
+        TextBuilder text = new TextBuilder();
+        for (StackIngredientEntry entry : content)
+            text.add(entry.stack.getDisplayName()).stack(entry.stack);
+        return text;
     }
     
     public StackIngredientEntry add(StackIngredientEntry ingredient) {

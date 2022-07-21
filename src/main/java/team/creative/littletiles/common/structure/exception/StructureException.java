@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.structure.exception;
 
-import com.creativemd.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.LittleActionException;
 
 public class StructureException extends LittleActionException {
     

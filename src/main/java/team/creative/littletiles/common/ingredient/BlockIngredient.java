@@ -5,12 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import net.minecraft.client.resources.I18n;
-import net.minecraft.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
+import team.creative.creativecore.common.util.mc.TooltipUtils;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.type.LinkedHashMapDouble;
+import team.creative.littletiles.common.grid.LittleGrid;
 
 public class BlockIngredient extends LittleIngredient<BlockIngredient> implements Iterable<BlockIngredientEntry> {
     
@@ -121,12 +123,14 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
     }
     
     @Override
-    public void print(List<String> lines, List<ItemStack> stacks) {
+    public TextBuilder toText() {
+        TextBuilder text = new TextBuilder();
         for (BlockIngredientEntry entry : content) {
-            ItemStack stack = entry.getItemStack();
-            lines.add(stack.getDisplayName());
-            stacks.add(stack);
+            ItemStack stack = entry.getBlockStack();
+            text.stack(stack);
+            text.add(stack.getDisplayName());
         }
+        return text;
     }
     
     @Override
@@ -180,7 +184,7 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         if (content.size() <= 4) {
             String message = "";
             for (BlockIngredientEntry entry : content) {
-                ItemStack stack = entry.getItemStack();
+                ItemStack stack = entry.getBlockStack();
                 message += "{" + objects.size() + "} " + printVolume(entry.value, false) + " " + stack.getDisplayName() + "\n";
                 objects.add(stack);
             }
@@ -189,7 +193,7 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         
         String message = "";
         for (BlockIngredientEntry entry : content) {
-            ItemStack stack = entry.getItemStack();
+            ItemStack stack = entry.getBlockStack();
             message += "{" + objects.size() + "} " + printVolume(entry.value, false) + " ";
             objects.add(stack);
         }
@@ -201,21 +205,21 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         return content.toString();
     }
     
-    public static String printVolume(double volume, boolean extended) {
+    public static Component printVolume(double volume, boolean extended) {
         String text = "";
         int fullBlocks = (int) volume;
-        int pixels = (int) Math.ceil(((volume - fullBlocks) * LittleGridContext.get().maxTilesPerBlock));
+        int pixels = (int) Math.ceil(((volume - fullBlocks) * LittleGrid.defaultGrid().count3d));
         
         if (fullBlocks > 0)
-            text += TooltipUtils.printNumber(fullBlocks) + (extended ? " " + (fullBlocks == 1 ? I18n.translateToLocal("volume.unit.big.single") : I18n
-                    .translateToLocal("volume.unit.big.multiple")) : I18n.translateToLocal("volume.unit.big.short"));
+            text += TooltipUtils.printNumber(fullBlocks) + (extended ? " " + (fullBlocks == 1 ? LanguageUtils.translate("volume.unit.big.single") : LanguageUtils
+                    .translate("volume.unit.big.multiple")) : LanguageUtils.translate("volume.unit.big.short"));
         if (pixels > 0) {
             if (fullBlocks > 0)
                 text += " ";
-            text += TooltipUtils.printNumber(pixels) + (extended ? " " + (pixels == 1 ? I18n.translateToLocal("volume.unit.small.single") : I18n
-                    .translateToLocal("volume.unit.small.multiple")) : I18n.translateToLocal("volume.unit.small.short"));
+            text += TooltipUtils.printNumber(pixels) + (extended ? " " + (pixels == 1 ? LanguageUtils.translate("volume.unit.small.single") : LanguageUtils
+                    .translate("volume.unit.small.multiple")) : LanguageUtils.translate("volume.unit.small.short"));
         }
         
-        return text;
+        return new TextComponent(text);
     }
 }

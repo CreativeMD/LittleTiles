@@ -2,15 +2,15 @@ package team.creative.littletiles.common.structure.directional;
 
 import java.lang.reflect.Field;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
+import team.creative.littletiles.common.structure.LittleStructure;
 
 public class StructureDirectionalField {
     
@@ -45,7 +45,7 @@ public class StructureDirectionalField {
         }
     }
     
-    public Object createAndSet(LittleStructure structure, CompoundNBT nbt) {
+    public Object createAndSet(LittleStructure structure, CompoundTag nbt) {
         Object relative = create(nbt);
         set(structure, relative);
         return relative;
@@ -55,7 +55,7 @@ public class StructureDirectionalField {
         this.defaultValue = value;
     }
     
-    public Object create(CompoundNBT nbt) {
+    public Object create(CompoundTag nbt) {
         Object value = type.read(nbt.get(saveKey));
         if (value == null)
             if (defaultValue != null)
@@ -65,24 +65,24 @@ public class StructureDirectionalField {
         return value;
     }
     
-    public void save(CompoundNBT nbt, Object value) {
+    public void save(CompoundTag nbt, Object value) {
         nbt.put(saveKey, type.write(value));
     }
     
-    public Object move(Object value, LittleGrid context, LittleVec offset) {
-        return type.move(value, context, offset);
+    public Object move(Object value, LittleVecGrid vec) {
+        return type.move(value, vec);
     }
     
-    public Object flip(Object value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
-        return type.flip(value, context, axis, doubledCenter);
+    public Object mirror(Object value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+        return type.mirror(value, context, axis, doubledCenter);
     }
     
     public Object rotate(Object value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
         return type.rotate(value, context, rotation, doubledCenter);
     }
     
-    public LittleGrid getContext(Object value) {
-        return type.getContext(value);
+    public LittleGrid getGrid(Object value) {
+        return type.getGrid(value);
     }
     
     public void convertToSmallest(Object value) {
@@ -93,8 +93,8 @@ public class StructureDirectionalField {
         type.advancedScale(value, from, to);
     }
     
-    public PlacePreview getPlacePreview(Object value, LittlePreviews previews) {
-        return type.getPlacePreview(value, previews, this);
+    public LittlePlaceBoxRelative getPlaceBox(Object value, LittleGroup group) {
+        return type.getPlaceBox(value, group, this);
     }
     
     public Object getDefault() {

@@ -1,15 +1,19 @@
 package mcjty.theoneprobe.api;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
-/** Implement this interface if you want a custom display for your own entities instead of the standard
- * display. */
+/**
+ * Implement this interface if you want a custom display for your own entities instead of the standard
+ * display.
+ */
 public interface IEntityDisplayOverride {
-    
-    /** This function returns true if you handled the probe info yourselves and TOP doesn't have to add its
-     * own info. */
-    boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, Entity entity, IProbeHitEntityData data);
-    
+
+    /**
+     * This function returns true if you handled the probe info yourselves and TOP doesn't have to add its
+     * own info.
+     */
+    boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, Player player, Level world, Entity entity, IProbeHitEntityData data);
+
 }

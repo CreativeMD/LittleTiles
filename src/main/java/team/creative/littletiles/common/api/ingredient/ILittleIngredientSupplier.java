@@ -2,8 +2,8 @@ package team.creative.littletiles.common.api.ingredient;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.type.HashMapList;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
@@ -18,7 +18,7 @@ public interface ILittleIngredientSupplier {
      *            the ingredient supplier itself
      * @param player
      *            the player if there is one */
-    public void collect(HashMapList<String, ItemStack> collected, ItemStack stack, @Nullable PlayerEntity player);
+    public void collect(HashMapList<String, ItemStack> collected, ItemStack stack, @Nullable Player player);
     
     /** Requests ingredients which are not available directly
      * 

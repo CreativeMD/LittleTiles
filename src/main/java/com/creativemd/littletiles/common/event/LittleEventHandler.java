@@ -7,86 +7,85 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
+
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.littletiles.client.LittleTilesClient;
-import com.creativemd.littletiles.client.event.PickBlockEvent;
-import com.creativemd.littletiles.client.render.cache.ItemModelCache;
-import com.creativemd.littletiles.client.render.cache.RenderingThread;
-import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.api.ILittleTool;
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.schedule.SignalTicker;
-import com.creativemd.littletiles.common.structure.type.LittleBed;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
-import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
-import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
-import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 
-import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IntHashMap;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
 import net.minecraftforge.event.world.WorldEvent.Unload;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.handler.GuiHandler;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.event.PickBlockEvent;
+import team.creative.littletiles.client.render.cache.RenderingThread;
+import team.creative.littletiles.client.render.item.ItemModelCache;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.animation.entity.EntityAnimation;
+import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.api.tool.ILittleTool;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.LittleInventory;
+import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
+import team.creative.littletiles.common.placement.PlacementHelper;
+import team.creative.littletiles.common.placement.PlacementPosition;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.signal.schedule.SignalTicker;
+import team.creative.littletiles.common.structure.type.LittleBed;
 
 public class LittleEventHandler {
     
@@ -102,7 +101,8 @@ public class LittleEventHandler {
         if (event.result != null && event.result.typeOfHit == Type.BLOCK) {
             ItemStack stack = event.player.getHeldItemMainhand();
             if (stack.getItem() instanceof ILittleTool && ((ILittleTool) stack.getItem())
-                .onMouseWheelClickBlock(event.world, event.player, stack, new PlacementPosition(event.result, ((ILittleTool) stack.getItem()).getPositionContext(stack)), event.result))
+                    .onMouseWheelClickBlock(event.world, event.player, stack, new PlacementPosition(event.result, ((ILittleTool) stack.getItem())
+                            .getPositionContext(stack)), event.result))
                 event.setCanceled(true);
         }
     }
@@ -133,10 +133,8 @@ public class LittleEventHandler {
                 }
                 
                 if (stack.getItem() instanceof ILittleTool) {
-                    if (((ILittleTool) stack.getItem())
-                        .onClickBlock(event.getWorld(), event
-                            .getEntityPlayer(), stack, new PlacementPosition(ray, ((ILittleTool) stack.getItem()).getPositionContext(stack)), ray) && LittleTilesClient.INTERACTION
-                                .start(false))
+                    if (((ILittleTool) stack.getItem()).onClickBlock(event.getWorld(), event
+                            .getEntityPlayer(), stack, new PlacementPosition(ray, ((ILittleTool) stack.getItem()).getPositionContext(stack)), ray))
                         event.setCanceled(true);
                     tool = (ILittleTool) stack.getItem();
                     lastSelectedItem = stack;
@@ -177,7 +175,7 @@ public class LittleEventHandler {
                         GlStateManager.color(f * (float) color.x, f * (float) color.y, f * (float) color.z, 0.5F);
                         GlStateManager.enableBlend();
                         GlStateManager
-                            .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                                .tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                         GlStateManager.pushMatrix();
                         float f1 = 4.0F;
                         float f2 = -1.0F;
@@ -212,8 +210,49 @@ public class LittleEventHandler {
             event.setNewSpeed(0);
     }
     
+    static List<EntityPlayer> blockTilePrevent = new ArrayList<>();
+    static boolean recentlyConsumedRightClick = false;
+    
+    public static void addBlockTilePrevent(EntityPlayer player) {
+        blockTilePrevent.add(player);
+    }
+    
+    public static boolean consumeBlockTilePrevent(Player player, InteractionHand hand) {
+        if (hand == EnumHand.OFF_HAND && recentlyConsumedRightClick)
+            return true;
+        int index = blockTilePrevent.indexOf(player);
+        if (index == -1) {
+            recentlyConsumedRightClick = false;
+            return false;
+        }
+        blockTilePrevent.remove(index);
+        recentlyConsumedRightClick = true;
+        return true;
+    }
+    
+    @SubscribeEvent
+    public void onInteractAir(RightClickEmpty event) {
+        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
+            event.setCanceled(true);
+            return;
+        }
+    }
+    
+    @SubscribeEvent
+    public void onInteractEntity(EntityInteractSpecific event) {
+        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
+            event.setCanceled(true);
+            return;
+        }
+    }
+    
     @SubscribeEvent
     public void onInteract(RightClickBlock event) {
+        if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer(), event.getHand())) {
+            event.setCanceled(true);
+            return;
+        }
+        
         ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
         
         if (stack.getItem() instanceof ILittleTool) {
@@ -260,20 +299,18 @@ public class LittleEventHandler {
     
     @SideOnly(Side.CLIENT)
     public static PlacementPosition getPosition(World world, ILittleTool iTile, ItemStack stack, RayTraceResult result) {
-        return PreviewRenderer.marked != null ? PreviewRenderer.marked.getPosition() : PlacementHelper
-            .getPosition(world, result, iTile.getPositionContext(stack), iTile, stack);
+        return PreviewRenderer.marked != null ? PreviewRenderer.marked.getPosition() : PlacementHelper.getPosition(world, result, iTile.getPositionContext(stack), iTile, stack);
     }
     
     @SideOnly(Side.CLIENT)
     public boolean onRightInteractClient(ILittleTool iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing) {
-        if (iTile instanceof ILittleTool) {
+        if (iTile instanceof ILittlePlacer) {
             PlacementPosition position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
-            if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver) && iTile instanceof ILittlePlacer && ((ILittlePlacer) iTile)
-                .hasLittlePreview(stack)) {
-                if (player.canPlayerEdit(pos.offset(facing), facing, stack) && LittleTilesClient.INTERACTION.start(true)) {
+            if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver) && ((ILittlePlacer) iTile).hasLittlePreview(stack)) {
+                if (!stack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, stack)) {
                     PlacementMode mode = ((ILittlePlacer) iTile).getPlacementMode(stack).place();
                     new LittleActionPlaceStack(((ILittlePlacer) iTile).getLittlePreview(stack, false), position, PreviewRenderer
-                        .isCentered(player, stack, (ILittlePlacer) iTile), PreviewRenderer.isFixed(player, stack, (ILittlePlacer) iTile), mode).execute();
+                            .isCentered(player, stack, (ILittlePlacer) iTile), PreviewRenderer.isFixed(player, stack, (ILittlePlacer) iTile), mode).execute();
                     
                     PreviewRenderer.marked = null;
                 }
@@ -305,6 +342,8 @@ public class LittleEventHandler {
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
         }
+        
+        blockTilePrevent.remove(event.player);
     }
     
     @SubscribeEvent

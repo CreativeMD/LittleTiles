@@ -2,27 +2,27 @@ package team.creative.littletiles.common.math.box;
 
 import java.util.HashMap;
 
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.tile.parent.IStructureCollection;
+import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 
 public class SurroundingBox {
     
-    protected World world;
+    protected Level level;
     protected int count = 0;
-    protected LittleGrid context = LittleGrid.min();
+    protected LittleGrid grid = LittleGrid.min();
     protected long minX = Long.MAX_VALUE;
     protected long minY = Long.MAX_VALUE;
     protected long minZ = Long.MAX_VALUE;
@@ -36,14 +36,14 @@ public class SurroundingBox {
     protected boolean mapScannedLists = false;
     protected HashMap<BlockPos, Iterable<LittleTile>> map = new HashMap<>();
     
-    public SurroundingBox(boolean mapScannedLists, World world) {
+    public SurroundingBox(boolean mapScannedLists, Level level) {
         this.mapScannedLists = mapScannedLists;
-        this.world = world;
+        this.level = level;
     }
     
     public void clear() {
         count = 0;
-        context = LittleGrid.min();
+        grid = LittleGrid.min();
         
         minX = Long.MAX_VALUE;
         minY = Long.MAX_VALUE;
@@ -60,12 +60,12 @@ public class SurroundingBox {
     
     public void convertTo(LittleGrid to) {
         if (count == 0) {
-            context = to;
+            grid = to;
             return;
         }
         
-        if (context.count > to.count) {
-            int modifier = context.count / to.count;
+        if (grid.count > to.count) {
+            int modifier = grid.count / to.count;
             minX /= modifier;
             minY /= modifier;
             minZ /= modifier;
@@ -73,7 +73,7 @@ public class SurroundingBox {
             maxY /= modifier;
             maxZ /= modifier;
         } else {
-            int modifier = to.count / context.count;
+            int modifier = to.count / grid.count;
             minX *= modifier;
             minY *= modifier;
             minZ *= modifier;
@@ -82,19 +82,19 @@ public class SurroundingBox {
             maxZ *= modifier;
         }
         
-        context = to;
+        grid = to;
     }
     
     protected boolean insertContext(LittleGrid to) {
-        if (context.count > to.count)
+        if (grid.count > to.count)
             return false;
         
-        if (context.count < to.count)
+        if (grid.count < to.count)
             convertTo(to);
         return true;
     }
     
-    public SurroundingBox add(IStructureCollection list) {
+    public SurroundingBox add(IStructureParentCollection list) {
         add(list.getGrid(), list.getPos(), list);
         return this;
     }
@@ -102,24 +102,25 @@ public class SurroundingBox {
     public SurroundingBox add(LittleGrid context, BlockPos pos, Iterable<LittleTile> tiles) {
         int modifier = 1;
         if (!insertContext(context))
-            modifier = this.context.count / context.count;
+            modifier = this.grid.count / context.count;
         
         for (LittleTile tile : tiles)
-            add(tile.getBox(), modifier, pos);
-        
+            for (LittleBox box : tile)
+                add(box, modifier, pos);
+            
         if (mapScannedLists)
             map.put(pos, tiles);
         return this;
     }
     
     protected void add(LittleBox box, int modifier, BlockPos pos) {
-        minX = Math.min(minX, pos.getX() * context.count + box.minX * modifier);
-        minY = Math.min(minY, pos.getY() * context.count + box.minY * modifier);
-        minZ = Math.min(minZ, pos.getZ() * context.count + box.minZ * modifier);
+        minX = Math.min(minX, pos.getX() * grid.count + box.minX * modifier);
+        minY = Math.min(minY, pos.getY() * grid.count + box.minY * modifier);
+        minZ = Math.min(minZ, pos.getZ() * grid.count + box.minZ * modifier);
         
-        maxX = Math.max(maxX, pos.getX() * context.count + box.maxX * modifier);
-        maxY = Math.max(maxY, pos.getY() * context.count + box.maxY * modifier);
-        maxZ = Math.max(maxZ, pos.getZ() * context.count + box.maxZ * modifier);
+        maxX = Math.max(maxX, pos.getX() * grid.count + box.maxX * modifier);
+        maxY = Math.max(maxY, pos.getY() * grid.count + box.maxY * modifier);
+        maxZ = Math.max(maxZ, pos.getZ() * grid.count + box.maxZ * modifier);
         
         minYPos = Math.min(minYPos, pos.getY());
         maxYPos = Math.max(maxYPos, pos.getY());
@@ -127,60 +128,62 @@ public class SurroundingBox {
         count++;
     }
     
-    public LittleAbsoluteBox getAbsoluteBox() {
+    public LittleBoxAbsolute getAbsoluteBox() {
         BlockPos pos = getMinPos();
-        return new LittleAbsoluteBox(pos, new LittleBox((int) (minX - context.toGrid(pos.getX())), (int) (minY - context.toGrid(pos.getY())), (int) (minZ - context
-                .toGrid(pos.getZ())), (int) (maxX - context.toGrid(pos.getX())), (int) (maxY - context.toGrid(pos.getY())), (int) (maxZ - context.toGrid(pos.getZ()))), context);
+        return new LittleBoxAbsolute(pos, new LittleBox((int) (minX - grid.toGrid(pos.getX())), (int) (minY - grid.toGrid(pos.getY())), (int) (minZ - grid
+                .toGrid(pos.getZ())), (int) (maxX - grid.toGrid(pos.getX())), (int) (maxY - grid.toGrid(pos.getY())), (int) (maxZ - grid.toGrid(pos.getZ()))), grid);
     }
     
-    public AxisAlignedBB getAABB() {
-        return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context
-                .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+    public AABB getAABB() {
+        return new AABB(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
+    }
+    
+    public VoxelShape getShape() {
+        return Shapes
+                .box(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
     public double getPercentVolume() {
-        return 0.125 * context.toVanillaGrid(minX + maxX) * context.toVanillaGrid(minY + maxY) * context.toVanillaGrid(minZ + maxZ);
+        return 0.125 * grid.toVanillaGrid(minX + maxX) * grid.toVanillaGrid(minY + maxY) * grid.toVanillaGrid(minZ + maxZ);
     }
     
-    public LittleAbsoluteVec getHighestCenterPoint() {
-        int centerX = (int) Math.floor((minX + maxX) / (double) context.count / 2D);
-        int centerY = (int) Math.floor((minY + maxY) / (double) context.count / 2D);
-        int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.count / 2D);
+    @SuppressWarnings("deprecation")
+    public LittleVecAbsolute getHighestCenterPoint() {
+        int centerX = (int) Math.floor((minX + maxX) / (double) grid.count / 2D);
+        int centerZ = (int) Math.floor((minZ + maxZ) / (double) grid.count / 2D);
         
-        int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * context.count;
-        int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.count;
-        int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.count;
+        int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * grid.count;
+        int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * grid.count;
         
-        LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
+        LittleVecAbsolute pos = new LittleVecAbsolute(new BlockPos(centerX, minYPos, centerZ), grid, new LittleVec(centerTileX, 0, centerTileZ));
         
         MutableBlockPos blockPos = new MutableBlockPos();
         
         for (int y = minYPos; y <= maxYPos; y++) {
-            Iterable<LittleTile> tilesInCenter = map.get(blockPos.setPos(centerX, y, centerZ));
+            Iterable<LittleTile> tilesInCenter = map.get(blockPos.set(centerX, y, centerZ));
             if (tilesInCenter != null) {
-                TileEntityLittleTiles te = getTe(blockPos);
+                BETiles be = getBE(blockPos);
                 
-                te.convertTo(context);
-                LittleBox box = new LittleBox(centerTileX, 0, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
-                if (context.count <= centerTileX) {
-                    box.minX = context.count - 1;
-                    box.maxX = context.count;
+                be.convertTo(grid);
+                LittleBox box = new LittleBox(centerTileX, 0, centerTileZ, centerTileX + 1, grid.count, centerTileZ + 1);
+                if (grid.count <= centerTileX) {
+                    box.minX = grid.count - 1;
+                    box.maxX = grid.count;
                 }
                 
-                if (context.count <= centerTileZ) {
-                    box.minZ = context.count - 1;
-                    box.maxZ = context.count;
+                if (grid.count <= centerTileZ) {
+                    box.minZ = grid.count - 1;
+                    box.maxZ = grid.count;
                 }
                 
                 // int highest = LittleTile.minPos;
-                for (LittleTile tile : tilesInCenter) {
-                    LittleBox littleBox = tile.getCollisionBox();
-                    if (littleBox != null && LittleBox.intersectsWith(box, littleBox)) {
-                        pos.overwriteContext(te.getContext());
-                        pos.getVec().y = Math.max((y - minYPos) * context.count + littleBox.maxY, pos.getVec().y);
-                    }
-                }
-                te.convertToSmallest();
+                for (LittleTile tile : tilesInCenter)
+                    for (LittleBox littleBox : tile)
+                        if (LittleBox.intersectsWith(box, littleBox)) {
+                            pos.overwriteGrid(be.getGrid());
+                            pos.getVec().y = Math.max((y - minYPos) * grid.count + littleBox.maxY, pos.getVec().y);
+                        }
+                be.convertToSmallest();
             }
         }
         
@@ -189,54 +192,54 @@ public class SurroundingBox {
         return pos;
     }
     
+    @SuppressWarnings("deprecation")
     public Vec3d getHighestCenterVec() {
-        int centerX = (int) Math.floor((minX + maxX) / (double) context.count / 2D);
-        int centerY = (int) Math.floor((minY + maxY) / (double) context.count / 2D);
-        int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.count / 2D);
+        int centerX = (int) Math.floor((minX + maxX) / (double) grid.count / 2D);
+        int centerZ = (int) Math.floor((minZ + maxZ) / (double) grid.count / 2D);
         
-        int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * context.count;
-        int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.count;
-        int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.count;
+        int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * grid.count;
+        int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * grid.count;
         
-        LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
+        LittleVecAbsolute pos = new LittleVecAbsolute(new BlockPos(centerX, minYPos, centerZ), grid, new LittleVec(centerTileX, 0, centerTileZ));
         
         MutableBlockPos blockPos = new MutableBlockPos();
         
         for (int y = minYPos; y <= maxYPos; y++) {
-            Iterable<LittleTile> tilesInCenter = map.get(blockPos.setPos(centerX, y, centerZ));
+            Iterable<LittleTile> tilesInCenter = map.get(blockPos.set(centerX, y, centerZ));
             if (tilesInCenter != null) {
-                TileEntityLittleTiles te = getTe(blockPos);
-                te.convertTo(context);
-                LittleBox box = new LittleBox(centerTileX, 0, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
-                if (context.count >= centerTileX) {
-                    box.minX = context.count - 1;
-                    box.maxX = context.count;
+                BETiles be = getBE(blockPos);
+                be.convertTo(grid);
+                LittleBox box = new LittleBox(centerTileX, 0, centerTileZ, centerTileX + 1, grid.count, centerTileZ + 1);
+                if (grid.count >= centerTileX) {
+                    box.minX = grid.count - 1;
+                    box.maxX = grid.count;
                 }
                 
-                if (context.count >= centerTileZ) {
-                    box.minZ = context.count - 1;
-                    box.maxZ = context.count;
+                if (grid.count >= centerTileZ) {
+                    box.minZ = grid.count - 1;
+                    box.maxZ = grid.count;
                 }
                 
                 // int highest = LittleTile.minPos;
-                for (LittleTile tile : tilesInCenter) {
-                    LittleBox littleBox = tile.getCollisionBox();
-                    if (littleBox != null && LittleBox.intersectsWith(box, littleBox)) {
-                        pos.overwriteContext(te.getContext());
-                        pos.getVec().y = Math.max((y - minYPos) * context.count + littleBox.maxY, pos.getVec().y);
-                    }
-                }
-                te.convertToSmallest();
+                for (LittleTile tile : tilesInCenter)
+                    for (LittleBox littleBox : tile)
+                        
+                        if (LittleBox.intersectsWith(box, littleBox)) {
+                            pos.overwriteGrid(be.getGrid());
+                            pos.getVec().y = Math.max((y - minYPos) * grid.count + littleBox.maxY, pos.getVec().y);
+                            
+                        }
+                be.convertToSmallest();
             }
         }
         
-        return new Vec3d(context.toVanillaGrid((minX + maxX) / 2D), pos.getPosY(), context.toVanillaGrid((minZ + maxZ) / 2D));
+        return new Vec3d(grid.toVanillaGrid((minX + maxX) / 2D), pos.getPosY(), grid.toVanillaGrid((minZ + maxZ) / 2D));
     }
     
-    private TileEntityLittleTiles getTe(BlockPos pos) {
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity instanceof TileEntityLittleTiles)
-            return (TileEntityLittleTiles) tileEntity;
+    private BETiles getBE(BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof BETiles)
+            return (BETiles) be;
         throw new RuntimeException("TileEntity does not exist anymore");
     }
     
@@ -289,13 +292,13 @@ public class SurroundingBox {
     }
     
     public LittleVec getMinPosOffset() {
-        return new LittleVec((int) (minX - context.toBlockOffset(minX) * context.count), (int) (minY - context.toBlockOffset(minY) * context.count), (int) (minZ - context
-                .toBlockOffset(minZ) * context.count));
+        return new LittleVec((int) (minX - grid.toBlockOffset(minX) * grid.count), (int) (minY - grid.toBlockOffset(minY) * grid.count), (int) (minZ - grid
+                .toBlockOffset(minZ) * grid.count));
     }
     
     public LittleVec getMaxPosOffset() {
-        return new LittleVec((int) (maxX - context.toBlockOffset(maxX) * context.count), (int) (maxY - context.toBlockOffset(maxY) * context.count), (int) (maxZ - context
-                .toBlockOffset(maxZ) * context.count));
+        return new LittleVec((int) (maxX - grid.toBlockOffset(maxX) * grid.count), (int) (maxY - grid.toBlockOffset(maxY) * grid.count), (int) (maxZ - grid
+                .toBlockOffset(maxZ) * grid.count));
     }
     
     public LittleVec getSize() {
@@ -303,15 +306,15 @@ public class SurroundingBox {
     }
     
     public BlockPos getMinPos() {
-        return new BlockPos(context.toBlockOffset(minX), context.toBlockOffset(minY), context.toBlockOffset(minZ));
+        return new BlockPos(grid.toBlockOffset(minX), grid.toBlockOffset(minY), grid.toBlockOffset(minZ));
     }
     
     public BlockPos getMaxPos() {
-        return new BlockPos(context.toBlockOffset(maxX), context.toBlockOffset(maxY), context.toBlockOffset(maxZ));
+        return new BlockPos(grid.toBlockOffset(maxX), grid.toBlockOffset(maxY), grid.toBlockOffset(maxZ));
     }
     
-    public LittleGridContext getContext() {
-        return context;
+    public LittleGrid getGrid() {
+        return grid;
     }
     
     public int count() {

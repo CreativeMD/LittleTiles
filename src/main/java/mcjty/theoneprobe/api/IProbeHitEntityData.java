@@ -1,9 +1,11 @@
 package mcjty.theoneprobe.api;
 
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
-/** Access information about where the probe hit the entity */
+/**
+ * Access information about where the probe hit the entity
+ */
 public interface IProbeHitEntityData {
-    
-    Vec3d getHitVec();
+
+    Vec3 getHitVec();
 }

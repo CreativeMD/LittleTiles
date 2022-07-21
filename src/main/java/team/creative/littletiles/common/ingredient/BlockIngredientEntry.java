@@ -1,81 +1,53 @@
 package team.creative.littletiles.common.ingredient;
 
-import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import team.creative.littletiles.common.api.block.LittleBlock;
 
 public class BlockIngredientEntry {
     
-    public Block block;
-    public int meta;
+    public final LittleBlock block;
     public double value;
     
-    BlockIngredientEntry(Block block, int meta, double value) {
+    BlockIngredientEntry(LittleBlock block, double value) {
         this.block = block;
-        this.meta = meta;
         this.value = value;
     }
     
-    public ItemStack getItemStack() {
-        return new ItemStack(block, 1, meta);
-    }
-    
-    public ItemStack getTileItemStack() {
-        ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
-        NBTTagCompound nbt = new NBTTagCompound();
-        new LittleVec(1, 1, 1).writeToNBT("size", nbt);
-        
-        LittleTile tile = new LittleTile(block, meta);
-        tile.saveTileExtra(nbt);
-        nbt.setString("tID", "BlockTileBlock");
-        stack.setTagCompound(nbt);
-        
-        int count = (int) (value / LittleGridContext.get().pixelVolume);
-        if (count == 0) {
-            LittleGridContext.getMax().set(stack.getTagCompound());
-            count = (int) (value / LittleGridContext.getMax().pixelVolume);
-        }
-        stack.setCount(count);
-        return stack;
+    public ItemStack getBlockStack() {
+        return block.getStack();
     }
     
     @Override
     public int hashCode() {
-        return block.hashCode() + meta;
+        return block.hashCode();
     }
     
     @Override
     public boolean equals(Object object) {
-        return object instanceof BlockIngredientEntry && ((BlockIngredientEntry) object).block == this.block && ((BlockIngredientEntry) object).meta == this.meta;
+        return object instanceof BlockIngredientEntry && ((BlockIngredientEntry) object).block == this.block;
     }
     
-    public IBlockState getState() {
-        return BlockUtils.getState(block, meta);
+    public BlockState getState() {
+        return block.getState();
     }
     
     public boolean is(ItemStack stack) {
-        return Block.getBlockFromItem(stack.getItem()) == this.block && stack.getMetadata() == this.meta;
+        return block.is(stack);
     }
     
     public BlockIngredientEntry copy() {
-        return new BlockIngredientEntry(block, meta, value);
+        return new BlockIngredientEntry(block, value);
     }
     
     public BlockIngredientEntry copy(double value) {
-        return new BlockIngredientEntry(this.block, this.meta, value);
+        return new BlockIngredientEntry(this.block, value);
     }
     
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-        nbt.setString("block", block.getRegistryName().toString());
-        nbt.setInteger("meta", meta);
-        nbt.setDouble("volume", value);
+    public CompoundTag save(CompoundTag nbt) {
+        nbt.putString("block", block.blockName());
+        nbt.putDouble("volume", value);
         return nbt;
     }
     
@@ -93,7 +65,7 @@ public class BlockIngredientEntry {
     
     @Override
     public String toString() {
-        return "[" + block.getRegistryName() + "," + meta + "," + value + "]";
+        return "[" + block.blockName() + "," + value + "]";
     }
     
 }

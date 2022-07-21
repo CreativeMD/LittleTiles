@@ -1,30 +1,29 @@
 package team.creative.littletiles.common.ingredient;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
-import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittlePlacer;
-import com.creativemd.littletiles.common.item.ItemBlockIngredient;
-import com.creativemd.littletiles.common.item.ItemColorIngredient;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
-import com.creativemd.littletiles.common.util.place.PlacementHelper;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.oredict.DyeUtils;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Block;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.text.TextBuilder;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
+import team.creative.littletiles.common.item.ItemBlockIngredient;
+import team.creative.littletiles.common.item.ItemColorIngredient;
+import team.creative.littletiles.common.placement.PlacementHelper;
 
 public abstract class LittleIngredient<T extends LittleIngredient> extends LittleIngredientBase<T> {
     
@@ -49,35 +48,35 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         return types.size();
     }
     
-    static void extract(LittleIngredients ingredients, LittlePreviews previews, boolean onlyStructure) {
+    static void extract(LittleIngredients ingredients, LittleGroup group, boolean onlyStructure) {
         if (!onlyStructure)
             for (IngredientConvertionHandler handler : converationHandlers)
-                ingredients.add(handler.extract(previews));
+                ingredients.add(handler.extract(group));
             
-        if (previews.hasStructure())
-            previews.getStructureType().addIngredients(previews, ingredients);
+        if (group.hasStructure())
+            group.getStructureType().addIngredients(group, ingredients);
         
-        if (previews.hasChildren())
-            for (LittlePreviews child : previews.getChildren())
+        if (group.hasChildren())
+            for (LittleGroup child : group.children.all())
                 extract(ingredients, child, onlyStructure);
     }
     
-    public static LittleIngredients extract(LittlePreview preview, double volume) {
+    public static LittleIngredients extract(LittleElement tile, double volume) {
         LittleIngredients ingredients = new LittleIngredients();
         for (IngredientConvertionHandler handler : converationHandlers)
-            ingredients.add(handler.extract(preview, volume));
+            ingredients.add(handler.extract(tile, volume));
         return ingredients;
     }
     
-    public static LittleIngredients extract(LittlePreviews previews) {
+    public static LittleIngredients extract(LittleGroup group) {
         LittleIngredients ingredients = new LittleIngredients();
-        extract(ingredients, previews, false);
+        extract(ingredients, group, false);
         return ingredients;
     }
     
-    public static LittleIngredients extractStructureOnly(LittlePreviews previews) {
+    public static LittleIngredients extractStructureOnly(LittleGroup group) {
         LittleIngredients ingredients = new LittleIngredients();
-        extract(ingredients, previews, true);
+        extract(ingredients, group, true);
         return ingredients;
     }
     
@@ -86,8 +85,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         ILittlePlacer tile = PlacementHelper.getLittleInterface(stack);
         
         if (tile != null) {
-            if (useLTStructures && tile.hasLittlePreview(stack) && tile.containsIngredients(stack))
-                extract(ingredients, tile.getLittlePreview(stack), false);
+            if (useLTStructures && tile.hasTiles(stack) && tile.containsIngredients(stack))
+                extract(ingredients, tile.getTiles(stack), false);
         } else
             for (IngredientConvertionHandler handler : converationHandlers)
                 ingredients.add(handler.extract(stack));
@@ -124,15 +123,15 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 for (BlockIngredientEntry entry : overflow) {
                     double volume = entry.value;
                     if (volume >= 1) {
-                        ItemStack stack = entry.getItemStack();
+                        ItemStack stack = entry.getBlockStack();
                         stack.setCount((int) volume);
                         volume -= stack.getCount();
                         stacks.add(stack);
                     }
                     
                     if (volume > 0) {
-                        ItemStack stack = new ItemStack(LittleTiles.blockIngredient);
-                        stack.setTagCompound(new NBTTagCompound());
+                        ItemStack stack = new ItemStack(LittleTiles.BLOCK_INGREDIENT);
+                        stack.setTag(new CompoundTag());
                         ItemBlockIngredient.saveIngredient(stack, entry);
                         stacks.add(stack);
                     }
@@ -143,21 +142,21 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             
             @Override
             public BlockIngredient extract(ItemStack stack) {
-                Block block = Block.getBlockFromItem(stack.getItem());
-                if (block != null && !(block instanceof BlockAir) && LittleAction.isBlockValid(BlockUtils.getState(block, stack.getMetadata()))) {
+                Block block = Block.byItem(stack.getItem());
+                if (block != null && !(block instanceof AirBlock) && LittleAction.isBlockValid(block.defaultBlockState())) {
                     BlockIngredient ingredient = new BlockIngredient();
-                    ingredient.add(IngredientUtils.getBlockIngredient(block, stack.getMetadata(), 1));
+                    ingredient.add(IngredientUtils.getBlockIngredient(LittleBlockRegistry.get(block), 1));
                     return ingredient;
                 }
                 return null;
             }
             
             @Override
-            public BlockIngredient extract(LittlePreviews previews) {
+            public BlockIngredient extract(LittleGroup previews) {
                 BlockIngredient ingredient = new BlockIngredient();
                 if (previews.containsIngredients())
-                    for (LittlePreview preview : previews)
-                        ingredient.add(preview.getBlockIngredient(previews.getContext()));
+                    for (LittleTile preview : previews)
+                        ingredient.add(preview.getBlockIngredient(previews.getGrid()));
                     
                 if (ingredient.isEmpty())
                     return null;
@@ -165,11 +164,9 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public BlockIngredient extract(LittlePreview preview, double volume) {
+            public BlockIngredient extract(LittleElement tile, double volume) {
                 BlockIngredient ingredient = new BlockIngredient();
-                BlockIngredientEntry entry = preview.getBlockIngredient(LittleGridContext.get());
-                entry.value = volume;
-                ingredient.add(entry);
+                ingredient.add(IngredientUtils.getBlockIngredient(tile.getBlock(), volume));
                 return ingredient;
             }
             
@@ -181,26 +178,26 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 LittleIngredients ingredients = new LittleIngredients(overflow);
                 List<ItemStack> stacks = new ArrayList<>();
                 if (overflow.black > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.blackColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    ItemStack stack = new ItemStack(LittleTiles.BLACK_COLOR);
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.cyan > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.cyanColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    ItemStack stack = new ItemStack(LittleTiles.CYAN_COLOR);
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.magenta > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.magentaColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    ItemStack stack = new ItemStack(LittleTiles.MAGENTA_COLOR);
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.yellow > 0) {
-                    ItemStack stack = new ItemStack(LittleTiles.yellowColorIngredient);
-                    stack.setTagCompound(new NBTTagCompound());
+                    ItemStack stack = new ItemStack(LittleTiles.YELLOW_COLOR);
+                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
@@ -208,32 +205,24 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
         }, new IngredientConvertionHandler<ColorIngredient>() {
             
-            Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, new String[] { "colorValue", "field_193351_w" });
-            
             @Override
             public ColorIngredient extract(ItemStack stack) {
-                if (DyeUtils.isDye(stack)) {
-                    Optional<EnumDyeColor> optional = DyeUtils.colorFromStack(stack);
-                    if (!optional.isPresent())
-                        return null;
-                    
-                    try {
-                        ColorIngredient color = ColorIngredient.getColors(dyeColor.getInt(optional.get()));
-                        color.scale(LittleTiles.CONFIG.general.dyeVolume);
-                        return color;
-                    } catch (IllegalArgumentException | IllegalAccessException e) {
-                    
-                    }
+                if (stack.getItem() instanceof DyeItem) {
+                    DyeColor dyeColor = ((DyeItem) stack.getItem()).getDyeColor();
+                    float[] rgb = dyeColor.getTextureDiffuseColors();
+                    ColorIngredient color = ColorIngredient.getColors(ColorUtils.rgb(rgb[0], rgb[1], rgb[2]));
+                    color.scale(LittleTiles.CONFIG.general.dyeVolume);
+                    return color;
                 }
                 return null;
             }
             
             @Override
-            public ColorIngredient extract(LittlePreviews previews) {
+            public ColorIngredient extract(LittleGroup previews) {
                 ColorIngredient ingredient = new ColorIngredient();
                 if (previews.containsIngredients())
-                    for (LittlePreview preview : previews)
-                        ingredient.add(ColorIngredient.getColors(previews.getContext(), preview));
+                    for (LittleTile preview : previews)
+                        ingredient.add(ColorIngredient.getColors(previews.getGrid(), preview));
                     
                 if (ingredient.isEmpty())
                     return null;
@@ -241,9 +230,9 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
             @Override
-            public ColorIngredient extract(LittlePreview preview, double volume) {
+            public ColorIngredient extract(LittleElement tile, double volume) {
                 ColorIngredient ingredient = new ColorIngredient();
-                ingredient.add(ColorIngredient.getColors(preview, volume));
+                ingredient.add(ColorIngredient.getColors(tile, volume));
                 return ingredient;
             }
             
@@ -263,12 +252,12 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         }, new IngredientConvertionHandler<StackIngredient>() {
             
             @Override
-            public StackIngredient extract(LittlePreview preview, double volume) {
+            public StackIngredient extract(LittleElement tile, double volume) {
                 return null;
             }
             
             @Override
-            public StackIngredient extract(LittlePreviews previews) {
+            public StackIngredient extract(LittleGroup previews) {
                 return null;
             }
             
@@ -300,12 +289,60 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             }
             
         });
+        
+        registerType(ItemIngredient.class, new IngredientOverflowHandler<ItemIngredient>() {
+            
+            @Override
+            public List<ItemStack> handleOverflow(ItemIngredient overflow) throws NotEnoughSpaceException {
+                throw new NotEnoughSpaceException(overflow);
+            }
+        }, new IngredientConvertionHandler<ItemIngredient>() {
+            
+            @Override
+            public ItemIngredient extract(ItemStack stack) {
+                return null;
+            }
+            
+            @Override
+            public ItemIngredient extract(LittleGroup group) {
+                return null;
+            }
+            
+            @Override
+            public ItemIngredient extract(LittleElement tile, double volume) {
+                return null;
+            }
+            
+            @Override
+            public boolean requiresExtraHandler() {
+                return true;
+            }
+            
+            @Override
+            public boolean handleExtra(ItemIngredient ingredient, ItemStack stack, LittleIngredients overflow) {
+                for (Iterator<ItemIngredientEntry> itr = ingredient.iterator(); itr.hasNext();) {
+                    ItemIngredientEntry entry = itr.next();
+                    if (entry.is(stack)) {
+                        int count = Math.min(entry.count, stack.getCount());
+                        stack.shrink(count);
+                        entry.count -= count;
+                        if (entry.isEmpty())
+                            itr.remove();
+                        
+                        if (ingredient.isEmpty())
+                            return true;
+                    }
+                }
+                return false;
+            }
+            
+        });
     }
     
     @Override
     public abstract T copy();
     
-    public abstract void print(List<String> lines, List<ItemStack> stacks);
+    public abstract TextBuilder toText();
     
     @Override
     public abstract T add(T ingredient);
@@ -341,9 +378,9 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         
         public abstract T extract(ItemStack stack);
         
-        public abstract T extract(LittlePreviews previews);
+        public abstract T extract(LittleGroup group);
         
-        public abstract T extract(LittlePreview preview, double volume);
+        public abstract T extract(LittleElement tile, double volume);
         
         public boolean requiresExtraHandler() {
             return false;

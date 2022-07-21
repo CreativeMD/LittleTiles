@@ -6,18 +6,21 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import team.creative.creativecore.common.util.mc.InventoryUtils;
+import team.creative.creativecore.common.util.mc.WorldUtils;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientSupplier;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 public class LittleInventory implements Iterable<ItemStack> {
     
-    protected PlayerEntity player;
+    protected Player player;
     protected IItemHandler inventory;
     
     private boolean simulate;
@@ -29,7 +32,7 @@ public class LittleInventory implements Iterable<ItemStack> {
     
     public boolean allowDrop = true;
     
-    public LittleInventory(PlayerEntity player) {
+    public LittleInventory(Player player) {
         this(player, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null));
     }
     
@@ -37,7 +40,7 @@ public class LittleInventory implements Iterable<ItemStack> {
         this(null, inventory);
     }
     
-    public LittleInventory(PlayerEntity player, IItemHandler inventory) {
+    public LittleInventory(Player player, IItemHandler inventory) {
         this.player = player;
         this.inventory = inventory;
         this.inventories = new ArrayList<>();
@@ -60,8 +63,11 @@ public class LittleInventory implements Iterable<ItemStack> {
                     inventories.add(ingredient);
                     inventoriesId.add(i);
                 }
-            } else if (!onlyIngredientInventories && stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
-                subInventories.add(new LittleInventory(player, stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null)));
+            } else if (!onlyIngredientInventories) {
+                LazyOptional<IItemHandler> optional = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+                if (optional.isPresent())
+                    subInventories.add(new LittleInventory(player, optional.orElse(null)));
+            }
         }
     }
     
@@ -143,7 +149,7 @@ public class LittleInventory implements Iterable<ItemStack> {
             if (player == null || !allowDrop)
                 throw new NotEnoughSpaceException(new StackIngredient(toDrop));
             
-            if (!simulate && !player.level.isRemote)
+            if (!simulate && !player.level.isClientSide)
                 WorldUtils.dropItem(player, toDrop);
         }
     }
@@ -153,7 +159,7 @@ public class LittleInventory implements Iterable<ItemStack> {
     }
     
     public int size() {
-        if (inventory instanceof PlayerInventory)
+        if (inventory instanceof Inventory)
             return 36;
         return simulate ? cachedInventory.size() : inventory.getSlots();
     }
@@ -204,7 +210,6 @@ public class LittleInventory implements Iterable<ItemStack> {
             
             LittleIngredients stackIngredients = LittleIngredient.extractWithoutCount(stack, false);
             if (stackIngredients != null) {
-                
                 int amount = ingredients.getMinimumCount(stackIngredients, stack.getCount());
                 if (amount > -1) {
                     stackIngredients.scale(amount);
@@ -321,7 +326,7 @@ public class LittleInventory implements Iterable<ItemStack> {
     }
     
     @Nullable
-    public PlayerEntity getPlayer() {
+    public Player getPlayer() {
         return player;
     }
     

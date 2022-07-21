@@ -2,13 +2,13 @@ package team.creative.littletiles.common.ingredient;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
-import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.ChatFormatting;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
+import team.creative.creativecore.common.util.mc.TooltipUtils;
+import team.creative.creativecore.common.util.text.TextBuilder;
+import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.grid.LittleGrid;
 
 public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     
@@ -60,45 +60,40 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     }
     
     @Override
-    public void print(List<String> lines, List<ItemStack> stacks) {
-        if (black > 0) {
-            lines.add(getBlackDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
-        if (cyan > 0) {
-            lines.add(getCyanDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
-        if (magenta > 0) {
-            lines.add(getMagentaDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
-        if (yellow > 0) {
-            lines.add(getYellowDescription());
-            stacks.add(ItemStack.EMPTY);
-        }
+    public TextBuilder toText() {
+        TextBuilder text = new TextBuilder();
+        if (black > 0)
+            text.text(getBlackDescription());
+        if (cyan > 0)
+            text.text(getCyanDescription());
+        if (magenta > 0)
+            text.text(getMagentaDescription());
+        if (yellow > 0)
+            text.text(getYellowDescription());
+        return text;
     }
     
     private static String getUnit(int number) {
         if (number == 1)
-            return I18n.translateToLocal("color.unit.single");
-        return I18n.translateToLocal("color.unit.multiple");
+            return LanguageUtils.translate("color.unit.single");
+        return LanguageUtils.translate("color.unit.multiple");
     }
     
     public String getBlackDescription() {
-        return TooltipUtils.printNumber(black) + " " + ChatFormatting.DARK_GRAY + I18n.translateToLocal("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(black);
+        return TooltipUtils.printNumber(black) + " " + ChatFormatting.DARK_GRAY + LanguageUtils.translate("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(black);
     }
     
     public String getCyanDescription() {
-        return TooltipUtils.printNumber(cyan) + " " + ChatFormatting.AQUA + I18n.translateToLocal("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(cyan);
+        return TooltipUtils.printNumber(cyan) + " " + ChatFormatting.AQUA + LanguageUtils.translate("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(cyan);
     }
     
     public String getMagentaDescription() {
-        return TooltipUtils.printNumber(magenta) + " " + ChatFormatting.LIGHT_PURPLE + I18n.translateToLocal("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(magenta);
+        return TooltipUtils.printNumber(magenta) + " " + ChatFormatting.LIGHT_PURPLE + LanguageUtils
+                .translate("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(magenta);
     }
     
     public String getYellowDescription() {
-        return TooltipUtils.printNumber(yellow) + " " + ChatFormatting.YELLOW + I18n.translateToLocal("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(yellow);
+        return TooltipUtils.printNumber(yellow) + " " + ChatFormatting.YELLOW + LanguageUtils.translate("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(yellow);
     }
     
     @Override
@@ -257,9 +252,9 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     public static float dyeToBlockPercentage = 4096;
     public static int bottleSize = (int) (dyeToBlockPercentage * 64);
     
-    public static ColorIngredient getColors(LittlePreview preview, double volume) {
-        if (preview.hasColor()) {
-            ColorIngredient color = getColors(preview.getColor());
+    public static ColorIngredient getColors(LittleElement tile, double volume) {
+        if (tile.hasColor()) {
+            ColorIngredient color = getColors(tile.color);
             color.scale(volume);
             return color;
         }
@@ -275,8 +270,8 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
         return null;
     }
     
-    public static ColorIngredient getColors(LittleGridContext context, LittlePreview preview) {
-        return getColors(preview, preview.getPercentVolume(context));
+    public static ColorIngredient getColors(LittleGrid grid, LittleTile tile) {
+        return getColors(tile, tile.getPercentVolume(grid));
     }
     
     public static ColorIngredient getColors(int color) {
