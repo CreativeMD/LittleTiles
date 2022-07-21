@@ -8,11 +8,11 @@ import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents.GuiSigna
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.littletiles.common.tile.parent.StructureTileList;
 
 public abstract class LittleStructureGuiParser implements IAnimationControl {
     

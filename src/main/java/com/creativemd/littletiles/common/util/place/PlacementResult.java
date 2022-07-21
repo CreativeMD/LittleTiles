@@ -7,12 +7,12 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxesSimple;
-import com.creativemd.littletiles.common.tile.parent.ParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.math.BlockPos;
+import team.creative.littletiles.common.tile.parent.ParentTileList;
 
 public class PlacementResult {
     
