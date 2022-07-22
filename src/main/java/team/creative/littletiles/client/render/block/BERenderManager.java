@@ -236,7 +236,7 @@ public class BERenderManager {
         for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
             LittleTile tile = pair.value;
             
-            if (!tile.getBlock().canRenderInLayer(tile, layer))
+            if (!tile.canRenderInLayer(layer))
                 continue;
             
             for (LittleBox box : tile) {

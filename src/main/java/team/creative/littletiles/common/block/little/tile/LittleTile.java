@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import com.mojang.math.Vector3d;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
@@ -24,6 +25,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -31,6 +34,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.CopyArrayCollection;
 import team.creative.creativecore.common.util.type.map.HashMapList;
+import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
 import team.creative.littletiles.common.api.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -484,4 +488,14 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     public String toString() {
         return "[" + getBlockName() + "|" + color + "|" + boxes + "]";
     }
+    
+    // ================Ingredient================
+    
+    @OnlyIn(Dist.CLIENT)
+    public boolean canRenderInLayer(RenderType layer) {
+        if (ColorUtils.isTransparent(color))
+            return layer == RenderType.translucent();
+        return LittleBlockClientRegistry.canRenderInLayer(getBlock(), layer);
+    }
+    
 }

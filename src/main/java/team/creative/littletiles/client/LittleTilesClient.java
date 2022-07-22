@@ -58,6 +58,7 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
+import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import team.creative.littletiles.client.render.item.ItemRenderCache;
 import team.creative.littletiles.client.render.item.LittleModelItemBackground;
@@ -173,7 +174,10 @@ public class LittleTilesClient {
             
             @Override
             public CompletableFuture<Void> reload(PreparationBarrier p_10638_, ResourceManager p_10639_, ProfilerFiller p_10640_, ProfilerFiller p_10641_, Executor p_10642_, Executor p_10643_) {
-                return CompletableFuture.runAsync(() -> LittleChunkDispatcher.currentRenderState++, p_10643_);
+                return CompletableFuture.runAsync(() -> {
+                    LittleChunkDispatcher.currentRenderState++;
+                    LittleBlockClientRegistry.clearCache();
+                }, p_10643_);
             }
         });
         

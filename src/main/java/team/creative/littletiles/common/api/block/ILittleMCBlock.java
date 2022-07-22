@@ -2,7 +2,6 @@ package team.creative.littletiles.common.api.block;
 
 import com.mojang.math.Vector3d;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -16,9 +15,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -184,9 +180,8 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public default boolean canRenderInLayer(LittleTile tile, RenderType layer) {
-        return Minecraft.getInstance().getBlockRenderer().getBlockModel(getState()).getRenderTypes(getState(), RANDOM, ModelData.EMPTY).contains(layer);
+    public default boolean shouldUseStateForRenderType() {
+        return true;
     }
     
 }

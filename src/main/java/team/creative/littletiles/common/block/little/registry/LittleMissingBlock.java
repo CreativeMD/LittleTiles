@@ -16,8 +16,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -176,8 +174,7 @@ public class LittleMissingBlock implements LittleBlock {
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean canRenderInLayer(LittleTile tile, RenderType layer) {
-        return layer == RenderType.solid();
+    public boolean shouldUseStateForRenderType() {
+        return false;
     }
 }
