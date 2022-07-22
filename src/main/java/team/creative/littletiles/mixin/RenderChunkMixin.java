@@ -1,8 +1,8 @@
 package team.creative.littletiles.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
@@ -29,7 +29,7 @@ public abstract class RenderChunkMixin implements RenderChunkLittle {
     }
     
     @Override
-    @Shadow
-    public void beginLayer(BufferBuilder builder) {}
+    @Invoker("beginLayer")
+    public abstract void beginLayer(BufferBuilder builder);
     
 }
