@@ -151,7 +151,7 @@ public class BlockBufferCache {
     
     public boolean hasInvalidBuffers() {
         for (Entry<RenderType, UploadableBufferHolder> entry : uploaded.entrySet())
-            if ((entry.getValue() != null && entry.getValue().isInvalid() || !entry.getValue().isAvailable()) && !queue.containsKey(entry.getKey()))
+            if ((entry.getValue() != null && (entry.getValue().isInvalid() || !entry.getValue().isAvailable())) && !queue.containsKey(entry.getKey()))
                 return true;
         return false;
     }
