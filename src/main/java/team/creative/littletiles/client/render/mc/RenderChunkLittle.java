@@ -8,6 +8,6 @@ public interface RenderChunkLittle {
     
     public void dynamicLightUpdate(boolean value);
     
-    public void beginLayer(BufferBuilder builder);
+    public void invokeBeginLayer(BufferBuilder builder);
     
 }

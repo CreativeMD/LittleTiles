@@ -95,7 +95,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskLittle {
     public BufferBuilder builder(RenderType layer) {
         BufferBuilder builder = pack.builder(layer);
         if (renderTypes.add(layer))
-            ((RenderChunkLittle) this$1).beginLayer(builder);
+            ((RenderChunkLittle) this$1).invokeBeginLayer(builder);
         return builder;
     }
     

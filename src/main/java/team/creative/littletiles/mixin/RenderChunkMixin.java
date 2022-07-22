@@ -30,6 +30,6 @@ public abstract class RenderChunkMixin implements RenderChunkLittle {
     
     @Override
     @Invoker("beginLayer")
-    public abstract void beginLayer(BufferBuilder builder);
+    public abstract void invokeBeginLayer(BufferBuilder builder);
     
 }
