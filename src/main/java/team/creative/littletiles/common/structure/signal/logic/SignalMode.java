@@ -254,7 +254,7 @@ public enum SignalMode {
                 
                 @Override
                 public SignalMode getMode() {
-                    return SignalMode.THRESHOLD;
+                    return SignalMode.STABILIZER;
                 }
                 
                 @Override
