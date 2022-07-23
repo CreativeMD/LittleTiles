@@ -11,8 +11,8 @@ import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeStencil extends PlacementMode {
     
-    public PlacementModeStencil(String name, PreviewMode mode) {
-        super(name, mode, true);
+    public PlacementModeStencil(PreviewMode mode) {
+        super(mode, true);
     }
     
     @Override

@@ -201,7 +201,7 @@ public class LittlePacketTypes {
             
             @Override
             protected void writeContent(PlacementMode content, FriendlyByteBuf buffer) {
-                buffer.writeUtf(content.name);
+                buffer.writeUtf(PlacementMode.REGISTRY.getId(content));
             }
             
             @Override

@@ -17,32 +17,30 @@ import team.creative.littletiles.common.structure.LittleStructure;
 
 public abstract class PlacementMode {
     
-    /** Tries to place all tiles, fails if the main block pos (the player aimed at)
-     * cannot be placed entirely. **/
-    public static final PlacementMode normal = new PlacementModeNormal("placement.mode.default", PreviewMode.PREVIEWS, false);
+    public static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(null);
     
-    private static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(normal);
+    public static final PlacementMode normal = new PlacementModeNormal(PreviewMode.PREVIEWS, false);
     
     /** Tries to fill in the tiles where it is possible. **/
-    public static final PlacementMode fill = new PlacementModeFill("placement.mode.fill", PreviewMode.PREVIEWS);
+    public static final PlacementMode fill = new PlacementModeFill(PreviewMode.PREVIEWS);
     
     /** Used for placing structures, should fail if it cannot place all tiles. **/
-    public static final PlacementMode all = new PlacementModeAll("placement.mode.all", PreviewMode.PREVIEWS);
+    public static final PlacementMode all = new PlacementModeAll(PreviewMode.PREVIEWS);
     
     /** Places all tiles no matter what is in the way. **/
-    public static final PlacementMode overwrite = new PlacementModeOverwrite("placement.mode.overwrite", PreviewMode.PREVIEWS);
+    public static final PlacementMode overwrite = new PlacementModeOverwrite(PreviewMode.PREVIEWS);
     
     /** Places all tiles no matter what is in the way. **/
-    public static final PlacementMode overwrite_all = new PlacementModeOverwriteAll("placement.mode.overwriteall", PreviewMode.PREVIEWS);
+    public static final PlacementMode overwrite_all = new PlacementModeOverwriteAll(PreviewMode.PREVIEWS);
     
     /** Similar to overwrite only that replace will not place any tiles in the air. **/
-    public static final PlacementMode replace = new PlacementModeReplace("placement.mode.replace", PreviewMode.LINES);
+    public static final PlacementMode replace = new PlacementModeReplace(PreviewMode.LINES);
     
     /** Will not place anything but just remove the shape, basically like replace without the placing part **/
-    public static final PlacementMode stencil = new PlacementModeStencil("placement.mode.stencil", PreviewMode.LINES);
+    public static final PlacementMode stencil = new PlacementModeStencil(PreviewMode.LINES);
     
     /** Will not place anything but just remove the shape, basically like replace without the placing part **/
-    public static final PlacementMode colorize = new PlacementModeColorize("placement.mode.colorize", PreviewMode.LINES);
+    public static final PlacementMode colorize = new PlacementModeColorize(PreviewMode.LINES);
     
     private static final TextMapBuilder<PlacementMode> map = new TextMapBuilder<>();
     
@@ -67,7 +65,7 @@ public abstract class PlacementMode {
     
     public void register(String id, PlacementMode handler) {
         REGISTRY.register(id, handler);
-        map.addComponent(handler, Component.translatable(handler.name));
+        map.addComponent(handler, Component.translatable("placement.mode." + id));
     }
     
     public static TextMapBuilder<PlacementMode> map() {
@@ -75,6 +73,7 @@ public abstract class PlacementMode {
     }
     
     static {
+        REGISTRY.registerDefault("normal", normal);
         REGISTRY.register("fill", fill);
         REGISTRY.register("all", all);
         REGISTRY.register("overwrite", overwrite);
@@ -84,12 +83,10 @@ public abstract class PlacementMode {
         REGISTRY.register("colorize", colorize);
     }
     
-    public final String name;
     public final boolean placeInside;
     private final PreviewMode mode;
     
-    public PlacementMode(String name, PreviewMode mode, boolean placeInside) {
-        this.name = name;
+    public PlacementMode(PreviewMode mode, boolean placeInside) {
         this.mode = mode;
         this.placeInside = placeInside;
     }
@@ -122,6 +119,14 @@ public abstract class PlacementMode {
     }
     
     public void prepareBlock(PlacementContext context) {}
+    
+    public String translatableKey() {
+        return "placement.mode." + REGISTRY.getId(this);
+    }
+    
+    public Component translatable() {
+        return Component.translatable(translatableKey());
+    }
     
     public static enum PreviewMode {
         LINES,

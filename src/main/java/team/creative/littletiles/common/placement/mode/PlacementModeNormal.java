@@ -14,8 +14,8 @@ import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeNormal extends PlacementMode {
     
-    public PlacementModeNormal(String name, PreviewMode mode, boolean placeInside) {
-        super(name, mode, placeInside);
+    public PlacementModeNormal(PreviewMode mode, boolean placeInside) {
+        super(mode, placeInside);
     }
     
     @Override

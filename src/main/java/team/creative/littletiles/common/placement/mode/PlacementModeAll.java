@@ -9,8 +9,8 @@ import net.minecraft.core.BlockPos;
 
 public class PlacementModeAll extends PlacementModeNormal {
     
-    public PlacementModeAll(String name, PreviewMode mode) {
-        super(name, mode, false);
+    public PlacementModeAll(PreviewMode mode) {
+        super(mode, false);
     }
     
     @Override

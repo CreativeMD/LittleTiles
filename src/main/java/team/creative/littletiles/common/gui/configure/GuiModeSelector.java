@@ -24,7 +24,7 @@ public abstract class GuiModeSelector extends GuiConfigure {
                 TextBuilder builder = new TextBuilder();
                 if (getMode().canPlaceStructures())
                     builder.text("" + ChatFormatting.BOLD).translate("placement.mode.placestructure").text("" + ChatFormatting.WHITE).newLine();
-                builder.translate(getMode().name + ".tooltip");
+                builder.translate(getMode().translatableKey() + ".tooltip");
                 ((GuiLabel) get("text")).setTitle(builder.build());
             }
         });

@@ -14,8 +14,8 @@ import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeFill extends PlacementMode {
     
-    public PlacementModeFill(String name, PreviewMode mode) {
-        super(name, mode, false);
+    public PlacementModeFill(PreviewMode mode) {
+        super(mode, false);
     }
     
     @Override

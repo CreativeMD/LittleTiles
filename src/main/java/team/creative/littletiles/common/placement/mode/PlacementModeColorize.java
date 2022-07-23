@@ -14,8 +14,8 @@ import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeColorize extends PlacementMode {
     
-    public PlacementModeColorize(String name, PreviewMode mode) {
-        super(name, mode, true);
+    public PlacementModeColorize(PreviewMode mode) {
+        super(mode, true);
     }
     
     @Override
