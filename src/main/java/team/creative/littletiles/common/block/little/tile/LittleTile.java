@@ -1,9 +1,9 @@
 package team.creative.littletiles.common.block.little.tile;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 
@@ -161,7 +161,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     public LittleTile copy() {
-        List<LittleBox> boxes = new CopyOnWriteArrayList<>();
+        Collection<LittleBox> boxes = new CopyArrayCollection<>();
         for (LittleBox box : this.boxes)
             boxes.add(box.copy());
         return new LittleTile(this, boxes);
@@ -172,7 +172,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     public LittleTile copyEmpty() {
-        return new LittleTile(this, new CopyOnWriteArrayList<>());
+        return new LittleTile(this, new CopyArrayCollection<>());
     }
     
     @Override

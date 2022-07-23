@@ -363,15 +363,12 @@ public class LittleBox {
                     int maxZ = Math.min(this.maxZ + vec.z, z * grid.count + grid.count);
                     
                     if (maxX > minX && maxY > minY && maxZ > minZ) {
-                        
                         BlockPos pos = new BlockPos(x + offset.getX(), y + offset.getY(), z + offset.getZ());
-                        int offsetX = x * grid.count;
-                        int offsetY = y * grid.count;
-                        int offsetZ = z * grid.count;
                         
                         LittleBox box = extractBox(minX - vec.x, minY - vec.y, minZ - vec.z, maxX - vec.x, maxY - vec.y, maxZ - vec.z, volume);
                         if (box != null) {
-                            box.sub(offsetX - vec.x, offsetY - vec.y, offsetZ - vec.z);
+                            box.add(vec);
+                            box.sub(x * grid.count, y * grid.count, z * grid.count);
                             boxes.add(pos, box);
                         }
                     }

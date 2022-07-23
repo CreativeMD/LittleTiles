@@ -66,8 +66,9 @@ public class PlacementContext {
     }
     
     public void placeTile(LittleTile tile) {
+        parent.add(tile.copy());
         result.addPlacedTile(parent, tile);
-        parent.add(tile);
+        
     }
     
 }

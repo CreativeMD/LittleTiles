@@ -43,9 +43,9 @@ public class PlacementModeNormal extends PlacementMode {
         boolean isSpace = true;
         for (LittleBox box : tile) {
             if (context.isSpaceFor(box))
-                boxes.add(box);
+                boxes.add(box.copy());
             else {
-                context.addUnplaceable(tile, box);
+                context.addUnplaceable(tile, box.copy());
                 isSpace = false;
             }
         }

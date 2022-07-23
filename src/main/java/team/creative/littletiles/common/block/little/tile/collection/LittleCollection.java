@@ -221,6 +221,11 @@ public class LittleCollection implements Iterable<LittleTile> {
         return content.iterator().next();
     }
     
+    @Override
+    public String toString() {
+        return content.toString();
+    }
+    
     public static void load(LittleCollection collection, CompoundTag nbt) {
         collection.clear();
         
