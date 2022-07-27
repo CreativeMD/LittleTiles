@@ -419,7 +419,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         return inventories;
     }
     
-    public static boolean isBlockValid(Block block) {
+    private static boolean isBlockValid(Block block) {
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
         return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock;

@@ -144,7 +144,7 @@ public class GuiScrewdriver extends GuiConfigure {
                 ItemStack stackReplace = replacement.getSelected();
                 if (stackReplace != null) {
                     Block replacementBlock = Block.byItem(stackReplace.getItem());
-                    if (!LittleAction.isBlockValid(replacementBlock)) {
+                    if (!LittleAction.isBlockValid(replacementBlock.defaultBlockState())) {
                         GuiDialogHandler.openDialog(this, "screwdriver_dialog", Component.translatable("dialog.screwdriver.invalid_replacement"), (x, y) -> {}, DialogButton.OK);
                         return null;
                     }

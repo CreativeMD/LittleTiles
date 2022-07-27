@@ -31,7 +31,7 @@ public class LittleGuiUtils {
         @Override
         public boolean allow(ItemStack stack) {
             if (super.allow(stack))
-                return LittleAction.isBlockValid(Block.byItem(stack.getItem()));
+                return LittleAction.isBlockValid(Block.byItem(stack.getItem()).defaultBlockState());
             return false;
         }
         
