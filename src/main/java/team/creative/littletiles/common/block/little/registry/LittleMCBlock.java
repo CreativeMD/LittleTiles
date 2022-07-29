@@ -40,7 +40,7 @@ public class LittleMCBlock implements LittleBlock {
     
     public LittleMCBlock(Block block) {
         this.block = block;
-        this.translucent = !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid() || block.defaultBlockState().canOcclude(); // Also depends on block model
+        this.translucent = !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid(); // Also depends on block model
     }
     
     @Override
