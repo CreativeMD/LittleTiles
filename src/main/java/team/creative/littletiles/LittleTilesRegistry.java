@@ -52,7 +52,7 @@ public class LittleTilesRegistry {
     
     public static final RegistryObject<Item> HAMMER = ITEMS.register("hammer", () -> new ItemLittleHammer());
     public static final RegistryObject<Item> BLUEPRINT = ITEMS.register("blueprint", () -> new ItemLittleBlueprint());
-    public static final RegistryObject<Item> ITEM_TILES = ITEMS.register("tiles", () -> new ItemMultiTiles());
+    public static final RegistryObject<Item> ITEM_TILES = ITEMS.register("multi_tiles", () -> new ItemMultiTiles());
     public static final RegistryObject<Item> SAW = ITEMS.register("saw", () -> new ItemLittleSaw());
     public static final RegistryObject<Item> BAG = ITEMS.register("bag", () -> new ItemLittleBag());
     public static final RegistryObject<Item> WRENCH = ITEMS.register("wrench", () -> new ItemLittleWrench());
