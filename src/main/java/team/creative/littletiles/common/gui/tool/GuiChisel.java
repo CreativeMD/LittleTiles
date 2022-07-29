@@ -3,6 +3,7 @@ package team.creative.littletiles.common.gui.tool;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
@@ -33,6 +34,7 @@ public class GuiChisel extends GuiConfigureTool {
                 updateLabel();
         });
         flow = GuiFlow.STACK_Y;
+        align = Align.STRETCH;
     }
     
     @Override
