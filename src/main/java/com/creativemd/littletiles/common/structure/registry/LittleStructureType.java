@@ -81,7 +81,7 @@ public class LittleStructureType {
     }
     
     public LittleStructureType addOutput(String name, int bandwidth, SignalMode defaultMode, boolean sync) {
-        outputs.add(new InternalComponentOutput(name, bandwidth, inputs.size(), defaultMode, sync));
+        outputs.add(new InternalComponentOutput(name, bandwidth, outputs.size(), defaultMode, sync));
         return this;
     }
     
