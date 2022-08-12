@@ -32,8 +32,18 @@ public class BlockSignalConverter extends BaseEntityBlock {
     }
     
     @Override
+    public BlockState rotate(BlockState state, LevelAccessor world, BlockPos pos, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+    
+    @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+    
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
     
     @Override
@@ -94,16 +104,6 @@ public class BlockSignalConverter extends BaseEntityBlock {
         if (iblockstate.isSignalSource())
             return level.getDirectSignal(pos, side);
         return 0;
-    }
-    
-    @Override
-    public BlockState rotate(BlockState state, LevelAccessor world, BlockPos pos, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
-    }
-    
-    @Override
-    public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
     
     @Override

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -104,9 +105,7 @@ public class LittleTilesRegistry {
     public static final RegistryObject<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED)
             .noCollission()));
     public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)
-            .noCollission().lightLevel((x) -> {
-                return 15;
-            })));
+            .noCollission().lightLevel(x -> 15)));
     
     public static final RegistryObject<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of(Material.WOOD).destroyTime(1.5F).strength(1.5F)
             .sound(SoundType.WOOD)));
@@ -126,7 +125,7 @@ public class LittleTilesRegistry {
     
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<? extends T> sup) {
         RegistryObject<T> ret = BLOCKS.register(name, sup);
-        ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties().tab(LittleTiles.LITTLE_TAB)));
+        ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties().tab(CreativeModeTab.TAB_DECORATIONS)));
         return ret;
     }
     

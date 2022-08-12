@@ -75,11 +75,10 @@ import team.creative.littletiles.common.structure.type.premade.LittleExporter;
 import team.creative.littletiles.common.structure.type.premade.LittleImporter;
 import team.creative.littletiles.server.LittleTilesServer;
 
-@Mod(value = LittleTiles.MODID)
+@Mod(LittleTiles.MODID)
 public class LittleTiles {
     
     public static final String MODID = "littletiles";
-    public static final String VERSION = "1.6.0";
     
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
