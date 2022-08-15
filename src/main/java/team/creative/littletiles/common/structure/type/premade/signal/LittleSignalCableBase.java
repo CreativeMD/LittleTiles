@@ -534,7 +534,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             if (connection != null) {
                 connection.disconnect(facing.opposite(), LittleSignalCableBase.this);
                 if (hasNetwork())
-                    getNetwork().remove(connection);
+                    getNetwork().remove(LittleSignalCableBase.this);
             }
             connection = null;
             updateStructure();
