@@ -852,9 +852,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return -1;
     }
     
-    public void paint(int color) {
-        
-    }
+    public void paint(int color) {}
     
     public void tick() {}
     
