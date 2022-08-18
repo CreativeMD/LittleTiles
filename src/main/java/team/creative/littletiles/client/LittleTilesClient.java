@@ -15,8 +15,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
@@ -219,7 +217,7 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "tiles"), new LittleModelItemTilesBig());
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
             @Override
-            public List<? extends RenderBox> getBoxes(ItemStack stack, RenderType layer) {
+            public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
                 if (!stack.getOrCreateTag().contains("structure"))
                     return Collections.EMPTY_LIST;
                 
@@ -229,9 +227,9 @@ public class LittleTilesClient {
                 LittleGroup previews = ((ItemPremadeStructure) stack.getItem()).getTiles(stack);
                 if (previews == null)
                     return Collections.EMPTY_LIST;
-                List<RenderBox> cubes = premade.getItemPreview(previews, layer == Sheets.translucentCullBlockSheet());
+                List<RenderBox> cubes = premade.getItemPreview(previews, translucent);
                 if (cubes == null) {
-                    cubes = previews.getRenderingBoxes(layer == Sheets.translucentCullBlockSheet());
+                    cubes = previews.getRenderingBoxes(translucent);
                     LittleGroup.shrinkCubesToOneBlock(cubes);
                 }
                 
@@ -269,7 +267,7 @@ public class LittleTilesClient {
                 .registerItemModel(new ResourceLocation(LittleTiles.MODID, "blockingredient"), new CreativeItemBoxModel(new ModelResourceLocation("miencraft", "stone", "inventory")) {
                     
                     @Override
-                    public List<? extends RenderBox> getBoxes(ItemStack stack, RenderType layer) {
+                    public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
                         List<RenderBox> cubes = new ArrayList<>();
                         BlockIngredientEntry ingredient = ItemBlockIngredient.loadIngredient(stack);
                         if (ingredient == null)

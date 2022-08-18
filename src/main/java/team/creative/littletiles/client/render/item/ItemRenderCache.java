@@ -1,12 +1,13 @@
 package team.creative.littletiles.client.render.item;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.RandomSource;
@@ -36,11 +37,11 @@ public class ItemRenderCache implements LevelAwareHandler {
         return caches.size();
     }
     
-    public List<BakedQuad> requestCache(ItemStack stack, RenderType layer, Facing facing) {
+    public List<BakedQuad> requestCache(ItemStack stack, boolean translucent) {
         synchronized (caches) {
             ItemModelCache cache = caches.get(stack);
             if (cache != null)
-                return cache.getQuads(layer, facing);
+                return cache.getQuads(translucent);
             CreativeItemBoxModel renderer = get(stack);
             if (renderer != null) {
                 if (renderer.hasTranslucentLayer(stack))
@@ -83,14 +84,17 @@ public class ItemRenderCache implements LevelAwareHandler {
                     CreativeItemBoxModel renderer = get(pair.getKey());
                     
                     if (renderer != null) {
-                        List<RenderType> layers = renderer.getLayers(pair.key, true);
+                        boolean translucent = renderer.hasTranslucentLayer(pair.key);
                         RandomSource rand = RandomSource.create();
-                        for (int i = 0; i < layers.size(); i++) {
-                            RenderType layer = layers.get(i);
-                            for (int j = 0; j < Facing.values().length; j++) {
-                                Facing facing = Facing.values()[j];
-                                pair.value.setQuads(layer, facing, CreativeBakedBoxModel.compileBoxes(renderer.getBoxes(pair.key, layer), facing, layer, rand, true));
-                            }
+                        List<BakedQuad> quads = new ArrayList<>();
+                        for (int j = 0; j < Facing.VALUES.length; j++)
+                            CreativeBakedBoxModel.compileBoxes(renderer.getBoxes(pair.key, false), Facing.VALUES[j], Sheets.cutoutBlockSheet(), rand, true, quads);
+                        pair.value.setQuads(false, quads);
+                        if (translucent) {
+                            quads = new ArrayList<>();
+                            for (int j = 0; j < Facing.VALUES.length; j++)
+                                CreativeBakedBoxModel.compileBoxes(renderer.getBoxes(pair.key, true), Facing.VALUES[j], Sheets.translucentCullBlockSheet(), rand, true, quads);
+                            pair.value.setQuads(true, quads);
                         }
                         pair.value.complete();
                     }
