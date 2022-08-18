@@ -47,7 +47,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     public static PlacementMode currentMode = PlacementMode.getDefault();
-    public static LittleGrid currentContext;
+    public static LittleGrid currentGrid;
     
     public ItemMultiTiles() {
         super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
@@ -115,11 +115,11 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemMultiTiles.currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
-                ItemMultiTiles.currentContext = grid;
+                ItemMultiTiles.currentGrid = grid;
                 ItemMultiTiles.currentMode = mode;
                 return nbt;
             }
@@ -134,7 +134,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     
     @Override
     public LittleGrid getPositionGrid(ItemStack stack) {
-        return currentContext;
+        return currentGrid;
     }
     
     @Override

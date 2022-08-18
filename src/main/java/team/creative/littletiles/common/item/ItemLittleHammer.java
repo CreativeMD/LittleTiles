@@ -177,14 +177,14 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     @Override
     @OnlyIn(Dist.CLIENT)
     public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiGridSelector(view, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
+        return new GuiGridSelector(view, ItemMultiTiles.currentGrid, isFiltered(), getFilter()) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {
                 setFilter(activeFilter, selector);
                 if (selection != null)
                     selection.convertTo(grid);
-                ItemMultiTiles.currentContext = grid;
+                ItemMultiTiles.currentGrid = grid;
                 return nbt;
             }
         };
@@ -196,7 +196,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentContext;
+        return ItemMultiTiles.currentGrid;
     }
     
     @Override

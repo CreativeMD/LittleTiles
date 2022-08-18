@@ -262,7 +262,7 @@ public class LittleTilesConfig {
         @Override
         public void configured(Side side) {
             LittleGrid.loadGrid(base, scale, exponent, LittleTiles.CONFIG.general.defaultSelectedGrid);
-            ItemMultiTiles.currentContext = LittleGrid.defaultGrid();
+            ItemMultiTiles.currentGrid = LittleGrid.defaultGrid();
             ItemLittleBag.maxStackSizeOfTiles = (int) (ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d);
             LittlePremadeRegistry.reload();
             ItemMultiTiles.reloadExampleStructures();

@@ -252,14 +252,14 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentContext, currentMode) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
                 currentMode = mode;
                 if (selection != null)
                     selection.convertTo(grid);
-                ItemMultiTiles.currentContext = grid;
+                ItemMultiTiles.currentGrid = grid;
                 return nbt;
             }
         };
@@ -280,7 +280,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentContext;
+        return ItemMultiTiles.currentGrid;
     }
     
     @Override

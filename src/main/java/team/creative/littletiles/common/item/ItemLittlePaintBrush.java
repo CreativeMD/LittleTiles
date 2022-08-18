@@ -176,7 +176,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentContext;
+        return ItemMultiTiles.currentGrid;
     }
     
     @Override
@@ -198,14 +198,14 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiGridSelector(view, ItemMultiTiles.currentContext, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
+        return new GuiGridSelector(view, ItemMultiTiles.currentGrid, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {
                 ItemLittleHammer.setFilter(activeFilter, selector);
                 if (selection != null)
                     selection.convertTo(grid);
-                ItemMultiTiles.currentContext = grid;
+                ItemMultiTiles.currentGrid = grid;
                 return nbt;
             }
         };

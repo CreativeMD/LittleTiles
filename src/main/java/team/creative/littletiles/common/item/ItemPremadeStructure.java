@@ -43,17 +43,17 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     @Override
     @OnlyIn(Dist.CLIENT)
     public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentContext;
+        return ItemMultiTiles.currentGrid;
     }
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemLittleChisel.currentMode) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemLittleChisel.currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
                 ItemLittleChisel.currentMode = mode;
-                ItemMultiTiles.currentContext = grid;
+                ItemMultiTiles.currentGrid = grid;
                 return nbt;
             }
         };

@@ -156,11 +156,11 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     
     @Override
     public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemMultiTiles.currentMode) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
-                ItemMultiTiles.currentContext = grid;
+                ItemMultiTiles.currentGrid = grid;
                 ItemMultiTiles.currentMode = mode;
                 return null;
             }
@@ -170,7 +170,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     
     @Override
     public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentContext;
+        return ItemMultiTiles.currentGrid;
     }
     
     public static GloveMode getMode(ItemStack stack) {
