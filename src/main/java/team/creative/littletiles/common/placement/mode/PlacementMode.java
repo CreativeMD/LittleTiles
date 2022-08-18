@@ -17,7 +17,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 
 public abstract class PlacementMode {
     
-    public static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(null);
+    private static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(null);
     
     public static final PlacementMode normal = new PlacementModeNormal(PreviewMode.PREVIEWS, false);
     
@@ -63,8 +63,13 @@ public abstract class PlacementMode {
         return getStructureDefault();
     }
     
-    public void register(String id, PlacementMode handler) {
+    public static void register(String id, PlacementMode handler) {
         REGISTRY.register(id, handler);
+        map.addComponent(handler, Component.translatable("placement.mode." + id));
+    }
+    
+    private static void registerDefault(String id, PlacementMode handler) {
+        REGISTRY.registerDefault(id, handler);
         map.addComponent(handler, Component.translatable("placement.mode." + id));
     }
     
@@ -73,14 +78,14 @@ public abstract class PlacementMode {
     }
     
     static {
-        REGISTRY.registerDefault("normal", normal);
-        REGISTRY.register("fill", fill);
-        REGISTRY.register("all", all);
-        REGISTRY.register("overwrite", overwrite);
-        REGISTRY.register("overwrite_all", overwrite_all);
-        REGISTRY.register("replace", replace);
-        REGISTRY.register("stencil", stencil);
-        REGISTRY.register("colorize", colorize);
+        register("normal", normal);
+        registerDefault("fill", fill);
+        register("all", all);
+        register("overwrite", overwrite);
+        register("overwrite_all", overwrite_all);
+        register("replace", replace);
+        register("stencil", stencil);
+        register("colorize", colorize);
     }
     
     public final boolean placeInside;
@@ -89,6 +94,10 @@ public abstract class PlacementMode {
     public PlacementMode(PreviewMode mode, boolean placeInside) {
         this.mode = mode;
         this.placeInside = placeInside;
+    }
+    
+    public String getId() {
+        return REGISTRY.getId(this);
     }
     
     public PreviewMode getPreviewMode() {
