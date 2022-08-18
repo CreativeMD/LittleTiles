@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.item.ItemMultiTiles;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleModelItemPreview extends LittleModelItemBackground {
@@ -27,7 +28,7 @@ public class LittleModelItemPreview extends LittleModelItemBackground {
     
     @Override
     protected ItemStack getFakeStack(ItemStack current) {
-        return new ItemStack(func.apply(current).getState().getBlock());
+        return ItemMultiTiles.of(func.apply(current));
     }
     
     @Override
