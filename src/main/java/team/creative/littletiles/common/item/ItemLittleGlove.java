@@ -45,8 +45,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiGlove;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.level.LittleLevelScanner;
@@ -155,20 +154,6 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemMultiTiles.currentMode) {
-            
-            @Override
-            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
-                ItemMultiTiles.currentGrid = grid;
-                ItemMultiTiles.currentMode = mode;
-                return null;
-            }
-            
-        };
-    }
-    
-    @Override
     public LittleGrid getPositionGrid(ItemStack stack) {
         return ItemMultiTiles.currentGrid;
     }
@@ -183,8 +168,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { Component.translatable(getMode(stack).title), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced
-                .getTranslatedKeyMessage() };
+        return new Object[] { Component.translatable(getMode(stack).title), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
     
     public static abstract class GloveMode {

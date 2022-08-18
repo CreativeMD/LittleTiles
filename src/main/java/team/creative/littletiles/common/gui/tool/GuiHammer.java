@@ -61,7 +61,11 @@ public class GuiHammer extends GuiConfigureTool {
         add(box);
         add(scroll);
         
-        add(new GuiGridConfig("grid", ItemMultiTiles.currentGrid, x -> ItemMultiTiles.currentGrid = x));
+        add(new GuiGridConfig("grid", ItemMultiTiles.currentGrid, x -> {
+            ItemMultiTiles.currentGrid = x;
+            if (ItemLittleHammer.selection != null)
+                ItemLittleHammer.selection.convertTo(x);
+        }));
         
         BiFilter<IParentCollection, LittleTile> selector = ItemLittleHammer.getFilter();
         boolean activeFilter = ItemLittleHammer.isFiltered();

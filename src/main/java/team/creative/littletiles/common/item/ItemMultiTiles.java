@@ -23,8 +23,8 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiModeSelector;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -114,7 +114,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemMultiTiles.currentMode) {
             
             @Override

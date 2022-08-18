@@ -40,7 +40,6 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.filter.TileFilters;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.level.LittleLevelScanner;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.PlacementPreview;

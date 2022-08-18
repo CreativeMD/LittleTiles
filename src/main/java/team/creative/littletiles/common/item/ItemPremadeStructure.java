@@ -19,8 +19,8 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiModeSelector;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -47,7 +47,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemLittleChisel.currentMode) {
             
             @Override

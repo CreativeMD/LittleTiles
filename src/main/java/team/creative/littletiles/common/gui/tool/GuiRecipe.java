@@ -5,7 +5,6 @@ import net.minecraft.nbt.StringTag;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
 
 public class GuiRecipe extends GuiConfigure implements IAnimationControl {

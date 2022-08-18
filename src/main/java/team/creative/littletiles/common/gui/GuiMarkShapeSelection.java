@@ -3,7 +3,7 @@ package team.creative.littletiles.common.gui;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public class GuiMarkShapeSelection extends GuiConfigure {

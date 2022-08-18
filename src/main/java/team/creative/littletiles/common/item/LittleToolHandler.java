@@ -32,7 +32,7 @@ import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.api.tool.ILittleTool;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
@@ -46,12 +46,6 @@ public class LittleToolHandler {
     public static final GuiCreatorBasic OPEN_CONFIG = GuiCreator.register("configure", new GuiCreatorBasic((nbt, player) -> {
         if (player.getMainHandItem().getItem() instanceof ILittleTool)
             return ((ILittleTool) player.getMainHandItem().getItem()).getConfigure(player, ContainerSlotView.mainHand(player));
-        return null;
-    }));
-    
-    public static final GuiCreatorBasic OPEN_CONFIG_ADVANCED = GuiCreator.register("configureadvanced", new GuiCreatorBasic((nbt, player) -> {
-        if (player.getMainHandItem().getItem() instanceof ILittleTool)
-            return ((ILittleTool) player.getMainHandItem().getItem()).getConfigureAdvanced(player, ContainerSlotView.mainHand(player));
         return null;
     }));
     
@@ -162,13 +156,6 @@ public class LittleToolHandler {
                         GuiConfigure gui = ((ILittleTool) stack.getItem()).getConfigure(mc.player, ContainerSlotView.mainHand(mc.player));
                         if (gui != null)
                             OPEN_CONFIG.open(mc.player);
-                    }
-                
-                while (LittleTilesClient.configureAdvanced.consumeClick())
-                    if (stack.getItem() instanceof ILittleTool) {
-                        GuiConfigure gui = ((ILittleTool) stack.getItem()).getConfigureAdvanced(mc.player, ContainerSlotView.mainHand(mc.player));
-                        if (gui != null)
-                            OPEN_CONFIG_ADVANCED.open(mc.player);
                     }
             }
         }

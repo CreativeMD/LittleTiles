@@ -20,7 +20,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.creator.GuiCreator;
-import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -34,11 +33,8 @@ import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import team.creative.littletiles.common.api.tool.ILittleEditor;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.GuiGridSelector;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiPaintBrush;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -197,23 +193,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiGridSelector(view, ItemMultiTiles.currentGrid, ItemLittleHammer.isFiltered(), ItemLittleHammer.getFilter()) {
-            
-            @Override
-            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {
-                ItemLittleHammer.setFilter(activeFilter, selector);
-                if (selection != null)
-                    selection.convertTo(grid);
-                ItemMultiTiles.currentGrid = grid;
-                return nbt;
-            }
-        };
-    }
-    
-    @Override
     public Object[] tooltipData(ItemStack stack) {
         return new Object[] { getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
-                .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
+                .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
 }

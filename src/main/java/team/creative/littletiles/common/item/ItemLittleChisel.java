@@ -32,9 +32,8 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.GuiModeSelector;
 import team.creative.littletiles.common.gui.tool.GuiChisel;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.packet.action.BlockPacket;
@@ -251,21 +250,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, currentMode) {
-            
-            @Override
-            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
-                currentMode = mode;
-                if (selection != null)
-                    selection.convertTo(grid);
-                ItemMultiTiles.currentGrid = grid;
-                return nbt;
-            }
-        };
-    }
-    
-    @Override
     @OnlyIn(Dist.CLIENT)
     public IMarkMode onMark(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result, PlacementPreview previews) {
         if (selection != null)
@@ -286,6 +270,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @Override
     public Object[] tooltipData(ItemStack stack) {
         return new Object[] { getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
-                .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
+                .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
 }

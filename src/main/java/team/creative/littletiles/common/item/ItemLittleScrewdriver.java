@@ -20,7 +20,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiScrewdriver;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;

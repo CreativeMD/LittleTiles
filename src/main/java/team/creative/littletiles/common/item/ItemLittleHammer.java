@@ -35,8 +35,7 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.GuiGridSelector;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiHammer;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -174,22 +173,6 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         return selection;
     }
     
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiGridSelector(view, ItemMultiTiles.currentGrid, isFiltered(), getFilter()) {
-            
-            @Override
-            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, boolean activeFilter, BiFilter<IParentCollection, LittleTile> filter) {
-                setFilter(activeFilter, selector);
-                if (selection != null)
-                    selection.convertTo(grid);
-                ItemMultiTiles.currentGrid = grid;
-                return nbt;
-            }
-        };
-    }
-    
     public static LittleShape getShape(ItemStack stack) {
         return ShapeRegistry.REGISTRY.get(stack.getOrCreateTag().getString("shape"));
     }
@@ -201,7 +184,6 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.configure
-                .getTranslatedKeyMessage(), LittleTilesClient.configureAdvanced.getTranslatedKeyMessage() };
+        return new Object[] { getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
 }

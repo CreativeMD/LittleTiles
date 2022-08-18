@@ -20,8 +20,7 @@ import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
-import team.creative.littletiles.common.gui.configure.GuiModeSelector;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.GuiRecipeSelection;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
@@ -126,20 +125,6 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
         getSelectionMode(stack).leftClick(player, stack, result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), false));
         return true;
-    }
-    
-    @Override
-    public GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemMultiTiles.currentMode) {
-            
-            @Override
-            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
-                ItemMultiTiles.currentGrid = grid;
-                ItemMultiTiles.currentMode = mode;
-                return nbt;
-            }
-            
-        };
     }
     
     @Override

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.configure;
+package team.creative.littletiles.common.gui.tool;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.gui.GuiLayer;

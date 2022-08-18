@@ -13,7 +13,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
@@ -33,10 +33,6 @@ public interface ILittleTool {
     }
     
     public default GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return null;
-    }
-    
-    public default GuiConfigure getConfigureAdvanced(Player player, ContainerSlotView view) {
         return null;
     }
     

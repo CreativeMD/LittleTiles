@@ -21,7 +21,6 @@ import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.common.gui.configure.GuiConfigure;
 import team.creative.littletiles.common.gui.controls.GuiColorProgressBar;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
