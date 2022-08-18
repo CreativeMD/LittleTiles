@@ -53,7 +53,7 @@ public class GuiChisel extends GuiConfigureTool {
                 .addComponent(ShapeRegistry.placingShapes(), x -> Component.translatable(x.getTranslatableName())));
         box.select(ItemLittleChisel.getShape(tool.get()));
         add(box);
-        add(new GuiScrollY("settings").setExpandable());
+        add(new GuiScrollY("settings", 20, 60).setExpandable());
         onChange();
         
         updateLabel();
@@ -66,6 +66,7 @@ public class GuiChisel extends GuiConfigureTool {
         scroll.clear();
         for (GuiControl control : box.getSelected(ShapeRegistry.DEFAULT_SHAPE).getCustomSettings(tool.get().getTag(), getGrid()))
             scroll.add(control);
+        scroll.reflow();
     }
     
     public void updateLabel() {
