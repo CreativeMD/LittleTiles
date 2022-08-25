@@ -166,6 +166,9 @@ public class RenderingThread extends Thread {
                         for (RenderType layer : RenderType.chunkBufferLayers()) {
                             List<LittleRenderBox> cubes = data.be.render.getRenderingBoxes(data, layer);
                             
+                            if (cubes == null)
+                                continue;
+                            
                             for (int j = 0; j < cubes.size(); j++) {
                                 RenderBox cube = cubes.get(j);
                                 if (cube.doesNeedQuadUpdate) {
@@ -222,6 +225,9 @@ public class RenderingThread extends Thread {
                                 RenderType layer = entry.getKey();
                                 
                                 List<LittleRenderBox> cubes = entry.getValue();
+                                
+                                if (cubes == null)
+                                    continue;
                                 
                                 if (builder == null)
                                     builder = new BufferBuilder(131072);

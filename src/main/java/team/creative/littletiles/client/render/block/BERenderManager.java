@@ -189,7 +189,9 @@ public class BERenderManager {
         if (neighbourChanged) {
             neighbourChanged = false;
             
-            for (Entry<RenderType, List<LittleRenderBox>> entry : boxCache.entrySet())
+            for (Entry<RenderType, List<LittleRenderBox>> entry : boxCache.entrySet()) {
+                if (entry.getValue() == null)
+                    continue;
                 for (LittleRenderBox cube : entry.getValue())
                     for (int k = 0; k < Facing.VALUES.length; k++) {
                         Facing facing = Facing.VALUES[k];
@@ -198,7 +200,7 @@ public class BERenderManager {
                         if (state.outside())
                             calculateFaces(facing, state, context, (LittleTile) cube.customData, cube);
                     }
-                
+            }
         }
     }
     
@@ -230,7 +232,7 @@ public class BERenderManager {
         if (cachedCubes != null)
             return cachedCubes;
         
-        List<LittleRenderBox> boxes = new ArrayList<>();
+        List<LittleRenderBox> boxes = null;
         LittleServerFace serverFace = new LittleServerFace(be);
         
         for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
@@ -250,6 +252,8 @@ public class BERenderManager {
                 for (int k = 0; k < Facing.VALUES.length; k++)
                     calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, cube);
                 
+                if (boxes == null)
+                    boxes = new ArrayList<>();
                 boxes.add(cube);
             }
             
@@ -257,6 +261,8 @@ public class BERenderManager {
         
         for (LittleStructure structure : be.loadedStructures(LittleStructureAttribute.EXTRA_RENDERING))
             try {
+                if (boxes == null)
+                    boxes = new ArrayList<>();
                 structure.checkConnections();
                 structure.getRenderingBoxes(be.getBlockPos(), layer, boxes);
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
