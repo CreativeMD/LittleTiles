@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiArraySlider;
@@ -83,7 +84,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         GuiComboBoxMapped<SelectionMode> box = new GuiComboBoxMapped<>("selection_mode", new TextMapBuilder<SelectionMode>()
                 .addEntrySet(SelectionMode.REGISTRY.entrySet(), x -> x.getValue().getTranslation()));
         box.select(mode);
-        add(box);
+        add(box.setExpandableX());
         
         result = mode.generateResult(getPlayer().level, stack);
         
@@ -113,12 +114,16 @@ public class GuiRecipeSelection extends GuiConfigure {
         add(new GuiCheckBox("remember_structure", true).setTranslate("selection.include.structure"));
         // accurate
         GuiParent scale = new GuiParent(GuiFlow.STACK_X);
+        add(scale);
+        
         GuiLabel label = new GuiLabel("label_scale").setTitle(Component.translatable("selection.scale").append(": "));
         scale.add(label);
-        scale.add(new GuiArraySlider("scale"));
+        scale.add(new GuiArraySlider("scale").setExpandableX());
         updateSlider();
         
-        add(new GuiButton("save", x -> {
+        GuiParent bottom = new GuiParent(GuiFlow.STACK_X).setAlign(Align.RIGHT);
+        add(bottom.setExpandableX());
+        bottom.add(new GuiButton("save", x -> {
             boolean rememberStructure = ((GuiCheckBox) get("remember_structure")).value;
             boolean includeVanilla = ((GuiCheckBox) get("includeVanilla")).value;
             boolean includeCB = ((GuiCheckBox) get("includeCB")).value;
