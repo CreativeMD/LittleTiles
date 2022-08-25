@@ -11,6 +11,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.structure.LittleStructure;
 
@@ -27,7 +28,9 @@ public class LittlePlaceBoxFacing extends LittlePlaceBox {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public LittleRenderBox getRenderBox(LittleGrid grid) {
+    public LittleRenderBox getRenderBox(LittleGrid grid, LittleVec offset) {
+        LittleBox box = this.box.copy();
+        box.add(offset);
         LittleRenderBox cube = new LittleRenderBox(grid, box, new LittleElement(LittleTilesRegistry.CLEAN.get().defaultBlockState(), color));
         float thickness = 1 / 32F;
         Axis axis = facing.axis;

@@ -20,8 +20,8 @@ public abstract class LittlePlaceBox {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public LittleRenderBox getRenderBox(LittleGrid grid) {
-        return box.getRenderingBox(grid);
+    public LittleRenderBox getRenderBox(LittleGrid grid, LittleVec offset) {
+        return box.getRenderingBox(grid, offset);
     }
     
     public abstract void place(Placement placement, LittleGrid grid, BlockPos pos, LittleStructure structure) throws LittleActionException;

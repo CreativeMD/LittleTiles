@@ -7,6 +7,7 @@ import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
@@ -25,8 +26,8 @@ public class LittlePlaceBoxRelative extends LittlePlaceBox {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public LittleRenderBox getRenderBox(LittleGrid grid) {
-        LittleRenderBox cube = super.getRenderBox(grid);
+    public LittleRenderBox getRenderBox(LittleGrid grid, LittleVec vec) {
+        LittleRenderBox cube = super.getRenderBox(grid, vec);
         cube.color = relativeType.annotation.color();
         return cube;
     }

@@ -23,6 +23,10 @@ public class LittleBoxAbsolute implements IGridBased {
     }
     
     public LittleBoxAbsolute(BlockPos pos, LittleBox box, LittleGrid grid) {
+        set(pos, box, grid);
+    }
+    
+    public void set(BlockPos pos, LittleBox box, LittleGrid grid) {
         this.pos = pos;
         this.box = box;
         this.grid = grid;
@@ -73,12 +77,12 @@ public class LittleBoxAbsolute implements IGridBased {
     
     public int getMinPos(Axis axis) {
         switch (axis) {
-        case X:
-            return pos.getX() + grid.toBlockOffset(box.minX);
-        case Y:
-            return pos.getY() + grid.toBlockOffset(box.minY);
-        case Z:
-            return pos.getZ() + grid.toBlockOffset(box.minZ);
+            case X:
+                return pos.getX() + grid.toBlockOffset(box.minX);
+            case Y:
+                return pos.getY() + grid.toBlockOffset(box.minY);
+            case Z:
+                return pos.getZ() + grid.toBlockOffset(box.minZ);
         }
         return 0;
     }
@@ -98,12 +102,12 @@ public class LittleBoxAbsolute implements IGridBased {
     
     public int getMaxPos(Axis axis) {
         switch (axis) {
-        case X:
-            return pos.getX() + grid.toBlockOffset(box.maxX);
-        case Y:
-            return pos.getY() + grid.toBlockOffset(box.maxY);
-        case Z:
-            return pos.getZ() + grid.toBlockOffset(box.maxZ);
+            case X:
+                return pos.getX() + grid.toBlockOffset(box.maxX);
+            case Y:
+                return pos.getY() + grid.toBlockOffset(box.maxY);
+            case Z:
+                return pos.getZ() + grid.toBlockOffset(box.maxZ);
         }
         return 0;
     }

@@ -59,6 +59,7 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode.PreviewMode;
+import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
 public class PreviewRenderer implements LevelAwareHandler {
     
@@ -85,15 +86,22 @@ public class PreviewRenderer implements LevelAwareHandler {
      *            if centered is true it will be used to apply the offset
      * @param fixed
      *            if the previews should keep it's original boxes */
-    public PlacementPreview getPreviews(Level level, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution) {
+    public PlacementPreview getPreviews(Entity entity, Level level, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         
         PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews
                 .copy() : null;
+        if (preview != null)
+            try {
+                preview.moveRelative(entity, stack, position, centered, fixed);
+            } catch (MissingAnimationException e) {
+                preview = null;
+            }
+        
         if (preview == null && iTile != null)
             preview = iTile.getPlacement(level, stack, position, allowLowResolution);
         
-        if (preview != null) {
+        if (preview != null)
             if (stack.getTag() == null) {
                 lastCached = null;
                 lastPreviews = null;
@@ -102,7 +110,6 @@ public class PreviewRenderer implements LevelAwareHandler {
                 lastCached = stack.getTag().copy();
                 lastPreviews = preview.copy();
             }
-        }
         return preview;
     }
     
@@ -202,7 +209,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
                         
                         boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-                        PlacementPreview result = getPreviews(level, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution);
+                        PlacementPreview result = getPreviews(player, level, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution);
                         
                         if (result != null) {
                             BlockPos pos = result.position.getPos();
@@ -217,7 +224,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                             double alpha = (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5);
                             int colorAlpha = (int) (alpha * iTile.getPreviewAlphaFactor() * 255);
                             
-                            for (RenderBox box : result.previews.getPlaceBoxes())
+                            for (RenderBox box : result.previews.getPlaceBoxes(result.position.getVec()))
                                 box.renderPreview(pose, builder, colorAlpha);
                             
                             if (LittleActionHandlerClient.isUsingSecondMode() != iTile.snapToGridByDefault(stack)) {
@@ -391,7 +398,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                     PlacementPosition position = getPosition(level, stack, blockHit);
                     boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                     
-                    PlacementPreview result = getPreviews(level, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution);
+                    PlacementPreview result = getPreviews(player, level, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution);
                     
                     if (result != null) {
                         processMarkKey(player, iTile, stack, result);
@@ -404,7 +411,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                         RenderSystem.lineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
                         
                         int colorAlpha = 102;
-                        for (RenderBox box : result.previews.getPlaceBoxes())
+                        for (RenderBox box : result.previews.getPlaceBoxes(result.position.getVec()))
                             box.renderLines(pose, bufferbuilder, colorAlpha, box.getCenter(), 0.002);
                         
                         if (LittleActionHandlerClient.isUsingSecondMode() != iTile.snapToGridByDefault(stack)) {

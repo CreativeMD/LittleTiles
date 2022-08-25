@@ -124,6 +124,11 @@ public class LittleBox {
                 .toVanillaGrid(maxY), (float) grid.toVanillaGrid(maxZ));
     }
     
+    public AlignedBox getBox(LittleGrid grid, LittleVec offset) {
+        return new AlignedBox((float) grid.toVanillaGrid(minX + offset.x), (float) grid.toVanillaGrid(minY + offset.y), (float) grid.toVanillaGrid(minZ + offset.z), (float) grid
+                .toVanillaGrid(maxX + offset.x), (float) grid.toVanillaGrid(maxY + offset.y), (float) grid.toVanillaGrid(maxZ + offset.z));
+    }
+    
     // ================Save================
     
     public void changed() {
@@ -1157,8 +1162,22 @@ public class LittleBox {
     }
     
     @OnlyIn(value = Dist.CLIENT)
+    public LittleRenderBox getRenderingBox(LittleGrid grid, LittleVec vec) {
+        LittleBox box = copy();
+        box.add(vec);
+        return new LittleRenderBox(grid, box);
+    }
+    
+    @OnlyIn(value = Dist.CLIENT)
     public LittleRenderBox getRenderingBox(LittleGrid grid, BlockState state) {
         return new LittleRenderBox(grid, this, state);
+    }
+    
+    @OnlyIn(value = Dist.CLIENT)
+    public LittleRenderBox getRenderingBox(LittleGrid grid, BlockState state, LittleVec vec) {
+        LittleBox box = copy();
+        box.add(vec);
+        return new LittleRenderBox(grid, box, state);
     }
     
     @OnlyIn(value = Dist.CLIENT)

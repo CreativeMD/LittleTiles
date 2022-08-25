@@ -498,24 +498,24 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public List<RenderBox> getPlaceBoxes() {
+    public List<RenderBox> getPlaceBoxes(LittleVec offset) {
         List<RenderBox> boxes = new ArrayList<>();
-        addPlaceBoxes(boxes);
+        addPlaceBoxes(boxes, offset);
         return boxes;
     }
     
     @OnlyIn(Dist.CLIENT)
-    protected void addPlaceBoxes(List<RenderBox> boxes) {
+    protected void addPlaceBoxes(List<RenderBox> boxes, LittleVec offset) {
         for (LittleTile tile : content)
-            tile.addPlaceBoxes(grid, boxes);
+            tile.addPlaceBoxes(grid, boxes, offset);
         if (hasStructure()) {
             List<LittlePlaceBox> structureBoxes = getStructureType().getSpecialBoxes(this);
             if (structureBoxes != null)
                 for (LittlePlaceBox box : structureBoxes)
-                    boxes.add(box.getRenderBox(grid));
+                    boxes.add(box.getRenderBox(grid, offset));
         }
         for (LittleGroup child : children.all())
-            child.addPlaceBoxes(boxes);
+            child.addPlaceBoxes(boxes, offset);
     }
     
     @OnlyIn(Dist.CLIENT)
