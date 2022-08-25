@@ -69,7 +69,7 @@ public class GuiChisel extends GuiConfigureTool {
         GuiParent parent = new GuiParent(GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         left.add(parent);
         parent.add(new GuiShowItem("item", 60, 60));
-        add(new GuiGridConfig("grid", ItemMultiTiles.currentGrid, x -> {
+        parent.add(new GuiGridConfig("grid", ItemMultiTiles.currentGrid, x -> {
             ItemMultiTiles.currentGrid = x;
             if (ItemLittleChisel.selection != null)
                 ItemLittleChisel.selection.convertTo(x);
