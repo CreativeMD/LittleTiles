@@ -179,6 +179,8 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     public void removed() {
+        if (isMain())
+            ((LittleStructure) cache).unload();
         parent = null;
     }
     

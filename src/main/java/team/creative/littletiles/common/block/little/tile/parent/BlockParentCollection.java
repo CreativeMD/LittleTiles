@@ -31,9 +31,15 @@ public class BlockParentCollection extends ParentCollection {
         this.client = client;
     }
     
+    private void clearStructures() {
+        for (StructureParentCollection structure : structures.values())
+            structure.unload();
+        structures.clear();
+    }
+    
     @Override
     protected void loadExtra(CompoundTag nbt) {
-        structures.clear();
+        clearStructures();
         ListTag list = nbt.getList("children", 10);
         for (int i = 0; i < list.size(); i++) {
             StructureParentCollection child = new StructureParentCollection(this, list.getCompound(i));
@@ -52,7 +58,7 @@ public class BlockParentCollection extends ParentCollection {
     
     public void clearEverything() {
         super.clear();
-        structures.clear();
+        clearStructures();
     }
     
     public int countStructures() {
