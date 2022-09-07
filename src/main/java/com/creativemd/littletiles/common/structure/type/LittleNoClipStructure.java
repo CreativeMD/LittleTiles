@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.structure.type;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
@@ -20,6 +21,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;

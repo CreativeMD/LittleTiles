@@ -1,10 +1,7 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
@@ -1067,7 +1064,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         
         AxisAlignedBB box = getSurroundingBox().getAABB();
         HashMap<Entity, AxisAlignedBB> collided = new HashMap<>();
-        for (Entry<Entity, AxisAlignedBB> entry : entities.entrySet())
+        for (Map.Entry<Entity, AxisAlignedBB> entry : entities.entrySet())
             if (entry.getValue().intersects(box))
                 collided.put(entry.getKey(), entry.getValue());
         
