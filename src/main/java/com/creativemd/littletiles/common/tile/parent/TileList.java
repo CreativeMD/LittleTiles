@@ -30,10 +30,15 @@ public class TileList extends ParentTileList {
         this.te = te;
         this.client = client;
     }
-    
+
+    private void clearStructures() {
+        for (StructureTileList structure : structures.values())
+            structure.unload();
+        structures.clear();
+    }
     @Override
     protected void readExtra(NBTTagCompound nbt) {
-        structures.clear();
+        clearStructures();
         NBTTagList list = nbt.getTagList("children", 10);
         for (int i = 0; i < list.tagCount(); i++) {
             StructureTileList child = new StructureTileList(this, list.getCompoundTagAt(i));
@@ -52,7 +57,7 @@ public class TileList extends ParentTileList {
     
     public void clearEverything() {
         super.clear();
-        structures.clear();
+        clearStructures();
     }
     
     public int countStructures() {

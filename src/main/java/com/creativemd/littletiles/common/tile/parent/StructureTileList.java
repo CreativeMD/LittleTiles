@@ -181,6 +181,8 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     }
     
     public void removed() {
+        if (isMain())
+            ((LittleStructure) cache).unload();
         parent = null;
     }
     
