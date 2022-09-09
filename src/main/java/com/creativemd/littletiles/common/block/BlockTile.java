@@ -456,8 +456,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     @SideOnly(Side.CLIENT)
     public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
         TEResult result = loadTeAndTile(worldIn, pos, playerIn);
-        if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) && LittleTilesClient.INTERACTION.start(true))
-            return new LittleActionActivated(worldIn, pos, playerIn).execute();
+        if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) && LittleTilesClient.INTERACTION.start(true)) {
+            boolean interacted = new LittleActionActivated(worldIn, pos, playerIn).execute();
+            if (!interacted)
+                LittleTilesClient.INTERACTION.finish();
+            return interacted;
+        }
         return false;
     }
     
