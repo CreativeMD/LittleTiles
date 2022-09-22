@@ -45,6 +45,10 @@ public class SignalInputVariable extends SignalInputCondition {
     }
     
     public static SignalInputVariable parseInput(SignalPatternParser parser, boolean insideVariable) throws ParseException {
+        return parseInput(parser, insideVariable, false);
+    }
+    
+    public static SignalInputVariable parseInput(SignalPatternParser parser, boolean insideVariable, boolean forceBitwise) throws ParseException {
         SignalTarget target = SignalTarget.parseTarget(parser, false, insideVariable);
         if (!insideVariable && parser.lookForNext(false) == '{') {
             parser.next(false);
@@ -53,7 +57,7 @@ public class SignalInputVariable extends SignalInputCondition {
                 int[] indexes = parseInputExact(parser);
                 if (indexes != null)
                     return new SignalInputVariablePattern(target, indexes);
-                return new SignalInputVariable(target);
+                return forceBitwise ? new SignalInputVariableBitwise(target) : new SignalInputVariable(target);
             }
             
             SignalLogicOperator operator = SignalLogicOperator.getOperator(next);
@@ -67,7 +71,7 @@ public class SignalInputVariable extends SignalInputCondition {
             
             return new SignalInputVariableEquation(target, SignalInputCondition.parseExpression(parser, new char[] { '}' }, false, true));
         } else
-            return new SignalInputVariable(target);
+            return forceBitwise ? new SignalInputVariableBitwise(target) : new SignalInputVariable(target);
     }
     
     public final SignalTarget target;
@@ -100,6 +104,19 @@ public class SignalInputVariable extends SignalInputCondition {
     @Override
     public float calculateDelay() {
         return VARIABLE_DURATION;
+    }
+    
+    public static class SignalInputVariableBitwise extends SignalInputVariable {
+        
+        public SignalInputVariableBitwise(SignalTarget target) {
+            super(target);
+        }
+        
+        @Override
+        public SignalState test(LittleStructure structure, boolean forceBitwise) {
+            return target.getState(structure);
+        }
+        
     }
     
     public static class SignalInputVariableOperator extends SignalInputVariable {

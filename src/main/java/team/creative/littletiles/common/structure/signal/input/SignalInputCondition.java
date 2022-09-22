@@ -29,6 +29,16 @@ public abstract class SignalInputCondition {
     public static final float DIV_DURATION = 5F;
     
     public static SignalInputCondition parseInput(String pattern) throws ParseException {
+        SignalPatternParser parser = new SignalPatternParser(pattern);
+        char next = parser.lookForNext(true);
+        int type = Character.getType(next);
+        if (type == Character.LOWERCASE_LETTER || type == Character.UPPERCASE_LETTER) {
+            SignalInputVariable variable = SignalInputVariable.parseInput(parser, false, true);
+            if (!parser.hasNext())
+                return variable;
+            parser = new SignalPatternParser(pattern);
+        }
+        
         return parseExpression(new SignalPatternParser(pattern), new char[0], true, false);
     }
     
