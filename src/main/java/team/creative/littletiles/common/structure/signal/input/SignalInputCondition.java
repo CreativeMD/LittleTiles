@@ -30,19 +30,24 @@ public abstract class SignalInputCondition {
     
     public static SignalInputCondition parseInput(String pattern) throws ParseException {
         SignalPatternParser parser = new SignalPatternParser(pattern);
-        char next = parser.lookForNext(true);
-        int type = Character.getType(next);
-        if (type == Character.LOWERCASE_LETTER || type == Character.UPPERCASE_LETTER) {
-            SignalInputVariable variable = SignalInputVariable.parseInput(parser, false, true);
-            if (!parser.hasNext())
-                return variable;
-            parser = new SignalPatternParser(pattern);
-        }
-        
+        SignalInputCondition input = tryParseNextCondition(parser, true, false, true);
+        if (input != null && !parser.hasNext())
+            return input;
         return parseExpression(new SignalPatternParser(pattern), new char[0], true, false);
     }
     
     public static SignalInputCondition parseNextCondition(SignalPatternParser parser, boolean includeBitwise, boolean insideVariable) throws ParseException {
+        return parseNextCondition(parser, includeBitwise, insideVariable, false);
+    }
+    
+    public static SignalInputCondition parseNextCondition(SignalPatternParser parser, boolean includeBitwise, boolean insideVariable, boolean forceBitwise) throws ParseException {
+        SignalInputCondition condition = tryParseNextCondition(parser, includeBitwise, insideVariable, forceBitwise);
+        if (condition == null)
+            throw parser.exception("Invalid signal pattern");
+        return condition;
+    }
+    
+    public static SignalInputCondition tryParseNextCondition(SignalPatternParser parser, boolean includeBitwise, boolean insideVariable, boolean forceBitwise) throws ParseException {
         while (parser.hasNext()) {
             char next = parser.lookForNext(true);
             int type = Character.getType(next);
@@ -54,10 +59,10 @@ public abstract class SignalInputCondition {
                 return condition;
             } else if (next == '!') {
                 parser.next(true);
-                return new SignalInputConditionNot(parseNextCondition(parser, includeBitwise, insideVariable));
+                return new SignalInputConditionNot(parseNextCondition(parser, includeBitwise, insideVariable, forceBitwise));
             } else if (next == '~') {
                 parser.next(true);
-                return new SignalInputConditionNotBitwise(parseNextCondition(parser, includeBitwise, insideVariable));
+                return new SignalInputConditionNotBitwise(parseNextCondition(parser, includeBitwise, insideVariable, forceBitwise));
             } else if (next == 'v') {
                 parser.next(true);
                 next = parser.next(true);
@@ -80,14 +85,13 @@ public abstract class SignalInputCondition {
                 parser.next(true);
                 return new SignalInputVirtualNumber(parser.parseNumber());
             } else if (type == Character.LOWERCASE_LETTER)
-                return SignalInputVariable.parseInput(parser, insideVariable);
+                return SignalInputVariable.parseInput(parser, insideVariable, forceBitwise);
             else if (type == Character.UPPERCASE_LETTER)
-                return SignalInputVariable.parseInput(parser, insideVariable);
+                return SignalInputVariable.parseInput(parser, insideVariable, forceBitwise);
             else
-                throw parser.exception("Invalid signal pattern");
+                return null;
         }
-        
-        throw parser.exception("Invalid signal pattern");
+        return null;
     }
     
     private static SignalInputCondition parseLowerExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise, boolean insideVariable) throws ParseException {
