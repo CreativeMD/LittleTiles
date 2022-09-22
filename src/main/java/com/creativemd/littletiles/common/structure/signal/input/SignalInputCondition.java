@@ -223,7 +223,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public boolean[] test(LittleStructure structure, boolean forceBitwise) {
-            return BooleanUtils.toBits(number, 32);
+            return BooleanUtils.toBits(number, Math.max(32, BooleanUtils.getRequiredBandwidth(number)));
         }
         
         @Override
