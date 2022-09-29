@@ -30,9 +30,7 @@ public class AnimationGuiHandler {
         this.tick = copy.tick;
     }
     
-    public AnimationGuiHandler() {
-        
-    }
+    public AnimationGuiHandler() {}
     
     public void takeInitialState(LittleLevelEntity animation) {
         this.offX = animation.initalOffX;
