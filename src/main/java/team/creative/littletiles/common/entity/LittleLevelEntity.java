@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.entity;
 
+import java.util.Iterator;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
@@ -12,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -21,8 +22,10 @@ import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.level.FakeServerLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.level.SubServerLevel;
+import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
@@ -35,6 +38,15 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public abstract class LittleLevelEntity extends Entity implements OrientationAwareEntity, INoPushEntity {
+    
+    private Iterable<OrientationAwareEntity> childrenItr = new Iterable<OrientationAwareEntity>() {
+        
+        @Override
+        public Iterator<OrientationAwareEntity> iterator() {
+            return new FilterIterator<OrientationAwareEntity>(entities(), OrientationAwareEntity.class);
+        }
+        
+    };
     
     private CreativeLevel fakeLevel;
     private StructureAbsolute center;
@@ -94,6 +106,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     @Override
     protected void defineSynchedData() {}
     
+    @Override
     public IVecOrigin getOrigin() {
         return origin;
     }
@@ -128,9 +141,8 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         this.center = center;
         this.fakeLevel.setOrigin(center.rotationCenter);
         this.origin = this.fakeLevel.getOrigin();
-        for (Entity entity : fakeLevel.loadedEntities())
-            if (entity instanceof OrientationAwareEntity)
-                ((OrientationAwareEntity) entity).parentVecOriginChange(origin);
+        for (OrientationAwareEntity entity : children())
+            entity.parentVecOriginChange(origin);
     }
     
     @Override
@@ -146,20 +158,19 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         // TODO THING ABOUT WHAT TO DO WITH THIS METHOD
     }
     
-    // ================Blocks================
-    
-    public Iterable<TickingBlockEntity> tickingBlockEntities() {
-        return null; // TODO Implement ticking blocks 
+    @Override
+    public void moveAndRotateAnimation(CollisionCoordinator coordinator) {
+        physic.moveAndRotateAnimation(coordinator);
     }
     
     // ================Children================
     
     public Iterable<Entity> entities() {
-        return null; // TODO Implement children and other entities
+        return fakeLevel.entities();
     }
     
     public Iterable<OrientationAwareEntity> children() {
-        return null; // TODO Iterate over entities and select the children
+        return childrenItr;
     }
     
     // ================Rendering================
@@ -190,7 +201,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         onTick();
         
         physic.updateBoundingBox();
-        tickingBlockEntities().forEach(x -> x.tick());
+        fakeLevel.tickBlockEntities();
         
         setPosRaw(center.baseOffset.getX() + origin.offXLast(), center.baseOffset.getY() + origin.offYLast(), center.baseOffset.getZ() + origin.offZLast());
         setOldPosAndRot();

@@ -28,6 +28,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.block.LittlePhysicBlock;
 import team.creative.littletiles.common.entity.INoPushEntity;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.level.LittleAnimationHandlers;
 
 public class LittleLevelEntityPhysic implements LevelBoundsListener {
@@ -337,13 +338,10 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
                 box.cache.reset();
         }
         
-        /*for (int i = 0; i < fakeWorld.loadedEntityList.size(); i++) {
-            Entity entity = fakeWorld.loadedEntityList.get(i);
-            if (entity instanceof EntityAnimation) {
-                coordinator.reset(((EntityAnimation) entity).origin);
-                ((EntityAnimation) entity).moveAndRotateAnimation(coordinator);
-            } TODO Implement moving children
-        }*/
+        for (OrientationAwareEntity child : parent.children()) {
+            coordinator.reset(child.getOrigin());
+            child.moveAndRotateAnimation(coordinator);
+        }
         
         noCollision = false;
     }
