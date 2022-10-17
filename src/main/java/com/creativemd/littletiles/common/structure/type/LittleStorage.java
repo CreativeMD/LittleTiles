@@ -116,7 +116,7 @@ public class LittleStorage extends LittleStructure {
         for (int i = 0; i < previews.size(); i++) {
             if (previews.get(i).getBlockName().equals(name))
                 size += previews.get(i).box.getSize()
-                    .getPercentVolume(previews.getContext()) * LittleGridContext.get().maxTilesPerBlock * LittleTiles.CONFIG.general.storagePerPixel;
+                        .getPercentVolume(previews.getContext()) * LittleGridContext.get().maxTilesPerBlock * LittleTiles.CONFIG.general.storagePerPixel;
         }
         return (int) size;
     }
@@ -143,17 +143,11 @@ public class LittleStorage extends LittleStructure {
         if (getWorld().isRemote)
             return;
         int used = 0;
-        boolean allSlotsFilled = true;
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (stack.isEmpty())
-                allSlotsFilled = false;
-            else
-                used += stack.getCount();
+            used += stack.getCount();
         }
-        if (allSlotsFilled)
-            used = inventorySize;
-        int filled = (int) (Math.ceil((double) used / inventorySize * 65535));
+        int filled = (int) (((double) used / (double) inventorySize) * 65535);
         getInput(1).updateState(BooleanUtils.toBits(filled, 16));
     }
     
