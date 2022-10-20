@@ -26,7 +26,7 @@ import team.creative.creativecore.CreativeCore;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 
-public abstract class CreativeLevel extends Level implements IOrientatedLevel {
+public abstract class LittleLevel extends Level implements IOrientatedLevel {
     
     public Entity holder;
     public IVecOrigin origin;
@@ -38,7 +38,7 @@ public abstract class CreativeLevel extends Level implements IOrientatedLevel {
     public boolean hasChanged = false;
     public boolean preventNeighborUpdate = false;
     
-    protected CreativeLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean client, boolean debug, long seed) {
+    protected LittleLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean client, boolean debug, long seed) {
         super(worldInfo, CreativeCore.FAKE_DIMENSION_NAME, CreativeCore.FAKE_DIMENSION, supplier, client, debug, seed, 1000000);
         this.chunkSource = new FakeChunkCache(this, radius);
     }

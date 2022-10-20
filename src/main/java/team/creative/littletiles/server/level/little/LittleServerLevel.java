@@ -25,9 +25,9 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEvent.Context;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
-import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LittleLevel;
 
-public abstract class CreativeServerLevel extends CreativeLevel {
+public abstract class LittleServerLevel extends LittleLevel {
     
     private final MinecraftServer server;
     final List<ServerPlayer> players = Lists.newArrayList();
@@ -35,10 +35,10 @@ public abstract class CreativeServerLevel extends CreativeLevel {
     private final PersistentEntitySectionManager<Entity> entityManager;
     public boolean noSave;
     
-    protected CreativeServerLevel(MinecraftServer server, WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
+    protected LittleServerLevel(MinecraftServer server, WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
         super(worldInfo, radius, supplier, false, debug, seed);
         this.server = server;
-        this.entityManager = new PersistentEntitySectionManager<>(Entity.class, new CreativeServerLevel.EntityCallbacks(), new EntityPersistentStorage<>() {
+        this.entityManager = new PersistentEntitySectionManager<>(Entity.class, new LittleServerLevel.EntityCallbacks(), new EntityPersistentStorage<>() {
             
             @Override
             public CompletableFuture<ChunkEntities<Entity>> loadEntities(ChunkPos pos) {
@@ -100,28 +100,28 @@ public abstract class CreativeServerLevel extends CreativeLevel {
         
         @Override
         public void onDestroyed(Entity entity) {
-            CreativeServerLevel.this.getScoreboard().entityRemoved(entity);
+            LittleServerLevel.this.getScoreboard().entityRemoved(entity);
         }
         
         @Override
         public void onTickingStart(Entity entity) {
-            CreativeServerLevel.this.entityTickList.add(entity);
+            LittleServerLevel.this.entityTickList.add(entity);
         }
         
         @Override
         public void onTickingEnd(Entity entity) {
-            CreativeServerLevel.this.entityTickList.remove(entity);
+            LittleServerLevel.this.entityTickList.remove(entity);
         }
         
         @Override
         public void onTrackingStart(Entity entity) {
-            CreativeServerLevel.this.getChunkSource().addEntity(entity);
+            LittleServerLevel.this.getChunkSource().addEntity(entity);
             
         }
         
         @Override
         public void onTrackingEnd(Entity entity) {
-            CreativeServerLevel.this.getChunkSource().removeEntity(entity);
+            LittleServerLevel.this.getChunkSource().removeEntity(entity);
             entity.updateDynamicGameEventListener(DynamicGameEventListener::move);
         }
         

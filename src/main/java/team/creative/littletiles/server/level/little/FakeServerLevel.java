@@ -28,12 +28,12 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.level.FakeClientLevel;
-import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.FakeLevelInfo;
 
-public class FakeServerLevel extends CreativeServerLevel {
+public class FakeServerLevel extends LittleServerLevel {
     
-    public static CreativeLevel createFakeLevel(String name, boolean client) {
+    public static LittleLevel createFakeLevel(String name, boolean client) {
         if (client)
             return createClient(name);
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();

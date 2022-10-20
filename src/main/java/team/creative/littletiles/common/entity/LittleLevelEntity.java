@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.entity;
 
-import java.util.Iterator;
-
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +19,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
@@ -30,7 +29,7 @@ import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
-import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -38,21 +37,13 @@ import team.creative.littletiles.common.structure.connection.direct.StructureCon
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
-import team.creative.littletiles.server.level.little.FakeServerLevel;
 import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public abstract class LittleLevelEntity extends Entity implements OrientationAwareEntity, INoPushEntity {
     
-    private Iterable<OrientationAwareEntity> childrenItr = new Iterable<OrientationAwareEntity>() {
-        
-        @Override
-        public Iterator<OrientationAwareEntity> iterator() {
-            return new FilterIterator<OrientationAwareEntity>(entities(), OrientationAwareEntity.class);
-        }
-        
-    };
+    private Iterable<OrientationAwareEntity> childrenItr = () -> new FilterIterator<OrientationAwareEntity>(entities(), OrientationAwareEntity.class);
     
-    private CreativeLevel fakeLevel;
+    private ISubLevel subLevel;
     private StructureAbsolute center;
     private IVecOrigin origin;
     protected boolean hasOriginChanged = false;
@@ -76,11 +67,11 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         super(type, level);
     }
     
-    public LittleLevelEntity(EntityType<?> type, Level level, CreativeLevel fakeLevel, StructureAbsolute center, LocalStructureLocation location) {
+    public LittleLevelEntity(EntityType<?> type, Level level, ISubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
         super(type, level);
-        setFakeLevel(fakeLevel);
+        setSubLevel(subLevel);
         setCenter(center);
-        this.structure = new StructureConnection(fakeLevel, location);
+        this.structure = new StructureConnection((Level) subLevel, location);
         
         setPos(center.baseOffset.getX(), center.baseOffset.getY(), center.baseOffset.getZ());
         
@@ -97,7 +88,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         origin.tick();
         
         if (level.isClientSide)
-            renderManager = new LittleLevelRenderManager(fakeLevel);
+            renderManager = new LittleLevelRenderManager((LittleLevel) subLevel);
     }
     
     // ================Origin================
@@ -121,13 +112,13 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return origin;
     }
     
-    public CreativeLevel getFakeLevel() {
-        return fakeLevel;
+    public IOrientatedLevel getSubLevel() {
+        return subLevel;
     }
     
     public Level getRealLevel() {
-        if (level instanceof ISubLevel)
-            return ((ISubLevel) level).getRealLevel();
+        if (level instanceof ISubLevel sub)
+            return sub.getRealLevel();
         return level;
     }
     
@@ -137,10 +128,10 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return this;
     }
     
-    protected void setFakeLevel(CreativeLevel fakeLevel) {
-        this.fakeLevel = fakeLevel;
-        this.fakeLevel.setHolder(this);
-        this.fakeLevel.registerLevelBoundListener(physic);
+    protected void setSubLevel(ISubLevel subLevel) {
+        this.subLevel = subLevel;
+        this.subLevel.setHolder(this);
+        this.subLevel.registerLevelBoundListener(physic);
     }
     
     public StructureAbsolute getCenter() {
@@ -149,8 +140,8 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     public void setCenter(StructureAbsolute center) {
         this.center = center;
-        this.fakeLevel.setOrigin(center.rotationCenter);
-        this.origin = this.fakeLevel.getOrigin();
+        this.subLevel.setOrigin(center.rotationCenter);
+        this.origin = this.subLevel.getOrigin();
         for (OrientationAwareEntity entity : children())
             entity.parentVecOriginChange(origin);
     }
@@ -188,7 +179,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     // ================Children================
     
     public Iterable<Entity> entities() {
-        return fakeLevel.entities();
+        return subLevel.entities();
     }
     
     public Iterable<OrientationAwareEntity> children() {
@@ -223,7 +214,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         onTick();
         
         physic.updateBoundingBox();
-        fakeLevel.tickBlockEntities();
+        subLevel.tickBlockEntities();
         
         setPosRaw(center.baseOffset.getX() + origin.offXLast(), center.baseOffset.getY() + origin.offYLast(), center.baseOffset.getZ() + origin.offZLast());
         setOldPosAndRot();
@@ -236,7 +227,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     protected void readAdditionalSaveData(CompoundTag nbt) {
         // TODO TAKE CARE OF EXISTING LOADED ENTITIES
         
-        setFakeLevel(nbt.getBoolean("subworld") ? SubServerLevel.createSubLevel(level) : FakeServerLevel.createFakeLevel(getStringUUID(), level.isClientSide));
+        setSubLevel(SubServerLevel.createSubLevel(level));
         
         this.initalOffX = nbt.getDouble("initOffX");
         this.initalOffY = nbt.getDouble("initOffY");
@@ -245,21 +236,21 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         this.initalRotY = nbt.getDouble("initRotY");
         this.initalRotZ = nbt.getDouble("initRotZ");
         
-        fakeLevel.preventNeighborUpdate = true;
+        subLevel.preventNeighborUpdate = true;
         
         setCenter(new StructureAbsolute("center", nbt));
         
         // TODO REWORK SAVING OF WORLD, SAVE BLOCKS AND ENTITIES
         
-        this.structure = new StructureConnection(fakeLevel, nbt.getCompound("structure"));
+        this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("structure"));
         
-        fakeLevel.preventNeighborUpdate = false;
+        subLevel.preventNeighborUpdate = false;
         
         loadLevelEntity(nbt);
         
         physic.updateBoundingBox();
         if (level.isClientSide)
-            renderManager = new LittleLevelRenderManager(fakeLevel);
+            renderManager = new LittleLevelRenderManager((LittleLevel) subLevel);
     }
     
     public abstract void loadLevelEntity(CompoundTag nbt);
@@ -274,8 +265,6 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         nbt.putDouble("initRotX", initalRotX);
         nbt.putDouble("initRotY", initalRotY);
         nbt.putDouble("initRotZ", initalRotZ);
-        
-        nbt.putBoolean("subworld", fakeLevel instanceof ISubLevel);
         
         // TODO REWORK LOADING OF WORLD, LOAD BLOCKS AND ENTITIES
         
@@ -364,7 +353,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
                 Vec3 newPos = origin.transformPointToFakeWorld(pos);
                 Vec3 newLook = origin.transformPointToFakeWorld(look);
                 if (entity.getBoundingBox().intersects(newPos, newLook)) {
-                    LittleHitResult tempResult = new LittleHitResult(new EntityHitResult(entity, entity.getBoundingBox().clip(newPos, newLook).get()), fakeLevel);
+                    LittleHitResult tempResult = new LittleHitResult(new EntityHitResult(entity, entity.getBoundingBox().clip(newPos, newLook).get()), (Level) subLevel);
                     double tempDistance = newPos.distanceTo(tempResult.hit.getLocation());
                     if (result == null || tempDistance < distance) {
                         result = tempResult;
@@ -376,11 +365,11 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         Vec3 newPos = origin.transformPointToFakeWorld(pos);
         Vec3 newLook = origin.transformPointToFakeWorld(look);
-        HitResult tempResult = fakeLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
+        HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
         if (tempResult == null || tempResult instanceof BlockHitResult)
             return result;
         if (result == null || pos.distanceTo(tempResult.getLocation()) < distance)
-            return new LittleHitResult(tempResult, fakeLevel);
+            return new LittleHitResult(tempResult, (Level) subLevel);
         return result;
     }
     
@@ -391,7 +380,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         if (player != null && player.getMainHandItem().getItem() instanceof ItemLittleWrench)
             return ((ItemLittleWrench) player.getMainHandItem().getItem()).useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, (BlockHitResult) result));
         
-        return fakeLevel.getBlockState(((BlockHitResult) result).getBlockPos()).use(fakeLevel, player, InteractionHand.MAIN_HAND, (BlockHitResult) result);
+        return subLevel.getBlockState(((BlockHitResult) result).getBlockPos()).use((Level) subLevel, player, InteractionHand.MAIN_HAND, (BlockHitResult) result);
     }
     
     // ================CLIENT================

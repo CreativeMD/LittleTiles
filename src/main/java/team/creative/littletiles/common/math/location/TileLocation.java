@@ -5,8 +5,9 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -15,7 +16,6 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
-import team.creative.littletiles.common.level.little.CreativeLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
@@ -45,8 +45,8 @@ public class TileLocation {
         }
         this.pos = context.parent.getPos();
         this.box = context.box.copy();
-        if (context.parent.getLevel() instanceof CreativeLevel)
-            this.levelUUID = ((CreativeLevel) context.parent.getLevel()).getHolder().getUUID();
+        if (context.parent.getLevel() instanceof ISubLevel sub)
+            this.levelUUID = sub.getHolder().getUUID();
         else
             this.levelUUID = null;
     }
@@ -76,13 +76,13 @@ public class TileLocation {
         return nbt;
     }
     
-    public LittleTileContext find(Level level) throws LittleActionException {
+    public LittleTileContext find(LevelAccessor level) throws LittleActionException {
         if (levelUUID != null) {
-            LittleLevelEntity entity = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
+            LittleLevelEntity entity = LittleAnimationHandlers.find(level.isClientSide(), levelUUID);
             if (entity == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = entity.getFakeLevel();
+            level = entity.getSubLevel();
         }
         
         BlockEntity be = level.getBlockEntity(pos);

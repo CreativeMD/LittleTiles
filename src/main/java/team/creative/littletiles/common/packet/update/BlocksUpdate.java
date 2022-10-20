@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.ISubLevel;
@@ -25,7 +25,7 @@ public class BlocksUpdate extends CreativePacket {
     public List<CompoundTag> tags;
     public UUID uuid;
     
-    public BlocksUpdate(Level level, Set<BlockPos> positions) {
+    public BlocksUpdate(LevelAccessor level, Set<BlockPos> positions) {
         this.positions = new ArrayList<>(positions.size());
         states = new ArrayList<>(positions.size());
         tags = new ArrayList<>(positions.size());
@@ -44,7 +44,7 @@ public class BlocksUpdate extends CreativePacket {
             uuid = subLevel.getHolder().getUUID();
     }
     
-    public BlocksUpdate(Level level, Iterable<? extends BlockEntity> blockEntities) {
+    public BlocksUpdate(LevelAccessor level, Iterable<? extends BlockEntity> blockEntities) {
         positions = new ArrayList<>();
         states = new ArrayList<>();
         tags = new ArrayList<>();
@@ -63,14 +63,14 @@ public class BlocksUpdate extends CreativePacket {
     
     @Override
     public void executeClient(Player player) {
-        Level level = player.level;
+        LevelAccessor level = player.level;
         
         if (uuid != null) {
             LittleLevelEntity entity = LittleAnimationHandlers.find(true, uuid);
             if (entity == null)
                 return;
             
-            level = entity.getFakeLevel();
+            level = entity.getSubLevel();
         }
         
         for (int i = 0; i < positions.size(); i++) {

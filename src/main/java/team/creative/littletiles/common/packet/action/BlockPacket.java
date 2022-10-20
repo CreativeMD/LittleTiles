@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -168,7 +169,7 @@ public class BlockPacket extends CreativePacket {
     
     @Override
     public void executeServer(ServerPlayer player) {
-        Level level = player.level;
+        LevelAccessor level = player.level;
         
         if (uuid != null) {
             LittleLevelEntity entity = LittleAnimationHandlers.find(false, uuid);
@@ -178,7 +179,7 @@ public class BlockPacket extends CreativePacket {
             if (!LittleAction.isAllowedToInteract(player, entity, action.rightClick))
                 return;
             
-            level = entity.getFakeLevel();
+            level = entity.getSubLevel();
             pos = entity.getOrigin().transformPointToFakeWorld(pos);
             look = entity.getOrigin().transformPointToFakeWorld(look);
         }
@@ -195,7 +196,7 @@ public class BlockPacket extends CreativePacket {
             
             if (context.isComplete()) {
                 ItemStack stack = player.getMainHandItem();
-                action.action(level, be, context, stack, player, be.rayTrace(pos, look), blockPos, nbt);
+                action.action((Level) level, be, context, stack, player, be.rayTrace(pos, look), blockPos, nbt);
                 player.inventoryMenu.broadcastChanges();
                 
             }

@@ -127,7 +127,7 @@ public abstract class SelectionMode {
             addBlocksWorld(level, pos, pos2);
             
             for (LittleLevelEntity entity : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
-                addBlocksWorld(entity.getFakeLevel(), pos, pos2);
+                addBlocksWorld((Level) entity.getSubLevel(), pos, pos2);
         }
         
         public MutableBlockPos min = null;

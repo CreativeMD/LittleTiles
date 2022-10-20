@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.GlassBlock;
@@ -203,13 +204,13 @@ public abstract class LittleAction<T> extends CreativePacket {
     private static Method WorldEditEvent = loadWorldEditEvent();
     private static Object worldEditInstance = null;
     
-    public static void sendBlockResetToClient(Level level, Player player, PlacementPreview preview) {
+    public static void sendBlockResetToClient(LevelAccessor level, Player player, PlacementPreview preview) {
         if (!(player instanceof ServerPlayer))
             return;
         LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, preview.getPositions()), (ServerPlayer) player);
     }
     
-    public static void sendBlockResetToClient(Level level, Player player, BlockPos pos) {
+    public static void sendBlockResetToClient(LevelAccessor level, Player player, BlockPos pos) {
         if (!(player instanceof ServerPlayer))
             return;
         BlockEntity be = level.getBlockEntity(pos);
@@ -219,19 +220,19 @@ public abstract class LittleAction<T> extends CreativePacket {
             LittleTiles.NETWORK.sendToClient(new BlockUpdate(level, pos, be), (ServerPlayer) player);
     }
     
-    public static void sendBlockResetToClient(Level level, Player player, BlockEntity be) {
+    public static void sendBlockResetToClient(LevelAccessor level, Player player, BlockEntity be) {
         if (!(player instanceof ServerPlayer))
             return;
         LittleTiles.NETWORK.sendToClient(new BlockUpdate(level, be.getBlockPos(), be), (ServerPlayer) player);
     }
     
-    public static void sendBlockResetToClient(Level level, Player player, Iterable<BETiles> blockEntities) {
+    public static void sendBlockResetToClient(LevelAccessor level, Player player, Iterable<BETiles> blockEntities) {
         if (!(player instanceof ServerPlayer))
             return;
         LittleTiles.NETWORK.sendToClient(new BlocksUpdate(level, blockEntities), (ServerPlayer) player);
     }
     
-    public static void sendBlockResetToClient(Level level, Player player, LittleStructure structure) {
+    public static void sendBlockResetToClient(LevelAccessor level, Player player, LittleStructure structure) {
         if (!(player instanceof ServerPlayer))
             return;
         try {
@@ -248,7 +249,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         return true;
     }
     
-    public static boolean isAllowedToInteract(Level level, Player player, BlockPos pos, boolean rightClick, Facing facing) {
+    public static boolean isAllowedToInteract(LevelAccessor level, Player player, BlockPos pos, boolean rightClick, Facing facing) {
         if (player == null || player.level.isClientSide)
             return true;
         

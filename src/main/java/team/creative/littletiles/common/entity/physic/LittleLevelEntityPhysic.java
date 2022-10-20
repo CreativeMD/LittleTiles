@@ -28,8 +28,8 @@ import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
-import team.creative.littletiles.common.level.little.CreativeLevel;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
+import team.creative.littletiles.common.level.little.LittleLevel;
 
 public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
@@ -76,7 +76,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     }
     
     @Override
-    public void rescan(CreativeLevel level, BlockUpdateLevelSystem system, Iterable<BlockPos> possible) {
+    public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Iterable<BlockPos> possible) {
         double minX = Double.POSITIVE_INFINITY;
         double minY = Double.POSITIVE_INFINITY;
         double minZ = Double.POSITIVE_INFINITY;
@@ -107,7 +107,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     }
     
     @Override
-    public void rescan(CreativeLevel level, BlockUpdateLevelSystem system, Facing facing, Iterable<BlockPos> possible, int boundary) {
+    public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Facing facing, Iterable<BlockPos> possible, int boundary) {
         double value = facing.positive ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
         for (BlockPos pos : possible) {
             BlockState state = level.getBlockState(pos);
@@ -347,7 +347,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     }
     
     public void updateBoundingBox() {
-        if (orientatedBB == null || parent.getFakeLevel() == null)
+        if (orientatedBB == null || parent.getSubLevel() == null)
             return;
         
         if (parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged()) {

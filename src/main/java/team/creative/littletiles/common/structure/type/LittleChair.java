@@ -22,7 +22,7 @@ import team.creative.littletiles.common.structure.connection.children.StructureC
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.SignalState;
-import team.creative.littletiles.server.level.little.CreativeServerLevel;
+import team.creative.littletiles.server.level.little.LittleServerLevel;
 
 public class LittleChair extends LittleStructure {
     
@@ -71,8 +71,8 @@ public class LittleChair extends LittleStructure {
                 Iterable<Entity> iterable;
                 if (level instanceof ServerLevel)
                     iterable = ((ServerLevel) level).getAllEntities();
-                else if (level instanceof CreativeServerLevel)
-                    iterable = ((CreativeServerLevel) level).loadedEntities();
+                else if (level instanceof LittleServerLevel)
+                    iterable = ((LittleServerLevel) level).loadedEntities();
                 else
                     throw new UnsupportedOperationException();
                 

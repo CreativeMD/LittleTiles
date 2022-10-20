@@ -58,7 +58,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.CompiledChunkAccessor;
 
 public class LittleRenderChunk {
@@ -91,7 +91,7 @@ public class LittleRenderChunk {
         }
     }
     
-    public CreativeLevel level() {
+    public LittleLevel level() {
         return manager.level;
     }
     

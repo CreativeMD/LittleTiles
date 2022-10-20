@@ -224,7 +224,7 @@ public class PlacementPreview {
             if (levelEntity == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = levelEntity.getFakeLevel();
+            level = (Level) levelEntity.getSubLevel();
         }
         return level;
     }

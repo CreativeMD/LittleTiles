@@ -31,7 +31,7 @@ import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 
 @OnlyIn(Dist.CLIENT)
-public class SubClientLevel extends CreativeClientLevel implements ISubLevel {
+public class SubClientLevel extends LittleClientLevel implements ISubLevel {
     
     public Level parentLevel;
     

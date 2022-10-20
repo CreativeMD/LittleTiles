@@ -34,9 +34,9 @@ public class FakeChunkCache extends ChunkSource {
     private final LevelChunk emptyChunk;
     private final LevelLightEngine lightEngine;
     private volatile FakeChunkCache.Storage storage;
-    public final CreativeLevel level;
+    public final LittleLevel level;
     
-    public FakeChunkCache(CreativeLevel level, int radius) {
+    public FakeChunkCache(LittleLevel level, int radius) {
         this.level = level;
         this.emptyChunk = new EmptyLevelChunk(level, new ChunkPos(0, 0), level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).getHolderOrThrow(Biomes.PLAINS));
         this.lightEngine = new LevelLightEngine(this, true, level.dimensionType().hasSkyLight());

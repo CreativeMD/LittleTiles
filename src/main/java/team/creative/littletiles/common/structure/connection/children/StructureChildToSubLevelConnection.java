@@ -38,7 +38,7 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
     protected Level getLevel() throws CorruptedConnectionException, NotYetConnectedException {
         LittleLevelEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
         if (animation != null)
-            return animation.getFakeLevel();
+            return (Level) animation.getSubLevel();
         throw new MissingAnimationException(entityUUID);
     }
     
@@ -53,7 +53,7 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
         LittleLevelEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
         if (animation != null)
             animation.markRemoved();
-        neighbor = animation != null ? new LittleNeighborUpdateCollector(animation.getFakeLevel()) : LittleNeighborUpdateCollector.EMPTY;
+        neighbor = animation != null ? new LittleNeighborUpdateCollector((Level) animation.getSubLevel()) : LittleNeighborUpdateCollector.EMPTY;
         for (StructureChildConnection child : getStructure().children.all())
             child.destroyStructure(neighbor);
         neighbor.process();

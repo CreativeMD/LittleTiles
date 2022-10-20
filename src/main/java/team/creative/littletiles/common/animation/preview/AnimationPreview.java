@@ -25,6 +25,7 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
 import team.creative.littletiles.server.level.little.FakeServerLevel;
+import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public class AnimationPreview {
     
@@ -63,7 +64,7 @@ public class AnimationPreview {
         
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleLevelEntity(LittleTilesRegistry.ANIMATION.get(), fakeWorld, fakeWorld, new StructureAbsolute(pos, entireBox, previews
+        animation = new LittleLevelEntity(LittleTilesRegistry.ANIMATION.get(), fakeWorld, SubServerLevel.createSubLevel(fakeWorld), new StructureAbsolute(pos, entireBox, previews
                 .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure)) {
             
             @Override

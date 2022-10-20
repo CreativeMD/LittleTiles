@@ -32,11 +32,10 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.level.SubClientLevel;
-import team.creative.littletiles.common.level.little.CreativeLevel;
 
-public class SubServerLevel extends CreativeServerLevel implements ISubLevel {
+public class SubServerLevel extends LittleServerLevel implements ISubLevel {
     
-    public static CreativeLevel createSubLevel(Level level) {
+    public static ISubLevel createSubLevel(Level level) {
         if (level instanceof ServerLevel)
             return new SubServerLevel(level, 6);
         return new SubClientLevel(level, 6);

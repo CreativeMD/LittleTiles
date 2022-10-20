@@ -64,7 +64,7 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
             if (animation == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = animation.getFakeLevel();
+            level = (Level) animation.getSubLevel();
         }
         
         if (LittleTiles.CONFIG.isEditLimited(player)) {

@@ -6,13 +6,14 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
-import team.creative.littletiles.common.level.little.CreativeLevel;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
@@ -31,8 +32,8 @@ public class StructureLocation {
     public StructureLocation(Level level, BlockPos pos, int index) {
         this.pos = pos;
         this.index = index;
-        if (level instanceof CreativeLevel)
-            this.levelUUID = ((CreativeLevel) level).getHolder().getUUID();
+        if (level instanceof ISubLevel sub)
+            this.levelUUID = sub.getHolder().getUUID();
         else
             this.levelUUID = null;
     }
@@ -62,13 +63,13 @@ public class StructureLocation {
         return nbt;
     }
     
-    public LittleStructure find(Level level) throws LittleActionException {
+    public LittleStructure find(LevelAccessor level) throws LittleActionException {
         if (levelUUID != null) {
-            LittleLevelEntity entity = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
+            LittleLevelEntity entity = LittleAnimationHandlers.find(level.isClientSide(), levelUUID);
             if (entity == null)
                 throw new MissingAnimationException(levelUUID);
             
-            level = entity.getFakeLevel();
+            level = entity.getSubLevel();
         }
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof BETiles) {

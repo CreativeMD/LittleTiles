@@ -38,7 +38,7 @@ public class NeighborUpdate extends CreativePacket {
             if (entity == null)
                 return;
             
-            level = entity.getFakeLevel();
+            level = (Level) entity.getSubLevel();
         }
         
         for (int i = 0; i < positions.size(); i++) {

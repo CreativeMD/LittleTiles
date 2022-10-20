@@ -29,7 +29,7 @@ import team.creative.littletiles.client.level.FakeClientLevel;
 import team.creative.littletiles.common.level.little.FakeLevelInfo;
 
 @OnlyIn(Dist.CLIENT)
-public class FakeClientLevel extends CreativeClientLevel {
+public class FakeClientLevel extends LittleClientLevel {
     
     public boolean shouldRender;
     private final Scoreboard scoreboard = new Scoreboard();

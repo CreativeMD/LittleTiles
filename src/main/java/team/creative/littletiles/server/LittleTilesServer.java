@@ -97,7 +97,8 @@ public class LittleTilesServer {
                 return false;
             }
         } else
-            return LittleActionHandlerServer.execute(player, new LittleActionActivated(pointedEntity.getFakeLevel(), result.getBlockPos(), pos, look, false)).consumesAction();
+            return LittleActionHandlerServer.execute(player, new LittleActionActivated((Level) pointedEntity.getSubLevel(), result.getBlockPos(), pos, look, false))
+                    .consumesAction();
         
         return false;
         

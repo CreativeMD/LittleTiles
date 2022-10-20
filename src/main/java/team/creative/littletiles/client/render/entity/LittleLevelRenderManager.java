@@ -16,20 +16,20 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LittleLevel;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     
     private static final Minecraft mc = Minecraft.getInstance();
     
-    public final CreativeLevel level;
+    public final LittleLevel level;
     
     public Boolean isInSight;
     
     private HashMap<Long, LittleRenderChunk> chunks = new HashMap<>();
     
-    public LittleLevelRenderManager(CreativeLevel level) {
+    public LittleLevelRenderManager(LittleLevel level) {
         this.level = level;
     }
     

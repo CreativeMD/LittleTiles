@@ -13,7 +13,7 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 
 public class BlockUpdateLevelSystem {
     
-    public final CreativeLevel level;
+    public final LittleLevel level;
     
     private final List<LevelBoundsListener> levelBoundListeners = new ArrayList<>();
     
@@ -27,7 +27,7 @@ public class BlockUpdateLevelSystem {
     private HashSet<BlockPos> edgePositions = new HashSet<>();
     private HashSet<BlockPos> allBlocks = new HashSet<>();
     
-    public BlockUpdateLevelSystem(CreativeLevel level) {
+    public BlockUpdateLevelSystem(LittleLevel level) {
         this.level = level;
     }
     

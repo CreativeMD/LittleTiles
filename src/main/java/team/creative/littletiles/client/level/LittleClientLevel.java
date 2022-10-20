@@ -24,18 +24,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelDataManager;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LittleLevel;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class CreativeClientLevel extends CreativeLevel {
+public abstract class LittleClientLevel extends LittleLevel {
     
     final EntityTickList tickingEntities = new EntityTickList();
-    private final TransientEntitySectionManager<Entity> entityStorage = new TransientEntitySectionManager<>(Entity.class, new CreativeClientLevel.EntityCallbacks());
+    private final TransientEntitySectionManager<Entity> entityStorage = new TransientEntitySectionManager<>(Entity.class, new LittleClientLevel.EntityCallbacks());
     final List<AbstractClientPlayer> players = Lists.newArrayList();
     private final Map<String, MapItemSavedData> mapData = Maps.newHashMap();
     private final ModelDataManager modelDataManager = new ModelDataManager(this);
     
-    protected CreativeClientLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
+    protected LittleClientLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
         super(worldInfo, radius, supplier, true, debug, seed);
     }
     
@@ -106,27 +106,27 @@ public abstract class CreativeClientLevel extends CreativeLevel {
         
         @Override
         public void onTickingStart(Entity entity) {
-            CreativeClientLevel.this.tickingEntities.add(entity);
+            LittleClientLevel.this.tickingEntities.add(entity);
         }
         
         @Override
         public void onTickingEnd(Entity entity) {
-            CreativeClientLevel.this.tickingEntities.remove(entity);
+            LittleClientLevel.this.tickingEntities.remove(entity);
         }
         
         @Override
         public void onTrackingStart(Entity entity) {
             if (entity instanceof AbstractClientPlayer)
-                CreativeClientLevel.this.players.add((AbstractClientPlayer) entity);
+                LittleClientLevel.this.players.add((AbstractClientPlayer) entity);
         }
         
         @Override
         public void onTrackingEnd(Entity entity) {
             entity.unRide();
-            CreativeClientLevel.this.players.remove(entity);
+            LittleClientLevel.this.players.remove(entity);
             
             entity.onRemovedFromWorld();
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, CreativeClientLevel.this));
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, LittleClientLevel.this));
         }
         
         @Override

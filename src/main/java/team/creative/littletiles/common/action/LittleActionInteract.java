@@ -91,7 +91,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             if (!isAllowedToInteract(player, animation, isRightClick()))
                 return failed();
             
-            level = animation.getFakeLevel();
+            level = (Level) animation.getSubLevel();
             if (!transformedCoordinates) {
                 transformedPos = animation.getOrigin().transformPointToFakeWorld(transformedPos);
                 transformedLook = animation.getOrigin().transformPointToFakeWorld(transformedLook);

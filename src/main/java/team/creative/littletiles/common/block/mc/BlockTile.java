@@ -91,7 +91,7 @@ import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
-import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -831,7 +831,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     }
     
     @Override
-    public double bound(CreativeLevel level, BlockPos pos, Facing facing) {
+    public double bound(LittleLevel level, BlockPos pos, Facing facing) {
         BETiles te = loadBE(level, pos);
         if (te != null) {
             int value = facing.positive ? Integer.MIN_VALUE : Integer.MAX_VALUE;
