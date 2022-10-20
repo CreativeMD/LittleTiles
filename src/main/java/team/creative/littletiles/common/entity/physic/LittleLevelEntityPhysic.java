@@ -13,9 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.common.level.CreativeLevel;
-import team.creative.creativecore.common.level.listener.LevelBoundsListener;
-import team.creative.creativecore.common.level.system.BlockUpdateLevelSystem;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.OBB;
@@ -29,7 +26,10 @@ import team.creative.littletiles.common.api.block.LittlePhysicBlock;
 import team.creative.littletiles.common.entity.INoPushEntity;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.entity.OrientationAwareEntity;
-import team.creative.littletiles.common.level.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
+import team.creative.littletiles.common.level.little.CreativeLevel;
+import team.creative.littletiles.common.level.little.LevelBoundsListener;
 
 public class LittleLevelEntityPhysic implements LevelBoundsListener {
     

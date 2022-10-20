@@ -18,7 +18,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.ActionEvent.ActionType;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.level.LevelHandler;
+import team.creative.littletiles.common.level.handler.LevelHandler;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleActionHandlerClient extends LevelHandler {

@@ -14,21 +14,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.common.level.CreativeLevel;
-import team.creative.creativecore.common.level.FakeServerLevel;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.creativecore.common.level.SubServerLevel;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
+import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
-import team.creative.littletiles.common.level.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.little.CreativeLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -36,6 +38,8 @@ import team.creative.littletiles.common.structure.connection.direct.StructureCon
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
+import team.creative.littletiles.server.level.little.FakeServerLevel;
+import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public abstract class LittleLevelEntity extends Entity implements OrientationAwareEntity, INoPushEntity {
     
@@ -63,6 +67,9 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     public double initalRotY;
     public double initalRotZ;
     
+    @OnlyIn(Dist.CLIENT)
+    public LittleLevelRenderManager renderManager;
+    
     // ================Constructors================
     
     public LittleLevelEntity(EntityType<?> type, Level level) {
@@ -88,6 +95,9 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         });
         
         origin.tick();
+        
+        if (level.isClientSide)
+            renderManager = new LittleLevelRenderManager(fakeLevel);
     }
     
     // ================Origin================
@@ -163,6 +173,18 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         physic.moveAndRotateAnimation(coordinator);
     }
     
+    public AABB getRealBB() {
+        if (level instanceof ISubLevel or)
+            return or.getOrigin().getAxisAlignedBox(getBoundingBox());
+        return getBoundingBox();
+    }
+    
+    public Vec3 getRealCenter() {
+        if (level instanceof ISubLevel or)
+            return or.getOrigin().transformPointToWorld(position());
+        return position();
+    }
+    
     // ================Children================
     
     public Iterable<Entity> entities() {
@@ -236,6 +258,8 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         loadLevelEntity(nbt);
         
         physic.updateBoundingBox();
+        if (level.isClientSide)
+            renderManager = new LittleLevelRenderManager(fakeLevel);
     }
     
     public abstract void loadLevelEntity(CompoundTag nbt);
@@ -370,4 +394,14 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return fakeLevel.getBlockState(((BlockHitResult) result).getBlockPos()).use(fakeLevel, player, InteractionHand.MAIN_HAND, (BlockHitResult) result);
     }
     
+    // ================CLIENT================
+    
+    @Override
+    public boolean shouldRender(double x, double y, double z) {
+        Vec3 center = getRealCenter();
+        double d0 = center.x - x;
+        double d1 = center.y - y;
+        double d2 = center.z - z;
+        return this.shouldRenderAtSqrDistance(d0 * d0 + d1 * d1 + d2 * d2);
+    }
 }

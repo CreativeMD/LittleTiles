@@ -194,6 +194,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public int itemCacheDuration = 5000;
         
+        @CreativeConfig
+        public int entityCacheBuildThreads = 1;
+        
         @Override
         public void configured(Side side) {
             if (side.isClient())

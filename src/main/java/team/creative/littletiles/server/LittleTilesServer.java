@@ -15,10 +15,12 @@ import team.creative.creativecore.common.util.math.box.CreativeAABB;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
-import team.creative.littletiles.common.level.LevelHandlers;
-import team.creative.littletiles.common.level.LittleAnimationHandler;
-import team.creative.littletiles.common.level.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.handler.LevelHandlers;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.server.level.handler.LittleActionHandlerServer;
+import team.creative.littletiles.server.level.util.NeighborUpdateOrganizer;
 
 public class LittleTilesServer {
     

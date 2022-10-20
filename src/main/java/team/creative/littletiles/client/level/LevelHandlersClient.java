@@ -10,8 +10,8 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.littletiles.common.level.LevelHandler;
-import team.creative.littletiles.common.level.LevelHandlers;
+import team.creative.littletiles.common.level.handler.LevelHandler;
+import team.creative.littletiles.common.level.handler.LevelHandlers;
 
 public class LevelHandlersClient extends LevelHandlers<LevelHandler> {
     

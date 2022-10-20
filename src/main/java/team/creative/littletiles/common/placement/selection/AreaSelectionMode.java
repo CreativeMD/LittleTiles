@@ -25,7 +25,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaTooLarge;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
-import team.creative.littletiles.common.level.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;

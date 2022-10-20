@@ -10,7 +10,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.level.CreativeServerLevel;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -23,6 +22,7 @@ import team.creative.littletiles.common.structure.connection.children.StructureC
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.SignalState;
+import team.creative.littletiles.server.level.little.CreativeServerLevel;
 
 public class LittleChair extends LittleStructure {
     

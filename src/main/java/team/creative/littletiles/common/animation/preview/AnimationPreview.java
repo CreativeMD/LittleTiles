@@ -6,10 +6,9 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
-import team.creative.creativecore.common.level.FakeClientLevel;
-import team.creative.creativecore.common.level.FakeServerLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.level.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -25,6 +24,7 @@ import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
+import team.creative.littletiles.server.level.little.FakeServerLevel;
 
 public class AnimationPreview {
     

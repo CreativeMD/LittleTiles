@@ -1,11 +1,11 @@
-package team.creative.littletiles.server.level;
+package team.creative.littletiles.server.level.handler;
 
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
-import team.creative.littletiles.common.level.LittleAnimationHandler;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
+import team.creative.littletiles.common.level.little.CreativeLevel;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {
     

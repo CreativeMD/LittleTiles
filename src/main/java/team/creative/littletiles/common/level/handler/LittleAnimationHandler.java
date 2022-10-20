@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.level;
+package team.creative.littletiles.common.level.handler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,9 +33,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
     
-    public void tick() {
-        
-    }
+    public void tick() {}
     
     public List<LittleLevelEntity> find(AABB bb) {
         if (entities.isEmpty())

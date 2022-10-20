@@ -7,12 +7,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
-import team.creative.littletiles.common.level.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.little.CreativeLevel;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 

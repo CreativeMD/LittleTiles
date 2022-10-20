@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.level;
+package team.creative.littletiles.common.level.handler;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +14,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.server.LittleTilesServer;
-import team.creative.littletiles.server.level.LittleAnimationHandlerServer;
+import team.creative.littletiles.server.level.handler.LittleAnimationHandlerServer;
 
 public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandlerServer> {
     

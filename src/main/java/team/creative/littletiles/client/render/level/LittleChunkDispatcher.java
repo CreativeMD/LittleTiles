@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskLittle;
 import team.creative.littletiles.client.render.mc.RenderChunkLittle;
@@ -20,6 +21,7 @@ public class LittleChunkDispatcher {
     public static void onReloadRenderers(LevelRenderer levelRenderer) {
         if (mc.levelRenderer == levelRenderer)
             currentRenderState++;
+        LittleTilesClient.ANIMATION_HANDLER.allChanged();
     }
     
     public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunk chunk) {

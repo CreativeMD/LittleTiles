@@ -20,7 +20,7 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
-import team.creative.littletiles.common.level.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public abstract class LittleActionInteract<T> extends LittleAction<T> {
     

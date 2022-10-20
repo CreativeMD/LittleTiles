@@ -1,8 +1,8 @@
 package team.creative.littletiles.common.api.block;
 
 import net.minecraft.core.BlockPos;
-import team.creative.creativecore.common.level.CreativeLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.common.level.little.CreativeLevel;
 
 public interface LittlePhysicBlock {
     

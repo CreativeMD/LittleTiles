@@ -37,7 +37,6 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.renderer.chunk.RenderChunkRegion;
 import net.minecraft.client.renderer.chunk.RenderRegionCache;
 import net.minecraft.client.renderer.chunk.VisGraph;
@@ -46,6 +45,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,13 +56,16 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
-import team.creative.creativecore.common.level.CreativeLevel;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.level.little.CreativeLevel;
 import team.creative.littletiles.mixin.CompiledChunkAccessor;
 
 public class LittleRenderChunk {
     
     public final LittleLevelRenderManager manager;
     public final SectionPos section;
+    public final BlockPos pos;
     public final AtomicReference<ChunkRenderDispatcher.CompiledChunk> compiled = new AtomicReference<>(ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
     private AABB bb;
     private final AtomicInteger initialCompilationCancelCount = new AtomicInteger(0);
@@ -76,10 +79,11 @@ public class LittleRenderChunk {
     private final SectionPos[] neighbors;
     private boolean playerChanged;
     
-    public LittleRenderChunk(SectionPos pos) {
+    public LittleRenderChunk(LittleLevelRenderManager manager, SectionPos pos) {
+        this.manager = manager;
         this.section = pos;
-        BlockPos realOrigin = section.origin();
-        this.bb = new AABB(realOrigin.getX(), realOrigin.getY(), realOrigin.getZ(), realOrigin.getX() + 16, realOrigin.getY() + 16, realOrigin.getZ() + 16);
+        this.pos = section.origin();
+        this.bb = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 16, pos.getY() + 16, pos.getZ() + 16);
         this.neighbors = new SectionPos[Direction.values().length];
         for (int i = 0; i < neighbors.length; i++) {
             Direction direction = Direction.values()[i];
@@ -124,8 +128,8 @@ public class LittleRenderChunk {
         return this.compiled.get();
     }
     
-    private void beginLayer(BufferBuilder p_112806_) {
-        p_112806_.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
+    private void beginLayer(BufferBuilder builder) {
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
     }
     
     private void reset() {
@@ -158,11 +162,7 @@ public class LittleRenderChunk {
         return this.dirty && this.playerChanged;
     }
     
-    public BlockPos getRelativeOrigin(Direction p_112825_) {
-        return this.relativeOrigins[p_112825_.ordinal()];
-    }
-    
-    public boolean resortTransparency(RenderType layer, ChunkRenderDispatcher dispatcher) {
+    public boolean resortTransparency(RenderType layer) {
         CompiledChunk compiled = this.getCompiledChunk();
         if (this.lastResortTransparencyTask != null)
             this.lastResortTransparencyTask.cancel();
@@ -170,8 +170,8 @@ public class LittleRenderChunk {
         if (!((CompiledChunkAccessor) compiled).getHasBlocks().contains(layer))
             return false;
         
-        this.lastResortTransparencyTask = new ResortTransparencyTask(new net.minecraft.world.level.ChunkPos(getOrigin()), this.getDistToPlayerSqr(), compiled);
-        dispatcher.schedule(this.lastResortTransparencyTask);
+        this.lastResortTransparencyTask = new ResortTransparencyTask(section.chunk(), this.getDistToPlayerSqr(), compiled);
+        manager.schedule(this.lastResortTransparencyTask);
         return true;
     }
     
@@ -191,61 +191,52 @@ public class LittleRenderChunk {
         return flag;
     }
     
-    public ChunkCompileTask createCompileTask(RenderRegionCache p_200438_) {
-        boolean flag = this.cancelTasks();
-        BlockPos blockpos = this.origin.immutable();
-        int i = 1;
-        RenderChunkRegion renderchunkregion = p_200438_.createRegion(manager.level, blockpos.offset(-1, -1, -1), blockpos.offset(16, 16, 16), 1);
-        boolean flag1 = this.compiled.get() == ChunkRenderDispatcher.CompiledChunk.UNCOMPILED;
-        if (flag1 && flag)
+    public ChunkCompileTask createCompileTask(RenderRegionCache cache) {
+        boolean canceled = this.cancelTasks();
+        RenderChunkRegion renderchunkregion = cache.createRegion(manager.level, pos.offset(-1, -1, -1), pos.offset(16, 16, 16), 1);
+        if (this.compiled.get() == ChunkRenderDispatcher.CompiledChunk.UNCOMPILED && canceled)
             this.initialCompilationCancelCount.incrementAndGet();
         
-        this.lastRebuildTask = new RebuildTask(new net.minecraft.world.level.ChunkPos(getOrigin()), this
-                .getDistToPlayerSqr(), renderchunkregion, flag || this.compiled.get() != ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
+        this.lastRebuildTask = new RebuildTask(section.chunk(), this
+                .getDistToPlayerSqr(), renderchunkregion, canceled || this.compiled.get() != ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
         return this.lastRebuildTask;
     }
     
-    public void rebuildChunkAsync(ChunkRenderDispatcher dispatcher, RenderRegionCache cache) {
-        ChunkCompileTask task = this.createCompileTask(cache);
-        dispatcher.schedule(task);
+    public void compileASync(RenderRegionCache cache) {
+        manager.schedule(createCompileTask(cache));
     }
     
-    void updateGlobalBlockEntities(Collection<BlockEntity> p_234466_) {
-        Set<BlockEntity> set = Sets.newHashSet(p_234466_);
+    public void compile(RenderRegionCache cache) {
+        this.createCompileTask(cache).doTask(manager.fixedBuffers());
+    }
+    
+    public void updateGlobalBlockEntities(Collection<BlockEntity> blockEntities) {
+        Set<BlockEntity> set = Sets.newHashSet(blockEntities);
         Set<BlockEntity> set1;
         synchronized (this.globalBlockEntities) {
             set1 = Sets.newHashSet(this.globalBlockEntities);
             set.removeAll(this.globalBlockEntities);
-            set1.removeAll(p_234466_);
+            set1.removeAll(blockEntities);
             this.globalBlockEntities.clear();
-            this.globalBlockEntities.addAll(p_234466_);
+            this.globalBlockEntities.addAll(blockEntities);
         }
         
-        renderer.updateGlobalBlockEntities(set1, set);
+        LittleTilesClient.ANIMATION_HANDLER.updateGlobalBlockEntities(set1, set);
     }
     
-    public void compileSync(RenderRegionCache p_200440_) {
-        ChunkCompileTask task = this.createCompileTask(p_200440_);
-        task.doTask(fixedBuffers);
-    }
-    
-    private static enum ChunkTaskResult {
+    public static enum ChunkTaskResult {
         SUCCESSFUL,
         CANCELLED;
     }
     
-    private abstract class ChunkCompileTask implements Comparable<ChunkCompileTask> {
+    public abstract class ChunkCompileTask implements Comparable<ChunkCompileTask> {
         
         protected final double distAtCreation;
         protected final AtomicBoolean isCancelled = new AtomicBoolean(false);
-        protected final boolean isHighPriority;
+        public final boolean isHighPriority;
         protected Map<BlockPos, ModelData> modelData;
         
-        public ChunkCompileTask(double p_194423_, boolean p_194424_) {
-            this(null, p_194423_, p_194424_);
-        }
-        
-        public ChunkCompileTask(@Nullable net.minecraft.world.level.ChunkPos pos, double distAtCreation, boolean isHighPriority) {
+        public ChunkCompileTask(@Nullable ChunkPos pos, double distAtCreation, boolean isHighPriority) {
             this.distAtCreation = distAtCreation;
             this.isHighPriority = isHighPriority;
             this.modelData = pos == null ? java.util.Collections.emptyMap() : manager.level.getModelDataManager().getAt(pos);
@@ -255,7 +246,7 @@ public class LittleRenderChunk {
         
         public abstract void cancel();
         
-        protected abstract String name();
+        public abstract String name();
         
         @Override
         public int compareTo(ChunkCompileTask other) {
@@ -272,22 +263,22 @@ public class LittleRenderChunk {
         protected RenderChunkRegion region;
         
         @Deprecated
-        public RebuildTask(@Nullable double p_194427_, RenderChunkRegion p_194428_, boolean p_194429_) {
-            this(null, p_194427_, p_194428_, p_194429_);
+        public RebuildTask(@Nullable double distAtCreation, RenderChunkRegion region, boolean isHighPriority) {
+            this(null, distAtCreation, region, isHighPriority);
         }
         
-        public RebuildTask(@Nullable net.minecraft.world.level.ChunkPos pos, double p_194427_, @Nullable RenderChunkRegion p_194428_, boolean p_194429_) {
-            super(pos, p_194427_, p_194429_);
-            this.region = p_194428_;
+        public RebuildTask(@Nullable ChunkPos pos, double distAtCreation, @Nullable RenderChunkRegion region, boolean isHighPriority) {
+            super(pos, distAtCreation, isHighPriority);
+            this.region = region;
         }
         
         @Override
-        protected String name() {
+        public String name() {
             return "rend_chk_rebuild";
         }
         
         @Override
-        public CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack p_112872_) {
+        public CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack pack) {
             if (this.isCancelled.get())
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             
@@ -301,24 +292,21 @@ public class LittleRenderChunk {
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             }
             
-            Vec3 vec3 = this.getCameraPosition();
-            float f = (float) vec3.x;
-            float f1 = (float) vec3.y;
-            float f2 = (float) vec3.z;
-            RebuildTask.CompileResults results = this.compile(f, f1, f2, p_112872_);
+            Vec3d cam = manager.getCameraPosition();
+            RebuildTask.CompileResults results = this.compile((float) cam.x, (float) cam.y, (float) cam.z, pack);
             LittleRenderChunk.this.updateGlobalBlockEntities(results.globalBlockEntities);
             if (this.isCancelled.get()) {
                 results.renderedLayers.values().forEach(BufferBuilder.RenderedBuffer::release);
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             }
             CompiledChunk compiled = new CompiledChunk();
-            compiled.visibilitySet = results.visibilitySet;
-            compiled.renderableBlockEntities.addAll(results.blockEntities);
-            compiled.transparencyState = results.transparencyState;
+            ((CompiledChunkAccessor) compiled).setVisibilitySet(results.visibilitySet);
+            compiled.getRenderableBlockEntities().addAll(results.blockEntities);
+            ((CompiledChunkAccessor) compiled).setTransparencyState(results.transparencyState);
             List<CompletableFuture<Void>> list = Lists.newArrayList();
             results.renderedLayers.forEach((layer, buffer) -> {
-                list.add(ChunkRenderDispatcher.this.uploadChunkLayer(buffer, LittleRenderChunk.this.getBuffer(layer)));
-                compiled.hasBlocks.add(layer);
+                list.add(manager.uploadChunkLayer(buffer, LittleRenderChunk.this.getBuffer(layer)));
+                ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
             });
             return Util.sequenceFailFast(list).handle((p_234474_, p_234475_) -> {
                 if (p_234475_ != null && !(p_234475_ instanceof CancellationException) && !(p_234475_ instanceof InterruptedException)) {
@@ -330,7 +318,7 @@ public class LittleRenderChunk {
                 } else {
                     LittleRenderChunk.this.compiled.set(compiled);
                     LittleRenderChunk.this.initialCompilationCancelCount.set(0);
-                    ChunkRenderDispatcher.this.renderer.addRecentlyCompiledChunk(LittleRenderChunk.this);
+                    manager.addRecentlyCompiledChunk(LittleRenderChunk.this);
                     return ChunkTaskResult.SUCCESSFUL;
                 }
             });
@@ -339,9 +327,7 @@ public class LittleRenderChunk {
         
         private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
             CompileResults results = new CompileResults();
-            int i = 1;
-            BlockPos blockpos = RenderChunk.this.origin.immutable();
-            BlockPos blockpos1 = blockpos.offset(15, 15, 15);
+            BlockPos maxPos = pos.offset(15, 15, 15);
             VisGraph visgraph = new VisGraph();
             RenderChunkRegion renderchunkregion = this.region;
             this.region = null;
@@ -352,7 +338,7 @@ public class LittleRenderChunk {
                 RandomSource randomsource = RandomSource.create();
                 BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
                 
-                for (BlockPos blockpos2 : BlockPos.betweenClosed(blockpos, blockpos1)) {
+                for (BlockPos blockpos2 : BlockPos.betweenClosed(pos, maxPos)) {
                     BlockState blockstate = renderchunkregion.getBlockState(blockpos2);
                     if (blockstate.isSolidRender(renderchunkregion, blockpos2))
                         visgraph.setOpaque(blockpos2);
@@ -394,15 +380,15 @@ public class LittleRenderChunk {
                 if (set.contains(RenderType.translucent())) {
                     BufferBuilder bufferbuilder1 = pack.builder(RenderType.translucent());
                     if (!bufferbuilder1.isCurrentBatchEmpty()) {
-                        bufferbuilder1.setQuadSortOrigin(x - blockpos.getX(), y - blockpos.getY(), z - blockpos.getZ());
+                        bufferbuilder1.setQuadSortOrigin(x - pos.getX(), y - pos.getY(), z - pos.getZ());
                         results.transparencyState = bufferbuilder1.getSortState();
                     }
                 }
                 
                 for (RenderType rendertype1 : set) {
-                    BufferBuilder.RenderedBuffer bufferbuilder$renderedbuffer = pack.builder(rendertype1).endOrDiscardIfEmpty();
-                    if (bufferbuilder$renderedbuffer != null)
-                        results.renderedLayers.put(rendertype1, bufferbuilder$renderedbuffer);
+                    BufferBuilder.RenderedBuffer rendered = pack.builder(rendertype1).endOrDiscardIfEmpty();
+                    if (rendered != null)
+                        results.renderedLayers.put(rendertype1, rendered);
                 }
                 
                 ModelBlockRenderer.clearCache();
@@ -445,17 +431,17 @@ public class LittleRenderChunk {
         private final ChunkRenderDispatcher.CompiledChunk compiledChunk;
         
         @Deprecated
-        public ResortTransparencyTask(double p_112889_, ChunkRenderDispatcher.CompiledChunk p_112890_) {
-            this(null, p_112889_, p_112890_);
+        public ResortTransparencyTask(double distAtCreation, CompiledChunk chunk) {
+            this(null, distAtCreation, chunk);
         }
         
-        public ResortTransparencyTask(@Nullable net.minecraft.world.level.ChunkPos pos, double p_112889_, ChunkRenderDispatcher.CompiledChunk p_112890_) {
-            super(pos, p_112889_, true);
-            this.compiledChunk = p_112890_;
+        public ResortTransparencyTask(@Nullable ChunkPos pos, double distAtCreation, CompiledChunk chunk) {
+            super(pos, distAtCreation, true);
+            this.compiledChunk = chunk;
         }
         
         @Override
-        protected String name() {
+        public String name() {
             return "rend_chk_sort";
         }
         
@@ -471,28 +457,24 @@ public class LittleRenderChunk {
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             }
             
-            Vec3 vec3 = ChunkRenderDispatcher.this.getCameraPosition();
-            float f = (float) vec3.x;
-            float f1 = (float) vec3.y;
-            float f2 = (float) vec3.z;
-            BufferBuilder.SortState bufferbuilder$sortstate = this.compiledChunk.transparencyState;
-            if (bufferbuilder$sortstate != null && !this.compiledChunk.isEmpty(RenderType.translucent())) {
+            Vec3d cam = manager.getCameraPosition();
+            BufferBuilder.SortState sortstate = ((CompiledChunkAccessor) this.compiledChunk).getTransparencyState();
+            if (sortstate != null && !this.compiledChunk.isEmpty(RenderType.translucent())) {
                 BufferBuilder bufferbuilder = p_112893_.builder(RenderType.translucent());
                 LittleRenderChunk.this.beginLayer(bufferbuilder);
-                bufferbuilder.restoreSortState(bufferbuilder$sortstate);
-                bufferbuilder.setQuadSortOrigin(f - RenderChunk.this.origin.getX(), f1 - RenderChunk.this.origin.getY(), f2 - RenderChunk.this.origin.getZ());
-                this.compiledChunk.transparencyState = bufferbuilder.getSortState();
-                BufferBuilder.RenderedBuffer bufferbuilder$renderedbuffer = bufferbuilder.end();
+                bufferbuilder.restoreSortState(sortstate);
+                bufferbuilder.setQuadSortOrigin((float) cam.x - pos.getX(), (float) cam.y - pos.getY(), (float) cam.z - pos.getZ());
+                ((CompiledChunkAccessor) this.compiledChunk).setTransparencyState(bufferbuilder.getSortState());
+                BufferBuilder.RenderedBuffer rendered = bufferbuilder.end();
                 if (this.isCancelled.get()) {
-                    bufferbuilder$renderedbuffer.release();
+                    rendered.release();
                     return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
                 }
-                CompletableFuture<ChunkTaskResult> completablefuture = ChunkRenderDispatcher.this
-                        .uploadChunkLayer(bufferbuilder$renderedbuffer, LittleRenderChunk.this.getBuffer(RenderType.translucent())).thenApply(x -> ChunkTaskResult.CANCELLED);
-                return completablefuture.handle((p_234491_, p_234492_) -> {
-                    if (p_234492_ != null && !(p_234492_ instanceof CancellationException) && !(p_234492_ instanceof InterruptedException)) {
-                        Minecraft.getInstance().delayCrash(CrashReport.forThrowable(p_234492_, "Rendering chunk"));
-                    }
+                CompletableFuture<ChunkTaskResult> completablefuture = manager.uploadChunkLayer(rendered, LittleRenderChunk.this.getBuffer(RenderType.translucent()))
+                        .thenApply(x -> ChunkTaskResult.CANCELLED);
+                return completablefuture.handle((result, exception) -> {
+                    if (exception != null && !(exception instanceof CancellationException) && !(exception instanceof InterruptedException))
+                        Minecraft.getInstance().delayCrash(CrashReport.forThrowable(exception, "Rendering chunk"));
                     
                     return this.isCancelled.get() ? ChunkTaskResult.CANCELLED : ChunkTaskResult.SUCCESSFUL;
                 });

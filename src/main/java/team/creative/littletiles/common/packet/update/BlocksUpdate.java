@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
-import team.creative.littletiles.common.level.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public class BlocksUpdate extends CreativePacket {
     
