@@ -138,7 +138,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public boolean hasCustomBoxes(World world, ItemStack stack, EntityPlayer player, IBlockState state, PlacementPosition pos, RayTraceResult result) {
-        return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
+        return LittleAction.isBlockValid(state) || world.getTileEntity(pos.getPos()) instanceof TileEntityLittleTiles;
     }
     
     @Override
