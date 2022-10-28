@@ -139,7 +139,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public boolean hasCustomBoxes(World world, ItemStack stack, EntityPlayer player, IBlockState state, PlacementPosition pos, RayTraceResult result) {
-        return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
+        return LittleAction.isBlockValid(state) || world.getTileEntity(pos.getPos()) instanceof TileEntityLittleTiles;
     }
     
     @Override

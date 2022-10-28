@@ -34,7 +34,7 @@ public interface ILittlePlacer extends ILittleTool {
     @Override
     public default void rotate(EntityPlayer player, ItemStack stack, Rotation rotation, boolean client) {
         LittlePreviews previews = getLittlePreview(stack, false);
-        if (previews.isEmpty())
+        if (previews == null || previews.isEmpty())
             return;
         previews.rotatePreviews(rotation, previews.getContext().rotationCenter);
         saveLittlePreview(stack, previews);
@@ -43,7 +43,7 @@ public interface ILittlePlacer extends ILittleTool {
     @Override
     public default void flip(EntityPlayer player, ItemStack stack, Axis axis, boolean client) {
         LittlePreviews previews = getLittlePreview(stack, false);
-        if (previews.isEmpty())
+        if (previews == null || previews.isEmpty())
             return;
         previews.flipPreviews(axis, previews.getContext().rotationCenter);
         saveLittlePreview(stack, previews);
