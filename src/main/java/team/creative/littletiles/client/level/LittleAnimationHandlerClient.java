@@ -24,11 +24,11 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.CrashReport;
 import net.minecraft.Util;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.RenderRegionCache;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -184,10 +184,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             runnable.run();
     }
     
-    public void rebuildChunkSync(LittleRenderChunk chunk, RenderRegionCache cache) {
-        chunk.compile(cache);
-    }
-    
     public void blockUntilClear() {
         this.clearBatchQueue();
     }
@@ -244,6 +240,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public void allChanged() {
+        for (LittleLevelEntity animation : entities)
+            animation.getRenderManager().allChanged();
+        
         this.recentlyCompiledChunks.clear();
         
         synchronized (this.globalBlockEntities) {
@@ -260,7 +259,35 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @Override
     public synchronized Iterator<LittleLevelEntity> iterator() {
-        return new FilterIterator<>(entities, x -> x.renderManager.isInSight);
+        return new FilterIterator<>(entities, x -> x.getRenderManager().isInSight);
+    }
+    
+    public void needsUpdate() {
+        for (LittleLevelEntity animation : entities)
+            animation.getRenderManager().needsFullRenderChunkUpdate = true;
+    }
+    
+    public void setupRender(Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator) {
+        mc.getProfiler().push("setup_animation_render");
+        Vec3 cam = camera.getPosition();
+        for (LittleLevelEntity animation : entities) {
+            animation.getRenderManager().isInSight = LittleLevelEntityRenderer.INSTANCE.shouldRender(animation, frustum, cam.x, cam.y, cam.z);
+            LittleLevelEntityRenderer.INSTANCE.setupRender(animation, camera, frustum, capturedFrustum, spectator);
+        }
+        mc.getProfiler().pop();
+    }
+    
+    public void compileChunks(Camera camera) {
+        mc.getProfiler().push("compile_animation_chunks");
+        
+        Runnable run;
+        while ((run = this.toUpload.poll()) != null)
+            run.run();
+        
+        for (LittleLevelEntity animation : entities)
+            LittleLevelEntityRenderer.INSTANCE.compileChunks(animation, camera);
+        
+        mc.getProfiler().pop();
     }
     
     public void resortTransparency(RenderType layer, double x, double y, double z) {
@@ -290,12 +317,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @SubscribeEvent
     public void renderChunkLayer(RenderLevelStageEvent event) {
-        if (event.getStage() == Stage.AFTER_SKY) { // start
-            Vec3 cam = event.getCamera().getPosition();
-            for (LittleLevelEntity animation : entities)
-                animation.renderManager.isInSight = LittleLevelEntityRenderer.INSTANCE.shouldRender(animation, event.getFrustum(), cam.x, cam.y, cam.z);
-        } else if (event.getStage() == Stage.AFTER_SOLID_BLOCKS || event.getStage() == Stage.AFTER_CUTOUT_BLOCKS || event
-                .getStage() == Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS || event.getStage() == Stage.AFTER_TRANSLUCENT_BLOCKS)
+        if (event.getStage() == Stage.AFTER_SOLID_BLOCKS || event.getStage() == Stage.AFTER_CUTOUT_BLOCKS || event.getStage() == Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS || event
+                .getStage() == Stage.AFTER_TRANSLUCENT_BLOCKS)
             for (LittleLevelEntity animation : this)
                 LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(animation, event);
     }
@@ -304,7 +327,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public void renderEnd(RenderTickEvent event) {
         if (event.phase == Phase.END)
             for (LittleLevelEntity animation : entities)
-                animation.renderManager.isInSight = null;
+                animation.getRenderManager().isInSight = null;
     }
     
     @SubscribeEvent

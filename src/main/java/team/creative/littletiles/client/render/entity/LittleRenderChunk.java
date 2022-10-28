@@ -66,7 +66,7 @@ public class LittleRenderChunk {
     public final LittleLevelRenderManager manager;
     public final SectionPos section;
     public final BlockPos pos;
-    public final AtomicReference<ChunkRenderDispatcher.CompiledChunk> compiled = new AtomicReference<>(ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
+    public final AtomicReference<CompiledChunk> compiled = new AtomicReference<>(CompiledChunk.UNCOMPILED);
     private AABB bb;
     private final AtomicInteger initialCompilationCancelCount = new AtomicInteger(0);
     @Nullable
@@ -143,10 +143,10 @@ public class LittleRenderChunk {
         this.buffers.values().forEach(VertexBuffer::close);
     }
     
-    public void setDirty(boolean dirty) {
+    public void setDirty(boolean playerChanged) {
         boolean flag = this.dirty;
         this.dirty = true;
-        this.playerChanged = dirty | (flag && this.playerChanged);
+        this.playerChanged = playerChanged | (flag && this.playerChanged);
     }
     
     public void setNotDirty() {
@@ -194,11 +194,10 @@ public class LittleRenderChunk {
     public ChunkCompileTask createCompileTask(RenderRegionCache cache) {
         boolean canceled = this.cancelTasks();
         RenderChunkRegion renderchunkregion = cache.createRegion(manager.level, pos.offset(-1, -1, -1), pos.offset(16, 16, 16), 1);
-        if (this.compiled.get() == ChunkRenderDispatcher.CompiledChunk.UNCOMPILED && canceled)
+        if (this.compiled.get() == CompiledChunk.UNCOMPILED && canceled)
             this.initialCompilationCancelCount.incrementAndGet();
         
-        this.lastRebuildTask = new RebuildTask(section.chunk(), this
-                .getDistToPlayerSqr(), renderchunkregion, canceled || this.compiled.get() != ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
+        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), renderchunkregion, canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
         return this.lastRebuildTask;
     }
     
@@ -259,6 +258,7 @@ public class LittleRenderChunk {
     }
     
     class RebuildTask extends ChunkCompileTask {
+        
         @Nullable
         protected RenderChunkRegion region;
         
@@ -295,6 +295,7 @@ public class LittleRenderChunk {
             Vec3d cam = manager.getCameraPosition();
             RebuildTask.CompileResults results = this.compile((float) cam.x, (float) cam.y, (float) cam.z, pack);
             LittleRenderChunk.this.updateGlobalBlockEntities(results.globalBlockEntities);
+            
             if (this.isCancelled.get()) {
                 results.renderedLayers.values().forEach(BufferBuilder.RenderedBuffer::release);
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
@@ -303,24 +304,24 @@ public class LittleRenderChunk {
             ((CompiledChunkAccessor) compiled).setVisibilitySet(results.visibilitySet);
             compiled.getRenderableBlockEntities().addAll(results.blockEntities);
             ((CompiledChunkAccessor) compiled).setTransparencyState(results.transparencyState);
+            
             List<CompletableFuture<Void>> list = Lists.newArrayList();
             results.renderedLayers.forEach((layer, buffer) -> {
                 list.add(manager.uploadChunkLayer(buffer, LittleRenderChunk.this.getBuffer(layer)));
                 ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
             });
-            return Util.sequenceFailFast(list).handle((p_234474_, p_234475_) -> {
-                if (p_234475_ != null && !(p_234475_ instanceof CancellationException) && !(p_234475_ instanceof InterruptedException)) {
-                    Minecraft.getInstance().delayCrash(CrashReport.forThrowable(p_234475_, "Rendering chunk"));
-                }
+            
+            return Util.sequenceFailFast(list).handle((voids, throwable) -> {
+                if (throwable != null && !(throwable instanceof CancellationException) && !(throwable instanceof InterruptedException))
+                    Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Rendering chunk"));
                 
-                if (this.isCancelled.get()) {
+                if (this.isCancelled.get())
                     return ChunkTaskResult.CANCELLED;
-                } else {
-                    LittleRenderChunk.this.compiled.set(compiled);
-                    LittleRenderChunk.this.initialCompilationCancelCount.set(0);
-                    manager.addRecentlyCompiledChunk(LittleRenderChunk.this);
-                    return ChunkTaskResult.SUCCESSFUL;
-                }
+                
+                LittleRenderChunk.this.compiled.set(compiled);
+                LittleRenderChunk.this.initialCompilationCancelCount.set(0);
+                manager.addRecentlyCompiledChunk(LittleRenderChunk.this);
+                return ChunkTaskResult.SUCCESSFUL;
             });
             
         }
@@ -428,7 +429,8 @@ public class LittleRenderChunk {
     
     @OnlyIn(Dist.CLIENT)
     class ResortTransparencyTask extends ChunkCompileTask {
-        private final ChunkRenderDispatcher.CompiledChunk compiledChunk;
+        
+        private final CompiledChunk compiledChunk;
         
         @Deprecated
         public ResortTransparencyTask(double distAtCreation, CompiledChunk chunk) {

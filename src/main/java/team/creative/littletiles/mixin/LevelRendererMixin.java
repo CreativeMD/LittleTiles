@@ -42,4 +42,22 @@ public class LevelRendererMixin {
             LittleTilesClient.ANIMATION_HANDLER.resortTransparency(layer, x, y, z);
     }
     
+    @Inject(at = @At("HEAD"), method = "needsUpdate()V")
+    public void needsUpdate(CallbackInfo info) {
+        if (LittleTilesClient.ANIMATION_HANDLER != null)
+            LittleTilesClient.ANIMATION_HANDLER.needsUpdate();
+    }
+    
+    @Inject(at = @At("TAIL"), method = "setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V")
+    public void setupRender(Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator, CallbackInfo info) {
+        if (LittleTilesClient.ANIMATION_HANDLER != null)
+            LittleTilesClient.ANIMATION_HANDLER.setupRender(camera, frustum, capturedFrustum, spectator);
+    }
+    
+    @Inject(at = @At("TAIL"), method = "compileChunks(Lnet/minecraft/client/Camera;)V")
+    public void compileChunks(Camera camera, CallbackInfo info) {
+        if (LittleTilesClient.ANIMATION_HANDLER != null)
+            LittleTilesClient.ANIMATION_HANDLER.compileChunks(camera);
+    }
+    
 }

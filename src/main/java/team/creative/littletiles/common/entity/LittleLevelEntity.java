@@ -19,12 +19,12 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
+import team.creative.littletiles.client.level.LittleClientLevel;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
@@ -58,9 +58,6 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     public double initalRotY;
     public double initalRotZ;
     
-    @OnlyIn(Dist.CLIENT)
-    public LittleLevelRenderManager renderManager;
-    
     // ================Constructors================
     
     public LittleLevelEntity(EntityType<?> type, Level level) {
@@ -86,9 +83,6 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         });
         
         origin.tick();
-        
-        if (level.isClientSide)
-            renderManager = new LittleLevelRenderManager((LittleLevel) subLevel);
     }
     
     // ================Origin================
@@ -112,7 +106,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return origin;
     }
     
-    public IOrientatedLevel getSubLevel() {
+    public ISubLevel getSubLevel() {
         return subLevel;
     }
     
@@ -131,7 +125,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     protected void setSubLevel(ISubLevel subLevel) {
         this.subLevel = subLevel;
         this.subLevel.setHolder(this);
-        this.subLevel.registerLevelBoundListener(physic);
+        ((LittleLevel) this.subLevel).registerLevelBoundListener(physic);
     }
     
     public StructureAbsolute getCenter() {
@@ -179,7 +173,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     // ================Children================
     
     public Iterable<Entity> entities() {
-        return subLevel.entities();
+        return ((LittleLevel) subLevel).entities();
     }
     
     public Iterable<OrientationAwareEntity> children() {
@@ -188,10 +182,10 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     // ================Rendering================
     
-    /*@OnlyIn(Dist.CLIENT)
-    public LittleRenderChunkSuppilier getRenderChunkSuppilier() {
-        return (LittleRenderChunkSuppilier) ((CreativeClientLevel) fakeLevel).renderChunkSupplier;
-    }*/
+    @OnlyIn(Dist.CLIENT)
+    public LittleLevelRenderManager getRenderManager() {
+        return ((LittleClientLevel) subLevel).renderManager;
+    }
     
     // ================Ticking================
     
@@ -214,7 +208,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         onTick();
         
         physic.updateBoundingBox();
-        subLevel.tickBlockEntities();
+        ((LittleLevel) subLevel).tickBlockEntities();
         
         setPosRaw(center.baseOffset.getX() + origin.offXLast(), center.baseOffset.getY() + origin.offYLast(), center.baseOffset.getZ() + origin.offZLast());
         setOldPosAndRot();
@@ -249,8 +243,6 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         loadLevelEntity(nbt);
         
         physic.updateBoundingBox();
-        if (level.isClientSide)
-            renderManager = new LittleLevelRenderManager((LittleLevel) subLevel);
     }
     
     public abstract void loadLevelEntity(CompoundTag nbt);

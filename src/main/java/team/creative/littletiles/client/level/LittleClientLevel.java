@@ -24,6 +24,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelDataManager;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
 @OnlyIn(Dist.CLIENT)
@@ -34,6 +35,7 @@ public abstract class LittleClientLevel extends LittleLevel {
     final List<AbstractClientPlayer> players = Lists.newArrayList();
     private final Map<String, MapItemSavedData> mapData = Maps.newHashMap();
     private final ModelDataManager modelDataManager = new ModelDataManager(this);
+    public LittleLevelRenderManager renderManager = new LittleLevelRenderManager(this);
     
     protected LittleClientLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
         super(worldInfo, radius, supplier, true, debug, seed);
@@ -75,25 +77,23 @@ public abstract class LittleClientLevel extends LittleLevel {
     }
     
     @Override
-    public void sendBlockUpdated(BlockPos p_104685_, BlockState p_104686_, BlockState p_104687_, int p_104688_) {
-        this.levelRenderer.blockChanged(this, p_104685_, p_104686_, p_104687_, p_104688_);
+    public void sendBlockUpdated(BlockPos pos, BlockState actualState, BlockState setState, int p_104688_) {
+        this.renderManager.blockChanged(this, pos, actualState, setState, p_104688_);
     }
     
     @Override
-    public void setBlocksDirty(BlockPos p_104759_, BlockState p_104760_, BlockState p_104761_) {
-        this.levelRenderer.setBlockDirty(p_104759_, p_104760_, p_104761_);
+    public void setBlocksDirty(BlockPos pos, BlockState actualState, BlockState setState) {
+        this.renderManager.setBlockDirty(pos, actualState, setState);
     }
     
-    public void setSectionDirtyWithNeighbors(int p_104794_, int p_104795_, int p_104796_) {
-        this.levelRenderer.setSectionDirtyWithNeighbors(p_104794_, p_104795_, p_104796_);
+    public void setSectionDirtyWithNeighbors(int x, int y, int z) {
+        this.renderManager.setSectionDirtyWithNeighbors(x, y, z);
     }
     
-    public void setLightReady(int p_197406_, int p_197407_) {
-        LevelChunk levelchunk = this.chunkSource.getChunk(p_197406_, p_197407_, false);
-        if (levelchunk != null) {
+    public void setLightReady(int x, int z) {
+        LevelChunk levelchunk = this.getChunkSource().getChunk(x, z, false);
+        if (levelchunk != null)
             levelchunk.setClientLightReady(true);
-        }
-        
     }
     
     final class EntityCallbacks implements LevelCallback<Entity> {
