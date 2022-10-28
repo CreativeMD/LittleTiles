@@ -3,16 +3,21 @@ package team.creative.littletiles.client.render.entity;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
+import net.minecraft.Util;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.SectionPos;
@@ -21,9 +26,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.type.list.BucketList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.level.LittleRenderChunk;
+import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkCompileTask;
+import team.creative.littletiles.client.render.level.LittleRenderChunks;
+import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
 @OnlyIn(Dist.CLIENT)
@@ -41,10 +49,13 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     private MutableBlockPos cameraPos = new MutableBlockPos();
     
     private HashMap<Long, LittleRenderChunk> chunks = new HashMap<>();
-    private BucketList<LittleRenderChunk> toRender = new BucketList<>();
+    private LittleRenderChunks sortedChunks = new LittleRenderChunks();
     
     @Nullable
     public Future<?> lastFullRenderChunkUpdate;
+    
+    private final BlockingQueue<LittleRenderChunk> queuedCompiled = new LinkedBlockingQueue<>();
+    private final BlockingQueue<LittleRenderChunk> emptyCompiled = new LinkedBlockingQueue<>();
     
     public LittleLevelRenderManager(LittleLevel level) {
         this.level = level;
@@ -54,20 +65,77 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
         return chunks.get(SectionPos.asLong(pos));
     }
     
-    public synchronized LittleRenderChunk getChunk(SectionPos pos) {
-        return chunks.get(pos.asLong());
+    public synchronized LittleRenderChunk getChunk(SectionPos pos, boolean create) {
+        long value = pos.asLong();
+        LittleRenderChunk chunk = chunks.get(value);
+        if (chunk != null)
+            chunks.put(value, chunk = new LittleRenderChunk(this, pos));
+        return chunk;
     }
     
     public CompletableFuture<Void> uploadChunkLayer(BufferBuilder.RenderedBuffer rendered, VertexBuffer buffer) {
         return LittleTilesClient.ANIMATION_HANDLER.uploadChunkLayer(rendered, buffer);
     }
     
-    public void schedule(LittleRenderChunk.ChunkCompileTask task) {
+    public void schedule(ChunkCompileTask task) {
         LittleTilesClient.ANIMATION_HANDLER.schedule(task);
     }
     
-    public void addRecentlyCompiledChunk(LittleRenderChunk chunk) {
-        LittleTilesClient.ANIMATION_HANDLER.addRecentlyCompiledChunk(chunk);
+    public void emptyChunk(LittleRenderChunk chunk) {
+        emptyCompiled.add(chunk);
+    }
+    
+    public void queueChunk(LittleRenderChunk chunk) {
+        if (chunk.considered.compareAndSet(false, true))
+            queuedCompiled.add(chunk);
+    }
+    
+    public void setupRender(LittleLevelEntity animation, Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator) {
+        Vec3d cam = new Vec3d(camera.getPosition());
+        
+        isInSight = LittleLevelEntityRenderer.INSTANCE.shouldRender(animation, frustum, cam.x, cam.y, cam.z); // needs to original camera position
+        
+        synchronized (this) {
+            while (!emptyCompiled.isEmpty()) {
+                LittleRenderChunk chunk = emptyCompiled.poll();
+                if (chunk.considered.compareAndSet(true, false))
+                    sortedChunks.remove(chunk);
+                chunks.remove(chunk.section.asLong());
+                chunk.releaseBuffers();
+            }
+        }
+        
+        animation.getOrigin().transformPointToFakeWorld(cam); // from here on the camera is transformed to the sub level
+        
+        this.camera = cam;
+        this.cameraPos.set(cam.x, cam.y, cam.z);
+        BlockPos cameraPos = getCameraBlockPos();
+        Vec3d chunkCamera = new Vec3d(Math.floor(cam.x / 8.0D), Math.floor(cam.y / 8.0D), Math.floor(cam.z / 8.0D));
+        
+        needsFullRenderChunkUpdate |= this.chunkCamera.equals(chunkCamera);
+        
+        this.chunkCamera = chunkCamera;
+        /*Level level = (Level) animation.getSubLevel();
+        boolean headOccupied = mc.smartCull; This needs to be implemented
+        if (spectator && level.getBlockState(cameraPos).isSolidRender(level, cameraPos))
+            headOccupied = false;*/
+        
+        if (capturedFrustum || !isInSight)
+            return;
+        
+        if (needsFullRenderChunkUpdate && (lastFullRenderChunkUpdate == null || lastFullRenderChunkUpdate.isDone())) {
+            needsFullRenderChunkUpdate = false;
+            queuedCompiled.clear();
+            
+            lastFullRenderChunkUpdate = Util.backgroundExecutor().submit(() -> sortedChunks.arrangeRings(SectionPos.of(cameraPos), chunks.values()));
+        } else
+            synchronized (this) {
+                while (!queuedCompiled.isEmpty()) {
+                    LittleRenderChunk chunk = queuedCompiled.poll();
+                    if (chunk.considered.compareAndSet(false, true))
+                        sortedChunks.add(chunk);
+                }
+            }
     }
     
     public ChunkBufferBuilderPack fixedBuffers() {
@@ -141,20 +209,12 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     }
     
     private void setSectionDirty(int x, int y, int z, boolean playerChanged) {
-        int i = Math.floorMod(x, this.chunkGridSizeX);
-        int j = Math.floorMod(y - this.level.getMinSection(), this.chunkGridSizeY);
-        int k = Math.floorMod(z, this.chunkGridSizeZ);
-        LittleRenderChunk chunk = this.chunks[this.getChunkIndex(i, j, k)];
+        LittleRenderChunk chunk = chunks.get(SectionPos.asLong(x, y, z));
+        if (chunk == null) {
+            SectionPos pos = SectionPos.of(x, y, z);
+            chunks.put(pos.asLong(), chunk = new LittleRenderChunk(this, pos));
+        }
         chunk.setDirty(playerChanged);
-    }
-    
-    public void setCameraPosition(Vec3d vec) {
-        this.camera = vec;
-        this.cameraPos.set(vec.x, vec.y, vec.z);
-    }
-    
-    public void setChunkCameraPosition(Vec3d vec) {
-        this.chunkCamera = vec;
     }
     
     public Vec3d getCameraPosition() {
@@ -163,10 +223,6 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     
     public BlockPos getCameraBlockPos() {
         return cameraPos;
-    }
-    
-    public Vec3d getChunkCameraPosition() {
-        return chunkCamera;
     }
     
     public synchronized void unload() {
@@ -183,11 +239,11 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     }
     
     public Iterable<LittleRenderChunk> visibleChunks() {
-        return toRender;
+        return sortedChunks;
     }
     
     public Iterator<LittleRenderChunk> visibleChunksInverse() {
-        return toRender.inverseIterator();
+        return sortedChunks.inverseIterator();
     }
     
     public void allChanged() {
@@ -200,6 +256,8 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
             } catch (Exception exception) {
                 LittleTiles.LOGGER.warn("Full update failed", exception);
             }
+        
+        this.queuedCompiled.clear();
     }
     
 }

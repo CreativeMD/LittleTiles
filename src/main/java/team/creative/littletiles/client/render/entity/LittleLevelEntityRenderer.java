@@ -2,25 +2,20 @@ package team.creative.littletiles.client.render.entity;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Vector3f;
 
-import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.PrioritizeChunkUpdates;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -33,7 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.ForgeConfig;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 
 public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity> {
@@ -79,54 +74,6 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         return InventoryMenu.BLOCK_ATLAS;
     }
     
-    public void setupRender(LittleLevelEntity animation, Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator) {
-        Vec3d cam = new Vec3d(camera.getPosition());
-        animation.getOrigin().transformPointToFakeWorld(cam);
-        LittleLevelRenderManager manager = animation.getRenderManager();
-        Level level = (Level) animation.getSubLevel();
-        
-        manager.setCameraPosition(cam);
-        BlockPos cameraPos = manager.getCameraBlockPos();
-        Vec3d chunkCamera = new Vec3d(Math.floor(cam.x / 8.0D), Math.floor(cam.y / 8.0D), Math.floor(cam.z / 8.0D));
-        
-        manager.needsFullRenderChunkUpdate |= manager.getChunkCameraPosition().equals(chunkCamera);
-        
-        manager.setChunkCameraPosition(chunkCamera);
-        boolean headOccupied = mc.smartCull;
-        if (spectator && level.getBlockState(cameraPos).isSolidRender(level, cameraPos))
-            headOccupied = false;
-        
-        if (capturedFrustum || !manager.isInSight)
-            return;
-        
-        if (manager.needsFullRenderChunkUpdate && (manager.lastFullRenderChunkUpdate == null || manager.lastFullRenderChunkUpdate.isDone())) {
-            manager.needsFullRenderChunkUpdate = false;
-            boolean flag1 = headOccupied;
-            manager.lastFullRenderChunkUpdate = Util.backgroundExecutor().submit(() -> {
-                Queue<LevelRenderer.RenderChunkInfo> queue1 = Queues.newArrayDeque();
-                this.initializeQueueForFullUpdate(p_194339_, queue1);
-                LevelRenderer.RenderChunkStorage levelrenderer$renderchunkstorage1 = new LevelRenderer.RenderChunkStorage(this.viewArea.chunks.length);
-                this.updateRenderChunks(levelrenderer$renderchunkstorage1.renderChunks, levelrenderer$renderchunkstorage1.renderInfoMap, vec3, queue1, flag1);
-                this.renderChunkStorage.set(levelrenderer$renderchunkstorage1);
-            });
-        }
-        
-        LevelRenderer.RenderChunkStorage levelrenderer$renderchunkstorage = this.renderChunkStorage.get();
-        if (!this.recentlyCompiledChunks.isEmpty()) {
-            Queue<LevelRenderer.RenderChunkInfo> queue = Queues.newArrayDeque();
-            
-            while (!this.recentlyCompiledChunks.isEmpty()) {
-                ChunkRenderDispatcher.RenderChunk chunkrenderdispatcher$renderchunk = this.recentlyCompiledChunks.poll();
-                LevelRenderer.RenderChunkInfo levelrenderer$renderchunkinfo = levelrenderer$renderchunkstorage.renderInfoMap.get(chunkrenderdispatcher$renderchunk);
-                if (levelrenderer$renderchunkinfo != null && levelrenderer$renderchunkinfo.chunk == chunkrenderdispatcher$renderchunk) {
-                    queue.add(levelrenderer$renderchunkinfo);
-                }
-            }
-            
-            this.updateRenderChunks(levelrenderer$renderchunkstorage.renderChunks, levelrenderer$renderchunkstorage.renderInfoMap, vec3, queue, headOccupied);
-        }
-    }
-    
     public void compileChunks(LittleLevelEntity animation, Camera camera) {
         mc.getProfiler().push("compile_animation_chunks");
         LittleLevelRenderManager manager = animation.getRenderManager();
@@ -146,7 +93,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
                 }
                 
                 if (immediate) {
-                    chunk.compile(renderregioncache);
+                    chunk.compile();
                     chunk.setNotDirty();
                 } else
                     schedule.add(chunk);
@@ -154,7 +101,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         }
         
         for (LittleRenderChunk chunk : schedule) {
-            chunk.compileASync(renderregioncache);
+            chunk.compileASync();
             chunk.setNotDirty();
         }
         

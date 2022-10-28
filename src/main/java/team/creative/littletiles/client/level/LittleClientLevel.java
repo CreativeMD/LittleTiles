@@ -23,6 +23,7 @@ import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelDataManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.LittleLevel;
@@ -126,7 +127,7 @@ public abstract class LittleClientLevel extends LittleLevel {
             LittleClientLevel.this.players.remove(entity);
             
             entity.onRemovedFromWorld();
-            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, LittleClientLevel.this));
+            MinecraftForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, LittleClientLevel.this));
         }
         
         @Override

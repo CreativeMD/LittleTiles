@@ -230,7 +230,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         this.initalRotY = nbt.getDouble("initRotY");
         this.initalRotZ = nbt.getDouble("initRotZ");
         
-        subLevel.preventNeighborUpdate = true;
+        //subLevel.preventNeighborUpdate = true;
         
         setCenter(new StructureAbsolute("center", nbt));
         
@@ -238,7 +238,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("structure"));
         
-        subLevel.preventNeighborUpdate = false;
+        //subLevel.preventNeighborUpdate = false;
         
         loadLevelEntity(nbt);
         

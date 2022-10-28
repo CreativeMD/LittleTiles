@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.render.entity;
+package team.creative.littletiles.client.render.level;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -37,8 +36,6 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
-import net.minecraft.client.renderer.chunk.RenderChunkRegion;
-import net.minecraft.client.renderer.chunk.RenderRegionCache;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.chunk.VisibilitySet;
 import net.minecraft.core.BlockPos;
@@ -46,6 +43,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -58,6 +56,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.CompiledChunkAccessor;
 
@@ -68,7 +67,7 @@ public class LittleRenderChunk {
     public final BlockPos pos;
     public final AtomicReference<CompiledChunk> compiled = new AtomicReference<>(CompiledChunk.UNCOMPILED);
     private AABB bb;
-    private final AtomicInteger initialCompilationCancelCount = new AtomicInteger(0);
+    public final AtomicBoolean considered = new AtomicBoolean();
     @Nullable
     private RebuildTask lastRebuildTask;
     @Nullable
@@ -191,22 +190,18 @@ public class LittleRenderChunk {
         return flag;
     }
     
-    public ChunkCompileTask createCompileTask(RenderRegionCache cache) {
+    public ChunkCompileTask createCompileTask() {
         boolean canceled = this.cancelTasks();
-        RenderChunkRegion renderchunkregion = cache.createRegion(manager.level, pos.offset(-1, -1, -1), pos.offset(16, 16, 16), 1);
-        if (this.compiled.get() == CompiledChunk.UNCOMPILED && canceled)
-            this.initialCompilationCancelCount.incrementAndGet();
-        
-        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), renderchunkregion, canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
+        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), manager.level, canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
         return this.lastRebuildTask;
     }
     
-    public void compileASync(RenderRegionCache cache) {
-        manager.schedule(createCompileTask(cache));
+    public void compileASync() {
+        manager.schedule(createCompileTask());
     }
     
-    public void compile(RenderRegionCache cache) {
-        this.createCompileTask(cache).doTask(manager.fixedBuffers());
+    public void compile() {
+        this.createCompileTask().doTask(manager.fixedBuffers());
     }
     
     public void updateGlobalBlockEntities(Collection<BlockEntity> blockEntities) {
@@ -260,16 +255,16 @@ public class LittleRenderChunk {
     class RebuildTask extends ChunkCompileTask {
         
         @Nullable
-        protected RenderChunkRegion region;
+        protected Level level;
         
         @Deprecated
-        public RebuildTask(@Nullable double distAtCreation, RenderChunkRegion region, boolean isHighPriority) {
-            this(null, distAtCreation, region, isHighPriority);
+        public RebuildTask(@Nullable double distAtCreation, Level level, boolean isHighPriority) {
+            this(null, distAtCreation, level, isHighPriority);
         }
         
-        public RebuildTask(@Nullable ChunkPos pos, double distAtCreation, @Nullable RenderChunkRegion region, boolean isHighPriority) {
+        public RebuildTask(@Nullable ChunkPos pos, double distAtCreation, @Nullable Level level, boolean isHighPriority) {
             super(pos, distAtCreation, isHighPriority);
-            this.region = region;
+            this.level = level;
         }
         
         @Override
@@ -282,15 +277,15 @@ public class LittleRenderChunk {
             if (this.isCancelled.get())
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             
-            if (this.isCancelled.get())
-                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
-            
             if (!LittleRenderChunk.this.hasAllNeighbors()) {
-                this.region = null;
+                this.level = null;
                 LittleRenderChunk.this.setDirty(false);
                 this.isCancelled.set(true);
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             }
+            
+            if (this.isCancelled.get())
+                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             
             Vec3d cam = manager.getCameraPosition();
             RebuildTask.CompileResults results = this.compile((float) cam.x, (float) cam.y, (float) cam.z, pack);
@@ -300,6 +295,14 @@ public class LittleRenderChunk {
                 results.renderedLayers.values().forEach(BufferBuilder.RenderedBuffer::release);
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             }
+            
+            if (results.isEmpty()) {
+                manager.emptyChunk(LittleRenderChunk.this);
+                LittleRenderChunk.this.compiled.set(CompiledChunk.UNCOMPILED);
+                results.renderedLayers.values().forEach(BufferBuilder.RenderedBuffer::release);
+                return CompletableFuture.completedFuture(ChunkTaskResult.SUCCESSFUL);
+            }
+            
             CompiledChunk compiled = new CompiledChunk();
             ((CompiledChunkAccessor) compiled).setVisibilitySet(results.visibilitySet);
             compiled.getRenderableBlockEntities().addAll(results.blockEntities);
@@ -319,8 +322,7 @@ public class LittleRenderChunk {
                     return ChunkTaskResult.CANCELLED;
                 
                 LittleRenderChunk.this.compiled.set(compiled);
-                LittleRenderChunk.this.initialCompilationCancelCount.set(0);
-                manager.addRecentlyCompiledChunk(LittleRenderChunk.this);
+                manager.queueChunk(LittleRenderChunk.this);
                 return ChunkTaskResult.SUCCESSFUL;
             });
             
@@ -330,8 +332,8 @@ public class LittleRenderChunk {
             CompileResults results = new CompileResults();
             BlockPos maxPos = pos.offset(15, 15, 15);
             VisGraph visgraph = new VisGraph();
-            RenderChunkRegion renderchunkregion = this.region;
-            this.region = null;
+            Level renderchunkregion = this.level;
+            this.level = null;
             PoseStack posestack = new PoseStack();
             if (renderchunkregion != null) {
                 ModelBlockRenderer.enableCaching();
@@ -410,7 +412,7 @@ public class LittleRenderChunk {
         
         @Override
         public void cancel() {
-            this.region = null;
+            this.level = null;
             if (this.isCancelled.compareAndSet(false, true))
                 LittleRenderChunk.this.setDirty(false);
             
@@ -418,12 +420,17 @@ public class LittleRenderChunk {
         
         @OnlyIn(Dist.CLIENT)
         static final class CompileResults {
+            
             public final List<BlockEntity> globalBlockEntities = new ArrayList<>();
             public final List<BlockEntity> blockEntities = new ArrayList<>();
             public final Map<RenderType, BufferBuilder.RenderedBuffer> renderedLayers = new Reference2ObjectArrayMap<>();
             public VisibilitySet visibilitySet = new VisibilitySet();
             @Nullable
             public BufferBuilder.SortState transparencyState;
+            
+            public boolean isEmpty() {
+                return renderedLayers.isEmpty() && globalBlockEntities.isEmpty() && blockEntities.isEmpty();
+            }
         }
     }
     

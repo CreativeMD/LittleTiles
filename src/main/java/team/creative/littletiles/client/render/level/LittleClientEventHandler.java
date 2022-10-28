@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -66,10 +65,6 @@ public class LittleClientEventHandler {
                 }
             }
         }
-        
-    }
-    
-    public void reloadRenderer(EntityRenderersEvent.AddLayers event) {
         
     }
     

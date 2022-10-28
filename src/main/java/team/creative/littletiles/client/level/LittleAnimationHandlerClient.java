@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import javax.annotation.Nullable;
@@ -66,7 +64,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.event.InputEventHandler;
 import team.creative.littletiles.client.event.WheelClick;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
-import team.creative.littletiles.client.render.entity.LittleRenderChunk;
+import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
@@ -87,7 +85,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public final ChunkBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
-    private final BlockingQueue<LittleRenderChunk> recentlyCompiledChunks = new LinkedBlockingQueue<>();
+    
     private final Set<BlockEntity> globalBlockEntities = Sets.newHashSet();
     
     public LittleAnimationHandlerClient(Level level) {
@@ -235,15 +233,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         this.freeBuffers.clear();
     }
     
-    public void addRecentlyCompiledChunk(LittleRenderChunk chunk) {
-        this.recentlyCompiledChunks.add(chunk);
-    }
-    
     public void allChanged() {
         for (LittleLevelEntity animation : entities)
             animation.getRenderManager().allChanged();
-        
-        this.recentlyCompiledChunks.clear();
         
         synchronized (this.globalBlockEntities) {
             this.globalBlockEntities.clear();
@@ -269,11 +261,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     public void setupRender(Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator) {
         mc.getProfiler().push("setup_animation_render");
-        Vec3 cam = camera.getPosition();
-        for (LittleLevelEntity animation : entities) {
-            animation.getRenderManager().isInSight = LittleLevelEntityRenderer.INSTANCE.shouldRender(animation, frustum, cam.x, cam.y, cam.z);
-            LittleLevelEntityRenderer.INSTANCE.setupRender(animation, camera, frustum, capturedFrustum, spectator);
-        }
+        for (LittleLevelEntity animation : entities)
+            animation.getRenderManager().setupRender(animation, camera, frustum, capturedFrustum, spectator);
         mc.getProfiler().pop();
     }
     
