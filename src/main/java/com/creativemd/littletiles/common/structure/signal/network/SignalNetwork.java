@@ -126,6 +126,9 @@ public class SignalNetwork implements ISignalSchedulable {
         
         forceUpdate = true;
         schedule();
+        network.inputs.clear();
+        network.outputs.clear();
+        network.transmitters.clear();
     }
     
     /** @param list
