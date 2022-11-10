@@ -8,12 +8,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTilesRegistry;
-import team.creative.littletiles.client.level.FakeClientLevel;
+import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
-import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleLevelEntityLarge;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
@@ -64,22 +65,9 @@ public class AnimationPreview {
         
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleLevelEntity(LittleTilesRegistry.ANIMATION.get(), fakeWorld, SubServerLevel.createSubLevel(fakeWorld), new StructureAbsolute(pos, entireBox, previews
-                .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure)) {
-            
-            @Override
-            public void initialTick() {}
-            
-            @Override
-            public void onTick() {}
-            
-            @Override
-            public void loadLevelEntity(CompoundTag nbt) {}
-            
-            @Override
-            public void saveLevelEntity(CompoundTag nbt) {}
-            
-        };
+        animation = new LittleLevelEntityLarge(LittleTilesRegistry.ENTITY_LEVEL_LARGE.get(), fakeWorld, SubServerLevel
+                .createSubLevel(fakeWorld), new StructureAbsolute(pos, entireBox, previews
+                        .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
         
     }
     

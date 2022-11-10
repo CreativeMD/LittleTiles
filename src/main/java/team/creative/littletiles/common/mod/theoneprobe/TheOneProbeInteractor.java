@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 
 public class TheOneProbeInteractor implements IEntityDisplayOverride, IBlockDisplayOverride {
     

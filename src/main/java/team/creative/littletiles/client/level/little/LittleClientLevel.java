@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.level;
+package team.creative.littletiles.client.level.little;
 
 import java.util.List;
 import java.util.Map;
@@ -9,9 +9,12 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.entity.EntityTickList;
@@ -38,8 +41,8 @@ public abstract class LittleClientLevel extends LittleLevel {
     private final ModelDataManager modelDataManager = new ModelDataManager(this);
     public LittleLevelRenderManager renderManager = new LittleLevelRenderManager(this);
     
-    protected LittleClientLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(worldInfo, radius, supplier, true, debug, seed);
+    protected LittleClientLevel(WritableLevelData worldInfo, int radius, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
+        super(worldInfo, radius, dimension, supplier, true, debug, seed, access);
     }
     
     @Override

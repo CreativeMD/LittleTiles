@@ -11,7 +11,7 @@ import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.level.handler.LittleAnimationHandlerServer;

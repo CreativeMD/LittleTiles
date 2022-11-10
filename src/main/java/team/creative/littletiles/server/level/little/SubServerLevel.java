@@ -7,7 +7,6 @@ import com.mojang.math.Vector3d;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -24,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
@@ -31,7 +31,7 @@ import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.client.level.SubClientLevel;
+import team.creative.littletiles.client.level.little.SubClientLevel;
 
 public class SubServerLevel extends LittleServerLevel implements ISubLevel {
     
@@ -44,10 +44,10 @@ public class SubServerLevel extends LittleServerLevel implements ISubLevel {
     public Level parentLevel;
     
     protected SubServerLevel(Level parent, int radius) {
-        super(parent.getServer(), (WritableLevelData) parent.getLevelData(), radius, parent.getProfilerSupplier(), parent.isDebug(), 0);
+        super(parent.getServer(), (WritableLevelData) parent.getLevelData(), radius, parent.dimension(), parent.getProfilerSupplier(), false, 0, parent.registryAccess());
         this.parentLevel = parent;
         this.gatherCapabilities();
-        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));
+        MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));
     }
     
     @Override
@@ -179,11 +179,6 @@ public class SubServerLevel extends LittleServerLevel implements ISubLevel {
     @Override
     public void levelEvent(Player player, int p_217378_2_, BlockPos pos, int p_217378_4_) {
         getRealLevel().levelEvent(player, p_217378_2_, pos, p_217378_4_);
-    }
-    
-    @Override
-    public RegistryAccess registryAccess() {
-        return getRealLevel().registryAccess();
     }
     
     @Override

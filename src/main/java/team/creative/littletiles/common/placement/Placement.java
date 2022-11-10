@@ -75,9 +75,9 @@ public class Placement {
     protected BiPredicate<IParentCollection, LittleTile> predicate;
     protected boolean playSounds = true;
     
-    public Placement(Player player, PlacementPreview preview) throws LittleActionException {
+    public Placement(Player player, Level level, PlacementPreview preview) throws LittleActionException {
         this.player = player;
-        this.level = preview.getLevel(player);
+        this.level = level;
         this.preview = preview;
         this.origin = createStructureTree(null, preview.previews, null);
         
@@ -89,6 +89,10 @@ public class Placement {
         
         for (PlacementBlock block : blocks.values())
             block.convertToSmallest();
+    }
+    
+    public Placement(Player player, PlacementPreview preview) throws LittleActionException {
+        this(player, preview.getLevel(player), preview);
     }
     
     public Placement setPlaySounds(boolean sounds) {

@@ -1,9 +1,10 @@
-package team.creative.littletiles.common.entity;
+package team.creative.littletiles.common.entity.level;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -24,14 +25,17 @@ import team.creative.creativecore.common.util.math.collision.CollisionCoordinato
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
-import team.creative.littletiles.client.level.LittleClientLevel;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
+import team.creative.littletiles.common.entity.INoPushEntity;
+import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.common.packet.mc.ClientboundAddLevelEntityPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.direct.StructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -218,7 +222,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     // ================Save&Load================
     
     @Override
-    protected void readAdditionalSaveData(CompoundTag nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         // TODO TAKE CARE OF EXISTING LOADED ENTITIES
         
         setSubLevel(SubServerLevel.createSubLevel(level));
@@ -248,7 +252,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     public abstract void loadLevelEntity(CompoundTag nbt);
     
     @Override
-    protected void addAdditionalSaveData(CompoundTag nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         center.save("center", nbt);
         
         nbt.putDouble("initOffX", initalOffX);
@@ -266,6 +270,18 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     }
     
     public abstract void saveLevelEntity(CompoundTag nbt);
+    
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        return new ClientboundAddLevelEntityPacket(this);
+    }
+    
+    @Override
+    public void recreateFromPacket(ClientboundAddEntityPacket packet) {
+        super.recreateFromPacket(packet);
+        if (packet instanceof ClientboundAddLevelEntityPacket pk)
+            readAdditionalSaveData(pk.getNbt());
+    }
     
     @Override
     public void onAddedToWorld() {
@@ -313,12 +329,6 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     @Override
     public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
         return InteractionResult.PASS;
-    }
-    
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        // TODO Auto-generated method stub
-        return null;
     }
     
     // ================Hit Result================

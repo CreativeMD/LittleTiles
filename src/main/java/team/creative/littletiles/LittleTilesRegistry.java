@@ -1,7 +1,11 @@
 package team.creative.littletiles;
 
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.BlockItem;
@@ -11,6 +15,8 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.registries.DeferredRegister;
@@ -27,8 +33,8 @@ import team.creative.littletiles.common.block.mc.BlockSignalConverter;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.block.mc.BlockWater;
 import team.creative.littletiles.common.entity.EntitySit;
-import team.creative.littletiles.common.entity.LittleLevelEntity;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
+import team.creative.littletiles.common.entity.level.LittleLevelEntityLarge;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
@@ -148,6 +154,15 @@ public class LittleTilesRegistry {
     public static final RegistryObject<EntityType<EntitySit>> SIT_TYPE = ENTITIES
             .register("sit", () -> EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit"));
     
-    public static final RegistryObject<EntityType<LittleLevelEntity>> ANIMATION = null;
+    public static final RegistryObject<EntityType<LittleLevelEntityLarge>> ENTITY_LEVEL_LARGE = ENTITIES
+            .register("little_level_large", () -> EntityType.Builder.<LittleLevelEntityLarge>of(LittleLevelEntityLarge::new, MobCategory.MISC).build("little_level_large"));
+    
+    // DIMENSION
+    
+    public static final DeferredRegister<DimensionType> DIMENSION_TYPES = DeferredRegister.create(new ResourceLocation("minecraft", "dimension_type"), LittleTiles.MODID);
+    
+    public static final RegistryObject<DimensionType> FAKE_DIMENSION = DIMENSION_TYPES.register("fake", () -> new DimensionType(OptionalLong
+            .empty(), true, false, false, false, 1, false, false, -64, 384, 384, BlockTags.INFINIBURN_OVERWORLD, BuiltinDimensionTypes.OVERWORLD_EFFECTS, 0.0F, new DimensionType.MonsterSettings(false, false, UniformInt
+                    .of(0, 0), 0)));
     
 }

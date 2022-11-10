@@ -8,12 +8,15 @@ import java.util.function.Supplier;
 import com.google.common.collect.Lists;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.ChunkEntities;
 import net.minecraft.world.level.entity.EntityPersistentStorage;
 import net.minecraft.world.level.entity.EntityTickList;
@@ -35,8 +38,8 @@ public abstract class LittleServerLevel extends LittleLevel {
     private final PersistentEntitySectionManager<Entity> entityManager;
     public boolean noSave;
     
-    protected LittleServerLevel(MinecraftServer server, WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(worldInfo, radius, supplier, false, debug, seed);
+    protected LittleServerLevel(MinecraftServer server, WritableLevelData worldInfo, int radius, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
+        super(worldInfo, radius, dimension, supplier, false, debug, seed, access);
         this.server = server;
         this.entityManager = new PersistentEntitySectionManager<>(Entity.class, new LittleServerLevel.EntityCallbacks(), new EntityPersistentStorage<>() {
             

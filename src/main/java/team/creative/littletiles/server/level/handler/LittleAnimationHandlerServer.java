@@ -4,7 +4,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.littletiles.common.entity.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {

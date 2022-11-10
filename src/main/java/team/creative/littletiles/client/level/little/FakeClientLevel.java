@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.level;
+package team.creative.littletiles.client.level.little;
 
 import java.util.function.Supplier;
 
@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -25,7 +24,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.client.level.FakeClientLevel;
 import team.creative.littletiles.common.level.little.FakeLevelInfo;
 
 @OnlyIn(Dist.CLIENT)
@@ -40,7 +38,7 @@ public class FakeClientLevel extends LittleClientLevel {
     }
     
     protected FakeClientLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(worldInfo, radius, supplier, debug, seed);
+        super(worldInfo, radius, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
         effects = DimensionSpecialEffects.forType(dimensionType());
     }
     
@@ -108,13 +106,6 @@ public class FakeClientLevel extends LittleClientLevel {
     
     @Override
     public void levelEvent(Player p_217378_1_, int p_217378_2_, BlockPos p_217378_3_, int p_217378_4_) {}
-    
-    @Override
-    public RegistryAccess registryAccess() {
-        if (isClientSide)
-            return Minecraft.getInstance().getConnection().registryAccess();
-        return getServer().registryAccess();
-    }
     
     @Override
     public void gameEvent(Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_) {}

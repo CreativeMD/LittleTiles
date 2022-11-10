@@ -38,7 +38,7 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
-import team.creative.littletiles.client.level.SubClientLevel;
+import team.creative.littletiles.client.level.little.SubClientLevel;
 import team.creative.littletiles.client.render.LittleRenderUtils;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;

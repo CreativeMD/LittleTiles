@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -27,9 +26,9 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.client.level.FakeClientLevel;
-import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.level.little.FakeLevelInfo;
+import team.creative.littletiles.common.level.little.LittleLevel;
 
 public class FakeServerLevel extends LittleServerLevel {
     
@@ -48,7 +47,7 @@ public class FakeServerLevel extends LittleServerLevel {
     private DimensionSpecialEffects effects;
     
     protected FakeServerLevel(MinecraftServer server, WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(server, worldInfo, radius, supplier, debug, seed);
+        super(server, worldInfo, radius, OVERWORLD, supplier, debug, seed, server.registryAccess());
     }
     
     @Override
@@ -115,13 +114,6 @@ public class FakeServerLevel extends LittleServerLevel {
     
     @Override
     public void levelEvent(Player p_217378_1_, int p_217378_2_, BlockPos p_217378_3_, int p_217378_4_) {}
-    
-    @Override
-    public RegistryAccess registryAccess() {
-        if (isClientSide)
-            return Minecraft.getInstance().getConnection().registryAccess();
-        return getServer().registryAccess();
-    }
     
     @Override
     public void gameEvent(Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_) {}

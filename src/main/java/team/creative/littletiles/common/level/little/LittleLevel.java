@@ -8,6 +8,8 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -22,9 +24,9 @@ import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
-import team.creative.creativecore.CreativeCore;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.littletiles.LittleTilesRegistry;
 
 public abstract class LittleLevel extends Level implements IOrientatedLevel {
     
@@ -38,9 +40,12 @@ public abstract class LittleLevel extends Level implements IOrientatedLevel {
     public boolean hasChanged = false;
     public boolean preventNeighborUpdate = false;
     
-    protected LittleLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean client, boolean debug, long seed) {
-        super(worldInfo, CreativeCore.FAKE_DIMENSION_NAME, CreativeCore.FAKE_DIMENSION, supplier, client, debug, seed, 1000000);
-        this.chunkSource = new FakeChunkCache(this, radius);
+    private RegistryAccess access;
+    
+    protected LittleLevel(WritableLevelData worldInfo, int radius, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean client, boolean debug, long seed, RegistryAccess access) {
+        super(worldInfo, dimension, LittleTilesRegistry.FAKE_DIMENSION.getHolder().get(), supplier, client, debug, seed, 1000000);
+        this.access = access;
+        this.chunkSource = new FakeChunkCache(this, access);
     }
     
     @Override
@@ -150,6 +155,11 @@ public abstract class LittleLevel extends Level implements IOrientatedLevel {
     @Override
     public void tickBlockEntities() {
         super.tickBlockEntities();
+    }
+    
+    @Override
+    public RegistryAccess registryAccess() {
+        return access;
     }
     
 }

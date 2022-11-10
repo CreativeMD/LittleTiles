@@ -4,7 +4,9 @@
     "compatibilityLevel": "JAVA_17",
     "refmap": "littletiles.mixins.refmap.json",
     "mixins": [
-        "LittleBedPlayerMixin"
+        "LittleBedPlayerMixin",
+        "ConnectionProtocolMixin",
+        "PacketSetMixin"
     ],
     "client": [
         "RebuildTaskMixin",
