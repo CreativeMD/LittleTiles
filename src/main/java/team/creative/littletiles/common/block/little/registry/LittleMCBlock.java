@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.block.little.registry;
 
-import java.lang.reflect.Field;
-
 import com.mojang.math.Vector3d;
 
 import net.minecraft.client.renderer.RenderType;
@@ -14,11 +12,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -30,10 +26,9 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.mixin.BlockBehaviourAccessor;
 
 public class LittleMCBlock implements LittleBlock {
-    
-    public static final Field hasCollisionField = ObfuscationReflectionHelper.findField(BlockBehaviour.class, "f_60443_");
     
     public final Block block;
     private final boolean translucent;
@@ -60,12 +55,7 @@ public class LittleMCBlock implements LittleBlock {
     
     @Override
     public boolean noCollision() {
-        try {
-            return !hasCollisionField.getBoolean(block);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return false;
+        return !((BlockBehaviourAccessor) block).getHasCollision();
     }
     
     @Override

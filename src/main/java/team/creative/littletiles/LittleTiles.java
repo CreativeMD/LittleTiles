@@ -1,7 +1,5 @@
 package team.creative.littletiles;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
-import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -37,7 +34,6 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativeNetwork;
@@ -94,6 +90,7 @@ import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.premade.LittleExporter;
 import team.creative.littletiles.common.structure.type.premade.LittleImporter;
+import team.creative.littletiles.mixin.ChunkMapAccessor;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.level.little.SubServerLevel;
 
@@ -184,10 +181,7 @@ public class LittleTiles {
     }
     
     private void serverStarting(final ServerStartingEvent event) {
-        
         ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
-        
-        Method getChunks = ObfuscationReflectionHelper.findMethod(ChunkMap.class, "m_140416_");
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
             x.getSource().sendSuccess(Component
@@ -202,17 +196,13 @@ public class LittleTiles {
             ServerLevel level = x.getSource().getLevel();
             List<BETiles> blocks = new ArrayList<>();
             
-            try {
-                level.getChunkSource().getLoadedChunksCount();
-                for (ChunkHolder holder : (Iterable<ChunkHolder>) getChunks.invoke(level.getChunkSource().chunkMap))
-                    if (holder.getFullStatus() == FullChunkStatus.TICKING)
-                        for (BlockEntity be : holder.getTickingChunk().getBlockEntities().values())
-                            if (be instanceof BETiles)
-                                blocks.add((BETiles) be);
-                            
-            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            level.getChunkSource().getLoadedChunksCount();
+            for (ChunkHolder holder : ((ChunkMapAccessor) level.getChunkSource().chunkMap).callGetChunks())
+                if (holder.getFullStatus() == FullChunkStatus.TICKING)
+                    for (BlockEntity be : holder.getTickingChunk().getBlockEntities().values())
+                        if (be instanceof BETiles)
+                            blocks.add((BETiles) be);
+                        
             x.getSource().sendSuccess(Component.literal("Attempting to convert " + blocks.size() + " blocks!"), false);
             int converted = 0;
             int i = 0;

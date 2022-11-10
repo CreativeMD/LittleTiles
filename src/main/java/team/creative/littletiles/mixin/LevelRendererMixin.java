@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
@@ -38,6 +39,7 @@ public class LevelRendererMixin {
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD),
             method = "renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V")
     public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
+        LittleClientEventHandler.transparencySortingIndex++;
         if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.resortTransparency(layer, x, y, z);
     }

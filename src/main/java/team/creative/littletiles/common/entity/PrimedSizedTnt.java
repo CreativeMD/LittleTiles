@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.entity;
 
-import java.lang.reflect.Field;
-
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
@@ -13,14 +11,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.mixin.PrimedTntAccessor;
 
 public class PrimedSizedTnt extends PrimedTnt {
     
-    private static final Field ownerField = ObfuscationReflectionHelper.findField(PrimedTnt.class, "f_32072_");
     private static final EntityDataAccessor<String> TNTSIZE = SynchedEntityData.defineId(PrimedSizedTnt.class, EntityDataSerializers.STRING);
     
     public LittleGrid grid;
@@ -39,11 +36,7 @@ public class PrimedSizedTnt extends PrimedTnt {
         this.xo = x;
         this.yo = y;
         this.zo = z;
-        try {
-            ownerField.set(this, igniter);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        ((PrimedTntAccessor) this).setOwner(igniter);
         setSize(grid, size);
         refreshDimensions();
     }

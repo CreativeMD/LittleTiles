@@ -2,7 +2,7 @@ package team.creative.littletiles.common.mod.theoneprobe;
 
 import mcjty.theoneprobe.api.ITheOneProbe;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import team.creative.creativecore.reflection.ReflectionHelper;
 
 public class TheOneProbeManager {
     
@@ -23,7 +23,7 @@ public class TheOneProbeManager {
     
     private static void initDirectly() {
         try {
-            ITheOneProbe theoneprobe = (ITheOneProbe) ObfuscationReflectionHelper.findField(Class.forName("mcjty.theoneprobe.TheOneProbe"), "theOneProbeImp").get(null);
+            ITheOneProbe theoneprobe = (ITheOneProbe) ReflectionHelper.findField(Class.forName("mcjty.theoneprobe.TheOneProbe"), "theOneProbeImp").get(null);
             TheOneProbeInteractor interactor = new TheOneProbeInteractor();
             theoneprobe.registerBlockDisplayOverride(interactor);
             theoneprobe.registerEntityDisplayOverride(interactor);

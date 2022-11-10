@@ -19,6 +19,7 @@ public class InputEventHandler {
     
     private static final Method continueAttackMethod = ObfuscationReflectionHelper.findMethod(Minecraft.class, "m_91386_", boolean.class);
     
+    // TODO THIS CLASS NEEDS TO BE REWORKED
     public static void onHoldClick(boolean leftClick) {
         try {
             HoldLeftClick event = new HoldLeftClick(mc.level, mc.player, leftClick);

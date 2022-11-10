@@ -1,7 +1,5 @@
 package team.creative.littletiles.client.render.level;
 
-import java.lang.reflect.Field;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -14,7 +12,6 @@ import com.mojang.math.Vector3d;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -22,14 +19,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -41,32 +34,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 public class LittleClientEventHandler {
     
     private static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
-    private static final Field xTransparentOldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "f_109445_");
-    private static final Field yTransparentOldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "f_109446_");
-    private static final Field zTransparentOldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "f_109447_");
-    
     public static int transparencySortingIndex;
-    
-    @SubscribeEvent
-    public void onRenderTick(RenderTickEvent event) {
-        if (event.phase == Phase.START) {
-            Minecraft mc = Minecraft.getInstance();
-            
-            if (mc.player != null && mc.levelRenderer != null) {
-                try {
-                    Vec3 vec3 = mc.gameRenderer.getMainCamera().getPosition();
-                    double d0 = vec3.x() - xTransparentOldField.getDouble(mc.levelRenderer);
-                    double d1 = vec3.y() - yTransparentOldField.getDouble(mc.levelRenderer);
-                    double d2 = vec3.z() - zTransparentOldField.getDouble(mc.levelRenderer);
-                    if (d0 * d0 + d1 * d1 + d2 * d2 > 1.0D)
-                        transparencySortingIndex++;
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        
-    }
     
     @SubscribeEvent
     public synchronized void levelUnload(LevelEvent.Unload event) {

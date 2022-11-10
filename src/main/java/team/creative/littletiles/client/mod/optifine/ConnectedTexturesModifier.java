@@ -8,8 +8,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour.BlockStateBase;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.reflection.ReflectionHelper;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -25,9 +25,9 @@ public class ConnectedTexturesModifier {
     static {
         try {
             connectedProperties = Class.forName("net.optifine.ConnectedProperties");
-            match = ObfuscationReflectionHelper.findMethod(connectedProperties, "matchesBlockId", int.class);
-            matchMeta = ObfuscationReflectionHelper.findMethod(connectedProperties, "matchesBlock", int.class, int.class);
-            getBlockID = ObfuscationReflectionHelper.findMethod(BlockStateBase.class, "getBlockId");
+            match = ReflectionHelper.findMethod(connectedProperties, "matchesBlockId", int.class);
+            matchMeta = ReflectionHelper.findMethod(connectedProperties, "matchesBlock", int.class, int.class);
+            getBlockID = ReflectionHelper.findMethod(BlockStateBase.class, "getBlockId");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

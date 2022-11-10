@@ -6,7 +6,11 @@
     "mixins": [
         "LittleBedPlayerMixin",
         "ConnectionProtocolMixin",
-        "PacketSetMixin"
+        "PacketSetMixin",
+        "ChunkMapAccessor",
+        "StateHolderAccessor",
+        "BlockBehaviourAccessor",
+        "PrimedTntAccessor"
     ],
     "client": [
         "RebuildTaskMixin",

@@ -20,12 +20,12 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.element.LittleElement;
-import team.creative.littletiles.common.block.little.registry.LittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.mixin.BlockBehaviourAccessor;
 
 public interface ILittleMCBlock extends LittleBlock {
     
@@ -64,12 +64,7 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default boolean noCollision() {
-        try {
-            return !LittleMCBlock.hasCollisionField.getBoolean(asBlock());
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return false;
+        return !((BlockBehaviourAccessor) asBlock()).getHasCollision();
     }
     
     @Override
