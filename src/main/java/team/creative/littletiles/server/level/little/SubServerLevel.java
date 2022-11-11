@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -18,9 +19,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,15 +36,15 @@ import team.creative.littletiles.client.level.little.SubClientLevel;
 public class SubServerLevel extends LittleServerLevel implements ISubLevel {
     
     public static ISubLevel createSubLevel(Level level) {
-        if (level instanceof ServerLevel)
-            return new SubServerLevel(level, 6);
-        return new SubClientLevel(level, 6);
+        if (level instanceof ServerLevel s)
+            return new SubServerLevel(s);
+        return new SubClientLevel(level);
     }
     
     public Level parentLevel;
     
-    protected SubServerLevel(Level parent, int radius) {
-        super(parent.getServer(), (WritableLevelData) parent.getLevelData(), radius, parent.dimension(), parent.getProfilerSupplier(), false, 0, parent.registryAccess());
+    protected SubServerLevel(ServerLevel parent) {
+        super(parent.getServer(), (ServerLevelData) parent.getLevelData(), parent.dimension(), false, parent.getSeed(), parent.registryAccess());
         this.parentLevel = parent;
         this.gatherCapabilities();
         MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));
@@ -69,10 +69,10 @@ public class SubServerLevel extends LittleServerLevel implements ISubLevel {
     }
     
     @Override
-    public Level getRealLevel() {
+    public ServerLevel getRealLevel() {
         if (parentLevel instanceof SubServerLevel)
             return ((SubServerLevel) parentLevel).getRealLevel();
-        return parentLevel;
+        return (ServerLevel) parentLevel;
     }
     
     @Override
@@ -167,7 +167,7 @@ public class SubServerLevel extends LittleServerLevel implements ISubLevel {
     }
     
     @Override
-    public Scoreboard getScoreboard() {
+    public ServerScoreboard getScoreboard() {
         return getRealLevel().getScoreboard();
     }
     

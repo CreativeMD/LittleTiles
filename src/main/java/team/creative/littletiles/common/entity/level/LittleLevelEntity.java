@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -242,7 +242,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         LittleLevel sub = (LittleLevel) subLevel;
         ListTag chunks = nbt.getList("chunks", Tag.TAG_COMPOUND);
         for (int i = 0; i < chunks.size(); i++)
-            sub.addLoadedChunk(LittleChunkSerializer.read(sub, chunks.getCompound(i)));
+            sub.load(LittleChunkSerializer.read(sub, chunks.getCompound(i)));
         
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("structure"));
         try {
@@ -271,7 +271,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         LittleServerLevel sub = (LittleServerLevel) subLevel;
         ListTag chunks = new ListTag();
-        for (LevelChunk chunk : sub.getChunkSource().all())
+        for (ChunkAccess chunk : sub.chunks())
             chunks.add(LittleChunkSerializer.write(sub, chunk));
         nbt.put("chunks", chunks);
         

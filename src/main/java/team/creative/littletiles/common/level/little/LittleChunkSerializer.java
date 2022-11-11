@@ -100,7 +100,7 @@ public class LittleChunkSerializer {
         LevelChunkTicks<Block> blockTicks = LevelChunkTicks.load(nbt.getList("block_ticks", 10), (x) -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(x)), chunkpos);
         LevelChunkTicks<Fluid> fluidTicks = LevelChunkTicks.load(nbt.getList("fluid_ticks", 10), (x) -> Registry.FLUID.getOptional(ResourceLocation.tryParse(x)), chunkpos);
         
-        LevelChunk chunk = new LevelChunk(level, chunkpos, UpgradeData.EMPTY, blockTicks, fluidTicks, nbt
+        LevelChunk chunk = new LevelChunk(level.asLevel(), chunkpos, UpgradeData.EMPTY, blockTicks, fluidTicks, nbt
                 .getLong("InhabitedTime"), alevelchunksection, postLoadChunk(level, nbt), null);
         
         if (nbt.contains("ForgeCaps"))
@@ -216,7 +216,7 @@ public class LittleChunkSerializer {
         ListTag blockEntities = getListOfCompoundsOrNull(nbt, "block_entities");
         return entities == null && blockEntities == null ? null : (x) -> {
             if (entities != null && level instanceof LittleServerLevel sLevel)
-                sLevel.addLegacyChunkEntities(EntityType.loadEntitiesRecursive(entities, level));
+                sLevel.addLegacyChunkEntities(EntityType.loadEntitiesRecursive(entities, level.asLevel()));
             
             if (blockEntities != null)
                 for (int i = 0; i < blockEntities.size(); ++i) {

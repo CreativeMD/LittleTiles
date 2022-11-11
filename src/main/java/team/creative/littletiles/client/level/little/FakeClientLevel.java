@@ -33,12 +33,12 @@ public class FakeClientLevel extends LittleClientLevel {
     private final Scoreboard scoreboard = new Scoreboard();
     private DimensionSpecialEffects effects;
     
-    public static FakeClientLevel createFakeWorldClient(String name, FakeLevelInfo info, int radius) {
-        return new FakeClientLevel(info, radius, Minecraft.getInstance()::getProfiler, false, 0);
+    public static FakeClientLevel createFakeWorldClient(String name, FakeLevelInfo info) {
+        return new FakeClientLevel(info, Minecraft.getInstance()::getProfiler, false, 0);
     }
     
-    protected FakeClientLevel(WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(worldInfo, radius, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
+    protected FakeClientLevel(WritableLevelData worldInfo, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
+        super(worldInfo, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
         effects = DimensionSpecialEffects.forType(dimensionType());
     }
     

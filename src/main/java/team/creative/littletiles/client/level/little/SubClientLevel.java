@@ -37,8 +37,8 @@ public class SubClientLevel extends LittleClientLevel implements ISubLevel {
     
     public boolean shouldRender;
     
-    public SubClientLevel(Level parent, int radius) {
-        super((WritableLevelData) parent.getLevelData(), radius, parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
+    public SubClientLevel(Level parent) {
+        super((WritableLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
         this.parentLevel = parent;
         this.gatherCapabilities();
         MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));

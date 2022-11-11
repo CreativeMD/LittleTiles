@@ -1,7 +1,5 @@
 package team.creative.littletiles.server.level.little;
 
-import java.util.function.Supplier;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.BlockPos;
@@ -9,9 +7,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerScoreboard;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -20,8 +18,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraft.world.level.storage.WritableLevelData;
-import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
@@ -35,19 +32,19 @@ public class FakeServerLevel extends LittleServerLevel {
     public static LittleLevel createFakeLevel(String name, boolean client) {
         if (client)
             return createClient(name);
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        return new FakeServerLevel(server, new FakeLevelInfo(Difficulty.PEACEFUL, false, true), 6, server::getProfiler, false, 0);
+        return new FakeServerLevel(ServerLifecycleHooks.getCurrentServer(), new FakeServerLevelInfo(Difficulty.PEACEFUL, false, true), false, 0);
     }
     
     public static FakeClientLevel createClient(String name) {
-        return FakeClientLevel.createFakeWorldClient(name, new FakeLevelInfo(Difficulty.PEACEFUL, false, true), 6);
+        return FakeClientLevel.createFakeWorldClient(name, new FakeLevelInfo(Difficulty.PEACEFUL, false, true));
     }
     
-    private final Scoreboard scoreboard = new Scoreboard();
+    private final ServerScoreboard scoreboard;
     private DimensionSpecialEffects effects;
     
-    protected FakeServerLevel(MinecraftServer server, WritableLevelData worldInfo, int radius, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(server, worldInfo, radius, OVERWORLD, supplier, debug, seed, server.registryAccess());
+    protected FakeServerLevel(MinecraftServer server, ServerLevelData worldInfo, boolean debug, long seed) {
+        super(server, worldInfo, OVERWORLD, debug, seed, server.registryAccess());
+        this.scoreboard = new ServerScoreboard(server);
     }
     
     @Override
@@ -101,7 +98,7 @@ public class FakeServerLevel extends LittleServerLevel {
     public void playSeededSound(Player p_220372_, Entity p_220373_, SoundEvent p_220374_, SoundSource p_220375_, float p_220376_, float p_220377_, long p_220378_) {}
     
     @Override
-    public Scoreboard getScoreboard() {
+    public ServerScoreboard getScoreboard() {
         return scoreboard;
     }
     

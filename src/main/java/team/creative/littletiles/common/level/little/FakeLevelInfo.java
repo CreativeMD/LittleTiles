@@ -20,8 +20,8 @@ public class FakeLevelInfo implements WritableLevelData {
     private Difficulty difficulty;
     private boolean difficultyLocked;
     
-    public FakeLevelInfo(Difficulty p_i232338_1_, boolean hardcore, boolean isFlat) {
-        this.difficulty = p_i232338_1_;
+    public FakeLevelInfo(Difficulty difficulty, boolean hardcore, boolean isFlat) {
+        this.difficulty = difficulty;
         this.hardcore = hardcore;
         this.isFlat = isFlat;
         this.gameRules = new GameRules();

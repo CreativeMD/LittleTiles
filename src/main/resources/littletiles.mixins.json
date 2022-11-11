@@ -11,7 +11,8 @@
         "StateHolderAccessor",
         "BlockBehaviourAccessor",
         "PrimedTntAccessor",
-        "ChunkSerializerAccessor"
+        "ChunkSerializerAccessor",
+        "MinecraftServerAccessor"
     ],
     "client": [
         "RebuildTaskMixin",

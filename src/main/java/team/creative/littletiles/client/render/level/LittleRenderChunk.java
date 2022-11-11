@@ -192,7 +192,7 @@ public class LittleRenderChunk {
     
     public ChunkCompileTask createCompileTask() {
         boolean canceled = this.cancelTasks();
-        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), manager.level, canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
+        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), manager.level.asLevel(), canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
         return this.lastRebuildTask;
     }
     
