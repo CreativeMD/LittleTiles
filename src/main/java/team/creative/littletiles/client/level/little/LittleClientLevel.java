@@ -14,9 +14,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.entity.EntityTickList;
 import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.entity.LevelEntityGetter;
@@ -28,6 +30,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelDataManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.level.ChunkEvent;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
@@ -98,6 +101,25 @@ public abstract class LittleClientLevel extends LittleLevel {
         LevelChunk levelchunk = this.getChunkSource().getChunk(x, z, false);
         if (levelchunk != null)
             levelchunk.setClientLightReady(true);
+    }
+    
+    @Override
+    public void addLoadedChunk(LevelChunk chunk) {
+        super.addLoadedChunk(chunk);
+        
+    }
+    
+    @Override
+    public void onChunkLoaded(ChunkPos pos) {
+        super.onChunkLoaded(pos);
+        this.entityStorage.startTicking(pos);
+        LevelChunk chunk = getChunkSource().getChunk(pos.x, pos.z, true);
+        //chunk.replaceWithPacketData(p_194119_, p_194120_, p_194121_);
+        chunk.setClientLightReady(true);
+        LevelChunkSection[] section = chunk.getSections();
+        for (int i = 0; i < section.length; i++)
+            this.renderManager.setSectionDirty(chunk.getPos().x, chunk.getSectionYFromSectionIndex(i), chunk.getPos().z);
+        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk));
     }
     
     final class EntityCallbacks implements LevelCallback<Entity> {

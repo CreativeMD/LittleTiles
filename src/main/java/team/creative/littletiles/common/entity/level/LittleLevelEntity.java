@@ -3,6 +3,8 @@ package team.creative.littletiles.common.entity.level;
 import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.InteractionHand;
@@ -13,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -32,6 +35,7 @@ import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
@@ -41,6 +45,7 @@ import team.creative.littletiles.common.structure.connection.direct.StructureCon
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
+import team.creative.littletiles.server.level.little.LittleServerLevel;
 import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public abstract class LittleLevelEntity extends Entity implements OrientationAwareEntity, INoPushEntity {
@@ -223,8 +228,6 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
-        // TODO TAKE CARE OF EXISTING LOADED ENTITIES
-        
         setSubLevel(SubServerLevel.createSubLevel(level));
         
         this.initalOffX = nbt.getDouble("initOffX");
@@ -234,15 +237,19 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         this.initalRotY = nbt.getDouble("initRotY");
         this.initalRotZ = nbt.getDouble("initRotZ");
         
-        //subLevel.preventNeighborUpdate = true;
-        
         setCenter(new StructureAbsolute("center", nbt));
         
-        // TODO REWORK SAVING OF WORLD, SAVE BLOCKS AND ENTITIES
+        LittleLevel sub = (LittleLevel) subLevel;
+        ListTag chunks = nbt.getList("chunks", Tag.TAG_COMPOUND);
+        for (int i = 0; i < chunks.size(); i++)
+            sub.addLoadedChunk(LittleChunkSerializer.read(sub, chunks.getCompound(i)));
         
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("structure"));
-        
-        //subLevel.preventNeighborUpdate = false;
+        try {
+            this.structure.getStructure();
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+            e.printStackTrace();
+        }
         
         loadLevelEntity(nbt);
         
@@ -262,7 +269,13 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         nbt.putDouble("initRotY", initalRotY);
         nbt.putDouble("initRotZ", initalRotZ);
         
-        // TODO REWORK LOADING OF WORLD, LOAD BLOCKS AND ENTITIES
+        LittleServerLevel sub = (LittleServerLevel) subLevel;
+        ListTag chunks = new ListTag();
+        for (LevelChunk chunk : sub.getChunkSource().all())
+            chunks.add(LittleChunkSerializer.write(sub, chunk));
+        nbt.put("chunks", chunks);
+        
+        // TODO May need to save entities?????
         
         nbt.put("structure", structure.write());
         

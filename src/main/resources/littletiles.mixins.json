@@ -10,7 +10,8 @@
         "ChunkMapAccessor",
         "StateHolderAccessor",
         "BlockBehaviourAccessor",
-        "PrimedTntAccessor"
+        "PrimedTntAccessor",
+        "ChunkSerializerAccessor"
     ],
     "client": [
         "RebuildTaskMixin",

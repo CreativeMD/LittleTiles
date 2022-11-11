@@ -162,4 +162,8 @@ public abstract class LittleLevel extends Level implements IOrientatedLevel {
         return access;
     }
     
+    public void addLoadedChunk(LevelChunk chunk) {
+        chunkSource.addLoadedChunk(chunk);
+    }
+    
 }

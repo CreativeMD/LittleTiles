@@ -12,10 +12,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.ticks.LevelChunkTicks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.ChunkEvent;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
+import team.creative.littletiles.server.level.little.LittleServerLevel;
 
 public class FakeChunkCache extends ChunkSource {
     
@@ -27,6 +34,25 @@ public class FakeChunkCache extends ChunkSource {
     public FakeChunkCache(LittleLevel level, RegistryAccess access) {
         this.level = level;
         this.lightEngine = new LevelLightEngine(this, true, level.dimensionType().hasSkyLight());
+    }
+    
+    public void addLoadedChunk(LevelChunk chunk) {
+        chunks.put(chunk.getPos().toLong(), chunk);
+        
+        if (level instanceof LittleServerLevel sLevel) {
+            chunk.runPostLoad();
+            chunk.setLoaded(true);
+            chunk.registerAllBlockEntitiesAfterLevelLoad();
+            sLevel.getBlockTicks().addContainer(chunk.getPos(), (LevelChunkTicks<Block>) chunk.getBlockTicks());
+            sLevel.getFluidTicks().addContainer(chunk.getPos(), (LevelChunkTicks<Fluid>) chunk.getFluidTicks());
+            MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk));
+        } else
+            ((LittleClientLevel) level).onChunkLoaded(chunk.getPos());
+        
+    }
+    
+    public Iterable<LevelChunk> all() {
+        return chunks.values();
     }
     
     @Override

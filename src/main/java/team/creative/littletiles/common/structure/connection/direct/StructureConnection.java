@@ -89,7 +89,7 @@ public class StructureConnection implements IStructureConnection {
         if (!be.hasLoaded())
             throw new NotYetConnectedException();
         IStructureParentCollection structure = be.getStructure(index);
-        if (attribute == LittleStructureAttribute.INVALID)
+        if (structure != null && attribute == LittleStructureAttribute.INVALID)
             attribute = structure.getAttribute();
         if (structure != null)
             return structure.getStructure();
