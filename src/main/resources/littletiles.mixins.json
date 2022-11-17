@@ -14,8 +14,10 @@
         "ChunkSerializerAccessor",
         "MinecraftServerAccessor",
         "ServerChunkCacheMixin",
-        "ServerChunkCacheAccessor",
-        "ThreadedLevelLightEngineMixin"
+        "ThreadedLevelLightEngineMixin",
+        "ChunkStorageAccessor",
+        "ChunkStorageMixin",
+        "IOWorkerAccessor"
     ],
     "client": [
         "RebuildTaskMixin",

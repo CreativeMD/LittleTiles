@@ -16,15 +16,16 @@ import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
 
 public class FakeChunkCache extends ChunkSource {
     
-    public final LittleLevel level;
+    public final LittleClientLevel level;
     private final LevelLightEngine lightEngine;
     
     private final HashMap<Long, LevelChunk> chunks = new HashMap<>();
     
-    public FakeChunkCache(LittleLevel level, RegistryAccess access) {
+    public FakeChunkCache(LittleClientLevel level, RegistryAccess access) {
         this.level = level;
         this.lightEngine = new LevelLightEngine(this, true, level.dimensionType().hasSkyLight());
     }

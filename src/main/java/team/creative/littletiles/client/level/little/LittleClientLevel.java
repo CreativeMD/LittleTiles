@@ -15,10 +15,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,6 +51,7 @@ import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.FakeChunkCache;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
+import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
 @OnlyIn(Dist.CLIENT)
@@ -134,11 +137,10 @@ public abstract class LittleClientLevel extends Level implements LittleLevel {
     }
     
     @Override
-    public void load(LevelChunk chunk) {
-        chunkSource.addLoadedChunk(chunk);
+    public void load(ChunkPos pos, CompoundTag nbt) {
+        chunkSource.addLoadedChunk(LittleChunkSerializer.read(this, nbt));
     }
     
-    @Override
     public void onChunkLoaded(LevelChunk chunk) {
         this.entityStorage.startTicking(chunk.getPos());
         //chunk.replaceWithPacketData(p_194119_, p_194120_, p_194121_);

@@ -10,10 +10,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,8 +23,6 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.ServerLevelData;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.ChunkEvent;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
@@ -139,8 +139,8 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
-    public void load(LevelChunk chunk) {
-        getChunkSource().addLoadedChunk(chunk);
+    public void load(ChunkPos pos, CompoundTag nbt) {
+        getChunkSource().addLevelChunkTag(pos, nbt);
     }
     
     @Override
@@ -148,12 +148,4 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
         return getChunkSource().all();
     }
     
-    @Override
-    public void onChunkLoaded(LevelChunk chunk) {
-        chunk.runPostLoad();
-        chunk.setLoaded(true);
-        chunk.registerAllBlockEntitiesAfterLevelLoad();
-        chunk.registerTickContainerInLevel(this);
-        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk));
-    }
 }

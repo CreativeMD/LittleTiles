@@ -11,10 +11,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import com.mojang.datafixers.DataFixer;
 
 import net.minecraft.server.level.ChunkMap;
-import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -24,6 +22,7 @@ import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import team.creative.littletiles.server.level.little.LittleChunkMap;
 import team.creative.littletiles.server.level.little.LittleServerChunkCache;
 
 @Mixin(ServerChunkCache.class)
@@ -48,30 +47,8 @@ public abstract class ServerChunkCacheMixin extends ChunkSource {
             method = INIT_DESC, require = 1)
     public ChunkMap newChunkMap(ServerLevel level, LevelStorageSource.LevelStorageAccess access, DataFixer fixer, StructureTemplateManager templateManager, Executor exe, BlockableEventLoop<Runnable> loop, LightChunkGetter lightGetter, ChunkGenerator generator, ChunkProgressListener progress, ChunkStatusUpdateListener status, Supplier<DimensionDataStorage> supplier, int viewDistance, boolean sync) {
         if (as() instanceof LittleServerChunkCache)
-            return null;
+            return new LittleChunkMap(level, access, fixer, templateManager, exe, loop, lightGetter, generator, progress, status, supplier, viewDistance, sync);
         return new ChunkMap(level, access, fixer, templateManager, exe, loop, lightGetter, generator, progress, status, supplier, viewDistance, sync);
-    }
-    
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;getLightEngine()Lnet/minecraft/server/level/ThreadedLevelLightEngine;"), method = INIT_DESC,
-            require = 1)
-    public ThreadedLevelLightEngine getLightEngine(ChunkMap map) {
-        if (map == null)
-            return null;
-        return ((ChunkMapAccessor) map).callGetLightEngine();
-    }
-    
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;getDistanceManager()Lnet/minecraft/server/level/DistanceManager;"), method = INIT_DESC,
-            require = 1)
-    public DistanceManager getDistanceManager(ChunkMap map) {
-        if (map == null)
-            return null;
-        return map.getDistanceManager();
-    }
-    
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/DistanceManager;updateSimulationDistance(I)V"), method = INIT_DESC, require = 1)
-    public void updateSimulationDistance(DistanceManager manager, int distance) {
-        if (manager != null)
-            manager.updateSimulationDistance(distance);
     }
     
 }

@@ -13,6 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -241,8 +242,10 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         LittleLevel sub = (LittleLevel) subLevel;
         ListTag chunks = nbt.getList("chunks", Tag.TAG_COMPOUND);
-        for (int i = 0; i < chunks.size(); i++)
-            sub.load(LittleChunkSerializer.read(sub, chunks.getCompound(i)));
+        for (int i = 0; i < chunks.size(); i++) {
+            CompoundTag chunk = chunks.getCompound(i);
+            sub.load(new ChunkPos(chunk.getInt("xPos"), chunk.getInt("zPos")), chunk);
+        }
         
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("structure"));
         try {
