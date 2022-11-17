@@ -12,7 +12,10 @@
         "BlockBehaviourAccessor",
         "PrimedTntAccessor",
         "ChunkSerializerAccessor",
-        "MinecraftServerAccessor"
+        "MinecraftServerAccessor",
+        "ServerChunkCacheMixin",
+        "ServerChunkCacheAccessor",
+        "ThreadedLevelLightEngineMixin"
     ],
     "client": [
         "RebuildTaskMixin",
