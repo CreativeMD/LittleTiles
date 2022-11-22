@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -522,7 +521,9 @@ public class EntityAnimation extends Entity implements INoPushEntity {
                 entity.collidedVertically = collidedVertically;
                 entity.onGround = onGround;
                 entity.collided = collidedHorizontally || collidedVertically;
-                
+                if (onGround) {
+                    entity.fallDistance = 0;
+                }
             }
             
             for (OrientatedBoundingBox box : worldCollisionBoxes)
