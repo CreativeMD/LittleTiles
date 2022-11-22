@@ -787,7 +787,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     public void notifyChange() {
         if (parent != null)
             try {
-                parent.getStructure().processSignalChanges();
+                parent.getStructure().notifyChange();
                 return;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         processSignalChanges();
