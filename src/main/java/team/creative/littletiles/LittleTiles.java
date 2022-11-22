@@ -62,6 +62,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
@@ -228,21 +229,23 @@ public class LittleTiles {
         }));
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("animation").executes((x) -> {
-            ServerLevel level = x.getSource().getLevel();
-            ISubLevel subLevel = SubServerLevel.createSubLevel(level);
-            BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
-            LittleGrid grid = LittleGrid.min();
-            CompoundTag nbt = new CompoundTag();
-            nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
-            LittleGroup group = new LittleGroup(nbt, grid, Collections.EMPTY_LIST);
-            group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), grid.box());
-            subLevel.setBlock(pos.above(), Blocks.DIRT.defaultBlockState(), 3);
-            PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
             try {
+                ServerLevel level = x.getSource().getLevel();
+                ISubLevel subLevel = SubServerLevel.createSubLevel(level);
+                BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
+                LittleGrid grid = LittleGrid.min();
+                CompoundTag nbt = new CompoundTag();
+                nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
+                LittleGroup group = new LittleGroup(nbt, grid, Collections.EMPTY_LIST);
+                group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), grid.box());
+                subLevel.setBlock(pos.above(), Blocks.DIRT.defaultBlockState(), 3);
+                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
+                
                 Placement placement = new Placement(null, (Level) subLevel, preview);
                 PlacementResult result = placement.place();
                 if (result == null)
                     throw new LittleActionException("Could not be placed");
+                ((LittleLevel) subLevel).tick();
                 LittleLevelEntity entity = new LittleLevelEntityLarge(LittleTilesRegistry.ENTITY_LEVEL_LARGE
                         .get(), level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new LocalStructureLocation(result.parentStructure));
                 

@@ -205,6 +205,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     @Override
     public void performTick() {
+        
         origin.tick();
         
         if (level instanceof ISubLevel) {
@@ -216,9 +217,9 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         children().forEach(x -> x.performTick());
         onTick();
+        ((LittleLevel) subLevel).tick();
         
         physic.updateBoundingBox();
-        ((LittleLevel) subLevel).tickBlockEntities();
         
         setPosRaw(center.baseOffset.getX() + origin.offXLast(), center.baseOffset.getY() + origin.offYLast(), center.baseOffset.getZ() + origin.offZLast());
         setOldPosAndRot();

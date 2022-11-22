@@ -8,16 +8,17 @@
         "ConnectionProtocolMixin",
         "PacketSetMixin",
         "ChunkMapAccessor",
+        "ChunkMapMixin",
         "StateHolderAccessor",
         "BlockBehaviourAccessor",
         "PrimedTntAccessor",
         "ChunkSerializerAccessor",
         "MinecraftServerAccessor",
         "ServerChunkCacheMixin",
-        "ThreadedLevelLightEngineMixin",
         "ChunkStorageAccessor",
         "ChunkStorageMixin",
-        "IOWorkerAccessor"
+        "IOWorkerAccessor",
+        "ServerLevelMixin"
     ],
     "client": [
         "RebuildTaskMixin",

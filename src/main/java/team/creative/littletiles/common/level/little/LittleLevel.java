@@ -30,8 +30,8 @@ public interface LittleLevel extends IOrientatedLevel {
     
     public int getFreeMapId();
     
-    public void tickBlockEntities();
-    
     public Iterable<? extends ChunkAccess> chunks();
+    
+    public void tick();
     
 }

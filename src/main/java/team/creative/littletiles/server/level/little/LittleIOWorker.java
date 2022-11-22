@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.storage.IOWorker;
 
 public class LittleIOWorker extends IOWorker {
@@ -28,8 +29,12 @@ public class LittleIOWorker extends IOWorker {
     public CompletableFuture<Optional<CompoundTag>> loadAsync(ChunkPos pos) {
         return CompletableFuture.supplyAsync(() -> {
             CompoundTag tag = data.get(pos);
-            if (tag == null)
+            if (tag == null) {
                 tag = new CompoundTag();
+                tag.putString("Status", ChunkStatus.FULL.getName());
+                tag.putInt("xPos", pos.x);
+                tag.putInt("zPos", pos.z);
+            }
             return Optional.of(tag);
         });
     }

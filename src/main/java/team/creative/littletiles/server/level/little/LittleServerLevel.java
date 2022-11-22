@@ -129,12 +129,15 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
-    public void tickBlockEntities() {
-        super.tickBlockEntities();
+    public void tick() {
+        while (getChunkSource().pollTask()) {}
+        tick(((MinecraftServerAccessor) getServer())::callHaveTime);
     }
     
     @Override
     public RegistryAccess registryAccess() {
+        if (access == null)
+            return getServer().registryAccess();
         return access;
     }
     

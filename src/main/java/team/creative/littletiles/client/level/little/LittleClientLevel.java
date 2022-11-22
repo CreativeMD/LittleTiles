@@ -244,11 +244,6 @@ public abstract class LittleClientLevel extends Level implements LittleLevel {
     }
     
     @Override
-    public void tickBlockEntities() {
-        super.tickBlockEntities();
-    }
-    
-    @Override
     public RegistryAccess registryAccess() {
         return access;
     }
@@ -256,6 +251,11 @@ public abstract class LittleClientLevel extends Level implements LittleLevel {
     @Override
     public Iterable<? extends ChunkAccess> chunks() {
         return chunkSource.all();
+    }
+    
+    @Override
+    public void tick() {
+        tickBlockEntities();
     }
     
     final class EntityCallbacks implements LevelCallback<Entity> {

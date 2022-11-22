@@ -1,6 +1,5 @@
 package team.creative.littletiles.mixin;
 
-import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
@@ -32,14 +31,6 @@ public abstract class ServerChunkCacheMixin extends ChunkSource {
     
     public ServerChunkCache as() {
         return (ServerChunkCache) (Object) this;
-    }
-    
-    @Redirect(at = @At(value = "NEW", target = "(Ljava/io/File;Lcom/mojang/datafixers/DataFixer;)Lnet/minecraft/world/level/storage/DimensionDataStorage;"), method = INIT_DESC,
-            require = 1)
-    public DimensionDataStorage newDataStorage(File file, DataFixer fixer) {
-        if (as() instanceof LittleServerChunkCache)
-            return null;
-        return new DimensionDataStorage(file, fixer);
     }
     
     @Redirect(at = @At(value = "NEW",

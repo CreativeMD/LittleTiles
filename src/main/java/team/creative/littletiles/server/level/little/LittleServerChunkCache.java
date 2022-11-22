@@ -16,6 +16,7 @@ import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
+import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.mixin.ChunkMapAccessor;
 import team.creative.littletiles.mixin.ChunkStorageAccessor;
@@ -26,8 +27,8 @@ public class LittleServerChunkCache extends ServerChunkCache {
         
         @Override
         public Iterator<LevelChunk> iterator() {
-            return new FunctionIterator<LevelChunk>(((ChunkMapAccessor) chunkMap).callGetChunks().iterator(), x -> x.getFullChunk());
-            
+            return new FilterIterator<LevelChunk>(new FunctionIterator<LevelChunk>(((ChunkMapAccessor) chunkMap).callGetChunks()
+                    .iterator(), x -> x.getFullChunk()), x -> x != null);
         }
     };
     
