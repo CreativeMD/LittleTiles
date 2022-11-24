@@ -21,6 +21,7 @@ import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.server.level.little.LittleChunkMap;
 import team.creative.littletiles.server.level.little.LittleServerChunkCache;
 
@@ -37,8 +38,14 @@ public abstract class ServerChunkCacheMixin extends ChunkSource {
             target = "(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Ljava/util/concurrent/Executor;Lnet/minecraft/util/thread/BlockableEventLoop;Lnet/minecraft/world/level/chunk/LightChunkGetter;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/server/level/progress/ChunkProgressListener;Lnet/minecraft/world/level/entity/ChunkStatusUpdateListener;Ljava/util/function/Supplier;IZ)Lnet/minecraft/server/level/ChunkMap;"),
             method = INIT_DESC, require = 1)
     public ChunkMap newChunkMap(ServerLevel level, LevelStorageSource.LevelStorageAccess access, DataFixer fixer, StructureTemplateManager templateManager, Executor exe, BlockableEventLoop<Runnable> loop, LightChunkGetter lightGetter, ChunkGenerator generator, ChunkProgressListener progress, ChunkStatusUpdateListener status, Supplier<DimensionDataStorage> supplier, int viewDistance, boolean sync) {
-        if (as() instanceof LittleServerChunkCache)
-            return new LittleChunkMap(level, access, fixer, templateManager, exe, loop, lightGetter, generator, progress, status, supplier, viewDistance, sync);
+        if (as() instanceof LittleServerChunkCache cache)
+            try {
+                LittleChunkMap map = (LittleChunkMap) LittleTiles.getUnsafe().allocateInstance(LittleChunkMap.class);
+                map.init(level, cache, lightGetter, exe);
+                return map;
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            }
         return new ChunkMap(level, access, fixer, templateManager, exe, loop, lightGetter, generator, progress, status, supplier, viewDistance, sync);
     }
     

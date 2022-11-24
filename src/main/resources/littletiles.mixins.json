@@ -15,9 +15,7 @@
         "ChunkSerializerAccessor",
         "MinecraftServerAccessor",
         "ServerChunkCacheMixin",
-        "ChunkStorageAccessor",
-        "ChunkStorageMixin",
-        "IOWorkerAccessor",
+        "ServerChunkCacheAccessor",
         "ServerLevelMixin"
     ],
     "client": [

@@ -34,11 +34,13 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import sun.misc.Unsafe;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.reflection.ReflectionHelper;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
@@ -97,6 +99,16 @@ import team.creative.littletiles.server.level.little.SubServerLevel;
 
 @Mod(LittleTiles.MODID)
 public class LittleTiles {
+    
+    private static Object unsafe;
+    
+    public static Unsafe getUnsafe() {
+        try {
+            if (unsafe == null)
+                unsafe = ReflectionHelper.findField(Unsafe.class, "theUnsafe").get(null);
+        } catch (IllegalArgumentException | IllegalAccessException e) {}
+        return (Unsafe) unsafe;
+    }
     
     public static final String MODID = "littletiles";
     
@@ -256,6 +268,8 @@ public class LittleTiles {
             } catch (Exception e) {
                 e.printStackTrace();
                 throw e;
+            } catch (Error e) {
+                e.printStackTrace();
             }
             
             return 0;

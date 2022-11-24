@@ -143,7 +143,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     
     @Override
     public void load(ChunkPos pos, CompoundTag nbt) {
-        getChunkSource().addLevelChunkTag(pos, nbt);
+        getChunkSource().loadLevelChunk(pos, nbt);
     }
     
     @Override
