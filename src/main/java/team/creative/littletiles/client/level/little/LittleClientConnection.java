@@ -14,15 +14,15 @@ import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
-import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.packet.level.LittleLevelPacket;
 
 public class LittleClientConnection extends Connection {
     
-    public final ISubLevel level;
+    public final LittleLevel level;
     
-    public LittleClientConnection(ISubLevel level) {
+    public LittleClientConnection(LittleLevel level) {
         super(PacketFlow.CLIENTBOUND);
         this.level = level;
     }

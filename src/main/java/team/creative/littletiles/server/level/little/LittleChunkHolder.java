@@ -10,7 +10,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
-import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -20,6 +19,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.packet.level.LittleLevelPacket;
 
 public class LittleChunkHolder {
     
@@ -29,18 +31,16 @@ public class LittleChunkHolder {
     private final BitSet blockChangedLightSectionFilter = new BitSet();
     private final BitSet skyChangedLightSectionFilter = new BitSet();
     private final LevelLightEngine lightEngine;
-    private final ChunkHolder.PlayerProvider playerProvider;
     private boolean resendLight;
     
-    public LittleChunkHolder(ServerLevel level, ChunkPos pos, LevelLightEngine lightEngine, ChunkHolder.PlayerProvider playerProvider) {
-        this(new LevelChunk(level, pos), lightEngine, playerProvider);
+    public LittleChunkHolder(ServerLevel level, ChunkPos pos, LevelLightEngine lightEngine) {
+        this(new LevelChunk(level, pos), lightEngine);
     }
     
-    public LittleChunkHolder(LevelChunk chunk, LevelLightEngine lightEngine, ChunkHolder.PlayerProvider playerProvider) {
+    public LittleChunkHolder(LevelChunk chunk, LevelLightEngine lightEngine) {
         this.chunk = chunk;
         this.changedBlocksPerSection = new ShortSet[chunk.getLevel().getSectionsCount()];
         this.lightEngine = lightEngine;
-        this.playerProvider = playerProvider;
     }
     
     public void blockChanged(BlockPos pos) {
@@ -124,9 +124,7 @@ public class LittleChunkHolder {
     }
     
     private void broadcast(Packet<?> packet, boolean all) {
-        playerProvider.getPlayers(chunk.getPos(), all);
-        System.out.println("" + packet);
-        //throw new UnsupportedOperationException("" + packet); // TODO Still needs to added
+        LittleTiles.NETWORK.sendToClientTracking(new LittleLevelPacket(((LittleLevel) chunk.getLevel()), packet), ((LittleLevel) chunk.getLevel()).getHolder());
     }
     
 }

@@ -1,15 +1,14 @@
 package team.creative.littletiles.client.level.little;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.network.PacketListener;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -38,12 +37,17 @@ public class FakeClientLevel extends LittleClientLevel {
     }
     
     protected FakeClientLevel(ClientLevelData worldInfo, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(worldInfo, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
+        super(null, worldInfo, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
         effects = DimensionSpecialEffects.forType(dimensionType());
     }
     
     @Override
-    public PacketListener getPacketListener() {
+    public UUID key() {
+        return null;
+    }
+    
+    @Override
+    protected LittleClientConnection createConnection() {
         return null;
     }
     

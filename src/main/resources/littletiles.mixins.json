@@ -6,7 +6,6 @@
     "mixins": [
         "LittleBedPlayerMixin",
         "ChunkMapAccessor",
-        "ChunkMapMixin",
         "StateHolderAccessor",
         "BlockBehaviourAccessor",
         "PrimedTntAccessor",
@@ -25,7 +24,10 @@
         "LevelRendererAccessor",
         "ViewAreaAccessor",
         "ParticleEngineAccessor",
-        "ClientPacketListenerAccessor"
+        "ClientPacketListenerAccessor",
+        "ClientLevelAccessor",
+        "ClientLevelMixin",
+        "ClientChunkCacheAccessor"
     ],
     "minVersion": "0.8"
 }

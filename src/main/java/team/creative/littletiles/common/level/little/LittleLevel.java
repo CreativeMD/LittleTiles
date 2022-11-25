@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.level.little;
 
+import java.util.UUID;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketListener;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +22,8 @@ public interface LittleLevel extends IOrientatedLevel {
     
     @Override
     public void setHolder(Entity entity);
+    
+    public UUID key();
     
     public void registerLevelBoundListener(LevelBoundsListener listener);
     

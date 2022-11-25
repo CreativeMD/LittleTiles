@@ -1,5 +1,7 @@
 package team.creative.littletiles.server.level.little;
 
+import java.util.UUID;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
@@ -46,6 +48,11 @@ public class FakeServerLevel extends LittleServerLevel {
     protected FakeServerLevel(MinecraftServer server, ServerLevelData worldInfo, boolean debug, long seed) {
         super(server, worldInfo, OVERWORLD, debug, seed, server.registryAccess());
         this.scoreboard = new ServerScoreboard(server);
+    }
+    
+    @Override
+    public UUID key() {
+        return null;
     }
     
     @Override

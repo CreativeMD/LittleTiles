@@ -1,13 +1,35 @@
 package team.creative.littletiles.client.level.little;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
+import net.minecraft.network.protocol.game.ClientboundLoginPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
+import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.mixin.ClientPacketListenerAccessor;
 
 public class LittleClientPacketListener extends ClientPacketListener {
+    
+    public static LittleClientPacketListener allocateInstance() {
+        try {
+            return (LittleClientPacketListener) LittleTiles.getUnsafe().allocateInstance(LittleClientPacketListener.class);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     public LittleClientPacketListener(Minecraft mc, Connection con) {
         super(mc, null, con, null, null);
@@ -18,6 +40,46 @@ public class LittleClientPacketListener extends ClientPacketListener {
         ((ClientPacketListenerAccessor) this).setConnection(con);
         ((ClientPacketListenerAccessor) this).setLevel(level);
         ((ClientPacketListenerAccessor) this).setLevelData(data);
+    }
+    
+    @Override
+    public void handleLogin(ClientboundLoginPacket packet) {}
+    
+    @Override
+    public void handleDisconnect(ClientboundDisconnectPacket packet) {}
+    
+    @Override
+    public void onDisconnect(Component component) {}
+    
+    @Override
+    public void handleRespawn(ClientboundRespawnPacket packet) {}
+    
+    @Override
+    public void handleResourcePack(ClientboundResourcePackPacket packet) {}
+    
+    @Override
+    public void handlePlayerInfo(ClientboundPlayerInfoPacket packet) {}
+    
+    @Override
+    public Collection<PlayerInfo> getOnlinePlayers() {
+        return Collections.EMPTY_LIST;
+    }
+    
+    @Override
+    public Collection<UUID> getOnlinePlayerIds() {
+        return Collections.EMPTY_LIST;
+    }
+    
+    @Override
+    @Nullable
+    public PlayerInfo getPlayerInfo(UUID uuid) {
+        return null;
+    }
+    
+    @Override
+    @Nullable
+    public PlayerInfo getPlayerInfo(String name) {
+        return null;
     }
     
 }

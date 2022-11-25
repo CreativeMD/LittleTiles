@@ -1,5 +1,7 @@
 package team.creative.littletiles.server.level.little;
 
+import java.util.UUID;
+
 import javax.annotation.Nullable;
 
 import com.mojang.math.Vector3d;
@@ -8,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.network.PacketListener;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -48,6 +51,16 @@ public class SubServerLevel extends LittleServerLevel implements ISubLevel {
         this.parentLevel = parent;
         this.gatherCapabilities();
         MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));
+    }
+    
+    @Override
+    public UUID key() {
+        return getHolder().getUUID();
+    }
+    
+    @Override
+    public PacketListener getPacketListener() {
+        return null;
     }
     
     @Override

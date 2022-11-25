@@ -8,7 +8,6 @@ import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
@@ -21,13 +20,13 @@ public class LittleLevelPackets extends CreativePacket {
     
     public LittleLevelPackets() {}
     
-    public LittleLevelPackets(ISubLevel level, List<? extends Packet> packets) {
-        this.uuid = level.getHolder().getUUID();
+    public LittleLevelPackets(LittleLevel level, List<? extends Packet> packets) {
+        this.uuid = level.key();
         this.packets = packets;
     }
     
-    public LittleLevelPackets(ISubLevel level, Packet... packets) {
-        this.uuid = level.getHolder().getUUID();
+    public LittleLevelPackets(LittleLevel level, Packet... packets) {
+        this.uuid = level.key();
         this.packets = Arrays.asList(packets);
     }
     

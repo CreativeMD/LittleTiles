@@ -9,9 +9,9 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.border.WorldBorder.Settings;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.timers.TimerQueue;
-import team.creative.littletiles.client.level.little.FakeClientLevelInfo;
+import team.creative.littletiles.common.level.little.FakeLevelInfo;
 
-public class FakeServerLevelInfo extends FakeClientLevelInfo implements ServerLevelData {
+public class FakeServerLevelInfo extends FakeLevelInfo implements ServerLevelData {
     
     public FakeServerLevelInfo(Difficulty difficulty, boolean hardcore, boolean isFlat) {
         super(difficulty, hardcore, isFlat);
