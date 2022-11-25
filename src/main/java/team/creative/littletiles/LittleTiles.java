@@ -64,7 +64,6 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
-import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
@@ -257,7 +256,6 @@ public class LittleTiles {
                 PlacementResult result = placement.place();
                 if (result == null)
                     throw new LittleActionException("Could not be placed");
-                ((LittleLevel) subLevel).tick();
                 LittleLevelEntity entity = new LittleLevelEntityLarge(LittleTilesRegistry.ENTITY_LEVEL_LARGE
                         .get(), level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new LocalStructureLocation(result.parentStructure));
                 
