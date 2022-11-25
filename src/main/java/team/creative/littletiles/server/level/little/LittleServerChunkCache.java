@@ -76,7 +76,7 @@ public class LittleServerChunkCache extends ServerChunkCache implements Iterable
         LittleChunkHolder holder = chunks.get(ChunkPos.asLong(x, z));
         if (holder == null && create)
             chunks.put(ChunkPos.asLong(x, z), holder = ((LittleChunkMap) chunkMap).createHolder(new ChunkPos(x, z)));
-        return holder.chunk;
+        return holder == null ? null : holder.chunk;
     }
     
     @Override
