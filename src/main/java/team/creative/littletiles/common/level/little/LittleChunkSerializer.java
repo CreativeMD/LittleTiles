@@ -124,6 +124,11 @@ public class LittleChunkSerializer {
         if (nbt.getBoolean("shouldSave"))
             chunk.setUnsaved(true);
         
+        ListTag blockEntities = nbt.getList("block_entities", 10);
+        
+        for (int j = 0; j < blockEntities.size(); ++j)
+            chunk.setBlockEntityNbt(blockEntities.getCompound(j));
+        
         MinecraftForge.EVENT_BUS.post(new ChunkDataEvent.Load(chunk, nbt, ChunkStatus.ChunkType.LEVELCHUNK));
         return chunk;
     }
