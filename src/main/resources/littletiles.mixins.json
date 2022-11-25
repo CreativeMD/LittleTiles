@@ -5,8 +5,6 @@
     "refmap": "littletiles.mixins.refmap.json",
     "mixins": [
         "LittleBedPlayerMixin",
-        "ConnectionProtocolMixin",
-        "PacketSetMixin",
         "ChunkMapAccessor",
         "ChunkMapMixin",
         "StateHolderAccessor",
@@ -26,7 +24,8 @@
         "LevelRendererMixin",
         "LevelRendererAccessor",
         "ViewAreaAccessor",
-        "ParticleEngineAccessor"
+        "ParticleEngineAccessor",
+        "ClientPacketListenerAccessor"
     ],
     "minVersion": "0.8"
 }

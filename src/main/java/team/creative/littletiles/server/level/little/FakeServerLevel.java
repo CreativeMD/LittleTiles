@@ -1,11 +1,13 @@
 package team.creative.littletiles.server.level.little;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.network.PacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.sounds.SoundEvent;
@@ -24,7 +26,6 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
-import team.creative.littletiles.common.level.little.FakeLevelInfo;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
 public class FakeServerLevel extends LittleServerLevel {
@@ -36,7 +37,7 @@ public class FakeServerLevel extends LittleServerLevel {
     }
     
     public static FakeClientLevel createClient(String name) {
-        return FakeClientLevel.createFakeWorldClient(name, new FakeLevelInfo(Difficulty.PEACEFUL, false, true));
+        return FakeClientLevel.createFakeWorldClient(name, new ClientLevelData(Difficulty.PEACEFUL, false, true));
     }
     
     private final ServerScoreboard scoreboard;
@@ -45,6 +46,11 @@ public class FakeServerLevel extends LittleServerLevel {
     protected FakeServerLevel(MinecraftServer server, ServerLevelData worldInfo, boolean debug, long seed) {
         super(server, worldInfo, OVERWORLD, debug, seed, server.registryAccess());
         this.scoreboard = new ServerScoreboard(server);
+    }
+    
+    @Override
+    public PacketListener getPacketListener() {
+        return null;
     }
     
     @Override

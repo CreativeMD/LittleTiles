@@ -4,6 +4,8 @@ import javax.annotation.Nullable;
 
 import com.mojang.math.Vector3d;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -16,7 +18,6 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,6 +30,7 @@ import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.LittleTiles;
 
 @OnlyIn(Dist.CLIENT)
 public class SubClientLevel extends LittleClientLevel implements ISubLevel {
@@ -37,11 +39,25 @@ public class SubClientLevel extends LittleClientLevel implements ISubLevel {
     
     public boolean shouldRender;
     
+    public final LittleClientPacketListener listener;
+    public final LittleClientConnection connection = new LittleClientConnection(this);
+    
     public SubClientLevel(Level parent) {
-        super((WritableLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
+        super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
         this.parentLevel = parent;
         this.gatherCapabilities();
+        try {
+            this.listener = (LittleClientPacketListener) LittleTiles.getUnsafe().allocateInstance(LittleClientPacketListener.class);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        this.listener.init(Minecraft.getInstance(), this, (ClientLevelData) parent.getLevelData(), connection);
         MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));
+    }
+    
+    @Override
+    public LittleClientPacketListener getPacketListener() {
+        return listener;
     }
     
     @Override

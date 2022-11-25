@@ -125,7 +125,8 @@ public class LittleChunkHolder {
     
     private void broadcast(Packet<?> packet, boolean all) {
         playerProvider.getPlayers(chunk.getPos(), all);
-        throw new UnsupportedOperationException("" + packet); // TODO Still needs to added
+        System.out.println("" + packet);
+        //throw new UnsupportedOperationException("" + packet); // TODO Still needs to added
     }
     
 }

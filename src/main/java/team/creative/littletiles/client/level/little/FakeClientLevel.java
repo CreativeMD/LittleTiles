@@ -3,11 +3,13 @@ package team.creative.littletiles.client.level.little;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.network.PacketListener;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -17,14 +19,12 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.common.level.little.FakeLevelInfo;
 
 @OnlyIn(Dist.CLIENT)
 public class FakeClientLevel extends LittleClientLevel {
@@ -33,13 +33,18 @@ public class FakeClientLevel extends LittleClientLevel {
     private final Scoreboard scoreboard = new Scoreboard();
     private DimensionSpecialEffects effects;
     
-    public static FakeClientLevel createFakeWorldClient(String name, FakeLevelInfo info) {
+    public static FakeClientLevel createFakeWorldClient(String name, ClientLevelData info) {
         return new FakeClientLevel(info, Minecraft.getInstance()::getProfiler, false, 0);
     }
     
-    protected FakeClientLevel(WritableLevelData worldInfo, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
+    protected FakeClientLevel(ClientLevelData worldInfo, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
         super(worldInfo, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
         effects = DimensionSpecialEffects.forType(dimensionType());
+    }
+    
+    @Override
+    public PacketListener getPacketListener() {
+        return null;
     }
     
     @Override

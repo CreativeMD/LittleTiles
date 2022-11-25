@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.client.multiplayer.ClientLevel.ClientLevelData;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +36,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEvent.Context;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
@@ -75,10 +75,11 @@ public abstract class LittleClientLevel extends Level implements LittleLevel {
     private final ModelDataManager modelDataManager = new ModelDataManager(this);
     public LittleLevelRenderManager renderManager = new LittleLevelRenderManager(this);
     
-    protected LittleClientLevel(WritableLevelData worldInfo, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
-        super(worldInfo, dimension, LittleTilesRegistry.FAKE_DIMENSION.getHolder().get(), supplier, true, debug, seed, 1000000);
+    protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
+        super(data, dimension, LittleTilesRegistry.FAKE_DIMENSION.getHolder().get(), supplier, true, debug, seed, 1000000);
         this.access = access;
         this.chunkSource = new FakeChunkCache(this, access);
+        
     }
     
     @Override

@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.level.little;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.PacketListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -33,5 +34,7 @@ public interface LittleLevel extends IOrientatedLevel {
     public Iterable<? extends ChunkAccess> chunks();
     
     public void tick();
+    
+    public PacketListener getPacketListener();
     
 }
