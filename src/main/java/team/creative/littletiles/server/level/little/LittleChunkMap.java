@@ -73,12 +73,19 @@ public class LittleChunkMap extends ChunkMap {
         }
     }
     
+    public LittleChunkHolder addChunkLevel(LittleChunkHolder holder) {
+        holder.chunk.setLoaded(true);
+        holder.chunk.registerAllBlockEntitiesAfterLevelLoad();
+        holder.chunk.registerTickContainerInLevel(this.chunkCache.level);
+        return holder;
+    }
+    
     public LittleChunkHolder createHolder(ChunkPos pos) {
-        return new LittleChunkHolder(chunkCache.level, pos, this.lightEngine, this);
+        return addChunkLevel(new LittleChunkHolder(chunkCache.level, pos, this.lightEngine, this));
     }
     
     public LittleChunkHolder createHolder(ChunkPos pos, CompoundTag nbt) {
-        return new LittleChunkHolder(LittleChunkSerializer.read((LittleLevel) chunkCache.level, nbt), this.lightEngine, this);
+        return addChunkLevel(new LittleChunkHolder(LittleChunkSerializer.read((LittleLevel) chunkCache.level, nbt), this.lightEngine, this));
     }
     
     @Override
