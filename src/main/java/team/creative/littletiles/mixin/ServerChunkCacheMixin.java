@@ -29,14 +29,12 @@ import team.creative.littletiles.server.level.little.LittleServerChunkCache;
 @Mixin(ServerChunkCache.class)
 public abstract class ServerChunkCacheMixin extends ChunkSource {
     
-    private static final String INIT_DESC = "(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/chunk/ChunkGenerator;IIZLnet/minecraft/server/level/progress/ChunkProgressListener;Lnet/minecraft/world/level/entity/ChunkStatusUpdateListener;Ljava/util/function/Supplier;)Lnet/minecraft/server/level/ServerChunkCache;";
-    
     @Unique
     private ServerChunkCache as() {
         return (ServerChunkCache) (Object) this;
     }
     
-    @Redirect(at = @At(value = "NEW", target = "net/minecraft/server/level/ChunkMap"), method = INIT_DESC, require = 1)
+    @Redirect(at = @At(value = "NEW", target = "net/minecraft/server/level/ChunkMap"), method = "<init>", require = 1)
     public ChunkMap newChunkMap(ServerLevel level, LevelStorageSource.LevelStorageAccess access, DataFixer fixer, StructureTemplateManager templateManager, Executor exe, BlockableEventLoop<Runnable> loop, LightChunkGetter lightGetter, ChunkGenerator generator, ChunkProgressListener progress, ChunkStatusUpdateListener status, Supplier<DimensionDataStorage> supplier, int viewDistance, boolean sync) {
         if (as() instanceof LittleServerChunkCache cache)
             try {

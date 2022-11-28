@@ -13,9 +13,7 @@ import team.creative.littletiles.client.level.little.LittleClientLevel;
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin {
     
-    @Redirect(at = @At(value = "NEW", target = "net/minecraft/client/multiplayer/ClientChunkCache"),
-            method = "<init>(Lnet/minecraft/client/multiplayer/ClientPacketListener;Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/Holder;IILjava/util/function/Supplier;Lnet/minecraft/client/renderer/LevelRenderer;ZJ)V",
-            require = 1)
+    @Redirect(at = @At(value = "NEW", target = "net/minecraft/client/multiplayer/ClientChunkCache"), method = "<init>", require = 1)
     public ClientChunkCache newClientChunkCache(ClientLevel level, int distance) {
         if (level instanceof LittleClientLevel little) {
             try {
