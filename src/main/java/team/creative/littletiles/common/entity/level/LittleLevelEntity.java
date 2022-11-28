@@ -404,4 +404,8 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         double d2 = center.z - z;
         return this.shouldRenderAtSqrDistance(d0 * d0 + d1 * d1 + d2 * d2);
     }
+    
+    public boolean hasLoaded() {
+        return subLevel != null;
+    }
 }

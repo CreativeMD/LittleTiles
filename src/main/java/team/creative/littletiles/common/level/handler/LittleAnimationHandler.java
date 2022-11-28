@@ -41,7 +41,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         
         List<LittleLevelEntity> found = new ArrayList<>();
         for (LittleLevelEntity entity : entities)
-            if (entity.getBoundingBox().intersects(bb))
+            if (entity.hasLoaded() && entity.getBoundingBox().intersects(bb))
                 found.add(entity);
         return found;
     }

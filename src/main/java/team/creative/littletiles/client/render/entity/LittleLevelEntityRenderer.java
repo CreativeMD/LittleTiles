@@ -57,6 +57,8 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
     
     @Override
     public boolean shouldRender(LittleLevelEntity animation, Frustum frustum, double camX, double camY, double camZ) {
+        if (!animation.hasLoaded())
+            return false;
         if (animation.getRenderManager().isInSight == null)
             animation.getRenderManager().isInSight = animation.shouldRender(camX, camY, camZ) && frustum.isVisible(animation.getRealBB().inflate(0.5D));
         return animation.getRenderManager().isInSight;

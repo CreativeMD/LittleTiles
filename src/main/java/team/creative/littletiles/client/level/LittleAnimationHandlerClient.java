@@ -235,8 +235,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     public void allChanged() {
         for (LittleLevelEntity animation : entities)
-            animation.getRenderManager().allChanged();
-        
+            if (animation.hasLoaded())
+                animation.getRenderManager().allChanged();
+            
         synchronized (this.globalBlockEntities) {
             this.globalBlockEntities.clear();
         }
@@ -251,18 +252,20 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @Override
     public synchronized Iterator<LittleLevelEntity> iterator() {
-        return new FilterIterator<>(entities, x -> x.getRenderManager().isInSight);
+        return new FilterIterator<>(entities, x -> x.hasLoaded() && x.getRenderManager().isInSight);
     }
     
     public void needsUpdate() {
         for (LittleLevelEntity animation : entities)
-            animation.getRenderManager().needsFullRenderChunkUpdate = true;
+            if (animation.hasLoaded())
+                animation.getRenderManager().needsFullRenderChunkUpdate = true;
     }
     
     public void setupRender(Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator) {
         mc.getProfiler().push("setup_animation_render");
         for (LittleLevelEntity animation : entities)
-            animation.getRenderManager().setupRender(animation, camera, frustum, capturedFrustum, spectator);
+            if (animation.hasLoaded())
+                animation.getRenderManager().setupRender(animation, camera, frustum, capturedFrustum, spectator);
         mc.getProfiler().pop();
     }
     
@@ -274,14 +277,16 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             run.run();
         
         for (LittleLevelEntity animation : entities)
-            LittleLevelEntityRenderer.INSTANCE.compileChunks(animation, camera);
-        
+            if (animation.hasLoaded())
+                LittleLevelEntityRenderer.INSTANCE.compileChunks(animation, camera);
+            
         mc.getProfiler().pop();
     }
     
     public void resortTransparency(RenderType layer, double x, double y, double z) {
         for (LittleLevelEntity animation : entities)
-            LittleLevelEntityRenderer.INSTANCE.resortTransparency(animation, layer, x, y, z);
+            if (animation.hasLoaded())
+                LittleLevelEntityRenderer.INSTANCE.resortTransparency(animation, layer, x, y, z);
     }
     
     public void renderBlockEntities(PoseStack pose, Frustum frustum, float frameTime) {
@@ -316,7 +321,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public void renderEnd(RenderTickEvent event) {
         if (event.phase == Phase.END)
             for (LittleLevelEntity animation : entities)
-                animation.getRenderManager().isInSight = null;
+                if (animation.hasLoaded())
+                    animation.getRenderManager().isInSight = null;
     }
     
     @SubscribeEvent
@@ -656,7 +662,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             tick();
             
             for (LittleLevelEntity entity : entities) {
-                if (entity.level instanceof ISubLevel)
+                if (entity.level instanceof ISubLevel || !entity.hasLoaded())
                     continue;
                 entity.performTick();
             }
