@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
-import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
@@ -127,7 +126,7 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
             needsFullRenderChunkUpdate = false;
             queuedCompiled.clear();
             
-            lastFullRenderChunkUpdate = Util.backgroundExecutor().submit(() -> sortedChunks.arrangeRings(SectionPos.of(cameraPos), chunks.values()));
+            sortedChunks.arrangeRings(SectionPos.of(cameraPos), chunks.values());
         } else
             synchronized (this) {
                 while (!queuedCompiled.isEmpty()) {
