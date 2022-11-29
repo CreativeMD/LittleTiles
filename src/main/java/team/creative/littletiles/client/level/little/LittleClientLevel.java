@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -100,6 +101,9 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public void onChunkLoaded(LevelChunk chunk) {
         this.getEStorage().startTicking(chunk.getPos());
         chunk.setClientLightReady(true);
+        LevelChunkSection[] section = chunk.getSections();
+        for (int i = 0; i < section.length; i++)
+            this.renderManager.setSectionDirty(chunk.getPos().x, chunk.getSectionYFromSectionIndex(i), chunk.getPos().z);
     }
     
     @Override
