@@ -508,13 +508,13 @@ public class Placement {
                                     if (tiles[i] == null || tiles[i].isEmpty())
                                         continue;
                                     ParentCollection parent = x.noneStructureTiles();
-                                    context.setParent(parent);
                                     PlacementStructurePreview structure = structures.get(i);
                                     if (structure.isStructure()) {
                                         StructureParentCollection list = x.addStructure(structure.getIndex(), structure.getAttribute());
                                         structure.place(list);
                                         parent = list;
                                     }
+                                    context.setParent(parent);
                                     
                                     preview.mode.prepareBlock(context);
                                     
