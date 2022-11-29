@@ -32,6 +32,8 @@ import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.relative.StructureAbsolute;
+import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittlePacketTypes {
@@ -331,6 +333,35 @@ public class LittlePacketTypes {
             }
             
         }, LittleBoxAbsolute.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<StructureRelative>() {
+            
+            @Override
+            protected void writeContent(StructureRelative content, FriendlyByteBuf buffer) {
+                buffer.writeVarIntArray(content.getBox().getArray());
+                buffer.writeInt(content.getGrid().count);
+            }
+            
+            @Override
+            protected StructureRelative readContent(FriendlyByteBuf buffer) {
+                return new StructureRelative(LittleBox.create(buffer.readVarIntArray()), LittleGrid.get(buffer.readInt()));
+            }
+            
+        }, StructureAbsolute.class);
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<StructureAbsolute>() {
+            
+            @Override
+            protected void writeContent(StructureAbsolute content, FriendlyByteBuf buffer) {
+                buffer.writeBlockPos(content.baseOffset);
+                buffer.writeVarIntArray(content.getBox().getArray());
+                buffer.writeInt(content.getGrid().count);
+            }
+            
+            @Override
+            protected StructureAbsolute readContent(FriendlyByteBuf buffer) {
+                return new StructureAbsolute(buffer.readBlockPos(), LittleBox.create(buffer.readVarIntArray()), LittleGrid.get(buffer.readInt()));
+            }
+            
+        }, StructureAbsolute.class);
         NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleBoxes>() {
             
             @Override
