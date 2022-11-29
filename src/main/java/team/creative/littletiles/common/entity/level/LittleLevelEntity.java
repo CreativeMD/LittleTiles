@@ -40,6 +40,7 @@ import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.common.packet.level.LittleLevelInitPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.direct.StructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -129,6 +130,11 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         if (level instanceof ISubLevel)
             return ((LittleLevelEntity) ((ISubLevel) level).getHolder()).getTopLevelEntity();
         return this;
+    }
+    
+    public void initSubLevelClient(LittleLevelInitPacket packet) {
+        setSubLevel(SubServerLevel.createSubLevel(level));
+        setCenter(packet.absolute);
     }
     
     protected void setSubLevel(ISubLevel subLevel) {

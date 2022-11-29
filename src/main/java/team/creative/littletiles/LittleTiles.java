@@ -74,6 +74,7 @@ import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
+import team.creative.littletiles.common.packet.level.LittleLevelInitPacket;
 import team.creative.littletiles.common.packet.level.LittleLevelPacket;
 import team.creative.littletiles.common.packet.level.LittleLevelPackets;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
@@ -165,6 +166,7 @@ public class LittleTiles {
         
         NETWORK.registerType(LittleLevelPacket.class, LittleLevelPacket::new);
         NETWORK.registerType(LittleLevelPackets.class, LittleLevelPackets::new);
+        NETWORK.registerType(LittleLevelInitPacket.class, LittleLevelInitPacket::new);
         
         CreativeConfigRegistry.ROOT.registerValue(MODID, CONFIG = new LittleTilesConfig());
         

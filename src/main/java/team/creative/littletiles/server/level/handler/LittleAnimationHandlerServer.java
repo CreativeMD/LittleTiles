@@ -1,13 +1,16 @@
 package team.creative.littletiles.server.level.handler;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
+import team.creative.littletiles.common.packet.level.LittleLevelInitPacket;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {
     
@@ -17,9 +20,8 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
     
     @SubscribeEvent
     public void trackEntity(StartTracking event) {
-        if (event.getTarget() instanceof LittleLevelEntity levelEntity) {
-            
-        }
+        if (event.getTarget() instanceof LittleLevelEntity levelEntity)
+            LittleTiles.NETWORK.sendToClient(new LittleLevelInitPacket(levelEntity), (ServerPlayer) event.getEntity());
     }
     
     public void tickServer(LevelTickEvent event) {
