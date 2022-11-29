@@ -18,6 +18,7 @@ public class LittleRenderChunks implements Iterable<LittleRenderChunk> {
     private LinkedList<List<LittleRenderChunk>> rings = new LinkedList<>();
     private SectionPos origin = ZERO;
     private int minDistance = -1;
+    private int maxUsedRings = -1;
     private int size = 0;
     
     public LittleRenderChunks() {}
@@ -46,8 +47,9 @@ public class LittleRenderChunks implements Iterable<LittleRenderChunk> {
             ensureLowerRings(minDistance - distance);
             minDistance = distance;
             getRing(0, true).add(chunk);
-        }
-        getRing(distance - minDistance, true).add(chunk);
+        } else
+            getRing(distance - minDistance, true).add(chunk);
+        maxUsedRings = Math.max(maxUsedRings, distance - minDistance);
         size++;
     }
     
@@ -57,8 +59,15 @@ public class LittleRenderChunks implements Iterable<LittleRenderChunk> {
     }
     
     private void ensureLowerRings(int count) {
-        for (int i = 0; i < size; i++)
-            rings.addFirst(new ArrayList<LittleRenderChunk>());
+        for (int i = 0; i < count; i++) {
+            if (maxUsedRings < rings.size()) {
+                rings.addFirst(rings.getLast());
+                rings.removeLast();
+                maxUsedRings++;
+            } else
+                rings.addFirst(new ArrayList<LittleRenderChunk>());
+        }
+        
     }
     
     private void recountSize() {
@@ -69,7 +78,7 @@ public class LittleRenderChunks implements Iterable<LittleRenderChunk> {
     
     protected List<LittleRenderChunk> getRing(int index, boolean create) {
         if (create) {
-            ensureRings(index);
+            ensureRings(index + 1);
             return rings.get(index);
         }
         
@@ -104,6 +113,7 @@ public class LittleRenderChunks implements Iterable<LittleRenderChunk> {
             ring.clear();
         size = 0;
         minDistance = -1;
+        maxUsedRings = -1;
     }
     
     public Iterable<? extends Iterable<LittleRenderChunk>> rings() {
