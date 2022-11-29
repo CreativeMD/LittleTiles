@@ -24,7 +24,7 @@ import team.creative.littletiles.mixin.ClientChunkCacheAccessor;
 
 public class LittleClientChunkCache extends ClientChunkCache {
     
-    private final HashMap<Long, LevelChunk> chunks = new HashMap<>();
+    private HashMap<Long, LevelChunk> chunks;
     
     public LittleClientChunkCache(ClientLevel level, int distance) {
         super(level, distance);
@@ -33,6 +33,7 @@ public class LittleClientChunkCache extends ClientChunkCache {
     public void init(LittleClientLevel level) {
         ((ClientChunkCacheAccessor) this).setLevel(level);
         ((ClientChunkCacheAccessor) this).setLightEngine(new LevelLightEngine(this, true, level.dimensionType().hasSkyLight()));
+        this.chunks = new HashMap<>();
     }
     
     public void addLoadedChunk(LevelChunk chunk) {
@@ -62,7 +63,7 @@ public class LittleClientChunkCache extends ClientChunkCache {
         chunk.replaceWithPacketData(buffer, tag, consumer);
         getLevel().onChunkLoaded(chunk);
         MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk));
-        return null;
+        return chunk;
     }
     
     @Override

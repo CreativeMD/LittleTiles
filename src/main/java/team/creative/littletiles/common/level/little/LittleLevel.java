@@ -2,10 +2,8 @@ package team.creative.littletiles.common.level.little;
 
 import java.util.UUID;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketListener;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -26,8 +24,6 @@ public interface LittleLevel extends IOrientatedLevel {
     public UUID key();
     
     public void registerLevelBoundListener(LevelBoundsListener listener);
-    
-    public void load(ChunkPos pos, CompoundTag nbt);
     
     public void unload(LevelChunk chunk);
     

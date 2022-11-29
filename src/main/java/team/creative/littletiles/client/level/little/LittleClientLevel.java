@@ -11,17 +11,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -32,14 +29,11 @@ import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.ChunkEvent;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
-import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.ClientLevelAccessor;
 
@@ -99,23 +93,13 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
             levelchunk.setClientLightReady(true);
     }
     
-    @Override
-    public void load(ChunkPos pos, CompoundTag nbt) {
-        getChunkSource().addLoadedChunk(LittleChunkSerializer.read(this, nbt));
-    }
-    
     public TransientEntitySectionManager<Entity> getEStorage() {
         return ((ClientLevelAccessor) this).getEntityStorage();
     }
     
     public void onChunkLoaded(LevelChunk chunk) {
         this.getEStorage().startTicking(chunk.getPos());
-        //chunk.replaceWithPacketData(p_194119_, p_194120_, p_194121_);
         chunk.setClientLightReady(true);
-        LevelChunkSection[] section = chunk.getSections();
-        for (int i = 0; i < section.length; i++)
-            this.renderManager.setSectionDirty(chunk.getPos().x, chunk.getSectionYFromSectionIndex(i), chunk.getPos().z);
-        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk));
     }
     
     @Override

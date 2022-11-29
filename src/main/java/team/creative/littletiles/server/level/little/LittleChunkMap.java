@@ -1,6 +1,7 @@
 package team.creative.littletiles.server.level.little;
 
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
@@ -87,6 +89,10 @@ public class LittleChunkMap extends ChunkMap {
     
     public LittleChunkHolder createHolder(ChunkPos pos, CompoundTag nbt) {
         return addChunkLevel(new LittleChunkHolder(LittleChunkSerializer.read((LittleLevel) chunkCache.level, nbt), this.lightEngine));
+    }
+    
+    public ClientboundLevelChunkWithLightPacket createPacket(LevelChunk chunk) {
+        return new ClientboundLevelChunkWithLightPacket(chunk, this.lightEngine, (BitSet) null, (BitSet) null, true);
     }
     
     @Override

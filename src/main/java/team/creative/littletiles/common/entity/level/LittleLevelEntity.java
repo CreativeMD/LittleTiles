@@ -40,7 +40,6 @@ import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
-import team.creative.littletiles.common.packet.level.LittleLevelInitPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.direct.StructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -132,9 +131,9 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return this;
     }
     
-    public void initSubLevelClient(LittleLevelInitPacket packet) {
+    public void initSubLevelClient(StructureAbsolute absolute) {
         setSubLevel(SubServerLevel.createSubLevel(level));
-        setCenter(packet.absolute);
+        setCenter(absolute);
     }
     
     protected void setSubLevel(ISubLevel subLevel) {
@@ -246,7 +245,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         setCenter(new StructureAbsolute("center", nbt));
         
-        LittleLevel sub = (LittleLevel) subLevel;
+        LittleServerLevel sub = (LittleServerLevel) subLevel;
         ListTag chunks = nbt.getList("chunks", Tag.TAG_COMPOUND);
         for (int i = 0; i < chunks.size(); i++) {
             CompoundTag chunk = chunks.getCompound(i);
