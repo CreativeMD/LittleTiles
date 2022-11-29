@@ -57,6 +57,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpt
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
@@ -252,7 +253,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @Override
     public synchronized Iterator<LittleLevelEntity> iterator() {
-        return new FilterIterator<>(entities, x -> x.hasLoaded() && x.getRenderManager().isInSight);
+        return new FilterIterator<>(entities, x -> x.hasLoaded() && BooleanUtils.isTrue(x.getRenderManager().isInSight));
     }
     
     public void needsUpdate() {
