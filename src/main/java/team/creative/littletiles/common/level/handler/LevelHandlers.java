@@ -9,6 +9,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.util.type.map.HashMapList;
+import team.creative.littletiles.common.level.little.LittleLevel;
 
 public class LevelHandlers<T extends LevelHandler> {
     
@@ -55,7 +56,7 @@ public class LevelHandlers<T extends LevelHandler> {
     
     @SubscribeEvent
     public void load(LevelEvent.Load event) {
-        if (event.getLevel().isClientSide() != client)
+        if (event.getLevel().isClientSide() != client || event.getLevel() instanceof LittleLevel)
             return;
         load((Level) event.getLevel());
     }
