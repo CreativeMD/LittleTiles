@@ -7,10 +7,10 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
-import team.creative.littletiles.client.render.mc.RenderChunkLittle;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderChunk.class)
-public abstract class RenderChunkMixin implements RenderChunkLittle {
+public abstract class RenderChunkMixin implements RenderChunkExtender {
     
     @Unique
     public int updateQueue;

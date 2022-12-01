@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
-import team.creative.littletiles.client.render.mc.VertexBufferLittle;
+import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
 @Mixin(VertexBuffer.class)
-public abstract class VertexBufferMixin implements VertexBufferLittle {
+public abstract class VertexBufferMixin implements VertexBufferExtender {
     
     @Unique
     public ChunkLayerUploadManager manager;

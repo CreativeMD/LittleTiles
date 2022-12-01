@@ -23,8 +23,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.mc.RenderChunkLittle;
-import team.creative.littletiles.client.render.mc.VertexBufferLittle;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.mixin.CompiledChunkAccessor;
 
@@ -60,12 +60,12 @@ public class RenderUploader {
                 ByteBuffer vanillaBuffer = null;
                 if (compiled.isEmpty(layer)) {
                     uploadBuffer.bind();;
-                    vanillaBuffer = glMapBufferRange((long) (((VertexBufferLittle) uploadBuffer).getIndexCount() / 1.5 * format.getVertexSize()));
+                    vanillaBuffer = glMapBufferRange((long) (((VertexBufferExtender) uploadBuffer).getIndexCount() / 1.5 * format.getVertexSize()));
                     VertexBuffer.unbind();
                 }
                 
                 BufferBuilder builder = new BufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risking and could potentially cause issues
-                ((RenderChunkLittle) chunk).invokeBeginLayer(builder);
+                ((RenderChunkExtender) chunk).invokeBeginLayer(builder);
                 if (vanillaBuffer != null) {
                     if (layer == RenderType.translucent()) {
                         SortState state = ((CompiledChunkAccessor) compiled).getTransparencyState();

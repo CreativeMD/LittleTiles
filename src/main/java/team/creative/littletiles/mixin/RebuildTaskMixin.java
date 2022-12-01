@@ -25,13 +25,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
-import team.creative.littletiles.client.render.mc.RebuildTaskLittle;
-import team.creative.littletiles.client.render.mc.RenderChunkLittle;
-import team.creative.littletiles.client.render.mc.VertexBufferLittle;
+import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 @Mixin(targets = "net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask")
-public abstract class RebuildTaskMixin implements RebuildTaskLittle {
+public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     
     @Unique
     public Set<RenderType> renderTypes;
@@ -57,11 +57,11 @@ public abstract class RebuildTaskMixin implements RebuildTaskLittle {
             method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
             require = 1)
     private void compile(CallbackInfoReturnable info) {
-        ((RenderChunkLittle) this$1).dynamicLightUpdate(false);
+        ((RenderChunkExtender) this$1).dynamicLightUpdate(false);
         
         for (RenderType layer : RenderType.chunkBufferLayers()) {
             VertexBuffer vertexBuffer = this$1.getBuffer(layer);
-            ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
+            ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
             synchronized (manager) {
                 manager.queued--;
             }
@@ -70,7 +70,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskLittle {
         if (caches != null)
             for (Entry<RenderType, ChunkLayerCache> entry : caches.entrySet()) {
                 VertexBuffer vertexBuffer = this$1.getBuffer(entry.getKey());
-                ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
+                ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
                 manager.set(entry.getValue());
             }
     }
@@ -95,7 +95,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskLittle {
     public BufferBuilder builder(RenderType layer) {
         BufferBuilder builder = pack.builder(layer);
         if (renderTypes.add(layer))
-            ((RenderChunkLittle) this$1).invokeBeginLayer(builder);
+            ((RenderChunkExtender) this$1).invokeBeginLayer(builder);
         return builder;
     }
     

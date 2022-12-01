@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.level.RenderUploader.NotSupportedException;
-import team.creative.littletiles.client.render.mc.VertexBufferLittle;
+import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
 public class ChunkLayerUploadManager {
     
@@ -27,7 +27,7 @@ public class ChunkLayerUploadManager {
     
     public ChunkLayerUploadManager(RenderChunk chunk, RenderType layer) {
         this.buffer = chunk.getBuffer(layer);
-        ((VertexBufferLittle) buffer).setManager(this);
+        ((VertexBufferExtender) buffer).setManager(this);
     }
     
     public ChunkLayerCache get() {
@@ -56,13 +56,13 @@ public class ChunkLayerUploadManager {
             return;
         Supplier<Boolean> run = () -> {
             synchronized (this) {
-                if (Minecraft.getInstance().level == null || uploaded == null || ((VertexBufferLittle) buffer).getVertexBufferId() == -1) {
+                if (Minecraft.getInstance().level == null || uploaded == null || ((VertexBufferExtender) buffer).getVertexBufferId() == -1) {
                     if (uploaded != null)
                         uploaded.discard();
                     uploaded = null;
                     return false;
                 }
-                GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, ((VertexBufferLittle) buffer).getVertexBufferId());
+                GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, ((VertexBufferExtender) buffer).getVertexBufferId());
                 try {
                     ByteBuffer uploadedData = RenderUploader.glMapBufferRange(uploaded.totalSize());
                     if (uploadedData != null)

@@ -2,7 +2,7 @@ package team.creative.littletiles.client.render.mc;
 
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 
-public interface VertexBufferLittle {
+public interface VertexBufferExtender {
     
     public ChunkLayerUploadManager getManager();
     

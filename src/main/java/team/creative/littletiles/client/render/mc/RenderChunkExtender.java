@@ -2,7 +2,7 @@ package team.creative.littletiles.client.render.mc;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
-public interface RenderChunkLittle {
+public interface RenderChunkExtender {
     
     public boolean dynamicLightUpdate();
     

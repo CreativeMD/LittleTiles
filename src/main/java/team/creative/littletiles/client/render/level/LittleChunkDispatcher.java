@@ -8,9 +8,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
-import team.creative.littletiles.client.render.mc.RebuildTaskLittle;
-import team.creative.littletiles.client.render.mc.RenderChunkLittle;
-import team.creative.littletiles.client.render.mc.VertexBufferLittle;
+import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 public class LittleChunkDispatcher {
@@ -25,25 +25,25 @@ public class LittleChunkDispatcher {
     }
     
     public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunk chunk) {
-        ((RenderChunkLittle) chunk).dynamicLightUpdate(true);
+        ((RenderChunkExtender) chunk).dynamicLightUpdate(true);
     }
     
     public static void startCompile(RenderChunk chunk) {
         for (RenderType layer : RenderType.chunkBufferLayers()) {
             VertexBuffer vertexBuffer = chunk.getBuffer(layer);
-            ChunkLayerUploadManager manager = ((VertexBufferLittle) vertexBuffer).getManager();
+            ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
             if (manager != null) {
                 synchronized (manager) {
                     manager.queued++;
                 }
                 manager.backToRAM();
             } else
-                ((VertexBufferLittle) vertexBuffer).setManager(manager = new ChunkLayerUploadManager(chunk, layer));
+                ((VertexBufferExtender) vertexBuffer).setManager(manager = new ChunkLayerUploadManager(chunk, layer));
         }
     }
     
-    public static void add(RenderChunk chunk, BETiles be, RebuildTaskLittle rebuildTask) {
-        if (((RenderChunkLittle) chunk).dynamicLightUpdate())
+    public static void add(RenderChunk chunk, BETiles be, RebuildTaskExtender rebuildTask) {
+        if (((RenderChunkExtender) chunk).dynamicLightUpdate())
             be.render.hasLightChanged = true;
         
         be.updateQuadCache(chunk);
