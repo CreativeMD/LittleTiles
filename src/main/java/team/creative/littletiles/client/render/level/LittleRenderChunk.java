@@ -277,12 +277,12 @@ public class LittleRenderChunk {
             if (this.isCancelled.get())
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             
-            if (!LittleRenderChunk.this.hasAllNeighbors()) {
+            /*if (!LittleRenderChunk.this.hasAllNeighbors()) {
                 this.level = null;
                 LittleRenderChunk.this.setDirty(false);
                 this.isCancelled.set(true);
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
-            }
+            }*/
             
             if (this.isCancelled.get())
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
