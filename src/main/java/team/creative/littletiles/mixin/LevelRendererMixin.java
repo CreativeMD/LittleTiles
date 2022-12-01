@@ -38,10 +38,17 @@ public class LevelRendererMixin {
     
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD),
             method = "renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V")
-    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
+    public void resortTransparency(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
         LittleClientEventHandler.transparencySortingIndex++;
         if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.resortTransparency(layer, x, y, z);
+    }
+    
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ShaderInstance;clear()V"),
+            method = "renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDDLcom/mojang/math/Matrix4f;)V")
+    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
+        if (LittleTilesClient.ANIMATION_HANDLER != null)
+            LittleTilesClient.ANIMATION_HANDLER.renderChunkLayer(layer, pose, x, y, z, projectionMatrix);
     }
     
     @Inject(at = @At("HEAD"), method = "needsUpdate()V")

@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 
 import net.minecraft.CrashReport;
 import net.minecraft.Util;
@@ -45,8 +46,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
@@ -310,12 +309,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         }
     }
     
-    @SubscribeEvent
-    public void renderChunkLayer(RenderLevelStageEvent event) {
-        if (event.getStage() == Stage.AFTER_SOLID_BLOCKS || event.getStage() == Stage.AFTER_CUTOUT_BLOCKS || event.getStage() == Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS || event
-                .getStage() == Stage.AFTER_TRANSLUCENT_BLOCKS)
-            for (LittleLevelEntity animation : this)
-                LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(animation, event);
+    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
+        for (LittleLevelEntity animation : this)
+            LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(animation, layer, pose, x, y, z, projectionMatrix);
     }
     
     @SubscribeEvent

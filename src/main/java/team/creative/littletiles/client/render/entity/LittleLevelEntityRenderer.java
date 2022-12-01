@@ -8,6 +8,7 @@ import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Camera;
@@ -139,9 +140,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         }
     }
     
-    public void renderChunkLayer(LittleLevelEntity animation, RenderLevelStageEvent event) {
-        RenderType layer = getLayerByStage(event.getStage());
-        Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+    public void renderChunkLayer(LittleLevelEntity animation, RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
         LittleLevelRenderManager manager = animation.getRenderManager();
         
         ShaderInstance shaderinstance = RenderSystem.getShader();
@@ -152,7 +151,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
             if (!chunk.getCompiledChunk().isEmpty(layer)) {
                 VertexBuffer vertexbuffer = chunk.getBuffer(layer);
                 if (uniform != null) {
-                    uniform.set((float) (chunk.pos.getX() - cam.x), (float) (chunk.pos.getY() - cam.y), (float) (chunk.pos.getZ() - cam.z));
+                    uniform.set((float) (chunk.pos.getX() - x), (float) (chunk.pos.getY() - y), (float) (chunk.pos.getZ() - z));
                     uniform.upload();
                 }
                 
