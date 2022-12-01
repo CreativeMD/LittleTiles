@@ -65,7 +65,7 @@ public class RenderUploader {
                 }
                 
                 BufferBuilder builder = new BufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risking and could potentially cause issues
-                ((RenderChunkExtender) chunk).invokeBeginLayer(builder);
+                ((RenderChunkExtender) chunk).begin(builder);
                 if (vanillaBuffer != null) {
                     if (layer == RenderType.translucent()) {
                         SortState state = ((CompiledChunkAccessor) compiled).getTransparencyState();

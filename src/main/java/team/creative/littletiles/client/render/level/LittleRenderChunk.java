@@ -2,6 +2,7 @@ package team.creative.littletiles.client.render.level;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,11 +57,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
+import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.CompiledChunkAccessor;
 
-public class LittleRenderChunk {
+public class LittleRenderChunk implements RenderChunkExtender {
     
     public final LittleLevelRenderManager manager;
     public final SectionPos section;
@@ -77,6 +82,7 @@ public class LittleRenderChunk {
     private boolean dirty = true;
     private final SectionPos[] neighbors;
     private boolean playerChanged;
+    private boolean dynamicLightUpdate = false;
     
     public LittleRenderChunk(LittleLevelRenderManager manager, SectionPos pos) {
         this.manager = manager;
@@ -88,6 +94,16 @@ public class LittleRenderChunk {
             Direction direction = Direction.values()[i];
             neighbors[i] = SectionPos.of(section.getX() + direction.getStepX(), section.getY() + direction.getStepY(), section.getZ() + direction.getStepZ());
         }
+    }
+    
+    @Override
+    public boolean dynamicLightUpdate() {
+        return dynamicLightUpdate;
+    }
+    
+    @Override
+    public void dynamicLightUpdate(boolean value) {
+        dynamicLightUpdate = value;
     }
     
     public LittleLevel level() {
@@ -109,7 +125,8 @@ public class LittleRenderChunk {
         return this.bb;
     }
     
-    public VertexBuffer getBuffer(RenderType layer) {
+    @Override
+    public VertexBuffer getVertexBuffer(RenderType layer) {
         return this.buffers.get(layer);
     }
     
@@ -125,6 +142,11 @@ public class LittleRenderChunk {
     
     public ChunkRenderDispatcher.CompiledChunk getCompiledChunk() {
         return this.compiled.get();
+    }
+    
+    @Override
+    public void begin(BufferBuilder builder) {
+        beginLayer(builder);
     }
     
     private void beginLayer(BufferBuilder builder) {
@@ -155,6 +177,11 @@ public class LittleRenderChunk {
     
     public boolean isDirty() {
         return this.dirty;
+    }
+    
+    @Override
+    public void markReadyForUpdate(boolean playerChanged) {
+        setDirty(playerChanged);
     }
     
     public boolean isDirtyFromPlayer() {
@@ -252,10 +279,13 @@ public class LittleRenderChunk {
         }
     }
     
-    class RebuildTask extends ChunkCompileTask {
+    class RebuildTask extends ChunkCompileTask implements RebuildTaskExtender {
         
         @Nullable
         protected Level level;
+        private HashMap<RenderType, ChunkLayerCache> caches;
+        private ChunkBufferBuilderPack pack;
+        private Set<RenderType> renderTypes;
         
         @Deprecated
         public RebuildTask(@Nullable double distAtCreation, Level level, boolean isHighPriority) {
@@ -310,7 +340,7 @@ public class LittleRenderChunk {
             
             List<CompletableFuture<Void>> list = Lists.newArrayList();
             results.renderedLayers.forEach((layer, buffer) -> {
-                list.add(manager.uploadChunkLayer(buffer, LittleRenderChunk.this.getBuffer(layer)));
+                list.add(manager.uploadChunkLayer(buffer, LittleRenderChunk.this.getVertexBuffer(layer)));
                 ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
             });
             
@@ -329,6 +359,9 @@ public class LittleRenderChunk {
         }
         
         private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
+            this.pack = pack;
+            
+            LittleChunkDispatcher.startCompile(LittleRenderChunk.this);
             CompileResults results = new CompileResults();
             BlockPos maxPos = pos.offset(15, 15, 15);
             VisGraph visgraph = new VisGraph();
@@ -337,7 +370,7 @@ public class LittleRenderChunk {
             PoseStack posestack = new PoseStack();
             if (renderchunkregion != null) {
                 ModelBlockRenderer.enableCaching();
-                Set<RenderType> set = new ReferenceArraySet<>(RenderType.chunkBufferLayers().size());
+                renderTypes = new ReferenceArraySet<>(RenderType.chunkBufferLayers().size());
                 RandomSource randomsource = RandomSource.create();
                 BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
                 
@@ -357,7 +390,7 @@ public class LittleRenderChunk {
                     if (!fluidstate.isEmpty()) {
                         RenderType rendertype = ItemBlockRenderTypes.getRenderLayer(fluidstate);
                         BufferBuilder bufferbuilder = pack.builder(rendertype);
-                        if (set.add(rendertype))
+                        if (renderTypes.add(rendertype))
                             LittleRenderChunk.this.beginLayer(bufferbuilder);
                         
                         blockrenderdispatcher.renderLiquid(blockpos2, renderchunkregion, bufferbuilder, blockstate1, fluidstate);
@@ -369,7 +402,7 @@ public class LittleRenderChunk {
                         randomsource.setSeed(blockstate.getSeed(blockpos2));
                         for (RenderType rendertype2 : model.getRenderTypes(blockstate, randomsource, modelData)) {
                             BufferBuilder bufferbuilder2 = pack.builder(rendertype2);
-                            if (set.add(rendertype2))
+                            if (renderTypes.add(rendertype2))
                                 LittleRenderChunk.this.beginLayer(bufferbuilder2);
                             
                             posestack.pushPose();
@@ -380,7 +413,7 @@ public class LittleRenderChunk {
                     }
                 }
                 
-                if (set.contains(RenderType.translucent())) {
+                if (renderTypes.contains(RenderType.translucent())) {
                     BufferBuilder bufferbuilder1 = pack.builder(RenderType.translucent());
                     if (!bufferbuilder1.isCurrentBatchEmpty()) {
                         bufferbuilder1.setQuadSortOrigin(x - pos.getX(), y - pos.getY(), z - pos.getZ());
@@ -388,7 +421,7 @@ public class LittleRenderChunk {
                     }
                 }
                 
-                for (RenderType rendertype1 : set) {
+                for (RenderType rendertype1 : renderTypes) {
                     BufferBuilder.RenderedBuffer rendered = pack.builder(rendertype1).endOrDiscardIfEmpty();
                     if (rendered != null)
                         results.renderedLayers.put(rendertype1, rendered);
@@ -398,10 +431,13 @@ public class LittleRenderChunk {
             }
             
             results.visibilitySet = visgraph.resolve();
+            LittleChunkDispatcher.endCompile(LittleRenderChunk.this, this);
             return results;
         }
         
         private <E extends BlockEntity> void handleBlockEntity(CompileResults results, E entity) {
+            if (entity instanceof BETiles tiles)
+                LittleChunkDispatcher.add(LittleRenderChunk.this, tiles, this);
             BlockEntityRenderer<E> blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))
@@ -418,6 +454,35 @@ public class LittleRenderChunk {
             
         }
         
+        @Override
+        public void clear() {
+            this.pack = null;
+            this.renderTypes = null;
+        }
+        
+        @Override
+        public BufferBuilder builder(RenderType layer) {
+            BufferBuilder builder = pack.builder(layer);
+            if (renderTypes.add(layer))
+                LittleRenderChunk.this.begin(builder);
+            return builder;
+        }
+        
+        @Override
+        public HashMap<RenderType, ChunkLayerCache> getLayeredCache() {
+            return caches;
+        }
+        
+        @Override
+        public ChunkLayerCache getOrCreate(RenderType layer) {
+            if (caches == null)
+                caches = new HashMap<>();
+            ChunkLayerCache cache = caches.get(layer);
+            if (cache == null)
+                caches.put(layer, cache = new ChunkLayerCache());
+            return cache;
+        }
+        
         @OnlyIn(Dist.CLIENT)
         static final class CompileResults {
             
@@ -432,6 +497,7 @@ public class LittleRenderChunk {
                 return renderedLayers.isEmpty() && globalBlockEntities.isEmpty() && blockEntities.isEmpty();
             }
         }
+        
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -479,7 +545,7 @@ public class LittleRenderChunk {
                     rendered.release();
                     return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
                 }
-                CompletableFuture<ChunkTaskResult> completablefuture = manager.uploadChunkLayer(rendered, LittleRenderChunk.this.getBuffer(RenderType.translucent()))
+                CompletableFuture<ChunkTaskResult> completablefuture = manager.uploadChunkLayer(rendered, LittleRenderChunk.this.getVertexBuffer(RenderType.translucent()))
                         .thenApply(x -> ChunkTaskResult.CANCELLED);
                 return completablefuture.handle((result, exception) -> {
                     if (exception != null && !(exception instanceof CancellationException) && !(exception instanceof InterruptedException))

@@ -25,8 +25,7 @@ import team.creative.littletiles.client.render.cache.build.RenderingThread;
 public class LittleTilesProfilerOverlay {
     
     private static boolean showDebugInfo = false;
-    public static int vanillaChunksUpdates = 0;
-    public static int ltChunksUpdates = 0;
+    public static int chunkUpdates = 0;
     public static int uploaded = 0;
     
     private static int updateTime = 20;
@@ -82,8 +81,7 @@ public class LittleTilesProfilerOverlay {
         if (event.phase == Phase.END) {
             updateTicker++;
             if (updateTicker > updateTime) {
-                vanillaChunksUpdates = 0;
-                ltChunksUpdates = 0;
+                chunkUpdates = 0;
                 uploaded = 0;
                 updateTicker = 0;
                 if (durations != null)
@@ -131,7 +129,7 @@ public class LittleTilesProfilerOverlay {
                 PairList<String, Object> details = new PairList<>();
                 details.add("ThreadCount", RenderingThread.THREADS.size());
                 details.add("Chunks", RenderingThread.CHUNKS.size());
-                details.add("Triggered", uploaded + "(" + vanillaChunksUpdates + ")/" + ltChunksUpdates);
+                details.add("Triggered", uploaded + chunkUpdates);
                 details.add("Queue", RenderingThread.queueSize());
                 
                 if (averageDuration > 1000)

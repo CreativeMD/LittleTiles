@@ -2,29 +2,27 @@ package team.creative.littletiles.client.render.cache.build;
 
 import java.util.HashMap;
 
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.client.render.cache.build.RenderingThread.RemovedBlockEntityException;
 import team.creative.littletiles.client.render.cache.build.RenderingThread.RenderingException;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 public class RenderingBlockContext {
     
     public final BETiles be;
     public final BlockState state;
-    public final Object chunk;
-    public final boolean subWorld;
+    public final RenderChunkExtender chunk;
     public int index;
     
     public HashMap<Facing, BETiles> neighboursBEs;
     
-    public RenderingBlockContext(BETiles be, Object chunk) {
+    public RenderingBlockContext(BETiles be, RenderChunkExtender chunk) {
         this.be = be;
         this.state = be.getBlockTileState();
         this.chunk = chunk;
-        this.subWorld = !(chunk instanceof RenderChunk);
     }
     
     public void checkRemoved() throws RemovedBlockEntityException {

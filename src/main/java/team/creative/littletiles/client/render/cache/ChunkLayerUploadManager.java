@@ -11,9 +11,9 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.level.RenderUploader.NotSupportedException;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
 public class ChunkLayerUploadManager {
@@ -25,8 +25,8 @@ public class ChunkLayerUploadManager {
     
     public int queued;
     
-    public ChunkLayerUploadManager(RenderChunk chunk, RenderType layer) {
-        this.buffer = chunk.getBuffer(layer);
+    public ChunkLayerUploadManager(RenderChunkExtender chunk, RenderType layer) {
+        this.buffer = chunk.getVertexBuffer(layer);
         ((VertexBufferExtender) buffer).setManager(this);
     }
     

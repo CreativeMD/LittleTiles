@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -16,7 +18,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -29,7 +30,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.lighting.QuadLighter;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeQuadLighter;
-import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.LevelAccesorFake;
 import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -38,20 +38,23 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.api.IFakeRenderingBlock;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.level.little.SubClientLevel;
-import team.creative.littletiles.client.render.LittleRenderUtils;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.mixin.LevelRendererAccessor;
+import team.creative.littletiles.mixin.ViewAreaAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderingThread extends Thread {
     
     private static final String[] fakeLeveldMods = new String[] { "chisel" };
     public static List<RenderingThread> THREADS;
-    public static final HashMap<Object, Integer> CHUNKS = new HashMap<>();
+    public static final HashMap<RenderChunkExtender, Integer> CHUNKS = new HashMap<>();
     public static final Minecraft mc = Minecraft.getInstance();
     private static final ConcurrentLinkedQueue<RenderingBlockContext> QUEUE = new ConcurrentLinkedQueue<>();
     
@@ -82,16 +85,16 @@ public class RenderingThread extends Thread {
         CHUNKS.clear();
     }
     
-    public static boolean queue(BETiles be) {
+    public static boolean queue(BETiles be, @Nullable RenderChunkExtender chunk) {
         if (THREADS == null)
             initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
         
-        Object chunk;
-        if (be.getLevel() instanceof IOrientatedLevel)
-            chunk = LittleRenderUtils.getRenderChunk((IOrientatedLevel) be.getLevel(), be.getBlockPos());
-        else
-            chunk = LittleRenderUtils.getRenderChunk(be.getBlockPos());
-        
+        if (chunk == null)
+            if (be.getLevel() instanceof LittleClientLevel level)
+                chunk = level.renderManager.getOrCreateChunk(be.getBlockPos());
+            else
+                chunk = (RenderChunkExtender) ((ViewAreaAccessor) ((LevelRendererAccessor) mc.levelRenderer).getViewArea()).getChunkAt(be.getBlockPos());
+            
         if (chunk == null) {
             System.out.println("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());
             return false;
@@ -104,7 +107,7 @@ public class RenderingThread extends Thread {
                 be.render.getBufferCache().setEmpty();
             }
             if (!be.render.finishBuildingCache(index, LittleChunkDispatcher.currentRenderState, true))
-                return queue(be);
+                return queue(be, chunk);
             return false;
         }
         
@@ -336,17 +339,9 @@ public class RenderingThread extends Thread {
                     CHUNKS.put(data.chunk, count - 1);
         }
         
-        //if (data.subWorld)
-        //((LittleRenderChunk) data.chunk).addRenderData(data.be);
-        
         if (complete) {
-            if (data.subWorld) {
-                LittleTilesProfilerOverlay.ltChunksUpdates++;
-                //((LittleRenderChunk) data.chunk).markCompleted();
-            } else {
-                LittleTilesProfilerOverlay.vanillaChunksUpdates++;
-                ((RenderChunk) data.chunk).setDirty(true);
-            }
+            LittleTilesProfilerOverlay.chunkUpdates++;
+            data.chunk.markReadyForUpdate(false);
         }
         return true;
         

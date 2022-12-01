@@ -64,6 +64,10 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
         return chunks.get(SectionPos.asLong(pos));
     }
     
+    public synchronized LittleRenderChunk getOrCreateChunk(BlockPos pos) {
+        return getChunk(SectionPos.of(pos), true);
+    }
+    
     public synchronized LittleRenderChunk getChunk(SectionPos pos, boolean create) {
         long value = pos.asLong();
         LittleRenderChunk chunk = chunks.get(value);

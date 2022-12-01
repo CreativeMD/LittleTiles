@@ -149,7 +149,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         for (Iterator<LittleRenderChunk> iterator = layer == RenderType.translucent() ? manager.visibleChunksInverse() : manager.visibleChunks().iterator(); iterator.hasNext();) {
             LittleRenderChunk chunk = iterator.next();
             if (!chunk.getCompiledChunk().isEmpty(layer)) {
-                VertexBuffer vertexbuffer = chunk.getBuffer(layer);
+                VertexBuffer vertexbuffer = chunk.getVertexBuffer(layer);
                 if (uniform != null) {
                     uniform.set((float) (chunk.pos.getX() - x), (float) (chunk.pos.getY() - y), (float) (chunk.pos.getZ() - z));
                     uniform.upload();

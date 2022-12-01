@@ -5,15 +5,14 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderChunk.class)
 public abstract class RenderChunkMixin implements RenderChunkExtender {
-    
-    @Unique
-    public int updateQueue;
     
     @Unique
     public boolean dynamicLightUpdate = false;
@@ -30,6 +29,14 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     
     @Override
     @Invoker("beginLayer")
-    public abstract void invokeBeginLayer(BufferBuilder builder);
+    public abstract void begin(BufferBuilder builder);
+    
+    @Override
+    @Invoker("getBuffer")
+    public abstract VertexBuffer getVertexBuffer(RenderType layer);
+    
+    @Override
+    @Invoker("setDirty")
+    public abstract void markReadyForUpdate(boolean playerChanged);
     
 }

@@ -1,12 +1,15 @@
 package team.creative.littletiles.client.render.level;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -24,13 +27,13 @@ public class LittleChunkDispatcher {
         LittleTilesClient.ANIMATION_HANDLER.allChanged();
     }
     
-    public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunk chunk) {
-        ((RenderChunkExtender) chunk).dynamicLightUpdate(true);
+    public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunkExtender chunk) {
+        chunk.dynamicLightUpdate(true);
     }
     
-    public static void startCompile(RenderChunk chunk) {
+    public static void startCompile(RenderChunkExtender chunk) {
         for (RenderType layer : RenderType.chunkBufferLayers()) {
-            VertexBuffer vertexBuffer = chunk.getBuffer(layer);
+            VertexBuffer vertexBuffer = chunk.getVertexBuffer(layer);
             ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
             if (manager != null) {
                 synchronized (manager) {
@@ -42,8 +45,30 @@ public class LittleChunkDispatcher {
         }
     }
     
-    public static void add(RenderChunk chunk, BETiles be, RebuildTaskExtender rebuildTask) {
-        if (((RenderChunkExtender) chunk).dynamicLightUpdate())
+    public static void endCompile(RenderChunkExtender chunk, RebuildTaskExtender task) {
+        chunk.dynamicLightUpdate(false);
+        
+        for (RenderType layer : RenderType.chunkBufferLayers()) {
+            VertexBuffer vertexBuffer = chunk.getVertexBuffer(layer);
+            ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
+            synchronized (manager) {
+                manager.queued--;
+            }
+        }
+        
+        HashMap<RenderType, ChunkLayerCache> caches = task.getLayeredCache();
+        if (caches != null)
+            for (Entry<RenderType, ChunkLayerCache> entry : caches.entrySet()) {
+                VertexBuffer vertexBuffer = chunk.getVertexBuffer(entry.getKey());
+                ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
+                manager.set(entry.getValue());
+            }
+        
+        task.clear();
+    }
+    
+    public static void add(RenderChunkExtender chunk, BETiles be, RebuildTaskExtender rebuildTask) {
+        if (chunk.dynamicLightUpdate())
             be.render.hasLightChanged = true;
         
         be.updateQuadCache(chunk);

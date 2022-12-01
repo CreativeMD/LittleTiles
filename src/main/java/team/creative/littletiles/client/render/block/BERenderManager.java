@@ -19,6 +19,7 @@ import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -65,7 +66,7 @@ public class BERenderManager {
         return queued;
     }
     
-    public void chunkUpdate(Object chunk) {
+    public void chunkUpdate(RenderChunkExtender chunk) {
         synchronized (this) {
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
             if (renderState != LittleChunkDispatcher.currentRenderState) {
@@ -77,14 +78,14 @@ public class BERenderManager {
             neighbourChanged = false;
             
             if (doesNeedUpdate)
-                queue(eraseBoxCache);
+                queue(eraseBoxCache, chunk);
         }
     }
     
     public void tilesChanged() {
         requireRenderingBoundingBoxUpdate = true;
         cachedRenderDistance = 0;
-        queue(true);
+        queue(true, null);
     }
     
     public double getMaxRenderDistance() {
@@ -131,16 +132,16 @@ public class BERenderManager {
     
     public void onNeighbourChanged() {
         neighbourChanged = true;
-        queue(false);
+        queue(false, null);
     }
     
-    public void queue(boolean eraseBoxCache) {
+    public void queue(boolean eraseBoxCache, @Nullable RenderChunkExtender chunk) {
         synchronized (this) {
             requestedIndex++;
             
             this.eraseBoxCache |= eraseBoxCache;
             
-            if (!queued && RenderingThread.queue(be))
+            if (!queued && RenderingThread.queue(be, chunk))
                 queued = true;
         }
     }
