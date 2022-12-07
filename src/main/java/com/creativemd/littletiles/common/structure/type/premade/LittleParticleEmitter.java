@@ -191,14 +191,16 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public float sizeDeviation = 0.04F;
         public LittleParticleTexture texture = LittleParticleTexture.dust_fade_out;
         public boolean randomColor = false;
+        public boolean collision = true;
         
         public ParticleSettings() {
             
         }
         
-        public ParticleSettings(float gravity, int color, int lifetime, int lifetimeDeviation, float startSize, float endSize, float sizeDeviation, LittleParticleTexture texture, boolean randomColor) {
+        public ParticleSettings(float gravity, int color, int lifetime, int lifetimeDeviation, float startSize, float endSize, float sizeDeviation, LittleParticleTexture texture, boolean randomColor,boolean collision) {
             this.gravity = gravity;
             this.color = color;
+            this.collision = collision;
             this.lifetime = lifetime;
             this.lifetimeDeviation = lifetimeDeviation;
             this.startSize = startSize;
@@ -217,6 +219,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             endSize = nbt.getFloat("endSize");
             sizeDeviation = nbt.getFloat("sizeDeviation");
             randomColor = nbt.getBoolean("randomColor");
+            collision = nbt.getBoolean("collision");
             texture = LittleParticleTexture.get(nbt.getString("texture"));
         }
         
@@ -230,10 +233,11 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             nbt.setFloat("sizeDeviation", sizeDeviation);
             nbt.setString("texture", texture.name());
             nbt.setBoolean("randomColor", randomColor);
+            nbt.setBoolean("collision", collision);
         }
         
         public ParticleSettings copy() {
-            return new ParticleSettings(gravity, color, lifetime, lifetimeDeviation, startSize, endSize, sizeDeviation, texture, randomColor);
+            return new ParticleSettings(gravity, color, lifetime, lifetimeDeviation, startSize, endSize, sizeDeviation, texture, randomColor,collision);
         }
     }
     

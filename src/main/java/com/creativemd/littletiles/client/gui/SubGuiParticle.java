@@ -72,6 +72,7 @@ public class SubGuiParticle extends SubGui {
         controls.add(new GuiLabel("sizeDeviationLabel", translate("gui.particle.sizedeviation"), 115, 48));
         controls.add(new GuiTextfield("sizedeviation", "0.02", 165, 46, 25, 12).setFloatOnly());
         controls.add(new GuiColorPicker("color", 0, 65, new Color(255, 255, 255), true, 1));
+        controls.add(new GuiCheckBox("collision", "collision", 140, 70, particle.settings.collision));
         controls.add(new GuiCheckBox("randomColor", translate("gui.particle.randomcolor"), 110, 95, particle.settings.randomColor));
         controls.add(new GuiLabel("ageLabel", translate("gui.particle.age"), 0, 111));
         controls.add(new GuiSteppedSlider("age", 30, 110, 50, 8, 20, 1, 100));
@@ -110,6 +111,8 @@ public class SubGuiParticle extends SubGui {
                 ParticleSettings newSettings = new ParticleSettings();
                 GuiCheckBox randomColor = (GuiCheckBox) get("randomColor");
                 newSettings.randomColor = randomColor.value;
+                GuiCheckBox collision = (GuiCheckBox) get("collision");
+                newSettings.collision = collision.value;
                 GuiComboBox textures = (GuiComboBox) get("textures");
                 newSettings.texture = LittleParticleTexture.get(textures.getCaption());
                 GuiSteppedSlider age = (GuiSteppedSlider) get("age");
