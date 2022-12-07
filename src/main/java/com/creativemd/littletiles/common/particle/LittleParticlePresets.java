@@ -10,37 +10,37 @@ public enum LittleParticlePresets {
     SMOKE(
         1,
         5,
-        new ParticleSettings(-0.08F, ColorUtils.RGBAToInt(20, 20, 20, 255), 40, 5, 0.4F, 0.6F, 0.1F, LittleParticleTexture.dust_fade_out, true),
+        new ParticleSettings(-0.08F, ColorUtils.RGBAToInt(20, 20, 20, 255), 40, 5, 0.4F, 0.6F, 0.1F, LittleParticleTexture.dust_fade_out, true,true),
         new ParticleSpreadRandom(0, 0, 0, 0.2F)),
     FLAME(
         1,
         20,
-        new ParticleSettings(0F, ColorUtils.WHITE, 40, 5, 1F, 1F, 0.1F, LittleParticleTexture.flame, false),
+        new ParticleSettings(0F, ColorUtils.WHITE, 40, 5, 1F, 1F, 0.1F, LittleParticleTexture.flame, false,true),
         new ParticleSpreadRandom(0.005F, 0, 0, 0F)),
     WATER_DROP(
         1,
         20,
-        new ParticleSettings(0F, ColorUtils.RGBAToInt(0, 85, 255, 255), 40, 5, 2F, 2F, 0.3F, LittleParticleTexture.square, false),
+        new ParticleSettings(0F, ColorUtils.RGBAToInt(0, 85, 255, 255), 40, 5, 2F, 2F, 0.3F, LittleParticleTexture.square, false,true),
         new ParticleSpreadRandom(0.1F, 0, 0, 0F)),
     NOTE(
         1,
         10,
-        new ParticleSettings(0F, ColorUtils.WHITE, 40, 5, 1F, 0.5F, 0.3F, LittleParticleTexture.note, true),
+        new ParticleSettings(0F, ColorUtils.WHITE, 40, 5, 1F, 0.5F, 0.3F, LittleParticleTexture.note, true,true),
         new ParticleSpreadRandom(0.04F, 0, 0, 0.03F)),
     BIG_SMOKE(
         1,
         5,
-        new ParticleSettings(-0.1F, ColorUtils.RGBAToInt(54, 54, 54, 210), 88, 10, 3F, 4F, 0.3F, LittleParticleTexture.dust_fade_out, false),
+        new ParticleSettings(-0.1F, ColorUtils.RGBAToInt(54, 54, 54, 210), 88, 10, 3F, 4F, 0.3F, LittleParticleTexture.dust_fade_out, false,true),
         new ParticleSpreadRandom(0.04F, 0, 0, 0.03F)),
     SAND(
         1,
         5,
-        new ParticleSettings(0.6F, ColorUtils.RGBAToInt(54, 54, 54, 210), 50, 8, 1, 1, 0.3F, LittleParticleTexture.dust, false),
+        new ParticleSettings(0.6F, ColorUtils.RGBAToInt(54, 54, 54, 210), 50, 8, 1, 1, 0.3F, LittleParticleTexture.dust, false,true),
         new ParticleSpreadRandom(0.1F, 0, 0, 0.03F)),
     CONFETTI(
         20,
         20,
-        new ParticleSettings(0F, ColorUtils.RGBAToInt(255, 255, 255, 255), 84, 10, 0F, 1F, 2F, LittleParticleTexture.diamond, true),
+        new ParticleSettings(0F, ColorUtils.RGBAToInt(255, 255, 255, 255), 84, 10, 0F, 1F, 2F, LittleParticleTexture.diamond, true,true),
         new ParticleSpreadRandom(0.1F, 0, 0, 0.1F));
     
     public final ParticleSettings settings;

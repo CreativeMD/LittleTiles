@@ -34,6 +34,7 @@ public class LittleParticle extends Particle {
             this.particleBlue *= Math.random();
         }
         this.settings = settings;
+        this.canCollide =  settings.collision;
         this.scaleDeviation = (float) (Math.random() * settings.sizeDeviation);
         settings.texture.setTextureInit(this);
         this.setSize(0.2F * particleScale, 0.2F * particleScale);
