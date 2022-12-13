@@ -1,6 +1,6 @@
 package team.creative.littletiles.common.block.mc;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;

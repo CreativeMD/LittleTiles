@@ -14,6 +14,8 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
@@ -60,7 +62,7 @@ public class LittleChunkSerializer {
         boolean chunkSkyLight = level.dimensionType().hasSkyLight();
         ChunkSource chunksource = level.getChunkSource();
         LevelLightEngine levellightengine = chunksource.getLightEngine();
-        Registry<Biome> registry = level.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<Biome> registry = level.registryAccess().registryOrThrow(Registries.BIOME);
         boolean retained = false;
         
         for (int j = 0; j < listtag.size(); ++j) {
@@ -97,8 +99,10 @@ public class LittleChunkSerializer {
             }
         }
         
-        LevelChunkTicks<Block> blockTicks = LevelChunkTicks.load(nbt.getList("block_ticks", 10), (x) -> Registry.BLOCK.getOptional(ResourceLocation.tryParse(x)), chunkpos);
-        LevelChunkTicks<Fluid> fluidTicks = LevelChunkTicks.load(nbt.getList("fluid_ticks", 10), (x) -> Registry.FLUID.getOptional(ResourceLocation.tryParse(x)), chunkpos);
+        LevelChunkTicks<Block> blockTicks = LevelChunkTicks
+                .load(nbt.getList("block_ticks", 10), (x) -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(x)), chunkpos);
+        LevelChunkTicks<Fluid> fluidTicks = LevelChunkTicks
+                .load(nbt.getList("fluid_ticks", 10), (x) -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(x)), chunkpos);
         
         LevelChunk chunk = new LevelChunk(level.asLevel(), chunkpos, UpgradeData.EMPTY, blockTicks, fluidTicks, nbt
                 .getLong("InhabitedTime"), alevelchunksection, postLoadChunk(level, nbt), null);
@@ -211,8 +215,8 @@ public class LittleChunkSerializer {
     
     private static void saveTicks(Level level, CompoundTag nbt, ChunkAccess.TicksToSave ticks) {
         long i = level.getLevelData().getGameTime();
-        nbt.put("block_ticks", ticks.blocks().save(i, x -> Registry.BLOCK.getKey(x).toString()));
-        nbt.put("fluid_ticks", ticks.fluids().save(i, (x) -> Registry.FLUID.getKey(x).toString()));
+        nbt.put("block_ticks", ticks.blocks().save(i, x -> BuiltInRegistries.BLOCK.getKey(x).toString()));
+        nbt.put("fluid_ticks", ticks.fluids().save(i, (x) -> BuiltInRegistries.FLUID.getKey(x).toString()));
     }
     
     @Nullable

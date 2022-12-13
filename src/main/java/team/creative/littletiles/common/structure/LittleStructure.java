@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionResult;
@@ -824,6 +825,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public boolean isBed(LivingEntity player) {
         return false;
+    }
+    
+    public Direction getBedDirection() {
+        return null;
     }
     
     public void onEntityCollidedWithBlock(Level level, IStructureParentCollection parent, BlockPos pos, Entity entityIn) {}

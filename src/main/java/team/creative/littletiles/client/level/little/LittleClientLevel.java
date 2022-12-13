@@ -9,8 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
@@ -135,9 +135,9 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
                 CrashReportCategory crashreportcategory = crashreport.addCategory("Block being updated");
                 crashreportcategory.setDetail("Source block type", () -> {
                     try {
-                        return String.format("ID #%s (%s // %s)", Registry.BLOCK.getKey(block), block.getDescriptionId(), block.getClass().getCanonicalName());
+                        return String.format("ID #%s (%s // %s)", BuiltInRegistries.BLOCK.getKey(block), block.getDescriptionId(), block.getClass().getCanonicalName());
                     } catch (Throwable throwable1) {
-                        return "ID #" + Registry.BLOCK.getKey(block);
+                        return "ID #" + BuiltInRegistries.BLOCK.getKey(block);
                     }
                 });
                 CrashReportCategory.populateBlockDetails(crashreportcategory, this, pos, blockstate);

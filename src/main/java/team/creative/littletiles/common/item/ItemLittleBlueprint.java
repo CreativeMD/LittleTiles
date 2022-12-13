@@ -36,7 +36,7 @@ import team.creative.littletiles.common.placement.selection.SelectionMode;
 public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemTooltip {
     
     public ItemLittleBlueprint() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
+        super(new Item.Properties());
     }
     
     @Override

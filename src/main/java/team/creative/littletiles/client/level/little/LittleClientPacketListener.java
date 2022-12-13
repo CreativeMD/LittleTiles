@@ -15,7 +15,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import team.creative.littletiles.LittleTiles;
@@ -32,7 +33,7 @@ public class LittleClientPacketListener extends ClientPacketListener {
     }
     
     public LittleClientPacketListener(Minecraft mc, Connection con) {
-        super(mc, null, con, null, null);
+        super(mc, null, con, null, null, null);
     }
     
     public void init(Minecraft mc, ClientLevel level, ClientLevelData data, Connection con) {
@@ -58,7 +59,10 @@ public class LittleClientPacketListener extends ClientPacketListener {
     public void handleResourcePack(ClientboundResourcePackPacket packet) {}
     
     @Override
-    public void handlePlayerInfo(ClientboundPlayerInfoPacket packet) {}
+    public void handlePlayerInfoUpdate(ClientboundPlayerInfoUpdatePacket packet) {}
+    
+    @Override
+    public void handlePlayerInfoRemove(ClientboundPlayerInfoRemovePacket packet) {}
     
     @Override
     public Collection<PlayerInfo> getOnlinePlayers() {

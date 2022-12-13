@@ -18,7 +18,7 @@ public class ItemLittleWrench extends Item {
     public static final LittleTileGuiCreator STRUCTURE_OVERVIEW2 = GuiCreator.register("structureoverview2", new LittleTileGuiCreator((nbt, player, context) -> null));
     
     public ItemLittleWrench() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
     
     @Override

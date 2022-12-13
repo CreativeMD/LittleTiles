@@ -14,7 +14,6 @@ import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.api.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -37,7 +36,7 @@ public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredien
     public static int maxStackSizeOfTiles;
     
     public ItemLittleBag() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
     
     @Override

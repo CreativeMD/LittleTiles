@@ -3,13 +3,13 @@ package team.creative.littletiles.client.render.entity;
 import java.util.Iterator;
 import java.util.List;
 
+import org.joml.Matrix4f;
+
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -161,7 +161,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         }
         
         if (uniform != null)
-            uniform.set(Vector3f.ZERO);
+            uniform.set(0F, 0F, 0F);
     }
     
 }

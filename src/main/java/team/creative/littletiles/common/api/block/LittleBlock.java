@@ -2,7 +2,7 @@ package team.creative.littletiles.common.api.block;
 
 import javax.annotation.Nullable;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;

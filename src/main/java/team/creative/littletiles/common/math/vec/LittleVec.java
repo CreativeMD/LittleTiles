@@ -2,7 +2,7 @@ package team.creative.littletiles.common.math.vec;
 
 import java.security.InvalidParameterException;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;

@@ -71,7 +71,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     public ItemLittleGlove() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
     
     @Override

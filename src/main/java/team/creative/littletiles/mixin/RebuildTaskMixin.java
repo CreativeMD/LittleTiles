@@ -38,7 +38,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     @Unique
     public HashMap<RenderType, ChunkLayerCache> caches;
     
-    @Shadow
+    @Shadow(aliases = { "this$0" })
     public RenderChunk this$1;
     
     @Inject(at = @At("HEAD"),

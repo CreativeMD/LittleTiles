@@ -2,10 +2,8 @@ package team.creative.littletiles.common.item;
 
 import java.util.HashMap;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,7 +13,6 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.NBTUtils;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -32,7 +29,7 @@ import team.creative.littletiles.common.structure.registry.premade.LittlePremade
 public class ItemPremadeStructure extends Item implements ILittlePlacer {
     
     public ItemPremadeStructure() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
+        super(new Item.Properties());
     }
     
     @Override
@@ -57,23 +54,6 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
                 return nbt;
             }
         };
-    }
-    
-    public boolean isInCreativeTab(CreativeModeTab targetTab, LittlePremadeType type) {
-        CreativeModeTab tab = type.getCustomTab();
-        if (tab == null)
-            tab = getItemCategory();
-        if (tab == targetTab)
-            return true;
-        return tab != null && (targetTab == CreativeModeTab.TAB_SEARCH || targetTab == tab);
-    }
-    
-    @Override
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
-        if (allowedIn(tab))
-            for (LittlePremadeType entry : LittlePremadeRegistry.types())
-                if (entry.showInCreativeTab)
-                    list.add(entry.createItemStack());
     }
     
     @Override

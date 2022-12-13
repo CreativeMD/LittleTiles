@@ -12,6 +12,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import javax.annotation.Nullable;
 
+import org.joml.Matrix4f;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
@@ -19,7 +21,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
 
 import net.minecraft.CrashReport;
 import net.minecraft.Util;

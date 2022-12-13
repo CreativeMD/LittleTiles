@@ -29,7 +29,7 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemTooltip {
     
     public ItemLittleScrewdriver() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
     
     public void onClick(Player player, boolean rightClick, BlockPos pos, ItemStack stack) {

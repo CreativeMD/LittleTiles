@@ -10,6 +10,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -32,7 +34,7 @@ import team.creative.littletiles.mixin.MinecraftServerAccessor;
 public abstract class LittleServerLevel extends ServerLevel implements LittleLevel {
     
     private static LevelStem overworldStem(MinecraftServer server) {
-        Registry<LevelStem> registry = server.getWorldData().worldGenSettings().dimensions();
+        Registry<LevelStem> registry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
         return registry.get(LevelStem.OVERWORLD);
     }
     
@@ -81,9 +83,9 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
                 CrashReportCategory crashreportcategory = crashreport.addCategory("Block being updated");
                 crashreportcategory.setDetail("Source block type", () -> {
                     try {
-                        return String.format("ID #%s (%s // %s)", Registry.BLOCK.getKey(block), block.getDescriptionId(), block.getClass().getCanonicalName());
+                        return String.format("ID #%s (%s // %s)", BuiltInRegistries.BLOCK.getKey(block), block.getDescriptionId(), block.getClass().getCanonicalName());
                     } catch (Throwable throwable1) {
-                        return "ID #" + Registry.BLOCK.getKey(block);
+                        return "ID #" + BuiltInRegistries.BLOCK.getKey(block);
                     }
                 });
                 CrashReportCategory.populateBlockDetails(crashreportcategory, this, pos, blockstate);

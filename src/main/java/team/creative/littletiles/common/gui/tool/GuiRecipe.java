@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.Align;
+import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
@@ -14,6 +15,8 @@ import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
 
 public class GuiRecipe extends GuiConfigure implements IAnimationControl {
@@ -29,7 +32,18 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
     }
     
     @Override
-    public void onLoaded(AnimationPreview preview) {}
+    public void onLoaded(AnimationPreview preview) {
+        callOnLoaded(preview, this);
+    }
+    
+    private void callOnLoaded(AnimationPreview preview, Iterable<GuiChildControl> controls) {
+        for (GuiChildControl child : controls) {
+            if (child.control instanceof IAnimationControl a)
+                a.onLoaded(preview);
+            if (child.control instanceof GuiParent p)
+                callOnLoaded(preview, p);
+        }
+    }
     
     @Override
     public CompoundTag saveConfiguration(CompoundTag nbt) {
@@ -66,6 +80,11 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         sidebar.add(bottomSidebar);
         bottomSidebar.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()));
         bottomSidebar.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()));
+        
+        add(new GuiAnimationViewer("viewer").setExpandable());
+        LittleGroup group = LittleGroup.load(tool.get().getOrCreateTag());
+        AnimationPreview preview = new AnimationPreview(group);
+        onLoaded(preview);
     }
     
 }

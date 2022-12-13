@@ -9,13 +9,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 
 public class ItemLittleSaw extends Item implements IItemTooltip {
     
     public ItemLittleSaw() {
-        super(new Item.Properties().stacksTo(1).tab(LittleTiles.LITTLE_TAB));
+        super(new Item.Properties().stacksTo(1));
     }
     
     @Override

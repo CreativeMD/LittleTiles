@@ -53,7 +53,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     public static ShapeSelection selection;
     
     public ItemLittleChisel() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
     
     @Override

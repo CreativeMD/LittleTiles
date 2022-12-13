@@ -70,7 +70,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     public ItemLittlePaintBrush() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
     
     @Override

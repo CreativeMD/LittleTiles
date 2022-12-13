@@ -2,7 +2,7 @@ package team.creative.littletiles.client.render.block;
 
 import java.util.Random;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

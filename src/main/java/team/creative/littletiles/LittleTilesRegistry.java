@@ -130,7 +130,7 @@ public class LittleTilesRegistry {
     
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<? extends T> sup) {
         RegistryObject<T> ret = BLOCKS.register(name, sup);
-        ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties().tab(LittleTiles.LITTLE_TAB)));
+        ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties()));
         return ret;
     }
     

@@ -9,7 +9,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -262,7 +262,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         if (!rightClick && PlayerUtils.isAdventure(player)) {
             ItemStack stack = player.getMainHandItem();
             BlockInWorld blockinworld = new BlockInWorld(level, pos, false);
-            if (!stack.hasAdventureModePlaceTagForBlock(level.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY), blockinworld))
+            if (!stack.hasAdventureModePlaceTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), blockinworld))
                 return false;
         } else if (!rightClick && !player.mayBuild())
             return false;

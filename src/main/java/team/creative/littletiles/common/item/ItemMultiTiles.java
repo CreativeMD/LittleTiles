@@ -6,12 +6,10 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.common.base.Charsets;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -50,7 +48,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     public static LittleGrid currentGrid;
     
     public ItemMultiTiles() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB));
+        super(new Item.Properties());
     }
     
     public static String getStructure(ItemStack stack) {
@@ -98,14 +96,6 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
             id = stack.getOrCreateTagElement("structure").getString("id");
         tooltip.add(Component.translatable("gui.structure").append(": ").append(Component.translatable("structure." + id)));
         tooltip.add(Component.literal("" + stack.getOrCreateTag().getInt("count")).append(Component.translatable("gui.tile.count")));
-    }
-    
-    @Override
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
-        if (allowedIn(tab))
-            for (ExampleStructures example : ExampleStructures.values())
-                if (example.stack != null)
-                    list.add(example.stack);
     }
     
     @Override
@@ -160,7 +150,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
         }
     }
     
-    private static enum ExampleStructures {
+    public static enum ExampleStructures {
         
         BASIC_LEVER,
         DOUBLE_DOOR,

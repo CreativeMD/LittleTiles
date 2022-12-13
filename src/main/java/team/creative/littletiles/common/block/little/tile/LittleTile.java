@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;

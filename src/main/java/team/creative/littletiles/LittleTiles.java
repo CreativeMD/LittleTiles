@@ -62,8 +62,10 @@ import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntityLarge;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
+import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
@@ -90,6 +92,8 @@ import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.recipe.StructureIngredient.StructureIngredientSerializer;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
@@ -120,13 +124,56 @@ public class LittleTiles {
     
     public static TagKey<Block> STORAGE_BLOCKS;
     
-    public static final CreativeModeTab LITTLE_TAB = new CreativeModeTab("littletiles") {
+    public static final CreativeModeTab LITTLE_TAB = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0).title(Component.translatable("itemGroup.littletiles")).icon(() -> {
+        return new ItemStack(LittleTilesRegistry.HAMMER.get());
+    }).displayItems((features, output, permission) -> {
+        for (ExampleStructures example : ExampleStructures.values())
+            if (example.stack != null)
+                output.accept(example.stack);
+            
+        for (LittlePremadeType entry : LittlePremadeRegistry.types())
+            if (entry.showInCreativeTab && !entry.hasCustomTab())
+                output.accept(entry.createItemStack());
+            
+        output.accept(LittleTilesRegistry.HAMMER.get());
+        output.accept(LittleTilesRegistry.CHISEL.get());
+        output.accept(LittleTilesRegistry.BLUEPRINT.get());
         
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(LittleTilesRegistry.HAMMER.get());
-        }
-    };
+        output.accept(LittleTilesRegistry.BAG.get());
+        output.accept(LittleTilesRegistry.GLOVE.get());
+        
+        output.accept(LittleTilesRegistry.PAINT_BRUSH.get());
+        output.accept(LittleTilesRegistry.SAW.get());
+        output.accept(LittleTilesRegistry.SCREWDRIVER.get());
+        output.accept(LittleTilesRegistry.WRENCH.get());
+        
+        output.accept(LittleTilesRegistry.SIGNAL_CONVERTER.get());
+        output.accept(LittleTilesRegistry.STORAGE_BLOCK.get());
+        
+        output.accept(LittleTilesRegistry.CLEAN.get());
+        output.accept(LittleTilesRegistry.FLOOR.get());
+        output.accept(LittleTilesRegistry.GRAINY_BIG.get());
+        output.accept(LittleTilesRegistry.GRAINY.get());
+        output.accept(LittleTilesRegistry.GRAINY_LOW.get());
+        output.accept(LittleTilesRegistry.BRICK.get());
+        output.accept(LittleTilesRegistry.BRICK_BIG.get());
+        output.accept(LittleTilesRegistry.BORDERED.get());
+        output.accept(LittleTilesRegistry.CHISELED.get());
+        output.accept(LittleTilesRegistry.BROKEN_BRICK_BIG.get());
+        output.accept(LittleTilesRegistry.CLAY.get());
+        output.accept(LittleTilesRegistry.STRIPS.get());
+        output.accept(LittleTilesRegistry.GRAVEL.get());
+        output.accept(LittleTilesRegistry.SAND.get());
+        output.accept(LittleTilesRegistry.STONE.get());
+        output.accept(LittleTilesRegistry.CORK.get());
+        
+        output.accept(LittleTilesRegistry.WATER.get());
+        output.accept(LittleTilesRegistry.WHITE_WATER.get());
+        
+        output.accept(LittleTilesRegistry.LAVA.get());
+        output.accept(LittleTilesRegistry.WHITE_LAVA.get());
+        
+    }).build();
     
     public LittleTiles() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
@@ -251,11 +298,11 @@ public class LittleTiles {
                 ServerLevel level = x.getSource().getLevel();
                 ISubLevel subLevel = SubServerLevel.createSubLevel(level);
                 BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
-                LittleGrid grid = LittleGrid.min();
+                LittleGrid grid = LittleGrid.defaultGrid();
                 CompoundTag nbt = new CompoundTag();
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
                 LittleGroup group = new LittleGroup(nbt, grid, Collections.EMPTY_LIST);
-                group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), grid.box());
+                group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
                 subLevel.setBlock(pos.above(), Blocks.DIRT.defaultBlockState(), 3);
                 PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
                 

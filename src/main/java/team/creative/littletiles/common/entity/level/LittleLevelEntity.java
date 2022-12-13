@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -293,7 +294,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     public abstract void saveLevelEntity(CompoundTag nbt);
     
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return new ClientboundAddEntityPacket(this);
     }
     

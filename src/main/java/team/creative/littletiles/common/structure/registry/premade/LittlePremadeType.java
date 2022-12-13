@@ -3,7 +3,6 @@ package team.creative.littletiles.common.structure.registry.premade;
 import java.util.function.BiFunction;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -22,8 +21,8 @@ public class LittlePremadeType extends LittleStructureType {
         this.modid = modid;
     }
     
-    public CreativeModeTab getCustomTab() {
-        return null;
+    public boolean hasCustomTab() {
+        return false;
     }
     
     public ItemStack createItemStackEmpty() {

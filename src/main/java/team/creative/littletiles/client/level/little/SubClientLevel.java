@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -119,7 +119,7 @@ public class SubClientLevel extends LittleClientLevel implements ISubLevel {
     }
     
     @Override
-    public void playSeededSound(Player player, Entity entity, SoundEvent event, SoundSource source, float p_220376_, float p_220377_, long p_220378_) {
+    public void playSeededSound(Player player, Entity entity, Holder<SoundEvent> event, SoundSource source, float p_220376_, float p_220377_, long p_220378_) {
         if (getOrigin() == null)
             return;
         Vec3 vec = getOrigin().transformPointToWorld(entity.getEyePosition());

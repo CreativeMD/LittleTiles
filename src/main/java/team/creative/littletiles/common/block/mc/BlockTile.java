@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +26,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacements.Type;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -341,13 +339,19 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     public void setBedOccupied(BlockState state, Level world, BlockPos pos, LivingEntity sleeper, boolean occupied) {}
     
     @Override
-    public boolean isBed(BlockState state, BlockGetter level, BlockPos pos, @Nullable Entity player) {
+    public boolean isBed(BlockState state, BlockGetter level, BlockPos pos, @Nullable Entity entity) {
+        return getBed(level, pos, entity) != null;
+    }
+    
+    public LittleStructure getBed(BlockGetter level, BlockPos pos, @Nullable Entity entity) {
+        if (!(entity instanceof Player))
+            return null;
         BETiles be = loadBE(level, pos);
-        if (be != null && player != null)
+        if (be != null)
             for (LittleStructure structure : be.loadedStructures())
-                if (structure == ((ILittleBedPlayerExtension) player).getBed())
-                    return true;
-        return false;
+                if (structure == ((ILittleBedPlayerExtension) entity).getBed())
+                    return structure;
+        return null;
     }
     
     @Override
@@ -357,8 +361,9 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     
     @Override
     public Optional<Vec3> getRespawnPosition(BlockState state, EntityType<?> type, LevelReader level, BlockPos pos, float orientation, @Nullable LivingEntity entity) {
-        if (isBed(state, level, pos, entity) && level instanceof Level && level.dimensionType().bedWorks())
-            return BedBlock.findStandUpPosition(type, level, pos, orientation);
+        LittleStructure bed = getBed(level, pos, entity);
+        if (bed != null && level instanceof Level && level.dimensionType().bedWorks())
+            return BedBlock.findStandUpPosition(type, level, pos, bed.getBedDirection(), orientation);
         
         return Optional.empty();
     }
@@ -397,9 +402,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         } else
             return super.getDestroyProgress(state, player, level, pos);
     }
-    
-    @Override
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {}
     
     @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {}

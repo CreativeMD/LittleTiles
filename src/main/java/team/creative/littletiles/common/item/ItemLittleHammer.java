@@ -24,7 +24,6 @@ import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
@@ -66,7 +65,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     public ItemLittleHammer() {
-        super(new Item.Properties().tab(LittleTiles.LITTLE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
     
     @Override

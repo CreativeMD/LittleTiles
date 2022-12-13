@@ -39,9 +39,8 @@ public class AnimationPreview {
     public AnimationPreview(LittleGroup previews) {
         this.previews = previews;
         this.grid = previews.getGrid();
-        BlockPos pos = new BlockPos(0, 75, 0);
+        BlockPos pos = new BlockPos(0, 0, 0);
         FakeClientLevel fakeWorld = FakeServerLevel.createClient("animationViewer");
-        //fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
         
         if (!previews.hasStructure()) {
             CompoundTag nbt = new CompoundTag();
@@ -68,7 +67,6 @@ public class AnimationPreview {
         animation = new LittleLevelEntityLarge(LittleTilesRegistry.ENTITY_LEVEL_LARGE.get(), fakeWorld, SubServerLevel
                 .createSubLevel(fakeWorld), new StructureAbsolute(pos, entireBox, previews
                         .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
-        
     }
     
 }
