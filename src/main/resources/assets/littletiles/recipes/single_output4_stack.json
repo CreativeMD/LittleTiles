@@ -12,6 +12,7 @@
   "type": "littletiles:crafting_shaped_premade",
   "key": {
     "C": {
+	  "type": "littletiles:structure",
       "structure": "single_output4"
     }
   }
