@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "littletiles:premade",
+    "data": 0,
+    "structure": "single_cable4",
+    "count": 1
+  },
+  "pattern": [
+    "CC",
+    "CC"
+  ],
+  "type": "littletiles:crafting_shaped_premade",
+  "key": {
+    "C": {
+      "structure": "single_cable1"
+    }
+  }
+}
