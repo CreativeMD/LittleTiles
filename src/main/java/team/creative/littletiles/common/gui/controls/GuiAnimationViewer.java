@@ -1,9 +1,18 @@
 package team.creative.littletiles.common.gui.controls;
 
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiChildControl;
@@ -11,6 +20,8 @@ import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
@@ -98,67 +109,55 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         rotY.tick();
         rotZ.tick();
         distance.tick();
-        /*
-        RenderSystem.cullFace(CullFace.BACK);
+        
+        //RenderSystem.cullFace(CullFace.BACK);
         
         pose.pushPose();
         
-        //mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        //mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        GlStateManager.alphaFunc(516, 0.1F);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         
         RenderSystem.viewport((int) rect.minX, (int) rect.minY, (int) rect.maxX, (int) rect.maxY);
-        GlStateManager.matrixMode(5889);
-        GlStateManager.loadIdentity();
-        Project.gluPerspective(90, (float) width / (float) height, 0.05F, 16 * 16);
-        RenderSystem.matrixMode(5888);
-        RenderSystem.loadIdentity();
-        //GlStateManager.matrixMode(5890);
+        pose.setIdentity();
+        RenderSystem.setProjectionMatrix(pose.last().pose());
+        pose.mulPoseMatrix(mc.gameRenderer.getProjectionMatrix(70));
+        Matrix4f matrix = pose.last().pose();
+        
         pose.translate(0, 0, -distance.current());
         RenderSystem.enableDepthTest();
         
         Vec3d rotationCenter = preview.animation.getCenter().rotationCenter;
         
-        pose.mulPose(Vector3f.XP.rotation((float) rotX.current()));
-        pose.mulPose(Vector3f.YP.rotation((float) rotY.current()));
-        pose.mulPose(Vector3f.ZP.rotation((float) rotZ.current()));
+        pose.mulPose(Axis.XP.rotation((float) rotX.current()));
+        pose.mulPose(Axis.YP.rotation((float) rotY.current()));
+        pose.mulPose(Axis.ZP.rotation((float) rotZ.current()));
         
         pose.translate(-preview.box.minX, -preview.box.minY, -preview.box.minZ);
         
         pose.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z);
+        RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         
-        GlStateManager.translate(TileEntityRendererDispatcher.staticPlayerX, TileEntityRendererDispatcher.staticPlayerY, TileEntityRendererDispatcher.staticPlayerZ);
-        GlStateManager.translate(0, -75, 0);
+        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.solid(), pose, 0, 0, 0, matrix);
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
+        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.cutoutMipped(), pose, 0, 0, 0, matrix);
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
+        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.cutout(), pose, 0, 0, 0, matrix);
         
-        LittleAnimationHandlerClient.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
-        
-        this.renderChunkLayer(RenderType.solid(), p_109600_, d0, d1, d2, p_109607_);
-        this.minecraft.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, this.minecraft.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-        this.renderChunkLayer(RenderType.cutoutMipped(), p_109600_, d0, d1, d2, p_109607_);
-        this.minecraft.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
-        this.renderChunkLayer(RenderType.cutout(), p_109600_, d0, d1, d2, p_109607_);
-        
+        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.translucent(), pose, 0, 0, 0, matrix);
         pose.popPose();
         
-        GlStateManager.matrixMode(5888);
-        
-        RenderSystem.disableLighting();
-        GlStateManager.cullFace(GlStateManager.CullFace.BACK);
-        RenderSystem.disableBlend();
+        Window window = mc.getWindow();
+        RenderSystem.clear(256, Minecraft.ON_OSX);
+        Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window
+                .getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
+        RenderSystem.setProjectionMatrix(matrix4f);
+        PoseStack posestack = RenderSystem.getModelViewStack();
+        posestack.setIdentity();
+        posestack.translate(0.0D, 0.0D, 1000F - net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
+        RenderSystem.applyModelViewMatrix();
+        Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
-        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-        
-        RenderSystem.viewport(0, 0, mc.getWindow().getWidth(), mc.getWindow().getHeight());
-        RenderSystem.matrixMode(5889);
-        RenderSystem.loadIdentity();
-        RenderSystem.matrixMode(5888);
-        RenderSystem.loadIdentity();
-        mc.entityRenderer.setupOverlayRendering();
-        RenderSystem.disableDepthTest();*/
         
     }
     
