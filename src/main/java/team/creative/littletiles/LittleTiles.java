@@ -18,7 +18,6 @@ import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -28,6 +27,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
@@ -124,57 +124,6 @@ public class LittleTiles {
     
     public static TagKey<Block> STORAGE_BLOCKS;
     
-    public static final CreativeModeTab LITTLE_TAB = CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0).title(Component.translatable("itemGroup.littletiles")).icon(() -> {
-        return new ItemStack(LittleTilesRegistry.HAMMER.get());
-    }).displayItems((features, output, permission) -> {
-        for (ExampleStructures example : ExampleStructures.values())
-            if (example.stack != null)
-                output.accept(example.stack);
-            
-        for (LittlePremadeType entry : LittlePremadeRegistry.types())
-            if (entry.showInCreativeTab && !entry.hasCustomTab())
-                output.accept(entry.createItemStack());
-            
-        output.accept(LittleTilesRegistry.HAMMER.get());
-        output.accept(LittleTilesRegistry.CHISEL.get());
-        output.accept(LittleTilesRegistry.BLUEPRINT.get());
-        
-        output.accept(LittleTilesRegistry.BAG.get());
-        output.accept(LittleTilesRegistry.GLOVE.get());
-        
-        output.accept(LittleTilesRegistry.PAINT_BRUSH.get());
-        output.accept(LittleTilesRegistry.SAW.get());
-        output.accept(LittleTilesRegistry.SCREWDRIVER.get());
-        output.accept(LittleTilesRegistry.WRENCH.get());
-        
-        output.accept(LittleTilesRegistry.SIGNAL_CONVERTER.get());
-        output.accept(LittleTilesRegistry.STORAGE_BLOCK.get());
-        
-        output.accept(LittleTilesRegistry.CLEAN.get());
-        output.accept(LittleTilesRegistry.FLOOR.get());
-        output.accept(LittleTilesRegistry.GRAINY_BIG.get());
-        output.accept(LittleTilesRegistry.GRAINY.get());
-        output.accept(LittleTilesRegistry.GRAINY_LOW.get());
-        output.accept(LittleTilesRegistry.BRICK.get());
-        output.accept(LittleTilesRegistry.BRICK_BIG.get());
-        output.accept(LittleTilesRegistry.BORDERED.get());
-        output.accept(LittleTilesRegistry.CHISELED.get());
-        output.accept(LittleTilesRegistry.BROKEN_BRICK_BIG.get());
-        output.accept(LittleTilesRegistry.CLAY.get());
-        output.accept(LittleTilesRegistry.STRIPS.get());
-        output.accept(LittleTilesRegistry.GRAVEL.get());
-        output.accept(LittleTilesRegistry.SAND.get());
-        output.accept(LittleTilesRegistry.STONE.get());
-        output.accept(LittleTilesRegistry.CORK.get());
-        
-        output.accept(LittleTilesRegistry.WATER.get());
-        output.accept(LittleTilesRegistry.WHITE_WATER.get());
-        
-        output.accept(LittleTilesRegistry.LAVA.get());
-        output.accept(LittleTilesRegistry.WHITE_LAVA.get());
-        
-    }).build();
-    
     public LittleTiles() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> LittleTilesClient.load(FMLJavaModLoadingContext.get().getModEventBus()));
@@ -185,6 +134,59 @@ public class LittleTiles {
         LittleTilesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::buildContents);
+    }
+    
+    public void buildContents(CreativeModeTabEvent.Register event) {
+        event.registerCreativeModeTab(new ResourceLocation(MODID, "items"), x -> x.title(Component.translatable("itemGroup.littletiles"))
+                .icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.get())).displayItems((features, output, permission) -> {
+                    for (ExampleStructures example : ExampleStructures.values())
+                        if (example.stack != null)
+                            output.accept(example.stack);
+                        
+                    for (LittlePremadeType entry : LittlePremadeRegistry.types())
+                        if (entry.showInCreativeTab && !entry.hasCustomTab())
+                            output.accept(entry.createItemStack());
+                        
+                    output.accept(LittleTilesRegistry.HAMMER.get());
+                    output.accept(LittleTilesRegistry.CHISEL.get());
+                    output.accept(LittleTilesRegistry.BLUEPRINT.get());
+                    
+                    output.accept(LittleTilesRegistry.BAG.get());
+                    output.accept(LittleTilesRegistry.GLOVE.get());
+                    
+                    output.accept(LittleTilesRegistry.PAINT_BRUSH.get());
+                    output.accept(LittleTilesRegistry.SAW.get());
+                    output.accept(LittleTilesRegistry.SCREWDRIVER.get());
+                    output.accept(LittleTilesRegistry.WRENCH.get());
+                    
+                    output.accept(LittleTilesRegistry.SIGNAL_CONVERTER.get());
+                    output.accept(LittleTilesRegistry.STORAGE_BLOCK.get());
+                    
+                    output.accept(LittleTilesRegistry.CLEAN.get());
+                    output.accept(LittleTilesRegistry.FLOOR.get());
+                    output.accept(LittleTilesRegistry.GRAINY_BIG.get());
+                    output.accept(LittleTilesRegistry.GRAINY.get());
+                    output.accept(LittleTilesRegistry.GRAINY_LOW.get());
+                    output.accept(LittleTilesRegistry.BRICK.get());
+                    output.accept(LittleTilesRegistry.BRICK_BIG.get());
+                    output.accept(LittleTilesRegistry.BORDERED.get());
+                    output.accept(LittleTilesRegistry.CHISELED.get());
+                    output.accept(LittleTilesRegistry.BROKEN_BRICK_BIG.get());
+                    output.accept(LittleTilesRegistry.CLAY.get());
+                    output.accept(LittleTilesRegistry.STRIPS.get());
+                    output.accept(LittleTilesRegistry.GRAVEL.get());
+                    output.accept(LittleTilesRegistry.SAND.get());
+                    output.accept(LittleTilesRegistry.STONE.get());
+                    output.accept(LittleTilesRegistry.CORK.get());
+                    
+                    output.accept(LittleTilesRegistry.WATER.get());
+                    output.accept(LittleTilesRegistry.WHITE_WATER.get());
+                    
+                    output.accept(LittleTilesRegistry.LAVA.get());
+                    output.accept(LittleTilesRegistry.WHITE_LAVA.get());
+                    
+                }));
     }
     
     private void init(final FMLCommonSetupEvent event) {
