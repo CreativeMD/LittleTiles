@@ -4,6 +4,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -13,6 +14,7 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -28,6 +30,18 @@ public class ServerLevelMixin {
         if (level instanceof LittleServerLevel)
             return new LittleServerChunkCache((LittleServerLevel) level, storageAccess, dataFixer, structureTemplate, exe, generator, viewDistance, simulationDistance, sync, progress, status, supplier);
         return new ServerChunkCache(level, storageAccess, dataFixer, structureTemplate, exe, generator, viewDistance, simulationDistance, sync, progress, status, supplier);
+    }
+    
+    @Unique
+    private ServerLevel as() {
+        return (ServerLevel) (Object) this;
+    }
+    
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/ChunkGeneratorStructureState;ensureStructuresGenerated()V"), method = "<init>", require = 1)
+    public void callEnsureStructuresGenerated(ChunkGeneratorStructureState state) {
+        if (as() instanceof LittleServerLevel)
+            return;
+        state.ensureStructuresGenerated();
     }
     
 }

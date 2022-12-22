@@ -1,11 +1,10 @@
 package team.creative.littletiles;
 
-import java.util.OptionalLong;
 import java.util.function.Supplier;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.BlockItem;
@@ -15,8 +14,6 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.registries.DeferredRegister;
@@ -159,10 +156,6 @@ public class LittleTilesRegistry {
     
     // DIMENSION
     
-    public static final DeferredRegister<DimensionType> DIMENSION_TYPES = DeferredRegister.create(new ResourceLocation("minecraft", "dimension_type"), LittleTiles.MODID);
-    
-    public static final RegistryObject<DimensionType> FAKE_DIMENSION = DIMENSION_TYPES.register("fake", () -> new DimensionType(OptionalLong
-            .empty(), true, false, false, false, 1, false, false, -64, 384, 384, BlockTags.INFINIBURN_OVERWORLD, BuiltinDimensionTypes.OVERWORLD_EFFECTS, 0.0F, new DimensionType.MonsterSettings(false, false, UniformInt
-                    .of(0, 0), 0)));
+    public static final ResourceKey FAKE_DIMENSION = ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(LittleTiles.MODID, "fake"));
     
 }

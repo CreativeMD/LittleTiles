@@ -185,7 +185,6 @@ public class LittleTiles {
         LittleTilesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleTilesRegistry.DIMENSION_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
     
     private void init(final FMLCommonSetupEvent event) {

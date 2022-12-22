@@ -35,6 +35,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.storage.ChunkScanAccess;
@@ -291,6 +292,11 @@ public class LittleServerChunkCache extends ServerChunkCache implements Iterable
     public boolean runDistanceManagerUpdates2() {
         this.chunkMap.getDistanceManager().runAllUpdates(this.chunkMap);
         return false;
+    }
+    
+    @Override
+    public ChunkGeneratorStructureState getGeneratorState() {
+        return null;
     }
     
     public final class MainThreadExecutor extends BlockableEventLoop<Runnable> {

@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
@@ -53,7 +54,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public final LittleClientConnection connection;
     
     protected LittleClientLevel(LittleClientPacketListener listener, ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
-        super(listener, data, dimension, LittleTilesRegistry.FAKE_DIMENSION.getHolder().get(), 3, 3, supplier, null, debug, seed);
+        super(listener, data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
         this.access = access;
         this.connection = createConnection();
         if (listener != null)
