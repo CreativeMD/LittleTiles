@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiPredicate;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
@@ -75,7 +77,7 @@ public class Placement {
     protected BiPredicate<IParentCollection, LittleTile> predicate;
     protected boolean playSounds = true;
     
-    public Placement(Player player, Level level, PlacementPreview preview) throws LittleActionException {
+    public Placement(@Nullable Player player, Level level, PlacementPreview preview) throws LittleActionException {
         this.player = player;
         this.level = level;
         this.preview = preview;
