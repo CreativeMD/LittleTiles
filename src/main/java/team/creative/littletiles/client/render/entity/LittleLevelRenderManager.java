@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -113,10 +112,11 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
             queuedCompiled.add(chunk);
     }
     
-    public void setupRender(LittleLevelEntity animation, Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator) {
-        Vec3d cam = new Vec3d(camera.getPosition());
-        
-        isInSight = LittleLevelEntityRenderer.INSTANCE.shouldRender(animation, frustum, cam.x, cam.y, cam.z); // needs to original camera position
+    public void setupRender(LittleLevelEntity animation, Vec3d cam, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
+        if (frustum != null)
+            isInSight = LittleLevelEntityRenderer.INSTANCE.shouldRender(animation, frustum, cam.x, cam.y, cam.z); // needs to original camera position
+        else
+            isInSight = true;
         
         synchronized (this) {
             while (!emptyCompiled.isEmpty()) {

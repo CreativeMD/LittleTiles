@@ -58,6 +58,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
@@ -266,7 +267,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         mc.getProfiler().push("setup_animation_render");
         for (LittleLevelEntity animation : entities)
             if (animation.hasLoaded())
-                animation.getRenderManager().setupRender(animation, camera, frustum, capturedFrustum, spectator);
+                animation.getRenderManager().setupRender(animation, new Vec3d(camera.getPosition()), frustum, capturedFrustum, spectator);
         mc.getProfiler().pop();
     }
     
@@ -279,7 +280,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         for (LittleLevelEntity animation : entities)
             if (animation.hasLoaded())
-                LittleLevelEntityRenderer.INSTANCE.compileChunks(animation, camera);
+                LittleLevelEntityRenderer.INSTANCE.compileChunks(animation);
             
         mc.getProfiler().pop();
     }

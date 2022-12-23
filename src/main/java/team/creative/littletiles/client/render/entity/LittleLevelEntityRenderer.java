@@ -11,7 +11,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.PrioritizeChunkUpdates;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.ForgeConfig;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
@@ -36,20 +34,6 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
     
     public static Minecraft mc = Minecraft.getInstance();
     public static LittleLevelEntityRenderer INSTANCE;
-    
-    public static RenderType getLayerByStage(RenderLevelStageEvent.Stage stage) {
-        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS)
-            return RenderType.solid();
-        if (stage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS)
-            return RenderType.cutoutMipped();
-        if (stage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS)
-            return RenderType.cutout();
-        if (stage == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS)
-            return RenderType.translucent();
-        if (stage == RenderLevelStageEvent.Stage.AFTER_TRIPWIRE_BLOCKS)
-            return RenderType.tripwire();
-        throw new IllegalArgumentException("Unexpected value: " + stage);
-    }
     
     public LittleLevelEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -77,7 +61,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         return InventoryMenu.BLOCK_ATLAS;
     }
     
-    public void compileChunks(LittleLevelEntity animation, Camera camera) {
+    public void compileChunks(LittleLevelEntity animation) {
         mc.getProfiler().push("compile_animation_chunks");
         LittleLevelRenderManager manager = animation.getRenderManager();
         List<LittleRenderChunk> schedule = Lists.newArrayList();
@@ -86,7 +70,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         
         for (LittleRenderChunk chunk : manager) {
             ChunkPos chunkpos = new ChunkPos(chunk.pos);
-            if (chunk.isDirty() && level.getChunk(chunkpos.x, chunkpos.z).isClientLightReady()) {
+            if (chunk.isDirty() && (!animation.isReal() || level.getChunk(chunkpos.x, chunkpos.z).isClientLightReady())) {
                 boolean immediate = false;
                 if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED)
                     immediate = chunk.isDirtyFromPlayer();

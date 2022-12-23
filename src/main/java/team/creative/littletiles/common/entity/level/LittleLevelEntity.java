@@ -25,6 +25,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
@@ -93,6 +94,12 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         });
         
         origin.tick();
+    }
+    
+    public boolean isReal() {
+        if (level instanceof ISubLevel sub)
+            level = sub.getRealLevel();
+        return !(level instanceof IOrientatedLevel);
     }
     
     // ================Origin================
