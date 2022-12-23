@@ -51,12 +51,13 @@ public class AnimationPreview {
             LittleGroup group = new LittleGroup(nbt, grid, newChildren);
             for (LittleTile tile : previews)
                 group.addDirectly(tile.copy());
+            previews = group;
         }
         
         Placement placement;
         PlacementResult result = null;
         try {
-            placement = new Placement(null, PlacementPreview.absolute(fakeWorld, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
+            placement = new Placement(null, fakeWorld, PlacementPreview.absolute(fakeWorld, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
             result = placement.place();
         } catch (LittleActionException e) {
             e.printStackTrace();
@@ -65,8 +66,7 @@ public class AnimationPreview {
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
         animation = new LittleLevelEntityLarge(LittleTilesRegistry.ENTITY_LEVEL_LARGE.get(), fakeWorld, SubServerLevel
-                .createSubLevel(fakeWorld), new StructureAbsolute(pos, entireBox, previews
-                        .getGrid()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
+                .createSubLevel(fakeWorld), new StructureAbsolute(pos, entireBox, previews.getGrid()), new LocalStructureLocation(result.parentStructure));
     }
     
 }
