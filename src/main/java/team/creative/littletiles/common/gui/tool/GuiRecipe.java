@@ -82,7 +82,7 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         bottomSidebar.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()));
         
         add(new GuiAnimationViewer("viewer").setExpandable());
-        LittleGroup group = LittleGroup.load(tool.get().getOrCreateTag());
+        LittleGroup group = LittleGroup.load(tool.get().getOrCreateTagElement("content"));
         AnimationPreview preview = new AnimationPreview(group);
         onLoaded(preview);
     }
