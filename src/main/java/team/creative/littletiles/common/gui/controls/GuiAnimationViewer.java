@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ForgeHooksClient;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
@@ -111,7 +112,6 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         distance.tick();
         
         //RenderSystem.cullFace(CullFace.BACK);
-        
         pose.pushPose();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -146,15 +146,14 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         
         LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.translucent(), pose, 0, 0, 0, matrix);
         pose.popPose();
-        
-        Window window = mc.getWindow();
+        RenderSystem.viewport(0, 0, mc.getWindow().getWidth(), mc.getWindow().getHeight());
         RenderSystem.clear(256, Minecraft.ON_OSX);
-        Matrix4f matrix4f = (new Matrix4f()).setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window
-                .getGuiScale()), 0.0F, 1000.0F, net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
+        Window window = mc.getWindow();
+        
+        Matrix4f matrix4f = new Matrix4f()
+                .setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, ForgeHooksClient
+                        .getGuiFarPlane());
         RenderSystem.setProjectionMatrix(matrix4f);
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.setIdentity();
-        posestack.translate(0.0D, 0.0D, 1000F - net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane());
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
