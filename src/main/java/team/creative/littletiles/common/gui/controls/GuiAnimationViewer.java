@@ -12,6 +12,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -97,6 +98,45 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         }*/
     }
     
+    protected void renderChunkLayer(RenderType type, PoseStack pose, Matrix4f matrix) {
+        ShaderInstance shaderinstance = RenderSystem.getShader();
+        
+        for (int i = 0; i < 12; ++i)
+            shaderinstance.setSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
+        
+        if (shaderinstance.MODEL_VIEW_MATRIX != null)
+            shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
+        
+        if (shaderinstance.PROJECTION_MATRIX != null)
+            shaderinstance.PROJECTION_MATRIX.set(matrix);
+        
+        if (shaderinstance.COLOR_MODULATOR != null)
+            shaderinstance.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
+        
+        if (shaderinstance.FOG_START != null)
+            shaderinstance.FOG_START.set(RenderSystem.getShaderFogStart());
+        
+        if (shaderinstance.FOG_END != null)
+            shaderinstance.FOG_END.set(RenderSystem.getShaderFogEnd());
+        
+        if (shaderinstance.FOG_COLOR != null)
+            shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
+        
+        if (shaderinstance.FOG_SHAPE != null)
+            shaderinstance.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
+        
+        if (shaderinstance.TEXTURE_MATRIX != null)
+            shaderinstance.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
+        
+        if (shaderinstance.GAME_TIME != null)
+            shaderinstance.GAME_TIME.set(RenderSystem.getShaderGameTime());
+        
+        RenderSystem.setupShaderLights(shaderinstance);
+        shaderinstance.apply();
+        
+        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, type, pose, 0, 0, 0, matrix);
+    }
+    
     @Override
     @OnlyIn(Dist.CLIENT)
     protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
@@ -138,13 +178,16 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         pose.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z);
         RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         
-        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.solid(), pose, 0, 0, 0, matrix);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.cutoutMipped(), pose, 0, 0, 0, matrix);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
-        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.cutout(), pose, 0, 0, 0, matrix);
+        preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
+        LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
         
-        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, RenderType.translucent(), pose, 0, 0, 0, matrix);
+        renderChunkLayer(RenderType.solid(), pose, matrix);
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
+        renderChunkLayer(RenderType.cutoutMipped(), pose, matrix);
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
+        renderChunkLayer(RenderType.cutout(), pose, matrix);
+        
+        renderChunkLayer(RenderType.translucent(), pose, matrix);
         pose.popPose();
         RenderSystem.viewport(0, 0, mc.getWindow().getWidth(), mc.getWindow().getHeight());
         RenderSystem.clear(256, Minecraft.ON_OSX);
