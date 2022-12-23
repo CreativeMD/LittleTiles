@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -71,9 +72,28 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     public synchronized LittleRenderChunk getChunk(SectionPos pos, boolean create) {
         long value = pos.asLong();
         LittleRenderChunk chunk = chunks.get(value);
-        if (chunk != null)
-            chunks.put(value, chunk = new LittleRenderChunk(this, pos));
+        if (chunk == null && create)
+            return create(pos);
         return chunk;
+    }
+    
+    private LittleRenderChunk create(SectionPos pos) {
+        if (Minecraft.getInstance().isSameThread()) {
+            LittleRenderChunk chunk;
+            chunks.put(pos.asLong(), chunk = new LittleRenderChunk(this, pos));
+            return chunk;
+        } else {
+            CompletableFuture<LittleRenderChunk> future = Minecraft.getInstance().submit(() -> {
+                LittleRenderChunk created = new LittleRenderChunk(this, pos);
+                chunks.put(pos.asLong(), created);
+                return created;
+            });
+            try {
+                return future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
     
     public CompletableFuture<Void> uploadChunkLayer(BufferBuilder.RenderedBuffer rendered, VertexBuffer buffer) {
@@ -213,10 +233,8 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     
     private void setSectionDirty(int x, int y, int z, boolean playerChanged) {
         LittleRenderChunk chunk = chunks.get(SectionPos.asLong(x, y, z));
-        if (chunk == null) {
-            SectionPos pos = SectionPos.of(x, y, z);
-            chunks.put(pos.asLong(), chunk = new LittleRenderChunk(this, pos));
-        }
+        if (chunk == null)
+            chunk = create(SectionPos.of(x, y, z));
         chunk.setDirty(playerChanged);
     }
     
