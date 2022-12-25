@@ -27,7 +27,8 @@
         "ClientPacketListenerAccessor",
         "ClientLevelAccessor",
         "ClientLevelMixin",
-        "ClientChunkCacheAccessor"
+        "ClientChunkCacheAccessor",
+        "LightTextureAccessor"
     ],
     "minVersion": "0.8"
 }

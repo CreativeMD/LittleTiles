@@ -2,11 +2,13 @@ package team.creative.littletiles.common.gui.controls;
 
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
@@ -23,8 +25,10 @@ import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.mixin.LightTextureAccessor;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
     
@@ -82,23 +86,29 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         return true;
     }
     
-    public static void makeLightBright() {
-        /*try {
-            LightTexture texture = Minecraft.getInstance().gameRenderer.lightTexture();
-            for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    texture.lightPixels.setPixelRGBA(j, i, -1);
-                }
+    public static int[][] makeLightBright() {
+        int[][] pixels = new int[16][16];
+        LightTextureAccessor texture = (LightTextureAccessor) Minecraft.getInstance().gameRenderer.lightTexture();
+        for (int x = 0; x < 16; x++)
+            for (int y = 0; y < 16; y++) {
+                pixels[x][y] = texture.getLightPixels().getPixelRGBA(x, y);
+                texture.getLightPixels().setPixelRGBA(x, y, ColorUtils.WHITE);
             }
-            
-            texture.lightTexture.upload();
-            
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }*/
+        
+        texture.getLightTexture().upload();
+        return pixels;
     }
     
-    protected void renderChunkLayer(RenderType type, PoseStack pose, Matrix4f matrix) {
+    public static void resetLight(int[][] pixels) {
+        LightTextureAccessor texture = (LightTextureAccessor) Minecraft.getInstance().gameRenderer.lightTexture();
+        for (int x = 0; x < 16; x++)
+            for (int y = 0; y < 16; y++)
+                texture.getLightPixels().setPixelRGBA(x, y, pixels[x][y]);
+        texture.getLightTexture().upload();
+    }
+    
+    protected void renderChunkLayer(RenderType layer, PoseStack pose, Matrix4f matrix) {
+        layer.setupRenderState();
         ShaderInstance shaderinstance = RenderSystem.getShader();
         
         for (int i = 0; i < 12; ++i)
@@ -134,7 +144,10 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         RenderSystem.setupShaderLights(shaderinstance);
         shaderinstance.apply();
         
-        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, type, pose, 0, 0, 0, matrix);
+        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, layer, pose, 0, 0, 0, matrix);
+        shaderinstance.clear();
+        VertexBuffer.unbind();
+        layer.clearRenderState();
     }
     
     @Override
@@ -144,40 +157,46 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
             return;
         
         Minecraft mc = Minecraft.getInstance();
-        makeLightBright();
+        Window window = mc.getWindow();
+        int[][] pixels = makeLightBright();
         
         rotX.tick();
         rotY.tick();
         rotZ.tick();
         distance.tick();
         
-        //RenderSystem.cullFace(CullFace.BACK);
         pose.pushPose();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         
-        RenderSystem.viewport((int) rect.minX, (int) rect.minY, (int) rect.maxX, (int) rect.maxY);
+        RenderSystem.viewport((int) (rect.minX * window.getGuiScale()), (int) (rect.minY * window.getGuiScale()) + 1, (int) (rect.getWidth() * window.getGuiScale()), (int) (rect
+                .getHeight() * window.getGuiScale()));
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
+        PoseStack projection = new PoseStack();
+        projection.mulPoseMatrix(mc.gameRenderer.getProjectionMatrix(70));
+        RenderSystem.setProjectionMatrix(projection.last().pose());
+        
         pose.setIdentity();
-        RenderSystem.setProjectionMatrix(pose.last().pose());
-        pose.mulPoseMatrix(mc.gameRenderer.getProjectionMatrix(70));
-        Matrix4f matrix = pose.last().pose();
+        Matrix4f matrix = projection.last().pose();
         
         pose.translate(0, 0, -distance.current());
         RenderSystem.enableDepthTest();
         
         Vec3d rotationCenter = preview.animation.getCenter().rotationCenter;
         
-        pose.mulPose(Axis.XP.rotation((float) rotX.current()));
-        pose.mulPose(Axis.YP.rotation((float) rotY.current()));
-        pose.mulPose(Axis.ZP.rotation((float) rotZ.current()));
+        pose.translate(-preview.box.getXsize() * 0.5, -preview.box.getYsize() * 0.5, -preview.box.getZsize() * 0.5);
         
-        pose.translate(-preview.box.minX, -preview.box.minY, -preview.box.minZ);
+        pose.translate(rotationCenter.x, rotationCenter.y, rotationCenter.z);
+        
+        pose.mulPose(Axis.XP.rotationDegrees((float) rotX.current()));
+        pose.mulPose(Axis.YP.rotationDegrees((float) rotY.current()));
+        pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         
         pose.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z);
-        RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         
+        RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
         LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
         
@@ -189,18 +208,16 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         
         renderChunkLayer(RenderType.translucent(), pose, matrix);
         pose.popPose();
-        RenderSystem.viewport(0, 0, mc.getWindow().getWidth(), mc.getWindow().getHeight());
-        RenderSystem.clear(256, Minecraft.ON_OSX);
-        Window window = mc.getWindow();
+        RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
-        Matrix4f matrix4f = new Matrix4f()
+        RenderSystem.setProjectionMatrix(new Matrix4f()
                 .setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, ForgeHooksClient
-                        .getGuiFarPlane());
-        RenderSystem.setProjectionMatrix(matrix4f);
+                        .getGuiFarPlane()));
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
-        
+        resetLight(pixels);
     }
     
     @Override
@@ -213,38 +230,24 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     public void closed() {}
     
     @Override
-    public void init() {
-        // TODO Auto-generated method stub
-        
-    }
+    public void init() {}
     
     @Override
-    public void tick() {
-        // TODO Auto-generated method stub
-        
-    }
+    public void tick() {}
     
     @Override
-    public void flowX(int width, int preferred) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void flowX(int width, int preferred) {}
     
     @Override
-    public void flowY(int width, int height, int preferred) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void flowY(int width, int height, int preferred) {}
     
     @Override
     protected int preferredWidth() {
-        // TODO Auto-generated method stub
-        return 0;
+        return 10;
     }
     
     @Override
     protected int preferredHeight(int width) {
-        // TODO Auto-generated method stub
-        return 0;
+        return 10;
     }
 }
