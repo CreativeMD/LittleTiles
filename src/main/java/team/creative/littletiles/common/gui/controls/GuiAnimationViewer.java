@@ -34,12 +34,16 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     
     public AnimationPreview preview;
     
+    public SmoothValue offX = new SmoothValue(200);
+    public SmoothValue offY = new SmoothValue(200);
+    public SmoothValue offZ = new SmoothValue(200);
+    
     public SmoothValue rotX = new SmoothValue(200);
     public SmoothValue rotY = new SmoothValue(200);
     public SmoothValue rotZ = new SmoothValue(200);
     public SmoothValue distance = new SmoothValue(200);
     
-    public boolean grabbed = false;
+    public ViewerDragMode grabMode = ViewerDragMode.NONE;
     public double grabX;
     public double grabY;
     
@@ -55,18 +59,33 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     @Override
     public void mouseMoved(Rect rect, double x, double y) {
         super.mouseMoved(rect, x, y);
-        if (grabbed) {
-            rotY.set(rotY.aimed() + x - grabX);
-            rotX.set(rotX.aimed() + y - grabY);
-            grabX = x;
-            grabY = y;
+        if (grabMode == ViewerDragMode.NONE)
+            return;
+        
+        double grabOffset = 0.01;
+        
+        switch (grabMode) {
+            case LEFT -> {
+                rotY.set(rotY.aimed() + x - grabX);
+                rotX.set(rotX.aimed() + y - grabY);
+            }
+            case RIGHT -> {
+                offX.set(offX.aimed() + (x - grabX) * grabOffset);
+                offZ.set(offZ.aimed() + (y - grabY) * grabOffset);
+            }
+            case MIDDLE -> {
+                offX.set(offX.aimed() + (x - grabX) * grabOffset);
+                offY.set(offY.aimed() - (y - grabY) * grabOffset);
+            }
         }
+        grabX = x;
+        grabY = y;
     }
     
     @Override
     public boolean mouseClicked(Rect rect, double x, double y, int button) {
-        if (button == 0) {
-            grabbed = true;
+        if (grabMode == ViewerDragMode.NONE) {
+            grabMode = ViewerDragMode.of(button);
             grabX = x;
             grabY = y;
             return true;
@@ -76,8 +95,8 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     
     @Override
     public void mouseReleased(Rect rect, double x, double y, int button) {
-        if (button == 0)
-            grabbed = false;
+        if (button == grabMode.ordinal() - 1)
+            grabMode = ViewerDragMode.NONE;
     }
     
     @Override
@@ -164,6 +183,9 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         rotY.tick();
         rotZ.tick();
         distance.tick();
+        offX.tick();
+        offY.tick();
+        offZ.tick();
         
         pose.pushPose();
         
@@ -195,6 +217,8 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         
         pose.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z);
+        
+        projection.translate(offX.current(), offY.current(), offZ.current());
         
         RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
@@ -249,5 +273,23 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     @Override
     protected int preferredHeight(int width) {
         return 10;
+    }
+    
+    protected static enum ViewerDragMode {
+        
+        NONE,
+        LEFT,
+        RIGHT,
+        MIDDLE;
+        
+        public static ViewerDragMode of(int button) {
+            return switch (button) {
+                case 0 -> LEFT;
+                case 1 -> RIGHT;
+                case 2 -> MIDDLE;
+                default -> NONE;
+            };
+        }
+        
     }
 }
