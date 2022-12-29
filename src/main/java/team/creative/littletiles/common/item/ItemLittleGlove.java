@@ -339,7 +339,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
                     add(new GuiColorPicker("picker", new Color(element.color), LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG
                             .getMinimumTransparency(getPlayer())));
                     
-                    add(new GuiShowItem("item", 32, 32, ItemStack.EMPTY));
+                    add(new GuiShowItem("item", ItemStack.EMPTY).setDim(32, 32));
                     
                     GuiStackSelector selector = new GuiStackSelector("preview", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
                     selector.setSelectedForce(element.getBlock().getStack());

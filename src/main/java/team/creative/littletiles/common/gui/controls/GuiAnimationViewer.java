@@ -266,12 +266,12 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     public void flowY(int width, int height, int preferred) {}
     
     @Override
-    protected int preferredWidth() {
+    protected int preferredWidth(int availableWidth) {
         return 10;
     }
     
     @Override
-    protected int preferredHeight(int width) {
+    protected int preferredHeight(int width, int availableHeight) {
         return 10;
     }
     

@@ -68,7 +68,7 @@ public class GuiChisel extends GuiConfigureTool {
         
         GuiParent parent = new GuiParent(GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         left.add(parent);
-        parent.add(new GuiShowItem("item", 60, 60));
+        parent.add(new GuiShowItem("item").setDim(60, 60));
         parent.add(new GuiGridConfig("grid", ItemMultiTiles.currentGrid, x -> {
             ItemMultiTiles.currentGrid = x;
             if (ItemLittleChisel.selection != null)
@@ -82,7 +82,7 @@ public class GuiChisel extends GuiConfigureTool {
                 .addComponent(ShapeRegistry.placingShapes(), x -> Component.translatable(x.getTranslatableName())));
         box.select(ItemLittleChisel.getShape(tool.get()));
         left.add(box);
-        left.add(new GuiScrollY("settings", 20, 60).setExpandable());
+        left.add(new GuiScrollY("settings").setDim(20, 60).setExpandable());
         
         GuiParent right = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         add(right);

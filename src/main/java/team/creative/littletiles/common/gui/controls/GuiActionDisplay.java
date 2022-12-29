@@ -46,12 +46,12 @@ public class GuiActionDisplay extends GuiControl {
     public void flowY(int width, int height, int preferred) {}
     
     @Override
-    public int getMinWidth() {
+    protected int minWidth(int availableWidth) {
         return 10;
     }
     
     @Override
-    public int preferredWidth() {
+    public int preferredWidth(int availableWidth) {
         int max = 0;
         for (int i = 0; i < messages.size(); i++)
             max = Math.max(max, messages.get(i).getTotalWidth());
@@ -59,12 +59,12 @@ public class GuiActionDisplay extends GuiControl {
     }
     
     @Override
-    public int getMinHeight(int width) {
+    protected int minHeight(int width, int availableHeight) {
         return Minecraft.getInstance().font.lineHeight;
     }
     
     @Override
-    public int preferredHeight(int width) {
+    public int preferredHeight(int width, int availableHeight) {
         int height = 0;
         for (int i = 0; i < messages.size(); i++)
             height += messages.get(i).getTotalHeight();

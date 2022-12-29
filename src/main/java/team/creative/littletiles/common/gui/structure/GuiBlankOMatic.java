@@ -156,7 +156,7 @@ public class GuiBlankOMatic extends GuiLayer {
         }));
         
         right.add(new GuiLabel("cost"));
-        right.add(new GuiShowItem("item", 60, 60));
+        right.add(new GuiShowItem("item").setDim(60, 60));
         
         add(new GuiPlayerInventoryGrid(getPlayer()));
     }
@@ -186,7 +186,8 @@ public class GuiBlankOMatic extends GuiLayer {
         private int selected = 0;
         
         public GuiVariantSelector(String name, int width, int height) {
-            super(name, GuiFlow.FIT_X, width, height);
+            super(name, GuiFlow.FIT_X);
+            setDim(width, height);
         }
         
         @Override
