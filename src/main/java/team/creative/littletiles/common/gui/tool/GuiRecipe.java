@@ -7,10 +7,13 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
+import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
@@ -26,7 +29,7 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
     });
     
     public GuiRecipe(ContainerSlotView view) {
-        super("recipe", 350, 200, view);
+        super("recipe", view);
         flow = GuiFlow.STACK_X;
         valign = VAlign.STRETCH;
     }
@@ -52,8 +55,11 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
     
     @Override
     public void create() {
-        GuiParent sidebar = new GuiParent(GuiFlow.STACK_Y);
-        add(sidebar.setAlign(Align.STRETCH));
+        GuiParent topBottom = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
+        add(topBottom.setExpandable());
+        
+        GuiParent top = new GuiParent(GuiFlow.STACK_X);
+        topBottom.add(top.setExpandableY());
         
         GuiTree tree = new GuiTree("overview", false).setRootVisibility(false);
         GuiTreeItem level1 = new GuiTreeItem("test", tree).setTitle(Component.literal("level 1"));
@@ -74,14 +80,29 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         
         tree.root().setTitle(Component.literal("root"));
         tree.updateTree();
-        sidebar.add(tree.setExpandableY());
+        top.add(tree.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(100)).setExpandableY());
         
-        GuiParent bottomSidebar = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
-        sidebar.add(bottomSidebar);
-        bottomSidebar.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()));
-        bottomSidebar.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()));
+        GuiParent topCenter = new GuiParent(GuiFlow.STACK_Y);
+        top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(300)).setExpandableY());
         
-        add(new GuiAnimationViewer("viewer").setExpandable());
+        top.add(new GuiAnimationViewer("viewer").setExpandable());
+        
+        GuiParent bottom = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
+        topBottom.add(bottom);
+        
+        GuiParent leftBottom = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
+        bottom.add(leftBottom.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(100)));
+        leftBottom.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()));
+        leftBottom.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()));
+        
+        GuiLeftRightBox rightBottom = new GuiLeftRightBox();
+        bottom.add(rightBottom.setExpandableX());
+        rightBottom.addLeft(new GuiButton("cancel", x -> {}).setTranslate("gui.cancel"));
+        rightBottom.addLeft(new GuiButton("clear", x -> {}).setTranslate("gui.recipe.clear"));
+        rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection"));
+        rightBottom.addRight(new GuiButton("check", x -> {}).setTranslate("gui.check"));
+        rightBottom.addRight(new GuiButton("save", x -> {}).setTranslate("gui.save"));
+        
         LittleGroup group = LittleGroup.load(tool.get().getOrCreateTagElement("content"));
         AnimationPreview preview = new AnimationPreview(group);
         onLoaded(preview);
