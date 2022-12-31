@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool;
+package team.creative.littletiles.common.gui.tool.recipe;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -24,6 +24,7 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 import team.creative.littletiles.common.placement.selection.SelectionMode.SelectionResult;

@@ -209,6 +209,8 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         for (LittleGroup group : children.children())
             newChildren.add(group.copy());
         LittleGroup group = new LittleGroup(structure, grid, newChildren);
+        for (Entry<String, LittleGroup> extension : children.extensionEntries())
+            group.children.addExtension(extension.getKey(), extension.getValue().copy());
         for (LittleTile tile : this)
             group.content.add(tile.copy());
         return group;

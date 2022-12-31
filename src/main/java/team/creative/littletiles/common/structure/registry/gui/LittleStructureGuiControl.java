@@ -29,7 +29,7 @@ public abstract class LittleStructureGuiControl extends GuiParent implements IAn
     }
     
     public void create(LittleGroup group, @Nullable LittleStructure structure) {
-        create(group, structure);
+        createExtra(group, structure);
         //add(new GuiSignalEventsButton("signal", group, structure, type));
     }
     
