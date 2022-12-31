@@ -1,6 +1,8 @@
 package team.creative.littletiles.common.gui.tool.recipe;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
 
 import net.minecraft.ChatFormatting;
@@ -27,11 +29,13 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
+import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiControl;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
 
 public class GuiRecipe extends GuiConfigure implements IAnimationControl {
@@ -40,14 +44,30 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         //GuiCreator.openGui("recipeadvanced", new CompoundTag(), getPlayer());
     });
     
+    public final GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", tag -> {
+        tool.get().getOrCreateTag().put("content", tag);
+        tool.changed();
+        closeThisLayer();
+    });
+    
     private GuiTreeItemStructure loaded;
     private GuiTree tree;
+    private GuiComboBoxMapped<LittleStructureGui> types;
+    private GuiParent config;
+    private LittleStructureGuiControl control;
     
     public GuiRecipe(ContainerSlotView view) {
         super("recipe", view);
         flow = GuiFlow.STACK_X;
         valign = VAlign.STRETCH;
         setDim(new GuiSizeRules().minWidth(500).minHeight(300));
+        registerEventChanged(x -> {
+            if (x.control.is("type")) {
+                if (loaded == null)
+                    return;
+                load(loaded, types.getSelected());
+            }
+        });
     }
     
     @Override
@@ -130,9 +150,10 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(300)).setExpandableY());
         
         // Actual recipe configuration
-        GuiComboBoxMapped<LittleStructureGui> types = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureGui>()
-                .addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()));
+        types = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureGui>().addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()));
         topCenter.add(types);
+        config = new GuiParent("config");
+        topCenter.add(config.setExpandableY());
         
         top.add(new GuiAnimationViewer("viewer").setExpandable());
         
@@ -146,19 +167,63 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         
         GuiLeftRightBox rightBottom = new GuiLeftRightBox();
         bottom.add(rightBottom.setVAlign(VAlign.CENTER).setExpandableX());
-        rightBottom.addLeft(new GuiButton("cancel", x -> {}).setTranslate("gui.cancel"));
-        rightBottom.addLeft(new GuiButton("clear", x -> {}).setTranslate("gui.recipe.clear"));
-        rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection"));
-        rightBottom.addRight(new GuiButton("check", x -> {}).setTranslate("gui.check"));
-        rightBottom.addRight(new GuiButton("save", x -> {}).setTranslate("gui.save"));
+        rightBottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
+        rightBottom.addLeft(new GuiButton("clear", x -> {}).setTranslate("gui.recipe.clear").setEnabled(false));
+        rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
+        rightBottom.addRight(new GuiButton("check", x -> {}).setTranslate("gui.check").setEnabled(false));
+        rightBottom.addRight(new GuiButton("save", x -> {
+            saveLoaded();
+            SAVE.send(LittleGroup.save(reconstructBlueprint()));
+        }).setTranslate("gui.save"));
+        
+        if (tree.root().itemsCount() > 0) {
+            GuiTreeItemStructure item = (GuiTreeItemStructure) tree.root().items().iterator().next();
+            types.select(LittleStructureGuiRegistry.get(item.group.getStructureType(), group));
+            load(item, types.getSelected());
+        }
     }
     
-    public void load(GuiTreeItemStructure item) {
+    protected LittleGroup reconstructBlueprint(GuiTreeItemStructure item) {
+        List<LittleGroup> children = new ArrayList<>();
+        for (GuiTreeItem child : item.items())
+            children.add(reconstructBlueprint((GuiTreeItemStructure) child));
+        CompoundTag nbt;
+        if (item.structure == null)
+            nbt = null;
+        else {
+            nbt = new CompoundTag();
+            item.structure.save(nbt);
+        }
+        return new LittleGroup(nbt, item.group.copy(), children);
+    }
+    
+    protected LittleGroup reconstructBlueprint() {
+        if (tree.root().itemsCount() == 1)
+            return reconstructBlueprint((GuiTreeItemStructure) tree.root().items().iterator().next());
+        List<LittleGroup> children = new ArrayList<>();
+        for (GuiTreeItem child : tree.root().items())
+            children.add(reconstructBlueprint((GuiTreeItemStructure) child));
+        return new LittleGroup(null, LittleGrid.min(), children);
+    }
+    
+    public void saveLoaded() {
+        loaded.structure = control.save(loaded.group);
+    }
+    
+    public void load(GuiTreeItemStructure item, LittleStructureGui gui) {
+        if (loaded != null)
+            saveLoaded();
         this.loaded = item;
         this.tree.select(loaded);
         AnimationPreview preview = item.getAnimationPreview();
         if (preview != null)
             onLoaded(preview);
+        control = gui.create(item);
+        config.clear();
+        config.add(control);
+        control.create(item.group, item.structure);
+        config.init();
+        reflow();
     }
     
 }

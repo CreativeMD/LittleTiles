@@ -10,9 +10,9 @@ import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.type.LittleStorage;
@@ -20,8 +20,8 @@ import team.creative.littletiles.common.structure.type.LittleStorage;
 @OnlyIn(Dist.CLIENT)
 public class LittleStorageGui extends LittleStructureGuiControl {
     
-    public LittleStorageGui(LittleStructureType type, AnimationGuiHandler handler) {
-        super(type, handler);
+    public LittleStorageGui(LittleStructureType type, GuiTreeItemStructure item) {
+        super(type, item);
     }
     
     @Override

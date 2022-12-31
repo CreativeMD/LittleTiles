@@ -8,8 +8,8 @@ import java.util.function.BiFunction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.tree.NamedTree;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
@@ -20,7 +20,7 @@ public class LittleStructureGuiRegistry {
     private static final HashMap<LittleStructureType, LittleStructureGui> BY_TYPE = new HashMap<>();
     private static final List<BiFunction<LittleStructureType, LittleGroup, LittleStructureGui>> SPECIAL = new ArrayList<>();
     
-    public static void registerTreeOnly(String id, LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> gui) {
+    public static void registerTreeOnly(String id, LittleStructureType type, BiFunction<LittleStructureType, GuiTreeItemStructure, LittleStructureGuiControl> gui) {
         registerTreeOnly(new LittleStructureGui(id, type, gui));
     }
     
@@ -32,7 +32,7 @@ public class LittleStructureGuiRegistry {
         SPECIAL.add(special);
     }
     
-    public static void register(String id, LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> factory) {
+    public static void register(String id, LittleStructureType type, BiFunction<LittleStructureType, GuiTreeItemStructure, LittleStructureGuiControl> factory) {
         register(new LittleStructureGui(id, type, factory));
     }
     
@@ -41,7 +41,7 @@ public class LittleStructureGuiRegistry {
         BY_TYPE.put(gui.type(), gui);
     }
     
-    public static void register(LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> factory) {
+    public static void register(LittleStructureType type, BiFunction<LittleStructureType, GuiTreeItemStructure, LittleStructureGuiControl> factory) {
         register(new LittleStructureGui(type.id, type, factory));
     }
     

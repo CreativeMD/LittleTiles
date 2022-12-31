@@ -60,6 +60,14 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         convertToSmallest();
     }
     
+    public LittleGroup(CompoundTag nbt, LittleGroup group, List<LittleGroup> children) {
+        this.grid = group.getGrid();
+        this.structure = nbt;
+        this.content = group.content;
+        this.children = new ItemChildrenList(this, children);
+        convertToSmallest();
+    }
+    
     public LittleGroup(LittleGrid grid) {
         this(null, grid, Collections.EMPTY_LIST);
     }

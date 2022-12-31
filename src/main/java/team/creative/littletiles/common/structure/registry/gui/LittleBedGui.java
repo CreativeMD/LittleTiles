@@ -7,9 +7,9 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
+import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -17,8 +17,8 @@ import team.creative.littletiles.common.structure.type.bed.LittleBed;
 
 public class LittleBedGui extends LittleStructureGuiControl {
     
-    public LittleBedGui(LittleStructureType type, AnimationGuiHandler handler) {
-        super(type, handler);
+    public LittleBedGui(LittleStructureType type, GuiTreeItemStructure item) {
+        super(type, item);
         //registerEventClick(x -> get("tileviewer", GuiTileViewer.class).updateIndicator(((GuiStateButtonMapped<Facing>) get("direction")).getSelected().opposite(), get("relativeDirection", GuiDirectionIndicator.class)));
     }
     

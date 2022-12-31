@@ -5,10 +5,10 @@ import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.littletiles.common.animation.AnimationGuiHandler;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
+import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
@@ -16,11 +16,11 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 public abstract class LittleStructureGuiControl extends GuiParent implements IAnimationControl {
     
     public final LittleStructureType type;
-    public final AnimationGuiHandler handler;
+    public final GuiTreeItemStructure item;
     
-    public LittleStructureGuiControl(LittleStructureType type, AnimationGuiHandler handler) {
+    public LittleStructureGuiControl(LittleStructureType type, GuiTreeItemStructure item) {
         this.type = type;
-        this.handler = handler;
+        this.item = item;
     }
     
     @Override
