@@ -74,6 +74,7 @@ public class LittleStructureGuiRegistry {
     }
     
     static {
+        register("none", null, LittleStructureGuiNone::new);
         register("simple.fixed", get("fixed"), LittleStructureGuiDefault::new);
         register("simple.ladder", get("ladder"), LittleStructureGuiDefault::new);
         register("simple.bed", get("bed"), LittleBedGui::new);
