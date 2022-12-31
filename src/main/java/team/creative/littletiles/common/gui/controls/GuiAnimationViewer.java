@@ -169,6 +169,13 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         layer.clearRenderState();
     }
     
+    public PoseStack getProjectionMatrix(Minecraft mc, double fov, float width, float height) {
+        PoseStack posestack = new PoseStack();
+        posestack.setIdentity();
+        posestack.mulPoseMatrix(new Matrix4f().setPerspective((float) (fov * Math.PI / 180F), width / height, 0.05F, mc.gameRenderer.getDepthFar()));
+        return posestack;
+    }
+    
     @Override
     @OnlyIn(Dist.CLIENT)
     protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
@@ -193,11 +200,11 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         
-        RenderSystem.viewport((int) (rect.minX * window.getGuiScale()), (int) (rect.minY * window.getGuiScale()) + 1, (int) (rect.getWidth() * window.getGuiScale()), (int) (rect
-                .getHeight() * window.getGuiScale()));
+        double scale = window.getGuiScale();
+        int height = (int) (rect.getHeight() * scale);
+        RenderSystem.viewport((int) (rect.minX * scale), (int) (window.getHeight() - rect.minY * scale - height), (int) (rect.getWidth() * scale), height);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
-        PoseStack projection = new PoseStack();
-        projection.mulPoseMatrix(mc.gameRenderer.getProjectionMatrix(70));
+        PoseStack projection = getProjectionMatrix(mc, 70, (float) rect.getWidth(), (float) rect.getHeight());
         RenderSystem.setProjectionMatrix(projection.last().pose());
         
         pose.setIdentity();
