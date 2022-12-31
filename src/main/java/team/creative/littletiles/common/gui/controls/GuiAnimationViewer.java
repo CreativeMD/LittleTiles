@@ -215,15 +215,15 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         
         Vec3d rotationCenter = preview.animation.getCenter().rotationCenter;
         
-        pose.translate(-preview.box.getXsize() * 0.5, -preview.box.getYsize() * 0.5, -preview.box.getZsize() * 0.5);
+        projection.translate(-preview.box.getXsize() * 0.5, -preview.box.getYsize() * 0.5, -preview.box.getZsize() * 0.5);
         
-        pose.translate(rotationCenter.x, rotationCenter.y, rotationCenter.z);
+        projection.translate(rotationCenter.x, rotationCenter.y, rotationCenter.z - distance.current());
         
-        pose.mulPose(Axis.XP.rotationDegrees((float) rotX.current()));
-        pose.mulPose(Axis.YP.rotationDegrees((float) rotY.current()));
-        pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
+        projection.mulPose(Axis.XP.rotationDegrees((float) rotX.current()));
+        projection.mulPose(Axis.YP.rotationDegrees((float) rotY.current()));
+        projection.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         
-        pose.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z);
+        projection.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z + distance.current());
         
         projection.translate(offX.current(), offY.current(), offZ.current());
         
