@@ -21,11 +21,11 @@ public class LittleStructureGuiRegistry {
     private static final List<BiFunction<LittleStructureType, LittleGroup, LittleStructureGui>> SPECIAL = new ArrayList<>();
     
     public static void registerTreeOnly(String id, LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> gui) {
-        registerTreeOnly(id, new LittleStructureGui(type, gui));
+        registerTreeOnly(new LittleStructureGui(id, type, gui));
     }
     
-    public static void registerTreeOnly(String id, LittleStructureGui gui) {
-        TREE.add(id, gui);
+    public static void registerTreeOnly(LittleStructureGui gui) {
+        TREE.add(gui.id(), gui);
     }
     
     public static void register(BiFunction<LittleStructureType, LittleGroup, LittleStructureGui> special) {
@@ -33,20 +33,24 @@ public class LittleStructureGuiRegistry {
     }
     
     public static void register(String id, LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> factory) {
-        register(id, new LittleStructureGui(type, factory));
+        register(new LittleStructureGui(id, type, factory));
     }
     
-    public static void register(String id, LittleStructureGui gui) {
-        TREE.add(id, gui);
+    public static void register(LittleStructureGui gui) {
+        TREE.add(gui.id(), gui);
         BY_TYPE.put(gui.type(), gui);
     }
     
     public static void register(LittleStructureType type, BiFunction<LittleStructureType, AnimationGuiHandler, LittleStructureGuiControl> factory) {
-        register(new LittleStructureGui(type, factory));
+        register(new LittleStructureGui(type.id, type, factory));
     }
     
-    public static void register(LittleStructureGui gui) {
+    public static void registerByType(LittleStructureGui gui) {
         BY_TYPE.put(gui.type(), gui);
+    }
+    
+    public static Iterable<LittleStructureGui> registered() {
+        return TREE;
     }
     
     public static LittleStructureGui get(LittleStructureType type, LittleGroup group) {
@@ -60,7 +64,7 @@ public class LittleStructureGuiRegistry {
                 return factory;
         }
         
-        factory = new LittleStructureGui(type, LittleStructureGuiNotFound::new);
+        factory = new LittleStructureGui(type.id, type, LittleStructureGuiNotFound::new);
         BY_TYPE.put(type, factory);
         return factory;
     }
@@ -80,10 +84,10 @@ public class LittleStructureGuiRegistry {
         register("simple.message", get("message"), LittleMessageGui::new);
         
         LittleStructureType door = get("door");
-        LittleStructureGui axisDoor = new LittleStructureGui(door, LittleDoorAxisGui::new);
-        LittleStructureGui slidingDoor = new LittleStructureGui(door, LittleDoorSlidingGui::new);
-        LittleStructureGui advancedDoor = new LittleStructureGui(door, LittleDoorAdvancedGui::new);
-        LittleStructureGui activatorDoor = new LittleStructureGui(door, LittleDoorActivatorGui::new);
+        LittleStructureGui axisDoor = new LittleStructureGui("door.axis", door, LittleDoorAxisGui::new);
+        LittleStructureGui slidingDoor = new LittleStructureGui("door.sliding", door, LittleDoorSlidingGui::new);
+        LittleStructureGui advancedDoor = new LittleStructureGui("door.advanced", door, LittleDoorAdvancedGui::new);
+        LittleStructureGui activatorDoor = new LittleStructureGui("door.activator", door, LittleDoorActivatorGui::new);
         register((type, group) -> {
             if (type != door)
                 return null;
@@ -96,10 +100,10 @@ public class LittleStructureGuiRegistry {
             };
         });
         
-        registerTreeOnly("door.axis", axisDoor);
-        registerTreeOnly("door.sliding", slidingDoor);
-        registerTreeOnly("door.advanced", advancedDoor);
-        registerTreeOnly("door.activator", activatorDoor);
+        registerTreeOnly(axisDoor);
+        registerTreeOnly(slidingDoor);
+        registerTreeOnly(advancedDoor);
+        registerTreeOnly(activatorDoor);
     }
     
 }
