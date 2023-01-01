@@ -114,7 +114,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public boolean hasLevel() {
-        return mainBlock != null && !mainBlock.isRemoved() && mainBlock.getLevel() != null;
+        return mainBlock != null && mainBlock.getLevel() != null && !mainBlock.isRemoved();
     }
     
     public boolean isClient() {
