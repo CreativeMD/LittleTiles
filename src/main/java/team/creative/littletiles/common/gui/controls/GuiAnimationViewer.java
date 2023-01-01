@@ -2,6 +2,7 @@ package team.creative.littletiles.common.gui.controls;
 
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.Lighting;
@@ -70,12 +71,22 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
                 rotX.set(rotX.aimed() + y - grabY);
             }
             case RIGHT -> {
-                offX.set(offX.aimed() + (x - grabX) * grabOffset);
-                offZ.set(offZ.aimed() + (y - grabY) * grabOffset);
+                Vector3f offset = new Vector3f((float) ((x - grabX) * grabOffset), 0, (float) ((y - grabY) * grabOffset));
+                offset.rotate(Axis.XP.rotationDegrees((float) rotX.current()));
+                offset.rotate(Axis.YP.rotationDegrees((float) rotY.current()));
+                offset.rotate(Axis.ZP.rotationDegrees((float) rotZ.current()));
+                offX.set(offX.aimed() + offset.x);
+                offY.set(offY.aimed() + offset.y);
+                offZ.set(offZ.aimed() + offset.z);
             }
             case MIDDLE -> {
-                offX.set(offX.aimed() + (x - grabX) * grabOffset);
-                offY.set(offY.aimed() - (y - grabY) * grabOffset);
+                Vector3f offset = new Vector3f((float) ((x - grabX) * grabOffset), (float) ((y - grabY) * -grabOffset), 0);
+                offset.rotate(Axis.XP.rotationDegrees((float) rotX.current()));
+                offset.rotate(Axis.YP.rotationDegrees((float) rotY.current()));
+                offset.rotate(Axis.ZP.rotationDegrees((float) rotZ.current()));
+                offX.set(offX.aimed() + offset.x);
+                offY.set(offY.aimed() + offset.y);
+                offZ.set(offZ.aimed() + offset.z);
             }
         }
         grabX = x;
@@ -215,6 +226,8 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         
         Vec3d rotationCenter = preview.animation.getCenter().rotationCenter;
         
+        projection.translate(offX.current(), offY.current(), offZ.current());
+        
         projection.translate(-preview.box.getXsize() * 0.5, -preview.box.getYsize() * 0.5, -preview.box.getZsize() * 0.5);
         
         projection.translate(rotationCenter.x, rotationCenter.y, rotationCenter.z - distance.current());
@@ -224,8 +237,6 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         projection.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         
         projection.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z + distance.current());
-        
-        projection.translate(offX.current(), offY.current(), offZ.current());
         
         RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
