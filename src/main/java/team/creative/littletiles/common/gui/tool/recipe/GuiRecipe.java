@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.EndTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiChildControl;
@@ -19,6 +19,8 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
+import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
@@ -33,6 +35,8 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
+import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiControl;
@@ -40,12 +44,14 @@ import team.creative.littletiles.common.structure.registry.gui.LittleStructureGu
 
 public class GuiRecipe extends GuiConfigure implements IAnimationControl {
     
-    public final GuiSyncLocal<StringTag> CLEAR_CONTENT = getSyncHolder().register("clear_content", tag -> {
-        //GuiCreator.openGui("recipeadvanced", new CompoundTag(), getPlayer());
+    public final GuiSyncLocal<EndTag> CLEAR_CONTENT = getSyncHolder().register("clear_content", tag -> {
+        tool.get().getOrCreateTag().remove(ItemLittleBlueprint.CONTENT_KEY);
+        tool.changed();
+        LittleToolHandler.OPEN_CONFIG.open(getPlayer());
     });
     
     public final GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", tag -> {
-        tool.get().getOrCreateTag().put("content", tag);
+        tool.get().getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, tag);
         tool.changed();
         closeThisLayer();
     });
@@ -131,7 +137,7 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
             return;
         
         // Load recipe content
-        LittleGroup group = LittleGroup.load(tool.get().getOrCreateTagElement("content"));
+        LittleGroup group = LittleGroup.load(tool.get().getOrCreateTagElement(ItemLittleBlueprint.CONTENT_KEY));
         
         GuiParent topBottom = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         add(topBottom.setExpandable());
@@ -168,7 +174,12 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         GuiLeftRightBox rightBottom = new GuiLeftRightBox();
         bottom.add(rightBottom.setVAlign(VAlign.CENTER).setExpandableX());
         rightBottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
-        rightBottom.addLeft(new GuiButton("clear", x -> {}).setTranslate("gui.recipe.clear").setEnabled(false));
+        rightBottom.addLeft(new GuiButton("clear", x -> {
+            GuiDialogHandler.openDialog(this, "clear_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
+                if (b == DialogButton.YES)
+                    CLEAR_CONTENT.send(EndTag.INSTANCE);
+            }, DialogButton.NO, DialogButton.YES);
+        }).setTranslate("gui.recipe.clear"));
         rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
         rightBottom.addRight(new GuiButton("check", x -> {}).setTranslate("gui.check").setEnabled(false));
         rightBottom.addRight(new GuiButton("save", x -> {

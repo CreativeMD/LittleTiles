@@ -3,6 +3,7 @@ package team.creative.littletiles.common.placement.selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -37,15 +38,15 @@ public abstract class SelectionMode {
         return Component.translatable("mode.selection." + REGISTRY.getId(this));
     }
     
-    public abstract SelectionResult generateResult(Level level, ItemStack stack);
+    public abstract SelectionResult generateResult(Level level, CompoundTag nbt);
     
-    public abstract void leftClick(Player player, ItemStack stack, BlockPos pos);
+    public abstract void leftClick(Player player, CompoundTag nbt, BlockPos pos);
     
-    public abstract void rightClick(Player player, ItemStack stack, BlockPos pos);
+    public abstract void rightClick(Player player, CompoundTag nbt, BlockPos pos);
     
     public abstract void clear(ItemStack stack);
     
-    public abstract LittleGroup getGroup(Level world, Player player, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException;
+    public abstract LittleGroup getGroup(Level world, Player player, CompoundTag nbt, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException;
     
     public void save(ItemStack stack) {}
     

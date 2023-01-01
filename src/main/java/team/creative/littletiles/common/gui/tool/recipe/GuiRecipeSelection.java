@@ -4,7 +4,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -13,7 +12,6 @@ import team.creative.creativecore.common.gui.controls.simple.GuiArraySlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
@@ -26,6 +24,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
+import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 import team.creative.littletiles.common.placement.selection.SelectionMode.SelectionResult;
 
@@ -37,8 +36,8 @@ public class GuiRecipeSelection extends GuiConfigure {
         ItemStack stack = tool.get();
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
         try {
-            LittleGroup previews = mode.getGroup(getPlayer().level, getPlayer(), stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt
-                    .getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
+            LittleGroup previews = mode.getGroup(getPlayer().level, getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), nbt
+                    .getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
             if (nbt.contains("grid")) {
                 LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
                 previews.convertTo(grid);
@@ -56,7 +55,7 @@ public class GuiRecipeSelection extends GuiConfigure {
             mode.clear(stack);
             
             tool.changed();
-            GuiCreator.ITEM_OPENER.open(getPlayer(), InteractionHand.MAIN_HAND);
+            LittleToolHandler.OPEN_CONFIG.open(getPlayer());
         } catch (LittleActionException e) {
             GuiDialogHandler.openDialog(getParent(), "info", Component.translatable("gui.ok"), (x, y) -> {}, DialogButton.OK);
             return;
@@ -87,7 +86,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         box.select(mode);
         add(box.setExpandableX());
         
-        result = mode.generateResult(getPlayer().level, stack);
+        result = mode.generateResult(getPlayer().level, stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY));
         
         GuiCheckBox vanilla = new GuiCheckBox("includeVanilla", false).setTranslate("selection.include.vanilla");
         if (result != null && result.blocks > 0)
@@ -131,7 +130,8 @@ public class GuiRecipeSelection extends GuiConfigure {
             boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
             
             try {
-                if (rememberStructure && mode.getGroup(getPlayer().level, getPlayer(), stack, includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
+                if (rememberStructure && mode.getGroup(getPlayer().level, getPlayer(), stack
+                        .getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
                     GuiDialogHandler.openDialog(this, "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;
                 }

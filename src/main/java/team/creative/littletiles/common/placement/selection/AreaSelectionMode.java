@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -37,16 +38,16 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 public class AreaSelectionMode extends SelectionMode {
     
     @Override
-    public SelectionResult generateResult(Level level, ItemStack stack) {
+    public SelectionResult generateResult(Level level, CompoundTag nbt) {
         BlockPos pos = null;
-        if (stack.getTag().contains("pos1")) {
-            int[] array = stack.getTag().getIntArray("pos1");
+        if (nbt.contains("pos1")) {
+            int[] array = nbt.getIntArray("pos1");
             pos = new BlockPos(array[0], array[1], array[2]);
         }
         
         BlockPos pos2 = null;
-        if (stack.getTag().contains("pos2")) {
-            int[] array = stack.getTag().getIntArray("pos2");
+        if (nbt.contains("pos2")) {
+            int[] array = nbt.getIntArray("pos2");
             pos2 = new BlockPos(array[0], array[1], array[2]);
         }
         
@@ -64,15 +65,15 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public void leftClick(Player player, ItemStack stack, BlockPos pos) {
-        stack.getTag().putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+    public void leftClick(Player player, CompoundTag nbt, BlockPos pos) {
+        nbt.putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
             player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
     }
     
     @Override
-    public void rightClick(Player player, ItemStack stack, BlockPos pos) {
-        stack.getTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+    public void rightClick(Player player, CompoundTag nbt, BlockPos pos) {
+        nbt.putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level.isClientSide)
             player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
     }
@@ -169,16 +170,16 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public LittleGroup getGroup(Level level, Player player, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException {
+    public LittleGroup getGroup(Level level, Player player, CompoundTag nbt, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException {
         BlockPos pos = null;
-        if (stack.getTag().contains("pos1")) {
-            int[] array = stack.getTag().getIntArray("pos1");
+        if (nbt.contains("pos1")) {
+            int[] array = nbt.getIntArray("pos1");
             pos = new BlockPos(array[0], array[1], array[2]);
         }
         
         BlockPos pos2 = null;
-        if (stack.getTag().contains("pos2")) {
-            int[] array = stack.getTag().getIntArray("pos2");
+        if (nbt.contains("pos2")) {
+            int[] array = nbt.getIntArray("pos2");
             pos2 = new BlockPos(array[0], array[1], array[2]);
         }
         

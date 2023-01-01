@@ -35,31 +35,34 @@ import team.creative.littletiles.common.placement.selection.SelectionMode;
 
 public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemTooltip {
     
+    public static final String CONTENT_KEY = "c";
+    public static final String SELECTION_KEY = "s";
+    
     public ItemLittleBlueprint() {
         super(new Item.Properties());
     }
     
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("content") && stack.getOrCreateTagElement("content").contains("structure") && stack.getOrCreateTagElement("content")
+        if (stack.getOrCreateTag().contains("c") && stack.getOrCreateTagElement(CONTENT_KEY).contains("structure") && stack.getOrCreateTagElement(CONTENT_KEY)
                 .getCompound("structure").contains("name"))
-            return Component.literal(stack.getOrCreateTagElement("content").getCompound("structure").getString("name"));
+            return Component.literal(stack.getOrCreateTagElement(CONTENT_KEY).getCompound("structure").getString("name"));
         return super.getName(stack);
     }
     
     @Override
     public boolean hasTiles(ItemStack stack) {
-        return stack.getOrCreateTag().contains("content");
+        return stack.getOrCreateTag().contains(CONTENT_KEY);
     }
     
     @Override
     public LittleGroup getTiles(ItemStack stack) {
-        return LittleGroup.load(stack.getOrCreateTagElement("content"));
+        return LittleGroup.load(stack.getOrCreateTagElement(CONTENT_KEY));
     }
     
     @Override
     public LittleGroup getLow(ItemStack stack) {
-        return LittleGroup.loadLow(stack.getOrCreateTagElement("content"));
+        return LittleGroup.loadLow(stack.getOrCreateTagElement(CONTENT_KEY));
     }
     
     @Override
@@ -69,7 +72,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public void saveTiles(ItemStack stack, LittleGroup group) {
-        stack.getOrCreateTag().put("content", LittleGroup.save(group));
+        stack.getOrCreateTag().put(CONTENT_KEY, LittleGroup.save(group));
     }
     
     @Override
@@ -112,7 +115,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).rightClick(player, stack, result.getBlockPos());
+        getSelectionMode(stack).rightClick(player, stack.getOrCreateTagElement(SELECTION_KEY), result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), true));
         return true;
     }
@@ -122,7 +125,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).leftClick(player, stack, result.getBlockPos());
+        getSelectionMode(stack).leftClick(player, stack.getOrCreateTagElement(SELECTION_KEY), result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), false));
         return true;
     }
@@ -139,12 +142,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public LittleVec getCachedSize(ItemStack stack) {
-        return LittleGroup.getSize(stack.getOrCreateTag());
+        return LittleGroup.getSize(stack.getOrCreateTagElement(CONTENT_KEY));
     }
     
     @Override
     public LittleVec getCachedMin(ItemStack stack) {
-        return LittleGroup.getMin(stack.getOrCreateTag());
+        return LittleGroup.getMin(stack.getOrCreateTagElement(CONTENT_KEY));
     }
     
     @Override
@@ -154,10 +157,10 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     public static SelectionMode getSelectionMode(ItemStack stack) {
-        return SelectionMode.REGISTRY.get(stack.getOrCreateTag().getString("selmode"));
+        return SelectionMode.REGISTRY.get(stack.getOrCreateTagElement(SELECTION_KEY).getString("selmode"));
     }
     
     public static void setSelectionMode(ItemStack stack, SelectionMode mode) {
-        stack.getOrCreateTag().putString("selmode", mode.getName());
+        stack.getOrCreateTagElement(SELECTION_KEY).putString("selmode", mode.getName());
     }
 }

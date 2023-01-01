@@ -44,8 +44,8 @@ public class LittleToolHandler {
     public static ILittleTool tool = null;
     
     public static final GuiCreatorBasic OPEN_CONFIG = GuiCreator.register("configure", new GuiCreatorBasic((nbt, player) -> {
-        if (player.getMainHandItem().getItem() instanceof ILittleTool)
-            return ((ILittleTool) player.getMainHandItem().getItem()).getConfigure(player, ContainerSlotView.mainHand(player));
+        if (player.getMainHandItem().getItem() instanceof ILittleTool tool)
+            return tool.getConfigure(player, ContainerSlotView.mainHand(player));
         return null;
     }));
     
