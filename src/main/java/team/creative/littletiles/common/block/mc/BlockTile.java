@@ -310,8 +310,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         
         if (be != null) {
             for (IParentCollection list : be.groups()) {
-                if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
-                    continue;
                 if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
                     try {
                         shape = Shapes.or(shape, list.getStructure().getExtraShape(state, level, pos, context));
