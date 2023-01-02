@@ -296,7 +296,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
                 return tileContext.parent.getBE().getBlockShape();
             if (LittleTiles.CONFIG.rendering.highlightStructureBox && tileContext.parent.isStructure())
                 try {
-                    return tileContext.parent.getStructure().getSurroundingBox().getShape();
+                    return tileContext.parent.getStructure().getSurroundingBox().getShape(pos);
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             return tileContext.box.getShape(tileContext.parent.getGrid());
         }

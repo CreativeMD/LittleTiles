@@ -138,9 +138,9 @@ public class SurroundingBox {
         return new AABB(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
-    public VoxelShape getShape() {
-        return Shapes
-                .box(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
+    public VoxelShape getShape(BlockPos pos) {
+        return Shapes.box(grid.toVanillaGrid(minX) - pos.getX(), grid.toVanillaGrid(minY) - pos.getY(), grid.toVanillaGrid(minZ) - pos.getZ(), grid.toVanillaGrid(maxX) - pos
+                .getX(), grid.toVanillaGrid(maxY) - pos.getY(), grid.toVanillaGrid(maxZ) - pos.getZ());
     }
     
     public double getPercentVolume() {
