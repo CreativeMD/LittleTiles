@@ -2,15 +2,14 @@ package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.Align;
-import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
@@ -33,16 +32,14 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
-import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.LittleToolHandler;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiControl;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
 
-public class GuiRecipe extends GuiConfigure implements IAnimationControl {
+public class GuiRecipe extends GuiConfigure {
     
     public final GuiSyncLocal<EndTag> CLEAR_CONTENT = getSyncHolder().register("clear_content", tag -> {
         tool.get().getOrCreateTag().remove(ItemLittleBlueprint.CONTENT_KEY);
@@ -56,11 +53,12 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         closeThisLayer();
     });
     
-    private GuiTreeItemStructure loaded;
     private GuiTree tree;
-    private GuiComboBoxMapped<LittleStructureGui> types;
-    private GuiParent config;
-    private LittleStructureGuiControl control;
+    public GuiComboBoxMapped<LittleStructureGui> types;
+    public GuiParent config;
+    public LittleStructureGuiControl control;
+    
+    public LinkedHashMap<GuiTreeItemStructure, AnimationPreview> availablePreviews = new LinkedHashMap<>();
     
     public GuiRecipe(ContainerSlotView view) {
         super("recipe", view);
@@ -68,26 +66,9 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         valign = VAlign.STRETCH;
         setDim(new GuiSizeRules().minWidth(500).minHeight(300));
         registerEventChanged(x -> {
-            if (x.control.is("type")) {
-                if (loaded == null)
-                    return;
-                load(loaded, types.getSelected());
-            }
+            if (x.control.is("type"))
+                ((GuiTreeItemStructure) tree.selected()).load();
         });
-    }
-    
-    @Override
-    public void onLoaded(AnimationPreview preview) {
-        callOnLoaded(preview, this);
-    }
-    
-    private void callOnLoaded(AnimationPreview preview, Iterable<GuiChildControl> controls) {
-        for (GuiChildControl child : controls) {
-            if (child.control instanceof IAnimationControl a)
-                a.onLoaded(preview);
-            if (child.control instanceof GuiParent p)
-                callOnLoaded(preview, p);
-        }
     }
     
     @Override
@@ -106,23 +87,14 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
             return;
         }
         
-        String name = group.getStructureName();
-        boolean hasStructureName = true;
-        if (name == null) {
-            hasStructureName = false;
-            LittleStructureType type = group.getStructureType();
-            if (type != null)
-                name = type.id + " " + index;
-            else
-                name = "none " + index;
-        }
         LittleGroup copy = new LittleGroup(group.hasStructure() ? group.getStructureTag().copy() : null, group.getGrid(), Collections.EMPTY_LIST);
         for (LittleTile tile : group)
             copy.addDirectly(tile.copy());
         for (Entry<String, LittleGroup> extension : group.children.extensionEntries())
             copy.children.addExtension(extension.getKey(), extension.getValue().copy());
-        GuiTreeItemStructure item = new GuiTreeItemStructure(name, this, tree, copy);
-        parent.addItem(item.setTitle(Component.literal(hasStructureName ? name : (ChatFormatting.ITALIC + "" + name))));
+        GuiTreeItemStructure item = new GuiTreeItemStructure(name, this, tree, copy, index);
+        availablePreviews.put(item, null);
+        parent.addItem(item);
         
         int i = 0;
         for (LittleGroup child : group.children.children()) {
@@ -145,7 +117,7 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         GuiParent top = new GuiParent(GuiFlow.STACK_X);
         topBottom.add(top.setExpandableY());
         
-        tree = new GuiTree("overview", false).setRootVisibility(false);
+        tree = new GuiTree("overview", false).setRootVisibility(false).keepSelected();
         buildStructureTree(tree, tree.root(), group, 0);
         tree.root().setTitle(Component.literal("root"));
         tree.updateTree();
@@ -161,7 +133,7 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         config = new GuiParent("config");
         topCenter.add(config.setExpandableY());
         
-        top.add(new GuiAnimationViewer("viewer").setExpandable());
+        top.add(new GuiAnimationViewer("viewer", () -> availablePreviews, () -> (GuiTreeItemStructure) tree.selected()).setExpandable());
         
         GuiParent bottom = new GuiParent(GuiFlow.STACK_X).setVAlign(VAlign.STRETCH);
         topBottom.add(bottom);
@@ -183,15 +155,11 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
         rightBottom.addRight(new GuiButton("check", x -> {}).setTranslate("gui.check").setEnabled(false));
         rightBottom.addRight(new GuiButton("save", x -> {
-            saveLoaded();
+            ((GuiTreeItemStructure) tree.selected()).save();
             SAVE.send(LittleGroup.save(reconstructBlueprint()));
         }).setTranslate("gui.save"));
         
-        if (tree.root().itemsCount() > 0) {
-            GuiTreeItemStructure item = (GuiTreeItemStructure) tree.root().items().iterator().next();
-            types.select(LittleStructureGuiRegistry.get(item.group.getStructureType(), group));
-            load(item, types.getSelected());
-        }
+        tree.selectFirst();
     }
     
     protected LittleGroup reconstructBlueprint(GuiTreeItemStructure item) {
@@ -215,26 +183,6 @@ public class GuiRecipe extends GuiConfigure implements IAnimationControl {
         for (GuiTreeItem child : tree.root().items())
             children.add(reconstructBlueprint((GuiTreeItemStructure) child));
         return new LittleGroup(null, LittleGrid.min(), children);
-    }
-    
-    public void saveLoaded() {
-        loaded.structure = control.save(loaded.group);
-    }
-    
-    public void load(GuiTreeItemStructure item, LittleStructureGui gui) {
-        if (loaded != null)
-            saveLoaded();
-        this.loaded = item;
-        this.tree.select(loaded);
-        AnimationPreview preview = item.getAnimationPreview();
-        if (preview != null)
-            onLoaded(preview);
-        control = gui.create(item);
-        config.clear();
-        config.add(control);
-        control.create(item.group, item.structure);
-        config.init();
-        reflow();
     }
     
 }

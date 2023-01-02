@@ -1,5 +1,8 @@
 package team.creative.littletiles.common.gui.controls;
 
+import java.util.LinkedHashMap;
+import java.util.function.Supplier;
+
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -29,11 +32,10 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.mixin.LightTextureAccessor;
 
-public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
-    
-    public AnimationPreview preview;
+public class GuiAnimationViewer extends GuiControl {
     
     public SmoothValue offX = new SmoothValue(200);
     public SmoothValue offY = new SmoothValue(200);
@@ -47,9 +49,14 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     public ViewerDragMode grabMode = ViewerDragMode.NONE;
     public double grabX;
     public double grabY;
+    public Supplier<LinkedHashMap<GuiTreeItemStructure, AnimationPreview>> supplier;
+    public Supplier<GuiTreeItemStructure> selected;
+    private boolean initialized = false;
     
-    public GuiAnimationViewer(String name) {
+    public GuiAnimationViewer(String name, Supplier<LinkedHashMap<GuiTreeItemStructure, AnimationPreview>> supplier, Supplier<GuiTreeItemStructure> selected) {
         super(name);
+        this.supplier = supplier;
+        this.selected = selected;
     }
     
     @Override
@@ -137,7 +144,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         texture.getLightTexture().upload();
     }
     
-    protected void renderChunkLayer(RenderType layer, PoseStack pose, Matrix4f matrix) {
+    protected void renderChunkLayer(AnimationPreview preview, RenderType layer, PoseStack pose, Matrix4f matrix) {
         layer.setupRenderState();
         ShaderInstance shaderinstance = RenderSystem.getShader();
         
@@ -190,9 +197,15 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
     @Override
     @OnlyIn(Dist.CLIENT)
     protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
-        if (preview == null)
+        LinkedHashMap<GuiTreeItemStructure, AnimationPreview> previews = supplier.get();
+        AnimationPreview main = previews.get(selected.get());
+        if (main == null)
             return;
         
+        if (!initialized) {
+            this.distance.setStart(main.grid.toVanillaGrid(main.entireBox.getLongestSide()) / 2D + 2);
+            initialized = true;
+        }
         Minecraft mc = Minecraft.getInstance();
         Window window = mc.getWindow();
         int[][] pixels = makeLightBright();
@@ -224,11 +237,11 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         pose.translate(0, 0, -distance.current());
         RenderSystem.enableDepthTest();
         
-        Vec3d rotationCenter = preview.animation.getCenter().rotationCenter;
+        Vec3d rotationCenter = main.animation.getCenter().rotationCenter;
         
         projection.translate(offX.current(), offY.current(), offZ.current());
         
-        projection.translate(-preview.box.getXsize() * 0.5, -preview.box.getYsize() * 0.5, -preview.box.getZsize() * 0.5);
+        projection.translate(-main.box.getXsize() * 0.5, -main.box.getYsize() * 0.5, -main.box.getZsize() * 0.5);
         
         projection.translate(rotationCenter.x, rotationCenter.y, rotationCenter.z - distance.current());
         
@@ -239,17 +252,22 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         projection.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z + distance.current());
         
         RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
-        preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
-        LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
         
-        renderChunkLayer(RenderType.solid(), pose, matrix);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-        renderChunkLayer(RenderType.cutoutMipped(), pose, matrix);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
-        renderChunkLayer(RenderType.cutout(), pose, matrix);
+        for (AnimationPreview preview : previews.values()) {
+            preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
+            LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
+            
+            renderChunkLayer(preview, RenderType.solid(), pose, matrix);
+            mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
+            renderChunkLayer(preview, RenderType.cutoutMipped(), pose, matrix);
+            mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
+            renderChunkLayer(preview, RenderType.cutout(), pose, matrix);
+            
+            renderChunkLayer(preview, RenderType.translucent(), pose, matrix);
+        }
         
-        renderChunkLayer(RenderType.translucent(), pose, matrix);
         pose.popPose();
+        
         RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
@@ -260,12 +278,6 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
         resetLight(pixels);
-    }
-    
-    @Override
-    public void onLoaded(AnimationPreview preview) {
-        this.preview = preview;
-        this.distance.setStart(preview.grid.toVanillaGrid(preview.entireBox.getLongestSide()) / 2D + 2);
     }
     
     @Override

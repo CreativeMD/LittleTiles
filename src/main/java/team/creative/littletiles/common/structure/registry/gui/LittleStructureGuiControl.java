@@ -5,15 +5,13 @@ import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.gui.controls.IAnimationControl;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class LittleStructureGuiControl extends GuiParent implements IAnimationControl {
+public abstract class LittleStructureGuiControl extends GuiParent {
     
     public final LittleStructureType type;
     public final GuiTreeItemStructure item;
@@ -43,8 +41,5 @@ public abstract class LittleStructureGuiControl extends GuiParent implements IAn
     }
     
     protected abstract void saveExtra(LittleStructure structure, LittleGroup previews);
-    
-    @Override
-    public void onLoaded(AnimationPreview animationPreview) {}
     
 }
