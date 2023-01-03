@@ -3,11 +3,13 @@ package team.creative.littletiles.common.gui.tool.recipe;
 import org.apache.commons.lang3.ArrayUtils;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.EndTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
+import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiArraySlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
@@ -60,6 +62,14 @@ public class GuiRecipeSelection extends GuiConfigure {
             GuiDialogHandler.openDialog(getParent(), "info", Component.translatable("gui.ok"), (x, y) -> {}, DialogButton.OK);
             return;
         }
+    });
+    
+    public final GuiSyncLocal<EndTag> CLEAR_SELECTION = getSyncHolder().register("clear_selection", x -> {
+        SelectionMode mode = ItemLittleBlueprint.getSelectionMode(tool.get());
+        tool.get().getOrCreateTag().remove(ItemLittleBlueprint.SELECTION_KEY);
+        ItemLittleBlueprint.setSelectionMode(tool.get(), mode);
+        tool.changed();
+        LittleToolHandler.OPEN_CONFIG.open(getPlayer());
     });
     
     public GuiRecipeSelection(ContainerSlotView view) {
@@ -121,9 +131,15 @@ public class GuiRecipeSelection extends GuiConfigure {
         scale.add(new GuiArraySlider("scale").setExpandableX());
         updateSlider();
         
-        GuiParent bottom = new GuiParent(GuiFlow.STACK_X).setAlign(Align.RIGHT);
-        add(bottom.setExpandableX());
-        bottom.add(new GuiButton("save", x -> {
+        GuiLeftRightBox bottom = new GuiLeftRightBox();
+        add(bottom.setAlign(Align.RIGHT).setExpandableX());
+        bottom.addRight(new GuiButton("clear", x -> {
+            GuiDialogHandler.openDialog(this, "clear_sekection", Component.translatable("gui.selection.dialog.clear"), (g, b) -> {
+                if (b == DialogButton.YES)
+                    CLEAR_SELECTION.send(EndTag.INSTANCE);
+            }, DialogButton.NO, DialogButton.YES);
+        }).setTranslate("selection.clear"));
+        bottom.addRight(new GuiButton("save", x -> {
             boolean rememberStructure = ((GuiCheckBox) get("remember_structure")).value;
             boolean includeVanilla = ((GuiCheckBox) get("includeVanilla")).value;
             boolean includeCB = ((GuiCheckBox) get("includeCB")).value;
