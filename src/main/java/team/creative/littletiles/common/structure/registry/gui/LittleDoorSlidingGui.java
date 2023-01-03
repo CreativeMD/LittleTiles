@@ -4,13 +4,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
-import team.creative.littletiles.common.structure.LittleStructureType;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleDoorSlidingGui extends LittleDoorBaseGui {
     
-    public LittleDoorSlidingGui(LittleStructureType type, GuiTreeItemStructure item) {
-        super(type, item);
+    public LittleDoorSlidingGui(LittleStructureGui gui, GuiTreeItemStructure item) {
+        super(gui, item);
     }
     
     @Override

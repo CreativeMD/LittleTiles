@@ -6,8 +6,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -47,15 +50,32 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     public void load() {
         LittleStructureGui gui = recipe.types.getSelected();
         recipe.control = gui.create(this);
+        recipe.control.setExpandableY();
         recipe.config.clear();
         recipe.config.add(recipe.control);
-        recipe.control.create(group, structure);
+        recipe.control.create(structure);
         recipe.config.init();
+        GuiParent parent = new GuiParent("bottomStructure", GuiFlow.STACK_X);
+        recipe.config.add(parent);
+        GuiTextfield text = new GuiTextfield("name");
+        if (structure != null && structure.name != null)
+            text.setText(structure.name);
+        else
+            text.setText("");
+        parent.add(text.setEnabled(gui.supportsName()).setDim(100, 7));
+        //parent.add(new GuiSignalEventsButton("signal", group, structure, gui.type()));
         recipe.reflow();
     }
     
     public void save() {
-        structure = recipe.control.save(group);
+        LittleStructureType type = recipe.types.getSelected().type();
+        structure = recipe.control.save(type != null ? type.createStructure(null) : null);
+        if (structure != null) {
+            GuiParent parent = recipe.config.get("bottomStructure");
+            GuiTextfield textfield = parent.get("name");
+            structure.name = textfield.getText().isBlank() ? null : textfield.getText();
+        }
+        //recipe.get("signal", GuiSignalEventsButton.class).setEventsInStructure(structure);
         updateTitle();
     }
     

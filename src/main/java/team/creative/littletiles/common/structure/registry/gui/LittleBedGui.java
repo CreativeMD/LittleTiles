@@ -7,23 +7,21 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
 
 public class LittleBedGui extends LittleStructureGuiControl {
     
-    public LittleBedGui(LittleStructureType type, GuiTreeItemStructure item) {
-        super(type, item);
+    public LittleBedGui(LittleStructureGui gui, GuiTreeItemStructure item) {
+        super(gui, item);
         //registerEventClick(x -> get("tileviewer", GuiTileViewer.class).updateIndicator(((GuiStateButtonMapped<Facing>) get("direction")).getSelected().opposite(), get("relativeDirection", GuiDirectionIndicator.class)));
     }
     
     @Override
-    protected void createExtra(LittleGroup group, @Nullable LittleStructure structure) {
+    public void create(@Nullable LittleStructure structure) {
         GuiParent right = new GuiParent();
         add(right);
         
@@ -34,7 +32,7 @@ public class LittleBedGui extends LittleStructureGuiControl {
         GuiParent left = new GuiParent();
         add(left);
         
-        LittleVec size = group.getSize();
+        LittleVec size = item.group.getSize();
         Facing facing = Facing.EAST;
         if (size.x < size.z)
             facing = Facing.SOUTH;
@@ -51,8 +49,9 @@ public class LittleBedGui extends LittleStructureGuiControl {
     }
     
     @Override
-    protected void saveExtra(LittleStructure bed, LittleGroup previews) {
+    public LittleStructure save(LittleStructure bed) {
         ((LittleBed) bed).direction = ((GuiStateButtonMapped<Facing>) get("direction")).getSelected();
+        return bed;
     }
     
 }

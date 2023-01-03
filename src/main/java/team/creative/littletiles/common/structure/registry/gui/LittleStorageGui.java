@@ -11,22 +11,20 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.type.LittleStorage;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleStorageGui extends LittleStructureGuiControl {
     
-    public LittleStorageGui(LittleStructureType type, GuiTreeItemStructure item) {
+    public LittleStorageGui(LittleStructureGui type, GuiTreeItemStructure item) {
         super(type, item);
     }
     
     @Override
-    public void createExtra(LittleGroup previews, @Nullable LittleStructure structure) {
-        add(new GuiLabel("space").setTitle(new TextBuilder().text("space: " + LittleStorage.getSizeOfInventory(previews)).build()));
+    public void create(@Nullable LittleStructure structure) {
+        add(new GuiLabel("space").setTitle(new TextBuilder().text("space: " + LittleStorage.getSizeOfInventory(item.group)).build()));
         boolean invisible = false;
         if (structure instanceof LittleStorage)
             invisible = ((LittleStorage) structure).invisibleStorageTiles;
@@ -34,17 +32,18 @@ public class LittleStorageGui extends LittleStructureGuiControl {
     }
     
     @Override
-    protected void saveExtra(LittleStructure structure, LittleGroup previews) {
+    public LittleStructure save(LittleStructure structure) {
         LittleStorage storage = (LittleStorage) structure;
         storage.invisibleStorageTiles = ((GuiCheckBox) get("invisible")).value;
         
-        for (LittleTile tile : previews)
+        for (LittleTile tile : item.group)
             if (tile.getBlock().is(LittleTiles.STORAGE_BLOCKS))
                 tile.color = ColorUtils.setAlpha(tile.color, 0);
             
-        storage.inventorySize = LittleStorage.getSizeOfInventory(previews);
+        storage.inventorySize = LittleStorage.getSizeOfInventory(item.group);
         storage.stackSizeLimit = LittleStorage.maxSlotStackSize;
         storage.updateNumberOfSlots();
         storage.inventory = new SimpleContainer(storage.numberOfSlots);
+        return structure;
     }
 }

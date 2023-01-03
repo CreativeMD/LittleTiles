@@ -20,7 +20,7 @@ public class LittleStructureGuiRegistry {
     private static final HashMap<LittleStructureType, LittleStructureGui> BY_TYPE = new HashMap<>();
     private static final List<BiFunction<LittleStructureType, LittleGroup, LittleStructureGui>> SPECIAL = new ArrayList<>();
     
-    public static void registerTreeOnly(String id, LittleStructureType type, BiFunction<LittleStructureType, GuiTreeItemStructure, LittleStructureGuiControl> gui) {
+    public static void registerTreeOnly(String id, LittleStructureType type, BiFunction<LittleStructureGui, GuiTreeItemStructure, LittleStructureGuiControl> gui) {
         registerTreeOnly(new LittleStructureGui(id, type, gui));
     }
     
@@ -32,7 +32,7 @@ public class LittleStructureGuiRegistry {
         SPECIAL.add(special);
     }
     
-    public static void register(String id, LittleStructureType type, BiFunction<LittleStructureType, GuiTreeItemStructure, LittleStructureGuiControl> factory) {
+    public static void register(String id, LittleStructureType type, BiFunction<LittleStructureGui, GuiTreeItemStructure, LittleStructureGuiControl> factory) {
         register(new LittleStructureGui(id, type, factory));
     }
     
@@ -41,7 +41,7 @@ public class LittleStructureGuiRegistry {
         BY_TYPE.put(gui.type(), gui);
     }
     
-    public static void register(LittleStructureType type, BiFunction<LittleStructureType, GuiTreeItemStructure, LittleStructureGuiControl> factory) {
+    public static void register(LittleStructureType type, BiFunction<LittleStructureGui, GuiTreeItemStructure, LittleStructureGuiControl> factory) {
         register(new LittleStructureGui(type.id, type, factory));
     }
     
@@ -64,7 +64,7 @@ public class LittleStructureGuiRegistry {
                 return factory;
         }
         
-        factory = new LittleStructureGui(type.id, type, LittleStructureGuiNotFound::new);
+        factory = new LittleStructureGui(type.id, type, LittleStructureGuiNotFound::new, false);
         BY_TYPE.put(type, factory);
         return factory;
     }
@@ -74,7 +74,7 @@ public class LittleStructureGuiRegistry {
     }
     
     static {
-        register("none", null, LittleStructureGuiNone::new);
+        register(new LittleStructureGui("none", null, LittleStructureGuiNone::new, false));
         register("simple.fixed", get("fixed"), LittleStructureGuiDefault::new);
         register("simple.ladder", get("ladder"), LittleStructureGuiDefault::new);
         register("simple.bed", get("bed"), LittleBedGui::new);

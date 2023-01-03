@@ -130,7 +130,7 @@ public class GuiRecipe extends GuiConfigure {
         // Actual recipe configuration
         types = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureGui>().addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()));
         topCenter.add(types);
-        config = new GuiParent("config");
+        config = new GuiParent("config", GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         topCenter.add(config.setExpandableY());
         
         top.add(new GuiAnimationViewer("viewer", () -> availablePreviews, () -> (GuiTreeItemStructure) tree.selected()).setExpandable());
