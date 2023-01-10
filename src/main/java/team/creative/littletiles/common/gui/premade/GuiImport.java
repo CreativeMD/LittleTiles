@@ -69,7 +69,8 @@ public class GuiImport extends GuiLayer {
                     LittleGrid.get(nbt);
                     IMPORT_DATA.send(nbt);
                 } catch (RuntimeException e) {
-                    GuiDialogHandler.openDialog(this, "invalid_grid", Component.translatable("invalid_grid", nbt.getString("grid")), (y, z) -> {}, DialogButton.OK);
+                    GuiDialogHandler
+                            .openDialog(getIntegratedParent(), "invalid_grid", Component.translatable("invalid_grid", nbt.getString("grid")), (y, z) -> {}, DialogButton.OK);
                 }
             } catch (CommandSyntaxException e) {}
         }));

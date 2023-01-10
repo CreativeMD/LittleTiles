@@ -59,7 +59,7 @@ public class GuiRecipeSelection extends GuiConfigure {
             tool.changed();
             LittleToolHandler.OPEN_CONFIG.open(getPlayer());
         } catch (LittleActionException e) {
-            GuiDialogHandler.openDialog(getParent(), "info", Component.translatable("gui.ok"), (x, y) -> {}, DialogButton.OK);
+            GuiDialogHandler.openDialog(getIntegratedParent(), "info", Component.translatable("gui.ok"), (x, y) -> {}, DialogButton.OK);
             return;
         }
     });
@@ -134,7 +134,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom.setAlign(Align.RIGHT).setExpandableX());
         bottom.addRight(new GuiButton("clear", x -> {
-            GuiDialogHandler.openDialog(this, "clear_sekection", Component.translatable("gui.selection.dialog.clear"), (g, b) -> {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "clear_sekection", Component.translatable("gui.selection.dialog.clear"), (g, b) -> {
                 if (b == DialogButton.YES)
                     CLEAR_SELECTION.send(EndTag.INSTANCE);
             }, DialogButton.NO, DialogButton.YES);
@@ -148,11 +148,11 @@ public class GuiRecipeSelection extends GuiConfigure {
             try {
                 if (rememberStructure && mode.getGroup(getPlayer().level, getPlayer(), stack
                         .getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
-                    GuiDialogHandler.openDialog(this, "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
+                    GuiDialogHandler.openDialog(getIntegratedParent(), "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;
                 }
             } catch (LittleActionException e) {
-                GuiDialogHandler.openDialog(getParent(), "info", Component.translatable("gui.ok"), (g, b) -> {}, DialogButton.OK);
+                GuiDialogHandler.openDialog(getIntegratedParent(), "info", Component.translatable("gui.ok"), (g, b) -> {}, DialogButton.OK);
                 return;
             }
             

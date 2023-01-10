@@ -147,7 +147,7 @@ public class GuiRecipe extends GuiConfigure {
         bottom.add(rightBottom.setVAlign(VAlign.CENTER).setExpandableX());
         rightBottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
         rightBottom.addLeft(new GuiButton("clear", x -> {
-            GuiDialogHandler.openDialog(this, "clear_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "clear_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
                 if (b == DialogButton.YES)
                     CLEAR_CONTENT.send(EndTag.INSTANCE);
             }, DialogButton.NO, DialogButton.YES);

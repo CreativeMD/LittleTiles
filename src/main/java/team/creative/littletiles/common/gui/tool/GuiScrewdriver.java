@@ -144,7 +144,8 @@ public class GuiScrewdriver extends GuiConfigure {
                 if (stackReplace != null) {
                     Block replacementBlock = Block.byItem(stackReplace.getItem());
                     if (!LittleAction.isBlockValid(replacementBlock.defaultBlockState())) {
-                        GuiDialogHandler.openDialog(this, "screwdriver_dialog", Component.translatable("dialog.screwdriver.invalid_replacement"), (x, y) -> {}, DialogButton.OK);
+                        GuiDialogHandler.openDialog(getIntegratedParent(), "screwdriver_dialog", Component
+                                .translatable("dialog.screwdriver.invalid_replacement"), (x, y) -> {}, DialogButton.OK);
                         return null;
                     }
                     actions.add(new LittleActionDestroyBoxes(level, boxes));
@@ -166,7 +167,7 @@ public class GuiScrewdriver extends GuiConfigure {
         }
         
         if (!remove && !replace && !colorize)
-            GuiDialogHandler.openDialog(this, "screwdriver_dialog", Component.translatable("dialog.screwdriver.no_task"), (x, y) -> {}, DialogButton.OK);
+            GuiDialogHandler.openDialog(getIntegratedParent(), "screwdriver_dialog", Component.translatable("dialog.screwdriver.no_task"), (x, y) -> {}, DialogButton.OK);
         
         return null;
     }
