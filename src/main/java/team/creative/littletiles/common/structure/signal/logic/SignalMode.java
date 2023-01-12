@@ -68,10 +68,8 @@ public enum SignalMode {
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
-            if (nbt == null)
-                return new GuiSignalModeConfigurationEqual(1);
-            return new GuiSignalModeConfigurationEqual(nbt);
+        public GuiSignalModeConfiguration createConfiguration(SignalOutputHandler handler) {
+            return new GuiSignalModeConfigurationEqual(handler);
         }
         
         @Override
@@ -120,8 +118,8 @@ public enum SignalMode {
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
-            return new GuiSignalModeConfigurationToggle(nbt);
+        public GuiSignalModeConfiguration createConfiguration(SignalOutputHandler handler) {
+            return new GuiSignalModeConfigurationToggle(handler);
         }
         
         @Override
@@ -152,8 +150,8 @@ public enum SignalMode {
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
-            return new GuiSignalModeConfigurationPulse(nbt);
+        public GuiSignalModeConfiguration createConfiguration(SignalOutputHandler handler) {
+            return new GuiSignalModeConfigurationPulse(handler);
         }
         
         @Override
@@ -219,8 +217,8 @@ public enum SignalMode {
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
-            return new GuiSignalModeConfigurationThreshold(nbt);
+        public GuiSignalModeConfiguration createConfiguration(SignalOutputHandler handler) {
+            return new GuiSignalModeConfigurationThreshold(handler);
         }
         
         @Override
@@ -282,8 +280,8 @@ public enum SignalMode {
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
-            return new GuiSignalModeConfigurationStabilizer(nbt);
+        public GuiSignalModeConfiguration createConfiguration(SignalOutputHandler handler) {
+            return new GuiSignalModeConfigurationStabilizer(handler);
         }
         
         @Override
@@ -313,8 +311,8 @@ public enum SignalMode {
         
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiSignalModeConfiguration createConfiguration(CompoundTag nbt) {
-            return new GuiSignalModeConfigurationExtender(nbt);
+        public GuiSignalModeConfiguration createConfiguration(SignalOutputHandler handler) {
+            return new GuiSignalModeConfigurationExtender(handler);
         }
         
         @Override
@@ -343,7 +341,7 @@ public enum SignalMode {
     public abstract SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld);
     
     @OnlyIn(Dist.CLIENT)
-    public abstract GuiSignalModeConfiguration createConfiguration(CompoundTag nbt);
+    public abstract GuiSignalModeConfiguration createConfiguration(SignalOutputHandler handler);
     
     @OnlyIn(Dist.CLIENT)
     public abstract void createControls(GuiParent parent, GuiSignalModeConfiguration configuration);
@@ -571,11 +569,6 @@ public enum SignalMode {
         return EQUAL.createConfiguration(null);
     }
     
-    @OnlyIn(Dist.CLIENT)
-    public static GuiSignalModeConfiguration getConfig(CompoundTag nbt, SignalMode defaultMode) {
-        return get(nbt.getString("mode"), defaultMode).createConfiguration(nbt);
-    }
-    
     public static SignalMode get(String test) {
         try {
             return SignalMode.valueOf(test);
@@ -597,8 +590,8 @@ public enum SignalMode {
         
         public int delay;
         
-        public GuiSignalModeConfiguration(CompoundTag nbt) {
-            this(nbt.getInt("delay"));
+        public GuiSignalModeConfiguration(SignalOutputHandler handler) {
+            this(handler != null ? handler.delay : 1);
         }
         
         public GuiSignalModeConfiguration(int delay) {
@@ -620,8 +613,8 @@ public enum SignalMode {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationEqual(CompoundTag nbt) {
-            super(nbt);
+        public GuiSignalModeConfigurationEqual(SignalOutputHandler handler) {
+            this(handler != null ? handler.delay : 1);
         }
         
         @Override
@@ -650,8 +643,8 @@ public enum SignalMode {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationToggle(CompoundTag nbt) {
-            super(nbt);
+        public GuiSignalModeConfigurationToggle(SignalOutputHandler handler) {
+            super(handler);
         }
         
         @Override
@@ -683,9 +676,9 @@ public enum SignalMode {
             this.length = length;
         }
         
-        public GuiSignalModeConfigurationPulse(CompoundTag nbt) {
-            super(nbt);
-            this.length = nbt.contains("length") ? nbt.getInt("length") : 10;
+        public GuiSignalModeConfigurationPulse(SignalOutputHandler handler) {
+            super(handler);
+            this.length = handler instanceof SignalOutputHandlerPulse pulse ? pulse.pulseLength : 10;
         }
         
         @Override
@@ -718,9 +711,9 @@ public enum SignalMode {
             this.length = length;
         }
         
-        public GuiSignalModeConfigurationExtender(CompoundTag nbt) {
-            super(nbt);
-            this.length = nbt.contains("length") ? nbt.getInt("length") : 10;
+        public GuiSignalModeConfigurationExtender(SignalOutputHandler handler) {
+            super(handler);
+            this.length = handler instanceof SignalOutputHandlerExtender extender ? extender.pulseLength : 10;
         }
         
         @Override
@@ -750,8 +743,8 @@ public enum SignalMode {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationThreshold(CompoundTag nbt) {
-            super(nbt);
+        public GuiSignalModeConfigurationThreshold(SignalOutputHandler handler) {
+            super(handler);
         }
         
         @Override
@@ -780,8 +773,8 @@ public enum SignalMode {
             super(delay);
         }
         
-        public GuiSignalModeConfigurationStabilizer(CompoundTag nbt) {
-            super(nbt);
+        public GuiSignalModeConfigurationStabilizer(SignalOutputHandler handler) {
+            super(handler);
         }
         
         @Override

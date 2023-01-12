@@ -11,20 +11,24 @@ import java.util.function.Consumer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
+import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncGlobalLayer;
 import team.creative.creativecore.common.gui.sync.GuiSyncHolder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalController;
+import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
-import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
 public class GuiDialogSignal extends GuiLayer {
@@ -40,21 +44,16 @@ public class GuiDialogSignal extends GuiLayer {
     public List<GuiSignalComponent> inputs;
     protected IConditionConfiguration event;
     
-    public GuiDialogSignal(List<GuiSignalComponent> inputs, IConditionConfiguration event) {
-        super("gui.dialog.signal", 300, 200);
-        this.inputs = inputs;
-        this.event = event;
-        registerEventChanged(this::changed);
-    }
-    
     public GuiDialogSignal() {
         super("gui.dialog.signal", 300, 200);
+        flow = GuiFlow.STACK_Y;
         registerEventChanged(this::changed);
     }
     
     public void init(List<GuiSignalComponent> inputs, IConditionConfiguration event) {
         this.inputs = inputs;
         this.event = event;
+        super.init();
     }
     
     public void changed(GuiControlChangedEvent event) {
@@ -76,18 +75,31 @@ public class GuiDialogSignal extends GuiLayer {
     
     @Override
     public void create() {
-        add(new GuiLabel("result").setTranslate("gui.signal.configuration.result"));
+        if (inputs == null)
+            return;
+        
+        GuiParent top = new GuiParent();
+        add(top.setVAlign(VAlign.CENTER));
+        top.add(new GuiLabel("result").setTranslate("gui.signal.configuration.result"));
+        top.add(new GuiLabel("delay"));
+        
+        if (event.hasModeConfiguration())
+            top.add(new GuiButton("mode", x -> MODE_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(GuiDialogSignal.this, event)));
         
         GuiSignalController controller = new GuiSignalController("controller", event.getOutput(), inputs);
-        add(controller);
+        add(controller.setExpandable());
+        
+        GuiLeftRightBox bottom = new GuiLeftRightBox();
+        add(bottom);
+        
         List<GuiSignalComponent> allInputs = new ArrayList<>(inputs);
         allInputs.add(new GuiSignalComponent("[]", true, false, -1, 1, null, SignalMode.EQUAL));
         allInputs.add(new GuiSignalComponent("number", true, false, -1, 1, null, SignalMode.EQUAL));
         
         GuiComboBoxMapped<GuiSignalComponent> inputs = new GuiComboBoxMapped<GuiSignalComponent>("inputs", new TextMapBuilder<GuiSignalComponent>()
                 .addComponent(allInputs, x -> Component.literal(x.info())));
-        add(inputs);
-        add(new GuiButton("add", x -> {
+        bottom.addLeft(inputs);
+        bottom.addLeft(new GuiButton("add", x -> {
             GuiSignalComponent com = inputs.getSelected();
             if (com.name().equals("[]"))
                 controller.addVirtualInput();
@@ -95,7 +107,7 @@ public class GuiDialogSignal extends GuiLayer {
                 controller.addVirtualNumberInput();
             else
                 controller.addInput(com);
-        }).setTranslate("gui.add"));
+        }).setTranslate("gui.plus"));
         
         TextMapBuilder<Consumer<GuiSignalController>> map = new TextMapBuilder<>();
         map.addComponent(x -> x.addOperator(SignalLogicOperator.AND), Component.literal(SignalLogicOperator.AND.display));
@@ -112,20 +124,13 @@ public class GuiDialogSignal extends GuiLayer {
         map.addComponent(x -> x.addOperator(SignalLogicOperator.DIV), Component.literal(SignalLogicOperator.DIV.display));
         
         GuiComboBoxMapped<Consumer<GuiSignalController>> operators = new GuiComboBoxMapped<>("operators", map);
-        add(operators);
-        add(new GuiButton("add", x -> operators.getSelected().accept(controller)).setTranslate("gui.signal.configuration.addop"));
+        bottom.addLeft(operators);
+        bottom.addLeft(new GuiButton("add", x -> operators.getSelected().accept(controller)).setTranslate("gui.plus"));
         
         if (event.getCondition() != null)
             controller.setCondition(event.getCondition(), this);
         
-        add(new GuiLabel("delay"));
-        
-        changed(new GuiControlChangedEvent(controller));
-        
-        if (event.hasModeConfiguration())
-            add(new GuiButton("mode", x -> MODE_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(GuiDialogSignal.this, event)));
-        
-        add(new GuiButton("save", x -> {
+        bottom.addRight(new GuiButton("save", x -> {
             try {
                 event.setCondition(controller.generatePattern());
                 event.update();
@@ -133,6 +138,8 @@ public class GuiDialogSignal extends GuiLayer {
             } catch (GeneratePatternException e) {}
             
         }).setTranslate("gui.save"));
+        
+        changed(new GuiControlChangedEvent(controller));
         modeChanged();
     }
     
@@ -148,23 +155,5 @@ public class GuiDialogSignal extends GuiLayer {
             get("mode", GuiButton.class).setTranslate(event.getModeConfiguration().getMode().translateKey);
             reflow();
         }
-    }
-    
-    public static interface IConditionConfiguration {
-        
-        public GuiSignalComponent getOutput();
-        
-        public SignalInputCondition getCondition();
-        
-        public void setCondition(SignalInputCondition condition);
-        
-        public boolean hasModeConfiguration();
-        
-        public GuiSignalModeConfiguration getModeConfiguration();
-        
-        public void setModeConfiguration(GuiSignalModeConfiguration config);
-        
-        public void update();
-        
     }
 }

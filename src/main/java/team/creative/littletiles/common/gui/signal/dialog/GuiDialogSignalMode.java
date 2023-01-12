@@ -11,7 +11,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal.IConditionConfiguration;
+import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
@@ -31,11 +31,12 @@ public class GuiDialogSignalMode extends GuiLayer {
         this.event = event;
         this.dialog = dialog;
         this.config = event.getModeConfiguration().copy();
+        super.init();
     }
     
     @Override
     public void create() {
-        if (!isClient())
+        if (event == null)
             return;
         
         GuiComboBoxMapped<SignalMode> box = new GuiComboBoxMapped<SignalMode>("mode", new TextMapBuilder<SignalMode>()

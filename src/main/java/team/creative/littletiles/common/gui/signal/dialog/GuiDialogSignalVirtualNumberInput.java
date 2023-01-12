@@ -20,10 +20,13 @@ public class GuiDialogSignalVirtualNumberInput extends GuiLayer {
     public void init(int number, GuiSignalNodeVirtualNumberInput input) {
         this.input = input;
         this.number = number;
+        super.init();
     }
     
     @Override
     public void create() {
+        if (input == null)
+            return;
         GuiCounter counter = new GuiCounter("number", number, 0, 256);
         add(counter.setExpandableX());
         

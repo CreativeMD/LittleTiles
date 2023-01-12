@@ -38,8 +38,15 @@ public class GuiDialogSignalInput extends GuiLayer {
         flow = GuiFlow.STACK_Y;
     }
     
+    public void init(GuiSignalNodeInput input) {
+        this.input = input;
+        super.init();
+    }
+    
     @Override
     public void create() {
+        if (input == null)
+            return;
         GuiParent upper = new GuiParent(GuiFlow.STACK_X);
         add(upper);
         upper.add(new GuiLabel("start").setTitle(Component.literal(input.component.name() + "[")));

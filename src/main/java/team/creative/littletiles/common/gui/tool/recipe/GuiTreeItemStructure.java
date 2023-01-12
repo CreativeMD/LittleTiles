@@ -13,6 +13,7 @@ import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.gui.signal.GuiSignalEventsButton;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -26,6 +27,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     public LittleStructure structure;
     private LittleVecGrid offset;
     private int index;
+    public LittleStructureGui gui;
     
     public GuiTreeItemStructure(String name, GuiRecipe recipe, GuiTree tree, LittleGroup group, int index) {
         super(name, tree);
@@ -48,7 +50,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     }
     
     public void load() {
-        LittleStructureGui gui = recipe.types.getSelected();
+        gui = recipe.types.getSelected();
         recipe.control = gui.create(this);
         recipe.control.setExpandableY();
         recipe.config.clear();
@@ -63,7 +65,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         else
             text.setText("");
         parent.add(text.setEnabled(gui.supportsName()).setDim(100, 7));
-        //parent.add(new GuiSignalEventsButton("signal", group, structure, gui.type()));
+        parent.add(new GuiSignalEventsButton("signal", this).setEnabled(gui.type() != null));
         recipe.reflow();
     }
     
@@ -75,7 +77,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
             GuiTextfield textfield = parent.get("name");
             structure.name = textfield.getText().isBlank() ? null : textfield.getText();
         }
-        //recipe.get("signal", GuiSignalEventsButton.class).setEventsInStructure(structure);
+        recipe.config.get("bottomStructure", GuiParent.class).get("signal", GuiSignalEventsButton.class).setEventsInStructure(structure);
         updateTitle();
     }
     

@@ -18,6 +18,7 @@ import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -87,6 +88,11 @@ public class GuiSignalController extends GuiParent {
     @Override
     public Iterator<GuiChildControl> iterator() {
         return new ConsecutiveIterator<>(hoverControls.iterator(), controls.iterator(), new NestedIterator<>(grid));
+    }
+    
+    @Override
+    public ControlFormatting getControlFormatting() {
+        return ControlFormatting.NESTED_NO_PADDING;
     }
     
     @Override

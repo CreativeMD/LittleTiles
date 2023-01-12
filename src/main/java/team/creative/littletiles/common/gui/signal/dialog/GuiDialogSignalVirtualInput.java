@@ -16,7 +16,7 @@ import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextListBuilder;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
-import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal.IConditionConfiguration;
+import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualInput;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -38,10 +38,13 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
     public void init(List<GuiSignalComponent> inputs, GuiSignalNodeVirtualInput input) {
         this.input = input;
         this.inputs = inputs;
+        super.init();
     }
     
     @Override
     public void create() {
+        if (input == null)
+            return;
         add(new GuiCounter("bandwidth", input.conditions.length, 0, 256));
         add(new GuiScrollY("config").setExpandable());
         

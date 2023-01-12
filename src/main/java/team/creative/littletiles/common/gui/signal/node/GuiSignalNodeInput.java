@@ -113,7 +113,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     
     @Override
     public boolean mouseDoubleClicked(Rect rect, double x, double y, int button) {
-        GuiDialogSignal.INPUT_DIALOG.open(getIntegratedParent(), new CompoundTag()).input = this;
+        GuiDialogSignal.INPUT_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this);
         return true;
     }
     
