@@ -71,11 +71,6 @@ public class GuiSignalController extends GuiParent {
     }
     
     @Override
-    public double getScaleFactor() {
-        return zoom.current();
-    }
-    
-    @Override
     public double getOffsetX() {
         return -scrolledX.current();
     }
@@ -98,7 +93,7 @@ public class GuiSignalController extends GuiParent {
     @Override
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    protected void renderContent(PoseStack matrix, GuiChildControl control, Rect contentRect, Rect realContentRect, int mouseX, int mouseY) {
+    protected void renderContent(PoseStack matrix, GuiChildControl control, Rect contentRect, Rect realContentRect, double scale, int mouseX, int mouseY) {
         if (realContentRect == null)
             return;
         
@@ -106,19 +101,26 @@ public class GuiSignalController extends GuiParent {
         scrolledY.tick();
         zoom.tick();
         
-        double scale = getScaleFactor();
+        setScale(zoom.current());
+        
+        scale *= scaleFactor();
         double xOffset = getOffsetX();
         double yOffset = getOffsetY();
+        
+        matrix.pushPose();
+        matrix.scale((float) scale, (float) scale, (float) scale);
+        
         renderContent(matrix, contentRect, realContentRect, mouseX, mouseY, new ConsecutiveListIterator<>(grid).goEnd(), scale, xOffset, yOffset, false);
         
-        super.renderContent(matrix, control, contentRect, realContentRect, mouseX, mouseY);
+        matrix.popPose();
+        super.renderContent(matrix, control, contentRect, realContentRect, scale, mouseX, mouseY);
     }
     
     @Override
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    protected void renderControl(PoseStack matrix, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, int mouseX, int mouseY, boolean hover) {
-        super.renderControl(matrix, child, control, controlRect, realRect, mouseX, mouseY, hover);
+    protected void renderControl(PoseStack matrix, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
+        super.renderControl(matrix, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
         if (control instanceof GuiSignalNodeComponent com && com.hasUnderline()) {
             Font font = GuiRenderHelper.getFont();
             font.drawShadow(matrix, com.underline, child.getWidth() / 2 - font.width(com.underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
@@ -183,8 +185,7 @@ public class GuiSignalController extends GuiParent {
     public void mouseDragged(Rect rect, double x, double y, int button, double dragX, double dragY, double time) {
         super.mouseDragged(rect, x, y, button, dragX, dragY, time);
         if (time > 200 && dragged != null)
-            set(dragged, (int) Math.max(0, (x / getScaleFactor() + scrolledX.current()) / cellWidth), (int) Math
-                    .max(0, (y * 1 / getScaleFactor() + scrolledY.current()) / cellHeight));
+            set(dragged, (int) Math.max(0, (x * scaleFactorInv() + scrolledX.current()) / cellWidth), (int) Math.max(0, (y * scaleFactorInv() + scrolledY.current()) / cellHeight));
     }
     
     @Override
