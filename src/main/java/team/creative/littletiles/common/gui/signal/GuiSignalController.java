@@ -24,6 +24,8 @@ import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.itr.ConsecutiveIterator;
 import team.creative.creativecore.common.util.type.itr.ConsecutiveListIterator;
+import team.creative.creativecore.common.util.type.itr.FilterIterator;
+import team.creative.creativecore.common.util.type.itr.FilterListIterator;
 import team.creative.creativecore.common.util.type.itr.NestedIterator;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNode;
@@ -62,6 +64,7 @@ public class GuiSignalController extends GuiParent {
     private GuiSignalNodeOutput output;
     
     private GuiSignalNode dragged;
+    private boolean startedDragging = false;
     private GuiSignalNode selected;
     
     public GuiSignalController(String name, GuiSignalComponent output, List<GuiSignalComponent> inputs) {
@@ -82,7 +85,7 @@ public class GuiSignalController extends GuiParent {
     
     @Override
     public Iterator<GuiChildControl> iterator() {
-        return new ConsecutiveIterator<>(hoverControls.iterator(), controls.iterator(), new NestedIterator<>(grid));
+        return new ConsecutiveIterator<>(hoverControls.iterator(), controls.iterator(), FilterIterator.skipNull(new NestedIterator<>(grid)));
     }
     
     @Override
@@ -103,14 +106,16 @@ public class GuiSignalController extends GuiParent {
         
         setScale(zoom.current());
         
+        float controlScale = (float) scaleFactor();
         scale *= scaleFactor();
         double xOffset = getOffsetX();
         double yOffset = getOffsetY();
         
         matrix.pushPose();
-        matrix.scale((float) scale, (float) scale, (float) scale);
+        matrix.scale(controlScale, controlScale, 1);
         
-        renderContent(matrix, contentRect, realContentRect, mouseX, mouseY, new ConsecutiveListIterator<>(grid).goEnd(), scale, xOffset, yOffset, false);
+        renderContent(matrix, contentRect, realContentRect, mouseX, mouseY, FilterListIterator
+                .skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
         
         matrix.popPose();
         super.renderContent(matrix, control, contentRect, realContentRect, scale, mouseX, mouseY);
@@ -127,6 +132,20 @@ public class GuiSignalController extends GuiParent {
         }
     }
     
+    private void flowCell(GuiChildControl child, int x, int y) {
+        if (getParent() == null)
+            return;
+        
+        int widthNode = Math.min(cellWidth, child.getPreferredWidth(cellWidth));
+        child.setWidth(widthNode, cellWidth);
+        child.setX(cellWidth * x + cellWidth / 2 - child.getWidth() / 2);
+        child.flowX();
+        int heightNode = Math.min(cellHeight, child.getPreferredHeight(cellHeight));
+        child.setHeight(heightNode, cellHeight);
+        child.setY(cellHeight * y + cellHeight / 2 - child.getHeight() / 2);
+        child.flowY();
+    }
+    
     @Override
     public void flowX(int width, int preferred) {
         super.flowX(width, preferred);
@@ -134,9 +153,12 @@ public class GuiSignalController extends GuiParent {
             List<GuiChildControl> rows = grid.get(x);
             for (int y = 0; y < rows.size(); y++) {
                 GuiChildControl child = rows.get(y);
+                if (child == null)
+                    continue;
                 int widthNode = Math.min(cellWidth, child.getPreferredWidth(cellWidth));
                 child.setWidth(widthNode, cellWidth);
                 child.setX(cellWidth * x + cellWidth / 2 - child.getWidth() / 2);
+                child.flowX();
             }
         }
     }
@@ -148,15 +170,19 @@ public class GuiSignalController extends GuiParent {
             List<GuiChildControl> rows = grid.get(x);
             for (int y = 0; y < rows.size(); y++) {
                 GuiChildControl child = rows.get(y);
+                if (child == null)
+                    continue;
                 int heightNode = Math.min(cellHeight, child.getPreferredHeight(cellHeight));
                 child.setHeight(heightNode, cellHeight);
-                child.setY(cellHeight * y + cellHeight * 2 - child.getHeight() / 2);
+                child.setY(cellHeight * y + cellHeight / 2 - child.getHeight() / 2);
+                child.flowY();
             }
         }
     }
     
     @Override
     public boolean mouseClicked(Rect rect, double x, double y, int button) {
+        startedDragging = false;
         if (button == 2) {
             zoom.set(1);
             scrolledX.set(0);
@@ -184,8 +210,10 @@ public class GuiSignalController extends GuiParent {
     @Override
     public void mouseDragged(Rect rect, double x, double y, int button, double dragX, double dragY, double time) {
         super.mouseDragged(rect, x, y, button, dragX, dragY, time);
-        if (time > 200 && dragged != null)
+        if (time > 0.2 && dragged != null) {
             set(dragged, (int) Math.max(0, (x * scaleFactorInv() + scrolledX.current()) / cellWidth), (int) Math.max(0, (y * scaleFactorInv() + scrolledY.current()) / cellHeight));
+            startedDragging = true;
+        }
     }
     
     @Override
@@ -201,6 +229,9 @@ public class GuiSignalController extends GuiParent {
     public void mouseReleased(Rect rect, double x, double y, int button) {
         super.mouseReleased(rect, x, y, button);
         scrolling = false;
+        if (dragged != null && !startedDragging)
+            select(dragged);
+        startedDragging = false;
         dragged = null;
     }
     
@@ -356,12 +387,13 @@ public class GuiSignalController extends GuiParent {
         raiseEvent(new GuiControlChangedEvent(this));
     }
     
-    public void remove(int col, int row) {
+    public GuiChildControl remove(int col, int row) {
         if (col < grid.size()) {
             List<GuiChildControl> rows = grid.get(col);
             if (row < rows.size())
-                rows.set(row, null);
+                return rows.set(row, null);
         }
+        return null;
     }
     
     public void set(GuiSignalNode node, int col, int row) {
@@ -376,10 +408,14 @@ public class GuiSignalController extends GuiParent {
         while (rows.size() <= row)
             rows.add(null);
         if (rows.get(row) == null) {
+            GuiChildControl child = null;
             if (added)
-                remove(node.x(), node.y());
-            rows.set(row, new GuiChildControl(node));
+                child = remove(node.x(), node.y());
+            if (child == null)
+                child = new GuiChildControl(node);
+            rows.set(row, child);
             node.updatePosition(col, row);
+            flowCell(child, col, row);
         }
     }
     
