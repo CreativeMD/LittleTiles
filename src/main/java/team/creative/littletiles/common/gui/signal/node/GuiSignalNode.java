@@ -2,7 +2,6 @@ package team.creative.littletiles.common.gui.signal.node;
 
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.util.math.geo.Rect;
@@ -30,7 +29,7 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
             
             if (controller.selected() != null)
                 controller.tryConnectSelectedTo(this);
-            else if (Minecraft.getInstance().mouseHandler.isLeftPressed())
+            else if (x == 0)
                 controller.drag(this);
             else
                 controller.select(this);
