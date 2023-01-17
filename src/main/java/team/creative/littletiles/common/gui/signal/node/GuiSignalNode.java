@@ -70,8 +70,8 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
     }
     
     @Override
-    public boolean testForDoubleClick(Rect rect, double x, double y) {
-        return true;
+    public boolean testForDoubleClick(Rect rect, double x, double y, int button) {
+        return button != 1;
     }
     
     public boolean removable() {
