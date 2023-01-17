@@ -3,6 +3,7 @@ package team.creative.littletiles.common.gui.signal.node;
 import java.util.Iterator;
 import java.util.List;
 
+import net.minecraft.network.chat.Component;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
@@ -14,6 +15,7 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     
     public GuiSignalNodeOutput(GuiSignalComponent component) {
         super(component);
+        setTitle(Component.translatable("gui.signal.out").append(": " + component.name()));
     }
     
     @Override
