@@ -261,7 +261,7 @@ public class GuiSignalController extends GuiParent {
             }
             setOutput(parsed.size(), output.component);
             
-            GuiSignalConnection connection = new GuiSignalConnection(this, node, output);
+            GuiSignalConnection connection = new GuiSignalConnection(node, output);
             node.connect(connection);
             output.connect(connection);
             return;
@@ -277,7 +277,7 @@ public class GuiSignalController extends GuiParent {
             boolean bitwise = condition instanceof SignalInputConditionNotBitwise;
             node = new GuiSignalNodeNotOperator(bitwise);
             GuiSignalNode child = fill(bitwise ? ((SignalInputConditionNotBitwise) condition).condition : ((SignalInputConditionNot) condition).condition, signal, parsed, level + 1);
-            GuiSignalConnection connection = new GuiSignalConnection(this, child, node);
+            GuiSignalConnection connection = new GuiSignalConnection(child, node);
             node.connect(connection);
             child.connect(connection);
             
@@ -285,7 +285,7 @@ public class GuiSignalController extends GuiParent {
             node = new GuiSignalNodeOperator(((SignalInputConditionOperatorStackable) condition).operator());
             for (SignalInputCondition subCondition : ((SignalInputConditionOperatorStackable) condition).conditions) {
                 GuiSignalNode child = fill(subCondition, signal, parsed, level + 1);
-                GuiSignalConnection connection = new GuiSignalConnection(this, child, node);
+                GuiSignalConnection connection = new GuiSignalConnection(child, node);
                 node.connect(connection);
                 child.connect(connection);
             }
@@ -341,7 +341,7 @@ public class GuiSignalController extends GuiParent {
     
     public void tryConnectSelectedTo(GuiSignalNode node) {
         if (selected != node && selected.canConnectTo(node) && node.canConnectFrom(selected)) {
-            GuiSignalConnection connection = new GuiSignalConnection(this, selected, node);
+            GuiSignalConnection connection = new GuiSignalConnection(selected, node);
             selected.connect(connection);
             node.connect(connection);
             raiseEvent(new GuiControlChangedEvent(this));

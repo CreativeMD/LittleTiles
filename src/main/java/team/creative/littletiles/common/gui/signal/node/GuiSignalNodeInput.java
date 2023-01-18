@@ -153,7 +153,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     @Override
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(tos))
-            connection.remove();
+            connection.remove(controller());
     }
     
     @Override

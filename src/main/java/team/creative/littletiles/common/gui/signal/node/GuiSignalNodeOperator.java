@@ -66,9 +66,9 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     @Override
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(from))
-            connection.remove();
+            connection.remove(controller());
         for (GuiSignalConnection connection : new ArrayList<>(to))
-            connection.remove();
+            connection.remove(controller());
     }
     
     @Override

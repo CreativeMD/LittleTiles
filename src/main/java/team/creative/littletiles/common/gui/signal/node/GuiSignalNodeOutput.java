@@ -83,7 +83,7 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     @Override
     public void remove() {
         if (from != null)
-            from.remove();
+            from.remove(controller());
     }
     
     @Override

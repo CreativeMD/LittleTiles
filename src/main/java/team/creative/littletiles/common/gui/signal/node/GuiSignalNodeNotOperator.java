@@ -92,9 +92,9 @@ public class GuiSignalNodeNotOperator extends GuiSignalNode {
     @Override
     public void remove() {
         if (from != null)
-            from.remove();
+            from.remove(controller());
         for (GuiSignalConnection connection : new ArrayList<>(to))
-            connection.remove();
+            connection.remove(controller());
     }
     
     @Override

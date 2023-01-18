@@ -78,7 +78,7 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     @Override
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(tos))
-            connection.remove();
+            connection.remove(controller());
     }
     
     @Override
