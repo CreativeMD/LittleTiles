@@ -45,7 +45,7 @@ public class GuiDialogSignal extends GuiLayer {
     protected IConditionConfiguration event;
     
     public GuiDialogSignal() {
-        super("gui.dialog.signal", 300, 200);
+        super("gui.dialog.signal", 320, 200);
         flow = GuiFlow.STACK_Y;
         registerEventChanged(this::changed);
     }
