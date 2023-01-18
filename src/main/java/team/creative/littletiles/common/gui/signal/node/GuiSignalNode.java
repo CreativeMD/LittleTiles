@@ -37,6 +37,14 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
         setTitle(Component.literal(caption));
     }
     
+    public boolean hasUnderline() {
+        return false;
+    }
+    
+    public String getUnderline() {
+        return null;
+    }
+    
     public int x() {
         return x;
     }

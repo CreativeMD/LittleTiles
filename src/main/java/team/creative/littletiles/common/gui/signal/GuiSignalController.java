@@ -5,12 +5,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,7 +37,6 @@ import team.creative.creativecore.common.util.type.itr.FilterListIterator;
 import team.creative.creativecore.common.util.type.itr.NestedIterator;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNode;
-import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeComponent;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeInput;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeNotOperator;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeOperator;
@@ -94,10 +100,18 @@ public class GuiSignalController extends GuiParent {
         return ControlFormatting.NESTED_NO_PADDING;
     }
     
+    public GuiChildControl findNode(GuiControl control) {
+        for (List<GuiChildControl> rows : grid)
+            for (GuiChildControl child : rows)
+                if (child.control == control)
+                    return child;
+        return null;
+    }
+    
     @Override
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    protected void renderContent(PoseStack matrix, GuiChildControl control, Rect contentRect, Rect realContentRect, double scale, int mouseX, int mouseY) {
+    protected void renderContent(PoseStack pose, GuiChildControl control, Rect contentRect, Rect realContentRect, double scale, int mouseX, int mouseY) {
         if (realContentRect == null)
             return;
         
@@ -112,30 +126,66 @@ public class GuiSignalController extends GuiParent {
         double xOffset = getOffsetX();
         double yOffset = getOffsetY();
         
-        matrix.pushPose();
-        matrix.scale(controlScale, controlScale, 1);
+        pose.pushPose();
+        pose.scale(controlScale, controlScale, 1);
         
-        renderContent(matrix, contentRect, realContentRect, mouseX, mouseY, FilterListIterator
-                .skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
+        renderContent(pose, contentRect, realContentRect, mouseX, mouseY, FilterListIterator.skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
         
-        matrix.popPose();
-        super.renderContent(matrix, control, contentRect, realContentRect, scale, mouseX, mouseY);
+        pose.popPose();
+        super.renderContent(pose, control, contentRect, realContentRect, scale, mouseX, mouseY);
     }
     
     @Override
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    protected void renderControl(PoseStack matrix, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
-        if (control instanceof GuiSignalNodeComponent com && com.hasUnderline()) {
-            matrix.pushPose();
-            super.renderControl(matrix, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
-            matrix.popPose();
-            
+    protected void renderControl(PoseStack pose, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
+        if (control instanceof GuiSignalNode com && com.hasUnderline()) {
             Font font = GuiRenderHelper.getFont();
             RenderSystem.disableScissor();
-            font.drawShadow(matrix, com.underline, child.getWidth() / 2 - font.width(com.underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
-        } else
-            super.renderControl(matrix, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
+            String underline = com.getUnderline();
+            font.drawShadow(pose, underline, child.getWidth() / 2 - font.width(underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
+            
+            RenderSystem.disableDepthTest();
+            renderConnections(pose.last().pose(), child, com, hover && realRect.inside(mouseX, mouseY), mouseX, mouseY);
+            RenderSystem.enableDepthTest();
+            realRect.scissor();
+        }
+        
+        super.renderControl(pose, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
+    }
+    
+    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
+    private void renderConnections(Matrix4f matrix, GuiChildControl child, GuiSignalNode node, boolean hover, double mouseX, double mouseY) {
+        //GlStateManager._disableTexture();
+        //GlStateManager._depthMask(false);
+        //GlStateManager._disableCull();
+        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        double originX = child.rect.minX - getContentOffset();
+        double originY = child.rect.minY - getContentOffset();
+        for (GuiSignalConnection connection : node) {
+            GuiChildControl other = findNode(connection.from() == node ? connection.to() : connection.from());
+            if (!hover)
+                hover = toLayerRect(other.rect.copy()).inside(mouseX, mouseY);
+            if (connection.from() == node)
+                renderConnection(matrix, child, other, hover, originX, originY);
+            else
+                renderConnection(matrix, other, child, hover, originX, originY);
+        }
+    }
+    
+    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
+    private void renderConnection(Matrix4f matrix, GuiChildControl from, GuiChildControl to, boolean hover, double originX, double originY) {
+        int color = hover ? ColorUtils.WHITE : ColorUtils.BLACK;
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder builder = tesselator.getBuilder();
+        RenderSystem.lineWidth(2);
+        builder.begin(Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        builder.vertex(matrix, (float) (from.rect.maxX - originX), (float) ((from.rect.minY + from.rect.maxY) * 0.5 - originY), 0).color(color).normal(1, 0, 0).endVertex();
+        builder.vertex(matrix, (float) (to.rect.minX - originX), (float) ((to.rect.minY + to.rect.maxY) * 0.5 - originY), 0).color(color).normal(1, 0, 0).endVertex();
+        tesselator.end();
+        
     }
     
     private void flowCell(GuiChildControl child, int x, int y) {

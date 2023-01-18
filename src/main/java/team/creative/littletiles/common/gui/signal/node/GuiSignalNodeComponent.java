@@ -13,7 +13,14 @@ public abstract class GuiSignalNodeComponent extends GuiSignalNode {
         this.underline = component.name().equals(component.totalName()) ? null : component.totalName();
     }
     
+    @Override
     public boolean hasUnderline() {
         return underline != null;
     }
+    
+    @Override
+    public String getUnderline() {
+        return underline;
+    }
+    
 }
