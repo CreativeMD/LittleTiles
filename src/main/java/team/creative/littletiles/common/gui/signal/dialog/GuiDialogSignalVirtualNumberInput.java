@@ -5,6 +5,7 @@ import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiCounter;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiFixedDimension;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualNumberInput;
 
 public class GuiDialogSignalVirtualNumberInput extends GuiLayer {
@@ -13,7 +14,8 @@ public class GuiDialogSignalVirtualNumberInput extends GuiLayer {
     public int number;
     
     public GuiDialogSignalVirtualNumberInput() {
-        super("gui.dialog.signal.virtual_number", 100, 100);
+        super("gui.dialog.signal.virtual_number");
+        setDim(new GuiFixedDimension(100));
         flow = GuiFlow.STACK_Y;
     }
     
