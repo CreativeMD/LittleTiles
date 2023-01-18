@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.fabricmc.api.EnvType;
@@ -125,11 +126,16 @@ public class GuiSignalController extends GuiParent {
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
     protected void renderControl(PoseStack matrix, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
-        super.renderControl(matrix, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
         if (control instanceof GuiSignalNodeComponent com && com.hasUnderline()) {
+            matrix.pushPose();
+            super.renderControl(matrix, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
+            matrix.popPose();
+            
             Font font = GuiRenderHelper.getFont();
+            RenderSystem.disableScissor();
             font.drawShadow(matrix, com.underline, child.getWidth() / 2 - font.width(com.underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
-        }
+        } else
+            super.renderControl(matrix, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
     }
     
     private void flowCell(GuiChildControl child, int x, int y) {
