@@ -5,6 +5,8 @@ import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.parent.GuiPanel;
 import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
@@ -30,7 +32,7 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
     public GuiVirtualInputIndexConfiguration[] config;
     
     public GuiDialogSignalVirtualInput() {
-        super("gui.dialog.signal.virtual_input", 100, 100);
+        super("gui.dialog.signal.virtual_input", 130, 100);
         flow = GuiFlow.STACK_Y;
         registerEventChanged(this::changed);
     }
@@ -45,7 +47,10 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
     public void create() {
         if (input == null)
             return;
-        add(new GuiCounter("bandwidth", input.conditions.length, 0, 256));
+        GuiParent top = new GuiParent();
+        add(top);
+        top.add(new GuiLabel("bandwidth_label").setTitle(Component.translatable("gui.signal.bandwidth").append(":")));
+        top.add(new GuiCounter("bandwidth", input.conditions.length, 0, 256).setExpandableX());
         add(new GuiScrollY("config").setExpandable());
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
@@ -95,7 +100,8 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
         }
         
         public void create(GuiScrollY box) {
-            panel = new GuiPanel(index + "", GuiFlow.STACK_Y);
+            panel = new GuiPanel(index + "", GuiFlow.STACK_X);
+            panel.valign = VAlign.CENTER;
             box.add(panel.setExpandableX());
             
             panel.registerEventChanged(x -> {
