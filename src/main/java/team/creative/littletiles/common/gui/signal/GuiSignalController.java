@@ -74,6 +74,8 @@ public class GuiSignalController extends GuiParent {
     private boolean startedDragging = false;
     private GuiSignalNode selected;
     
+    private Rect controllerRect;
+    
     public GuiSignalController(String name, GuiSignalComponent output, List<GuiSignalComponent> inputs) {
         super(name);
         this.inputs = inputs;
@@ -100,10 +102,18 @@ public class GuiSignalController extends GuiParent {
         return ControlFormatting.NESTED_NO_PADDING;
     }
     
+    @Override
+    public GuiChildControl find(GuiControl control) {
+        GuiChildControl child = super.find(control);
+        if (child != null)
+            return null;
+        return findNode(control);
+    }
+    
     public GuiChildControl findNode(GuiControl control) {
         for (List<GuiChildControl> rows : grid)
             for (GuiChildControl child : rows)
-                if (child.control == control)
+                if (child != null && child.control == control)
                     return child;
         return null;
     }
@@ -128,10 +138,11 @@ public class GuiSignalController extends GuiParent {
         
         pose.pushPose();
         pose.scale(controlScale, controlScale, 1);
-        
+        controllerRect = realContentRect;
         renderContent(pose, contentRect, realContentRect, mouseX, mouseY, FilterListIterator.skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
-        
+        controllerRect = null;
         pose.popPose();
+        
         super.renderContent(pose, control, contentRect, realContentRect, scale, mouseX, mouseY);
     }
     
@@ -139,14 +150,16 @@ public class GuiSignalController extends GuiParent {
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
     protected void renderControl(PoseStack pose, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
-        if (control instanceof GuiSignalNode com && com.hasUnderline()) {
-            Font font = GuiRenderHelper.getFont();
-            RenderSystem.disableScissor();
-            String underline = com.getUnderline();
-            font.drawShadow(pose, underline, child.getWidth() / 2 - font.width(underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
-            
+        if (control instanceof GuiSignalNode com) {
+            controllerRect.scissor();
             RenderSystem.disableDepthTest();
-            renderConnections(pose.last().pose(), child, com, hover && realRect.inside(mouseX, mouseY), mouseX, mouseY);
+            if (com.hasUnderline()) {
+                Font font = GuiRenderHelper.getFont();
+                String underline = com.getUnderline();
+                font.drawShadow(pose, underline, child.getWidth() / 2 - font.width(underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
+            }
+            
+            renderConnections(pose.last().pose(), child, com, scale, realRect.inside(mouseX, mouseY), mouseX, mouseY);
             RenderSystem.enableDepthTest();
             realRect.scissor();
         }
@@ -156,17 +169,16 @@ public class GuiSignalController extends GuiParent {
     
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    private void renderConnections(Matrix4f matrix, GuiChildControl child, GuiSignalNode node, boolean hover, double mouseX, double mouseY) {
-        //GlStateManager._disableTexture();
-        //GlStateManager._depthMask(false);
-        //GlStateManager._disableCull();
+    private void renderConnections(Matrix4f matrix, GuiChildControl child, GuiSignalNode node, double scale, boolean hover, double mouseX, double mouseY) {
+        RenderSystem.disableCull();
+        RenderSystem.lineWidth((float) (2 * scale));
         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
         double originX = child.rect.minX - getContentOffset();
         double originY = child.rect.minY - getContentOffset();
         for (GuiSignalConnection connection : node) {
             GuiChildControl other = findNode(connection.from() == node ? connection.to() : connection.from());
             if (!hover)
-                hover = toLayerRect(other.rect.copy()).inside(mouseX, mouseY);
+                hover = other.control.toScreenRect(new Rect(0, 0, other.rect.getWidth(), other.rect.getHeight())).inside(mouseX, mouseY);
             if (connection.from() == node)
                 renderConnection(matrix, child, other, hover, originX, originY);
             else
@@ -180,7 +192,7 @@ public class GuiSignalController extends GuiParent {
         int color = hover ? ColorUtils.WHITE : ColorUtils.BLACK;
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
-        RenderSystem.lineWidth(2);
+        
         builder.begin(Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         builder.vertex(matrix, (float) (from.rect.maxX - originX), (float) ((from.rect.minY + from.rect.maxY) * 0.5 - originY), 0).color(color).normal(1, 0, 0).endVertex();
         builder.vertex(matrix, (float) (to.rect.minX - originX), (float) ((to.rect.minY + to.rect.maxY) * 0.5 - originY), 0).color(color).normal(1, 0, 0).endVertex();
