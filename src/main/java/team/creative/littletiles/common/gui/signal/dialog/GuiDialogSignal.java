@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
@@ -78,13 +77,13 @@ public class GuiDialogSignal extends GuiLayer {
         if (inputs == null)
             return;
         
-        GuiParent top = new GuiParent();
+        GuiLeftRightBox top = new GuiLeftRightBox();
         add(top.setVAlign(VAlign.CENTER));
-        top.add(new GuiLabel("result").setTranslate("gui.signal.configuration.result"));
-        top.add(new GuiLabel("delay"));
+        top.addLeft(new GuiLabel("result").setTranslate("gui.signal.configuration.result"));
+        top.addRight(new GuiLabel("delay"));
         
         if (event.hasModeConfiguration())
-            top.add(new GuiButton("mode", x -> MODE_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(GuiDialogSignal.this, event)));
+            top.addRight(new GuiButton("mode", x -> MODE_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(GuiDialogSignal.this, event)));
         
         GuiSignalController controller = new GuiSignalController("controller", event.getOutput(), inputs);
         add(controller.setExpandable());
