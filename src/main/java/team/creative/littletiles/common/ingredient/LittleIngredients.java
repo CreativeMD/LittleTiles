@@ -18,9 +18,7 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> i
         }
     }
     
-    public LittleIngredients() {
-        
-    }
+    public LittleIngredients() {}
     
     public boolean contains(Class<? extends LittleIngredient> type) {
         LittleIngredient ingredient = content[LittleIngredient.indexOf(type)];

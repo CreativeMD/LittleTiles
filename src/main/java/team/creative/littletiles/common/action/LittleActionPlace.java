@@ -125,7 +125,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         
         if (needIngredients(player))
             if (!iTile.containsIngredients(stack))
-                canTake(player, inventory, getIngredients(preview.previews));
+                canTake(player, inventory, preview.getBeforePlaceIngredients());
             
         Placement placement = new Placement(player, preview).setStack(toPlace);
         result = placement.place();
@@ -152,7 +152,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     
     protected boolean canDrainIngredientsBeforePlacing(Player player, LittleInventory inventory) throws LittleActionException {
         if (action != PlaceAction.PREMADE)
-            return canTake(player, inventory, getIngredients(preview.previews));
+            return canTake(player, inventory, preview.getBeforePlaceIngredients());
         
         LittlePremadePreview entry = LittlePremadeRegistry.getPreview(preview.previews.getStructureId());
         

@@ -7,6 +7,9 @@ import net.minecraft.core.BlockPos;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.ingredient.ColorIngredient;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.placement.PlacementContext;
@@ -31,6 +34,12 @@ public class PlacementModeColorize extends PlacementMode {
     @Override
     public List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos) {
         return null;
+    }
+    
+    @Override
+    public LittleIngredients getBeforePlaceIngredients(LittleGroup previews) {
+        LittleIngredients ingredients = super.getBeforePlaceIngredients(previews);
+        return new LittleIngredients(ingredients.get(ColorIngredient.class));
     }
     
     @Override

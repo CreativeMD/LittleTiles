@@ -10,8 +10,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
@@ -135,6 +138,10 @@ public abstract class PlacementMode {
     
     public Component translatable() {
         return Component.translatable(translatableKey());
+    }
+    
+    public LittleIngredients getBeforePlaceIngredients(LittleGroup previews) {
+        return LittleAction.getIngredients(previews);
     }
     
     public static enum PreviewMode {

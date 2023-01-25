@@ -6,6 +6,8 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.placement.PlacementContext;
 import team.creative.littletiles.common.structure.LittleStructure;
 
@@ -28,6 +30,11 @@ public class PlacementModeStencil extends PlacementMode {
     @Override
     public List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos) {
         return null;
+    }
+    
+    @Override
+    public LittleIngredients getBeforePlaceIngredients(LittleGroup previews) {
+        return new LittleIngredients();
     }
     
     @Override

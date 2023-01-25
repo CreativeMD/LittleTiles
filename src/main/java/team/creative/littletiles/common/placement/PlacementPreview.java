@@ -21,6 +21,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
@@ -240,5 +241,9 @@ public class PlacementPreview {
     public void mirror(Axis axis, LittleBoxAbsolute box) {
         position.mirror(axis, box);
         previews.mirror(axis, box.getDoubledCenter(position.getPos()));
+    }
+    
+    public LittleIngredients getBeforePlaceIngredients() {
+        return mode.getBeforePlaceIngredients(previews);
     }
 }
