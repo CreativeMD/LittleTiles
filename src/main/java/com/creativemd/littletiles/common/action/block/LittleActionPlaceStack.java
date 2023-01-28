@@ -155,7 +155,7 @@ public class LittleActionPlaceStack extends LittleAction {
                 
                 if (iTile.containsIngredients(stack)) {
                     stack.shrink(1);
-                    checkAndGive(player, inventory, this.mode.getBeforePlaceIngredients(placement.unplaceableTiles));
+                    checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
                 } else {
                     LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
                     ingredients.add(getIngredients(placedTiles.placedPreviews));
