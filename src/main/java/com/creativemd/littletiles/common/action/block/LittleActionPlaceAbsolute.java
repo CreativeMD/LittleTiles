@@ -108,7 +108,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
     }
     
     protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player, LittleInventory inventory) throws LittleActionException {
-        return canTake(player, inventory, getIngredients(previews));
+        return canTake(player, inventory, this.mode.getBeforePlaceIngredients(previews));
     }
     
     protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, PlacementResult placedTiles, LittlePreviews previews) throws LittleActionException {

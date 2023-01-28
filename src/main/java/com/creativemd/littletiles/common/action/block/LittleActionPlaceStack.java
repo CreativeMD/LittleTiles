@@ -142,7 +142,7 @@ public class LittleActionPlaceStack extends LittleAction {
         
         if (needIngredients(player))
             if (!iTile.containsIngredients(stack))
-                canTake(player, inventory, getIngredients(result.previews));
+                canTake(player, inventory, this.mode.getBeforePlaceIngredients(result.previews));
             
         Placement placement = new Placement(player, result).setStack(toPlace);
         placedTiles = placement.place();
@@ -155,7 +155,7 @@ public class LittleActionPlaceStack extends LittleAction {
                 
                 if (iTile.containsIngredients(stack)) {
                     stack.shrink(1);
-                    checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+                    checkAndGive(player, inventory, this.mode.getBeforePlaceIngredients(placement.unplaceableTiles));
                 } else {
                     LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
                     ingredients.add(getIngredients(placedTiles.placedPreviews));

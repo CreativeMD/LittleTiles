@@ -12,6 +12,9 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.util.math.BlockPos;
@@ -20,6 +23,12 @@ public class PlacementModeColorize extends PlacementMode {
     
     public PlacementModeColorize(String name, PreviewMode mode) {
         super(name, mode, true);
+    }
+    
+    @Override
+    public LittleIngredients getBeforePlaceIngredients(LittlePreviews previews) {
+        LittleIngredients ingredients = super.getBeforePlaceIngredients(previews);
+        return new LittleIngredients(ingredients.get(ColorIngredient.class));
     }
     
     @Override

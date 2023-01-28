@@ -9,6 +9,8 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.util.math.BlockPos;
@@ -17,6 +19,11 @@ public class PlacementModeStencil extends PlacementMode {
     
     public PlacementModeStencil(String name, PreviewMode mode) {
         super(name, mode, true);
+    }
+    
+    @Override
+    public LittleIngredients getBeforePlaceIngredients(LittlePreviews previews) {
+        return new LittleIngredients();
     }
     
     @Override

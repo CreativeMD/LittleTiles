@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.util.math.BlockPos;
@@ -53,6 +56,10 @@ public abstract class PlacementMode {
     
     public static PlacementMode getStructureDefault() {
         return all;
+    }
+    
+    public LittleIngredients getBeforePlaceIngredients(LittlePreviews previews) {
+        return LittleAction.getIngredients(previews);
     }
     
     public static PlacementMode getModeOrDefault(String name) {
