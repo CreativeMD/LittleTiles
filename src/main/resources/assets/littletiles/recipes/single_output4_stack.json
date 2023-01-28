@@ -1,0 +1,19 @@
+{
+  "result": {
+    "item": "littletiles:premade",
+    "data": 0,
+    "structure": "single_output16",
+    "count": 1
+  },
+  "pattern": [
+    "CC",
+    "CC"
+  ],
+  "type": "littletiles:crafting_shaped_premade",
+  "key": {
+    "C": {
+	  "type": "littletiles:structure",
+      "structure": "single_output4"
+    }
+  }
+}
