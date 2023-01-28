@@ -142,7 +142,7 @@ public class LittleActionPlaceStack extends LittleAction {
         
         if (needIngredients(player))
             if (!iTile.containsIngredients(stack))
-                canTake(player, inventory, getIngredients(result.previews));
+                canTake(player, inventory, this.mode.getBeforePlaceIngredients(result.previews));
             
         Placement placement = new Placement(player, result).setStack(toPlace);
         placedTiles = placement.place();
