@@ -5,9 +5,9 @@ import team.creative.littletiles.common.gui.signal.node.GuiSignalNode;
 
 public record GuiSignalConnection(GuiSignalNode from, GuiSignalNode to) {
     
-    public void remove(GuiSignalController controller) {
-        from.removeConnection(this);
-        to.removeConnection(this);
+    public void disconnect(GuiSignalController controller) {
+        from.disconnect(this);
+        to.disconnect(this);
         
         controller.raiseEvent(new GuiControlChangedEvent(controller));
     }

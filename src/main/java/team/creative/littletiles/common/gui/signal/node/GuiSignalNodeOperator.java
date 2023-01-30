@@ -38,7 +38,15 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     }
     
     @Override
-    public void removeConnection(GuiSignalConnection connection) {
+    public GuiSignalConnection getConnectionTo(GuiSignalNode node) {
+        for (GuiSignalConnection connectTo : to)
+            if (connectTo.to() == node)
+                return connectTo;
+        return null;
+    }
+    
+    @Override
+    public void disconnect(GuiSignalConnection connection) {
         if (connection.to() == this)
             from.remove(connection);
         else
@@ -66,9 +74,9 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     @Override
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(from))
-            connection.remove(controller());
+            connection.disconnect(controller());
         for (GuiSignalConnection connection : new ArrayList<>(to))
-            connection.remove(controller());
+            connection.disconnect(controller());
     }
     
     @Override

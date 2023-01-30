@@ -401,12 +401,18 @@ public class GuiSignalController extends GuiParent {
             selected.setDefaultColor(ColorUtils.YELLOW);
     }
     
-    public void tryConnectSelectedTo(GuiSignalNode node) {
-        if (selected != node && selected.canConnectTo(node) && node.canConnectFrom(selected)) {
-            GuiSignalConnection connection = new GuiSignalConnection(selected, node);
-            selected.connect(connection);
-            node.connect(connection);
-            raiseEvent(new GuiControlChangedEvent(this));
+    public void tryToggleConnectionToSelected(GuiSignalNode node) {
+        if (selected != node) {
+            GuiSignalConnection connection = selected.getConnectionTo(node);
+            if (connection != null) {
+                connection.disconnect(this);
+                raiseEvent(new GuiControlChangedEvent(this));
+            } else if (selected.canConnectTo(node) && node.canConnectFrom(selected)) {
+                connection = new GuiSignalConnection(selected, node);
+                selected.connect(connection);
+                node.connect(connection);
+                raiseEvent(new GuiControlChangedEvent(this));
+            }
         }
         select(null);
     }

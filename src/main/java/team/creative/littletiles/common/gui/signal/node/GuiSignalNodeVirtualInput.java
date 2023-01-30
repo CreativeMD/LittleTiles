@@ -64,7 +64,15 @@ public class GuiSignalNodeVirtualInput extends GuiSignalNode {
     }
     
     @Override
-    public void removeConnection(GuiSignalConnection connection) {
+    public GuiSignalConnection getConnectionTo(GuiSignalNode node) {
+        for (GuiSignalConnection connectTo : tos)
+            if (connectTo.to() == node)
+                return connectTo;
+        return null;
+    }
+    
+    @Override
+    public void disconnect(GuiSignalConnection connection) {
         tos.remove(connection);
     }
     
@@ -86,7 +94,7 @@ public class GuiSignalNodeVirtualInput extends GuiSignalNode {
     @Override
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(tos))
-            connection.remove(controller());
+            connection.disconnect(controller());
     }
     
     @Override

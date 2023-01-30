@@ -28,7 +28,7 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
             }
             
             if (controller.selected() != null)
-                controller.tryConnectSelectedTo(this);
+                controller.tryToggleConnectionToSelected(this);
             else if (x == 0)
                 controller.drag(this);
             else
@@ -88,7 +88,9 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
     
     public abstract SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException;
     
-    public abstract void removeConnection(GuiSignalConnection connection);
+    public abstract void disconnect(GuiSignalConnection connection);
+    
+    public abstract GuiSignalConnection getConnectionTo(GuiSignalNode node);
     
     public abstract boolean canConnectTo(GuiSignalNode node);
     

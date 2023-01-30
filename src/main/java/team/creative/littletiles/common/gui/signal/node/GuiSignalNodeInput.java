@@ -118,6 +118,14 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     }
     
     @Override
+    public GuiSignalConnection getConnectionTo(GuiSignalNode node) {
+        for (GuiSignalConnection connectTo : tos)
+            if (connectTo.to() == node)
+                return connectTo;
+        return null;
+    }
+    
+    @Override
     public boolean canConnectTo(GuiSignalNode node) {
         for (GuiSignalConnection connectTo : tos)
             if (connectTo.to() == node)
@@ -131,7 +139,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     }
     
     @Override
-    public void removeConnection(GuiSignalConnection connection) {
+    public void disconnect(GuiSignalConnection connection) {
         tos.remove(connection);
     }
     
@@ -153,7 +161,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     @Override
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(tos))
-            connection.remove(controller());
+            connection.disconnect(controller());
     }
     
     @Override

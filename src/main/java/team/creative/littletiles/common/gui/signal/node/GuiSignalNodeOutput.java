@@ -71,7 +71,12 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     }
     
     @Override
-    public void removeConnection(GuiSignalConnection connection) {
+    public GuiSignalConnection getConnectionTo(GuiSignalNode node) {
+        return null;
+    }
+    
+    @Override
+    public void disconnect(GuiSignalConnection connection) {
         from = null;
     }
     
@@ -83,7 +88,7 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     @Override
     public void remove() {
         if (from != null)
-            from.remove(controller());
+            from.disconnect(controller());
     }
     
     @Override
