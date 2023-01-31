@@ -92,7 +92,7 @@ public class GuiRecipe extends GuiConfigure {
             copy.addDirectly(tile.copy());
         for (Entry<String, LittleGroup> extension : group.children.extensionEntries())
             copy.children.addExtension(extension.getKey(), extension.getValue().copy());
-        GuiTreeItemStructure item = new GuiTreeItemStructure(name, this, tree, copy, index);
+        GuiTreeItemStructure item = new GuiTreeItemStructure(this, tree, copy, index);
         availablePreviews.put(item, null);
         parent.addItem(item);
         
@@ -139,7 +139,21 @@ public class GuiRecipe extends GuiConfigure {
         topBottom.add(bottom);
         
         GuiParent leftBottom = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
-        bottom.add(leftBottom.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(100)));
+        bottom.add(leftBottom.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(106)));
+        leftBottom.add(new GuiButton("add", x -> {}).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12));
+        leftBottom.add(new GuiIconButton("duplicate", GuiIcon.DUPLICATE, x -> {
+            tree.selected().getParentItem().addItem(((GuiTreeItemStructure) tree.selected()).duplicate());
+            tree.updateTree();
+        }));
+        leftBottom.add(new GuiButton("del", x -> {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component.translatable("gui.recipe.dialog.delete"), (g, b) -> {
+                if (b == DialogButton.YES) {
+                    tree.selected().getParentItem().removeItem(tree.selected());
+                    tree.updateTree();
+                    tree.selectFirst();
+                }
+            }, DialogButton.NO, DialogButton.YES);
+        }).setTranslate("gui.del").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12));
         leftBottom.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()));
         leftBottom.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()));
         

@@ -1,8 +1,10 @@
 package team.creative.littletiles.common.gui.tool.recipe;
 
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,8 +31,8 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     private int index;
     public LittleStructureGui gui;
     
-    public GuiTreeItemStructure(String name, GuiRecipe recipe, GuiTree tree, LittleGroup group, int index) {
-        super(name, tree);
+    public GuiTreeItemStructure(GuiRecipe recipe, GuiTree tree, LittleGroup group, int index) {
+        super("tree_item", tree);
         this.recipe = recipe;
         this.group = group;
         if (group.hasStructure()) {
@@ -123,6 +125,17 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     public void removed() {
         super.removed();
         recipe.availablePreviews.remove(this);
+    }
+    
+    public GuiTreeItemStructure duplicate() {
+        CompoundTag nbt;
+        if (structure == null)
+            nbt = null;
+        else {
+            nbt = new CompoundTag();
+            structure.save(nbt);
+        }
+        return new GuiTreeItemStructure(recipe, tree, new LittleGroup(nbt, group.copy(), Collections.EMPTY_LIST), getParentItem().itemsCount());
     }
     
 }
