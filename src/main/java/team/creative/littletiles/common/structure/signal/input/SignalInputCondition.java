@@ -2,14 +2,19 @@ package team.creative.littletiles.common.structure.signal.input;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import team.creative.creativecore.common.util.type.itr.ArrayIterator;
+import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
 public abstract class SignalInputCondition {
     
@@ -135,6 +140,10 @@ public abstract class SignalInputCondition {
         return write();
     }
     
+    public abstract Iterator<SignalInputCondition> nested();
+    
+    public abstract SignalTarget target();
+    
     public static abstract class SignalInputConditionOperator extends SignalInputCondition {
         
         @Override
@@ -173,6 +182,16 @@ public abstract class SignalInputCondition {
         public float calculateDelay() {
             return BNOT_DURATION + condition.calculateDelay();
         }
+        
+        @Override
+        public Iterator<SignalInputCondition> nested() {
+            return new SingleIterator<>(condition);
+        }
+        
+        @Override
+        public SignalTarget target() {
+            return null;
+        }
     }
     
     public static class SignalInputConditionNot extends SignalInputConditionOperator {
@@ -203,6 +222,15 @@ public abstract class SignalInputCondition {
             return NOT_DURATION + condition.calculateDelay();
         }
         
+        @Override
+        public Iterator<SignalInputCondition> nested() {
+            return new SingleIterator<>(condition);
+        }
+        
+        @Override
+        public SignalTarget target() {
+            return null;
+        }
     }
     
     public static class SignalInputVirtualNumber extends SignalInputCondition {
@@ -231,6 +259,16 @@ public abstract class SignalInputCondition {
         @Override
         public float calculateDelay() {
             return 0;
+        }
+        
+        @Override
+        public Iterator<SignalInputCondition> nested() {
+            return Collections.emptyIterator();
+        }
+        
+        @Override
+        public SignalTarget target() {
+            return null;
         }
         
     }
@@ -275,6 +313,15 @@ public abstract class SignalInputCondition {
             return delay;
         }
         
+        @Override
+        public Iterator<SignalInputCondition> nested() {
+            return new ArrayIterator<>(conditions);
+        }
+        
+        @Override
+        public SignalTarget target() {
+            return null;
+        }
     }
     
 }

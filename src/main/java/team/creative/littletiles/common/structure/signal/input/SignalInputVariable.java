@@ -2,8 +2,11 @@ package team.creative.littletiles.common.structure.signal.input;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
+import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
@@ -106,6 +109,16 @@ public class SignalInputVariable extends SignalInputCondition {
         return VARIABLE_DURATION;
     }
     
+    @Override
+    public SignalTarget target() {
+        return target;
+    }
+    
+    @Override
+    public Iterator<SignalInputCondition> nested() {
+        return Collections.emptyIterator();
+    }
+    
     public static class SignalInputVariableBitwise extends SignalInputVariable {
         
         public SignalInputVariableBitwise(SignalTarget target) {
@@ -195,6 +208,11 @@ public class SignalInputVariable extends SignalInputCondition {
         @Override
         public float calculateDelay() {
             return super.calculateDelay() + condition.calculateDelay();
+        }
+        
+        @Override
+        public Iterator<SignalInputCondition> nested() {
+            return new SingleIterator<>(condition);
         }
         
     }

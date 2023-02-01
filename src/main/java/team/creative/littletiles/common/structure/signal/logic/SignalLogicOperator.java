@@ -1,7 +1,9 @@
 package team.creative.littletiles.common.structure.signal.logic;
 
 import java.text.ParseException;
+import java.util.Iterator;
 
+import team.creative.creativecore.common.util.type.itr.ArrayIterator;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.SignalState.SignalStateSize;
@@ -565,6 +567,16 @@ public enum SignalLogicOperator {
         }
         
         public abstract float getModifier();
+        
+        @Override
+        public Iterator<SignalInputCondition> nested() {
+            return new ArrayIterator<>(conditions);
+        }
+        
+        @Override
+        public SignalTarget target() {
+            return null;
+        }
     }
     
     public static abstract class SignalInputConditionOperatorStackableBitwise extends SignalInputConditionOperatorStackable {
