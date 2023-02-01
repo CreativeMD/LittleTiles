@@ -33,6 +33,8 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
+import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestResults;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
@@ -53,7 +55,7 @@ public class GuiRecipe extends GuiConfigure {
         closeThisLayer();
     });
     
-    private GuiTree tree;
+    public GuiTree tree;
     public GuiComboBoxMapped<LittleStructureGui> types;
     public GuiParent config;
     public LittleStructureGuiControl control;
@@ -169,11 +171,18 @@ public class GuiRecipe extends GuiConfigure {
         rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
         rightBottom.addRight(new GuiButton("check", x -> {}).setTranslate("gui.check").setEnabled(false));
         rightBottom.addRight(new GuiButton("save", x -> {
-            ((GuiTreeItemStructure) tree.selected()).save();
-            SAVE.send(LittleGroup.save(reconstructBlueprint()));
+            if (runTest()) {
+                ((GuiTreeItemStructure) tree.selected()).save();
+                SAVE.send(LittleGroup.save(reconstructBlueprint()));
+            }
         }).setTranslate("gui.save"));
         
         tree.selectFirst();
+    }
+    
+    public boolean runTest() {
+        RecipeTestResults results = RecipeTest.STANDARD.test(this);
+        return results.success();
     }
     
     protected LittleGroup reconstructBlueprint(GuiTreeItemStructure item) {
