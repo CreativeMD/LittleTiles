@@ -4,10 +4,12 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -336,16 +338,54 @@ public class LittleBox {
         return maxX > minX && maxY > minY && maxZ > minZ;
     }
     
-    public boolean needsMultipleBlocks(LittleGrid context) {
-        int x = minX / context.count;
-        int y = minY / context.count;
-        int z = minZ / context.count;
-        
-        return maxX - x * context.count <= context.count && maxY - y * context.count <= context.count && maxZ - z * context.count <= context.count;
+    public void setMinPos(MutableBlockPos pos, LittleGrid grid) {
+        pos.set(grid.toBlockOffset(minX), grid.toBlockOffset(minY), grid.toBlockOffset(minZ));
     }
     
-    public boolean isBoxInsideBlock(LittleGrid context) {
-        return minX >= 0 && maxX <= context.count && minY >= 0 && maxY <= context.count && minZ >= 0 && maxZ <= context.count;
+    public boolean needsMultipleBlocks(LittleGrid grid) {
+        int x = minX / grid.count;
+        int y = minY / grid.count;
+        int z = minZ / grid.count;
+        
+        return maxX - x * grid.count <= grid.count && maxY - y * grid.count <= grid.count && maxZ - z * grid.count <= grid.count;
+    }
+    
+    public boolean isBoxInsideBlock(LittleGrid grid) {
+        return minX >= 0 && maxX <= grid.count && minY >= 0 && maxY <= grid.count && minZ >= 0 && maxZ <= grid.count;
+    }
+    
+    public void splitIterator(LittleGrid grid, MutableBlockPos toUse, LittleVec vec, BiConsumer<MutableBlockPos, LittleBox> consumer) {
+        int minOffX = grid.toBlockOffset(minX + vec.x);
+        int minOffY = grid.toBlockOffset(minY + vec.y);
+        int minOffZ = grid.toBlockOffset(minZ + vec.z);
+        
+        int maxOffX = grid.toBlockOffset(maxX + vec.x);
+        int maxOffY = grid.toBlockOffset(maxY + vec.y);
+        int maxOffZ = grid.toBlockOffset(maxZ + vec.z);
+        
+        for (int x = minOffX; x <= maxOffX; x++) {
+            for (int y = minOffY; y <= maxOffY; y++) {
+                for (int z = minOffZ; z <= maxOffZ; z++) {
+                    int minX = Math.max(this.minX + vec.x, x * grid.count);
+                    int minY = Math.max(this.minY + vec.y, y * grid.count);
+                    int minZ = Math.max(this.minZ + vec.z, z * grid.count);
+                    int maxX = Math.min(this.maxX + vec.x, x * grid.count + grid.count);
+                    int maxY = Math.min(this.maxY + vec.y, y * grid.count + grid.count);
+                    int maxZ = Math.min(this.maxZ + vec.z, z * grid.count + grid.count);
+                    
+                    if (maxX > minX && maxY > minY && maxZ > minZ) {
+                        toUse.set(x, y, z);
+                        
+                        LittleBox box = extractBox(minX - vec.x, minY - vec.y, minZ - vec.z, maxX - vec.x, maxY - vec.y, maxZ - vec.z, null);
+                        if (box != null) {
+                            box.add(vec);
+                            box.sub(x * grid.count, y * grid.count, z * grid.count);
+                            consumer.accept(toUse, box);
+                        }
+                    }
+                }
+            }
+        }
     }
     
     public void split(LittleGrid grid, BlockPos offset, LittleVec vec, HashMapList<BlockPos, LittleBox> boxes, @Nullable LittleBoxReturnedVolume volume) {
