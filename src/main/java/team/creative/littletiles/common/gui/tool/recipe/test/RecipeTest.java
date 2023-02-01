@@ -11,7 +11,8 @@ import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 public class RecipeTest {
     
     public static final RecipeOverlapTest OVERLAP_TEST = new RecipeOverlapTest();
-    public static final RecipeTest STANDARD = new RecipeTest(Arrays.asList(OVERLAP_TEST));
+    public static final RecipeSignalEquationTest SIGNAL_TEST = new RecipeSignalEquationTest();
+    public static final RecipeTest STANDARD = new RecipeTest(Arrays.asList(OVERLAP_TEST, SIGNAL_TEST));
     
     private final List<RecipeTestModule> modules;
     
