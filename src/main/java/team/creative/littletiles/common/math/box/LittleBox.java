@@ -1246,6 +1246,16 @@ public class LittleBox {
                 .minOne() < getMax(face.one()) && face.maxTwo() > getMin(face.two()) && face.minTwo() < getMax(face.two());
     }
     
+    public LittleBox intersection(LittleBox other) {
+        int minX = Math.max(this.minX, other.minX);
+        int minY = Math.max(this.minY, other.minY);
+        int minZ = Math.max(this.minZ, other.minZ);
+        int maxX = Math.min(this.maxX, other.maxX);
+        int maxY = Math.min(this.maxY, other.maxY);
+        int maxZ = Math.min(this.maxZ, other.maxZ);
+        return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+    
     public boolean isFaceSolid(Facing facing) {
         return true;
     }
