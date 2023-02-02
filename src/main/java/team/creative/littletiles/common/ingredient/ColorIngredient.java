@@ -78,20 +78,19 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     }
     
     public String getBlackDescription() {
-        return TooltipUtils.printNumber(black) + " " + ChatFormatting.DARK_GRAY + LanguageUtils.translate("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(black);
+        return TooltipUtils.print(black) + " " + ChatFormatting.DARK_GRAY + LanguageUtils.translate("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(black);
     }
     
     public String getCyanDescription() {
-        return TooltipUtils.printNumber(cyan) + " " + ChatFormatting.AQUA + LanguageUtils.translate("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(cyan);
+        return TooltipUtils.print(cyan) + " " + ChatFormatting.AQUA + LanguageUtils.translate("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(cyan);
     }
     
     public String getMagentaDescription() {
-        return TooltipUtils.printNumber(magenta) + " " + ChatFormatting.LIGHT_PURPLE + LanguageUtils
-                .translate("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(magenta);
+        return TooltipUtils.print(magenta) + " " + ChatFormatting.LIGHT_PURPLE + LanguageUtils.translate("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(magenta);
     }
     
     public String getYellowDescription() {
-        return TooltipUtils.printNumber(yellow) + " " + ChatFormatting.YELLOW + LanguageUtils.translate("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(yellow);
+        return TooltipUtils.print(yellow) + " " + ChatFormatting.YELLOW + LanguageUtils.translate("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(yellow);
     }
     
     @Override

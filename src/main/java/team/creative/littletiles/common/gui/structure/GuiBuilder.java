@@ -69,9 +69,9 @@ public class GuiBuilder extends GuiLayer {
         flow = GuiFlow.STACK_Y;
         GuiParent config = new GuiParent(GuiFlow.STACK_X);
         add(config.setExpandableX());
-        config.add(new GuiLabel("widthLabel").setTranslate("gui.frame_builder.width"));
-        config.add(new GuiLabel("heightLabel").setTranslate("gui.frame_builder.height"));
-        config.add(new GuiLabel("thicknessLabel").setTranslate("gui.frame_builder.thickness"));
+        config.add(new GuiLabel("widthLabel").setTranslate("gui.structure_builder.width"));
+        config.add(new GuiLabel("heightLabel").setTranslate("gui.structure_builder.height"));
+        config.add(new GuiLabel("thicknessLabel").setTranslate("gui.structure_builder.thickness"));
         config.add(new GuiCounter("width", builder.lastSizeX, 1, Integer.MAX_VALUE));
         config.add(new GuiCounter("height", builder.lastSizeY, 1, Integer.MAX_VALUE));
         config.add(new GuiCounter("thickness", builder.lastThickness, 1, Integer.MAX_VALUE));
@@ -86,7 +86,7 @@ public class GuiBuilder extends GuiLayer {
         selector.setSelectedForce(new ItemStack(builder.lastBlockState.getBlock()));
         add(selector.setExpandableX());
         
-        add(new GuiLeftRightBox().addLeft(new GuiLabel("failed").setTranslate("gui.frame_builder.failed").setVisible(false)).addRight(new GuiButton("craft", x -> {
+        add(new GuiLeftRightBox().addLeft(new GuiLabel("failed").setTranslate("gui.structure_builder.failed").setVisible(false)).addRight(new GuiButton("craft", x -> {
             if ((getPlayer().isCreative() && builder.inventory.getItem(0).isEmpty()) || builder.inventory.getItem(0).getItem() instanceof ItemLittleBlueprint) {
                 get("failed").visible = false;
                 CompoundTag nbt = new CompoundTag();
@@ -108,7 +108,7 @@ public class GuiBuilder extends GuiLayer {
             } else
                 get("failed").visible = true;
             
-        }).setTranslate("gui.frame_builder.craft")));
+        }).setTranslate("gui.structure_builder.craft")));
         
         add(new GuiInventoryGrid("builder", builder.inventory));
         add(new GuiPlayerInventoryGrid(getPlayer()));

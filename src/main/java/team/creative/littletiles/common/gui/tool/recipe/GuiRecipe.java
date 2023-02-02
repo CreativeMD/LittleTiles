@@ -2,9 +2,11 @@ package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
@@ -16,6 +18,7 @@ import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapp
 import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
@@ -25,6 +28,7 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
 import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
+import team.creative.creativecore.common.gui.sync.GuiSyncLocalLayer;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
@@ -33,7 +37,9 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.recipe.test.GuiRecipeTest;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
+import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestResults;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.LittleToolHandler;
@@ -52,13 +58,16 @@ public class GuiRecipe extends GuiConfigure {
     public final GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", tag -> {
         tool.get().getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, tag);
         tool.changed();
-        closeThisLayer();
+        GuiRecipe.super.closeThisLayer();
     });
+    
+    public final GuiSyncLocalLayer<GuiRecipeTest> OPEN_TEST = getSyncHolder().layer("test", tag -> new GuiRecipeTest());
     
     public GuiTree tree;
     public GuiComboBoxMapped<LittleStructureGui> types;
     public GuiParent config;
     public LittleStructureGuiControl control;
+    public GuiLabel testReport;
     
     public LinkedHashMap<GuiTreeItemStructure, AnimationPreview> availablePreviews = new LinkedHashMap<>();
     
@@ -118,7 +127,8 @@ public class GuiRecipe extends GuiConfigure {
     private void closeWithDialog() {
         if (runTest()) {
             CompoundTag nbt = LittleGroup.save(reconstructBlueprint());
-            if (tool.get().getTag().equals(nbt)) { // No need to save anything
+            
+            if (tool.get().getOrCreateTagElement(ItemLittleBlueprint.CONTENT_KEY).equals(nbt)) { // No need to save anything
                 super.closeThisLayer();
                 return;
             }
@@ -202,19 +212,53 @@ public class GuiRecipe extends GuiConfigure {
             }, DialogButton.NO, DialogButton.YES);
         }).setTranslate("gui.recipe.clear"));
         rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
-        rightBottom.addRight(new GuiButton("check", x -> {}).setTranslate("gui.check").setEnabled(false));
+        rightBottom.addRight(testReport = new GuiLabel("report").setTitle(Component.empty()));
+        rightBottom.addRight(new GuiButton("check", x -> OPEN_TEST.open(new CompoundTag()).init(this)).setTranslate("gui.recipe.test"));
         rightBottom.addRight(new GuiButton("save", x -> {
-            if (runTest()) {
-                ((GuiTreeItemStructure) tree.selected()).save();
+            if (runTest())
                 SAVE.send(LittleGroup.save(reconstructBlueprint()));
-            }
         }).setTranslate("gui.save"));
         
         tree.selectFirst();
     }
     
+    public void actionOnAllItems(Consumer<GuiTreeItemStructure> con) {
+        for (Iterator<GuiTreeItem> itr = tree.allItems(); itr.hasNext();) {
+            GuiTreeItem item = itr.next();
+            if (item instanceof GuiTreeItemStructure s)
+                con.accept(s);
+        }
+    }
+    
     public boolean runTest() {
+        ((GuiTreeItemStructure) tree.selected()).save();
         RecipeTestResults results = RecipeTest.STANDARD.test(this);
+        actionOnAllItems(x -> x.clearErrors());
+        
+        if (results.success()) {
+            testReport.setTitle(translatable("gui.recipe.test.result.success"));
+            get("check", GuiButton.class).setTranslate("gui.recipe.test");
+        } else {
+            for (RecipeTestError error : results)
+                for (GuiTreeItemStructure item : error)
+                    item.addError(error);
+                
+            String title = translate("gui.recipe.test.result.fail") + " ";
+            if (results.errorCount() == 1)
+                title += translate("gui.recipe.test.error.single");
+            else
+                title += translate("gui.recipe.test.error.multiple", results.errorCount());
+            testReport.setTitle(Component.literal(title));
+            get("check", GuiButton.class).setTranslate("gui.recipe.solve");
+        }
+        
+        actionOnAllItems(x -> {
+            x.updateTitle();
+            x.updateTooltip();
+        });
+        
+        reflow();
+        
         return results.success();
     }
     

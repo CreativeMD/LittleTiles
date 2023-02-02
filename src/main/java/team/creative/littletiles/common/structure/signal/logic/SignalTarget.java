@@ -80,6 +80,12 @@ public abstract class SignalTarget {
         return new SignalCustomIndexRange(start, end);
     }
     
+    public static String name(boolean external, boolean input, int index) {
+        if (external)
+            return (input ? "i" : "o") + index;
+        return (input ? "a" : "b") + index;
+    }
+    
     public final int child;
     
     public SignalTarget(int child) {

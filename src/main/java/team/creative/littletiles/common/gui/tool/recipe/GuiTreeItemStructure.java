@@ -1,6 +1,8 @@
 package team.creative.littletiles.common.gui.tool.recipe;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.ChatFormatting;
@@ -16,6 +18,7 @@ import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.signal.GuiSignalEventsButton;
+import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -30,6 +33,8 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     private LittleVecGrid offset;
     private int index;
     public LittleStructureGui gui;
+    private String title;
+    private List<RecipeTestError> errors;
     
     public GuiTreeItemStructure(GuiRecipe recipe, GuiTree tree, LittleGroup group, int index) {
         super("tree_item", tree);
@@ -103,13 +108,51 @@ public class GuiTreeItemStructure extends GuiTreeItem {
                 name = "none " + index;
         }
         
-        if (selected())
-            name = "<" + name + ">";
-        
         if (hasStructureName)
             name = ChatFormatting.ITALIC + "" + name;
         
+        this.title = name;
+        
+        if (selected())
+            name = "<" + name + ">";
+        
+        if (errors != null && !errors.isEmpty())
+            name = ChatFormatting.RED + name;
+        
         setTitle(Component.literal(name));
+    }
+    
+    public void updateTooltip() {
+        if (errors == null || errors.isEmpty()) {
+            setTooltip(null);
+            return;
+        }
+        
+        List<Component> tooltip = new ArrayList<>();
+        if (errors.size() == 1)
+            tooltip.add(translatable("gui.recipe.test.error.single"));
+        else
+            tooltip.add(translatable("gui.recipe.test.error.multiple", errors.size()));
+        
+        for (RecipeTestError error : errors)
+            tooltip.add(error.tooltip(this));
+        
+        setTooltip(tooltip);
+    }
+    
+    public void clearErrors() {
+        if (errors != null)
+            errors.clear();
+    }
+    
+    public void addError(RecipeTestError error) {
+        if (errors == null)
+            errors = new ArrayList<>();
+        errors.add(error);
+    }
+    
+    public String getTitle() {
+        return title;
     }
     
     @OnlyIn(Dist.CLIENT)

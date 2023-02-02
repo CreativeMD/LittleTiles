@@ -4,7 +4,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import net.minecraft.network.chat.Component;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -28,31 +33,32 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         LittleStructure structure = item.structure;
         
         for (int i = 0; i < structure.internalOutputCount(); i++) {
-            SignalTargetNotFound error = checkCondition(item, true, i, structure.getOutput(i).condition, null);
+            SignalTargetNotFound error = checkCondition(item, false, i, structure.getOutput(i).condition, null);
             if (error != null)
                 results.reportError(error);
         }
         
-        for (Entry<Integer, SignalExternalOutputHandler> entry : structure.externalOutputHandlersEntrySet()) {
-            SignalTargetNotFound error = checkCondition(item, false, entry.getKey(), entry.getValue().condition, null);
-            if (error != null)
-                results.reportError(error);
-        }
+        if (structure.hasExternalOutputs())
+            for (Entry<Integer, SignalExternalOutputHandler> entry : structure.externalOutputEntrySet()) {
+                SignalTargetNotFound error = checkCondition(item, true, entry.getKey(), entry.getValue().condition, null);
+                if (error != null)
+                    results.reportError(error);
+            }
     }
     
-    private SignalTargetNotFound checkCondition(GuiTreeItemStructure item, boolean internal, int index, SignalInputCondition condition, SignalTargetNotFound error) {
+    private SignalTargetNotFound checkCondition(GuiTreeItemStructure item, boolean external, int index, SignalInputCondition condition, SignalTargetNotFound error) {
         if (condition == null)
             return error;
         
         SignalTarget target = condition.target();
         if (target != null && !searchForTarget(item, target)) {
             if (error == null)
-                error = new SignalTargetNotFound(internal, index);
+                error = new SignalTargetNotFound(item, external, index);
             error.addMissing(target);
         }
         
         for (Iterator<SignalInputCondition> iterator = condition.nested(); iterator.hasNext();)
-            error = checkCondition(item, internal, index, iterator.next(), error);
+            error = checkCondition(item, external, index, iterator.next(), error);
         
         return error;
     }
@@ -81,17 +87,45 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
     public static class SignalTargetNotFound extends RecipeTestError {
         
         private final int index;
-        private final boolean internal;
+        private final boolean external;
         
         private final HashSet<String> targets = new HashSet<>();
+        private final GuiTreeItemStructure structure;
         
-        public SignalTargetNotFound(boolean internal, int index) {
+        public SignalTargetNotFound(GuiTreeItemStructure structure, boolean external, int index) {
+            this.structure = structure;
             this.index = index;
-            this.internal = internal;
+            this.external = external;
         }
         
         public void addMissing(SignalTarget target) {
             this.targets.add(target.writeBase());
+        }
+        
+        @Override
+        public Component header() {
+            return GuiControl.translatable("gui.recipe.test.signal.title", SignalTarget.name(external, false, index));
+        }
+        
+        @Override
+        public Component description() {
+            return GuiControl.translatable("gui.recipe.test.signal.desc", String.join(",", targets));
+        }
+        
+        @Override
+        public Component tooltip(GuiTreeItemStructure structure) {
+            return header();
+        }
+        
+        @Override
+        public Iterator<GuiTreeItemStructure> iterator() {
+            return new SingleIterator<>(structure);
+        }
+        
+        @Override
+        public void create(GuiRecipe recipe, GuiParent parent) {
+            parent.add(new GuiButton("edit", x -> {}).setTranslate("gui.edit"));
+            parent.add(new GuiButton("reset", x -> {}).setTranslate("gui.reset"));
         }
         
     }

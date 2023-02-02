@@ -57,7 +57,7 @@ public class GuiSignalEventsButton extends GuiButton {
                 output.condition = event.condition;
                 output.handler = event.getHandler(output, structure);
             }
-        structure.setExternalHandler(map);
+        structure.setExternalOutputs(map);
     }
     
     private static class ComponentSearch {

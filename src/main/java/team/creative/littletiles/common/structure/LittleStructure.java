@@ -691,11 +691,15 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return externalHandler.get(index);
     }
     
-    public Iterable<SignalExternalOutputHandler> externalOutputHandlers() {
+    public boolean hasExternalOutputs() {
+        return externalHandler != null && !externalHandler.isEmpty();
+    }
+    
+    public Iterable<SignalExternalOutputHandler> externalOutput() {
         return externalHandler.values();
     }
     
-    public Iterable<Entry<Integer, SignalExternalOutputHandler>> externalOutputHandlersEntrySet() {
+    public Iterable<Entry<Integer, SignalExternalOutputHandler>> externalOutputEntrySet() {
         return externalHandler.entrySet();
     }
     
@@ -703,7 +707,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public void receiveInternalOutputChange(InternalSignalOutput output) {}
     
-    public void setExternalHandler(HashMap<Integer, SignalExternalOutputHandler> handlers) {
+    public void setExternalOutputs(HashMap<Integer, SignalExternalOutputHandler> handlers) {
         this.externalHandler = handlers;
     }
     

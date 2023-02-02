@@ -148,4 +148,12 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
         }
     }
     
+    @Override
+    public int littleVolume() {
+        int volume = 0;
+        for (LittleBox box : boxes)
+            volume += box.getVolume();
+        return volume;
+    }
+    
 }

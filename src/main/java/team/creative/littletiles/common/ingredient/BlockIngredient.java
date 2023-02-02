@@ -201,12 +201,12 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         int pixels = (int) Math.ceil(((volume - fullBlocks) * LittleGrid.defaultGrid().count3d));
         
         if (fullBlocks > 0)
-            text += TooltipUtils.printNumber(fullBlocks) + (extended ? " " + (fullBlocks == 1 ? LanguageUtils.translate("volume.unit.big.single") : LanguageUtils
+            text += TooltipUtils.print(fullBlocks) + (extended ? " " + (fullBlocks == 1 ? LanguageUtils.translate("volume.unit.big.single") : LanguageUtils
                     .translate("volume.unit.big.multiple")) : LanguageUtils.translate("volume.unit.big.short"));
         if (pixels > 0) {
             if (fullBlocks > 0)
                 text += " ";
-            text += TooltipUtils.printNumber(pixels) + (extended ? " " + (pixels == 1 ? LanguageUtils.translate("volume.unit.small.single") : LanguageUtils
+            text += TooltipUtils.print(pixels) + (extended ? " " + (pixels == 1 ? LanguageUtils.translate("volume.unit.small.single") : LanguageUtils
                     .translate("volume.unit.small.multiple")) : LanguageUtils.translate("volume.unit.small.short"));
         }
         

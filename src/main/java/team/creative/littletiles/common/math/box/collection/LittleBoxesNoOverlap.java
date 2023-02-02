@@ -156,4 +156,13 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
         // Already done when adding
     }
     
+    @Override
+    public int littleVolume() {
+        int volume = 0;
+        for (ArrayList<LittleBox> boxes : blockMap.values())
+            for (LittleBox box : boxes)
+                volume += box.getVolume();
+        return volume;
+    }
+    
 }

@@ -71,4 +71,10 @@ public abstract class LittleBoxes implements IGridBased {
     
     public abstract void combineBoxesBlocks();
     
+    public abstract int littleVolume();
+    
+    public double volume() {
+        return grid.pixelVolume * littleVolume();
+    }
+    
 }
