@@ -106,6 +106,39 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     @Override
+    public void closeThisLayer() {
+        closeWithDialog();
+    }
+    
+    @Override
+    public void closeTopLayer() {
+        closeWithDialog();
+    }
+    
+    private void closeWithDialog() {
+        if (runTest()) {
+            CompoundTag nbt = LittleGroup.save(reconstructBlueprint());
+            if (tool.get().getTag().equals(nbt)) { // No need to save anything
+                super.closeThisLayer();
+                return;
+            }
+            
+            GuiDialogHandler.openDialog(getIntegratedParent(), "cancel", translatable("gui.recipe.cancel.dialog"), (g, b) -> {
+                if (b == DialogButton.CANCEL)
+                    return;
+                if (b == DialogButton.YES)
+                    SAVE.send(LittleGroup.save(reconstructBlueprint()));
+                GuiRecipe.super.closeThisLayer();
+            }, DialogButton.CANCEL, DialogButton.NO, DialogButton.YES);
+        } else {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "cancel", translatable("gui.recipe.cancel.dialog.failed"), (g, b) -> {
+                if (b == DialogButton.CONFIRM)
+                    GuiRecipe.super.closeThisLayer();
+            }, DialogButton.ABORT, DialogButton.CONFIRM);
+        }
+    }
+    
+    @Override
     public void create() {
         if (!isClient())
             return;
