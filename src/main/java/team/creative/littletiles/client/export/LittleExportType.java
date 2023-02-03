@@ -2,6 +2,8 @@ package team.creative.littletiles.client.export;
 
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
+import team.creative.littletiles.common.item.ItemMultiTiles;
 
 public abstract class LittleExportType {
     
@@ -17,7 +19,11 @@ public abstract class LittleExportType {
         
         @Override
         public String export(ItemStack stack) {
-            return stack.getTag().toString();
+            if (stack.getItem() instanceof ItemLittleBlueprint)
+                return stack.getOrCreateTagElement(ItemLittleBlueprint.CONTENT_KEY).toString();
+            if (stack.getItem() instanceof ItemMultiTiles)
+                return stack.getOrCreateTag().toString();
+            return "";
         }
         
     }
