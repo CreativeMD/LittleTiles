@@ -456,7 +456,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             array[i * 3 + 1] = block.pos.getY();
             array[i * 3 + 2] = block.pos.getZ();
         }
-        nbt.putIntArray("b", array);
+        if (array.length > 0)
+            nbt.putIntArray("b", array);
         
         for (StructureDirectionalField field : type.directional) {
             Object value = field.get(this);

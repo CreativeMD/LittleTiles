@@ -620,13 +620,15 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         ListTag list = new ListTag();
         for (LittleGroup child : group.children.children())
             list.add(saveChild(child));
-        nbt.put("c", list);
+        if (!list.isEmpty())
+            nbt.put("c", list);
         
         CompoundTag extensions = new CompoundTag();
         for (Entry<String, LittleGroup> entry : group.children.extensionEntries())
             extensions.put(entry.getKey(), saveChild(entry.getValue()));
         
-        nbt.put("e", extensions);
+        if (!extensions.isEmpty())
+            nbt.put("e", extensions);
         return nbt;
     }
     
