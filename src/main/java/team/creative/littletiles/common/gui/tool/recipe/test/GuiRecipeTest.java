@@ -49,13 +49,13 @@ public class GuiRecipeTest extends GuiLayer {
             content.add(new GuiLabel("desc").setTitle(error.description()));
             GuiParent bottomLine = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER).setVAlign(VAlign.CENTER);
             content.add(bottomLine.setExpandableX());
-            error.create(recipe, bottomLine);
+            error.create(recipe, bottomLine, () -> init(recipe));
         }
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);
-        bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
-        bottom.addRight(new GuiButton("refresh", x -> init(recipe)).setTranslate("gui.recipe.refresh"));
+        bottom.addLeft(new GuiButton("refresh", x -> init(recipe)).setTranslate("gui.recipe.test.recheck"));
+        bottom.addRight(new GuiButton("okay", x -> closeThisLayer()).setTranslate("gui.okay"));
     }
     
 }

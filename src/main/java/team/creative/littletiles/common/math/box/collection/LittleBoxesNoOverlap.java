@@ -124,7 +124,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
     }
     
     @Override
-    public Iterable<LittleBox> all() {
+    public List<LittleBox> all() {
         List<LittleBox> boxes = new ArrayList<>();
         LittleVec vec = new LittleVec(0, 0, 0);
         for (Entry<BlockPos, ArrayList<LittleBox>> entry : blockMap.entrySet()) {

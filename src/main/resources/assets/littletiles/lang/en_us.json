@@ -44,9 +44,12 @@
 	"gui.previous": "<<",
 	"gui.next": ">>",
 	"gui.components": "components",
-	"gui.edit": "edit",
-	"gui.reset": "reset",
-	"gui.delay": "delay",
+	"gui.edit": "Edit",
+	"gui.reset": "Reset",
+	"gui.delay": "Delay",
+	"gui.copy": "Copy",
+	"gui.clear": "Clear",
+	"gui.okay": "Okay",
 	"gui.points.east": "points right",
     "gui.points.west": "points left",
     "gui.points.up": "points upwards",
@@ -60,6 +63,19 @@
 	"gui.structure_builder.craft": "craft",
 	"gui.structure_builder.failed": "\u00A7cfailed",
 	
+	"gui.signal.events": "Signal Outputs",
+	
+	"gui.recipe.add": "Add",
+	"gui.recipe.duplicate": "Duplicate",
+	"gui.recipe.delete": "Delete",
+	"gui.recipe.moveup": "Move Up",
+	"gui.recipe.movedown": "Move Down",
+	"gui.recipe.merge": "Merge 2 Structures",
+	"gui.recipe.move": "Move Structures",
+	"gui.recipe.perspective": "Change perspective mode",
+	
+	"gui.recipe.structure.name": "Name:",
+	
 	"gui.recipe.cancel.dialog": "Do you want to save the recipe before closing? Otherise changes will be lost!",
 	"gui.recipe.cancel.dialog.failed": "Do you really want to close the recipe without saving?",
 	
@@ -67,6 +83,7 @@
 	"gui.recipe.selection": "Go back to selection",
 	
 	"gui.recipe.test": "Check",
+	"gui.recipe.test.recheck": "Refresh Test",
 	"gui.recipe.solve": "Solve",
 	"gui.recipe.test.error.single": "1 error",
 	"gui.recipe.test.error.multiple": "%s errors",

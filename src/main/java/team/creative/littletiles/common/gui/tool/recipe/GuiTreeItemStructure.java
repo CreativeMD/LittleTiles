@@ -2,8 +2,11 @@ package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -11,28 +14,40 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.VAlign;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.gui.signal.GuiSignalEventsButton;
+import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
+import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
+import team.creative.littletiles.common.gui.signal.dialog.GuiSignalEvents;
+import team.creative.littletiles.common.gui.signal.dialog.GuiSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
+import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
+import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 
 public class GuiTreeItemStructure extends GuiTreeItem {
     
-    private GuiRecipe recipe;
-    public final LittleGroup group;
+    public final GuiRecipe recipe;
+    public LittleGroup group;
     public LittleStructure structure;
+    public LittleStructureGui gui;
+    public GuiComponentSearch signalSearch = new GuiComponentSearch(this);
+    
+    private GuiSignalEvent[] internalOutputs;
+    private HashMap<Integer, GuiSignalEvent> externalOutputs;
     private LittleVecGrid offset;
     private int index;
-    public LittleStructureGui gui;
     private String title;
     private List<RecipeTestError> errors;
     
@@ -47,6 +62,96 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         this.index = index;
         refreshAnimation();
         updateTitle();
+        updateSignalOutputs();
+    }
+    
+    private void updateSignalOutputs() {
+        GuiSignalComponent[] internal = signalSearch.internalOutputs();
+        if (internal != null) {
+            this.internalOutputs = new GuiSignalEvent[internal.length];
+            for (int i = 0; i < internal.length; i++) {
+                if (structure == null)
+                    this.internalOutputs[i] = new GuiSignalEvent(internal[i], (InternalSignalOutput) null);
+                else
+                    this.internalOutputs[i] = new GuiSignalEvent(internal[i], structure.getOutput(i));
+            }
+        } else
+            this.internalOutputs = null;
+        
+        externalOutputs = new HashMap<>();
+        for (GuiSignalComponent output : signalSearch.externalOutputs())
+            if (structure == null)
+                externalOutputs.put(output.index(), new GuiSignalEvent(output, (InternalSignalOutput) null));
+            else if (output.external())
+                externalOutputs.put(output.index(), new GuiSignalEvent(output, structure.getExternalOutput(output.index())));
+    }
+    
+    public LittleStructureType getStructureType() {
+        if (gui != null)
+            return gui.type();
+        if (structure != null)
+            return structure.type;
+        return null;
+    }
+    
+    public GuiSignalEvent[] internalOutputs() {
+        return internalOutputs;
+    }
+    
+    public Iterable<GuiSignalEvent> externalOutputs() {
+        return externalOutputs.values();
+    }
+    
+    public GuiSignalEvent getInternalOutput(int index) {
+        if (internalOutputs != null && index >= 0 && index < internalOutputs.length)
+            return internalOutputs[index];
+        return null;
+    }
+    
+    public GuiSignalEvent getExternalOutput(int index) {
+        return externalOutputs.get(index);
+    }
+    
+    public void setInternalOutput(int index, GuiSignalEvent event) {
+        if (internalOutputs != null && index >= 0 && index < internalOutputs.length)
+            internalOutputs[index] = event;
+    }
+    
+    public void setExternalOutput(int index, GuiSignalEvent event) {
+        externalOutputs.put(index, event);
+    }
+    
+    @Nullable
+    public GuiSignalEvent getSignalOutput(boolean external, int index) {
+        if (external)
+            return getExternalOutput(index);
+        return getInternalOutput(index);
+    }
+    
+    @Nullable
+    public void setSignalOutput(boolean external, int index, GuiSignalEvent event) {
+        if (external)
+            setExternalOutput(index, event);
+        else
+            setInternalOutput(index, event);
+    }
+    
+    private void setEventsToStructure() {
+        if (structure == null)
+            return;
+        
+        for (int i = 0; i < internalOutputs.length; i++) {
+            GuiSignalEvent event = internalOutputs[i];
+            InternalSignalOutput output = structure.getOutput(i);
+            output.condition = event.condition;
+            output.handler = event.getHandler(output, structure);
+        }
+        
+        HashMap<Integer, SignalExternalOutputHandler> map = new HashMap<>();
+        for (GuiSignalEvent event : externalOutputs.values())
+            if (event.condition != null)
+                map.put(event.component.index(), new SignalExternalOutputHandler(null, event.component.index(), event.condition, (x) -> event.getHandler(x, structure)));
+        structure.setExternalOutputs(map);
     }
     
     @Override
@@ -64,15 +169,20 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         recipe.config.add(recipe.control);
         recipe.control.create(structure);
         recipe.config.init();
-        GuiParent parent = new GuiParent("bottomStructure", GuiFlow.STACK_X);
+        GuiParent parent = new GuiParent("bottomStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         recipe.config.add(parent);
+        
+        parent.add(new GuiLabel("name_label").setTranslate("gui.recipe.structure.name"));
         GuiTextfield text = new GuiTextfield("name");
         if (structure != null && structure.name != null)
             text.setText(structure.name);
         else
             text.setText("");
         parent.add(text.setEnabled(gui.supportsName()).setDim(100, 7));
-        parent.add(new GuiSignalEventsButton("signal", this).setEnabled(gui.type() != null));
+        parent.add(new GuiButton("signal", x -> GuiSignalEvents.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this)).setTranslate("gui.signal.events")
+                .setEnabled(gui.type() != null));
+        updateSignalOutputs();
+        
         recipe.reflow();
     }
     
@@ -84,7 +194,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
             GuiTextfield textfield = parent.get("name");
             structure.name = textfield.getText().isBlank() ? null : textfield.getText();
         }
-        recipe.config.get("bottomStructure", GuiParent.class).get("signal", GuiSignalEventsButton.class).setEventsInStructure(structure);
+        setEventsToStructure();
         updateTitle();
     }
     

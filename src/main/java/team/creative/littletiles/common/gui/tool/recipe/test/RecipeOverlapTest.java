@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.gui.tool.recipe.test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +17,10 @@ import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.creativecore.common.util.type.itr.ArrayIterator;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
@@ -26,6 +30,20 @@ import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class RecipeOverlapTest extends RecipeTestModule {
+    
+    public static void removeOverlap(GuiTreeItemStructure item, LittleBoxesNoOverlap boxes) {
+        List<LittleBox> cutter = boxes.all();
+        List<LittleBox> cutout = new ArrayList<>();
+        for (Iterator<LittleTile> iterator = item.group.iterator(); iterator.hasNext();) {
+            LittleTile tile = iterator.next();
+            tile.cutOut(cutter, cutout, null);
+            if (tile.isEmpty())
+                iterator.remove();
+        }
+        
+        if (item.group.isEmpty())
+            item.recipe.removeItem(item);
+    }
     
     private HashMap<BlockPos, RecipeOverlayTestBlock> blocks;
     private HashMap<GuiTreeItemStructure, LittleBoxesNoOverlap> overlapped;
@@ -72,7 +90,6 @@ public class RecipeOverlapTest extends RecipeTestModule {
         }
         
         overlapped = null;
-        
     }
     
     @Override
@@ -148,7 +165,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
         @Override
         public Component description() {
             int volume = boxes.littleVolume();
-            if (volume >= boxes.grid.count)
+            if (volume >= boxes.grid.count3d)
                 return GuiControl.translatable("gui.recipe.test.overlap.desc.large", TooltipUtils.print(boxes.grid.pixelVolume * volume));
             return GuiControl.translatable("gui.recipe.test.overlap.desc.small", TooltipUtils.print(volume), boxes.grid);
         }
@@ -163,9 +180,54 @@ public class RecipeOverlapTest extends RecipeTestModule {
             return new SingleIterator<>(structure);
         }
         
+        private void add(LittleElement element, LittleBox box, MutableBlockPos pos, LittleGrid grid, HashMap<BlockPos, LittleCollection> blocks) {
+            LittleCollection collection = blocks.get(pos);
+            if (collection == null)
+                blocks.put(pos.immutable(), collection = new LittleCollection());
+            final Iterator<LittleBox> itr = collection.boxes();
+            for (LittleBox placedBox : (Iterable<LittleBox>) () -> itr) {
+                if (LittleBox.intersectsWith(box, placedBox)) {
+                    List<LittleBox> left = box.cutOut(placedBox, null);
+                    if (!left.isEmpty())
+                        for (LittleBox leftBox : left)
+                            add(element, leftBox, pos, grid, blocks);
+                    return;
+                }
+            }
+            
+            collection.add(element, box);
+        }
+        
         @Override
-        public void create(GuiRecipe recipe, GuiParent parent) {
-            parent.add(new GuiButton("fix", x -> {}).setTranslate("gui.recipe.test.overlap.fix"));
+        public void create(GuiRecipe recipe, GuiParent parent, Runnable refresh) {
+            parent.add(new GuiButton("fix", x -> {
+                LittleGroup group = structure.group;
+                LittleGrid grid = group.getGrid();
+                HashMap<BlockPos, LittleCollection> blocks = new HashMap<>();
+                
+                MutableBlockPos pos = new MutableBlockPos();
+                for (LittleTile tile : group)
+                    for (LittleBox toAdd : tile) {
+                        toAdd.setMinPos(pos, grid);
+                        toAdd.splitIterator(grid, pos, LittleVec.ZERO, (blockPos, littleBox) -> add(tile, littleBox, blockPos, grid, blocks));
+                    }
+                
+                group = new LittleGroup(group.getStructureTag(), grid, Collections.EMPTY_LIST);
+                LittleVec vec = new LittleVec(0, 0, 0);
+                for (Entry<BlockPos, LittleCollection> entry : blocks.entrySet()) {
+                    vec.set(grid, entry.getKey());
+                    for (LittleTile tile : entry.getValue())
+                        for (LittleBox box : tile) {
+                            box.add(vec);
+                            group.addDirectly(tile);
+                        }
+                    
+                }
+                group.combine();
+                structure.group = group;
+                
+                refresh.run();
+            }).setTranslate("gui.recipe.test.overlap.fix"));
         }
     }
     
@@ -189,7 +251,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
         @Override
         public Component description() {
             int volume = boxes.littleVolume();
-            if (volume >= boxes.grid.count)
+            if (volume >= boxes.grid.count3d)
                 return GuiControl.translatable("gui.recipe.test.overlap.desc.large", TooltipUtils.print(boxes.grid.pixelVolume * volume));
             return GuiControl.translatable("gui.recipe.test.overlap.desc.small", TooltipUtils.print(volume), boxes.grid);
         }
@@ -205,10 +267,16 @@ public class RecipeOverlapTest extends RecipeTestModule {
         }
         
         @Override
-        public void create(GuiRecipe recipe, GuiParent parent) {
+        public void create(GuiRecipe recipe, GuiParent parent, Runnable refresh) {
             parent.add(new GuiLabel("remove").setTranslate("gui.recipe.test.overlap.remove"));;
-            parent.add(new GuiButton("remove", x -> {}).setTitle(Component.literal(this.structure.getTitle())));
-            parent.add(new GuiButton("remove2", x -> {}).setTitle(Component.literal(this.structure2.getTitle())));
+            parent.add(new GuiButton("remove", x -> {
+                removeOverlap(structure, boxes);
+                refresh.run();
+            }).setTitle(Component.literal(this.structure.getTitle())));
+            parent.add(new GuiButton("remove2", x -> {
+                removeOverlap(structure2, boxes);
+                refresh.run();
+            }).setTitle(Component.literal(this.structure2.getTitle())));
             parent.add(new GuiButton("move", x -> {}).setTranslate("gui.recipe.test.overlap.move"));
         }
         

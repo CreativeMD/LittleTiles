@@ -40,8 +40,8 @@ public class GuiDialogSignal extends GuiLayer {
     public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualNumberInput> VIRTUAL_NUMBER_DIALOG = GuiSyncHolder.GLOBAL
             .layer("signal_virtual_number_dialog", x -> new GuiDialogSignalVirtualNumberInput());
     
-    public List<GuiSignalComponent> inputs;
     protected IConditionConfiguration event;
+    public List<GuiSignalComponent> inputs;
     
     public GuiDialogSignal() {
         super("gui.dialog.signal", 320, 200);

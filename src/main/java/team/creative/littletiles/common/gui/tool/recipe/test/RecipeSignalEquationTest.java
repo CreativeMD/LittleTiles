@@ -2,23 +2,25 @@ package team.creative.littletiles.common.gui.tool.recipe.test;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.List;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
+import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
+import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
+import team.creative.littletiles.common.gui.signal.dialog.GuiSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
-import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChild;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetNested;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetParent;
-import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 
 public class RecipeSignalEquationTest extends RecipeTestModule {
     
@@ -30,35 +32,36 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         if (item.structure == null)
             return;
         
-        LittleStructure structure = item.structure;
-        
-        for (int i = 0; i < structure.internalOutputCount(); i++) {
-            SignalTargetNotFound error = checkCondition(item, false, i, structure.getOutput(i).condition, null);
+        GuiSignalEvent[] internal = item.internalOutputs();
+        for (int i = 0; i < internal.length; i++) {
+            GuiSignalEvent event = internal[i];
+            if (event == null)
+                continue;
+            SignalTargetNotFound error = checkCondition(item, false, i, event.condition, null, event);
             if (error != null)
                 results.reportError(error);
         }
         
-        if (structure.hasExternalOutputs())
-            for (Entry<Integer, SignalExternalOutputHandler> entry : structure.externalOutputEntrySet()) {
-                SignalTargetNotFound error = checkCondition(item, true, entry.getKey(), entry.getValue().condition, null);
-                if (error != null)
-                    results.reportError(error);
-            }
+        for (GuiSignalEvent event : item.externalOutputs()) {
+            SignalTargetNotFound error = checkCondition(item, true, event.component.index(), event.condition, null, event);
+            if (error != null)
+                results.reportError(error);
+        }
     }
     
-    private SignalTargetNotFound checkCondition(GuiTreeItemStructure item, boolean external, int index, SignalInputCondition condition, SignalTargetNotFound error) {
+    private SignalTargetNotFound checkCondition(GuiTreeItemStructure item, boolean external, int index, SignalInputCondition condition, SignalTargetNotFound error, GuiSignalEvent event) {
         if (condition == null)
             return error;
         
         SignalTarget target = condition.target();
         if (target != null && !searchForTarget(item, target)) {
             if (error == null)
-                error = new SignalTargetNotFound(item, external, index);
+                error = new SignalTargetNotFound(item, event);
             error.addMissing(target);
         }
         
         for (Iterator<SignalInputCondition> iterator = condition.nested(); iterator.hasNext();)
-            error = checkCondition(item, external, index, iterator.next(), error);
+            error = checkCondition(item, external, index, iterator.next(), error, event);
         
         return error;
     }
@@ -86,16 +89,14 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
     
     public static class SignalTargetNotFound extends RecipeTestError {
         
-        private final int index;
-        private final boolean external;
+        private final GuiSignalEvent event;
         
         private final HashSet<String> targets = new HashSet<>();
         private final GuiTreeItemStructure structure;
         
-        public SignalTargetNotFound(GuiTreeItemStructure structure, boolean external, int index) {
+        public SignalTargetNotFound(GuiTreeItemStructure structure, GuiSignalEvent event) {
             this.structure = structure;
-            this.index = index;
-            this.external = external;
+            this.event = event;
         }
         
         public void addMissing(SignalTarget target) {
@@ -104,7 +105,7 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         
         @Override
         public Component header() {
-            return GuiControl.translatable("gui.recipe.test.signal.title", SignalTarget.name(external, false, index));
+            return GuiControl.translatable("gui.recipe.test.signal.title", event.component.name());
         }
         
         @Override
@@ -123,9 +124,15 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         }
         
         @Override
-        public void create(GuiRecipe recipe, GuiParent parent) {
-            parent.add(new GuiButton("edit", x -> {}).setTranslate("gui.edit"));
-            parent.add(new GuiButton("reset", x -> {}).setTranslate("gui.reset"));
+        public void create(GuiRecipe recipe, GuiParent parent, Runnable refresh) {
+            List<GuiSignalComponent> inputs = structure.signalSearch.search(true, true, true);
+            
+            parent.add(new GuiButton("edit", x -> GuiDialogSignal.SIGNAL_DIALOG.open(parent.getIntegratedParent(), new CompoundTag()).init(inputs, event))
+                    .setTranslate("gui.edit"));
+            parent.add(new GuiButton("reset", x -> {
+                event.reset();
+                refresh.run();
+            }).setTranslate("gui.clear"));
         }
         
     }

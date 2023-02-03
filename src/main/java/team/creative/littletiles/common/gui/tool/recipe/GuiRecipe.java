@@ -30,6 +30,7 @@ import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocalLayer;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -153,21 +154,54 @@ public class GuiRecipe extends GuiConfigure {
         if (!isClient())
             return;
         
+        flow = GuiFlow.STACK_Y;
+        align = Align.STRETCH;
+        
         // Load recipe content
         LittleGroup group = LittleGroup.load(tool.get().getOrCreateTagElement(ItemLittleBlueprint.CONTENT_KEY));
         
-        GuiParent topBottom = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
-        add(topBottom.setExpandable());
-        
         GuiParent top = new GuiParent(GuiFlow.STACK_X);
-        topBottom.add(top.setExpandableY());
+        add(top.setExpandableY());
         
-        tree = new GuiTree("overview", false).setRootVisibility(false).keepSelected();
+        tree = new GuiTree("overview", false) {
+            
+            @Override
+            public void updateTree() {
+                actionOnAllItems(x -> x.updateTitle());
+                super.updateTree();
+            }
+            
+        }.setRootVisibility(false).keepSelected();
         buildStructureTree(tree, tree.root(), group, 0);
         tree.root().setTitle(Component.literal("root"));
         tree.updateTree();
         
-        top.add(tree.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(100)).setExpandableY());
+        GuiParent sidebar = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
+        top.add(sidebar.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(100)));
+        sidebar.add(tree.setExpandableY());
+        
+        GuiParent sidebarButtons = new GuiParent(GuiFlow.FIT_X);
+        sidebar.add(sidebarButtons.setAlign(Align.CENTER));
+        
+        sidebarButtons.add(new GuiButton("add", x -> {}).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12)
+                .setTooltip(new TextBuilder().translate("gui.recipe.add").build()));
+        sidebarButtons.add(new GuiIconButton("duplicate", GuiIcon.DUPLICATE, x -> {
+            if (tree.selected() == null)
+                return;
+            tree.selected().getParentItem().addItem(((GuiTreeItemStructure) tree.selected()).duplicate());
+            tree.updateTree();
+        }).setTooltip(new TextBuilder().translate("gui.recipe.duplicate").build()));
+        sidebarButtons.add(new GuiButton("del", x -> {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component.translatable("gui.recipe.dialog.delete"), (g, b) -> {
+                if (b == DialogButton.YES)
+                    removeItem((GuiTreeItemStructure) tree.selected());
+            }, DialogButton.NO, DialogButton.YES);
+        }).setTranslate("gui.del").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12).setTooltip(new TextBuilder().translate("gui.recipe.delete").build()));
+        sidebarButtons.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()).setTooltip(new TextBuilder().translate("gui.recipe.moveup").build()));
+        sidebarButtons.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()).setTooltip(new TextBuilder().translate("gui.recipe.movedown").build()));
+        
+        sidebarButtons.add(new GuiIconButton("move", GuiIcon.MOVE, x -> {}).setTooltip(new TextBuilder().translate("gui.recipe.move").build()));
+        sidebarButtons.add(new GuiIconButton("merge", GuiIcon.MERGE, x -> {}).setTooltip(new TextBuilder().translate("gui.recipe.merge").build()));
         
         GuiParent topCenter = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(300)).setExpandableY());
@@ -178,47 +212,40 @@ public class GuiRecipe extends GuiConfigure {
         config = new GuiParent("config", GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         topCenter.add(config.setExpandableY());
         
-        top.add(new GuiAnimationViewer("viewer", () -> availablePreviews, () -> (GuiTreeItemStructure) tree.selected()).setExpandable());
+        GuiParent animationPanel = new GuiParent(GuiFlow.STACK_Y);
+        top.add(animationPanel);
+        animationPanel.add(new GuiAnimationViewer("viewer", () -> availablePreviews, () -> (GuiTreeItemStructure) tree.selected()).setExpandable());
         
-        GuiParent bottom = new GuiParent(GuiFlow.STACK_X).setVAlign(VAlign.STRETCH);
-        topBottom.add(bottom);
+        GuiParent animationButtons = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
+        animationPanel.add(animationButtons.setExpandableX());
         
-        GuiParent leftBottom = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
-        bottom.add(leftBottom.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(106)));
-        leftBottom.add(new GuiButton("add", x -> {}).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12));
-        leftBottom.add(new GuiIconButton("duplicate", GuiIcon.DUPLICATE, x -> {
-            tree.selected().getParentItem().addItem(((GuiTreeItemStructure) tree.selected()).duplicate());
-            tree.updateTree();
-        }));
-        leftBottom.add(new GuiButton("del", x -> {
-            GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component.translatable("gui.recipe.dialog.delete"), (g, b) -> {
-                if (b == DialogButton.YES) {
-                    tree.selected().getParentItem().removeItem(tree.selected());
-                    tree.updateTree();
-                    tree.selectFirst();
-                }
-            }, DialogButton.NO, DialogButton.YES);
-        }).setTranslate("gui.del").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12));
-        leftBottom.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()));
-        leftBottom.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()));
+        animationButtons.add(new GuiIconButton("perspective", GuiIcon.CAMERA, x -> {}).setTooltip(new TextBuilder().translate("gui.recipe.perspective").build()));
         
-        GuiLeftRightBox rightBottom = new GuiLeftRightBox();
-        bottom.add(rightBottom.setVAlign(VAlign.CENTER).setExpandableX());
-        rightBottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
-        rightBottom.addLeft(new GuiButton("clear", x -> {
+        GuiLeftRightBox bottom = new GuiLeftRightBox();
+        add(bottom.setVAlign(VAlign.CENTER).setExpandableX());
+        bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
+        bottom.addLeft(new GuiButton("clear", x -> {
             GuiDialogHandler.openDialog(getIntegratedParent(), "clear_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
                 if (b == DialogButton.YES)
                     CLEAR_CONTENT.send(EndTag.INSTANCE);
             }, DialogButton.NO, DialogButton.YES);
         }).setTranslate("gui.recipe.clear"));
-        rightBottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
-        rightBottom.addRight(testReport = new GuiLabel("report").setTitle(Component.empty()));
-        rightBottom.addRight(new GuiButton("check", x -> OPEN_TEST.open(new CompoundTag()).init(this)).setTranslate("gui.recipe.test"));
-        rightBottom.addRight(new GuiButton("save", x -> {
+        bottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
+        bottom.addRight(testReport = new GuiLabel("report").setTitle(Component.empty()));
+        bottom.addRight(new GuiButton("check", x -> OPEN_TEST.open(new CompoundTag()).init(this)).setTranslate("gui.recipe.test"));
+        bottom.addRight(new GuiButton("save", x -> {
             if (runTest())
                 SAVE.send(LittleGroup.save(reconstructBlueprint()));
         }).setTranslate("gui.save"));
         
+        tree.selectFirst();
+    }
+    
+    public void removeItem(GuiTreeItemStructure item) {
+        if (item == null)
+            return;
+        item.getParentItem().removeItem(item);
+        tree.updateTree();
         tree.selectFirst();
     }
     

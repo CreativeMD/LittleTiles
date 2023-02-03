@@ -13,6 +13,6 @@ public abstract class RecipeTestError implements Iterable<GuiTreeItemStructure> 
     
     public abstract Component tooltip(GuiTreeItemStructure structure);
     
-    public abstract void create(GuiRecipe recipe, GuiParent parent);
+    public abstract void create(GuiRecipe recipe, GuiParent parent, Runnable refresh);
     
 }

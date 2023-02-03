@@ -17,8 +17,8 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiFixedDimension;
 import team.creative.creativecore.common.gui.sync.GuiSyncGlobalLayer;
 import team.creative.creativecore.common.gui.sync.GuiSyncHolder;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
-import team.creative.littletiles.common.gui.signal.GuiSignalEventsButton;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
+import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -32,7 +32,8 @@ public class GuiSignalEvents extends GuiLayer {
     
     public static final GuiSyncGlobalLayer<GuiSignalEvents> SIGNAL_EVENTS_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_events_dialog", x -> new GuiSignalEvents());
     
-    public GuiSignalEventsButton button;
+    public GuiTreeItemStructure item;
+    public List<GuiSignalComponent> inputs;
     public List<GuiSignalEvent> events;
     
     public GuiSignalEvents() {
@@ -40,10 +41,13 @@ public class GuiSignalEvents extends GuiLayer {
         flow = GuiFlow.STACK_Y;
     }
     
-    public void init(GuiSignalEventsButton button) {
-        this.button = button;
+    public void init(GuiTreeItemStructure item) {
+        this.item = item;
+        this.inputs = item.signalSearch.search(true, true, true);
         this.events = new ArrayList<>();
-        for (GuiSignalEvent event : button.events)
+        for (GuiSignalEvent event : item.internalOutputs())
+            this.events.add(event.copy());
+        for (GuiSignalEvent event : item.externalOutputs())
             this.events.add(event.copy());
         super.init();
     }
@@ -57,19 +61,18 @@ public class GuiSignalEvents extends GuiLayer {
         
         GuiParent buttons = new GuiParent();
         panel.add(buttons.setExpandableX());
-        buttons.add(new GuiButton("edit", x -> GuiDialogSignal.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(GuiSignalEvents.this.button.inputs, event))
-                .setTranslate("gui.edit"));
-        buttons.add(new GuiButton("reset", x -> event.reset()).setTranslate("gui.reset"));
+        buttons.add(new GuiButton("edit", x -> GuiDialogSignal.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(inputs, event)).setTranslate("gui.edit"));
+        buttons.add(new GuiButton("reset", x -> event.reset()).setTranslate("gui.clear"));
         
         event.panel = panel;
         event.update();
-        reflow();
     }
     
     @Override
     public void create() {
-        if (button == null)
+        if (item == null)
             return;
+        
         GuiParent upper = new GuiParent(GuiFlow.STACK_X);
         add(upper.setExpandable());
         
@@ -83,7 +86,7 @@ public class GuiSignalEvents extends GuiLayer {
         
         right.add(new GuiLabel("title").setTranslate("gui.signal.component"));
         
-        for (GuiSignalComponent component : button.inputs)
+        for (GuiSignalComponent component : inputs)
             right.add(new GuiLabel(component.name()).setTitle(Component.literal(component.display())));
         
         for (GuiSignalEvent event : events)
@@ -95,7 +98,8 @@ public class GuiSignalEvents extends GuiLayer {
         bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
         
         bottom.addRight(new GuiButton("save", x -> {
-            GuiSignalEvents.this.button.events = events;
+            for (GuiSignalEvent event : events)
+                GuiSignalEvents.this.item.setSignalOutput(event.component.external(), event.component.index(), event);
             closeThisLayer();
         }).setTranslate("gui.save"));
         
@@ -152,6 +156,9 @@ public class GuiSignalEvents extends GuiLayer {
         
         @Override
         public void update() {
+            if (panel == null)
+                return;
+            
             GuiLabel label = (GuiLabel) panel.get("label");
             label.setTitle(Component.literal(component.name() + ": " + condition));
             GuiLabel mode = (GuiLabel) panel.get("mode");

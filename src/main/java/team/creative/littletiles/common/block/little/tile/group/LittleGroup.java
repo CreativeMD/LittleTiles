@@ -341,7 +341,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     public void advancedScale(int from, int to) {
-        for (LittleBox box : boxes())
+        for (LittleBox box : (Iterable<LittleBox>) () -> boxes())
             box.convertTo(from, to);
         
         if (hasStructure())
@@ -362,7 +362,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         return true;
     }
     
-    public Iterable<LittleBox> boxes() {
+    public Iterator<LittleBox> boxes() {
         return content.boxes();
     }
     
