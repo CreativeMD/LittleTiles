@@ -306,7 +306,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return false;
     }
     
-    public List<LittleBox> cutOut(LittleBox cutter, @Nullable LittleBoxReturnedVolume volume) {
+    public void cutOut(LittleBox cutter, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> result = null;
         for (LittleBox box : boxes) {
             List<LittleBox> temp = box.cutOut(cutter, volume);
@@ -315,10 +315,11 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             else if (temp != null)
                 result.addAll(temp);
         }
-        return result;
+        boxes.clear();
+        boxes.addAll(result);
     }
     
-    public List<LittleBox> cutOut(List<LittleBox> cutter, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
+    public void cutOut(List<LittleBox> cutter, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> result = null;
         for (LittleBox box : boxes) {
             List<LittleBox> temp = box.cutOut(cutter, cutout, volume);
@@ -327,7 +328,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             else if (temp != null)
                 result.addAll(temp);
         }
-        return result;
+        boxes.clear();
+        boxes.addAll(result);
     }
     
     public void getIntersectingBoxes(LittleBox intersect, List<LittleBox> boxes) {
