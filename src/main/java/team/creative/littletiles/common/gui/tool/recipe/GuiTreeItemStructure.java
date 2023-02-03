@@ -25,8 +25,8 @@ import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
-import team.creative.littletiles.common.gui.signal.dialog.GuiSignalEvents;
-import team.creative.littletiles.common.gui.signal.dialog.GuiSignalEvents.GuiSignalEvent;
+import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents;
+import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -179,7 +179,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         else
             text.setText("");
         parent.add(text.setEnabled(gui.supportsName()).setDim(100, 7));
-        parent.add(new GuiButton("signal", x -> GuiSignalEvents.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this)).setTranslate("gui.signal.events")
+        parent.add(new GuiButton("signal", x -> GuiDialogSignalEvents.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this)).setTranslate("gui.signal.events")
                 .setEnabled(gui.type() != null));
         updateSignalOutputs();
         

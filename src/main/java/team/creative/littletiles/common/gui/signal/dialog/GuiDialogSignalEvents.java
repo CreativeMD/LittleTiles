@@ -28,15 +28,15 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
-public class GuiSignalEvents extends GuiLayer {
+public class GuiDialogSignalEvents extends GuiLayer {
     
-    public static final GuiSyncGlobalLayer<GuiSignalEvents> SIGNAL_EVENTS_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_events_dialog", x -> new GuiSignalEvents());
+    public static final GuiSyncGlobalLayer<GuiDialogSignalEvents> SIGNAL_EVENTS_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_events_dialog", x -> new GuiDialogSignalEvents());
     
     public GuiTreeItemStructure item;
     public List<GuiSignalComponent> inputs;
     public List<GuiSignalEvent> events;
     
-    public GuiSignalEvents() {
+    public GuiDialogSignalEvents() {
         super("gui.dialog.signal.overview", 300, 200);
         flow = GuiFlow.STACK_Y;
     }
@@ -99,7 +99,7 @@ public class GuiSignalEvents extends GuiLayer {
         
         bottom.addRight(new GuiButton("save", x -> {
             for (GuiSignalEvent event : events)
-                GuiSignalEvents.this.item.setSignalOutput(event.component.external(), event.component.index(), event);
+                GuiDialogSignalEvents.this.item.setSignalOutput(event.component.external(), event.component.index(), event);
             closeThisLayer();
         }).setTranslate("gui.save"));
         

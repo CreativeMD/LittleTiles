@@ -13,7 +13,7 @@ import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
-import team.creative.littletiles.common.gui.signal.dialog.GuiSignalEvents.GuiSignalEvent;
+import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
