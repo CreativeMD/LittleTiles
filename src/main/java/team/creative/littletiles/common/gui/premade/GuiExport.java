@@ -1,13 +1,11 @@
 package team.creative.littletiles.common.gui.premade;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
+import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
@@ -27,36 +25,33 @@ public class GuiExport extends GuiLayer {
     
     public GuiExport() {
         super("gui.little.export");
+        this.flow = GuiFlow.STACK_Y;
+        this.align = Align.STRETCH;
     }
     
     @Override
     public void create() {
-        add(new GuiInventoryGrid("export", exportSlot));
-        
-        GuiParent row = new GuiParent(GuiFlow.STACK_X);
-        row.setExpandableX();
-        add(row);
-        textfield = new GuiTextfield("export");
-        textfield.setMaxStringLength(Integer.MAX_VALUE);
-        row.add(textfield);
-        
-        row.add(new GuiButton("Copy", x -> {
-            StringSelection stringSelection = new StringSelection(textfield.getText());
-            Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clpbrd.setContents(stringSelection, null);
-        }));
-        
-        add(new GuiComboBoxMapped<LittleExportType>("type", new TextMapBuilder<LittleExportType>()
-                .addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> Component.translatable("gui.export." + x.getKey()))));
-        
-        add(new GuiPlayerInventoryGrid(getPlayer()));
-        
-        registerEventChanged(x -> {
+        add(new GuiInventoryGrid("export", exportSlot).addListener(x -> {
             ItemStack stack = exportSlot.getItem(0);
             if (!stack.isEmpty() && PlacementHelper.isLittleBlock(stack))
                 textfield.setText(((GuiComboBoxMapped<LittleExportType>) get("type")).getSelected().export(stack));
             else
                 textfield.setText("");
-        });
+        }));
+        
+        add(new GuiComboBoxMapped<LittleExportType>("type", new TextMapBuilder<LittleExportType>()
+                .addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> Component.translatable("gui.export." + x.getKey()))));
+        
+        GuiParent row = new GuiParent(GuiFlow.STACK_X);
+        add(row);
+        textfield = new GuiTextfield("export");
+        textfield.setMaxStringLength(Integer.MAX_VALUE);
+        row.add(textfield);
+        
+        if (isClient())
+            row.add(new GuiButton("Copy", x -> Minecraft.getInstance().keyboardHandler.setClipboard(textfield.getText())).setTranslate("gui.copy"));
+        
+        add(new GuiPlayerInventoryGrid(getPlayer()).setUnexpandableX());
+        
     }
 }
