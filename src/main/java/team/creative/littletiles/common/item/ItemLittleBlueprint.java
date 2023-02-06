@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.item;
 
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -7,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -44,15 +47,15 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("c") && stack.getOrCreateTagElement(CONTENT_KEY).contains("structure") && stack.getOrCreateTagElement(CONTENT_KEY)
-                .getCompound("structure").contains("name"))
-            return Component.literal(stack.getOrCreateTagElement(CONTENT_KEY).getCompound("structure").getString("name"));
+        if (stack.getOrCreateTag().contains(CONTENT_KEY) && stack.getOrCreateTagElement(CONTENT_KEY).contains(LittleGroup.STRUCTURE_KEY) && stack.getOrCreateTagElement(CONTENT_KEY)
+                .getCompound(LittleGroup.STRUCTURE_KEY).contains("name"))
+            return Component.literal(stack.getOrCreateTagElement(CONTENT_KEY).getCompound(LittleGroup.STRUCTURE_KEY).getString("name"));
         return super.getName(stack);
     }
     
     @Override
     public boolean hasTiles(ItemStack stack) {
-        return stack.getOrCreateTag().contains(CONTENT_KEY);
+        return stack.getOrCreateTag().contains(CONTENT_KEY) && !stack.getTagElement(CONTENT_KEY).isEmpty();
     }
     
     @Override
@@ -128,6 +131,11 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
         getSelectionMode(stack).leftClick(player, stack.getOrCreateTagElement(SELECTION_KEY), result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), false));
         return true;
+    }
+    
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+        list.add(LittleGroup.printTooltip(stack.getOrCreateTagElement(CONTENT_KEY)));
     }
     
     @Override

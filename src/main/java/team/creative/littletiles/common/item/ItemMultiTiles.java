@@ -52,15 +52,15 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     public static String getStructure(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("structure"))
-            return stack.getTag().getCompound("structure").getString("id");
+        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY))
+            return stack.getTag().getCompound(LittleGroup.STRUCTURE_KEY).getString("id");
         return "";
     }
     
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("structure") && stack.getOrCreateTagElement("structure").contains("name"))
-            return Component.literal(stack.getOrCreateTagElement("structure").getString("name"));
+        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY) && stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).contains("name"))
+            return Component.literal(stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("name"));
         return super.getName(stack);
     }
     
@@ -92,10 +92,10 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         String id = "none";
-        if (stack.getOrCreateTag().contains("structure"))
-            id = stack.getOrCreateTagElement("structure").getString("id");
+        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY))
+            id = stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("id");
         tooltip.add(Component.translatable("gui.structure").append(": ").append(Component.translatable("structure." + id)));
-        tooltip.add(Component.literal("" + stack.getOrCreateTag().getInt("count")).append(Component.translatable("gui.tile.count")));
+        tooltip.add(LittleGroup.printTooltip(stack.getOrCreateTag()));
     }
     
     @Override

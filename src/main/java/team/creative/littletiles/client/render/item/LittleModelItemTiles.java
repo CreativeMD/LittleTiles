@@ -10,6 +10,7 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class LittleModelItemTiles extends CreativeItemBoxModel {
     
@@ -27,7 +28,7 @@ public class LittleModelItemTiles extends CreativeItemBoxModel {
     
     @Override
     public boolean hasTranslucentLayer(ItemStack stack) {
-        return stack.hasTag() ? stack.getTag().getBoolean("translucent") : false;
+        return stack.hasTag() ? stack.getTag().getBoolean(LittleGroup.TRANSLUCENT_KEY) : false;
     }
     
     @Override

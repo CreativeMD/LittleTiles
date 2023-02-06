@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,6 +20,7 @@ import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -36,6 +38,155 @@ import team.creative.littletiles.common.structure.connection.children.ItemChildr
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
 public class LittleGroup implements Iterable<LittleTile>, IGridBased {
+    
+    public static final String PARENT_KEY = "k";
+    public static final String CHILDREN_KEY = "c";
+    public static final String STRUCTURE_KEY = "s";
+    public static final String EXTENSION_KEY = "e";
+    public static final String EXTENSION_ID_KEY = "eid";
+    public static final String TILES_KEY = "t";
+    public static final String TRANSLUCENT_KEY = "trans";
+    public static final String MIN_KEY = "min";
+    public static final String SIZE_KEY = "size";
+    public static final String TILES_COUNT_KEY = "tiles";
+    public static final String BOXES_COUNT_KEY = "boxes";
+    
+    public static Component printTooltip(CompoundTag tag) {
+        StringBuilder text = new StringBuilder();
+        if (tag.contains(TILES_COUNT_KEY) && tag.contains(BOXES_COUNT_KEY))
+            text.append(tag.getInt(TILES_COUNT_KEY) + " " + LanguageUtils.translate("gui.tile.count") + " " + tag.getInt(BOXES_COUNT_KEY) + " " + LanguageUtils
+                    .translate("gui.box.count"));
+        return Component.literal(text.toString());
+    }
+    
+    public static void advancedScale(LittleGroup group, int from, int to) {
+        group.advancedScale(from, to);
+    }
+    
+    @Deprecated
+    public static void setGridSecretly(LittleGroup previews, LittleGrid grid) {
+        if (previews.hasStructure())
+            previews.getStructureType().advancedScale(previews, grid.count, previews.grid.count);
+        previews.grid = grid;
+        if (previews.hasChildren())
+            for (LittleGroup child : previews.children.all())
+                setGridSecretly(child, grid);
+    }
+    
+    public static LittleGroup loadLow(CompoundTag nbt) {
+        if (nbt.getInt("count") > PlacementHelper.LOW_RESOLUTION_COUNT) {
+            LittleGroup group = new LittleGroup(LittleGrid.get(nbt));
+            LittleVec max = getSize(nbt);
+            LittleVec min = getMin(nbt);
+            max.add(min);
+            group.addDirectly(new LittleTile(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE, new LittleBox(min, max)));
+            return group;
+        }
+        return load(nbt);
+    }
+    
+    public static LittleGroup load(CompoundTag nbt) {
+        ListTag list = nbt.getList(CHILDREN_KEY, Tag.TAG_COMPOUND);
+        List<LittleGroup> children = new ArrayList<>(list.size());
+        for (int i = 0; i < list.size(); i++)
+            children.add(load(list.getCompound(i)));
+        
+        CompoundTag structure = nbt.getCompound(STRUCTURE_KEY);
+        if (structure.isEmpty())
+            structure = null;
+        LittleGrid grid = LittleGrid.get(nbt);
+        LittleGroup group = new LittleGroup(structure, grid, children);
+        LittleCollection.load(group.content, nbt.getCompound(TILES_KEY));
+        
+        CompoundTag extensions = nbt.getCompound(EXTENSION_KEY);
+        for (String id : extensions.getAllKeys())
+            group.children.addExtension(id, load(extensions.getCompound(id)));
+        return group;
+    }
+    
+    public static CompoundTag saveChild(LittleGroup group) {
+        CompoundTag nbt = new CompoundTag();
+        if (group.hasStructure())
+            nbt.put(STRUCTURE_KEY, group.getStructureTag());
+        nbt.put(TILES_KEY, LittleCollection.save(group.content));
+        group.grid.set(nbt);
+        ListTag list = new ListTag();
+        for (LittleGroup child : group.children.children())
+            list.add(saveChild(child));
+        if (!list.isEmpty())
+            nbt.put(CHILDREN_KEY, list);
+        
+        CompoundTag extensions = new CompoundTag();
+        for (Entry<String, LittleGroup> entry : group.children.extensionEntries())
+            extensions.put(entry.getKey(), saveChild(entry.getValue()));
+        
+        if (!extensions.isEmpty())
+            nbt.put(EXTENSION_KEY, extensions);
+        return nbt;
+    }
+    
+    public static CompoundTag save(LittleGroup group) {
+        CompoundTag nbt = saveChild(group);
+        
+        group.getSize().save(SIZE_KEY, nbt);
+        group.getMinVec().save(MIN_KEY, nbt);
+        nbt.putInt(TILES_COUNT_KEY, group.totalTiles());
+        nbt.putInt(BOXES_COUNT_KEY, group.totalBoxes());
+        if (group.hasTranslucentBlocks())
+            nbt.putBoolean(TRANSLUCENT_KEY, true);
+        return nbt;
+    }
+    
+    public static LittleVec getSize(CompoundTag nbt) {
+        if (nbt.contains(SIZE_KEY))
+            return new LittleVec(SIZE_KEY, nbt);
+        return null;
+    }
+    
+    public static LittleVec getMin(CompoundTag nbt) {
+        if (nbt.contains(MIN_KEY))
+            return new LittleVec(MIN_KEY, nbt);
+        return null;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static void shrinkCubesToOneBlock(List<? extends RenderBox> cubes) {
+        float minX = Float.POSITIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        float minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        float maxZ = Float.NEGATIVE_INFINITY;
+        for (RenderBox box : cubes) {
+            minX = Math.min(minX, box.minX);
+            minY = Math.min(minY, box.minY);
+            minZ = Math.min(minZ, box.minZ);
+            maxX = Math.max(maxX, box.maxX);
+            maxY = Math.max(maxY, box.maxY);
+            maxZ = Math.max(maxZ, box.maxZ);
+        }
+        float scale = 1;
+        float sizeX = maxX - minX;
+        if (sizeX > 1)
+            scale = Math.min(scale, 1 / sizeX);
+        float sizeY = maxY - minY;
+        if (sizeY > 1)
+            scale = Math.min(scale, 1 / sizeY);
+        float sizeZ = maxZ - minZ;
+        if (sizeZ > 1)
+            scale = Math.min(scale, 1 / sizeZ);
+        float offsetX = -minX;
+        float offsetY = -minY;
+        float offsetZ = -minZ;
+        float offsetX2 = (1 - sizeX * scale) * 0.5F;
+        float offsetY2 = (1 - sizeY * scale) * 0.5F;
+        float offsetZ2 = (1 - sizeZ * scale) * 0.5F;
+        for (RenderBox box : cubes) {
+            box.add(offsetX, offsetY, offsetZ);
+            box.scale(scale);
+            box.add(offsetX2, offsetY2, offsetZ2);
+        }
+    }
     
     protected CompoundTag structure;
     protected LittleCollection content = new LittleCollection();
@@ -577,134 +728,6 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     public boolean isVolumeEqual(LittleGroup previews) {
         return getVolumes().equals(previews.getVolumes());
-    }
-    
-    public static void advancedScale(LittleGroup group, int from, int to) {
-        group.advancedScale(from, to);
-    }
-    
-    @Deprecated
-    public static void setGridSecretly(LittleGroup previews, LittleGrid grid) {
-        if (previews.hasStructure())
-            previews.getStructureType().advancedScale(previews, grid.count, previews.grid.count);
-        previews.grid = grid;
-        if (previews.hasChildren())
-            for (LittleGroup child : previews.children.all())
-                setGridSecretly(child, grid);
-    }
-    
-    public static LittleGroup loadLow(CompoundTag nbt) {
-        if (nbt.getInt("count") > PlacementHelper.LOW_RESOLUTION_COUNT) {
-            LittleGroup group = new LittleGroup(LittleGrid.get(nbt));
-            LittleVec max = getSize(nbt);
-            LittleVec min = getMin(nbt);
-            max.add(min);
-            group.addDirectly(new LittleTile(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE, new LittleBox(min, max)));
-            return group;
-        }
-        return load(nbt);
-    }
-    
-    public static LittleGroup load(CompoundTag nbt) {
-        ListTag list = nbt.getList("c", Tag.TAG_COMPOUND);
-        List<LittleGroup> children = new ArrayList<>(list.size());
-        for (int i = 0; i < list.size(); i++)
-            children.add(load(list.getCompound(i)));
-        
-        CompoundTag structure = nbt.getCompound("s");
-        if (structure.isEmpty())
-            structure = null;
-        LittleGrid grid = LittleGrid.get(nbt);
-        LittleGroup group = new LittleGroup(structure, grid, children);
-        LittleCollection.load(group.content, nbt.getCompound("t"));
-        
-        CompoundTag extensions = nbt.getCompound("e");
-        for (String id : extensions.getAllKeys())
-            group.children.addExtension(id, load(extensions.getCompound(id)));
-        return group;
-    }
-    
-    public static CompoundTag saveChild(LittleGroup group) {
-        CompoundTag nbt = new CompoundTag();
-        if (group.hasStructure())
-            nbt.put("s", group.getStructureTag());
-        nbt.put("t", LittleCollection.save(group.content));
-        group.grid.set(nbt);
-        ListTag list = new ListTag();
-        for (LittleGroup child : group.children.children())
-            list.add(saveChild(child));
-        if (!list.isEmpty())
-            nbt.put("c", list);
-        
-        CompoundTag extensions = new CompoundTag();
-        for (Entry<String, LittleGroup> entry : group.children.extensionEntries())
-            extensions.put(entry.getKey(), saveChild(entry.getValue()));
-        
-        if (!extensions.isEmpty())
-            nbt.put("e", extensions);
-        return nbt;
-    }
-    
-    public static CompoundTag save(LittleGroup group) {
-        CompoundTag nbt = saveChild(group);
-        
-        group.getSize().save("size", nbt);
-        group.getMinVec().save("min", nbt);
-        nbt.putInt("count", group.totalSize());
-        if (group.hasTranslucentBlocks())
-            nbt.putBoolean("translucent", true);
-        return nbt;
-    }
-    
-    public static LittleVec getSize(CompoundTag nbt) {
-        if (nbt.contains("size"))
-            return new LittleVec("size", nbt);
-        return null;
-    }
-    
-    public static LittleVec getMin(CompoundTag nbt) {
-        if (nbt.contains("min"))
-            return new LittleVec("min", nbt);
-        return null;
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public static void shrinkCubesToOneBlock(List<? extends RenderBox> cubes) {
-        float minX = Float.POSITIVE_INFINITY;
-        float minY = Float.POSITIVE_INFINITY;
-        float minZ = Float.POSITIVE_INFINITY;
-        float maxX = Float.NEGATIVE_INFINITY;
-        float maxY = Float.NEGATIVE_INFINITY;
-        float maxZ = Float.NEGATIVE_INFINITY;
-        for (RenderBox box : cubes) {
-            minX = Math.min(minX, box.minX);
-            minY = Math.min(minY, box.minY);
-            minZ = Math.min(minZ, box.minZ);
-            maxX = Math.max(maxX, box.maxX);
-            maxY = Math.max(maxY, box.maxY);
-            maxZ = Math.max(maxZ, box.maxZ);
-        }
-        float scale = 1;
-        float sizeX = maxX - minX;
-        if (sizeX > 1)
-            scale = Math.min(scale, 1 / sizeX);
-        float sizeY = maxY - minY;
-        if (sizeY > 1)
-            scale = Math.min(scale, 1 / sizeY);
-        float sizeZ = maxZ - minZ;
-        if (sizeZ > 1)
-            scale = Math.min(scale, 1 / sizeZ);
-        float offsetX = -minX;
-        float offsetY = -minY;
-        float offsetZ = -minZ;
-        float offsetX2 = (1 - sizeX * scale) * 0.5F;
-        float offsetY2 = (1 - sizeY * scale) * 0.5F;
-        float offsetZ2 = (1 - sizeZ * scale) * 0.5F;
-        for (RenderBox box : cubes) {
-            box.add(offsetX, offsetY, offsetZ);
-            box.scale(scale);
-            box.add(offsetX2, offsetY2, offsetZ2);
-        }
     }
     
 }

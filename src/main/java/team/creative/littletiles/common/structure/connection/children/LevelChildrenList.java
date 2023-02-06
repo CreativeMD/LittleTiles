@@ -9,6 +9,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
@@ -46,22 +47,22 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
     protected void added(StructureChildConnection child) {}
     
     public void load(CompoundTag nbt) {
-        if (nbt.contains("p"))
-            parent = StructureChildConnection.load(owner, nbt.getCompound("p"), true);
+        if (nbt.contains(LittleGroup.PARENT_KEY))
+            parent = StructureChildConnection.load(owner, nbt.getCompound(LittleGroup.PARENT_KEY), true);
         else
             parent = null;
         
-        ListTag list = nbt.getList("c", Tag.TAG_COMPOUND);
+        ListTag list = nbt.getList(LittleGroup.CHILDREN_KEY, Tag.TAG_COMPOUND);
         List<StructureChildConnection> children = new ArrayList<>(list.size());
         for (int i = 0; i < list.size(); i++)
             children.add(StructureChildConnection.load(owner, list.getCompound(i), false));
         set(children);
         
         extensions.clear();
-        list = nbt.getList("e", Tag.TAG_COMPOUND);
+        list = nbt.getList(LittleGroup.EXTENSION_KEY, Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag extension = list.getCompound(i);
-            extensions.put(extension.getString("eid"), StructureChildConnection.load(owner, extension, false));
+            extensions.put(extension.getString(LittleGroup.EXTENSION_ID_KEY), StructureChildConnection.load(owner, extension, false));
         }
         
         if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
@@ -73,22 +74,22 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
     
     public void save(CompoundTag nbt) {
         if (hasParent())
-            nbt.put("p", parent.save(new CompoundTag()));
+            nbt.put(LittleGroup.PARENT_KEY, parent.save(new CompoundTag()));
         
         if (hasChildren()) {
             ListTag list = new ListTag();
             for (StructureChildConnection child : children())
                 list.add(child.save(new CompoundTag()));
-            nbt.put("c", list);
+            nbt.put(LittleGroup.CHILDREN_KEY, list);
         }
         if (hasExtensions()) {
             ListTag list = new ListTag();
             for (Entry<String, StructureChildConnection> pair : extensionEntries()) {
                 CompoundTag extensionNBT = pair.getValue().save(new CompoundTag());
-                extensionNBT.putString("eid", pair.getKey());
+                extensionNBT.putString(LittleGroup.EXTENSION_ID_KEY, pair.getKey());
                 list.add(extensionNBT);
             }
-            nbt.put("e", list);
+            nbt.put(LittleGroup.EXTENSION_KEY, list);
         }
     }
     
