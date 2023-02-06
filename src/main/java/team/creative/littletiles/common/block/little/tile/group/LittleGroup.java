@@ -363,6 +363,15 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         this.grid = to;
     }
     
+    public LittleGroup copyExceptChildren() {
+        LittleGroup group = new LittleGroup(structure, grid, Collections.EMPTY_LIST);
+        for (Entry<String, LittleGroup> extension : children.extensionEntries())
+            group.children.addExtension(extension.getKey(), extension.getValue().copy());
+        for (LittleTile tile : this)
+            group.content.add(tile.copy());
+        return group;
+    }
+    
     public LittleGroup copy() {
         List<LittleGroup> newChildren = new ArrayList<>();
         for (LittleGroup group : children.children())

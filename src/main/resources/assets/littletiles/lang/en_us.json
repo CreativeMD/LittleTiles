@@ -51,6 +51,7 @@
 	"gui.copy": "Copy",
 	"gui.clear": "Clear",
 	"gui.okay": "Okay",
+	"gui.reload": "Reload",
 	"gui.points.east": "points right",
     "gui.points.west": "points left",
     "gui.points.up": "points upwards",

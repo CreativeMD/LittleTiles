@@ -63,6 +63,9 @@ public class GuiRecipe extends GuiConfigure {
     });
     
     public final GuiSyncLocalLayer<GuiRecipeTest> OPEN_TEST = getSyncHolder().layer("test", tag -> new GuiRecipeTest());
+    public final GuiSyncLocalLayer<GuiRecipeAdd> OPEN_ADD = getSyncHolder().layer("add", tag -> new GuiRecipeAdd());
+    public final GuiSyncLocalLayer<GuiRecipeMove> OPEN_MOVE = getSyncHolder().layer("move", tag -> new GuiRecipeMove());
+    public final GuiSyncLocalLayer<GuiRecipeMerge> OPEN_MERGE = getSyncHolder().layer("merge", tag -> new GuiRecipeMerge());
     
     public GuiTree tree;
     public GuiComboBoxMapped<LittleStructureGui> types;
@@ -88,7 +91,7 @@ public class GuiRecipe extends GuiConfigure {
         return null;
     }
     
-    private void buildStructureTree(GuiTree tree, GuiTreeItem parent, LittleGroup group, int index) {
+    public void buildStructureTree(GuiTree tree, GuiTreeItem parent, LittleGroup group, int index) {
         if (group.isEmpty()) {
             if (!group.children.hasChildren())
                 return;
@@ -105,7 +108,6 @@ public class GuiRecipe extends GuiConfigure {
         for (Entry<String, LittleGroup> extension : group.children.extensionEntries())
             copy.children.addExtension(extension.getKey(), extension.getValue().copy());
         GuiTreeItemStructure item = new GuiTreeItemStructure(this, tree, copy, index);
-        availablePreviews.put(item, null);
         parent.addItem(item);
         
         int i = 0;
@@ -183,8 +185,8 @@ public class GuiRecipe extends GuiConfigure {
         GuiParent sidebarButtons = new GuiParent(GuiFlow.FIT_X);
         sidebar.add(sidebarButtons.setAlign(Align.CENTER));
         
-        sidebarButtons.add(new GuiButton("add", x -> {}).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12)
-                .setTooltip(new TextBuilder().translate("gui.recipe.add").build()));
+        sidebarButtons.add(new GuiButton("add", x -> OPEN_ADD.open(new CompoundTag()).init(this)).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER)
+                .setDim(12, 12).setTooltip(new TextBuilder().translate("gui.recipe.add").build()));
         sidebarButtons.add(new GuiIconButton("duplicate", GuiIcon.DUPLICATE, x -> {
             if (tree.selected() == null)
                 return;
@@ -200,8 +202,10 @@ public class GuiRecipe extends GuiConfigure {
         sidebarButtons.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()).setTooltip(new TextBuilder().translate("gui.recipe.moveup").build()));
         sidebarButtons.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()).setTooltip(new TextBuilder().translate("gui.recipe.movedown").build()));
         
-        sidebarButtons.add(new GuiIconButton("move", GuiIcon.MOVE, x -> {}).setTooltip(new TextBuilder().translate("gui.recipe.move").build()));
-        sidebarButtons.add(new GuiIconButton("merge", GuiIcon.MERGE, x -> {}).setTooltip(new TextBuilder().translate("gui.recipe.merge").build()));
+        sidebarButtons
+                .add(new GuiIconButton("move", GuiIcon.MOVE, x -> OPEN_MOVE.open(new CompoundTag()).init(this)).setTooltip(new TextBuilder().translate("gui.recipe.move").build()));
+        sidebarButtons.add(new GuiIconButton("merge", GuiIcon.MERGE, x -> OPEN_MERGE.open(new CompoundTag()).init(this))
+                .setTooltip(new TextBuilder().translate("gui.recipe.merge").build()));
         
         GuiParent topCenter = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(300)).setExpandableY());

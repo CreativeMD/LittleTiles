@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -277,7 +278,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
                 removeOverlap(structure2, boxes);
                 refresh.run();
             }).setTitle(Component.literal(this.structure2.getTitle())));
-            parent.add(new GuiButton("move", x -> {}).setTranslate("gui.recipe.test.overlap.move"));
+            parent.add(new GuiButton("move", x -> recipe.OPEN_MOVE.open(new CompoundTag()).init(recipe)).setTranslate("gui.recipe.test.overlap.move"));
         }
         
     }
