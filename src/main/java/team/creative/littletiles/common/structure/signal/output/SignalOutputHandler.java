@@ -46,7 +46,7 @@ public abstract class SignalOutputHandler {
     public abstract void write(boolean preview, CompoundTag nbt);
     
     public static SignalOutputHandler create(ISignalComponent component, SignalMode mode, int delay, CompoundTag nbt, LittleStructure structure) {
-        return mode.create(component, delay, nbt, structure != null && structure.hasLevel() && !structure.getLevel().isClientSide);
+        return mode.create(component, delay, nbt, structure != null && structure.isClient());
     }
     
     public boolean isStillAvailable() {
