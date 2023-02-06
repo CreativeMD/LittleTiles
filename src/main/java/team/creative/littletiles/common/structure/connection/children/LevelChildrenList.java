@@ -24,6 +24,13 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
         this.owner = owner;
     }
     
+    public void initAfterPlacing(int children) {
+        List<StructureChildConnection> list = new ArrayList<>(children);
+        for (int i = 0; i < children; i++)
+            list.add(null);
+        set(list);
+    }
+    
     public StructureChildConnection removeExtension(String key) throws CorruptedConnectionException, NotYetConnectedException {
         StructureChildConnection ex = super.removeExt(key);
         if (ex != null) {

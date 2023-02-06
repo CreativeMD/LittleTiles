@@ -594,9 +594,10 @@ public class Placement {
         }
         
         public void place(StructureParentCollection parent) {
-            if (cachedStructure == null)
+            if (cachedStructure == null) {
                 cachedStructure = parent.setStructureNBT(previews.getStructureTag());
-            else {
+                cachedStructure.children.initAfterPlacing(children.size());
+            } else {
                 StructureParentCollection.setRelativePos(parent, cachedStructure.mainBlock.getPos().subtract(parent.getPos()));
                 cachedStructure.addBlock(parent);
             }
