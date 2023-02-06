@@ -134,8 +134,8 @@ public class AreaSelectionMode extends SelectionMode {
                                     } else
                                         for (LittleTile tile : parent) {
                                             tile = tile.copy();
-                                            tile.move(new LittleVec((posX - minX) * parent.getGrid().count, (posY - minY) * parent.getGrid().count, (posZ - minZ) * parent
-                                                    .getGrid().count));
+                                            tile.move(new LittleVec(parent.getGrid().toGrid(posX - minX), parent.getGrid().toGrid(posY - minY), parent.getGrid()
+                                                    .toGrid(posZ - minZ)));
                                             previews.add(parent.getGrid(), tile, tile);
                                         }
                                 }
@@ -145,8 +145,8 @@ public class AreaSelectionMode extends SelectionMode {
                         if (includeCB) {
                             LittleGroup specialPreviews = ChiselsAndBitsManager.getGroup(blockEntity);
                             if (specialPreviews != null) {
-                                specialPreviews.move(new LittleVecGrid(new LittleVec((posX - minX) * previews.getGrid().count, (posY - minY) * previews
-                                        .getGrid().count, (posZ - minZ) * previews.getGrid().count), previews.getGrid()));
+                                specialPreviews.move(new LittleVecGrid(new LittleVec(previews.getGrid().toGrid(posX - minX), previews.getGrid().toGrid(posY - minY), previews
+                                        .getGrid().toGrid(posZ - minZ)), previews.getGrid()));
                                 previews.add(specialPreviews);
                                 continue;
                             }

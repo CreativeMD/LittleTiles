@@ -109,11 +109,11 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     public LittleStructure setStructureNBT(CompoundTag nbt) {
-        if (this.cache instanceof LittleStructure && ((LittleStructure) this.cache).type.id.equals(nbt.getString("id")))
-            ((LittleStructure) this.cache).load(nbt);
+        if (this.cache instanceof LittleStructure structure && structure.type.id.equals(nbt.getString("id")))
+            structure.load(nbt);
         else {
-            if (this.cache instanceof LittleStructure)
-                ((LittleStructure) this.cache).unload();
+            if (this.cache instanceof LittleStructure structure)
+                structure.unload();
             this.cache = create(nbt, this);
         }
         return (LittleStructure) cache;

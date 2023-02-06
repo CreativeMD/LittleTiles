@@ -179,8 +179,8 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         else
             text.setText("");
         parent.add(text.setEnabled(gui.supportsName()).setDim(100, 7));
-        parent.add(new GuiButton("signal", x -> GuiDialogSignalEvents.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this)).setTranslate("gui.signal.events")
-                .setEnabled(gui.type() != null));
+        parent.add(new GuiButton("signal", x -> GuiDialogSignalEvents.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this))
+                .setTranslate("gui.signal.events").setEnabled(gui.type() != null));
         updateSignalOutputs();
         
         recipe.reflow();
