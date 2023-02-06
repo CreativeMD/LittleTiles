@@ -288,7 +288,11 @@ public class GuiTreeItemStructure extends GuiTreeItem {
             nbt = new CompoundTag();
             structure.save(nbt);
         }
-        return new GuiTreeItemStructure(recipe, tree, new LittleGroup(nbt, group.copy(), Collections.EMPTY_LIST), getParentItem().itemsCount());
+        GuiTreeItemStructure item = new GuiTreeItemStructure(recipe, tree, new LittleGroup(nbt, group.copy(), Collections.EMPTY_LIST), getParentItem().itemsCount());
+        for (GuiTreeItem child : items())
+            if (child instanceof GuiTreeItemStructure s)
+                item.addItem(s.duplicate());
+        return item;
     }
     
 }
