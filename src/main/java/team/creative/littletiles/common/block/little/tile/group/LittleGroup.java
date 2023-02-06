@@ -137,7 +137,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
             throw new RuntimeException("Cannot transform group with links");
         
         forceSameGrid(vec);
-        for (LittleBox box : allBoxes())
+        for (LittleBox box : (Iterable<LittleBox>) () -> boxes())
             box.add(vec.getVec());
         
         if (hasStructure())
