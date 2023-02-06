@@ -28,7 +28,7 @@ public class LittleStorageGui extends LittleStructureGuiControl {
         boolean invisible = false;
         if (structure instanceof LittleStorage)
             invisible = ((LittleStorage) structure).invisibleStorageTiles;
-        add(new GuiCheckBox("invisible", "invisible storage tiles", invisible));
+        add(new GuiCheckBox("invisible", invisible).setTranslate("gui.recipe.storage.invisible"));
     }
     
     @Override
