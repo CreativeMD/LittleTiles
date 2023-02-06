@@ -37,6 +37,7 @@ import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
 import team.creative.littletiles.common.placement.PlacementPosition;
+import team.creative.littletiles.common.placement.PlacementPreview;
 
 public class LittleToolHandler {
     
@@ -126,7 +127,10 @@ public class LittleToolHandler {
             return false;
         PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
         if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && iTile instanceof ILittlePlacer placer && placer.hasTiles(stack)) {
-            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, placer.getPlacement(level, stack, position, false)));
+            PlacementPreview preview = placer.getPlacement(level, stack, position, false);
+            if (preview == null)
+                return true;
+            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, preview));
             LittleTilesClient.PREVIEW_RENDERER.removeMarked();
             iTile.onDeselect(level, stack, player);
             return true;
