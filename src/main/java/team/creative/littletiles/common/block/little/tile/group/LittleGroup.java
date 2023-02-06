@@ -374,12 +374,25 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         return content.size();
     }
     
-    public int totalSize() {
+    public int boxesCount() {
+        return content.boxesCount();
+    }
+    
+    public int totalTiles() {
         if (!hasChildren())
             return size();
         int size = size();
         for (LittleGroup child : children.all())
-            size += child.totalSize();
+            size += child.totalTiles();
+        return size;
+    }
+    
+    public int totalBoxes() {
+        if (!hasChildren())
+            return boxesCount();
+        int size = boxesCount();
+        for (LittleGroup child : children.all())
+            size += child.totalBoxes();
         return size;
     }
     

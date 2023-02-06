@@ -85,7 +85,7 @@ public class PlacementPreview {
             
             List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
             
-            boolean singleMode = tiles.totalSize() == 1;
+            boolean singleMode = tiles.totalBoxes() == 1;
             
             if (singleMode) {
                 shifthandlers.add(new InsideFixedHandler());
@@ -180,7 +180,7 @@ public class PlacementPreview {
             
             List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
             
-            boolean singleMode = previews.totalSize() == 1;
+            boolean singleMode = previews.totalBoxes() == 1;
             
             if (singleMode) {
                 shifthandlers.add(new InsideFixedHandler());

@@ -28,6 +28,7 @@
 	"gui.import": "Import",
 	"gui.blocks": "blocks",
 	"gui.tile.count": "tiles",
+	"gui.box.count": "boxes",
 	"gui.grid": "grid",
 	"gui.structure": "structure",
 	"gui.any": "any",

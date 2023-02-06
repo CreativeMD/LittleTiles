@@ -161,6 +161,13 @@ public class LittleCollection implements Iterable<LittleTile> {
         return content.size();
     }
     
+    public int boxesCount() {
+        int count = 0;
+        for (LittleTile tile : content)
+            count += tile.size();
+        return count;
+    }
+    
     public LittleTile first() {
         if (content instanceof CopyArrayCollection)
             return ((CopyArrayCollection<LittleTile>) content).first();
