@@ -152,9 +152,7 @@ public class LittlePacketTypes {
                 } else
                     buffer.writeBoolean(false);
                 
-                buffer.writeInt(content.size());
-                for (LittleTile tile : content)
-                    NetworkFieldTypes.write(LittleTile.class, tile, buffer);
+                NetworkFieldTypes.writeMany(LittleTile.class, content, buffer);
                 
                 buffer.writeInt(content.children.sizeExtensions());
                 for (Entry<String, LittleGroup> extension : content.children.extensionEntries()) {
@@ -171,10 +169,8 @@ public class LittlePacketTypes {
                     children.add(NetworkFieldTypes.read(LittleGroup.class, buffer));
                 
                 LittleGrid grid = LittleGrid.get(buffer.readInt());
-                LittleGroup group = new LittleGroup(buffer.readBoolean() ? buffer.readAnySizeNbt() : null, grid, children);
-                int tileCount = buffer.readInt();
-                for (int i = 0; i < tileCount; i++)
-                    group.addDirectly(NetworkFieldTypes.read(LittleTile.class, buffer));
+                LittleGroup group = new LittleGroup(buffer.readBoolean() ? buffer.readAnySizeNbt() : null, children);
+                group.addAll(grid, NetworkFieldTypes.readMany(LittleTile.class, buffer));
                 
                 int extensionCount = buffer.readInt();
                 for (int i = 0; i < extensionCount; i++)

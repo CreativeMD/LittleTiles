@@ -213,14 +213,14 @@ public class RecipeOverlapTest extends RecipeTestModule {
                         toAdd.splitIterator(grid, pos, LittleVec.ZERO, (blockPos, littleBox) -> add(tile, littleBox, blockPos, grid, blocks));
                     }
                 
-                group = new LittleGroup(group.getStructureTag(), grid, Collections.EMPTY_LIST);
+                group = new LittleGroup(group.getStructureTag(), Collections.EMPTY_LIST);
                 LittleVec vec = new LittleVec(0, 0, 0);
                 for (Entry<BlockPos, LittleCollection> entry : blocks.entrySet()) {
                     vec.set(grid, entry.getKey());
                     for (LittleTile tile : entry.getValue())
                         for (LittleBox box : tile) {
                             box.add(vec);
-                            group.addDirectly(tile);
+                            group.addTile(grid, tile);
                         }
                     
                 }

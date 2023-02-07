@@ -20,7 +20,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
-import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -116,12 +116,12 @@ public class BlockPacket extends CreativePacket {
                             return;
                         }
                 } else {
-                    previews = new LittleGroup(null, be.getGrid(), null);
+                    previews = new LittleGroup();
                     if (nbt.getBoolean("secondMode"))
-                        for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
-                            previews.addDirectly(pair.getValue().copy());
+                        for (IParentCollection collection : be.groups())
+                            previews.addAll(be.getGrid(), () -> new FunctionIterator<>(collection, x -> x.copy()));
                     else
-                        previews.addDirectly(context.tile.copy());
+                        previews.addTile(be.getGrid(), context.tile.copy());
                 }
                 
                 stack.setTag(LittleGroup.save(previews));

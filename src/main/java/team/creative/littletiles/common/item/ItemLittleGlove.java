@@ -385,8 +385,8 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         public LittleGroup getTiles(ItemStack stack) {
-            LittleGroup group = new LittleGroup(null, LittleGrid.get(stack.getTag()), null);
-            group.addDirectly(new LittleTile(SimpleMode.getElement(stack), getBox(stack)));
+            LittleGroup group = new LittleGroup();
+            group.addTile(LittleGrid.get(stack.getTag()), new LittleTile(SimpleMode.getElement(stack), getBox(stack)));
             return group;
         }
         
@@ -428,7 +428,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
         
         @Override
         public void littleBlockAction(Level level, BETiles be, LittleTileContext context, ItemStack stack, BlockPos pos, CompoundTag nbt) {
-            LittleGroup previews = new LittleGroup(null, be.getGrid(), null);
+            LittleGroup previews = new LittleGroup();
             if (nbt.getBoolean("secondMode")) {
                 for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
                     previews.add(pair.key.getGrid(), pair.value, pair.value);

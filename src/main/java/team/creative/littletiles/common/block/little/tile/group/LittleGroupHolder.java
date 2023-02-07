@@ -12,7 +12,7 @@ public class LittleGroupHolder extends LittleGroup {
     public final LittleStructure structure;
     
     public LittleGroupHolder(LittleStructure structure) {
-        super(null, LittleGrid.min(), null);
+        super();
         this.structure = structure;
     }
     

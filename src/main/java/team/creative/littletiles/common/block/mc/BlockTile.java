@@ -593,7 +593,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         if (result.isComplete()) {
             if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode())) {
                 ItemStack drop = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
-                LittleGroup group = new LittleGroup(result.parent.getGrid());
+                LittleGroup group = new LittleGroup();
                 for (LittleTile tile : result.parent)
                     group.add(result.parent.getGrid(), tile, tile);
                 drop.setTag(LittleGroup.save(group));

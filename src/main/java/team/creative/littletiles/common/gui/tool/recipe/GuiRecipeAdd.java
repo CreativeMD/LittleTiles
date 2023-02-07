@@ -3,6 +3,7 @@ package team.creative.littletiles.common.gui.tool.recipe;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,7 +26,6 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class GuiRecipeAdd extends GuiLayer {
@@ -163,7 +163,7 @@ public class GuiRecipeAdd extends GuiLayer {
             children.add(reconstructBlueprint((GuiRecipeAddTreeItem) child));
         if (children.isEmpty())
             return null;
-        return new LittleGroup(null, LittleGrid.min(), children);
+        return new LittleGroup((CompoundTag) null, children);
     }
     
     public class GuiRecipeAddEntry extends GuiPanel {

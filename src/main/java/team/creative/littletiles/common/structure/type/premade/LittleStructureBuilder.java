@@ -109,18 +109,18 @@ public class LittleStructureBuilder extends LittleStructurePremade {
             this.frameVariableName = frameVariableName;
         }
         
-        public LittleGroup construct(LittleGrid context, int width, int height, int thickness, BlockState state) {
+        public LittleGroup construct(LittleGrid grid, int width, int height, int thickness, BlockState state) {
             CompoundTag structureNBT = new CompoundTag();
             structureNBT.putString("id", type.id);
             structureNBT.putIntArray("topRight", new int[] { Float.floatToIntBits(0), Float.floatToIntBits(1), Float.floatToIntBits(1) });
-            structureNBT.putIntArray(frameVariableName, new int[] { thickness, 0, 0, thickness + 1, height, width, context.count });
-            LittleGroup previews = new LittleGroup(structureNBT, context, Collections.EMPTY_LIST);
+            structureNBT.putIntArray(frameVariableName, new int[] { thickness, 0, 0, thickness + 1, height, width, grid.count });
+            LittleGroup previews = new LittleGroup(structureNBT, Collections.EMPTY_LIST);
             List<LittleBox> boxes = new ArrayList<>();
-            for (int x = 0; x < thickness; x += context.count)
-                for (int y = 0; y < height; y += context.count)
-                    for (int z = 0; z < width; z += context.count)
+            for (int x = 0; x < thickness; x += grid.count)
+                for (int y = 0; y < height; y += grid.count)
+                    for (int z = 0; z < width; z += grid.count)
                         boxes.add(new LittleBox(x, y, z, Math.min(x + 16, thickness), Math.min(y + 16, height), Math.min(z + 16, width)));
-            previews.addDirectly(new LittleTile(state, ColorUtils.WHITE, boxes));
+            previews.addTile(grid, new LittleTile(state, ColorUtils.WHITE, boxes));
             return previews;
         }
         

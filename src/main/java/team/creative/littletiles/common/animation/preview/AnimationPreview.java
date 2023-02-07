@@ -11,10 +11,10 @@ import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
@@ -54,9 +54,9 @@ public class AnimationPreview {
             List<LittleGroup> newChildren = new ArrayList<>();
             for (LittleGroup group : previews.children.children())
                 newChildren.add(group.copy());
-            LittleGroup group = new LittleGroup(nbt, grid, newChildren);
-            for (LittleTile tile : previews)
-                group.addDirectly(tile.copy());
+            LittleGroup group = new LittleGroup(nbt, newChildren);
+            final var oldPreviews = previews;
+            group.addAll(grid, () -> new FunctionIterator<>(oldPreviews, x -> x.copy()));
             previews = group;
         }
         

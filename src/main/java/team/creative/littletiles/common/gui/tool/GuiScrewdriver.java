@@ -38,7 +38,6 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.filter.TileFilters;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.level.LittleLevelScanner;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -149,8 +148,8 @@ public class GuiScrewdriver extends GuiConfigure {
                         return null;
                     }
                     actions.add(new LittleActionDestroyBoxes(level, boxes));
-                    LittleGroupAbsolute previews = new LittleGroupAbsolute(pos, LittleGrid.min());
-                    previews.add(new LittleElement(replacementBlock.defaultBlockState(), ColorUtils.WHITE), boxes);
+                    LittleGroupAbsolute previews = new LittleGroupAbsolute(pos);
+                    previews.add(boxes.grid, new LittleElement(replacementBlock.defaultBlockState(), ColorUtils.WHITE), boxes);
                     
                     actions.add(new LittleActionDestroyBoxes(level, boxes));
                     actions.add(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, ItemStack.EMPTY, previews, Facing.EAST)));

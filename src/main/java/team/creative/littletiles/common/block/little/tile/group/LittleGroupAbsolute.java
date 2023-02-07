@@ -25,16 +25,12 @@ public class LittleGroupAbsolute implements IGridBased {
     
     public LittleGroupAbsolute(LittleBoxes boxes, LittleElement element) {
         this.pos = boxes.pos;
-        this.group = new LittleGroup(boxes.getGrid());
+        this.group = new LittleGroup();
         this.group.add(boxes.getGrid(), element, boxes.all());
     }
     
-    public LittleGroupAbsolute(BlockPos pos, LittleGrid grid) {
-        this(pos, new LittleGroup(null, grid, null));
-    }
-    
     public LittleGroupAbsolute(BlockPos pos) {
-        this(pos, LittleGrid.min());
+        this(pos, new LittleGroup());
     }
     
     @Override
@@ -64,8 +60,8 @@ public class LittleGroupAbsolute implements IGridBased {
         return group.getStructureType();
     }
     
-    public void add(LittleElement element, LittleBoxes boxes) {
-        addDirectly(new LittleTile(element, boxes.all()));
+    public void add(LittleGrid grid, LittleElement element, LittleBoxes boxes) {
+        group.add(grid, element, boxes.all());
     }
     
     public void add(IParentCollection parent, LittleTile tile) {
@@ -78,7 +74,7 @@ public class LittleGroupAbsolute implements IGridBased {
                 convertTo(parent.getGrid());
             
         tile.move(new LittleVec(getGrid(), parent.getPos().subtract(pos)));
-        addDirectly(tile);
+        group.addTile(getGrid(), tile);
     }
     
     public void add(IParentCollection parent, LittleElement element, LittleBox box) {
@@ -91,10 +87,6 @@ public class LittleGroupAbsolute implements IGridBased {
                 convertTo(parent.getGrid());
         box.add(new LittleVec(getGrid(), parent.getPos().subtract(pos)));
         group.add(getGrid(), element, box);
-    }
-    
-    protected void addDirectly(LittleTile tile) {
-        group.addDirectly(tile);
     }
     
     public LittleGroupAbsolute copy() {
@@ -118,7 +110,7 @@ public class LittleGroupAbsolute implements IGridBased {
                 group.convertTo(parent.getGrid());
             
         tile.move(new LittleVec(group.getGrid(), parent.getPos().subtract(pos)));
-        group.addDirectly(tile);
+        group.addTile(group.getGrid(), tile);
     }
     
 }

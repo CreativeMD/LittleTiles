@@ -110,9 +110,8 @@ public class GuiRecipe extends GuiConfigure {
             return;
         }
         
-        LittleGroup copy = new LittleGroup(group.hasStructure() ? group.getStructureTag().copy() : null, group.getGrid(), Collections.EMPTY_LIST);
-        for (LittleTile tile : group)
-            copy.addDirectly(tile.copy());
+        LittleGroup copy = new LittleGroup(group.hasStructure() ? group.getStructureTag().copy() : null, Collections.EMPTY_LIST);
+        copy.addAll(group.getGrid(), () -> new FunctionIterator<>(group, x -> x.copy()));
         for (Entry<String, LittleGroup> extension : group.children.extensionEntries())
             copy.children.addExtension(extension.getKey(), extension.getValue().copy());
         GuiTreeItemStructure item = new GuiTreeItemStructure(this, tree, copy, index);
@@ -317,7 +316,7 @@ public class GuiRecipe extends GuiConfigure {
             nbt = new CompoundTag();
             item.structure.save(nbt);
         }
-        return new LittleGroup(nbt, item.group.copy(), children);
+        return new LittleGroup(nbt, item.group.copyExceptChildren(), children);
     }
     
     protected LittleGroup reconstructBlueprint() {
@@ -326,7 +325,7 @@ public class GuiRecipe extends GuiConfigure {
         List<LittleGroup> children = new ArrayList<>();
         for (GuiTreeItem child : tree.root().items())
             children.add(reconstructBlueprint((GuiTreeItemStructure) child));
-        return new LittleGroup(null, LittleGrid.min(), children);
+        return new LittleGroup((CompoundTag) null, children);
     }
     
 }

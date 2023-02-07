@@ -135,8 +135,8 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
         if (selection != null) {
             LittleBoxes boxes = selection.getBoxes(allowLowResolution);
-            LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos, boxes.grid);
-            previews.add(getElement(stack), boxes);
+            LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos);
+            previews.add(boxes.grid, getElement(stack), boxes);
             return PlacementPreview.absolute(level, stack, previews, selection.getFirst().pos.facing);
         }
         return null;

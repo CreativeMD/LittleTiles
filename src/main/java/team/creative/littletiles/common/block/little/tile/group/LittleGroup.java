@@ -21,6 +21,8 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
+import team.creative.creativecore.common.util.type.Bunch;
+import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -37,7 +39,7 @@ import team.creative.littletiles.common.structure.attribute.LittleStructureAttri
 import team.creative.littletiles.common.structure.connection.children.ItemChildrenList;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
-public class LittleGroup implements Iterable<LittleTile>, IGridBased {
+public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     
     public static final String PARENT_KEY = "k";
     public static final String CHILDREN_KEY = "c";
@@ -75,11 +77,11 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     
     public static LittleGroup loadLow(CompoundTag nbt) {
         if (nbt.getInt("count") > PlacementHelper.LOW_RESOLUTION_COUNT) {
-            LittleGroup group = new LittleGroup(LittleGrid.get(nbt));
+            LittleGroup group = new LittleGroup();
             LittleVec max = getSize(nbt);
             LittleVec min = getMin(nbt);
             max.add(min);
-            group.addDirectly(new LittleTile(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE, new LittleBox(min, max)));
+            group.addTile(LittleGrid.get(nbt), new LittleTile(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE, new LittleBox(min, max)));
             return group;
         }
         return load(nbt);
@@ -94,8 +96,8 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         CompoundTag structure = nbt.getCompound(STRUCTURE_KEY);
         if (structure.isEmpty())
             structure = null;
-        LittleGrid grid = LittleGrid.get(nbt);
-        LittleGroup group = new LittleGroup(structure, grid, children);
+        LittleGroup group = new LittleGroup(structure, children);
+        group.grid = LittleGrid.get(nbt);
         LittleCollection.load(group.content, nbt.getCompound(TILES_KEY));
         
         CompoundTag extensions = nbt.getCompound(EXTENSION_KEY);
@@ -194,13 +196,14 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     private LittleGrid grid;
     
     public LittleGroup() {
-        this(LittleGrid.min());
+        this((CompoundTag) null, Collections.EMPTY_LIST);
     }
     
-    public LittleGroup(CompoundTag structure, LittleGrid grid, List<LittleGroup> children) {
-        this.grid = grid;
+    public LittleGroup(CompoundTag structure, List<LittleGroup> children) {
+        this.grid = LittleGrid.min();
         this.structure = structure;
         this.children = new ItemChildrenList(this, children);
+        convertToSmallest(); // should ensure same grid for all
     }
     
     public LittleGroup(LittleGroup group, List<LittleGroup> children) {
@@ -208,7 +211,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         this.structure = group.structure;
         this.content = group.content;
         this.children = new ItemChildrenList(this, children);
-        convertToSmallest();
+        convertToSmallest(); // should ensure same grid for all
     }
     
     public LittleGroup(CompoundTag nbt, LittleGroup group, List<LittleGroup> children) {
@@ -216,11 +219,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         this.structure = nbt;
         this.content = group.content;
         this.children = new ItemChildrenList(this, children);
-        convertToSmallest();
-    }
-    
-    public LittleGroup(LittleGrid grid) {
-        this(null, grid, Collections.EMPTY_LIST);
+        convertToSmallest(); // should ensure same grid for all
     }
     
     public LittleGroup getParent() {
@@ -335,6 +334,11 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     @Override
+    public void convertToSmallest() {
+        convertTo(LittleGrid.get(getSmallest()));
+    }
+    
+    @Override
     public int getSmallest() {
         int size = LittleGrid.min().count;
         for (LittleTile tile : this)
@@ -364,11 +368,10 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
     }
     
     public LittleGroup copyExceptChildren() {
-        LittleGroup group = new LittleGroup(structure, grid, Collections.EMPTY_LIST);
+        LittleGroup group = new LittleGroup(structure, Collections.EMPTY_LIST);
         for (Entry<String, LittleGroup> extension : children.extensionEntries())
             group.children.addExtension(extension.getKey(), extension.getValue().copy());
-        for (LittleTile tile : this)
-            group.content.add(tile.copy());
+        group.addAll(grid, () -> new FunctionIterator<>(this, x -> x.copy()));
         return group;
     }
     
@@ -376,11 +379,10 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         List<LittleGroup> newChildren = new ArrayList<>();
         for (LittleGroup group : children.children())
             newChildren.add(group.copy());
-        LittleGroup group = new LittleGroup(structure, grid, newChildren);
+        LittleGroup group = new LittleGroup(structure, newChildren);
         for (Entry<String, LittleGroup> extension : children.extensionEntries())
             group.children.addExtension(extension.getKey(), extension.getValue().copy());
-        for (LittleTile tile : this)
-            group.content.add(tile.copy());
+        group.addAll(grid, () -> new FunctionIterator<>(this, x -> x.copy()));
         return group;
     }
     
@@ -530,6 +532,7 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         return content.isEmpty();
     }
     
+    @Override
     public int size() {
         return content.size();
     }
@@ -637,36 +640,59 @@ public class LittleGroup implements Iterable<LittleTile>, IGridBased {
         });
     }
     
-    public void add(LittleGrid grid, LittleElement element, Iterable<LittleBox> boxes) {
+    public void addTile(LittleGrid grid, LittleTile tile) {
+        if (grid != this.grid)
+            if (grid.count > this.grid.count)
+                convertTo(grid);
+            else
+                tile.convertTo(grid, this.grid);
+            
+        content.add(tile);
+        
+        convertToSmallest();
+    }
+    
+    public void addAll(LittleGrid grid, Iterable<LittleTile> tiles) {
+        boolean needsConvert = false;
         if (grid != this.grid) {
+            if (grid.count > this.grid.count)
+                convertTo(grid);
+            else
+                needsConvert = true;
+        }
+        
+        for (LittleTile tile : tiles) {
+            if (needsConvert)
+                tile.convertTo(grid, this.grid);
+            content.add(tile);
+        }
+        
+        convertToSmallest();
+    }
+    
+    public void add(LittleGrid grid, LittleElement element, Iterable<LittleBox> boxes) {
+        if (grid != this.grid)
             if (grid.count > this.grid.count)
                 convertTo(grid);
             else
                 for (LittleBox box : boxes)
                     box.convertTo(grid, this.grid);
-        }
-        
+                
         content.add(element, boxes);
         
         convertToSmallest();
     }
     
     public void add(LittleGrid grid, LittleElement element, LittleBox box) {
-        if (grid != this.grid) {
+        if (grid != this.grid)
             if (grid.count > this.grid.count)
                 convertTo(grid);
             else
                 box.convertTo(grid, this.grid);
-        }
-        
+            
         content.add(element, box);
         
         convertToSmallest();
-    }
-    
-    @Deprecated
-    public void addDirectly(LittleTile tile) {
-        content.add(tile);
     }
     
     public void combine() {

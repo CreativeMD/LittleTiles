@@ -722,7 +722,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         for (StructureChildConnection child : children.children())
             childrenGroup.add(child.getStructure().getPreviews(pos));
         
-        LittleGroup previews = new LittleGroup(structureNBT, LittleGrid.min(), childrenGroup);
+        LittleGroup previews = new LittleGroup(structureNBT, childrenGroup);
         
         for (Pair<IStructureParentCollection, LittleTile> pair : tiles())
             LittleGroupAbsolute.add(previews, pos, pair.key, pair.value);
@@ -749,7 +749,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             else
                 childrenGroup.add(child.getStructure().getPreviewsSameWorldOnly(pos));
             
-        LittleGroup previews = new LittleGroup(structureNBT, LittleGrid.min(), childrenGroup);
+        LittleGroup previews = new LittleGroup(structureNBT, childrenGroup);
         
         for (Pair<IStructureParentCollection, LittleTile> pair : tiles())
             LittleGroupAbsolute.add(previews, pos, pair.key, pair.value);
