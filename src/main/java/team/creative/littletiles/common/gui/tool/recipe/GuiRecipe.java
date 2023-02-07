@@ -51,6 +51,14 @@ import team.creative.littletiles.common.structure.registry.gui.LittleStructureGu
 public class GuiRecipe extends GuiConfigure {
     
     public final GuiSyncLocal<EndTag> CLEAR_CONTENT = getSyncHolder().register("clear_content", tag -> {
+        CompoundTag content = new CompoundTag();
+        LittleGrid.min().set(content);
+        tool.get().getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, content);
+        tool.changed();
+        LittleToolHandler.OPEN_CONFIG.open(getPlayer());
+    });
+    
+    public final GuiSyncLocal<EndTag> REMOVE_CONTENT = getSyncHolder().register("remove_content", tag -> {
         tool.get().getOrCreateTag().remove(ItemLittleBlueprint.CONTENT_KEY);
         tool.changed();
         LittleToolHandler.OPEN_CONFIG.open(getPlayer());
@@ -234,7 +242,12 @@ public class GuiRecipe extends GuiConfigure {
                     CLEAR_CONTENT.send(EndTag.INSTANCE);
             }, DialogButton.NO, DialogButton.YES);
         }).setTranslate("gui.recipe.clear"));
-        bottom.addLeft(new GuiButton("selection", x -> {}).setTranslate("gui.recipe.selection").setEnabled(false));
+        bottom.addLeft(new GuiButton("selection", x -> {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "remove_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
+                if (b == DialogButton.YES)
+                    REMOVE_CONTENT.send(EndTag.INSTANCE);
+            }, DialogButton.NO, DialogButton.YES);
+        }).setTranslate("gui.recipe.selection"));
         bottom.addRight(testReport = new GuiLabel("report").setTitle(Component.empty()));
         bottom.addRight(new GuiButton("check", x -> OPEN_TEST.open(new CompoundTag()).init(this)).setTranslate("gui.recipe.test"));
         bottom.addRight(new GuiButton("save", x -> {
