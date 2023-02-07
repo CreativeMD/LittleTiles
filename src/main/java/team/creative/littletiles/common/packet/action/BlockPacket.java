@@ -24,11 +24,11 @@ import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
@@ -124,7 +124,7 @@ public class BlockPacket extends CreativePacket {
                         previews.addTile(be.getGrid(), context.tile.copy());
                 }
                 
-                stack.setTag(LittleGroup.save(previews));
+                stack.getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, LittleGroup.save(previews));
             }
         };
         
