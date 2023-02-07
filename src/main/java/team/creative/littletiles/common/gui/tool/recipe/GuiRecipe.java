@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.Align;
+import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
@@ -20,6 +21,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
+import team.creative.creativecore.common.gui.controls.tree.GuiTree.GuiTreeSelectionChanged;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
@@ -32,8 +34,8 @@ import team.creative.creativecore.common.gui.sync.GuiSyncLocalLayer;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
@@ -80,6 +82,8 @@ public class GuiRecipe extends GuiConfigure {
     public GuiParent config;
     public LittleStructureGuiControl control;
     public GuiLabel testReport;
+    public GuiParent sidebarButtons;
+    private boolean selectedBefore = true;
     
     public LinkedHashMap<GuiTreeItemStructure, AnimationPreview> availablePreviews = new LinkedHashMap<>();
     
@@ -89,8 +93,15 @@ public class GuiRecipe extends GuiConfigure {
         valign = VAlign.STRETCH;
         setDim(new GuiSizeRules().minWidth(500).minHeight(300));
         registerEventChanged(x -> {
-            if (x.control.is("type"))
+            if (x.control.is("type") && tree.selected() != null)
                 ((GuiTreeItemStructure) tree.selected()).load();
+            if (x instanceof GuiTreeSelectionChanged sel)
+                if (selectedBefore != (sel.selected != null)) {
+                    selectedBefore = sel.selected != null;
+                    for (GuiChildControl child : sidebarButtons)
+                        if (!child.control.is("add"))
+                            child.control.setEnabled(selectedBefore);
+                }
         });
     }
     
@@ -189,7 +200,7 @@ public class GuiRecipe extends GuiConfigure {
         top.add(sidebar.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(100)));
         sidebar.add(tree.setExpandableY());
         
-        GuiParent sidebarButtons = new GuiParent(GuiFlow.FIT_X);
+        sidebarButtons = new GuiParent(GuiFlow.FIT_X);
         sidebar.add(sidebarButtons.setAlign(Align.CENTER));
         
         sidebarButtons.add(new GuiButton("add", x -> OPEN_ADD.open(new CompoundTag()).init(this)).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER)
@@ -201,6 +212,8 @@ public class GuiRecipe extends GuiConfigure {
             tree.updateTree();
         }).setTooltip(new TextBuilder().translate("gui.recipe.duplicate").build()));
         sidebarButtons.add(new GuiButton("del", x -> {
+            if (tree.selected() == null)
+                return;
             GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component.translatable("gui.recipe.dialog.delete"), (g, b) -> {
                 if (b == DialogButton.YES)
                     removeItem((GuiTreeItemStructure) tree.selected());
@@ -274,7 +287,8 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     public boolean runTest() {
-        ((GuiTreeItemStructure) tree.selected()).save();
+        if (tree.selected() != null)
+            ((GuiTreeItemStructure) tree.selected()).save();
         RecipeTestResults results = RecipeTest.STANDARD.test(this);
         actionOnAllItems(x -> x.clearErrors());
         

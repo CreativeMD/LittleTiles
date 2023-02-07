@@ -198,7 +198,10 @@ public class GuiAnimationViewer extends GuiControl {
     @OnlyIn(Dist.CLIENT)
     protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
         LinkedHashMap<GuiTreeItemStructure, AnimationPreview> previews = supplier.get();
-        AnimationPreview main = previews.get(selected.get());
+        GuiTreeItemStructure selected = this.selected.get();
+        if (selected == null)
+            return;
+        AnimationPreview main = previews.get(selected);
         if (main == null)
             return;
         
