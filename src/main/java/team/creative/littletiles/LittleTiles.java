@@ -302,7 +302,7 @@ public class LittleTiles {
                 LittleGrid grid = LittleGrid.defaultGrid();
                 CompoundTag nbt = new CompoundTag();
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
-                LittleGroup group = new LittleGroup(nbt, grid, Collections.EMPTY_LIST);
+                LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
                 group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
                 subLevel.setBlock(pos.above(), Blocks.DIRT.defaultBlockState(), 3);
                 PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);

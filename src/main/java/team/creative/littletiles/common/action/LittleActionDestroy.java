@@ -76,7 +76,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
             }
         } else {
             LittleInventory inventory = new LittleInventory(player);
-            destroyedTiles = new LittleGroupAbsolute(pos, be.getGrid());
+            destroyedTiles = new LittleGroupAbsolute(pos);
             if (BlockTile.selectEntireBlock(player, secondMode)) {
                 for (LittleTile toDestroy : context.parent)
                     destroyedTiles.add(context.parent, toDestroy);
