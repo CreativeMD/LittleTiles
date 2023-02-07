@@ -98,6 +98,10 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         return internalOutputs;
     }
     
+    public int externalOutputCount() {
+        return externalOutputs.size();
+    }
+    
     public Iterable<GuiSignalEvent> externalOutputs() {
         return externalOutputs.values();
     }
@@ -266,7 +270,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     }
     
     @OnlyIn(Dist.CLIENT)
-    private void refreshAnimation() {
+    public void refreshAnimation() {
         CompletableFuture.supplyAsync(() -> new AnimationPreview(group)).whenComplete((preview, throwable) -> {
             recipe.availablePreviews.put(this, preview);
             if (throwable != null)

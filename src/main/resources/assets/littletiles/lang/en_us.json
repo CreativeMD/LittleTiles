@@ -76,6 +76,10 @@
 	"gui.recipe.move": "Move Structures",
 	"gui.recipe.perspective": "Change perspective mode",
 	
+	"gui.recipe.merge.title": "Merge \u00A7e%s\u00A7r with:",
+	"gui.recipe.merge.not_found": "Nothing found",
+	"gui.recipe.dialog.merge.failed": "Structures could not be merged. \u00A7e%s\u00A7r is parent of \u00A7e%s\u00A7r",
+	
 	"gui.recipe.structure.name": "Name:",
 	
 	"gui.recipe.cancel.dialog": "Do you want to save the recipe before closing? Otherise changes will be lost!",
