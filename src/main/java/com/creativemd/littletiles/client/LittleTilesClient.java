@@ -168,6 +168,7 @@ public class LittleTilesClient extends LittleTilesServer {
         ClientRegistry.registerKeyBinding(flip);
         ClientRegistry.registerKeyBinding(mark);
         ClientRegistry.registerKeyBinding(configure);
+        ClientRegistry.registerKeyBinding(configureAdvanced);
         
         ClientRegistry.registerKeyBinding(undo);
         ClientRegistry.registerKeyBinding(redo);
