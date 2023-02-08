@@ -3,10 +3,11 @@ package team.creative.littletiles.common.gui.tool.recipe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
@@ -32,13 +33,12 @@ import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocalLayer;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
-import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.recipe.test.GuiRecipeTest;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
@@ -83,9 +83,8 @@ public class GuiRecipe extends GuiConfigure {
     public LittleStructureGuiControl control;
     public GuiLabel testReport;
     public GuiParent sidebarButtons;
+    public final GuiRecipeAnimationStorage storage = new GuiRecipeAnimationStorage();
     private boolean selectedBefore = true;
-    
-    public LinkedHashMap<GuiTreeItemStructure, AnimationPreview> availablePreviews = new LinkedHashMap<>();
     
     public GuiRecipe(ContainerSlotView view) {
         super("recipe", view);
@@ -236,14 +235,7 @@ public class GuiRecipe extends GuiConfigure {
         config = new GuiParent("config", GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         topCenter.add(config.setExpandableY());
         
-        GuiParent animationPanel = new GuiParent(GuiFlow.STACK_Y);
-        top.add(animationPanel);
-        animationPanel.add(new GuiAnimationViewer("viewer", () -> availablePreviews, () -> (GuiTreeItemStructure) tree.selected()).setExpandable());
-        
-        GuiParent animationButtons = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
-        animationPanel.add(animationButtons.setExpandableX());
-        
-        animationButtons.add(new GuiIconButton("perspective", GuiIcon.CAMERA, x -> {}).setTooltip(new TextBuilder().translate("gui.recipe.perspective").build()));
+        top.add(new GuiRecipeAnimationPanel(storage));
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom.setVAlign(VAlign.CENTER).setExpandableX());
@@ -268,6 +260,12 @@ public class GuiRecipe extends GuiConfigure {
         }).setTranslate("gui.save"));
         
         tree.selectFirst();
+    }
+    
+    @Override
+    public void render(PoseStack pose, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
+        storage.tick();
+        super.render(pose, control, controlRect, realRect, scale, mouseX, mouseY);
     }
     
     public void removeItem(GuiTreeItemStructure item) {

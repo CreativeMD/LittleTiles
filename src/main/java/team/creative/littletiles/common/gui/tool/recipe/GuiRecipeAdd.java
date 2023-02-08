@@ -116,7 +116,7 @@ public class GuiRecipeAdd extends GuiLayer {
         for (ItemStack stack : stacks)
             items.add(new GuiRecipeAddEntry(stack, getPlayer()));
         
-        GuiTree tree = new GuiTree("tree").setRootVisibility(false).setCheckboxes(true);
+        GuiTree tree = new GuiTree("tree").setRootVisibility(false).setCheckboxes(true, true);
         upper.add(tree.setDim(new GuiSizeRatioRules().widthRatio(0.3F).maxWidth(100)).setExpandableY());
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();

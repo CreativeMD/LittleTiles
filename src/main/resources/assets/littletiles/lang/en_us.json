@@ -75,6 +75,11 @@
 	"gui.recipe.merge": "Merge 2 Structures",
 	"gui.recipe.move": "Move Structures",
 	"gui.recipe.perspective": "Change perspective mode",
+	"gui.recipe.home": "Reset view",
+	
+	"gui.recipe.move.mode.default": "Move structure with children",
+	"gui.recipe.move.mode.single": "Move structure without children",
+	"gui.recipe.move.mode.checkbox": "Move checked structures",
 	
 	"gui.recipe.merge.title": "Merge \u00A7e%s\u00A7r with:",
 	"gui.recipe.merge.not_found": "Nothing found",

@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.gui.controls;
 
-import java.util.LinkedHashMap;
-import java.util.function.Supplier;
+import java.util.Map.Entry;
 
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -32,7 +31,9 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationStorage;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.mixin.LightTextureAccessor;
 
 public class GuiAnimationViewer extends GuiControl {
@@ -49,14 +50,12 @@ public class GuiAnimationViewer extends GuiControl {
     public ViewerDragMode grabMode = ViewerDragMode.NONE;
     public double grabX;
     public double grabY;
-    public Supplier<LinkedHashMap<GuiTreeItemStructure, AnimationPreview>> supplier;
-    public Supplier<GuiTreeItemStructure> selected;
+    public GuiRecipeAnimationStorage storage;
     private boolean initialized = false;
     
-    public GuiAnimationViewer(String name, Supplier<LinkedHashMap<GuiTreeItemStructure, AnimationPreview>> supplier, Supplier<GuiTreeItemStructure> selected) {
+    public GuiAnimationViewer(String name, GuiRecipeAnimationStorage storage) {
         super(name);
-        this.supplier = supplier;
-        this.selected = selected;
+        this.storage = storage;
     }
     
     @Override
@@ -197,16 +196,11 @@ public class GuiAnimationViewer extends GuiControl {
     @Override
     @OnlyIn(Dist.CLIENT)
     protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
-        LinkedHashMap<GuiTreeItemStructure, AnimationPreview> previews = supplier.get();
-        GuiTreeItemStructure selected = this.selected.get();
-        if (selected == null)
-            return;
-        AnimationPreview main = previews.get(selected);
-        if (main == null)
+        if (!storage.isReady())
             return;
         
         if (!initialized) {
-            this.distance.setStart(main.grid.toVanillaGrid(main.entireBox.getLongestSide()) / 2D + 2);
+            this.distance.setStart(storage.longestSide() / 2D + 2);
             initialized = true;
         }
         Minecraft mc = Minecraft.getInstance();
@@ -235,30 +229,33 @@ public class GuiAnimationViewer extends GuiControl {
         RenderSystem.setProjectionMatrix(projection.last().pose());
         
         pose.setIdentity();
-        Matrix4f matrix = projection.last().pose();
         
-        pose.translate(0, 0, -distance.current());
         RenderSystem.enableDepthTest();
-        
-        Vec3d rotationCenter = main.animation.getCenter().rotationCenter;
-        
         projection.translate(offX.current(), offY.current(), offZ.current());
         
-        projection.translate(-main.box.getXsize() * 0.5, -main.box.getYsize() * 0.5, -main.box.getZsize() * 0.5);
+        Vec3d center = storage.center();
+        pose.translate(0, 0, 0 - distance.current());
         
-        projection.translate(rotationCenter.x, rotationCenter.y, rotationCenter.z - distance.current());
+        pose.mulPose(Axis.XP.rotationDegrees((float) rotX.current()));
+        pose.mulPose(Axis.YP.rotationDegrees((float) rotY.current()));
+        pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         
-        projection.mulPose(Axis.XP.rotationDegrees((float) rotX.current()));
-        projection.mulPose(Axis.YP.rotationDegrees((float) rotY.current()));
-        projection.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
-        
-        projection.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z + distance.current());
+        pose.translate(-center.x, -center.y, -center.z);
         
         RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         
-        for (AnimationPreview preview : previews.values()) {
+        for (Entry<GuiTreeItemStructure, AnimationPreview> entry : storage) {
+            AnimationPreview preview = entry.getValue();
+            pose.pushPose();
+            RenderSystem.applyModelViewMatrix();
+            LittleVecGrid offset = entry.getKey().getOffset();
+            if (offset != null)
+                pose.translate(offset.getPosX(), offset.getPosY(), offset.getPosZ());
+            
             preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
             LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
+            
+            Matrix4f matrix = projection.last().pose();
             
             renderChunkLayer(preview, RenderType.solid(), pose, matrix);
             mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
@@ -267,6 +264,7 @@ public class GuiAnimationViewer extends GuiControl {
             renderChunkLayer(preview, RenderType.cutout(), pose, matrix);
             
             renderChunkLayer(preview, RenderType.translucent(), pose, matrix);
+            pose.popPose();
         }
         
         pose.popPose();

@@ -76,7 +76,7 @@ public class GuiRecipeMerge extends GuiLayer {
                 GuiDialogHandler.openDialog(getIntegratedParent(), "merge_failed", Component
                         .translatable("gui.recipe.dialog.merge.failed", selected.getTitle(), structure.getTitle()), (g, b) -> {}, DialogButton.OK);
             
-            selected.getParentItem().removeItem(selected);
+            recipe.removeItem(selected);
             structure.group.add(selected.group);
             int size = structure.externalOutputCount();
             for (GuiSignalEvent event : selected.externalOutputs())

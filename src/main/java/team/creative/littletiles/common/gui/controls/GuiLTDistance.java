@@ -52,7 +52,7 @@ public class GuiLTDistance extends GuiParent {
     public int getDistance() {
         GuiTextfield blocksTF = (GuiTextfield) get("blocks");
         GuiTextfield ltdistanceTF = (GuiTextfield) get("ltdistance");
-        LittleGrid context = getDistanceContext();
+        LittleGrid context = getDistanceGrid();
         
         try {
             int distance = Integer.parseInt(blocksTF.getText()) * context.count + Integer.parseInt(ltdistanceTF.getText());
@@ -64,7 +64,7 @@ public class GuiLTDistance extends GuiParent {
         }
     }
     
-    public LittleGrid getDistanceContext() {
+    public LittleGrid getDistanceGrid() {
         GuiStateButtonMapped<LittleGrid> contextBox = (GuiStateButtonMapped<LittleGrid>) get("grid");
         return contextBox.getSelected(LittleGrid.defaultGrid());
     }

@@ -272,7 +272,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     @OnlyIn(Dist.CLIENT)
     public void refreshAnimation() {
         CompletableFuture.supplyAsync(() -> new AnimationPreview(group)).whenComplete((preview, throwable) -> {
-            recipe.availablePreviews.put(this, preview);
+            recipe.storage.completed(this, preview);
             if (throwable != null)
                 throwable.printStackTrace();
         });
@@ -281,7 +281,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     @Override
     public void removed() {
         super.removed();
-        recipe.availablePreviews.remove(this);
+        recipe.storage.removed(this);
     }
     
     public GuiTreeItemStructure duplicate() {
@@ -297,6 +297,26 @@ public class GuiTreeItemStructure extends GuiTreeItem {
             if (child instanceof GuiTreeItemStructure s)
                 item.addItem(s.duplicate());
         return item;
+    }
+    
+    public void setOffset(LittleVecGrid vec) {
+        this.offset = vec;
+    }
+    
+    public LittleVecGrid getOffset() {
+        return offset;
+    }
+    
+    public void applyOffset() {
+        if (offset != null) {
+            group.move(offset);
+            refreshAnimation();
+        }
+        offset = null;
+    }
+    
+    public void resetOffset() {
+        offset = null;
     }
     
 }

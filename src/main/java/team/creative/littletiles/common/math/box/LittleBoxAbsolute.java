@@ -3,6 +3,7 @@ package team.creative.littletiles.common.math.box;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.grid.IGridBased;
@@ -48,6 +49,23 @@ public class LittleBoxAbsolute implements IGridBased {
         return box.getSmallest(grid);
     }
     
+    public void include(LittleGrid grid, BlockPos pos, LittleBox box) {
+        if (grid != this.grid)
+            if (grid.count > this.grid.count)
+                convertTo(grid);
+            else
+                box.convertTo(grid, this.grid);
+            
+        BlockPos offset = pos.subtract(this.pos);
+        
+        this.box.minX = Math.min(box.minX + grid.toGrid(offset.getX()), this.box.minX);
+        this.box.minY = Math.min(box.minY + grid.toGrid(offset.getY()), this.box.minY);
+        this.box.minZ = Math.min(box.minZ + grid.toGrid(offset.getZ()), this.box.minZ);
+        this.box.maxX = Math.max(box.maxX + grid.toGrid(offset.getX()), this.box.maxX);
+        this.box.maxY = Math.max(box.maxY + grid.toGrid(offset.getY()), this.box.maxY);
+        this.box.maxZ = Math.max(box.maxZ + grid.toGrid(offset.getZ()), this.box.maxZ);
+    }
+    
     public LittleVec getDoubledCenter(BlockPos pos) {
         double x = (box.maxX + box.minX) / 2D;
         double y = (box.maxY + box.minY) / 2D;
@@ -67,6 +85,14 @@ public class LittleBoxAbsolute implements IGridBased {
     
     public LittleVecGrid getSize() {
         return new LittleVecGrid(box.getSize(), grid);
+    }
+    
+    public Vec3d getVanillaCenter() {
+        Vec3d vec = new Vec3d(pos);
+        vec.x += grid.toVanillaGrid((box.maxX + box.minX) / 2D);
+        vec.y += grid.toVanillaGrid((box.maxY + box.minY) / 2D);
+        vec.z += grid.toVanillaGrid((box.maxZ + box.minZ) / 2D);
+        return vec;
     }
     
     public HashMapList<BlockPos, LittleBox> splitted() {
