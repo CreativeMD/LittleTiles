@@ -31,7 +31,8 @@ public class GuiRecipeTest extends GuiLayer {
     
     @Override
     public void becameTopLayer() {
-        init(recipe);
+        if (recipe != null)
+            init(recipe);
     }
     
     @Override
