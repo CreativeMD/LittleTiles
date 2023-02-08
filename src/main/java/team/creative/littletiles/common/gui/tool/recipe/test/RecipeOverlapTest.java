@@ -44,6 +44,8 @@ public class RecipeOverlapTest extends RecipeTestModule {
         
         if (item.group.isEmpty())
             item.recipe.removeItem(item);
+        else
+            item.refreshAnimation();
     }
     
     private HashMap<BlockPos, RecipeOverlayTestBlock> blocks;
@@ -226,7 +228,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
                 }
                 group.combine();
                 structure.group = group;
-                
+                structure.refreshAnimation();
                 refresh.run();
             }).setTranslate("gui.recipe.test.overlap.fix"));
         }
