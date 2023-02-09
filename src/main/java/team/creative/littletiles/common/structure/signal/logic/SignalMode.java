@@ -46,7 +46,8 @@ public enum SignalMode {
                         ISignalScheduleTicket ticket = tickets.get(i);
                         list.add(new IntArrayTag(new int[] { ticket.getDelay(), ticket.getState().number() }));
                     }
-                    nbt.put("tickets", list);
+                    if (!list.isEmpty())
+                        nbt.put("tickets", list);
                 }
                 
             };
@@ -423,7 +424,8 @@ public enum SignalMode {
                 ISignalScheduleTicket ticket = tickets.get(i);
                 list.add(new IntArrayTag(new int[] { ticket.getDelay(), ticket.getState().number() }));
             }
-            nbt.put("tickets", list);
+            if (!list.isEmpty())
+                nbt.put("tickets", list);
         }
     }
     
