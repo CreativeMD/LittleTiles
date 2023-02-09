@@ -2,7 +2,12 @@ package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -10,6 +15,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.phys.AABB;
+import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
@@ -24,11 +31,16 @@ import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.geo.Rect;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.api.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.gui.controls.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
+import team.creative.littletiles.common.gui.controls.GuiAnimationViewer.GuiAnimationViewerStorage;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
-public class GuiRecipeAdd extends GuiLayer {
+public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage {
     
     public static String generateGroupName(LittleGroup group) {
         String name = group.getStructureName();
@@ -44,8 +56,13 @@ public class GuiRecipeAdd extends GuiLayer {
     public GuiRecipe recipe;
     private ItemStack selected;
     
+    private volatile int requestedPreview = 0;
+    private volatile AnimationPreview current;
+    private volatile int executedPreview = 0;
+    private AtomicReference<GuiRecipeAddAnimationRequest> scheduled = new AtomicReference<>();
+    
     public GuiRecipeAdd() {
-        super("recipe.add", 300, 200);
+        super("recipe.add", 400, 200);
         flow = GuiFlow.STACK_Y;
     }
     
@@ -78,6 +95,16 @@ public class GuiRecipeAdd extends GuiLayer {
             addGroup(item, child);
     }
     
+    public void setAnimation(int index, AnimationPreview preview) {
+        synchronized (scheduled) {
+            if (requestedPreview == -1 || requestedPreview > index) {
+                if (preview != null)
+                    preview.unload();
+            } else
+                scheduled.set(new GuiRecipeAddAnimationRequest(preview, index));
+        }
+    }
+    
     public void select(ItemStack stack) {
         if (this.selected == stack)
             return;
@@ -97,10 +124,22 @@ public class GuiRecipeAdd extends GuiLayer {
                 addGroup(tree.root(), group);
             
             tree.updateTree();
+            synchronized (scheduled) {
+                requestedPreview++;
+            }
+            final int request = requestedPreview;
+            CompletableFuture.supplyAsync(() -> new AnimationPreview(group)).whenComplete((preview, throwable) -> {
+                setAnimation(request, preview);
+                if (throwable != null)
+                    throwable.printStackTrace();
+            });
             get("save").setEnabled(true);
             return;
         }
-        
+        synchronized (scheduled) {
+            requestedPreview++;
+        }
+        setAnimation(requestedPreview, null);
         get("save").setEnabled(false);
     }
     
@@ -110,7 +149,7 @@ public class GuiRecipeAdd extends GuiLayer {
         add(upper.setExpandable());
         
         GuiScrollY items = new GuiScrollY();
-        upper.add(items);
+        upper.add(items.setDim(new GuiSizeRatioRules().widthRatio(0.3F).maxWidth(150)));
         
         List<ItemStack> stacks = collectTiles();
         for (ItemStack stack : stacks)
@@ -118,6 +157,8 @@ public class GuiRecipeAdd extends GuiLayer {
         
         GuiTree tree = new GuiTree("tree").setRootVisibility(false).setCheckboxes(true, true);
         upper.add(tree.setDim(new GuiSizeRatioRules().widthRatio(0.3F).maxWidth(100)).setExpandableY());
+        
+        upper.add(new GuiAnimationPanel(tree, this, false).setExpandable());
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);
@@ -147,6 +188,20 @@ public class GuiRecipeAdd extends GuiLayer {
         }).setTranslate("gui.import").setEnabled(false));
     }
     
+    @Override
+    public void render(PoseStack pose, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
+        synchronized (scheduled) {
+            GuiRecipeAddAnimationRequest request = scheduled.getAndSet(null);
+            if (request != null && executedPreview < request.index) {
+                if (current != null)
+                    current.unload();
+                current = request.preview;
+                executedPreview = request.index;
+            }
+        }
+        super.render(pose, control, controlRect, realRect, scale, mouseX, mouseY);
+    }
+    
     protected LittleGroup reconstructBlueprint(GuiRecipeAddTreeItem item) {
         List<LittleGroup> children = new ArrayList<>();
         for (GuiTreeItem child : item.itemsChecked())
@@ -164,6 +219,14 @@ public class GuiRecipeAdd extends GuiLayer {
         if (children.isEmpty())
             return null;
         return new LittleGroup((CompoundTag) null, children);
+    }
+    
+    @Override
+    public void closed() {
+        super.closed();
+        requestedPreview = -1;
+        if (current != null)
+            current.unload();
     }
     
     public class GuiRecipeAddEntry extends GuiPanel {
@@ -191,6 +254,39 @@ public class GuiRecipeAdd extends GuiLayer {
         
     }
     
+    @Override
+    public boolean isReady() {
+        return current != null;
+    }
+    
+    @Override
+    public double longestSide() {
+        return Math.max(current.box.maxX - current.box.minX, Math.max(current.box.maxY - current.box.minY, current.box.maxZ - current.box.minZ));
+    }
+    
+    @Override
+    public AABB overall() {
+        return current.box;
+    }
+    
+    @Override
+    public Vec3d center() {
+        return new Vec3d(current.box.getCenter());
+    }
+    
+    @Override
+    public boolean highlightSelected() {
+        return false;
+    }
+    
+    @Override
+    public void highlightSelected(boolean value) {}
+    
+    @Override
+    public void render(PoseStack pose, PoseStack projection, GuiAnimationViewer viewer, Minecraft mc) {
+        viewer.renderPreview(pose, projection, current, mc);
+    }
+    
     public static class GuiRecipeAddTreeItem extends GuiTreeItem {
         
         public final LittleGroup group;
@@ -202,5 +298,7 @@ public class GuiRecipeAdd extends GuiLayer {
         }
         
     }
+    
+    private static record GuiRecipeAddAnimationRequest(AnimationPreview preview, int index) {}
     
 }

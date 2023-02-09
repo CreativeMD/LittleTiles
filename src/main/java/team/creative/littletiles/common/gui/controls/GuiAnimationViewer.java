@@ -1,8 +1,5 @@
 package team.creative.littletiles.common.gui.controls;
 
-import java.util.ArrayList;
-import java.util.Map.Entry;
-
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -10,28 +7,20 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
-import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
@@ -40,14 +29,7 @@ import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
-import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationStorage;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
-import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
-import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.mixin.LightTextureAccessor;
 
 public class GuiAnimationViewer extends GuiControl {
@@ -65,7 +47,7 @@ public class GuiAnimationViewer extends GuiControl {
     private ProjectionMode projection = ProjectionMode.SHOWCASE;
     public double grabX;
     public double grabY;
-    public GuiRecipeAnimationStorage storage;
+    public GuiAnimationViewerStorage storage;
     private boolean initialized = false;
     
     private boolean forward;
@@ -75,7 +57,7 @@ public class GuiAnimationViewer extends GuiControl {
     private boolean up;
     private boolean down;
     
-    public GuiAnimationViewer(String name, GuiRecipeAnimationStorage storage) {
+    public GuiAnimationViewer(String name, GuiAnimationViewerStorage storage) {
         super(name);
         this.storage = storage;
     }
@@ -153,6 +135,22 @@ public class GuiAnimationViewer extends GuiControl {
             for (int y = 0; y < 16; y++)
                 texture.getLightPixels().setPixelRGBA(x, y, pixels[x][y]);
         texture.getLightTexture().upload();
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public void renderPreview(PoseStack pose, PoseStack projection, AnimationPreview preview, Minecraft mc) {
+        preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
+        LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
+        
+        Matrix4f matrix = projection.last().pose();
+        
+        renderChunkLayer(preview, RenderType.solid(), pose, matrix);
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
+        renderChunkLayer(preview, RenderType.cutoutMipped(), pose, matrix);
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
+        renderChunkLayer(preview, RenderType.cutout(), pose, matrix);
+        
+        renderChunkLayer(preview, RenderType.translucent(), pose, matrix);
     }
     
     protected void renderChunkLayer(AnimationPreview preview, RenderType layer, PoseStack pose, Matrix4f matrix) {
@@ -242,7 +240,6 @@ public class GuiAnimationViewer extends GuiControl {
     }
     
     public void resetView() {
-        distance.set(storage.longestSide() / 2D + 2);
         offX.set(0);
         offY.set(0);
         offZ.set(0);
@@ -312,102 +309,7 @@ public class GuiAnimationViewer extends GuiControl {
         Vec3d center = storage.center();
         this.projection.prepareRendering(pose, center, this);
         
-        GuiTreeItemStructure selected = null;
-        
-        for (Entry<GuiTreeItemStructure, AnimationPreview> entry : storage) {
-            if (entry.getKey().tree.hasCheckboxes() && !entry.getKey().isChecked())
-                continue;
-            
-            AnimationPreview preview = entry.getValue();
-            pose.pushPose();
-            RenderSystem.applyModelViewMatrix();
-            LittleVecGrid offset = entry.getKey().getOffset();
-            if (offset != null)
-                pose.translate(offset.getPosX(), offset.getPosY(), offset.getPosZ());
-            
-            preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
-            LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
-            
-            Matrix4f matrix = projection.last().pose();
-            
-            renderChunkLayer(preview, RenderType.solid(), pose, matrix);
-            mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-            renderChunkLayer(preview, RenderType.cutoutMipped(), pose, matrix);
-            mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
-            renderChunkLayer(preview, RenderType.cutout(), pose, matrix);
-            
-            renderChunkLayer(preview, RenderType.translucent(), pose, matrix);
-            
-            if (storage.highlightSelected && entry.getKey().selected())
-                selected = entry.getKey();
-            
-            pose.popPose();
-        }
-        
-        RenderSystem.depthMask(true);
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableTexture();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        
-        PoseStack empty = new PoseStack();
-        empty.setIdentity();
-        
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        RenderSystem.applyModelViewMatrix();
-        
-        if (selected != null) {
-            LittleVecGrid offset = selected.getOffset();
-            double x = 0;
-            double y = 0;
-            double z = 0;
-            if (offset != null) {
-                x = offset.getPosX();
-                y = offset.getPosY();
-                z = offset.getPosZ();
-            }
-            
-            LittleGrid grid = selected.group.getGrid();
-            VoxelShape shape = Shapes.empty();
-            for (LittleBox box : selected.group.allBoxes())
-                shape = Shapes.or(box.getShape(grid), shape);
-            
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferbuilder = tesselator.getBuilder();
-            
-            bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-            RenderSystem.lineWidth(1.0F);
-            PreviewRenderer.renderShape(empty, bufferbuilder, shape, x, y, z, 1, 1, 1, 1);
-            tesselator.end();
-        }
-        
-        if (storage.hasOverlap()) {
-            
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferbuilder = tesselator.getBuilder();
-            int colorAlpha = 102;
-            LittleBoxesNoOverlap overlap = storage.getOverlap();
-            LittleGrid grid = overlap.getGrid();
-            for (Entry<BlockPos, ArrayList<LittleBox>> entry : overlap.generateBlockWise().entrySet()) {
-                pose.pushPose();
-                pose.translate(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ());
-                RenderSystem.applyModelViewMatrix();
-                
-                for (LittleBox box : entry.getValue()) {
-                    RenderBox renderBox = box.getRenderingBox(grid);
-                    RenderSystem.disableDepthTest();
-                    RenderSystem.lineWidth(8.0F);
-                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
-                    RenderSystem.enableDepthTest();
-                    RenderSystem.lineWidth(4.0F);
-                    renderBox.color = ColorUtils.RED;
-                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
-                }
-                pose.popPose();
-            }
-            RenderSystem.disableDepthTest();
-        }
+        storage.render(pose, projection, this, mc);
         
         pose.popPose();
         
@@ -593,6 +495,25 @@ public class GuiAnimationViewer extends GuiControl {
         public abstract void lateral(float amount, GuiAnimationViewer viewer);
         
         public abstract void up(float amount, GuiAnimationViewer viewer);
+        
+    }
+    
+    public interface GuiAnimationViewerStorage {
+        
+        public boolean isReady();
+        
+        public double longestSide();
+        
+        public AABB overall();
+        
+        public Vec3d center();
+        
+        public boolean highlightSelected();
+        
+        public void highlightSelected(boolean value);
+        
+        @OnlyIn(Dist.CLIENT)
+        public void render(PoseStack pose, PoseStack projection, GuiAnimationViewer viewer, Minecraft mc);
         
     }
 }

@@ -20,6 +20,7 @@ import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.itr.TreeIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiLTDistance;
+import team.creative.littletiles.common.gui.controls.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -94,7 +95,7 @@ public class GuiRecipeMove extends GuiLayer {
         row2.add(new GuiRecipeMoveButton(Facing.DOWN));
         row2.add(new GuiRecipeMoveButton(Facing.NORTH));
         
-        upper.add(new GuiRecipeAnimationPanel(recipe.tree, recipe.storage));
+        upper.add(new GuiAnimationPanel(recipe.tree, recipe.storage, true));
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);
