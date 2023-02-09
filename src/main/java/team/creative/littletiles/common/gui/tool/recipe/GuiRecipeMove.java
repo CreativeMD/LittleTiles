@@ -19,8 +19,8 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.itr.TreeIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiLTDistance;
 import team.creative.littletiles.common.gui.controls.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.controls.GuiLTDistance;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -117,7 +117,9 @@ public class GuiRecipeMove extends GuiLayer {
     public void move(Facing facing) {
         GuiLTDistance distance = get("distance");
         GuiStateButtonMapped<GuiRecipeMoveMode> modes = get("modes");
-        LittleVecGrid vec = new LittleVecGrid(new LittleVec(facing), distance.getDistanceGrid());
+        LittleVec direction = new LittleVec(facing);
+        direction.scale(distance.getDistance());
+        LittleVecGrid vec = new LittleVecGrid(direction, distance.getDistanceGrid());
         for (GuiRecipeMoveItem item : (Iterable<GuiRecipeMoveItem>) () -> modes.getSelected().iterator(tree))
             item.addOffset(vec);
     }
