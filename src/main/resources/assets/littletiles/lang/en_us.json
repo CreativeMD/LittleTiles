@@ -67,6 +67,8 @@
 	
 	"gui.signal.events": "Signal Outputs",
 	
+	"gui.recipe.dialog.clear": "Do you really want to clear all content?",
+	"gui.recipe.dialog.delete": "Do you really want to delete %s?",
 	"gui.recipe.add": "Add",
 	"gui.recipe.duplicate": "Duplicate",
 	"gui.recipe.delete": "Delete",

@@ -96,6 +96,10 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         return Math.max(overall.maxX - overall.minX, Math.max(overall.maxY - overall.minY, overall.maxZ - overall.minZ));
     }
     
+    public AABB overall() {
+        return overall;
+    }
+    
     protected void remove(GuiTreeItemStructure structure) {
         availablePreviews.remove(structure).unload();
         updateBox();

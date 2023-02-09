@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
@@ -61,10 +62,18 @@ public class GuiAnimationViewer extends GuiControl {
     public SmoothValue distance = new SmoothValue(200);
     
     public ViewerDragMode grabMode = ViewerDragMode.NONE;
+    private ProjectionMode projection = ProjectionMode.SHOWCASE;
     public double grabX;
     public double grabY;
     public GuiRecipeAnimationStorage storage;
     private boolean initialized = false;
+    
+    private boolean forward;
+    private boolean backward;
+    private boolean left;
+    private boolean right;
+    private boolean up;
+    private boolean down;
     
     public GuiAnimationViewer(String name, GuiRecipeAnimationStorage storage) {
         super(name);
@@ -82,31 +91,12 @@ public class GuiAnimationViewer extends GuiControl {
         if (grabMode == ViewerDragMode.NONE)
             return;
         
-        double grabOffset = 0.01;
-        
         switch (grabMode) {
             case LEFT -> {
                 rotY.set(rotY.aimed() + x - grabX);
                 rotX.set(rotX.aimed() + y - grabY);
             }
-            case RIGHT -> {
-                Vector3f offset = new Vector3f((float) ((x - grabX) * grabOffset), 0, (float) ((y - grabY) * grabOffset));
-                offset.rotate(Axis.XP.rotationDegrees((float) rotX.current()));
-                offset.rotate(Axis.YP.rotationDegrees((float) rotY.current()));
-                offset.rotate(Axis.ZP.rotationDegrees((float) rotZ.current()));
-                offX.set(offX.aimed() + offset.x);
-                offY.set(offY.aimed() + offset.y);
-                offZ.set(offZ.aimed() + offset.z);
-            }
-            case MIDDLE -> {
-                Vector3f offset = new Vector3f((float) ((x - grabX) * grabOffset), (float) ((y - grabY) * -grabOffset), 0);
-                offset.rotate(Axis.XP.rotationDegrees((float) rotX.current()));
-                offset.rotate(Axis.YP.rotationDegrees((float) rotY.current()));
-                offset.rotate(Axis.ZP.rotationDegrees((float) rotZ.current()));
-                offX.set(offX.aimed() + offset.x);
-                offY.set(offY.aimed() + offset.y);
-                offZ.set(offZ.aimed() + offset.z);
-            }
+            default -> projection.dragMouse(this, x - grabX, y - grabY);
         }
         grabX = x;
         grabY = y;
@@ -133,6 +123,15 @@ public class GuiAnimationViewer extends GuiControl {
     public boolean mouseScrolled(Rect rect, double x, double y, double delta) {
         distance.set(Math.max(distance.aimed() + delta * -(Screen.hasControlDown() ? 5 : 1), 0));
         return true;
+    }
+    
+    public void nextProjection() {
+        setProjection(projection.next());
+    }
+    
+    public void setProjection(ProjectionMode mode) {
+        this.projection = mode;
+        initialized = false;
     }
     
     public static int[][] makeLightBright() {
@@ -207,13 +206,61 @@ public class GuiAnimationViewer extends GuiControl {
     }
     
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        Options options = Minecraft.getInstance().options;
+        if (options.keyUp.matches(keyCode, scanCode))
+            forward = true;
+        if (options.keyDown.matches(keyCode, scanCode))
+            backward = true;
+        if (options.keyRight.matches(keyCode, scanCode))
+            left = true;
+        if (options.keyLeft.matches(keyCode, scanCode))
+            right = true;
+        if (options.keyJump.matches(keyCode, scanCode))
+            up = true;
+        if (options.keyShift.matches(keyCode, scanCode))
+            down = true;
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        Options options = Minecraft.getInstance().options;
+        if (options.keyUp.matches(keyCode, scanCode))
+            forward = false;
+        if (options.keyDown.matches(keyCode, scanCode))
+            backward = false;
+        if (options.keyRight.matches(keyCode, scanCode))
+            left = false;
+        if (options.keyLeft.matches(keyCode, scanCode))
+            right = false;
+        if (options.keyJump.matches(keyCode, scanCode))
+            up = false;
+        if (options.keyShift.matches(keyCode, scanCode))
+            down = false;
+        return super.keyReleased(keyCode, scanCode, modifiers);
+    }
+    
+    public void resetView() {
+        distance.set(storage.longestSide() / 2D + 2);
+        offX.set(0);
+        offY.set(0);
+        offZ.set(0);
+        rotX.set(0);
+        rotY.set(0);
+        rotZ.set(0);
+        initialized = false;
+    }
+    
+    @Override
     @OnlyIn(Dist.CLIENT)
     protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
         if (!storage.isReady())
             return;
         
         if (!initialized) {
-            this.distance.setStart(storage.longestSide() / 2D + 2);
+            resetView();
+            projection.init(this);
             initialized = true;
         }
         Minecraft mc = Minecraft.getInstance();
@@ -227,6 +274,22 @@ public class GuiAnimationViewer extends GuiControl {
         offX.tick();
         offY.tick();
         offZ.tick();
+        
+        float amount = mc.getDeltaFrameTime() * 2;
+        if (Screen.hasControlDown())
+            amount *= 4;
+        if (forward)
+            projection.forward(amount, this);
+        if (backward)
+            projection.forward(-amount, this);
+        if (left)
+            projection.lateral(amount, this);
+        if (right)
+            projection.lateral(-amount, this);
+        if (up)
+            projection.up(amount, this);
+        if (down)
+            projection.up(-amount, this);
         
         pose = RenderSystem.getModelViewStack();
         pose.pushPose();
@@ -245,16 +308,9 @@ public class GuiAnimationViewer extends GuiControl {
         pose.setIdentity();
         
         RenderSystem.enableDepthTest();
-        pose.translate(offX.current(), offY.current(), offZ.current());
         
         Vec3d center = storage.center();
-        pose.translate(0, 0, 0 - distance.current());
-        
-        pose.mulPose(Axis.XP.rotationDegrees((float) rotX.current()));
-        pose.mulPose(Axis.YP.rotationDegrees((float) rotY.current()));
-        pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
-        
-        pose.translate(-center.x, -center.y, -center.z);
+        this.projection.prepareRendering(pose, center, this);
         
         GuiTreeItemStructure selected = null;
         
@@ -407,6 +463,136 @@ public class GuiAnimationViewer extends GuiControl {
                 default -> NONE;
             };
         }
+        
+    }
+    
+    public static enum ProjectionMode {
+        
+        SHOWCASE {
+            
+            @Override
+            public void init(GuiAnimationViewer viewer) {
+                viewer.distance.set(viewer.storage.longestSide() / 2D + 2);
+            }
+            
+            @Override
+            public void dragMouse(GuiAnimationViewer viewer, double x, double y) {
+                double grabOffset = 0.01;
+                switch (viewer.grabMode) {
+                    case RIGHT -> {
+                        Vector3f offset = new Vector3f((float) (x * grabOffset), 0, (float) (y * grabOffset));
+                        apply(offset, viewer);
+                    }
+                    case MIDDLE -> {
+                        Vector3f offset = new Vector3f((float) (x * grabOffset), (float) (y * -grabOffset), 0);
+                        apply(offset, viewer);
+                    }
+                }
+            }
+            
+            @Override
+            public void forward(float amount, GuiAnimationViewer viewer) {
+                viewer.rotX.add(amount);
+            }
+            
+            @Override
+            public void lateral(float amount, GuiAnimationViewer viewer) {
+                viewer.rotY.add(-amount);
+            }
+            
+            public void apply(Vector3f vec, GuiAnimationViewer viewer) {
+                vec.rotate(Axis.XP.rotationDegrees((float) viewer.rotX.current()));
+                vec.rotate(Axis.YP.rotationDegrees((float) viewer.rotY.current()));
+                vec.rotate(Axis.ZP.rotationDegrees((float) viewer.rotZ.current()));
+                viewer.offX.set(viewer.offX.aimed() + vec.x);
+                viewer.offY.set(viewer.offY.aimed() + vec.y);
+                viewer.offZ.set(viewer.offZ.aimed() + vec.z);
+            }
+            
+            @Override
+            public void prepareRendering(PoseStack pose, Vec3d center, GuiAnimationViewer viewer) {
+                
+                pose.translate(viewer.offX.current(), viewer.offY.current(), viewer.offZ.current() - viewer.distance.current());
+                
+                pose.mulPose(Axis.XP.rotationDegrees((float) viewer.rotX.current()));
+                pose.mulPose(Axis.YP.rotationDegrees((float) viewer.rotY.current()));
+                pose.mulPose(Axis.ZP.rotationDegrees((float) viewer.rotZ.current()));
+                
+                pose.translate(-center.x, -center.y, -center.z);
+            }
+            
+            @Override
+            public ProjectionMode next() {
+                return PLAYER;
+            }
+            
+            @Override
+            public void up(float amount, GuiAnimationViewer viewer) {
+                viewer.offZ.add(amount * 0.05F);
+            }
+        },
+        PLAYER {
+            
+            @Override
+            public void init(GuiAnimationViewer viewer) {
+                viewer.offZ.set(viewer.storage.longestSide() / 2D);
+                viewer.offY.set(-viewer.storage.overall().getSize());
+                viewer.rotX.set(45);
+                viewer.rotY.set(180);
+            }
+            
+            @Override
+            public void dragMouse(GuiAnimationViewer viewer, double x, double y) {}
+            
+            @Override
+            public void forward(float amount, GuiAnimationViewer viewer) {
+                amount *= 0.1;
+                viewer.offX.add(amount * (Math.sin(-viewer.rotY.aimed() * Math.PI / 180)));
+                viewer.offZ.add(amount * (Math.cos(viewer.rotY.aimed() * Math.PI / 180)));
+            }
+            
+            @Override
+            public void lateral(float amount, GuiAnimationViewer viewer) {
+                amount *= -0.1;
+                viewer.offX.add(amount * (Math.cos(-viewer.rotY.aimed() * Math.PI / 180)));
+                viewer.offZ.add(amount * (Math.sin(viewer.rotY.aimed() * Math.PI / 180)));
+            }
+            
+            @Override
+            public void prepareRendering(PoseStack pose, Vec3d center, GuiAnimationViewer viewer) {
+                pose.mulPose(Axis.XP.rotationDegrees((float) viewer.rotX.current()));
+                pose.mulPose(Axis.YP.rotationDegrees((float) viewer.rotY.current()));
+                pose.mulPose(Axis.ZP.rotationDegrees((float) viewer.rotZ.current()));
+                
+                pose.translate(viewer.offX.current(), viewer.offY.current(), viewer.offZ.current());
+                pose.translate(-center.x, -center.y, -center.z);
+                
+            }
+            
+            @Override
+            public ProjectionMode next() {
+                return SHOWCASE;
+            }
+            
+            @Override
+            public void up(float amount, GuiAnimationViewer viewer) {
+                viewer.offY.add(amount * -0.1);
+            }
+        };
+        
+        public abstract ProjectionMode next();
+        
+        public abstract void init(GuiAnimationViewer viewer);
+        
+        public abstract void prepareRendering(PoseStack pose, Vec3d center, GuiAnimationViewer viewer);
+        
+        public abstract void dragMouse(GuiAnimationViewer viewer, double x, double y);
+        
+        public abstract void forward(float amount, GuiAnimationViewer viewer);
+        
+        public abstract void lateral(float amount, GuiAnimationViewer viewer);
+        
+        public abstract void up(float amount, GuiAnimationViewer viewer);
         
     }
 }
