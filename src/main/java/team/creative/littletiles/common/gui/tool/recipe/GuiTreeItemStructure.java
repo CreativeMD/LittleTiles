@@ -21,6 +21,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
@@ -181,6 +182,13 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         recipe.config.add(recipe.control);
         recipe.control.create(structure);
         recipe.config.init();
+        
+        GuiParent info = new GuiParent("infoStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
+        recipe.config.add(info);
+        
+        info.add(new GuiLabel("info").setTitle(Component
+                .literal(group.totalTiles() + " " + LanguageUtils.translate("gui.tile.count") + " " + group.totalBoxes() + " " + LanguageUtils.translate("gui.box.count"))));
+        
         GuiParent parent = new GuiParent("bottomStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         recipe.config.add(parent);
         
