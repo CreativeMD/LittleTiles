@@ -68,7 +68,10 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
             nbt.putString("con", condition.write());
         nbt.putString("mode", handler == null ? defaultMode.name() : handler.getMode().name());
         if (handler != null) {
-            nbt.putInt("delay", handler.delay);
+            if (handler.delay > 0)
+                nbt.putInt("delay", handler.delay);
+            else
+                nbt.remove("delay");
             handler.write(preview, nbt);
         }
         return nbt;
