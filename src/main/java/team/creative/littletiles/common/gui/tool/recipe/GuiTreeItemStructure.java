@@ -291,7 +291,8 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     @Override
     public void removed() {
         super.removed();
-        recipe.storage.removed(this);
+        if (!moving)
+            recipe.storage.removed(this);
     }
     
     public GuiTreeItemStructure duplicate() {

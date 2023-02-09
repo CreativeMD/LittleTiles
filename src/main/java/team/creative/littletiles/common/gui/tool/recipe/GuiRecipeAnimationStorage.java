@@ -94,11 +94,22 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         return Math.max(overall.maxX - overall.minX, Math.max(overall.maxY - overall.minY, overall.maxZ - overall.minZ));
     }
     
+    protected void remove(GuiTreeItemStructure structure) {
+        availablePreviews.remove(structure).unload();
+        updateBox();
+    }
+    
+    protected void put(GuiTreeItemStructure structure, AnimationPreview preview) {
+        AnimationPreview previous = availablePreviews.put(structure, preview);
+        if (previous != null)
+            previous.unload();
+        updateBox();
+    }
+    
     public void removed(GuiTreeItemStructure structure) {
-        if (RenderSystem.isOnRenderThread()) {
-            availablePreviews.remove(structure);
-            updateBox();
-        } else
+        if (RenderSystem.isOnRenderThread())
+            remove(structure);
+        else
             change.add(new AnimationPair(structure, null));
     }
     
@@ -119,7 +130,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             AnimationPair pair;
             while ((pair = change.poll()) != null) {
                 if (pair.preview == null)
-                    availablePreviews.remove(pair.item);
+                    remove(pair.item);
                 else
                     availablePreviews.put(pair.item, pair.preview);
             }
