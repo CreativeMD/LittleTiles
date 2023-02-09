@@ -165,6 +165,14 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         recipe.types.select(LittleStructureGuiRegistry.get(structure != null ? structure.type : null, group));
     }
     
+    public void onNameChanged(GuiTextfield field) {
+        String text = field.getText();
+        if (text.isBlank())
+            text = null;
+        updateTitle(text, gui.type());
+        tree.reflowTree();
+    }
+    
     public void load() {
         gui = recipe.types.getSelected();
         recipe.control = gui.create(this);
@@ -210,12 +218,14 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     }
     
     public void updateTitle() {
+        updateTitle(structure != null ? structure.name : null, structure != null ? structure.type : null);
+    }
+    
+    protected void updateTitle(String name, LittleStructureType type) {
         int index = getParentItem() != null ? getParentItem().indexOf(this) : this.index;
-        String name = structure != null ? structure.name : null;
         boolean hasStructureName = true;
         if (name == null) {
             hasStructureName = false;
-            LittleStructureType type = structure != null ? structure.type : null;
             if (type != null)
                 name = type.id + " " + index;
             else

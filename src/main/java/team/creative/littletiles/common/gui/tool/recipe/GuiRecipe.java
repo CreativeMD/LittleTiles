@@ -21,6 +21,7 @@ import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree.GuiTreeSelectionChanged;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
@@ -234,6 +235,10 @@ public class GuiRecipe extends GuiConfigure {
         topCenter.add(types);
         config = new GuiParent("config", GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         topCenter.add(config.setExpandableY());
+        config.registerEventChanged(x -> {
+            if (x.control.is("name") && tree.selected() instanceof GuiTreeItemStructure item)
+                item.onNameChanged((GuiTextfield) x.control);
+        });
         
         top.add(new GuiRecipeAnimationPanel(storage));
         
