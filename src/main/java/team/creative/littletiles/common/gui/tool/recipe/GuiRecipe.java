@@ -108,7 +108,8 @@ public class GuiRecipe extends GuiConfigure {
     @Override
     public void becameTopLayer() {
         super.becameTopLayer();
-        get("animation", GuiRecipeAnimationPanel.class).refresh();
+        if (isClient())
+            get("animation", GuiRecipeAnimationPanel.class).refresh();
     }
     
     @Override
