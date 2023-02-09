@@ -21,6 +21,8 @@ import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap
 
 public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStructure, AnimationPreview>> {
     
+    public boolean highlightSelected = false;
+    
     private LinkedHashMap<GuiTreeItemStructure, AnimationPreview> availablePreviews = new LinkedHashMap<>();
     private LittleBoxesNoOverlap overlappingBoxes = null;
     private ConcurrentLinkedQueue<AnimationPair> change = new ConcurrentLinkedQueue<>();

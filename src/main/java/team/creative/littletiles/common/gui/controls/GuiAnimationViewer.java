@@ -11,9 +11,11 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
@@ -23,6 +25,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
@@ -35,6 +39,7 @@ import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationStorage;
@@ -251,7 +256,12 @@ public class GuiAnimationViewer extends GuiControl {
         
         pose.translate(-center.x, -center.y, -center.z);
         
+        GuiTreeItemStructure selected = null;
+        
         for (Entry<GuiTreeItemStructure, AnimationPreview> entry : storage) {
+            if (entry.getKey().tree.hasCheckboxes() && !entry.getKey().isChecked())
+                continue;
+            
             AnimationPreview preview = entry.getValue();
             pose.pushPose();
             RenderSystem.applyModelViewMatrix();
@@ -271,21 +281,52 @@ public class GuiAnimationViewer extends GuiControl {
             renderChunkLayer(preview, RenderType.cutout(), pose, matrix);
             
             renderChunkLayer(preview, RenderType.translucent(), pose, matrix);
+            
+            if (storage.highlightSelected && entry.getKey().selected())
+                selected = entry.getKey();
+            
             pose.popPose();
         }
         
+        RenderSystem.depthMask(true);
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableTexture();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        
+        PoseStack empty = new PoseStack();
+        empty.setIdentity();
+        
+        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        RenderSystem.applyModelViewMatrix();
+        
+        if (selected != null) {
+            LittleVecGrid offset = selected.getOffset();
+            double x = 0;
+            double y = 0;
+            double z = 0;
+            if (offset != null) {
+                x = offset.getPosX();
+                y = offset.getPosY();
+                z = offset.getPosZ();
+            }
+            
+            LittleGrid grid = selected.group.getGrid();
+            VoxelShape shape = Shapes.empty();
+            for (LittleBox box : selected.group.allBoxes())
+                shape = Shapes.or(box.getShape(grid), shape);
+            
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder bufferbuilder = tesselator.getBuilder();
+            
+            bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+            RenderSystem.lineWidth(1.0F);
+            PreviewRenderer.renderShape(empty, bufferbuilder, shape, x, y, z, 1, 1, 1, 1);
+            tesselator.end();
+        }
+        
         if (storage.hasOverlap()) {
-            RenderSystem.depthMask(true);
-            RenderSystem.disableCull();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.disableTexture();
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-            
-            PoseStack empty = new PoseStack();
-            empty.setIdentity();
-            
-            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
             
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.getBuilder();

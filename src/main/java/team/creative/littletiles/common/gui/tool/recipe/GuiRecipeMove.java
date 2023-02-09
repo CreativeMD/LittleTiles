@@ -94,7 +94,7 @@ public class GuiRecipeMove extends GuiLayer {
         row2.add(new GuiRecipeMoveButton(Facing.DOWN));
         row2.add(new GuiRecipeMoveButton(Facing.NORTH));
         
-        upper.add(new GuiRecipeAnimationPanel(recipe.storage));
+        upper.add(new GuiRecipeAnimationPanel(recipe.tree, recipe.storage));
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);

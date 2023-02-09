@@ -75,4 +75,8 @@ public class AnimationPreview {
                 .get(), fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), new LocalStructureLocation(result.parentStructure));
     }
     
+    public void unload() {
+        animation.destroyAnimation();
+    }
+    
 }

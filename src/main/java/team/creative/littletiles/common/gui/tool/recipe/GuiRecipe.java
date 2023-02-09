@@ -106,6 +106,12 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     @Override
+    public void becameTopLayer() {
+        super.becameTopLayer();
+        get("animation", GuiRecipeAnimationPanel.class).refresh();
+    }
+    
+    @Override
     public CompoundTag saveConfiguration(CompoundTag nbt) {
         return null;
     }
@@ -214,10 +220,11 @@ public class GuiRecipe extends GuiConfigure {
         sidebarButtons.add(new GuiButton("del", x -> {
             if (tree.selected() == null)
                 return;
-            GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component.translatable("gui.recipe.dialog.delete"), (g, b) -> {
-                if (b == DialogButton.YES)
-                    removeItem((GuiTreeItemStructure) tree.selected());
-            }, DialogButton.NO, DialogButton.YES);
+            GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component
+                    .translatable("gui.recipe.dialog.delete", ((GuiTreeItemStructure) tree.selected()).getTitle()), (g, b) -> {
+                        if (b == DialogButton.YES)
+                            removeItem((GuiTreeItemStructure) tree.selected());
+                    }, DialogButton.NO, DialogButton.YES);
         }).setTranslate("gui.del").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12).setTooltip(new TextBuilder().translate("gui.recipe.delete").build()));
         sidebarButtons.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()).setTooltip(new TextBuilder().translate("gui.recipe.moveup").build()));
         sidebarButtons.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()).setTooltip(new TextBuilder().translate("gui.recipe.movedown").build()));
@@ -240,7 +247,7 @@ public class GuiRecipe extends GuiConfigure {
                 item.onNameChanged((GuiTextfield) x.control);
         });
         
-        top.add(new GuiRecipeAnimationPanel(storage));
+        top.add(new GuiRecipeAnimationPanel(tree, storage));
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom.setVAlign(VAlign.CENTER).setExpandableX());
