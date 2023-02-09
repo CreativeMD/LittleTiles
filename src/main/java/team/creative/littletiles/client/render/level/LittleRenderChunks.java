@@ -82,7 +82,7 @@ public class LittleRenderChunks implements Iterable<LittleRenderChunk> {
             return rings.get(index);
         }
         
-        if (rings.size() > index)
+        if (rings.size() <= index)
             throw new IllegalArgumentException("Bucket index '" + index + "' is out of bounds (total " + rings.size() + ")");
         return rings.get(index);
     }
