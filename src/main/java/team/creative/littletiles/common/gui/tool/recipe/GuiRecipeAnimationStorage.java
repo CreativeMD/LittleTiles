@@ -32,6 +32,8 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     private SmoothValue offY = new SmoothValue(200);
     private SmoothValue offZ = new SmoothValue(200);
     
+    private boolean unloaded = false;
+    
     public GuiRecipeAnimationStorage() {}
     
     public boolean isReady() {
@@ -109,6 +111,8 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         AnimationPreview previous = availablePreviews.put(structure, preview);
         if (previous != null)
             previous.unload();
+        if (unloaded)
+            preview.unload();
         updateBox();
     }
     
@@ -120,10 +124,9 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     }
     
     public void completed(GuiTreeItemStructure structure, AnimationPreview preview) {
-        if (RenderSystem.isOnRenderThread()) {
-            availablePreviews.put(structure, preview);
-            updateBox();
-        } else
+        if (RenderSystem.isOnRenderThread())
+            put(structure, preview);
+        else
             change.add(new AnimationPair(structure, preview));
     }
     
@@ -138,7 +141,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
                 if (pair.preview == null)
                     remove(pair.item);
                 else
-                    availablePreviews.put(pair.item, pair.preview);
+                    put(pair.item, pair.preview);
             }
             updateBox();
         }
@@ -147,6 +150,15 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     @Override
     public Iterator<Entry<GuiTreeItemStructure, AnimationPreview>> iterator() {
         return availablePreviews.entrySet().iterator();
+    }
+    
+    public void unload() {
+        for (AnimationPair pair : change)
+            if (pair.preview != null)
+                pair.preview.unload();
+            
+        for (AnimationPreview preview : availablePreviews.values())
+            preview.unload();
     }
     
     private static record AnimationPair(GuiTreeItemStructure item, AnimationPreview preview) {}

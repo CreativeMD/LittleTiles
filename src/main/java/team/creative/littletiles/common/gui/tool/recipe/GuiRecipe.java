@@ -152,6 +152,12 @@ public class GuiRecipe extends GuiConfigure {
         closeWithDialog();
     }
     
+    @Override
+    public void closed() {
+        if (isClient())
+            storage.unload();
+    }
+    
     private void closeWithDialog() {
         if (runTest()) {
             CompoundTag nbt = LittleGroup.save(reconstructBlueprint());
