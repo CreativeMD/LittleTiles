@@ -58,7 +58,7 @@ public class RenderingThread extends Thread {
     public static final Minecraft mc = Minecraft.getInstance();
     private static final ConcurrentLinkedQueue<RenderingBlockContext> QUEUE = new ConcurrentLinkedQueue<>();
     
-    public static void initThreads(int count) {
+    public static synchronized void initThreads(int count) {
         if (count <= 0)
             throw new IllegalArgumentException("count has to be at least equal or greater than one");
         if (THREADS != null) {
@@ -74,7 +74,7 @@ public class RenderingThread extends Thread {
             THREADS.add(new RenderingThread());
     }
     
-    public static void unload() {
+    public static synchronized void unload() {
         for (RenderingThread thread : THREADS)
             if (thread != null)
                 thread.interrupt();
@@ -85,7 +85,7 @@ public class RenderingThread extends Thread {
         CHUNKS.clear();
     }
     
-    public static boolean queue(BETiles be, @Nullable RenderChunkExtender chunk) {
+    public static synchronized boolean queue(BETiles be, @Nullable RenderChunkExtender chunk) {
         if (THREADS == null)
             initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
         
