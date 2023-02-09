@@ -121,6 +121,9 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
+    public void unload() {}
+    
+    @Override
     public int getFreeMapId() {
         return 0;
     }

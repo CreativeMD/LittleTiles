@@ -339,6 +339,12 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     }
     
     @Override
+    public void kill() {
+        subLevel.unload();
+        super.kill();
+    }
+    
+    @Override
     public boolean canBeCollidedWith() {
         return false;
     }

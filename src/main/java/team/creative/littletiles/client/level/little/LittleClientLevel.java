@@ -174,6 +174,12 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     @Override
+    public void unload() {
+        if (renderManager != null)
+            renderManager.unload();
+    }
+    
+    @Override
     public int getFreeMapId() {
         return 0;
     }
