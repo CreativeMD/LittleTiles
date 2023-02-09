@@ -102,6 +102,7 @@
 	"gui.recipe.test.result.fail": "\u00A7cTest failed",
 	"gui.recipe.test.result.success": "\u00A72Test passed",
 	
+	"gui.recipe.test.overlap": "Test Overlap",
 	"gui.recipe.test.overlap.self.title": "Overlapping tiles in \u00A7e%s",
 	"gui.recipe.test.overlap.title": "Overlapping tiles between \u00A7e%s\u00A7r and \u00A7e%s",
 	"gui.recipe.test.overlap.tooltip": "Overlaps with \u00A7e%s",

@@ -21,6 +21,7 @@ import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.creativecore.common.util.type.itr.TreeIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiLTDistance;
+import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 
@@ -30,7 +31,7 @@ public class GuiRecipeMove extends GuiLayer {
     public GuiTree tree;
     
     public GuiRecipeMove() {
-        super("gui.recipe.move", 300, 200);
+        super("gui.recipe.move", 400, 200);
         flow = GuiFlow.STACK_Y;
         registerEventChanged(x -> {
             if (x.control.is("modes"))
@@ -99,6 +100,10 @@ public class GuiRecipeMove extends GuiLayer {
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);
         bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
+        bottom.addRight(new GuiButton("test", x -> {
+            recipe.storage.resetOverlap();
+            RecipeTest.testModule(recipe, RecipeTest.OVERLAP_TEST);
+        }).setTranslate("gui.recipe.test.overlap"));
         bottom.addRight(new GuiButton("save", x -> {
             for (GuiTreeItem item : (Iterable<GuiTreeItem>) () -> tree.allItems())
                 if (item instanceof GuiRecipeMoveItem move)

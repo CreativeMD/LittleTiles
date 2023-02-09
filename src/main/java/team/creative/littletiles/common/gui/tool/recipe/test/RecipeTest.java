@@ -14,6 +14,32 @@ public class RecipeTest {
     public static final RecipeSignalEquationTest SIGNAL_TEST = new RecipeSignalEquationTest();
     public static final RecipeTest STANDARD = new RecipeTest(Arrays.asList(OVERLAP_TEST, SIGNAL_TEST));
     
+    public static RecipeTestResults testModule(GuiRecipe recipe, RecipeTestModule module) {
+        resetBeforeTest(recipe);
+        
+        RecipeTestResults results = new RecipeTestResults();
+        
+        module.startTest(recipe, results);
+        
+        for (GuiTreeItem child : recipe.tree.root().items())
+            testStructure(module, (GuiTreeItemStructure) child, results);
+        
+        module.endTest(recipe, results);
+        
+        return results;
+    }
+    
+    protected static void testStructure(RecipeTestModule module, GuiTreeItemStructure item, RecipeTestResults results) {
+        module.test(item, results);
+        
+        for (GuiTreeItem child : item.items())
+            testStructure(module, (GuiTreeItemStructure) child, results);
+    }
+    
+    public static void resetBeforeTest(GuiRecipe recipe) {
+        recipe.storage.resetOverlap();
+    }
+    
     private final List<RecipeTestModule> modules;
     
     public RecipeTest(List<RecipeTestModule> modules) {
@@ -25,6 +51,8 @@ public class RecipeTest {
     }
     
     public RecipeTestResults test(GuiRecipe recipe) {
+        resetBeforeTest(recipe);
+        
         RecipeTestResults results = new RecipeTestResults();
         
         for (RecipeTestModule module : modules)

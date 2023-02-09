@@ -1,18 +1,30 @@
 package team.creative.littletiles.common.gui.tool.recipe;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
 
 public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStructure, AnimationPreview>> {
     
     private LinkedHashMap<GuiTreeItemStructure, AnimationPreview> availablePreviews = new LinkedHashMap<>();
+    private LittleBoxesNoOverlap overlappingBoxes = null;
+    private ConcurrentLinkedQueue<AnimationPair> change = new ConcurrentLinkedQueue<>();
+    
     private AABB overall = null;
     private SmoothValue offX = new SmoothValue(200);
     private SmoothValue offY = new SmoothValue(200);
@@ -22,6 +34,29 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     
     public boolean isReady() {
         return overall != null && !availablePreviews.isEmpty();
+    }
+    
+    public void resetOverlap() {
+        overlappingBoxes = null;
+    }
+    
+    public boolean hasOverlap() {
+        return overlappingBoxes != null && !overlappingBoxes.isEmpty();
+    }
+    
+    public LittleBoxesNoOverlap getOverlap() {
+        return overlappingBoxes;
+    }
+    
+    public void addOverlap(LittleBoxes boxes) {
+        if (overlappingBoxes == null)
+            overlappingBoxes = new LittleBoxesNoOverlap(BlockPos.ZERO, LittleGrid.min());
+        if (boxes instanceof LittleBoxesNoOverlap no)
+            for (Entry<BlockPos, ArrayList<LittleBox>> entry : no.generateBlockWise().entrySet())
+                overlappingBoxes.addBoxes(boxes.getGrid(), entry.getKey(), entry.getValue());
+        else
+            for (LittleBox box : boxes.all())
+                overlappingBoxes.addBox(boxes.getGrid(), boxes.pos, box.copy());
     }
     
     private void updateBox() {
@@ -60,19 +95,36 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     }
     
     public void removed(GuiTreeItemStructure structure) {
-        availablePreviews.remove(structure);
-        updateBox();
+        if (RenderSystem.isOnRenderThread()) {
+            availablePreviews.remove(structure);
+            updateBox();
+        } else
+            change.add(new AnimationPair(structure, null));
     }
     
     public void completed(GuiTreeItemStructure structure, AnimationPreview preview) {
-        availablePreviews.put(structure, preview);
-        updateBox();
+        if (RenderSystem.isOnRenderThread()) {
+            availablePreviews.put(structure, preview);
+            updateBox();
+        } else
+            change.add(new AnimationPair(structure, preview));
     }
     
     public void tick() {
         offX.tick();
         offY.tick();
         offZ.tick();
+        
+        if (!change.isEmpty()) {
+            AnimationPair pair;
+            while ((pair = change.poll()) != null) {
+                if (pair.preview == null)
+                    availablePreviews.remove(pair.item);
+                else
+                    availablePreviews.put(pair.item, pair.preview);
+            }
+            updateBox();
+        }
     }
     
     @Override
@@ -80,4 +132,5 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         return availablePreviews.entrySet().iterator();
     }
     
+    private static record AnimationPair(GuiTreeItemStructure item, AnimationPreview preview) {}
 }

@@ -1196,31 +1196,31 @@ public class LittleBox {
     
     // ================Rendering================
     
-    @OnlyIn(value = Dist.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBox(LittleGrid grid) {
         return new LittleRenderBox(grid, this);
     }
     
-    @OnlyIn(value = Dist.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBox(LittleGrid grid, LittleVec vec) {
         LittleBox box = copy();
         box.add(vec);
         return new LittleRenderBox(grid, box);
     }
     
-    @OnlyIn(value = Dist.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBox(LittleGrid grid, BlockState state) {
         return new LittleRenderBox(grid, this, state);
     }
     
-    @OnlyIn(value = Dist.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBox(LittleGrid grid, BlockState state, LittleVec vec) {
         LittleBox box = copy();
         box.add(vec);
         return new LittleRenderBox(grid, box, state);
     }
     
-    @OnlyIn(value = Dist.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBox(LittleGrid grid, LittleElement element) {
         return new LittleRenderBox(grid, this, element);
     }

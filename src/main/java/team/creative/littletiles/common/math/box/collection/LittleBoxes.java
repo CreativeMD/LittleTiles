@@ -28,6 +28,11 @@ public abstract class LittleBoxes implements IGridBased {
             addBox(parent.getGrid(), parent.getPos(), box.copy());
     }
     
+    public void addBoxes(LittleGrid grid, BlockPos pos, Iterable<LittleBox> boxes) {
+        for (LittleBox box : boxes)
+            addBox(grid, pos, box.copy());
+    }
+    
     public LittleBox addBox(LittleGrid grid, BlockPos pos, LittleBox box) {
         if (this.grid != grid) {
             if (this.grid.count > grid.count) {

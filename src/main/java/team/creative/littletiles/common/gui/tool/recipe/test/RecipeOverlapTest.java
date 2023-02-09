@@ -29,6 +29,7 @@ import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 
 public class RecipeOverlapTest extends RecipeTestModule {
     
@@ -79,7 +80,13 @@ public class RecipeOverlapTest extends RecipeTestModule {
         
         MutableBlockPos pos = new MutableBlockPos();
         LittleGrid grid = item.group.getGrid();
-        for (LittleTile tile : item.group)
+        LittleGroup group = item.group;
+        LittleVecGrid offset = item.getOffset();
+        if (offset != null) {
+            group = group.copy();
+            group.move(offset);
+        }
+        for (LittleTile tile : group)
             for (LittleBox box : tile)
                 box.splitIterator(grid, pos, LittleVec.ZERO, (x, y) -> getOrCreate(x).add(item, x, grid, y));
             
@@ -89,6 +96,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
                     results.reportError(new SelfOverlapError(item, entry.getValue()));
                 else
                     results.reportError(new OverlapError(item, entry.getKey(), entry.getValue()));
+                item.recipe.storage.addOverlap(entry.getValue());
             }
         }
         

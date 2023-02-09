@@ -443,7 +443,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         renderShape(pose, consumer, shape, pos.getX() - x, pos.getY() - y, pos.getZ() - z, 0.0F, 0.0F, 0.0F, 0.4F);
     }
     
-    private static void renderShape(PoseStack pose, VertexConsumer consumer, VoxelShape shape, double x, double y, double z, float red, float green, float blue, float alpha) {
+    public static void renderShape(PoseStack pose, VertexConsumer consumer, VoxelShape shape, double x, double y, double z, float red, float green, float blue, float alpha) {
         PoseStack.Pose posestack$pose = pose.last();
         shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
             float f = (float) (x2 - x1);

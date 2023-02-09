@@ -1,8 +1,8 @@
 package team.creative.littletiles.common.gui.controls;
 
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -10,18 +10,23 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
+import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
@@ -31,8 +36,11 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationStorage;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.mixin.LightTextureAccessor;
 
@@ -215,6 +223,7 @@ public class GuiAnimationViewer extends GuiControl {
         offY.tick();
         offZ.tick();
         
+        pose = RenderSystem.getModelViewStack();
         pose.pushPose();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -231,7 +240,7 @@ public class GuiAnimationViewer extends GuiControl {
         pose.setIdentity();
         
         RenderSystem.enableDepthTest();
-        projection.translate(offX.current(), offY.current(), offZ.current());
+        pose.translate(offX.current(), offY.current(), offZ.current());
         
         Vec3d center = storage.center();
         pose.translate(0, 0, 0 - distance.current());
@@ -241,8 +250,6 @@ public class GuiAnimationViewer extends GuiControl {
         pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         
         pose.translate(-center.x, -center.y, -center.z);
-        
-        RenderSystem.setInverseViewRotationMatrix(new Matrix3f(pose.last().normal()).invert());
         
         for (Entry<GuiTreeItemStructure, AnimationPreview> entry : storage) {
             AnimationPreview preview = entry.getValue();
@@ -265,6 +272,44 @@ public class GuiAnimationViewer extends GuiControl {
             
             renderChunkLayer(preview, RenderType.translucent(), pose, matrix);
             pose.popPose();
+        }
+        
+        if (storage.hasOverlap()) {
+            RenderSystem.depthMask(true);
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableTexture();
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            
+            PoseStack empty = new PoseStack();
+            empty.setIdentity();
+            
+            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder bufferbuilder = tesselator.getBuilder();
+            int colorAlpha = 102;
+            LittleBoxesNoOverlap overlap = storage.getOverlap();
+            LittleGrid grid = overlap.getGrid();
+            for (Entry<BlockPos, ArrayList<LittleBox>> entry : overlap.generateBlockWise().entrySet()) {
+                pose.pushPose();
+                pose.translate(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ());
+                RenderSystem.applyModelViewMatrix();
+                
+                for (LittleBox box : entry.getValue()) {
+                    RenderBox renderBox = box.getRenderingBox(grid);
+                    RenderSystem.disableDepthTest();
+                    RenderSystem.lineWidth(8.0F);
+                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.lineWidth(4.0F);
+                    renderBox.color = ColorUtils.RED;
+                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
+                }
+                pose.popPose();
+            }
+            RenderSystem.disableDepthTest();
         }
         
         pose.popPose();
