@@ -203,6 +203,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
                 .setTranslate("gui.signal.events").setEnabled(gui.type() != null));
         updateSignalOutputs();
         
+        onNameChanged(text);
         recipe.reflow();
     }
     

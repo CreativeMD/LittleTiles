@@ -96,7 +96,7 @@ public class GuiRecipe extends GuiConfigure {
         registerEventChanged(x -> {
             if (x.control.is("type") && tree.selected() != null)
                 ((GuiTreeItemStructure) tree.selected()).load();
-            if (x instanceof GuiTreeSelectionChanged sel)
+            else if (x instanceof GuiTreeSelectionChanged sel)
                 if (selectedBefore != (sel.selected != null)) {
                     selectedBefore = sel.selected != null;
                     for (GuiChildControl child : sidebarButtons)
