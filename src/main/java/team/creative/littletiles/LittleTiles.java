@@ -245,6 +245,8 @@ public class LittleTiles {
         STORAGE_BLOCKS = BlockTags.create(new ResourceLocation(MODID, "storage_blocks"));
         
         CraftingHelper.register(new ResourceLocation(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
+        
+        LittleTilesGuiRegistry.init();
     }
     
     private void serverStarting(final ServerStartingEvent event) {

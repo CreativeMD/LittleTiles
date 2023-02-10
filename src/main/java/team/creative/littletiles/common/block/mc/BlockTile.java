@@ -65,6 +65,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeSoundType;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -289,6 +291,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         return shape;
     }
     
+    @OnlyIn(Dist.CLIENT)
     public VoxelShape getSelectionShape(BlockGetter level, BlockPos pos) {
         LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
         if (tileContext.isComplete()) {
@@ -394,7 +397,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
             if (hardness == -1.0F) {
                 return 0.0F;
             } else {
-                int i = net.minecraftforge.common.ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
+                int i = ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
                 return player.getDigSpeed(state, pos) / hardness / i;
             }
         } else
@@ -427,7 +430,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     }
     
     @Override
-    public boolean canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, net.minecraftforge.common.IPlantable plantable) {
+    public boolean canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, IPlantable plantable) {
         BETiles be = loadBE(level, pos);
         if (be != null && be.sideCache.get(Facing.get(facing)).doesBlockCollision()) {
             LittleBox box = new LittleBox(0, be.getGrid().count - 1, 0, be.getGrid().count, be.getGrid().count, be.getGrid().count);
@@ -591,7 +594,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
-            if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode())) {
+            if (selectEntireBlock(player, LittleActionHandlerClient.isUsingSecondMode())) {
                 ItemStack drop = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
                 LittleGroup group = new LittleGroup();
                 for (LittleTile tile : result.parent)

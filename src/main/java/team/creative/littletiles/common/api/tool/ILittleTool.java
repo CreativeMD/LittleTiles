@@ -21,7 +21,6 @@ import team.creative.littletiles.common.placement.mark.MarkMode;
 
 public interface ILittleTool {
     
-    @OnlyIn(Dist.CLIENT)
     public LittleGrid getPositionGrid(ItemStack stack);
     
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client);

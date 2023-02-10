@@ -9,10 +9,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.util.math.geo.Rect;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
-import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableEquation;
@@ -113,7 +113,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     
     @Override
     public boolean mouseDoubleClicked(Rect rect, double x, double y, int button) {
-        GuiDialogSignal.INPUT_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this);
+        LittleTilesGuiRegistry.INPUT_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this);
         return true;
     }
     

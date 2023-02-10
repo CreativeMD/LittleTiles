@@ -18,9 +18,8 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.sync.GuiSyncGlobalLayer;
-import team.creative.creativecore.common.gui.sync.GuiSyncHolder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalController;
@@ -31,14 +30,6 @@ import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
 public class GuiDialogSignal extends GuiLayer {
-    
-    public static final GuiSyncGlobalLayer<GuiDialogSignal> SIGNAL_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_dialog", x -> new GuiDialogSignal());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalInput> INPUT_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_input_dialog", x -> new GuiDialogSignalInput());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalMode> MODE_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_mode_dialog", x -> new GuiDialogSignalMode());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualInput> VIRTUAL_INPUT_DIALOG = GuiSyncHolder.GLOBAL
-            .layer("signal_virtual_input_dialog", x -> new GuiDialogSignalVirtualInput());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualNumberInput> VIRTUAL_NUMBER_DIALOG = GuiSyncHolder.GLOBAL
-            .layer("signal_virtual_number_dialog", x -> new GuiDialogSignalVirtualNumberInput());
     
     protected IConditionConfiguration event;
     public List<GuiSignalComponent> inputs;
@@ -83,7 +74,7 @@ public class GuiDialogSignal extends GuiLayer {
         top.addRight(new GuiLabel("delay"));
         
         if (event.hasModeConfiguration())
-            top.addRight(new GuiButton("mode", x -> MODE_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(GuiDialogSignal.this, event)));
+            top.addRight(new GuiButton("mode", x -> LittleTilesGuiRegistry.MODE_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(GuiDialogSignal.this, event)));
         
         GuiSignalController controller = new GuiSignalController("controller", event.getOutput(), inputs);
         add(controller.setExpandable());

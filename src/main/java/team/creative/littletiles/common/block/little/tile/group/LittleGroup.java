@@ -727,7 +727,6 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
             child.addPlaceBoxes(boxes, offset);
     }
     
-    @OnlyIn(Dist.CLIENT)
     public boolean hasTranslucentBlocks() {
         for (LittleTile tile : content)
             if (tile.isTranslucent())

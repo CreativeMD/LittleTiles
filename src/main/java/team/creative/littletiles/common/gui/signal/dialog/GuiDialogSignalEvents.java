@@ -14,8 +14,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiFixedDimension;
-import team.creative.creativecore.common.gui.sync.GuiSyncGlobalLayer;
-import team.creative.creativecore.common.gui.sync.GuiSyncHolder;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
@@ -29,8 +28,6 @@ import team.creative.littletiles.common.structure.signal.output.SignalExternalOu
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
 public class GuiDialogSignalEvents extends GuiLayer {
-    
-    public static final GuiSyncGlobalLayer<GuiDialogSignalEvents> SIGNAL_EVENTS_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_events_dialog", x -> new GuiDialogSignalEvents());
     
     public GuiTreeItemStructure item;
     public List<GuiSignalComponent> inputs;
@@ -61,7 +58,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
         
         GuiParent buttons = new GuiParent();
         panel.add(buttons.setExpandableX());
-        buttons.add(new GuiButton("edit", x -> GuiDialogSignal.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(inputs, event)).setTranslate("gui.edit"));
+        buttons.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(inputs, event)).setTranslate("gui.edit"));
         buttons.add(new GuiButton("reset", x -> event.reset()).setTranslate("gui.clear"));
         
         event.panel = panel;

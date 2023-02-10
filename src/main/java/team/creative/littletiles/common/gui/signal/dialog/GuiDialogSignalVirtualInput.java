@@ -17,6 +17,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextListBuilder;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualInput;
@@ -116,8 +117,8 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
             else
                 state = 2;
             panel.add(new GuiStateButton("type", state, new TextListBuilder().add("false", "true", "equation")));
-            panel.add(new GuiButton("edit", x -> GuiDialogSignal.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(inputs, GuiVirtualInputIndexConfiguration.this))
-                    .setTranslate("gui.edit"));
+            panel.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag())
+                    .init(inputs, GuiVirtualInputIndexConfiguration.this)).setTranslate("gui.edit"));
             update();
         }
         

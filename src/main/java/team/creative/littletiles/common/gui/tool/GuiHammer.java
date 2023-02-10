@@ -54,6 +54,9 @@ public class GuiHammer extends GuiConfigureTool {
     
     @Override
     public void create() {
+        if (!isClient())
+            return;
+        
         GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>()
                 .addComponent(ShapeRegistry.notTileShapes(), x -> Component.translatable(x.getTranslatableName())));
         box.select(ItemLittleHammer.getShape(tool.get()));

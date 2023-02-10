@@ -22,11 +22,11 @@ import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
-import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -199,7 +199,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         else
             text.setText("");
         parent.add(text.setEnabled(gui.supportsName()).setDim(100, 7));
-        parent.add(new GuiButton("signal", x -> GuiDialogSignalEvents.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this))
+        parent.add(new GuiButton("signal", x -> LittleTilesGuiRegistry.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this))
                 .setTranslate("gui.signal.events").setEnabled(gui.type() != null));
         updateSignalOutputs();
         

@@ -11,8 +11,8 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
-import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
@@ -127,7 +127,7 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         public void create(GuiRecipe recipe, GuiParent parent, Runnable refresh) {
             List<GuiSignalComponent> inputs = structure.signalSearch.search(true, true, true);
             
-            parent.add(new GuiButton("edit", x -> GuiDialogSignal.SIGNAL_DIALOG.open(parent.getIntegratedParent(), new CompoundTag()).init(inputs, event))
+            parent.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(parent.getIntegratedParent(), new CompoundTag()).init(inputs, event))
                     .setTranslate("gui.edit"));
             parent.add(new GuiButton("reset", x -> {
                 event.reset();

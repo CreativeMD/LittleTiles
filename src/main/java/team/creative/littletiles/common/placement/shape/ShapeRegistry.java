@@ -26,7 +26,7 @@ public class ShapeRegistry {
     
     public static final LittleShape TILE_SHAPE = new LittleShapeTile();
     public static final LittleShape DEFAULT_SHAPE = new LittleShapeBox();
-    public static final NamedHandlerRegistry<LittleShape> REGISTRY = new NamedHandlerRegistry<LittleShape>(TILE_SHAPE);
+    public static final NamedHandlerRegistry<LittleShape> REGISTRY = new NamedHandlerRegistry<LittleShape>(DEFAULT_SHAPE);
     private static final HashMapList<ShapeType, String> SHAPE_TYPES = new HashMapList<>();
     private static final List<LittleShape> NO_TILE_LIST = new ArrayList<>();
     private static final List<LittleShape> PLACING_LIST = new ArrayList<>();

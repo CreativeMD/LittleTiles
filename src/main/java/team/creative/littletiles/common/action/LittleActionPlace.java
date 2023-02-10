@@ -27,7 +27,6 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     public PlacementPreview preview;
     public PlaceAction action;
     
-    @OnlyIn(Dist.CLIENT)
     public transient PlacementResult result;
     @OnlyIn(Dist.CLIENT)
     public transient LittleGroupAbsolute destroyed;

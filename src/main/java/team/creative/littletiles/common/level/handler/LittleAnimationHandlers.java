@@ -18,9 +18,14 @@ import team.creative.littletiles.server.level.handler.LittleAnimationHandlerServ
 
 public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandlerServer> {
     
+    @OnlyIn(Dist.CLIENT)
+    private static LittleAnimationHandler getClient() {
+        return LittleTilesClient.ANIMATION_HANDLER;
+    }
+    
     public static LittleAnimationHandler get(Level level) {
         if (level.isClientSide)
-            return LittleTilesClient.ANIMATION_HANDLER;
+            return getClient();
         return LittleTilesServer.ANIMATION_HANDLERS.getForLevel(level);
     }
     

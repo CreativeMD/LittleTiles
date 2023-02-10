@@ -59,6 +59,9 @@ public class GuiChisel extends GuiConfigureTool {
     
     @Override
     public void create() {
+        if (!isClient())
+            return;
+        
         GuiParent left = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         add(left);
         
