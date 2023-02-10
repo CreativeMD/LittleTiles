@@ -2,9 +2,11 @@ package team.creative.littletiles;
 
 import java.util.function.Supplier;
 
+import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.BlockItem;
@@ -12,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
@@ -135,12 +138,16 @@ public class LittleTilesRegistry {
     
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, LittleTiles.MODID);
     
-    public static final RegistryObject<BlockEntityType<BETiles>> BE_TILES_TYPE = BLOCK_ENTITIES
-            .register("tiles", () -> BlockEntityType.Builder.of(BETiles::new, BLOCK_TILES.get(), BLOCK_TILES_TICKING.get()).build(null));
-    public static final RegistryObject<BlockEntityType<BETilesRendered>> BE_TILES_TYPE_RENDERED = BLOCK_ENTITIES
-            .register("tiles_rendered", () -> BlockEntityType.Builder.of(BETilesRendered::new, BLOCK_TILES_RENDERED.get(), BLOCK_TILES_TICKING_RENDERED.get()).build(null));
-    public static final RegistryObject<BlockEntityType<BESignalConverter>> BE_SIGNALCONVERTER_TYPE = BLOCK_ENTITIES
-            .register("converter", () -> BlockEntityType.Builder.of(BESignalConverter::new, SIGNAL_CONVERTER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<BETiles>> BE_TILES_TYPE = registerBlockEntity("tiles", () -> BlockEntityType.Builder
+            .of(BETiles::new, BLOCK_TILES.get(), BLOCK_TILES_TICKING.get()));
+    public static final RegistryObject<BlockEntityType<BETilesRendered>> BE_TILES_TYPE_RENDERED = registerBlockEntity("tiles_rendered", () -> BlockEntityType.Builder
+            .of(BETilesRendered::new, BLOCK_TILES_RENDERED.get(), BLOCK_TILES_TICKING_RENDERED.get()));
+    public static final RegistryObject<BlockEntityType<BESignalConverter>> BE_SIGNALCONVERTER_TYPE = registerBlockEntity("converter", () -> BlockEntityType.Builder
+            .of(BESignalConverter::new, SIGNAL_CONVERTER.get()));
+    
+    public static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> registerBlockEntity(String name, Supplier<BlockEntityType.Builder<T>> sup) {
+        return BLOCK_ENTITIES.register(name, () -> sup.get().build(Util.fetchChoiceType(References.BLOCK_ENTITY, name)));
+    }
     
     // ENTITIES
     
