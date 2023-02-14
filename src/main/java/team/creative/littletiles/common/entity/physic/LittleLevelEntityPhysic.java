@@ -1,32 +1,18 @@
 package team.creative.littletiles.common.entity.physic;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Predicate;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.box.OBB;
-import team.creative.creativecore.common.util.math.collision.CollidingPlane;
-import team.creative.creativecore.common.util.math.collision.CollidingPlane.PushCache;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.api.block.LittlePhysicBlock;
 import team.creative.littletiles.common.entity.INoPushEntity;
-import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
@@ -37,7 +23,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
     public final LittleLevelEntity parent;
     
-    private OBB orientatedBB;
+    private AABB bb;
     private boolean preventPush = false;
     public boolean noCollision = false;
     
@@ -49,12 +35,12 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         return parent.getOrigin();
     }
     
-    public OBB getOrientatedBB() {
-        return orientatedBB;
+    public AABB getOrientatedBB() {
+        return bb;
     }
     
     public AABB getBB() {
-        return getOrigin().getAxisAlignedBox(orientatedBB);
+        return getOrigin().getAABB(bb);
     }
     
     public void ignoreCollision(Runnable run) {
@@ -68,11 +54,6 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
     public boolean shouldPush() {
         return !preventPush;
-    }
-    
-    public Iterable<OBB> collision(AABB box) {
-        // TODO Implement
-        return null;
     }
     
     @Override
@@ -103,7 +84,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
                 maxZ = Math.max(maxX, pos.getZ() + 1);
             }
         }
-        orientatedBB = new OBB(parent.getOrigin(), minX, minY, minZ, maxX, maxY, maxZ);
+        bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
     
     @Override
@@ -120,7 +101,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
             if (value == boundary)
                 break;
         }
-        orientatedBB = orientatedBB.set(facing, value);
+        bb = facing.set(bb, value);
     }
     
     public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
@@ -134,7 +115,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     }
     
     public void moveAndRotateAnimation(CollisionCoordinator coordinator) {
-        if (preventPush)
+        /*if (preventPush)
             return;
         
         noCollision = true;
@@ -343,16 +324,16 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
             child.moveAndRotateAnimation(coordinator);
         }
         
-        noCollision = false;
+        noCollision = false;*/
     }
     
     public void updateBoundingBox() {
-        if (orientatedBB == null || parent.getSubLevel() == null)
+        if (bb == null || parent.getSubLevel() == null)
             return;
         
         if (parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged()) {
             parent.markOriginChange();
-            parent.setBoundingBox(parent.getOrigin().getAxisAlignedBox(orientatedBB));
+            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
             parent.resetOriginChange();
         }
     }

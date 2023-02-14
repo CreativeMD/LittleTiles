@@ -12,7 +12,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.level.handler.LittleAnimationHandlerServer;
 
@@ -71,12 +70,6 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     public void tick(LevelTickEvent event) {
         if (!event.level.isClientSide)
             getHandlers(event.level).forEach(x -> x.tickServer(event));
-    }
-    
-    @SubscribeEvent
-    public void collision(GetVoxelShapesEvent event) {
-        if (!event.level.isClientSide)
-            getHandlers(event.level).forEach(x -> x.collision(event));
     }
     
     public static void setPushedByDoor(ServerPlayer entity) {

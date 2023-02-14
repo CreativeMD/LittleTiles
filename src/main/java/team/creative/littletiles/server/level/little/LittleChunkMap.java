@@ -46,6 +46,7 @@ import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
@@ -69,11 +70,7 @@ public class LittleChunkMap extends ChunkMap {
         ProcessorMailbox<Runnable> mailLight = ProcessorMailbox.create(exe, "light");
         this.queueSorter = new ChunkTaskPriorityQueueSorter(ImmutableList.of(mailLight), exe, Integer.MAX_VALUE);
         this.lightEngine = new ThreadedLevelLightEngine(lightGetter, this, level.dimensionType().hasSkyLight(), mailLight, queueSorter.getProcessor(mailLight, false));
-        try {
-            this.distanceManager = (DistanceManager) LittleTiles.getUnsafe().allocateInstance(LittleDistanceManager.class);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
+        this.distanceManager = CreativeHackery.allocateInstance(LittleDistanceManager.class);
     }
     
     public LittleChunkHolder addChunkLevel(LittleChunkHolder holder) {

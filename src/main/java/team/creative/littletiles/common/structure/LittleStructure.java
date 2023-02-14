@@ -908,6 +908,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return Shapes.empty();
     }
     
+    public List<VoxelShape> collectOddShapes(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, List<VoxelShape> shapes, AABB bb) {
+        return shapes;
+    }
+    
     public void neighbourChanged() {}
     
     // ====================Mods====================

@@ -19,17 +19,13 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
-import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.mixin.ClientPacketListenerAccessor;
+import team.creative.creativecore.common.util.unsafe.CreativeHackery;
+import team.creative.littletiles.mixin.client.network.ClientPacketListenerAccessor;
 
 public class LittleClientPacketListener extends ClientPacketListener {
     
     public static LittleClientPacketListener allocateInstance() {
-        try {
-            return (LittleClientPacketListener) LittleTiles.getUnsafe().allocateInstance(LittleClientPacketListener.class);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        }
+        return CreativeHackery.allocateInstance(LittleClientPacketListener.class);
     }
     
     public LittleClientPacketListener(Minecraft mc, Connection con) {

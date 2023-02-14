@@ -30,7 +30,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
-import team.creative.littletiles.mixin.LightTextureAccessor;
+import team.creative.littletiles.mixin.client.render.LightTextureAccessor;
 
 public class GuiAnimationViewer extends GuiControl {
     

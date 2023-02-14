@@ -15,6 +15,8 @@ public interface LittleLevel extends IOrientatedLevel {
         return (Level) this;
     }
     
+    public BlockUpdateLevelSystem getBlockUpdateLevelSystem();
+    
     @Override
     public Entity getHolder();
     
@@ -27,6 +29,7 @@ public interface LittleLevel extends IOrientatedLevel {
     
     public void unload(LevelChunk chunk);
     
+    @Override
     public void unload();
     
     public Iterable<Entity> entities();

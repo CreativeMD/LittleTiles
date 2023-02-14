@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.ParticleSettings;
-import team.creative.littletiles.mixin.ParticleEngineAccessor;
+import team.creative.littletiles.mixin.client.render.ParticleEngineAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleParticle extends TextureSheetParticle {

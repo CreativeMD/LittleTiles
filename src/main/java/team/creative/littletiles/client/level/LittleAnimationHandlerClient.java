@@ -68,7 +68,6 @@ import team.creative.littletiles.client.event.WheelClick;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
@@ -716,11 +715,5 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                         .normal(posestack$pose.normal(), f, f1, f2).endVertex();
             });
         }
-    }
-    
-    @SubscribeEvent
-    public void collisionEvent(GetVoxelShapesEvent event) {
-        if (event.level.isClientSide)
-            collision(event);
     }
 }

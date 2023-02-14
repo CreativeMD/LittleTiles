@@ -45,7 +45,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.ChunkDataEvent;
-import team.creative.littletiles.mixin.ChunkSerializerAccessor;
+import team.creative.littletiles.mixin.server.level.ChunkSerializerAccessor;
 import team.creative.littletiles.server.level.little.LittleServerLevel;
 
 public class LittleChunkSerializer {

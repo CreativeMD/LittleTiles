@@ -475,8 +475,19 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     public VoxelShape getShapes(IParentCollection parent) {
         VoxelShape shape = Shapes.empty();
         for (LittleBox box : boxes)
-            shape = Shapes.or(shape, box.getShape(parent.getGrid()));
+            if (box.isSolid())
+                shape = Shapes.or(shape, box.getShape(parent.getGrid()));
         return shape;
+    }
+    
+    public List<VoxelShape> collectOddShapes(IParentCollection parent, List<VoxelShape> shapes, AABB bb) {
+        for (LittleBox box : boxes)
+            if (!box.isSolid() && box.intersectsWith(bb, parent.getGrid())) {
+                if (shapes == null)
+                    shapes = new ArrayList<>();
+                shapes.add(box.getShape(parent.getGrid()));
+            }
+        return shapes;
     }
     
     // ================Ingredient================

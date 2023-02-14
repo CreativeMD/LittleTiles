@@ -7,14 +7,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.annotation.Nullable;
+
+import com.google.common.collect.ImmutableList;
+
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.MinecraftForge;
-import team.creative.creativecore.common.util.math.box.OBB;
+import team.creative.creativecore.common.util.math.box.OBBVoxelShape;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.event.GetVoxelShapesEvent;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 public abstract class LittleAnimationHandler extends LevelHandler {
@@ -61,13 +66,14 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         entities.remove(entity);
     }
     
-    public void collision(GetVoxelShapesEvent event) {
-        for (LittleLevelEntity entity : find(event.box)) {
+    public void collision(@Nullable Entity colliding, AABB box, ImmutableList.Builder<VoxelShape> shapes) {
+        for (LittleLevelEntity entity : find(box)) {
             if (!entity.physic.shouldPush())
                 continue;
             
-            for (OBB bb : entity.physic.collision(event.box))
-                event.add(bb);
+            for (VoxelShape shape : entity.getSubLevel().getBlockCollisions(colliding, entity.getOrigin().getOBB(box)))
+                for (AABB bb : shape.toAabbs())
+                    shapes.add(OBBVoxelShape.create(bb, entity.getOrigin()));
         }
     }
     

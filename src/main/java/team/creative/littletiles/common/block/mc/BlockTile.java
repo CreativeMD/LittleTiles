@@ -326,6 +326,25 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         return shape;
     }
     
+    public List<VoxelShape> getOddShapes(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, AABB bb) {
+        BETiles be = loadBE(level, pos);
+        List<VoxelShape> shapes = null;
+        
+        if (be != null) {
+            for (IParentCollection list : be.groups()) {
+                if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
+                    try {
+                        shapes = list.getStructure().collectOddShapes(state, level, pos, context, shapes, bb);
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                
+                for (LittleTile tile : list)
+                    if (!tile.getBlock().noCollision())
+                        shapes = tile.collectOddShapes(list, shapes, bb);
+            }
+        }
+        return shapes;
+    }
+    
     @Override
     public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
         return super.isPathfindable(state, level, pos, type);

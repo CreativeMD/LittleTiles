@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -125,15 +126,8 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public TransformableAABB getBB(LittleGrid grid, BlockPos offset) {
-        return new TransformableAABB(this, grid, grid.toVanillaGrid(minX) + offset.getX(), grid.toVanillaGrid(minY) + offset.getY(), grid.toVanillaGrid(minZ) + offset.getZ(), grid
-                .toVanillaGrid(maxX) + offset.getX(), grid.toVanillaGrid(maxY) + offset.getY(), grid.toVanillaGrid(maxZ) + offset.getZ());
-    }
-    
-    @Override
-    public TransformableAABB getBB(LittleGrid grid) {
-        return new TransformableAABB(this, grid, grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid
-                .toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
+    public VoxelShape getShape(LittleGrid grid) {
+        return TransformableVoxelShape.create(this, grid, getBB(grid));
     }
     
     public int getIndicator() {

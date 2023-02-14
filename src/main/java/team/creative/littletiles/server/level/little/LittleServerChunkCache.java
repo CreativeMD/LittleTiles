@@ -45,7 +45,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
-import team.creative.littletiles.mixin.ServerChunkCacheAccessor;
+import team.creative.littletiles.mixin.server.level.ServerChunkCacheAccessor;
 
 public class LittleServerChunkCache extends ServerChunkCache implements Iterable<LevelChunk> {
     

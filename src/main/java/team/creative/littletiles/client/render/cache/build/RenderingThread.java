@@ -46,8 +46,8 @@ import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.mixin.LevelRendererAccessor;
-import team.creative.littletiles.mixin.ViewAreaAccessor;
+import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
+import team.creative.littletiles.mixin.client.render.ViewAreaAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderingThread extends Thread {

@@ -7,6 +7,7 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.SingletonList;
@@ -29,6 +30,16 @@ public class BlockUpdateLevelSystem {
     
     public BlockUpdateLevelSystem(LittleLevel level) {
         this.level = level;
+    }
+    
+    public void load(CompoundTag nbt) {
+        
+    }
+    
+    public CompoundTag save() {
+        CompoundTag nbt = new CompoundTag();
+        
+        return nbt;
     }
     
     public void registerLevelBoundListener(LevelBoundsListener listener) {

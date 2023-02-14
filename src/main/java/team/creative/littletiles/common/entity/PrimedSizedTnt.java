@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.mixin.PrimedTntAccessor;
+import team.creative.littletiles.mixin.common.entity.PrimedTntAccessor;
 
 public class PrimedSizedTnt extends PrimedTnt {
     

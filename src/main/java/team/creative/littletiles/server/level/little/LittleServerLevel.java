@@ -29,7 +29,7 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.mixin.MinecraftServerAccessor;
+import team.creative.littletiles.mixin.server.level.MinecraftServerAccessor;
 
 public abstract class LittleServerLevel extends ServerLevel implements LittleLevel {
     
@@ -52,6 +52,11 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
         super(server, Util.backgroundExecutor(), ((MinecraftServerAccessor) server)
                 .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false);
         this.access = access;
+    }
+    
+    @Override
+    public BlockUpdateLevelSystem getBlockUpdateLevelSystem() {
+        return blockUpdate;
     }
     
     @Override

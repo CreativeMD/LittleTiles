@@ -172,7 +172,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     }
     
     public void markRemoved() {
-        // TODO THING ABOUT WHAT TO DO WITH THIS METHOD
+        // TODO THINK ABOUT WHAT TO DO WITH THIS METHOD
     }
     
     @Override
@@ -182,7 +182,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     public AABB getRealBB() {
         if (level instanceof ISubLevel or)
-            return or.getOrigin().getAxisAlignedBox(getBoundingBox());
+            return or.getOrigin().getAABB(getBoundingBox());
         return getBoundingBox();
     }
     
@@ -267,6 +267,8 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
             e.printStackTrace();
         }
         
+        ((LittleLevel) subLevel).getBlockUpdateLevelSystem().load(nbt.getCompound("bounds"));
+        
         loadLevelEntity(nbt);
         
         physic.updateBoundingBox();
@@ -290,6 +292,8 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         for (ChunkAccess chunk : sub.chunks())
             chunks.add(LittleChunkSerializer.write(sub, chunk));
         nbt.put("chunks", chunks);
+        
+        nbt.put("bounds", ((LittleLevel) subLevel).getBlockUpdateLevelSystem().save());
         
         // TODO May need to save entities?????
         

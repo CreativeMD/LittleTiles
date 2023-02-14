@@ -37,7 +37,7 @@ import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.mixin.ClientLevelAccessor;
+import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class LittleClientLevel extends ClientLevel implements LittleLevel {
@@ -62,6 +62,11 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     protected abstract LittleClientConnection createConnection();
+    
+    @Override
+    public BlockUpdateLevelSystem getBlockUpdateLevelSystem() {
+        return blockUpdate;
+    }
     
     @Override
     public LittleClientPacketListener getPacketListener() {
@@ -102,9 +107,10 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public void onChunkLoaded(LevelChunk chunk) {
         this.getEStorage().startTicking(chunk.getPos());
         chunk.setClientLightReady(true);
-        LevelChunkSection[] section = chunk.getSections(); // TODO THIS SHOULD BE REMOVED AND DONE PROPERLY!!!
+        LevelChunkSection[] section = chunk.getSections();
         for (int i = 0; i < section.length; i++)
-            this.renderManager.setSectionDirty(chunk.getPos().x, chunk.getSectionYFromSectionIndex(i), chunk.getPos().z);
+            if (!section[i].hasOnlyAir())
+                this.renderManager.setSectionDirty(chunk.getPos().x, chunk.getSectionYFromSectionIndex(i), chunk.getPos().z);
     }
     
     @Override
