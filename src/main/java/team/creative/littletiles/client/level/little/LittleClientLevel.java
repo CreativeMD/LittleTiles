@@ -86,6 +86,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     @Override
     public void setBlocksDirty(BlockPos pos, BlockState actualState, BlockState setState) {
         this.renderManager.setBlockDirty(pos, actualState, setState);
+        blockUpdate.blockChanged(pos, setState);
     }
     
     @Override

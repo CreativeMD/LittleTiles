@@ -7,6 +7,4 @@ public interface LevelBoundsListener {
     
     public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Facing facing, Iterable<BlockPos> possible, int boundary);
     
-    public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Iterable<BlockPos> possible);
-    
 }

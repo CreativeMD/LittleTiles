@@ -115,6 +115,11 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
+    public void setBlocksDirty(BlockPos pos, BlockState actualState, BlockState setState) {
+        blockUpdate.blockChanged(pos, setState);
+    }
+    
+    @Override
     public LittleServerChunkCache getChunkSource() {
         return (LittleServerChunkCache) super.getChunkSource();
     }

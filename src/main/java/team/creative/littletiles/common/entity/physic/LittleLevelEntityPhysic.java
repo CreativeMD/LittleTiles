@@ -3,6 +3,7 @@ package team.creative.littletiles.common.entity.physic;
 import java.util.function.Predicate;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -25,14 +26,34 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
     private AABB bb;
     private boolean preventPush = false;
+    private boolean bbChanged = false;
     public boolean noCollision = false;
     
     public LittleLevelEntityPhysic(LittleLevelEntity parent) {
         this.parent = parent;
+        this.bb = parent.getBoundingBox();
     }
     
     public IVecOrigin getOrigin() {
         return parent.getOrigin();
+    }
+    
+    public void load(CompoundTag nbt) {
+        bb = new AABB(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"), nbt.getDouble("x2"), nbt.getDouble("y2"), nbt.getDouble("z2"));
+        bbChanged = true;
+        ((LittleLevel) parent.getSubLevel()).getBlockUpdateLevelSystem().load(nbt.getCompound("bounds"));
+    }
+    
+    public CompoundTag save() {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putDouble("x", bb.minX);
+        nbt.putDouble("y", bb.minY);
+        nbt.putDouble("z", bb.minZ);
+        nbt.putDouble("x2", bb.maxX);
+        nbt.putDouble("y2", bb.maxY);
+        nbt.putDouble("z2", bb.maxZ);
+        nbt.put("bounds", ((LittleLevel) parent.getSubLevel()).getBlockUpdateLevelSystem().save());
+        return nbt;
     }
     
     public AABB getOrientatedBB() {
@@ -57,37 +78,6 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     }
     
     @Override
-    public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Iterable<BlockPos> possible) {
-        double minX = Double.POSITIVE_INFINITY;
-        double minY = Double.POSITIVE_INFINITY;
-        double minZ = Double.POSITIVE_INFINITY;
-        double maxX = Double.NEGATIVE_INFINITY;
-        double maxY = Double.NEGATIVE_INFINITY;
-        double maxZ = Double.NEGATIVE_INFINITY;
-        
-        for (BlockPos pos : possible) {
-            BlockState state = level.getBlockState(pos);
-            if (state.getBlock() instanceof LittlePhysicBlock) {
-                LittlePhysicBlock phy = (LittlePhysicBlock) state.getBlock();
-                minX = Math.min(minX, phy.bound(level, pos, Facing.WEST));
-                minY = Math.min(minX, phy.bound(level, pos, Facing.DOWN));
-                minZ = Math.min(minX, phy.bound(level, pos, Facing.NORTH));
-                maxX = Math.max(maxX, phy.bound(level, pos, Facing.EAST));
-                maxY = Math.max(maxX, phy.bound(level, pos, Facing.UP));
-                maxZ = Math.max(maxX, phy.bound(level, pos, Facing.SOUTH));
-            } else {
-                minX = Math.min(minX, pos.getX());
-                minY = Math.min(minX, pos.getY());
-                minZ = Math.min(minX, pos.getZ());
-                maxX = Math.max(maxX, pos.getX() + 1);
-                maxY = Math.max(maxX, pos.getY() + 1);
-                maxZ = Math.max(maxX, pos.getZ() + 1);
-            }
-        }
-        bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
-    }
-    
-    @Override
     public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Facing facing, Iterable<BlockPos> possible, int boundary) {
         double value = facing.positive ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
         for (BlockPos pos : possible) {
@@ -102,6 +92,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
                 break;
         }
         bb = facing.set(bb, value);
+        bbChanged = true;
     }
     
     public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
@@ -335,6 +326,10 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
             parent.markOriginChange();
             parent.setBoundingBox(parent.getOrigin().getAABB(bb));
             parent.resetOriginChange();
+            bbChanged = false;
+        } else if (bbChanged) {
+            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
+            bbChanged = false;
         }
     }
 }

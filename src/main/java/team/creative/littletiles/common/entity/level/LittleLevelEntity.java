@@ -139,9 +139,16 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return this;
     }
     
-    public void initSubLevelClient(StructureAbsolute absolute) {
+    public CompoundTag saveExtraClientData() {
+        CompoundTag nbt = new CompoundTag();
+        nbt.put("physic", physic.save());
+        return nbt;
+    }
+    
+    public void initSubLevelClient(StructureAbsolute absolute, CompoundTag extraData) {
         setSubLevel(SubServerLevel.createSubLevel(level));
         setCenter(absolute);
+        physic.load(extraData.getCompound("physic"));
     }
     
     protected void setSubLevel(ISubLevel subLevel) {
@@ -231,11 +238,15 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         onTick();
         ((LittleLevel) subLevel).tick();
         
+        ((LittleLevel) subLevel).getBlockUpdateLevelSystem().tick(this);
         physic.updateBoundingBox();
         
         setPosRaw(center.baseOffset.getX() + origin.offXLast(), center.baseOffset.getY() + origin.offYLast(), center.baseOffset.getZ() + origin.offZLast());
         setOldPosAndRot();
         setPosRaw(center.baseOffset.getX() + origin.offX(), center.baseOffset.getY() + origin.offY(), center.baseOffset.getZ() + origin.offZ());
+        
+        if (!level.isClientSide && ((LittleLevel) subLevel).getBlockUpdateLevelSystem().isEntirelyEmpty())
+            destroyAnimation();
     }
     
     // ================Save&Load================
@@ -244,12 +255,14 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     public void readAdditionalSaveData(CompoundTag nbt) {
         setSubLevel(SubServerLevel.createSubLevel(level));
         
-        this.initalOffX = nbt.getDouble("initOffX");
-        this.initalOffY = nbt.getDouble("initOffY");
-        this.initalOffZ = nbt.getDouble("initOffZ");
-        this.initalRotX = nbt.getDouble("initRotX");
-        this.initalRotY = nbt.getDouble("initRotY");
-        this.initalRotZ = nbt.getDouble("initRotZ");
+        physic.load(nbt.getCompound("physic"));
+        
+        this.initalOffX = nbt.getDouble("iX");
+        this.initalOffY = nbt.getDouble("iY");
+        this.initalOffZ = nbt.getDouble("iZ");
+        this.initalRotX = nbt.getDouble("iX");
+        this.initalRotY = nbt.getDouble("iY");
+        this.initalRotZ = nbt.getDouble("iZ");
         
         setCenter(new StructureAbsolute("center", nbt));
         
@@ -267,8 +280,6 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
             e.printStackTrace();
         }
         
-        ((LittleLevel) subLevel).getBlockUpdateLevelSystem().load(nbt.getCompound("bounds"));
-        
         loadLevelEntity(nbt);
         
         physic.updateBoundingBox();
@@ -278,22 +289,22 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     @Override
     public void addAdditionalSaveData(CompoundTag nbt) {
+        nbt.put("physic", physic.save());
+        
         center.save("center", nbt);
         
-        nbt.putDouble("initOffX", initalOffX);
-        nbt.putDouble("initOffY", initalOffY);
-        nbt.putDouble("initOffZ", initalOffZ);
-        nbt.putDouble("initRotX", initalRotX);
-        nbt.putDouble("initRotY", initalRotY);
-        nbt.putDouble("initRotZ", initalRotZ);
+        nbt.putDouble("iX", initalOffX);
+        nbt.putDouble("iY", initalOffY);
+        nbt.putDouble("iZ", initalOffZ);
+        nbt.putDouble("iX", initalRotX);
+        nbt.putDouble("iY", initalRotY);
+        nbt.putDouble("iZ", initalRotZ);
         
         LittleServerLevel sub = (LittleServerLevel) subLevel;
         ListTag chunks = new ListTag();
         for (ChunkAccess chunk : sub.chunks())
             chunks.add(LittleChunkSerializer.write(sub, chunk));
         nbt.put("chunks", chunks);
-        
-        nbt.put("bounds", ((LittleLevel) subLevel).getBlockUpdateLevelSystem().save());
         
         // TODO May need to save entities?????
         
@@ -322,6 +333,16 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     }
     
     // ================MC Hooks================
+    
+    @Override
+    public void setPos(double x, double y, double z) {
+        super.setPosRaw(x, y, z); // Fixes bounding box
+    }
+    
+    @Override
+    protected AABB makeBoundingBox() {
+        return physic.getBB();
+    }
     
     @Override
     public boolean isOnFire() {
@@ -373,7 +394,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
                 Vec3 newPos = levelEntity.origin.transformPointToFakeWorld(pos);
                 Vec3 newLook = levelEntity.origin.transformPointToFakeWorld(look);
                 
-                if (levelEntity.physic.getBB().intersects(newPos, newLook)) {
+                if (levelEntity.physic.getOrientatedBB().intersects(newPos, newLook)) {
                     LittleHitResult tempResult = levelEntity.rayTrace(pos, look);
                     if (tempResult == null)
                         continue;
