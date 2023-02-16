@@ -4,8 +4,8 @@ import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.api.tool.ILittleTool;
 
 public abstract class GuiConfigure extends GuiLayer {
     

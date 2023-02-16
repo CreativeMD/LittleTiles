@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.api;
+package team.creative.littletiles.api.client;
 
 import net.minecraft.world.level.block.state.BlockState;
 

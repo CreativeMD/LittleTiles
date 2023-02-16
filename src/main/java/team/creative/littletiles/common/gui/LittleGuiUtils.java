@@ -16,9 +16,9 @@ import team.creative.creativecore.common.gui.controls.collection.GuiStackSelecto
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackCollector;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackSelector;
 import team.creative.creativecore.common.util.type.map.HashMapList;
+import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.api.common.ingredient.ILittleIngredientSupplier;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.common.api.ingredient.ILittleIngredientSupplier;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;

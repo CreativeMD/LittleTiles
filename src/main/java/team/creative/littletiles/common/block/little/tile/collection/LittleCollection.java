@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.type.itr.NestedIterator;
 import team.creative.creativecore.common.util.type.list.CopyArrayCollection;
 import team.creative.creativecore.common.util.type.map.HashMapList;
-import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;

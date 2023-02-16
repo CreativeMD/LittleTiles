@@ -3,7 +3,7 @@ package team.creative.littletiles.common.ingredient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.api.common.block.LittleBlock;
 
 public class BlockIngredientEntry {
     

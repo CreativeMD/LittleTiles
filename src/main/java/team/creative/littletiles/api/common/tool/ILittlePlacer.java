@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.api.tool;
+package team.creative.littletiles.api.common.tool;
 
 import java.util.List;
 

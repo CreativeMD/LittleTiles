@@ -6,8 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
-import team.creative.littletiles.common.api.block.ILittleMCBlock;
-import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.api.common.block.ILittleMCBlock;
+import team.creative.littletiles.api.common.block.LittleBlock;
 
 public class LittleBlockClientRegistry {
     

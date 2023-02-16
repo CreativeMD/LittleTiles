@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.api.block;
+package team.creative.littletiles.api.common.block;
 
 import javax.annotation.Nullable;
 

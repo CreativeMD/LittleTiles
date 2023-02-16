@@ -16,7 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
-import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.api.common.block.LittleBlock;
 
 public class LittleBlockRegistry {
     

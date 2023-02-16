@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.api.block;
+package team.creative.littletiles.api.common.block;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Facing;

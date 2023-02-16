@@ -5,7 +5,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.common.api.tool.ILittleTool;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 
 public class RotatePacket extends CreativePacket {
     

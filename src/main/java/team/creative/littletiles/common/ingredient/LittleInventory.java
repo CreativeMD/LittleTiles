@@ -14,8 +14,8 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.creativecore.common.util.mc.LevelUtils;
-import team.creative.littletiles.common.api.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.common.api.ingredient.ILittleIngredientSupplier;
+import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.api.common.ingredient.ILittleIngredientSupplier;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 public class LittleInventory implements Iterable<ItemStack> {

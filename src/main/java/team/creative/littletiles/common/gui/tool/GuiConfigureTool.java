@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.gui.tool;
 
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
-import team.creative.littletiles.common.api.tool.ILittleTool;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
 
 public abstract class GuiConfigureTool extends GuiConfigure {

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.api.ingredient;
+package team.creative.littletiles.api.common.ingredient;
 
 import javax.annotation.Nullable;
 

@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.model.CreativeItemModel;
-import team.creative.littletiles.common.api.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittlePlacer;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleModelItemBackground extends CreativeItemModel {

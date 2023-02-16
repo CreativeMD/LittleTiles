@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.littletiles.common.api.block.LittleBlock;
+import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.mixin.common.block.StateHolderAccessor;
 
