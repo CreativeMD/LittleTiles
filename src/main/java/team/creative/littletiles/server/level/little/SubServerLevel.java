@@ -29,16 +29,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.level.little.SubClientLevel;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 
-public class SubServerLevel extends LittleServerLevel implements ISubLevel {
+public class SubServerLevel extends LittleServerLevel implements LittleSubLevel {
     
-    public static ISubLevel createSubLevel(Level level) {
+    public static LittleSubLevel createSubLevel(Level level) {
         if (level instanceof ServerLevel s)
             return new SubServerLevel(s);
         return new SubClientLevel(level);

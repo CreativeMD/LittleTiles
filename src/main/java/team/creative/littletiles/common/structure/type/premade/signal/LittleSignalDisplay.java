@@ -139,7 +139,7 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     @Override
     public void unload() {
         super.unload();
-        if (getLevel().isClientSide && textureId != -1)
+        if (isClient() && textureId != -1)
             GlStateManager._deleteTexture(textureId);
     }
     

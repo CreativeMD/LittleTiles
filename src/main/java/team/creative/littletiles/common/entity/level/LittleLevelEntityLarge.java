@@ -3,7 +3,7 @@ package team.creative.littletiles.common.entity.level;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
@@ -13,7 +13,7 @@ public class LittleLevelEntityLarge extends LittleLevelEntity {
         super(type, level);
     }
     
-    public LittleLevelEntityLarge(EntityType<?> type, Level level, ISubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
+    public LittleLevelEntityLarge(EntityType<?> type, Level level, LittleSubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
         super(type, level, subLevel, center, location);
     }
     

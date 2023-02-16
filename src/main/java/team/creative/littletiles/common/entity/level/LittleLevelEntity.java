@@ -40,6 +40,7 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -54,7 +55,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     
     private Iterable<OrientationAwareEntity> childrenItr = () -> new FilterIterator<OrientationAwareEntity>(entities(), OrientationAwareEntity.class);
     
-    private ISubLevel subLevel;
+    private LittleSubLevel subLevel;
     private StructureAbsolute center;
     private IVecOrigin origin;
     protected boolean hasOriginChanged = false;
@@ -75,7 +76,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         super(type, level);
     }
     
-    public LittleLevelEntity(EntityType<?> type, Level level, ISubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
+    public LittleLevelEntity(EntityType<?> type, Level level, LittleSubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
         super(type, level);
         setSubLevel(subLevel);
         setCenter(center);
@@ -134,8 +135,8 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
     }
     
     public LittleLevelEntity getTopLevelEntity() {
-        if (level instanceof ISubLevel)
-            return ((LittleLevelEntity) ((ISubLevel) level).getHolder()).getTopLevelEntity();
+        if (level instanceof ISubLevel sub)
+            return ((LittleLevelEntity) sub.getHolder()).getTopLevelEntity();
         return this;
     }
     
@@ -151,7 +152,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         physic.load(extraData.getCompound("physic"));
     }
     
-    protected void setSubLevel(ISubLevel subLevel) {
+    protected void setSubLevel(LittleSubLevel subLevel) {
         this.subLevel = subLevel;
         this.subLevel.setHolder(this);
         ((LittleLevel) this.subLevel).registerLevelBoundListener(physic);
@@ -236,16 +237,16 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         children().forEach(x -> x.performTick());
         onTick();
-        ((LittleLevel) subLevel).tick();
+        subLevel.tick();
         
-        ((LittleLevel) subLevel).getBlockUpdateLevelSystem().tick(this);
+        subLevel.getBlockUpdateLevelSystem().tick(this);
         physic.updateBoundingBox();
         
         setPosRaw(center.baseOffset.getX() + origin.offXLast(), center.baseOffset.getY() + origin.offYLast(), center.baseOffset.getZ() + origin.offZLast());
         setOldPosAndRot();
         setPosRaw(center.baseOffset.getX() + origin.offX(), center.baseOffset.getY() + origin.offY(), center.baseOffset.getZ() + origin.offZ());
         
-        if (!level.isClientSide && ((LittleLevel) subLevel).getBlockUpdateLevelSystem().isEntirelyEmpty())
+        if (!level.isClientSide && subLevel.getBlockUpdateLevelSystem().isEntirelyEmpty())
             destroyAnimation();
     }
     

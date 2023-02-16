@@ -799,7 +799,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Packets====================
     
     public void updateStructure() {
-        if (getLevel() == null || getLevel().isClientSide)
+        if (getLevel() == null || isClient())
             return;
         LittleSignalHandler.queueStructureForUpdatePacket(this);
     }

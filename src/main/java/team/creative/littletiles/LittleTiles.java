@@ -35,7 +35,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
-import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -63,6 +62,7 @@ import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
@@ -289,7 +289,7 @@ public class LittleTiles {
         event.getServer().getCommands().getDispatcher().register(Commands.literal("animation").executes((x) -> {
             try {
                 ServerLevel level = x.getSource().getLevel();
-                ISubLevel subLevel = SubServerLevel.createSubLevel(level);
+                LittleSubLevel subLevel = SubServerLevel.createSubLevel(level);
                 BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
                 LittleGrid grid = LittleGrid.defaultGrid();
                 CompoundTag nbt = new CompoundTag();

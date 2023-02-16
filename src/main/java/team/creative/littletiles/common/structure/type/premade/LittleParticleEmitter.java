@@ -64,7 +64,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         if (getOutput(0).getState().any())
             return;
         if (ticker >= delay) {
-            if (getLevel().isClientSide)
+            if (isClient())
                 for (int i = 0; i < count; i++)
                     spawnParticle(getLevel());
                 

@@ -23,14 +23,14 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 @OnlyIn(Dist.CLIENT)
-public class SubClientLevel extends LittleClientLevel implements ISubLevel {
+public class SubClientLevel extends LittleClientLevel implements LittleSubLevel {
     
     public Level parentLevel;
     

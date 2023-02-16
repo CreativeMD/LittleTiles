@@ -16,13 +16,13 @@ public class LittleSignalHandler {
     private static final HashSet<LittleStructure> queuedStructures = new HashSet<>();
     
     public static synchronized void queueStructureForUpdatePacket(LittleStructure structure) {
-        if (structure.getLevel().isClientSide)
+        if (structure.isClient())
             return;
         queuedUpdateStructures.add(structure);
     }
     
     public static synchronized void queueStructureForNextTick(LittleStructure structure) {
-        if (structure.getLevel().isClientSide)
+        if (structure.isClient())
             return;
         queuedStructures.add(structure);
     }

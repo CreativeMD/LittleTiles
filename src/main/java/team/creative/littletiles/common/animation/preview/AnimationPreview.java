@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
@@ -20,6 +19,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntityLarge;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.placement.Placement;
@@ -46,7 +46,7 @@ public class AnimationPreview {
         BlockPos pos = new BlockPos(0, 0, 0);
         FakeClientLevel fakeWorld = FakeServerLevel.createClient("animationViewer");
         fakeWorld.setOrigin(new Vec3d());
-        ISubLevel subLevel = SubServerLevel.createSubLevel(fakeWorld);
+        LittleSubLevel subLevel = SubServerLevel.createSubLevel(fakeWorld);
         
         if (!previews.hasStructure()) {
             CompoundTag nbt = new CompoundTag();

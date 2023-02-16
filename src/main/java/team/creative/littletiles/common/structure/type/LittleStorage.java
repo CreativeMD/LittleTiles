@@ -92,7 +92,7 @@ public class LittleStorage extends LittleStructure {
     @Override
     public void onStructureDestroyed() {
         super.onStructureDestroyed();
-        if (!getLevel().isClientSide) {
+        if (!isClient()) {
             for (GuiStorage container : openContainers) {
                 container.storage = null;
                 container.closeThisLayer();
@@ -133,7 +133,7 @@ public class LittleStorage extends LittleStructure {
     }
     
     public void onInventoryChanged() {
-        if (getLevel().isClientSide)
+        if (isClient())
             return;
         if (!openContainers.isEmpty())
             for (GuiStorage gui : openContainers)

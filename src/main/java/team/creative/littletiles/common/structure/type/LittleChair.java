@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
@@ -51,7 +52,7 @@ public class LittleChair extends LittleStructure {
     
     public void setPlayer(Player player) {
         this.player = player;
-        if (!getLevel().isClientSide)
+        if (!isClient())
             getInput(0).updateState(SignalState.of(player != null));
         if (this.player == null)
             sitUUID = null;
@@ -61,13 +62,13 @@ public class LittleChair extends LittleStructure {
     protected void afterPlaced() {
         super.afterPlaced();
         if (sitUUID != null) {
-            Level level = getLevel();
+            LevelAccessor level = getLevel();
             if (level instanceof IOrientatedLevel) {
                 if (!(level instanceof ISubLevel))
                     return;
                 level = ((ISubLevel) level).getRealLevel();
             }
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 Iterable<Entity> iterable;
                 if (level instanceof ServerLevel)
                     iterable = ((ServerLevel) level).getAllEntities();

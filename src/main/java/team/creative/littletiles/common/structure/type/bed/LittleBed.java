@@ -81,7 +81,7 @@ public class LittleBed extends LittleStructure {
     
     public void setSleepingPlayer(Player player) {
         this.sleepingPlayer = player;
-        if (!getLevel().isClientSide)
+        if (!isClient())
             getInput(0).updateState(SignalState.of(player != null));
     }
     

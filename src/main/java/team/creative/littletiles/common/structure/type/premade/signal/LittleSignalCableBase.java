@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -211,7 +210,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         try {
             checkConnections();
             
-            if (getLevel().isClientSide)
+            if (isClient())
                 return;
             
             LittleBoxAbsolute box = getSurroundingBox().getAbsoluteBox();
@@ -286,8 +285,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     protected LittleConnectResult checkConnection(Level level, LittleBoxAbsolute box, Facing facing, BlockPos pos) throws ConnectionException, NotYetConnectedException {
         try {
-            LevelChunk chunk = level.getChunkAt(pos); // TODO Check if this can even happen, not sure if chunk can be null
-            if (chunk == null)
+            if (level.hasChunkAt(pos))
                 throw new NotYetConnectedException();
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof BETiles) {
