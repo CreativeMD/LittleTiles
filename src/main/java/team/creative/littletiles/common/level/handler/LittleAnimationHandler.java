@@ -73,7 +73,8 @@ public abstract class LittleAnimationHandler extends LevelHandler {
             
             for (VoxelShape shape : entity.getSubLevel().getBlockCollisions(colliding, entity.getOrigin().getOBB(box)))
                 for (AABB bb : shape.toAabbs())
-                    shapes.add(OBBVoxelShape.create(bb, entity.getOrigin()));
+                    if (bb.intersects(box))
+                        shapes.add(OBBVoxelShape.create(bb, entity.getOrigin()));
         }
     }
     
