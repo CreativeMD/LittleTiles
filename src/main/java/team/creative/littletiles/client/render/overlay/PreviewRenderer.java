@@ -30,7 +30,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -164,12 +165,14 @@ public class PreviewRenderer implements LevelAwareHandler {
     }
     
     @SubscribeEvent
-    public void tick(RenderLevelLastEvent event) {
+    public void tick(RenderLevelStageEvent event) {
+        if (event.getStage() != Stage.AFTER_WEATHER)
+            return;
         if (mc.player != null && mc.isWindowActive() && !mc.options.hideGui) {
             Level level = mc.level;
             Player player = mc.player;
             ItemStack stack = mc.player.getMainHandItem();
-            PoseStack pose = event.getPoseStack();
+            PoseStack pose = new PoseStack();
             
             if (!LittleAction.canPlace(player))
                 return;
@@ -216,7 +219,6 @@ public class PreviewRenderer implements LevelAwareHandler {
                             
                             pose.pushPose();
                             pose.translate(pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z);
-                            
                             processMarkKey(player, iTile, stack, result);
                             
                             BufferBuilder builder = Tesselator.getInstance().getBuilder();
