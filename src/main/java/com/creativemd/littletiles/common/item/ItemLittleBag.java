@@ -103,7 +103,7 @@ public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredien
             stack.setTagCompound(new NBTTagCompound());
         
         ColorIngredient color = new ColorIngredient(stack.getTagCompound().getInteger("black"), stack.getTagCompound().getInteger("cyan"), stack.getTagCompound()
-            .getInteger("magenta"), stack.getTagCompound().getInteger("yellow"));
+                .getInteger("magenta"), stack.getTagCompound().getInteger("yellow"));
         color.setLimit(colorUnitMaximum);
         ingredients.set(color.getClass(), color);
         return ingredients;
@@ -116,22 +116,29 @@ public class ItemLittleBag extends Item implements IGuiCreator, ILittleIngredien
         
         NBTTagList list = new NBTTagList();
         int i = 0;
-        for (BlockIngredientEntry ingredient : ingredients.get(BlockIngredient.class).getContent()) {
-            if (ingredient.block instanceof BlockAir && ingredient.value < LittleGridContext.getMax().pixelVolume)
-                continue;
-            if (i >= inventorySize)
-                break;
-            list.appendTag(ingredient.writeToNBT(new NBTTagCompound()));
-            i++;
-        }
+        if (ingredients.contains(BlockIngredient.class))
+            for (BlockIngredientEntry ingredient : ingredients.get(BlockIngredient.class).getContent()) {
+                if (ingredient.block instanceof BlockAir && ingredient.value < LittleGridContext.getMax().pixelVolume)
+                    continue;
+                if (i >= inventorySize)
+                    break;
+                list.appendTag(ingredient.writeToNBT(new NBTTagCompound()));
+                i++;
+            }
         
         stack.getTagCompound().setTag("inv", list);
-        
-        ColorIngredient color = ingredients.get(ColorIngredient.class);
-        stack.getTagCompound().setInteger("black", color.black);
-        stack.getTagCompound().setInteger("cyan", color.cyan);
-        stack.getTagCompound().setInteger("magenta", color.magenta);
-        stack.getTagCompound().setInteger("yellow", color.yellow);
+        if (ingredients.contains(ColorIngredient.class)) {
+            ColorIngredient color = ingredients.get(ColorIngredient.class);
+            stack.getTagCompound().setInteger("black", color.black);
+            stack.getTagCompound().setInteger("cyan", color.cyan);
+            stack.getTagCompound().setInteger("magenta", color.magenta);
+            stack.getTagCompound().setInteger("yellow", color.yellow);
+        } else {
+            stack.getTagCompound().setInteger("black", 0);
+            stack.getTagCompound().setInteger("cyan", 0);
+            stack.getTagCompound().setInteger("magenta", 0);
+            stack.getTagCompound().setInteger("yellow", 0);
+        }
     }
     
 }

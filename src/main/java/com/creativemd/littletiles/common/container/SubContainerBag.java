@@ -95,7 +95,15 @@ public class SubContainerBag extends SubContainerHeldItem {
                         }
                     }
                     
+                    if (!remaining.isEmpty()) {
+                        LittleIngredients in = new LittleIngredients();
+                        BlockIngredient blocks = new BlockIngredient().setLimits(ItemLittleBag.inventorySize, ItemLittleBag.maxStackSize);
+                        in.set(BlockIngredient.class, blocks);
+                        in.add(remaining);
+                        remaining = in;
+                    }
                     ((ILittleIngredientInventory) input.getItem()).setInventory(input, remaining, null);
+                    
                 } else {
                     LittleIngredients ingredients = LittleIngredient.extractWithoutCount(input, true);
                     if (ingredients != null) {

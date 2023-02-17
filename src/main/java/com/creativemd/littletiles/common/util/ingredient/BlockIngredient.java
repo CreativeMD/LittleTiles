@@ -74,10 +74,19 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
                     return null;
             }
         }
-        
-        if (maxEntries == -1 || content.size() < maxEntries) {
-            content.add(ingredient.copy());
-            return null;
+        while ((maxEntries == -1 || content.size() < maxEntries) && ingredient.value > 0) {
+            if (maxVolume != -1 && ingredient.value > maxVolume) {
+                BlockIngredientEntry entry = ingredient.copy();
+                entry.value = Math.min(ingredient.value, maxVolume);
+                content.add(entry);
+                ingredient.value -= entry.value;
+                if (ingredient.value <= 0) {
+                    return null;
+                }
+            } else {
+                content.add(ingredient.copy());
+                return null;
+            }
         }
         return ingredient;
     }
@@ -208,12 +217,12 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         
         if (fullBlocks > 0)
             text += TooltipUtils.printNumber(fullBlocks) + (extended ? " " + (fullBlocks == 1 ? I18n.translateToLocal("volume.unit.big.single") : I18n
-                .translateToLocal("volume.unit.big.multiple")) : I18n.translateToLocal("volume.unit.big.short"));
+                    .translateToLocal("volume.unit.big.multiple")) : I18n.translateToLocal("volume.unit.big.short"));
         if (pixels > 0) {
             if (fullBlocks > 0)
                 text += " ";
             text += TooltipUtils.printNumber(pixels) + (extended ? " " + (pixels == 1 ? I18n.translateToLocal("volume.unit.small.single") : I18n
-                .translateToLocal("volume.unit.small.multiple")) : I18n.translateToLocal("volume.unit.small.short"));
+                    .translateToLocal("volume.unit.small.multiple")) : I18n.translateToLocal("volume.unit.small.short"));
         }
         
         return text;
