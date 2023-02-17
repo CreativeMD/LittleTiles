@@ -1,7 +1,6 @@
 package team.creative.littletiles.client.level.little;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -39,47 +38,65 @@ public class LittleClientPacketListener extends ClientPacketListener {
         ((ClientPacketListenerAccessor) this).setLevelData(data);
     }
     
-    @Override
-    public void handleLogin(ClientboundLoginPacket packet) {}
+    public ClientPacketListener getVanillaListener() {
+        return Minecraft.getInstance().getConnection();
+    }
     
     @Override
-    public void handleDisconnect(ClientboundDisconnectPacket packet) {}
+    public void handleLogin(ClientboundLoginPacket packet) {
+        getVanillaListener().handleLogin(packet);
+    }
     
     @Override
-    public void onDisconnect(Component component) {}
+    public void handleDisconnect(ClientboundDisconnectPacket packet) {
+        getVanillaListener().handleDisconnect(packet);
+    }
     
     @Override
-    public void handleRespawn(ClientboundRespawnPacket packet) {}
+    public void onDisconnect(Component component) {
+        getVanillaListener().onDisconnect(component);
+    }
     
     @Override
-    public void handleResourcePack(ClientboundResourcePackPacket packet) {}
+    public void handleRespawn(ClientboundRespawnPacket packet) {
+        getVanillaListener().handleRespawn(packet);
+    }
     
     @Override
-    public void handlePlayerInfoUpdate(ClientboundPlayerInfoUpdatePacket packet) {}
+    public void handleResourcePack(ClientboundResourcePackPacket packet) {
+        getVanillaListener().handleResourcePack(packet);
+    }
     
     @Override
-    public void handlePlayerInfoRemove(ClientboundPlayerInfoRemovePacket packet) {}
+    public void handlePlayerInfoUpdate(ClientboundPlayerInfoUpdatePacket packet) {
+        getVanillaListener().handlePlayerInfoUpdate(packet);
+    }
+    
+    @Override
+    public void handlePlayerInfoRemove(ClientboundPlayerInfoRemovePacket packet) {
+        getVanillaListener().handlePlayerInfoRemove(packet);
+    }
     
     @Override
     public Collection<PlayerInfo> getOnlinePlayers() {
-        return Collections.EMPTY_LIST;
+        return getVanillaListener().getOnlinePlayers();
     }
     
     @Override
     public Collection<UUID> getOnlinePlayerIds() {
-        return Collections.EMPTY_LIST;
+        return getVanillaListener().getOnlinePlayerIds();
     }
     
     @Override
     @Nullable
     public PlayerInfo getPlayerInfo(UUID uuid) {
-        return null;
+        return getVanillaListener().getPlayerInfo(uuid);
     }
     
     @Override
     @Nullable
     public PlayerInfo getPlayerInfo(String name) {
-        return null;
+        return getVanillaListener().getPlayerInfo(name);
     }
     
 }

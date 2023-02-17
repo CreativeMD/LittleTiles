@@ -409,7 +409,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
                 Vec3 newPos = origin.transformPointToFakeWorld(pos);
                 Vec3 newLook = origin.transformPointToFakeWorld(look);
                 if (entity.getBoundingBox().intersects(newPos, newLook)) {
-                    LittleHitResult tempResult = new LittleHitResult(new EntityHitResult(entity, entity.getBoundingBox().clip(newPos, newLook).get()), (Level) subLevel);
+                    LittleHitResult tempResult = new LittleHitResult(this, new EntityHitResult(entity, entity.getBoundingBox().clip(newPos, newLook).get()), subLevel);
                     double tempDistance = newPos.distanceTo(tempResult.hit.getLocation());
                     if (result == null || tempDistance < distance) {
                         result = tempResult;
@@ -422,10 +422,10 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         Vec3 newPos = origin.transformPointToFakeWorld(pos);
         Vec3 newLook = origin.transformPointToFakeWorld(look);
         HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
-        if (tempResult == null || tempResult instanceof BlockHitResult)
+        if (tempResult == null || !(tempResult instanceof BlockHitResult))
             return result;
         if (result == null || pos.distanceTo(tempResult.getLocation()) < distance)
-            return new LittleHitResult(tempResult, (Level) subLevel);
+            return new LittleHitResult(this, tempResult, subLevel);
         return result;
     }
     

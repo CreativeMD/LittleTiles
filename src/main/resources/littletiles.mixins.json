@@ -7,6 +7,7 @@
         "common.block.StateHolderAccessor",
         "common.collision.EntityCollisionMixin",
         "common.collision.BlockCollisionsMixin",
+        "common.entity.EntityMixin",
         "common.entity.PlayerBedMixin",
         "common.entity.PrimedTntAccessor",
         "common.level.BlockBehaviourAccessor",
@@ -20,6 +21,8 @@
         "server.network.ServerGamePacketListenerImplMixin"
     ],
     "client": [
+        "client.MinecraftMixin",
+        "client.MultiPlayerGameModeAccessor",
         "client.level.ClientLevelAccessor",
         "client.level.ClientLevelMixin",
         "client.level.ClientChunkCacheAccessor",

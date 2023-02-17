@@ -1,18 +1,20 @@
 package team.creative.littletiles.common.math.vec;
 
-import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 
-public class LittleHitResult {
+public class LittleHitResult extends EntityHitResult {
     
     public final HitResult hit;
-    public final Level level;
+    public final LittleSubLevel level;
     
-    public LittleHitResult(HitResult result, Level level) {
+    public LittleHitResult(Entity entity, HitResult result, LittleSubLevel level) {
+        super(entity);
         this.hit = result;
         this.level = level;
     }

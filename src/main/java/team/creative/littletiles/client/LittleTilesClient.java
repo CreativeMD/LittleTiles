@@ -55,6 +55,7 @@ import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
+import team.creative.littletiles.client.level.LittleInteractionHandlerClient;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
@@ -90,6 +91,7 @@ public class LittleTilesClient {
     public static final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
     public static LittleActionHandlerClient ACTION_HANDLER;
     public static LittleAnimationHandlerClient ANIMATION_HANDLER;
+    public static LittleInteractionHandlerClient INTERACTION_HANDLER;
     public static PreviewRenderer PREVIEW_RENDERER;
     public static ItemRenderCache ITEM_RENDER_CACHE;
     
@@ -159,6 +161,7 @@ public class LittleTilesClient {
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
         LEVEL_HANDLERS.register(LittleAnimationHandlerClient::new, x -> ANIMATION_HANDLER = x);
+        LEVEL_HANDLERS.register(LittleInteractionHandlerClient::new, x -> INTERACTION_HANDLER = x);
         LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
         LEVEL_HANDLERS.register(ITEM_RENDER_CACHE = new ItemRenderCache());
         

@@ -135,6 +135,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     public LittleServerPlayerHandler(LittleServerLevel level, ServerPlayer player) {
         this.server = player.getServer();
+        this.level = level;
         this.player = player;
     }
     

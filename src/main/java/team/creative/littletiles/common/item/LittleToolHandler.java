@@ -9,8 +9,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -28,7 +30,6 @@ import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventor
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.event.PickBlockEvent;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
@@ -36,6 +37,7 @@ import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
+import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 
@@ -53,12 +55,21 @@ public class LittleToolHandler {
     private boolean leftClicked;
     
     @SubscribeEvent
-    public void onMouseWheelClick(PickBlockEvent event) {
-        if (event.result != null) {
-            ItemStack stack = event.player.getMainHandItem();
+    @OnlyIn(Dist.CLIENT)
+    public void onMouseWheelClick(InteractionKeyMappingTriggered event) {
+        if (!event.isPickBlock())
+            return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.hitResult.getType() == Type.BLOCK && mc.hitResult instanceof BlockHitResult hit) {
+            ItemStack stack = mc.player.getMainHandItem();
             if (stack.getItem() instanceof ILittleTool && ((ILittleTool) stack.getItem())
-                    .onMouseWheelClickBlock(event.level, event.player, stack, new PlacementPosition(event.result, ((ILittleTool) stack.getItem())
-                            .getPositionGrid(stack)), event.result))
+                    .onMouseWheelClickBlock(mc.level, mc.player, stack, new PlacementPosition(hit, ((ILittleTool) stack.getItem()).getPositionGrid(stack)), hit))
+                event.setCanceled(true);
+        } else if (mc.hitResult instanceof LittleHitResult result && result.isBlock()) {
+            ItemStack stack = mc.player.getMainHandItem();
+            if (stack.getItem() instanceof ILittleTool && ((ILittleTool) stack.getItem())
+                    .onMouseWheelClickBlock((Level) result.level, mc.player, stack, new PlacementPosition(result.asBlockHit(), ((ILittleTool) stack.getItem())
+                            .getPositionGrid(stack)), result.asBlockHit()))
                 event.setCanceled(true);
         }
     }
