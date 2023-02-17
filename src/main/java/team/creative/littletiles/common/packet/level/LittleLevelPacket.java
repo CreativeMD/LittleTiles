@@ -34,7 +34,7 @@ public class LittleLevelPacket extends CreativePacket {
         if (entity == null)
             return;
         
-        PacketListener listener = ((LittleLevel) entity.getSubLevel()).getPacketListener();
+        PacketListener listener = ((LittleLevel) entity.getSubLevel()).getPacketListener(player);
         packet.handle(listener);
     }
     

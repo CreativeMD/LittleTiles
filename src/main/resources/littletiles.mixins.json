@@ -16,6 +16,7 @@
         "server.level.ServerChunkCacheAccessor",
         "server.level.ServerLevelMixin",
         "server.level.ChunkMapAccessor",
+        "server.network.ServerGamePacketListenerImplAccessor",
         "server.network.ServerGamePacketListenerImplMixin"
     ],
     "client": [

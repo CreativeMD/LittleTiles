@@ -124,7 +124,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         return origin;
     }
     
-    public ISubLevel getSubLevel() {
+    public LittleSubLevel getSubLevel() {
         return subLevel;
     }
     

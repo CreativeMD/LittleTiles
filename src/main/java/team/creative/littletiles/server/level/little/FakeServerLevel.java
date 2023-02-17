@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.PacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.sounds.SoundEvent;
@@ -52,11 +51,6 @@ public class FakeServerLevel extends LittleServerLevel {
     
     @Override
     public UUID key() {
-        return null;
-    }
-    
-    @Override
-    public PacketListener getPacketListener() {
         return null;
     }
     

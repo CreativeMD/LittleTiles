@@ -13,8 +13,10 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,7 +71,10 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     @Override
-    public LittleClientPacketListener getPacketListener() {
+    public void stopTracking(ServerPlayer player) {}
+    
+    @Override
+    public LittleClientPacketListener getPacketListener(Player player) {
         return (LittleClientPacketListener) ((ClientLevelAccessor) this).getConnection();
     }
     
@@ -226,5 +231,4 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public void tick() {
         tickBlockEntities();
     }
-    
 }

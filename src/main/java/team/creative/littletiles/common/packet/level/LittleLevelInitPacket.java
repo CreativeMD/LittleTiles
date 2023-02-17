@@ -45,7 +45,7 @@ public class LittleLevelInitPacket extends CreativePacket {
         
         entity.initSubLevelClient(absolute, extraData);
         
-        ClientGamePacketListener listener = (ClientGamePacketListener) ((LittleLevel) entity.getSubLevel()).getPacketListener();
+        ClientGamePacketListener listener = (ClientGamePacketListener) ((LittleLevel) entity.getSubLevel()).getPacketListener(player);
         for (ClientboundLevelChunkWithLightPacket packet : chunks)
             packet.handle(listener);
     }

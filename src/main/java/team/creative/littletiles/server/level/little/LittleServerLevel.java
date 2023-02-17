@@ -13,10 +13,13 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.PacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -42,6 +45,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     public IVecOrigin origin;
     
     public final BlockUpdateLevelSystem blockUpdate = new BlockUpdateLevelSystem(this);
+    public final LittleServerPlayerConnections connections = new LittleServerPlayerConnections();
     
     public boolean hasChanged = false;
     public boolean preventNeighborUpdate = false;
@@ -52,6 +56,16 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
         super(server, Util.backgroundExecutor(), ((MinecraftServerAccessor) server)
                 .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false);
         this.access = access;
+    }
+    
+    @Override
+    public void stopTracking(ServerPlayer player) {
+        connections.remove(player);
+    }
+    
+    @Override
+    public PacketListener getPacketListener(Player player) {
+        return connections.getOrCreate(this, (ServerPlayer) player);
     }
     
     @Override
@@ -147,6 +161,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     public void tick() {
         while (getChunkSource().pollTask()) {}
         tick(((MinecraftServerAccessor) getServer())::callHaveTime);
+        connections.tick();
     }
     
     @Override
