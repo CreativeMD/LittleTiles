@@ -96,6 +96,9 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
     }
     
     public void renderBlockEntities(PoseStack pose, LittleLevelEntity animation, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource.BufferSource bufferSource) {
+        pose.pushPose();
+        animation.getOrigin().setupRendering(pose, animation, frameTime);
+        
         for (LittleRenderChunk chunk : animation.getRenderManager()) {
             List<BlockEntity> list = chunk.getCompiledChunk().getRenderableBlockEntities();
             if (list.isEmpty())
@@ -112,6 +115,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
                 pose.popPose();
             }
         }
+        pose.popPose();
     }
     
     public void resortTransparency(LittleLevelEntity animation, RenderType layer, double x, double y, double z) {
