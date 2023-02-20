@@ -95,6 +95,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CommandBlock;
@@ -105,11 +106,14 @@ import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.packet.level.LittleLevelPacket;
@@ -831,7 +835,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     public boolean destroyBlock(BlockPos pos) {
         BlockState blockstate = this.level.getBlockState(pos);
-        int exp = ForgeHooks.onBlockBreakEvent(level, getGameMode(), player, pos);
+        int exp = onBlockBreakEvent(level, getGameMode(), player, pos);
         if (exp == -1)
             return false;
         
@@ -876,6 +880,47 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         if (removed)
             state.getBlock().destroy(this.level, pos, state);
         return removed;
+    }
+    
+    public int onBlockBreakEvent(Level level, GameType gameType, ServerPlayer entityPlayer, BlockPos pos) {
+        boolean preCancelEvent = false;
+        ItemStack itemstack = entityPlayer.getMainHandItem();
+        if (!itemstack.isEmpty() && !itemstack.getItem().canAttackBlock(level.getBlockState(pos), level, pos, entityPlayer))
+            preCancelEvent = true;
+        
+        if (gameType.isBlockPlacingRestricted()) {
+            if (gameType == GameType.SPECTATOR)
+                preCancelEvent = true;
+            
+            if (!entityPlayer.mayBuild() && itemstack.isEmpty() || !itemstack
+                    .hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), new BlockInWorld(level, pos, false)))
+                preCancelEvent = true;
+        }
+        
+        // Tell client the block is gone immediately then process events
+        if (level.getBlockEntity(pos) == null)
+            send(new ClientboundBlockUpdatePacket(pos, level.getFluidState(pos).createLegacyBlock()));
+        
+        // Post the block break event
+        BlockState state = level.getBlockState(pos);
+        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, entityPlayer);
+        event.setCanceled(preCancelEvent);
+        MinecraftForge.EVENT_BUS.post(event);
+        
+        // Handle if the event is canceled
+        if (event.isCanceled()) {
+            // Let the client know the block still exists
+            send(new ClientboundBlockUpdatePacket(level, pos));
+            
+            // Update any tile entity data for this block
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity != null) {
+                Packet<?> pkt = blockEntity.getUpdatePacket();
+                if (pkt != null)
+                    send(pkt);
+            }
+        }
+        return event.isCanceled() ? -1 : event.getExpToDrop();
     }
     
     public InteractionResult useItem(ServerPlayer player, ItemStack stack, InteractionHand hand) {
