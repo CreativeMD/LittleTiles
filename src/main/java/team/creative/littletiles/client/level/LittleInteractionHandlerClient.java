@@ -55,7 +55,6 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     private ItemStack destroyingItem = ItemStack.EMPTY;
     private float destroyProgress;
     private float destroyTicks;
-    private int destroyDelay;
     private boolean isDestroying;
     
     public LittleInteractionHandlerClient(Level level) {
@@ -120,7 +119,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
                     this.destroyBlock(level, pos);
                 return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, pos, direction, sequence);
             });
-            this.destroyDelay = 5;
+            ((MultiPlayerGameModeAccessor) mc.gameMode).setDestroyDelay(5);
             return true;
         }
         
@@ -177,15 +176,15 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     
     public boolean continueDestroyBlock(LittleClientLevel level, BlockPos pos, Direction direction) {
         ensureHasSentCarriedItem();
-        if (this.destroyDelay > 0) {
-            --this.destroyDelay;
+        if (((MultiPlayerGameModeAccessor) mc.gameMode).getDestroyDelay() > 0) {
+            ((MultiPlayerGameModeAccessor) mc.gameMode).setDestroyDelay(((MultiPlayerGameModeAccessor) mc.gameMode).getDestroyDelay() - 1);
             return true;
         }
         
         Player player = getPlayer();
         
         if (getGameMode().isCreative() && level.getWorldBorder().isWithinBounds(pos)) {
-            this.destroyDelay = 5;
+            ((MultiPlayerGameModeAccessor) mc.gameMode).setDestroyDelay(5);
             BlockState blockstate1 = level.getBlockState(pos);
             mc.getTutorial().onDestroyBlock(level, pos, blockstate1, 1.0F);
             this.startPrediction(level, (sequence) -> {
@@ -224,7 +223,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
                 });
                 this.destroyProgress = 0.0F;
                 this.destroyTicks = 0.0F;
-                this.destroyDelay = 5;
+                ((MultiPlayerGameModeAccessor) mc.gameMode).setDestroyDelay(5);
             }
             
             level.destroyBlockProgress(player.getId(), this.destroyBlockPos, (int) (this.destroyProgress * 10.0F) - 1);
@@ -280,8 +279,8 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         if (this.getGameMode() == GameType.SPECTATOR)
             return InteractionResult.SUCCESS;
         
-        UseOnContext useoncontext = new UseOnContext(player, hand, hit);
-        if (event.getUseItem() != net.minecraftforge.eventbus.api.Event.Result.DENY) {
+        UseOnContext useoncontext = new UseOnContext(level, player, hand, itemstack, hit);
+        if (event.getUseItem() != Event.Result.DENY) {
             InteractionResult result = itemstack.onItemUseFirst(useoncontext);
             if (result != InteractionResult.PASS)
                 return result;

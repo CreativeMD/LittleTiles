@@ -11,6 +11,12 @@ import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 public interface MultiPlayerGameModeAccessor {
     
     @Accessor
+    public int getDestroyDelay();
+    
+    @Accessor
+    public void setDestroyDelay(int value);
+    
+    @Accessor
     public ClientPacketListener getConnection();
     
     @Invoker

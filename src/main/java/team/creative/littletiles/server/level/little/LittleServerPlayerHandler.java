@@ -935,7 +935,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
             return InteractionResult.PASS;
         }
         
-        UseOnContext useoncontext = new UseOnContext(player, hand, hit);
+        UseOnContext useoncontext = new UseOnContext(level, player, hand, stack, hit);
         if (event.getUseItem() != Event.Result.DENY) {
             InteractionResult result = stack.onItemUseFirst(useoncontext);
             if (result != InteractionResult.PASS)
