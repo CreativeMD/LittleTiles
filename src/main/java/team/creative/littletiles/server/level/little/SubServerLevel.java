@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -208,4 +209,8 @@ public class SubServerLevel extends LittleServerLevel implements LittleSubLevel 
         return "SubServerLevel[" + holder.getStringUUID() + "]";
     }
     
+    @Override
+    public FeatureFlagSet enabledFeatures() {
+        return getParent().enabledFeatures();
+    }
 }
