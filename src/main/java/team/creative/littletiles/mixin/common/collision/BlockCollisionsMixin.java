@@ -3,24 +3,30 @@ package team.creative.littletiles.mixin.common.collision;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 @Mixin(BlockCollisions.class)
 public class BlockCollisionsMixin {
@@ -62,6 +68,13 @@ public class BlockCollisionsMixin {
             if (list != null)
                 extraShapes = list.iterator();
         }
+    }
+    
+    @Inject(method = "<init>(Lnet/minecraft/world/level/CollisionGetter;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Z)V", at = @At("RETURN"), require = 1)
+    private void constructorEnd(CollisionGetter level, @Nullable Entity entity, AABB bb, boolean onlySuffocatingBlocks, CallbackInfo info) {
+        Iterable<VoxelShape> shapes = LittleAnimationHandlers.get((Level) collisionGetter).collisionExcept(entity, box, (Level) collisionGetter);
+        if (shapes != null)
+            extraShapes = shapes.iterator();
     }
     
 }

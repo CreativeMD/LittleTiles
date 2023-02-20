@@ -5,7 +5,6 @@
     "refmap": "littletiles.mixins.refmap.json",
     "mixins": [
         "common.block.StateHolderAccessor",
-        "common.collision.EntityCollisionMixin",
         "common.collision.BlockCollisionsMixin",
         "common.entity.EntityMixin",
         "common.entity.PlayerBedMixin",

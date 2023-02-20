@@ -9,8 +9,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.ImmutableList;
-
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -66,16 +64,21 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         entities.remove(entity);
     }
     
-    public void collision(@Nullable Entity colliding, AABB box, ImmutableList.Builder<VoxelShape> shapes) {
+    public Iterable<VoxelShape> collisionExcept(@Nullable Entity colliding, AABB box, Level level) {
+        List<VoxelShape> shapes = null;
         for (LittleLevelEntity entity : find(box)) {
-            if (!entity.physic.shouldPush())
+            if (!entity.physic.shouldPush() || entity.getSubLevel() == level)
                 continue;
             
             for (VoxelShape shape : entity.getSubLevel().getBlockCollisions(colliding, entity.getOrigin().getOBB(box)))
                 for (AABB bb : shape.toAabbs())
-                    if (bb.intersects(box))
+                    if (bb.intersects(box)) {
+                        if (shapes == null)
+                            shapes = new ArrayList<>();
                         shapes.add(OBBVoxelShape.create(bb, entity.getOrigin()));
+                    }
         }
+        return shapes;
     }
     
     public LittleHitResult getHit(Vec3 pos, Vec3 look, double reach) {
