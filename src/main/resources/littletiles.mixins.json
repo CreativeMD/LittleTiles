@@ -35,7 +35,8 @@
         "client.render.LevelRendererAccessor",
         "client.render.ViewAreaAccessor",
         "client.render.ParticleEngineAccessor",
-        "client.render.LightTextureAccessor"
+        "client.render.LightTextureAccessor",
+        "client.render.GameRendererAccessor"
     ],
     "minVersion": "0.8"
 }

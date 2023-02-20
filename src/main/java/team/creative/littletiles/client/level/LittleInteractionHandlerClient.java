@@ -133,7 +133,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
             this.startPrediction(level, (sequence) -> {
                 boolean flag = !blockstate1.isAir();
                 if (flag && this.destroyProgress == 0.0F)
-                    if (event.getUseBlock() != net.minecraftforge.eventbus.api.Event.Result.DENY)
+                    if (event.getUseBlock() != Event.Result.DENY)
                         blockstate1.attack(level, pos, player);
                     
                 ServerboundPlayerActionPacket packet = new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, pos, direction, sequence);

@@ -32,12 +32,20 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Mth;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
@@ -64,6 +72,7 @@ import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.mixin.client.render.GameRendererAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleAnimationHandlerClient extends LittleAnimationHandler implements Iterable<LittleLevelEntity> {
@@ -351,12 +360,38 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         }
     }
     
+    private boolean shouldRenderBlockOutline() {
+        if (!((GameRendererAccessor) mc.gameRenderer).getRenderBlockOutline() || !(mc.hitResult instanceof LittleHitResult))
+            return false;
+        
+        LittleHitResult result = (LittleHitResult) mc.hitResult;
+        Entity entity = mc.getCameraEntity();
+        boolean flag = entity instanceof Player && !mc.options.hideGui;
+        if (flag && !((Player) entity).getAbilities().mayBuild) {
+            ItemStack itemstack = ((LivingEntity) entity).getMainHandItem();
+            if (result.isBlock()) {
+                BlockPos blockpos = result.asBlockHit().getBlockPos();
+                BlockState blockstate = result.level.getBlockState(blockpos);
+                if (mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
+                    flag = blockstate.getMenuProvider((Level) result.level, blockpos) != null;
+                else {
+                    BlockInWorld blockinworld = new BlockInWorld(result.level, blockpos, false);
+                    Registry<Block> registry = result.level.registryAccess().registryOrThrow(Registries.BLOCK);
+                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack
+                            .hasAdventureModePlaceTagForBlock(registry, blockinworld));
+                }
+            }
+        }
+        
+        return flag;
+    }
+    
     @SubscribeEvent
     public void tick(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_SKY)
             return;
         
-        if (!(mc.hitResult instanceof LittleHitResult))
+        if (!shouldRenderBlockOutline())
             return;
         
         LittleHitResult result = (LittleHitResult) mc.hitResult;
