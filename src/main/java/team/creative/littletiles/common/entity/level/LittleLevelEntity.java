@@ -22,6 +22,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -422,7 +423,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         Vec3 newPos = origin.transformPointToFakeWorld(pos);
         Vec3 newLook = origin.transformPointToFakeWorld(look);
         HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
-        if (tempResult == null || !(tempResult instanceof BlockHitResult))
+        if (tempResult == null || tempResult.getType() != Type.BLOCK || !(tempResult instanceof BlockHitResult))
             return result;
         if (result == null || pos.distanceTo(tempResult.getLocation()) < distance)
             return new LittleHitResult(this, tempResult, subLevel);
