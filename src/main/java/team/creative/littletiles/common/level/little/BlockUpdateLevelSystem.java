@@ -3,7 +3,10 @@ package team.creative.littletiles.common.level.little;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.SectionPos;
@@ -11,6 +14,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
@@ -24,6 +29,7 @@ public class BlockUpdateLevelSystem {
     public final LittleLevel level;
     
     private final List<LevelBoundsListener> levelBoundListeners = new ArrayList<>();
+    private final ConcurrentHashMap<BlockPos, BlockState> changes = new ConcurrentHashMap<>();
     
     private boolean emptyLevel = true;
     private int minX = Integer.MAX_VALUE;
@@ -111,7 +117,7 @@ public class BlockUpdateLevelSystem {
         };
     }
     
-    public void set(Facing facing, int value) {
+    protected void set(Facing facing, int value) {
         switch (facing) {
             case EAST -> maxX = value;
             case WEST -> minX = value;
@@ -162,6 +168,14 @@ public class BlockUpdateLevelSystem {
     }
     
     public void tick(LittleLevelEntity entity) {
+        synchronized (changes) {
+            if (!changes.isEmpty()) {
+                for (Entry<BlockPos, BlockState> entry : changes.entrySet())
+                    blockChangedInternal(entry.getKey(), entry.getValue());
+                changes.clear();
+            }
+        }
+        
         boolean needsUpdate = false;
         for (int i = 0; i < changed.length; i++) {
             if (!changed[i])
@@ -172,8 +186,11 @@ public class BlockUpdateLevelSystem {
             needsUpdate = true;
         }
         
-        if (needsUpdate && !entity.level.isClientSide)
-            LittleTiles.NETWORK.sendToClientTracking(new LittleLevelPhysicPacket(entity), entity);
+        if (needsUpdate) {
+            levelBoundListeners.forEach(x -> x.afterChangesApplied(this));
+            if (!entity.level.isClientSide)
+                LittleTiles.NETWORK.sendToClientTracking(new LittleLevelPhysicPacket(entity), entity);
+        }
     }
     
     protected boolean isEmpty(ChunkAccess chunk) {
@@ -200,7 +217,7 @@ public class BlockUpdateLevelSystem {
         return -1;
     }
     
-    public void findYEdge(Facing facing, int start) {
+    protected void findYEdge(Facing facing, int start) {
         QuadBitSet edge = getEdgeSet(facing);
         edge.clear();
         List<ChunkAccess> edgeChunks = new ArrayList<>();
@@ -277,7 +294,7 @@ public class BlockUpdateLevelSystem {
         set(facing, axisValueEnd + blockPosOffset);
     }
     
-    public void findEdge(Facing facing, int start) {
+    protected void findEdge(Facing facing, int start) {
         if (facing.axis == Axis.Y) {
             findYEdge(facing, start);
             return;
@@ -369,7 +386,27 @@ public class BlockUpdateLevelSystem {
         set(facing, axisValueEnd + blockPosOffset);
     }
     
+    @OnlyIn(Dist.CLIENT)
+    private boolean isSameThreadClient() {
+        return Minecraft.getInstance().isSameThread();
+    }
+    
+    private boolean isSameThread() {
+        if (level.isClientSide())
+            return isSameThreadClient();
+        return level.getServer().isSameThread();
+    }
+    
     public void blockChanged(BlockPos pos, BlockState newState) {
+        synchronized (changes) {
+            if (isSameThread() && changes.isEmpty())
+                blockChangedInternal(pos, newState);
+            else
+                changes.put(pos.immutable(), newState);
+        }
+    }
+    
+    protected void blockChangedInternal(BlockPos pos, BlockState newState) {
         if (isWithinBoundsNoEdge(pos))
             return;
         
@@ -406,7 +443,7 @@ public class BlockUpdateLevelSystem {
         }
     }
     
-    public void rescanEntireLevel() {
+    protected void rescanEntireLevel() {
         for (int i = 0; i < Facing.VALUES.length; i++)
             findEdge(Facing.get(i), Facing.get(i).positive ? Integer.MIN_VALUE : Integer.MAX_VALUE);
         Arrays.fill(changed, true);

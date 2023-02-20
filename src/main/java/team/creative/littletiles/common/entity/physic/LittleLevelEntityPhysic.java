@@ -24,6 +24,12 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
     public final LittleLevelEntity parent;
     
+    private double minX;
+    private double minY;
+    private double minZ;
+    private double maxX;
+    private double maxY;
+    private double maxZ;
     private AABB bb;
     private boolean preventPush = false;
     private boolean bbChanged = false;
@@ -77,21 +83,47 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         return !preventPush;
     }
     
+    public double get(Facing facing) {
+        return switch (facing) {
+            case EAST -> maxX;
+            case WEST -> minX;
+            case UP -> maxY;
+            case DOWN -> minY;
+            case SOUTH -> maxZ;
+            case NORTH -> minZ;
+        };
+    }
+    
+    public void set(Facing facing, double value) {
+        switch (facing) {
+            case EAST -> maxX = value;
+            case WEST -> minX = value;
+            case UP -> maxY = value;
+            case DOWN -> minY = value;
+            case SOUTH -> maxZ = value;
+            case NORTH -> minZ = value;
+        };
+    }
+    
     @Override
     public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Facing facing, Iterable<BlockPos> possible, int boundary) {
         double value = facing.positive ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
         for (BlockPos pos : possible) {
             BlockState state = level.getBlockState(pos);
-            if (state.getBlock() instanceof LittlePhysicBlock)
-                value = facing.positive ? Math.max(value, ((LittlePhysicBlock) state.getBlock()).bound(level, pos, facing)) : Math
-                        .min(value, ((LittlePhysicBlock) state.getBlock()).bound(level, pos, facing));
+            if (state.getBlock() instanceof LittlePhysicBlock block)
+                value = facing.positive ? Math.max(value, block.bound(level, pos, facing)) : Math.min(value, block.bound(level, pos, facing));
             else
                 value = facing.positive ? Math.max(value, pos.get(facing.axis.toVanilla()) + 1) : Math.min(value, pos.get(facing.axis.toVanilla()));
             
             if (value == boundary)
                 break;
         }
-        bb = facing.set(bb, value);
+        set(facing, value);
+    }
+    
+    @Override
+    public void afterChangesApplied(BlockUpdateLevelSystem system) {
+        bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         bbChanged = true;
     }
     
