@@ -422,7 +422,7 @@ public abstract class LittleLevelEntity extends Entity implements OrientationAwa
         
         Vec3 newPos = origin.transformPointToFakeWorld(pos);
         Vec3 newLook = origin.transformPointToFakeWorld(look);
-        HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
+        HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null));
         if (tempResult == null || tempResult.getType() != Type.BLOCK || !(tempResult instanceof BlockHitResult))
             return result;
         if (result == null || pos.distanceTo(tempResult.getLocation()) < distance)
