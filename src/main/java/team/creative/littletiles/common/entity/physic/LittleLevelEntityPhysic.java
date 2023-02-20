@@ -45,19 +45,25 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     }
     
     public void load(CompoundTag nbt) {
-        bb = new AABB(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"), nbt.getDouble("x2"), nbt.getDouble("y2"), nbt.getDouble("z2"));
+        minX = nbt.getDouble("x");
+        minY = nbt.getDouble("y");
+        minZ = nbt.getDouble("z");
+        maxX = nbt.getDouble("x2");
+        maxY = nbt.getDouble("y2");
+        maxZ = nbt.getDouble("z2");
+        bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         bbChanged = true;
         ((LittleLevel) parent.getSubLevel()).getBlockUpdateLevelSystem().load(nbt.getCompound("bounds"));
     }
     
     public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
-        nbt.putDouble("x", bb.minX);
-        nbt.putDouble("y", bb.minY);
-        nbt.putDouble("z", bb.minZ);
-        nbt.putDouble("x2", bb.maxX);
-        nbt.putDouble("y2", bb.maxY);
-        nbt.putDouble("z2", bb.maxZ);
+        nbt.putDouble("x", minX);
+        nbt.putDouble("y", minY);
+        nbt.putDouble("z", minZ);
+        nbt.putDouble("x2", maxX);
+        nbt.putDouble("y2", maxY);
+        nbt.putDouble("z2", maxZ);
         nbt.put("bounds", ((LittleLevel) parent.getSubLevel()).getBlockUpdateLevelSystem().save());
         return nbt;
     }
