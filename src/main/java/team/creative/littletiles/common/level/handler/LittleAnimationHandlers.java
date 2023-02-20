@@ -8,8 +8,8 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.server.LittleTilesServer;
@@ -23,6 +23,8 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     }
     
     public static LittleAnimationHandler get(Level level) {
+        if (level instanceof ISubLevel sub)
+            level = sub.getRealLevel();
         if (level.isClientSide)
             return getClient();
         return LittleTilesServer.ANIMATION_HANDLERS.getForLevel(level);
@@ -58,12 +60,6 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
         if (handlers.size() == 1)
             return handlers.get(0);
         return null;
-    }
-    
-    @SubscribeEvent
-    public void trackEntity(StartTracking event) {
-        //if (event.getTarget() instanceof LittleLevelEntity entity)
-        // TODO SEND ENTITY INFORMATION TO CLIENT
     }
     
     @SubscribeEvent
