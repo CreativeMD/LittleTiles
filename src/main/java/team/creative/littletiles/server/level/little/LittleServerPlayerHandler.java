@@ -765,7 +765,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                 float f = 1.0F;
                 BlockState blockstate = this.level.getBlockState(pos);
                 if (!blockstate.isAir()) {
-                    if (event.getUseBlock() != net.minecraftforge.eventbus.api.Event.Result.DENY)
+                    if (event.getUseBlock() != Event.Result.DENY)
                         blockstate.attack(this.level, pos, this.player);
                     f = blockstate.getDestroyProgress(this.player, level, pos);
                 }

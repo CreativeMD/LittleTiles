@@ -2,6 +2,7 @@ package team.creative.littletiles.client.render.entity;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.joml.Matrix4f;
 
@@ -9,8 +10,12 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.PrioritizeChunkUpdates;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,14 +24,18 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.ForgeConfig;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 
@@ -47,13 +56,6 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         if (animation.getRenderManager().isInSight == null)
             animation.getRenderManager().isInSight = animation.shouldRender(camX, camY, camZ) && frustum.isVisible(animation.getRealBB().inflate(0.5D));
         return animation.getRenderManager().isInSight;
-    }
-    
-    @Override
-    public void render(LittleLevelEntity animation, float p_114486_, float p_114487_, PoseStack pose, MultiBufferSource buffer, int packedLight) {
-        super.render(animation, p_114486_, p_114487_, pose, buffer, packedLight);
-        
-        // TODO Render entities (not sub animations)
     }
     
     @Override
@@ -95,9 +97,26 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
         mc.getProfiler().pop();
     }
     
-    public void renderBlockEntities(PoseStack pose, LittleLevelEntity animation, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource.BufferSource bufferSource) {
+    public MultiBufferSource prepareBlockEntity(PoseStack pose, LittleClientLevel level, BlockPos pos, MultiBufferSource bufferSource) {
+        SortedSet<BlockDestructionProgress> sortedset = level.renderManager.getDestructionProgress(pos);
+        MultiBufferSource newSource = bufferSource;
+        if (sortedset != null && !sortedset.isEmpty()) {
+            int j1 = sortedset.last().getProgress();
+            if (j1 >= 0) {
+                PoseStack.Pose posestack$pose1 = pose.last();
+                VertexConsumer vertexconsumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource()
+                        .getBuffer(ModelBakery.DESTROY_TYPES.get(j1)), posestack$pose1.pose(), posestack$pose1.normal(), 1.0F);
+                
+                newSource = (type) -> type.affectsCrumbling() ? VertexMultiConsumer.create(vertexconsumer, bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
+            }
+        }
+        return newSource;
+    }
+    
+    public void renderBlockEntitiesAndDestruction(PoseStack pose, LittleLevelEntity animation, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         pose.pushPose();
         animation.getOrigin().setupRendering(pose, animation, frameTime);
+        LittleClientLevel level = (LittleClientLevel) animation.getSubLevel();
         
         for (LittleRenderChunk chunk : animation.getRenderManager()) {
             List<BlockEntity> list = chunk.getCompiledChunk().getRenderableBlockEntities();
@@ -108,11 +127,32 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleLevelEntity>
                 if (!frustum.isVisible(blockentity.getRenderBoundingBox()))
                     continue;
                 BlockPos blockpos4 = blockentity.getBlockPos();
-                MultiBufferSource multibuffersource1 = bufferSource;
                 pose.pushPose();
                 pose.translate(blockpos4.getX() - cam.x, blockpos4.getY() - cam.y, blockpos4.getZ() - cam.z);
-                mc.getBlockEntityRenderDispatcher().render(blockentity, frameTime, pose, multibuffersource1);
+                mc.getBlockEntityRenderDispatcher()
+                        .render(blockentity, frameTime, pose, prepareBlockEntity(pose, (LittleClientLevel) animation.getSubLevel(), blockpos4, bufferSource));
                 pose.popPose();
+            }
+        }
+        
+        for (Long2ObjectMap.Entry<SortedSet<BlockDestructionProgress>> entry : animation.getRenderManager().getDestructions()) {
+            BlockPos blockpos2 = BlockPos.of(entry.getLongKey());
+            double d3 = blockpos2.getX() - cam.x;
+            double d4 = blockpos2.getY() - cam.y;
+            double d5 = blockpos2.getZ() - cam.z;
+            if (!(d3 * d3 + d4 * d4 + d5 * d5 > 1024.0D)) {
+                SortedSet<BlockDestructionProgress> sortedset1 = entry.getValue();
+                if (sortedset1 != null && !sortedset1.isEmpty()) {
+                    int k1 = sortedset1.last().getProgress();
+                    pose.pushPose();
+                    pose.translate(blockpos2.getX() - cam.x, blockpos2.getY() - cam.y, blockpos2.getZ() - cam.z);
+                    PoseStack.Pose last = pose.last();
+                    VertexConsumer consumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(k1)), last
+                            .pose(), last.normal(), 1.0F);
+                    ModelData modelData = level.getModelDataManager().getAt(blockpos2);
+                    mc.getBlockRenderer().renderBreakingTexture(level.getBlockState(blockpos2), blockpos2, level, pose, consumer, modelData == null ? ModelData.EMPTY : modelData);
+                    pose.popPose();
+                }
             }
         }
         pose.popPose();

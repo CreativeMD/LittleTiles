@@ -17,7 +17,13 @@ public interface ClientPacketListenerAccessor {
     public void setMinecraft(Minecraft mc);
     
     @Accessor
+    public Minecraft getMinecraft();
+    
+    @Accessor
     public void setLevel(ClientLevel level);
+    
+    @Accessor
+    public ClientLevel getLevel();
     
     @Accessor
     public void setLevelData(ClientLevel.ClientLevelData data);

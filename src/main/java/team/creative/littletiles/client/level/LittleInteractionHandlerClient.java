@@ -49,7 +49,8 @@ import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
 public class LittleInteractionHandlerClient extends LevelHandler {
     
-    private Minecraft mc = Minecraft.getInstance();
+    private static Minecraft mc = Minecraft.getInstance();
+    
     private LittleClientLevel destroyLevel;
     private BlockPos destroyBlockPos = new BlockPos(-1, -1, -1);
     private ItemStack destroyingItem = ItemStack.EMPTY;
@@ -212,7 +213,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
             
             ++this.destroyTicks;
             mc.getTutorial().onDestroyBlock(level, pos, blockstate, Mth.clamp(this.destroyProgress, 0.0F, 1.0F));
-            if (ForgeHooks.onLeftClickBlock(player, pos, direction).getUseItem() == net.minecraftforge.eventbus.api.Event.Result.DENY)
+            if (ForgeHooks.onLeftClickBlock(player, pos, direction).getUseItem() == Event.Result.DENY)
                 return true;
             if (this.destroyProgress >= 1.0F) {
                 this.isDestroying = false;
@@ -246,13 +247,12 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     }
     
     private boolean sameDestroyTarget(LittleClientLevel level, BlockPos pos) {
-        if (this.level != destroyLevel)
+        if (level != destroyLevel)
             return false;
         ItemStack itemstack = getPlayer().getMainHandItem();
         boolean flag = this.destroyingItem.isEmpty() && itemstack.isEmpty();
-        if (!this.destroyingItem.isEmpty() && !itemstack.isEmpty()) {
+        if (!this.destroyingItem.isEmpty() && !itemstack.isEmpty())
             flag = !this.destroyingItem.shouldCauseBlockBreakReset(itemstack);
-        }
         
         return pos.equals(this.destroyBlockPos) && flag;
     }
@@ -388,4 +388,5 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     public void handlePickItem(int slot) {
         getVanillaConnection().send(new ServerboundPickItemPacket(slot));
     }
+    
 }

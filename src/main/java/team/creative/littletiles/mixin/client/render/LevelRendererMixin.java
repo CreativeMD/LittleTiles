@@ -32,8 +32,10 @@ public class LevelRendererMixin {
     public void renderBlockEntities(PoseStack pose, float frameTime, long time, boolean outOfMemory, Camera cam, GameRenderer renderer, LightTexture lightTexture, Matrix4f matrix, CallbackInfo info) {
         Frustum frustum = ((LevelRendererAccessor) this).getCapturedFrustum() != null ? ((LevelRendererAccessor) this).getCapturedFrustum() : ((LevelRendererAccessor) this)
                 .getCullingFrustum();
-        if (LittleTilesClient.ANIMATION_HANDLER != null)
-            LittleTilesClient.ANIMATION_HANDLER.renderBlockEntities(pose, frustum, frameTime);
+        if (LittleTilesClient.ANIMATION_HANDLER != null) {
+            LittleTilesClient.ANIMATION_HANDLER.renderBlockEntitiesAndDestruction(pose, frustum, frameTime);
+            
+        }
     }
     
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD), method = "renderChunkLayer")

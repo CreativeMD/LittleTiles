@@ -3,6 +3,8 @@ package team.creative.littletiles.client.render.entity;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -11,15 +13,21 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -55,6 +63,10 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     
     private final BlockingQueue<LittleRenderChunk> queuedCompiled = new LinkedBlockingQueue<>();
     private final BlockingQueue<LittleRenderChunk> emptyCompiled = new LinkedBlockingQueue<>();
+    
+    private final Int2ObjectMap<BlockDestructionProgress> destroyingBlocks = new Int2ObjectOpenHashMap<>();
+    private final Long2ObjectMap<SortedSet<BlockDestructionProgress>> destructionProgress = new Long2ObjectOpenHashMap<>();
+    private int ticks;
     
     public LittleLevelRenderManager(LittleLevel level) {
         this.level = level;
@@ -281,4 +293,58 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
         this.queuedCompiled.clear();
     }
     
+    public Iterable<Long2ObjectMap.Entry<SortedSet<BlockDestructionProgress>>> getDestructions() {
+        return destructionProgress.long2ObjectEntrySet();
+    }
+    
+    public SortedSet<BlockDestructionProgress> getDestructionProgress(BlockPos pos) {
+        return destructionProgress.get(pos.asLong());
+    }
+    
+    public void clientTick() {
+        this.ticks++;
+        if (this.ticks % 20 == 0) {
+            Iterator<BlockDestructionProgress> iterator = this.destroyingBlocks.values().iterator();
+            
+            while (iterator.hasNext()) {
+                BlockDestructionProgress destruction = iterator.next();
+                int i = destruction.getUpdatedRenderTick();
+                if (this.ticks - i > 400) {
+                    iterator.remove();
+                    this.removeProgress(destruction);
+                }
+            }
+            
+        }
+    }
+    
+    public void destroyBlockProgress(int id, BlockPos pos, int progress) {
+        if (progress >= 0 && progress < 10) {
+            BlockDestructionProgress destruction = this.destroyingBlocks.get(id);
+            if (destruction != null)
+                this.removeProgress(destruction);
+            
+            if (destruction == null || !destruction.getPos().equals(pos)) {
+                destruction = new BlockDestructionProgress(id, pos);
+                this.destroyingBlocks.put(id, destruction);
+            }
+            
+            destruction.setProgress(progress);
+            destruction.updateTick(this.ticks);
+            this.destructionProgress.computeIfAbsent(destruction.getPos().asLong(), (x) -> Sets.newTreeSet()).add(destruction);
+        } else {
+            BlockDestructionProgress destruction = this.destroyingBlocks.remove(id);
+            if (destruction != null)
+                this.removeProgress(destruction);
+        }
+        
+    }
+    
+    private void removeProgress(BlockDestructionProgress destruction) {
+        long i = destruction.getPos().asLong();
+        Set<BlockDestructionProgress> set = this.destructionProgress.get(i);
+        set.remove(destruction);
+        if (set.isEmpty())
+            this.destructionProgress.remove(i);
+    }
 }

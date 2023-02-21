@@ -197,7 +197,9 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     @Override
-    public void destroyBlockProgress(int p_175715_1_, BlockPos p_175715_2_, int p_175715_3_) {}
+    public void destroyBlockProgress(int id, BlockPos pos, int progress) {
+        renderManager.destroyBlockProgress(id, pos, progress);
+    }
     
     @Override
     public LevelTickAccess<Block> getBlockTicks() {

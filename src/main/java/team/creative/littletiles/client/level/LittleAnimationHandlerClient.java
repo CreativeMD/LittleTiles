@@ -61,12 +61,12 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBloc
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
@@ -293,12 +293,12 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 LittleLevelEntityRenderer.INSTANCE.resortTransparency(animation, layer, x, y, z);
     }
     
-    public void renderBlockEntities(PoseStack pose, Frustum frustum, float frameTime) {
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+    public void renderBlockEntitiesAndDestruction(PoseStack pose, Frustum frustum, float frameTime) {
+        MultiBufferSource bufferSource = mc.renderBuffers().bufferSource();
         
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         for (LittleLevelEntity animation : this)
-            LittleLevelEntityRenderer.INSTANCE.renderBlockEntities(pose, animation, frustum, cam, frameTime, bufferSource);
+            LittleLevelEntityRenderer.INSTANCE.renderBlockEntitiesAndDestruction(pose, animation, frustum, cam, frameTime, bufferSource);
         
         synchronized (this.globalBlockEntities) {
             for (BlockEntity blockentity : this.globalBlockEntities) {
@@ -307,11 +307,13 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 BlockPos blockpos3 = blockentity.getBlockPos();
                 pose.pushPose();
                 
-                IOrientatedLevel level = (IOrientatedLevel) blockentity.getLevel();
+                LittleClientLevel level = (LittleClientLevel) blockentity.getLevel();
                 level.getOrigin().setupRendering(pose, level.getHolder(), frameTime);
                 
                 pose.translate(blockpos3.getX() - cam.x, blockpos3.getY() - cam.y, blockpos3.getZ() - cam.z);
-                mc.getBlockEntityRenderDispatcher().render(blockentity, frameTime, pose, bufferSource);
+                
+                mc.getBlockEntityRenderDispatcher()
+                        .render(blockentity, frameTime, pose, LittleLevelEntityRenderer.INSTANCE.prepareBlockEntity(pose, level, blockpos3, bufferSource));
                 pose.popPose();
             }
         }
@@ -353,6 +355,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             tick();
             
             for (LittleLevelEntity entity : entities) {
+                entity.getRenderManager().clientTick();
                 if (entity.level instanceof ISubLevel || !entity.hasLoaded())
                     continue;
                 entity.performTick();

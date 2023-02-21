@@ -14,6 +14,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +33,7 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.server.level.MinecraftServerAccessor;
 
 public abstract class LittleServerLevel extends ServerLevel implements LittleLevel {
@@ -180,4 +182,20 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
         return getChunkSource().all();
     }
     
+    @Override
+    public void destroyBlockProgress(int id, BlockPos pos, int progress) {
+        Level toCompare = this;
+        if (this instanceof LittleSubLevel sub)
+            toCompare = sub.getRealLevel();
+        for (ServerPlayer serverplayer : this.getServer().getPlayerList().getPlayers()) {
+            if (serverplayer != null && serverplayer.level == toCompare && serverplayer.getId() != id) {
+                double d0 = pos.getX() - serverplayer.getX();
+                double d1 = pos.getY() - serverplayer.getY();
+                double d2 = pos.getZ() - serverplayer.getZ();
+                if (d0 * d0 + d1 * d1 + d2 * d2 < 1024.0D)
+                    connections.getOrCreate(this, serverplayer).send(new ClientboundBlockDestructionPacket(id, pos, progress));
+            }
+        }
+        
+    }
 }
