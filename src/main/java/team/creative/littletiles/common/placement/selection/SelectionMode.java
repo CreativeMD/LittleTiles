@@ -15,7 +15,7 @@ import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
@@ -127,7 +127,7 @@ public abstract class SelectionMode {
             
             addBlocksWorld(level, pos, pos2);
             
-            for (LittleLevelEntity entity : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
+            for (LittleEntity entity : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
                 addBlocksWorld((Level) entity.getSubLevel(), pos, pos2);
         }
         

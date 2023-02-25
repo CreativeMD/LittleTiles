@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public class LittleLevelPhysicPacket extends CreativePacket {
@@ -16,14 +16,14 @@ public class LittleLevelPhysicPacket extends CreativePacket {
     
     public LittleLevelPhysicPacket() {}
     
-    public LittleLevelPhysicPacket(LittleLevelEntity entity) {
+    public LittleLevelPhysicPacket(LittleEntity entity) {
         this.uuid = entity.getUUID();
         this.extraData = entity.physic.save();
     }
     
     @Override
     public void executeClient(Player player) {
-        LittleLevelEntity entity = LittleAnimationHandlers.find(player.level.isClientSide, uuid);
+        LittleEntity entity = LittleAnimationHandlers.find(player.level.isClientSide, uuid);
         if (entity == null)
             return;
         

@@ -16,8 +16,8 @@ import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.entity.level.LittleLevelEntityLarge;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -34,7 +34,7 @@ import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public class AnimationPreview {
     
-    public final LittleLevelEntity animation;
+    public final LittleEntity animation;
     public final LittleGroup previews;
     public final LittleBox entireBox;
     public final LittleGrid grid;
@@ -71,7 +71,7 @@ public class AnimationPreview {
         
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleLevelEntityLarge(LittleTilesRegistry.ENTITY_LEVEL_LARGE
+        animation = new LittleLevelEntity(LittleTilesRegistry.ENTITY_LEVEL_LARGE
                 .get(), fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), new LocalStructureLocation(result.parentStructure));
     }
     

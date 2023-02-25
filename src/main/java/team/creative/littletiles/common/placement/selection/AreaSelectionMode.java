@@ -25,7 +25,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaTooLarge;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -206,7 +206,7 @@ public class AreaSelectionMode extends SelectionMode {
         if (rememberStructure)
             structures = new ArrayList<>();
         
-        for (LittleLevelEntity animation : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1))) {
+        for (LittleEntity animation : LittleAnimationHandlers.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1))) {
             if (rememberStructure) {
                 try {
                     LittleStructure structure = animation.getStructure();

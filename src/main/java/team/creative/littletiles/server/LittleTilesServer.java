@@ -10,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LevelHandlers;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
@@ -41,13 +41,13 @@ public class LittleTilesServer {
         AABB box = new AABB(pos, look);
         Level level = player.level;
         
-        LittleLevelEntity pointedEntity = null;
+        LittleEntity pointedEntity = null;
         
         LittleAnimationHandler handler = LittleAnimationHandlers.get(level);
         
         BlockHitResult result = level.clip(new ClipContext(pos, look, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         double distance = result != null ? pos.distanceTo(result.getLocation()) : 0;
-        for (LittleLevelEntity animation : handler.find(box)) {
+        for (LittleEntity animation : handler.find(box)) {
             LittleHitResult tempResult = handler.getHit(pos, look, pos.distanceTo(look));
             if (!tempResult.isBlock())
                 continue;

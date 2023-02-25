@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
@@ -32,7 +32,7 @@ public class AnimationGuiHandler {
     
     public AnimationGuiHandler() {}
     
-    public void takeInitialState(LittleLevelEntity animation) {
+    public void takeInitialState(LittleEntity animation) {
         this.offX = animation.initalOffX;
         this.offY = animation.initalOffY;
         this.offZ = animation.initalOffZ;
@@ -209,9 +209,9 @@ public class AnimationGuiHandler {
         public final AnimationGuiHandler handler;
         public final LittleStructure structure;
         @Nullable
-        public final LittleLevelEntity animation;
+        public final LittleEntity animation;
         
-        public AnimationGuiHolder(LittleGroup previews, AnimationGuiHandler handler, LittleStructure structure, @Nullable LittleLevelEntity animation) {
+        public AnimationGuiHolder(LittleGroup previews, AnimationGuiHandler handler, LittleStructure structure, @Nullable LittleEntity animation) {
             this.previews = previews;
             this.handler = handler;
             this.structure = structure;

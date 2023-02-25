@@ -21,7 +21,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.set.QuadBitSet;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.packet.level.LittleLevelPhysicPacket;
 
 public class BlockUpdateLevelSystem {
@@ -167,7 +167,7 @@ public class BlockUpdateLevelSystem {
         });
     }
     
-    public void tick(LittleLevelEntity entity) {
+    public void tick(LittleEntity entity) {
         synchronized (changes) {
             if (!changes.isEmpty()) {
                 for (Entry<BlockPos, BlockState> entry : changes.entrySet())

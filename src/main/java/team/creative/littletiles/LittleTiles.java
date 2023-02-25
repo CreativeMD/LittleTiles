@@ -55,8 +55,8 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.entity.level.LittleLevelEntityLarge;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
@@ -303,7 +303,7 @@ public class LittleTiles {
                 PlacementResult result = placement.place();
                 if (result == null)
                     throw new LittleActionException("Could not be placed");
-                LittleLevelEntity entity = new LittleLevelEntityLarge(LittleTilesRegistry.ENTITY_LEVEL_LARGE
+                LittleEntity entity = new LittleLevelEntity(LittleTilesRegistry.ENTITY_LEVEL_LARGE
                         .get(), level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new LocalStructureLocation(result.parentStructure));
                 
                 level.addFreshEntity(entity);

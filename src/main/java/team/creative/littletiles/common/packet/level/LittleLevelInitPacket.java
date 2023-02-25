@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.LevelChunk;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -27,7 +27,7 @@ public class LittleLevelInitPacket extends CreativePacket {
     
     public LittleLevelInitPacket() {}
     
-    public LittleLevelInitPacket(LittleLevelEntity entity) {
+    public LittleLevelInitPacket(LittleEntity entity) {
         this.uuid = entity.getUUID();
         this.absolute = entity.getCenter();
         LittleServerChunkCache cache = (LittleServerChunkCache) entity.getSubLevel().getChunkSource();
@@ -39,7 +39,7 @@ public class LittleLevelInitPacket extends CreativePacket {
     
     @Override
     public void executeClient(Player player) {
-        LittleLevelEntity entity = LittleAnimationHandlers.find(player.level.isClientSide, uuid);
+        LittleEntity entity = LittleAnimationHandlers.find(player.level.isClientSide, uuid);
         if (entity == null)
             return;
         

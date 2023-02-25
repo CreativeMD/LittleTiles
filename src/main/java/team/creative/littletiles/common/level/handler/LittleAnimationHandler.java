@@ -17,12 +17,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.MinecraftForge;
 import team.creative.creativecore.common.util.math.box.OBBVoxelShape;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 public abstract class LittleAnimationHandler extends LevelHandler {
     
-    public Set<LittleLevelEntity> entities = new CopyOnWriteArraySet<>();
+    public Set<LittleEntity> entities = new CopyOnWriteArraySet<>();
     
     public LittleAnimationHandler(Level level) {
         super(level);
@@ -38,35 +38,35 @@ public abstract class LittleAnimationHandler extends LevelHandler {
     
     public void tick() {}
     
-    public List<LittleLevelEntity> find(AABB bb) {
+    public List<LittleEntity> find(AABB bb) {
         if (entities.isEmpty())
             return Collections.emptyList();
         
-        List<LittleLevelEntity> found = new ArrayList<>();
-        for (LittleLevelEntity entity : entities)
+        List<LittleEntity> found = new ArrayList<>();
+        for (LittleEntity entity : entities)
             if (entity.hasLoaded() && entity.getBoundingBox().intersects(bb))
                 found.add(entity);
         return found;
     }
     
-    public LittleLevelEntity find(UUID uuid) {
-        for (LittleLevelEntity entity : entities)
+    public LittleEntity find(UUID uuid) {
+        for (LittleEntity entity : entities)
             if (entity.getUUID().equals(uuid))
                 return entity;
         return null;
     }
     
-    public void add(LittleLevelEntity entity) {
+    public void add(LittleEntity entity) {
         entities.add(entity);
     }
     
-    public void remove(LittleLevelEntity entity) {
+    public void remove(LittleEntity entity) {
         entities.remove(entity);
     }
     
     public Iterable<VoxelShape> collisionExcept(@Nullable Entity colliding, AABB box, Level level) {
         List<VoxelShape> shapes = null;
-        for (LittleLevelEntity entity : find(box)) {
+        for (LittleEntity entity : find(box)) {
             if (!entity.physic.shouldPush() || entity.getSubLevel() == level)
                 continue;
             
@@ -86,7 +86,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         
         LittleHitResult newHit = null;
         double distance = reach;
-        for (LittleLevelEntity entity : find(box)) {
+        for (LittleEntity entity : find(box)) {
             LittleHitResult tempResult = entity.rayTrace(pos, look);
             if (tempResult == null || !(tempResult.hit instanceof BlockHitResult))
                 continue;

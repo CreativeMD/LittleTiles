@@ -5,7 +5,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 public class LittleHitResult extends EntityHitResult {
@@ -35,9 +35,9 @@ public class LittleHitResult extends EntityHitResult {
         return (EntityHitResult) hit;
     }
     
-    public LittleLevelEntity getHolder() {
+    public LittleEntity getHolder() {
         if (level instanceof ISubLevel)
-            return (LittleLevelEntity) ((ISubLevel) level).getHolder();
+            return (LittleEntity) ((ISubLevel) level).getHolder();
         return null;
     }
 }

@@ -13,7 +13,7 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.block.LittlePhysicBlock;
 import team.creative.littletiles.common.entity.INoPushEntity;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
@@ -22,7 +22,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     
     protected static final Predicate<Entity> noAnimation = x -> !(x.getFirstPassenger() instanceof INoPushEntity);
     
-    public final LittleLevelEntity parent;
+    public final LittleEntity parent;
     
     private double minX;
     private double minY;
@@ -35,7 +35,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     private boolean bbChanged = false;
     public boolean noCollision = false;
     
-    public LittleLevelEntityPhysic(LittleLevelEntity parent) {
+    public LittleLevelEntityPhysic(LittleEntity parent) {
         this.parent = parent;
         this.bb = parent.getBoundingBox();
     }

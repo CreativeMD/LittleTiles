@@ -11,7 +11,7 @@ import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.level.handler.LittleAnimationHandlerServer;
 
@@ -30,20 +30,20 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
         return LittleTilesServer.ANIMATION_HANDLERS.getForLevel(level);
     }
     
-    public static LittleLevelEntity find(boolean client, UUID uuid) {
+    public static LittleEntity find(boolean client, UUID uuid) {
         if (client)
             return findClient(uuid);
         return findServer(uuid);
     }
     
     @OnlyIn(Dist.CLIENT)
-    public static LittleLevelEntity findClient(UUID uuid) {
+    public static LittleEntity findClient(UUID uuid) {
         return LittleTilesClient.ANIMATION_HANDLER.find(uuid);
     }
     
-    public static LittleLevelEntity findServer(UUID uuid) {
+    public static LittleEntity findServer(UUID uuid) {
         for (LittleAnimationHandler handler : LittleTilesServer.ANIMATION_HANDLERS.all()) {
-            LittleLevelEntity entity = handler.find(uuid);
+            LittleEntity entity = handler.find(uuid);
             if (entity != null)
                 return entity;
         }

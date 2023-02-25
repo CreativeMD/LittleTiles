@@ -1,12 +1,12 @@
 package team.creative.littletiles.common.structure;
 
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 
 public interface IAnimatedStructure {
     
-    public void setAnimation(LittleLevelEntity entity);
+    public void setAnimation(LittleEntity entity);
     
-    public LittleLevelEntity getAnimation();
+    public LittleEntity getAnimation();
     
     public boolean isInMotion();
     

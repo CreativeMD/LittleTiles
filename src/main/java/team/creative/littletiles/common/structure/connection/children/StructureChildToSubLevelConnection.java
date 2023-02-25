@@ -5,7 +5,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
@@ -36,21 +36,21 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
     
     @Override
     protected Level getLevel() throws CorruptedConnectionException, NotYetConnectedException {
-        LittleLevelEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
+        LittleEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
         if (animation != null)
             return (Level) animation.getSubLevel();
         throw new MissingAnimationException(entityUUID);
     }
     
     @Override
-    public LittleLevelEntity getAnimation() {
+    public LittleEntity getAnimation() {
         return null;
     }
     
     @Override
     public void destroyStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         getStructure().onStructureDestroyed();
-        LittleLevelEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
+        LittleEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
         if (animation != null)
             animation.markRemoved();
         neighbor = animation != null ? new LittleNeighborUpdateCollector((Level) animation.getSubLevel()) : LittleNeighborUpdateCollector.EMPTY;

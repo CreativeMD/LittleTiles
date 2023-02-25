@@ -69,13 +69,13 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.mixin.client.render.GameRendererAccessor;
 
 @OnlyIn(Dist.CLIENT)
-public class LittleAnimationHandlerClient extends LittleAnimationHandler implements Iterable<LittleLevelEntity> {
+public class LittleAnimationHandlerClient extends LittleAnimationHandler implements Iterable<LittleEntity> {
     
     private static Minecraft mc = Minecraft.getInstance();
     
@@ -238,7 +238,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public void allChanged() {
-        for (LittleLevelEntity animation : entities)
+        for (LittleEntity animation : entities)
             if (animation.hasLoaded())
                 animation.getRenderManager().allChanged();
             
@@ -255,19 +255,19 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     @Override
-    public synchronized Iterator<LittleLevelEntity> iterator() {
+    public synchronized Iterator<LittleEntity> iterator() {
         return new FilterIterator<>(entities, x -> x.hasLoaded() && BooleanUtils.isTrue(x.getRenderManager().isInSight));
     }
     
     public void needsUpdate() {
-        for (LittleLevelEntity animation : entities)
+        for (LittleEntity animation : entities)
             if (animation.hasLoaded())
                 animation.getRenderManager().needsFullRenderChunkUpdate = true;
     }
     
     public void setupRender(Camera camera, Frustum frustum, boolean capturedFrustum, boolean spectator) {
         mc.getProfiler().push("setup_animation_render");
-        for (LittleLevelEntity animation : entities)
+        for (LittleEntity animation : entities)
             if (animation.hasLoaded())
                 animation.getRenderManager().setupRender(animation, new Vec3d(camera.getPosition()), frustum, capturedFrustum, spectator);
         mc.getProfiler().pop();
@@ -280,7 +280,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         while ((run = this.toUpload.poll()) != null)
             run.run();
         
-        for (LittleLevelEntity animation : entities)
+        for (LittleEntity animation : entities)
             if (animation.hasLoaded())
                 LittleLevelEntityRenderer.INSTANCE.compileChunks(animation);
             
@@ -288,7 +288,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public void resortTransparency(RenderType layer, double x, double y, double z) {
-        for (LittleLevelEntity animation : entities)
+        for (LittleEntity animation : entities)
             if (animation.hasLoaded())
                 LittleLevelEntityRenderer.INSTANCE.resortTransparency(animation, layer, x, y, z);
     }
@@ -297,7 +297,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         MultiBufferSource bufferSource = mc.renderBuffers().bufferSource();
         
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
-        for (LittleLevelEntity animation : this)
+        for (LittleEntity animation : this)
             LittleLevelEntityRenderer.INSTANCE.renderBlockEntitiesAndDestruction(pose, animation, frustum, cam, frameTime, bufferSource);
         
         synchronized (this.globalBlockEntities) {
@@ -320,14 +320,14 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
-        for (LittleLevelEntity animation : this)
+        for (LittleEntity animation : this)
             LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(animation, layer, pose, x, y, z, projectionMatrix);
     }
     
     @SubscribeEvent
     public void renderEnd(RenderTickEvent event) {
         if (event.phase == Phase.END)
-            for (LittleLevelEntity animation : entities)
+            for (LittleEntity animation : entities)
                 if (animation.hasLoaded())
                     animation.getRenderManager().isInSight = null;
     }
@@ -338,7 +338,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             
             if (mc.hitResult instanceof LittleHitResult result && result.level instanceof ISubLevel) {
                 Entity entity = ((ISubLevel) result.level).getHolder();
-                if (entity instanceof LittleLevelEntity levelEntity)
+                if (entity instanceof LittleEntity levelEntity)
                     levelEntity.onRightClick(event.getEntity(), result.hit);
             }
         }
@@ -354,7 +354,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         if (event.phase == Phase.END && (!mc.hasSingleplayerServer() || !mc.isPaused())) {
             tick();
             
-            for (LittleLevelEntity entity : entities) {
+            for (LittleEntity entity : entities) {
                 entity.getRenderManager().clientTick();
                 if (entity.level instanceof ISubLevel || !entity.hasLoaded())
                     continue;
@@ -407,7 +407,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         BlockPos pos = result.asBlockHit().getBlockPos();
         BlockState state = result.level.getBlockState(pos);
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
-        LittleLevelEntity entity = result.getHolder();
+        LittleEntity entity = result.getHolder();
         entity.getOrigin().setupRendering(event.getPoseStack(), entity, event.getPartialTick());
         RenderSystem.enableDepthTest();
         
