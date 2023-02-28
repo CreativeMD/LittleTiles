@@ -37,20 +37,27 @@ import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.ForgeConfig;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 
-public class LittleLevelEntityRenderer extends EntityRenderer<LittleEntity> {
+public class LittleLevelRenderer extends EntityRenderer<LittleLevelEntity> {
     
-    public static Minecraft mc = Minecraft.getInstance();
-    public static LittleLevelEntityRenderer INSTANCE;
+    public static final Minecraft mc = Minecraft.getInstance();
     
-    public LittleLevelEntityRenderer(EntityRendererProvider.Context context) {
+    public LittleLevelRenderer(EntityRendererProvider.Context context) {
         super(context);
-        INSTANCE = this;
     }
     
     @Override
-    public boolean shouldRender(LittleEntity animation, Frustum frustum, double camX, double camY, double camZ) {
+    public boolean shouldRender(LittleLevelEntity animation, Frustum frustum, double camX, double camY, double camZ) {
+        return isVisible(animation, frustum, camX, camY, camZ);
+    }
+    
+    @Override
+    public ResourceLocation getTextureLocation(LittleLevelEntity animation) {
+        return InventoryMenu.BLOCK_ATLAS;
+    }
+    
+    public static boolean isVisible(LittleLevelEntity animation, Frustum frustum, double camX, double camY, double camZ) {
         if (!animation.hasLoaded())
             return false;
         if (animation.getRenderManager().isInSight == null)
@@ -58,12 +65,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleEntity> {
         return animation.getRenderManager().isInSight;
     }
     
-    @Override
-    public ResourceLocation getTextureLocation(LittleEntity animation) {
-        return InventoryMenu.BLOCK_ATLAS;
-    }
-    
-    public void compileChunks(LittleEntity animation) {
+    public static void compileChunks(LittleLevelEntity animation) {
         mc.getProfiler().push("compile_animation_chunks");
         LittleLevelRenderManager manager = animation.getRenderManager();
         List<LittleRenderChunk> schedule = Lists.newArrayList();
@@ -97,7 +99,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleEntity> {
         mc.getProfiler().pop();
     }
     
-    public MultiBufferSource prepareBlockEntity(PoseStack pose, LittleClientLevel level, BlockPos pos, MultiBufferSource bufferSource) {
+    public static MultiBufferSource prepareBlockEntity(PoseStack pose, LittleClientLevel level, BlockPos pos, MultiBufferSource bufferSource) {
         SortedSet<BlockDestructionProgress> sortedset = level.renderManager.getDestructionProgress(pos);
         MultiBufferSource newSource = bufferSource;
         if (sortedset != null && !sortedset.isEmpty()) {
@@ -113,7 +115,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleEntity> {
         return newSource;
     }
     
-    public void renderBlockEntitiesAndDestruction(PoseStack pose, LittleEntity animation, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
+    public static void renderBlockEntitiesAndDestruction(PoseStack pose, LittleLevelEntity animation, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         pose.pushPose();
         animation.getOrigin().setupRendering(pose, animation, frameTime);
         LittleClientLevel level = (LittleClientLevel) animation.getSubLevel();
@@ -158,7 +160,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleEntity> {
         pose.popPose();
     }
     
-    public void resortTransparency(LittleEntity animation, RenderType layer, double x, double y, double z) {
+    public static void resortTransparency(LittleLevelEntity animation, RenderType layer, double x, double y, double z) {
         int i = 0;
         for (LittleRenderChunk chunk : animation.getRenderManager().visibleChunks()) {
             if (i > 14)
@@ -168,7 +170,7 @@ public class LittleLevelEntityRenderer extends EntityRenderer<LittleEntity> {
         }
     }
     
-    public void renderChunkLayer(LittleEntity animation, RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
+    public static void renderChunkLayer(LittleLevelEntity animation, RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
         LittleLevelRenderManager manager = animation.getRenderManager();
         
         ShaderInstance shaderinstance = RenderSystem.getShader();

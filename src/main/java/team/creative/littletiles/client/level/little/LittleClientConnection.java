@@ -16,7 +16,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.common.packet.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
 
 public class LittleClientConnection extends Connection {
     

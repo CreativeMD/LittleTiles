@@ -13,6 +13,6 @@ public interface OrientationAwareEntity {
     
     public void performTick();
     
-    public void moveAndRotateAnimation(CollisionCoordinator coordinator);
+    public void transform(CollisionCoordinator coordinator);
     
 }

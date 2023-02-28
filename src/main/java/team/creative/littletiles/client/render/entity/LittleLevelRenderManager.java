@@ -38,7 +38,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkCompileTask;
 import team.creative.littletiles.client.render.level.LittleRenderChunks;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
 @OnlyIn(Dist.CLIENT)
@@ -124,9 +124,9 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
             queuedCompiled.add(chunk);
     }
     
-    public void setupRender(LittleEntity animation, Vec3d cam, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
+    public void setupRender(LittleLevelEntity animation, Vec3d cam, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
         if (frustum != null)
-            isInSight = LittleLevelEntityRenderer.INSTANCE.shouldRender(animation, frustum, cam.x, cam.y, cam.z); // needs to original camera position
+            isInSight = LittleLevelRenderer.isVisible(animation, frustum, cam.x, cam.y, cam.z); // needs to original camera position
         else
             isInSight = true;
         

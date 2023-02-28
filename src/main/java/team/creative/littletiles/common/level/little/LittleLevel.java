@@ -17,7 +17,7 @@ public interface LittleLevel extends IOrientatedLevel {
         return (Level) this;
     }
     
-    public BlockUpdateLevelSystem getBlockUpdateLevelSystem();
+    public void registerBlockChangeListener(LevelBlockChangeListener listener);
     
     @Override
     public Entity getHolder();
@@ -27,16 +27,12 @@ public interface LittleLevel extends IOrientatedLevel {
     
     public UUID key();
     
-    public void registerLevelBoundListener(LevelBoundsListener listener);
-    
     public void unload(LevelChunk chunk);
     
     @Override
     public void unload();
     
     public Iterable<Entity> entities();
-    
-    public int getFreeMapId();
     
     public Iterable<? extends ChunkAccess> chunks();
     

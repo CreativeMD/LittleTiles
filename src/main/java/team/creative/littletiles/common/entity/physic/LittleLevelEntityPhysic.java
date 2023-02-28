@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
@@ -17,12 +18,11 @@ import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
 import team.creative.littletiles.common.level.little.LevelBoundsListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 
-public class LittleLevelEntityPhysic implements LevelBoundsListener {
+public class LittleLevelEntityPhysic extends LittleEntityPhysic implements LevelBoundsListener {
     
     protected static final Predicate<Entity> noAnimation = x -> !(x.getFirstPassenger() instanceof INoPushEntity);
-    
-    public final LittleEntity parent;
     
     private double minX;
     private double minY;
@@ -31,19 +31,25 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     private double maxY;
     private double maxZ;
     private AABB bb;
-    private boolean preventPush = false;
+    private Vec3 center;
     private boolean bbChanged = false;
+    private BlockUpdateLevelSystem updateSystem;
     public boolean noCollision = false;
     
     public LittleLevelEntityPhysic(LittleEntity parent) {
-        this.parent = parent;
+        super(parent);
         this.bb = parent.getBoundingBox();
+    }
+    
+    public void setSubLevel(LittleSubLevel level) {
+        updateSystem = new BlockUpdateLevelSystem(level);
     }
     
     public IVecOrigin getOrigin() {
         return parent.getOrigin();
     }
     
+    @Override
     public void load(CompoundTag nbt) {
         minX = nbt.getDouble("x");
         minY = nbt.getDouble("y");
@@ -53,9 +59,10 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         maxZ = nbt.getDouble("z2");
         bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         bbChanged = true;
-        ((LittleLevel) parent.getSubLevel()).getBlockUpdateLevelSystem().load(nbt.getCompound("bounds"));
+        updateSystem.load(nbt.getCompound("bounds"));
     }
     
+    @Override
     public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
         nbt.putDouble("x", minX);
@@ -64,18 +71,26 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         nbt.putDouble("x2", maxX);
         nbt.putDouble("y2", maxY);
         nbt.putDouble("z2", maxZ);
-        nbt.put("bounds", ((LittleLevel) parent.getSubLevel()).getBlockUpdateLevelSystem().save());
+        nbt.put("bounds", updateSystem.save());
         return nbt;
     }
     
-    public AABB getOrientatedBB() {
+    @Override
+    public AABB getOBB() {
         return bb;
     }
     
+    @Override
     public AABB getBB() {
         return getOrigin().getAABB(bb);
     }
     
+    @Override
+    public Vec3 getCenter() {
+        return center;
+    }
+    
+    @Override
     public void ignoreCollision(Runnable run) {
         preventPush = true;
         try {
@@ -112,6 +127,15 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
     }
     
     @Override
+    public void tick() {
+        updateSystem.tick(parent);
+    }
+    
+    public BlockUpdateLevelSystem getBlockUpdateLevelSystem() {
+        return updateSystem;
+    }
+    
+    @Override
     public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Facing facing, Iterable<BlockPos> possible, int boundary) {
         double value = facing.positive ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
         for (BlockPos pos : possible) {
@@ -139,11 +163,12 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         
         CollisionCoordinator coordinator = new CollisionCoordinator(x, y, z, rotX, rotY, rotZ, getOrigin(), getOrigin());
         if (LittleTiles.CONFIG.general.enableAnimationCollision)
-            moveAndRotateAnimation(coordinator);
+            transform(coordinator);
         coordinator.move();
     }
     
-    public void moveAndRotateAnimation(CollisionCoordinator coordinator) {
+    @Override
+    public void transform(CollisionCoordinator coordinator) {
         /*if (preventPush)
             return;
         
@@ -356,6 +381,7 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
         noCollision = false;*/
     }
     
+    @Override
     public void updateBoundingBox() {
         if (bb == null || parent.getSubLevel() == null)
             return;
@@ -364,9 +390,11 @@ public class LittleLevelEntityPhysic implements LevelBoundsListener {
             parent.markOriginChange();
             parent.setBoundingBox(parent.getOrigin().getAABB(bb));
             parent.resetOriginChange();
+            center = parent.getBoundingBox().getCenter();
             bbChanged = false;
         } else if (bbChanged) {
             parent.setBoundingBox(parent.getOrigin().getAABB(bb));
+            center = parent.getBoundingBox().getCenter();
             bbChanged = false;
         }
     }

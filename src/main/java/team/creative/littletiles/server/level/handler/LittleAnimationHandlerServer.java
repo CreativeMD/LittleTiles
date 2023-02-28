@@ -11,7 +11,6 @@ import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
-import team.creative.littletiles.common.packet.level.LittleLevelInitPacket;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {
     
@@ -22,7 +21,7 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
     @SubscribeEvent
     public void trackEntity(StartTracking event) {
         if (event.getTarget() instanceof LittleEntity levelEntity)
-            LittleTiles.NETWORK.sendToClient(new LittleLevelInitPacket(levelEntity), (ServerPlayer) event.getEntity());
+            LittleTiles.NETWORK.sendToClient(levelEntity.initClientPacket(), (ServerPlayer) event.getEntity());
     }
     
     @SubscribeEvent

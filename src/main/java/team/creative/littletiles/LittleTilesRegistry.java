@@ -34,6 +34,7 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.block.mc.BlockWater;
 import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
+import team.creative.littletiles.common.entity.level.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
@@ -158,8 +159,10 @@ public class LittleTilesRegistry {
     public static final RegistryObject<EntityType<EntitySit>> SIT_TYPE = ENTITIES
             .register("sit", () -> EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit"));
     
-    public static final RegistryObject<EntityType<LittleLevelEntity>> ENTITY_LEVEL_LARGE = ENTITIES
-            .register("little_level_large", () -> EntityType.Builder.<LittleLevelEntity>of(LittleLevelEntity::new, MobCategory.MISC).build("little_level_large"));
+    public static final RegistryObject<EntityType<LittleAnimationEntity>> ENTITY_ANIMATION = ENTITIES
+            .register("litte_animation", () -> EntityType.Builder.<LittleAnimationEntity>of(LittleAnimationEntity::new, MobCategory.MISC).build("litte_animation"));
+    public static final RegistryObject<EntityType<LittleLevelEntity>> ENTITY_LEVEL = ENTITIES
+            .register("little_level", () -> EntityType.Builder.<LittleLevelEntity>of(LittleLevelEntity::new, MobCategory.MISC).build("little_level"));
     
     // DIMENSION
     

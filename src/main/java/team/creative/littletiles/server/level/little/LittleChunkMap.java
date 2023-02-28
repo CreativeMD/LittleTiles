@@ -50,7 +50,7 @@ import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.common.packet.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
 
 public class LittleChunkMap extends ChunkMap {
     

@@ -21,7 +21,7 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.common.packet.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
 
 public class LittleChunkHolder {
     

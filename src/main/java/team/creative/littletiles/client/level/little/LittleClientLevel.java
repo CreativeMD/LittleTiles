@@ -1,5 +1,7 @@
 package team.creative.littletiles.client.level.little;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import net.minecraft.CrashReport;
@@ -36,8 +38,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
-import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
-import team.creative.littletiles.common.level.little.LevelBoundsListener;
+import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
@@ -47,13 +48,12 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public Entity holder;
     public IVecOrigin origin;
     
-    public final BlockUpdateLevelSystem blockUpdate = new BlockUpdateLevelSystem(this);
-    
     public boolean preventNeighborUpdate = false;
     
     private RegistryAccess access;
     public LittleLevelRenderManager renderManager = new LittleLevelRenderManager(this);
     public final LittleClientConnection connection;
+    private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     
     protected LittleClientLevel(LittleClientPacketListener listener, ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
         super(listener, data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
@@ -64,11 +64,6 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     protected abstract LittleClientConnection createConnection();
-    
-    @Override
-    public BlockUpdateLevelSystem getBlockUpdateLevelSystem() {
-        return blockUpdate;
-    }
     
     @Override
     public void stopTracking(ServerPlayer player) {}
@@ -84,6 +79,11 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     @Override
+    public void registerBlockChangeListener(LevelBlockChangeListener listener) {
+        blockChangeListeners.add(listener);
+    }
+    
+    @Override
     public void sendBlockUpdated(BlockPos pos, BlockState actualState, BlockState setState, int p_104688_) {
         this.renderManager.blockChanged(this, pos, actualState, setState, p_104688_);
     }
@@ -91,7 +91,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     @Override
     public void setBlocksDirty(BlockPos pos, BlockState actualState, BlockState setState) {
         this.renderManager.setBlockDirty(pos, actualState, setState);
-        blockUpdate.blockChanged(pos, setState);
+        blockChangeListeners.forEach(x -> x.blockChanged(pos, setState));
     }
     
     @Override
@@ -127,11 +127,6 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     @Override
     public void setHolder(Entity entity) {
         this.holder = entity;
-    }
-    
-    @Override
-    public void registerLevelBoundListener(LevelBoundsListener listener) {
-        this.blockUpdate.registerLevelBoundListener(listener);
     }
     
     @Override

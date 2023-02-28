@@ -1,6 +1,8 @@
 package team.creative.littletiles.server.level.little;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -30,8 +32,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.ServerLevelData;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
-import team.creative.littletiles.common.level.little.LevelBoundsListener;
+import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.server.level.MinecraftServerAccessor;
@@ -46,9 +47,8 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     public Entity holder;
     public IVecOrigin origin;
     
-    public final BlockUpdateLevelSystem blockUpdate = new BlockUpdateLevelSystem(this);
     public final LittleServerPlayerConnections connections = new LittleServerPlayerConnections();
-    
+    private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     public boolean hasChanged = false;
     public boolean preventNeighborUpdate = false;
     
@@ -71,11 +71,6 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
-    public BlockUpdateLevelSystem getBlockUpdateLevelSystem() {
-        return blockUpdate;
-    }
-    
-    @Override
     public Entity getHolder() {
         return holder;
     }
@@ -86,8 +81,8 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
-    public void registerLevelBoundListener(LevelBoundsListener listener) {
-        this.blockUpdate.registerLevelBoundListener(listener);
+    public void registerBlockChangeListener(LevelBlockChangeListener listener) {
+        blockChangeListeners.add(listener);
     }
     
     @Override
@@ -132,7 +127,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     
     @Override
     public void setBlocksDirty(BlockPos pos, BlockState actualState, BlockState setState) {
-        blockUpdate.blockChanged(pos, setState);
+        blockChangeListeners.forEach(x -> x.blockChanged(pos, setState));
     }
     
     @Override

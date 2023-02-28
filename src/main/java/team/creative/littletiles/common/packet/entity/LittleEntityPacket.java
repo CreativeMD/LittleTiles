@@ -1,32 +1,28 @@
-package team.creative.littletiles.common.packet.level;
+package team.creative.littletiles.common.packet.entity;
 
 import java.util.UUID;
 
-import net.minecraft.network.PacketListener;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
-import team.creative.littletiles.common.level.little.LittleLevel;
 
-public class LittleLevelPacket extends CreativePacket {
+public abstract class LittleEntityPacket<T extends LittleEntity> extends CreativePacket {
     
     public UUID uuid;
-    public Packet packet;
     
-    public LittleLevelPacket() {}
+    public LittleEntityPacket() {}
     
-    public LittleLevelPacket(LittleLevel level, Packet packet) {
-        this.uuid = level.key();
-        this.packet = packet;
-    }
-    
-    public LittleLevelPacket(UUID uuid, Packet packet) {
+    public LittleEntityPacket(UUID uuid) {
         this.uuid = uuid;
-        this.packet = packet;
     }
+    
+    public LittleEntityPacket(T entity) {
+        this(entity.getUUID());
+    }
+    
+    public abstract void execute(Player player, T entity);
     
     @Override
     public void execute(Player player) {
@@ -34,8 +30,9 @@ public class LittleLevelPacket extends CreativePacket {
         if (entity == null)
             return;
         
-        PacketListener listener = ((LittleLevel) entity.getSubLevel()).getPacketListener(player);
-        packet.handle(listener);
+        try {
+            execute(player, (T) entity);
+        } catch (ClassCastException e) {}
     }
     
     @Override
@@ -43,5 +40,4 @@ public class LittleLevelPacket extends CreativePacket {
     
     @Override
     public void executeServer(ServerPlayer player) {}
-    
 }

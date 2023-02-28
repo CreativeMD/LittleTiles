@@ -70,14 +70,15 @@ import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
+import team.creative.littletiles.common.packet.entity.LittleEntityPhysicPacket;
+import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
+import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacket;
+import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.level.LittleLevelPackets;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
-import team.creative.littletiles.common.packet.level.LittleLevelInitPacket;
-import team.creative.littletiles.common.packet.level.LittleLevelPacket;
-import team.creative.littletiles.common.packet.level.LittleLevelPackets;
-import team.creative.littletiles.common.packet.level.LittleLevelPhysicPacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
 import team.creative.littletiles.common.packet.update.BlocksUpdate;
@@ -201,10 +202,13 @@ public class LittleTiles {
         NETWORK.registerType(BlocksUpdate.class, BlocksUpdate::new);
         NETWORK.registerType(OutputUpdate.class, OutputUpdate::new);
         
+        NETWORK.registerType(LittleEntityPhysicPacket.class, LittleEntityPhysicPacket::new);
+        
+        NETWORK.registerType(LittleAnimationInitPacket.class, LittleAnimationInitPacket::new);
+        
         NETWORK.registerType(LittleLevelPacket.class, LittleLevelPacket::new);
         NETWORK.registerType(LittleLevelPackets.class, LittleLevelPackets::new);
         NETWORK.registerType(LittleLevelInitPacket.class, LittleLevelInitPacket::new);
-        NETWORK.registerType(LittleLevelPhysicPacket.class, LittleLevelPhysicPacket::new);
         
         CreativeConfigRegistry.ROOT.registerValue(MODID, CONFIG = new LittleTilesConfig());
         

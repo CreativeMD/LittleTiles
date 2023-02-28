@@ -28,7 +28,7 @@ import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.littletiles.client.render.entity.LittleLevelEntityRenderer;
+import team.creative.littletiles.client.render.entity.LittleLevelRenderer;
 import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.mixin.client.render.LightTextureAccessor;
 
@@ -140,7 +140,7 @@ public class GuiAnimationViewer extends GuiControl {
     @OnlyIn(Dist.CLIENT)
     public void renderPreview(PoseStack pose, PoseStack projection, AnimationPreview preview, Minecraft mc) {
         preview.animation.getRenderManager().setupRender(preview.animation, new Vec3d(), null, false, false);
-        LittleLevelEntityRenderer.INSTANCE.compileChunks(preview.animation);
+        LittleLevelRenderer.compileChunks(preview.animation);
         
         Matrix4f matrix = projection.last().pose();
         
@@ -190,7 +190,7 @@ public class GuiAnimationViewer extends GuiControl {
         RenderSystem.setupShaderLights(shaderinstance);
         shaderinstance.apply();
         
-        LittleLevelEntityRenderer.INSTANCE.renderChunkLayer(preview.animation, layer, pose, 0, 0, 0, matrix);
+        LittleLevelRenderer.renderChunkLayer(preview.animation, layer, pose, 0, 0, 0, matrix);
         shaderinstance.clear();
         VertexBuffer.unbind();
         layer.clearRenderState();

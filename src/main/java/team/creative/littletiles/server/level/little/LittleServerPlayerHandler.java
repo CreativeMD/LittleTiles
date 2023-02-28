@@ -116,7 +116,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.packet.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
 import team.creative.littletiles.mixin.server.network.ServerGamePacketListenerImplAccessor;
 
 public class LittleServerPlayerHandler implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
