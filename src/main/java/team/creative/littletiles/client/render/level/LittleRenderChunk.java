@@ -2,6 +2,7 @@ package team.creative.littletiles.client.render.level;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +57,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.client.render.CompiledChunkAccessor;
 
 public class LittleRenderChunk implements RenderChunkExtender {
@@ -106,8 +106,8 @@ public class LittleRenderChunk implements RenderChunkExtender {
         dynamicLightUpdate = value;
     }
     
-    public LittleLevel level() {
-        return manager.level;
+    public LittleSubLevel level() {
+        return manager.getLevel();
     }
     
     private boolean doesChunkExistAt(SectionPos pos) {
@@ -219,7 +219,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     
     public ChunkCompileTask createCompileTask() {
         boolean canceled = this.cancelTasks();
-        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), manager.level.asLevel(), canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
+        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), level().asLevel(), canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
         return this.lastRebuildTask;
     }
     
@@ -242,7 +242,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
             this.globalBlockEntities.addAll(blockEntities);
         }
         
-        LittleTilesClient.ANIMATION_HANDLER.updateGlobalBlockEntities(set1, set);
+        manager.updateGlobalBlockEntities(set1, set);
     }
     
     public static enum ChunkTaskResult {
@@ -260,7 +260,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         public ChunkCompileTask(@Nullable ChunkPos pos, double distAtCreation, boolean isHighPriority) {
             this.distAtCreation = distAtCreation;
             this.isHighPriority = isHighPriority;
-            this.modelData = pos == null ? java.util.Collections.emptyMap() : manager.level.getModelDataManager().getAt(pos);
+            this.modelData = pos == null ? Collections.EMPTY_MAP : level().getModelDataManager().getAt(pos);
         }
         
         public abstract CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack p_112853_);

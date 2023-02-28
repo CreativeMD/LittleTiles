@@ -11,13 +11,11 @@ import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
-import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
-import team.creative.littletiles.common.entity.level.LittleEntity;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.entity.level.LittleAnimationEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -34,7 +32,7 @@ import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public class AnimationPreview {
     
-    public final LittleEntity animation;
+    public final LittleAnimationEntity animation;
     public final LittleGroup previews;
     public final LittleBox entireBox;
     public final LittleGrid grid;
@@ -71,8 +69,7 @@ public class AnimationPreview {
         
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleLevelEntity(LittleTilesRegistry.ENTITY_LEVEL_LARGE
-                .get(), fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), new LocalStructureLocation(result.parentStructure));
+        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), new LocalStructureLocation(result.parentStructure));
     }
     
     public void unload() {

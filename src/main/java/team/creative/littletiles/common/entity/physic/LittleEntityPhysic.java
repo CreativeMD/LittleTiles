@@ -25,6 +25,10 @@ public abstract class LittleEntityPhysic {
         }
     }
     
+    public boolean shouldPush() {
+        return !preventPush;
+    }
+    
     public abstract void setSubLevel(LittleSubLevel level);
     
     public abstract void tick();

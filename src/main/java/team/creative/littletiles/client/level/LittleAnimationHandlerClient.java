@@ -1,11 +1,9 @@
 package team.creative.littletiles.client.level;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -16,7 +14,7 @@ import org.joml.Matrix4f;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
+import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -43,7 +41,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec3;
@@ -66,8 +63,6 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.level.little.LittleClientLevel;
-import team.creative.littletiles.client.render.entity.LittleLevelRenderer;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.level.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
@@ -89,8 +84,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public final ChunkBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
-    
-    private final Set<BlockEntity> globalBlockEntities = Sets.newHashSet();
     
     public LittleAnimationHandlerClient(Level level) {
         super(level);
@@ -241,17 +234,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         for (LittleEntity animation : entities)
             if (animation.hasLoaded())
                 animation.getRenderManager().allChanged();
-            
-        synchronized (this.globalBlockEntities) {
-            this.globalBlockEntities.clear();
-        }
-    }
-    
-    public void updateGlobalBlockEntities(Collection<BlockEntity> oldBlockEntities, Collection<BlockEntity> newBlockEntities) {
-        synchronized (this.globalBlockEntities) {
-            this.globalBlockEntities.removeAll(oldBlockEntities);
-            this.globalBlockEntities.addAll(newBlockEntities);
-        }
     }
     
     @Override
@@ -269,7 +251,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         mc.getProfiler().push("setup_animation_render");
         for (LittleEntity animation : entities)
             if (animation.hasLoaded())
-                animation.getRenderManager().setupRender(animation, new Vec3d(camera.getPosition()), frustum, capturedFrustum, spectator);
+                animation.getRenderManager().setupRender(new Vec3d(camera.getPosition()), frustum, capturedFrustum, spectator);
         mc.getProfiler().pop();
     }
     
@@ -282,7 +264,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         for (LittleEntity animation : entities)
             if (animation.hasLoaded())
-                LittleLevelRenderer.INSTANCE.compileChunks(animation);
+                animation.getRenderManager().compileChunks();
             
         mc.getProfiler().pop();
     }
@@ -290,7 +272,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public void resortTransparency(RenderType layer, double x, double y, double z) {
         for (LittleEntity animation : entities)
             if (animation.hasLoaded())
-                LittleLevelRenderer.INSTANCE.resortTransparency(animation, layer, x, y, z);
+                animation.getRenderManager().resortTransparency(layer, x, y, z);
     }
     
     public void renderBlockEntitiesAndDestruction(PoseStack pose, Frustum frustum, float frameTime) {
@@ -298,30 +280,16 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         for (LittleEntity animation : this)
-            LittleLevelRenderer.INSTANCE.renderBlockEntitiesAndDestruction(pose, animation, frustum, cam, frameTime, bufferSource);
+            animation.getRenderManager().renderBlockEntitiesAndDestruction(pose, frustum, cam, frameTime, bufferSource);
         
-        synchronized (this.globalBlockEntities) {
-            for (BlockEntity blockentity : this.globalBlockEntities) {
-                if (!frustum.isVisible(blockentity.getRenderBoundingBox()))
-                    continue;
-                BlockPos blockpos3 = blockentity.getBlockPos();
-                pose.pushPose();
-                
-                LittleClientLevel level = (LittleClientLevel) blockentity.getLevel();
-                level.getOrigin().setupRendering(pose, level.getHolder(), frameTime);
-                
-                pose.translate(blockpos3.getX() - cam.x, blockpos3.getY() - cam.y, blockpos3.getZ() - cam.z);
-                
-                mc.getBlockEntityRenderDispatcher()
-                        .render(blockentity, frameTime, pose, LittleLevelRenderer.INSTANCE.prepareBlockEntity(pose, level, blockpos3, bufferSource));
-                pose.popPose();
-            }
-        }
+        for (LittleEntity animation : entities)
+            animation.getRenderManager().renderGlobalEntities(pose, frustum, cam, frameTime, bufferSource);
     }
     
     public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
+        Uniform offset = RenderSystem.getShader().CHUNK_OFFSET;
         for (LittleEntity animation : this)
-            LittleLevelRenderer.INSTANCE.renderChunkLayer(animation, layer, pose, x, y, z, projectionMatrix);
+            animation.getRenderManager().renderChunkLayer(layer, pose, x, y, z, projectionMatrix, offset);
     }
     
     @SubscribeEvent
@@ -345,9 +313,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     @Override
-    public void unload() {
-        globalBlockEntities.clear();
-    }
+    public void unload() {}
     
     @SubscribeEvent
     public void tickClient(ClientTickEvent event) {

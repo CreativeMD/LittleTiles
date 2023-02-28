@@ -231,8 +231,7 @@ public class LittleChunkMap extends ChunkMap {
     @Override
     protected void broadcastAndSend(Entity entity, Packet<?> packet) {
         LittleLevel level = (LittleLevel) chunkCache.getLevel();
-        LittleTiles.NETWORK.sendToClientTracking(new LittleLevelPacket(level, packet), level.getHolder());
-        // TODO what is the difference between broadcastAndSend and broadcast????
+        LittleTiles.NETWORK.sendToClientTrackingAndSelf(new LittleLevelPacket(level, packet), level.getHolder());
     }
     
     @Override

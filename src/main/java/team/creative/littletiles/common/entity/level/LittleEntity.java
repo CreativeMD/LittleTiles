@@ -30,8 +30,7 @@ import team.creative.creativecore.common.util.math.collision.CollisionCoordinato
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
-import team.creative.littletiles.client.level.little.LittleClientLevel;
-import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.entity.INoPushEntity;
 import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.entity.physic.LittleEntityPhysic;
@@ -158,9 +157,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     // ================Rendering================
     
     @OnlyIn(Dist.CLIENT)
-    public LittleLevelRenderManager getRenderManager() {
-        return ((LittleClientLevel) subLevel).renderManager;
-    }
+    public abstract LittleEntityRenderManager getRenderManager();
     
     // ================Ticking================
     

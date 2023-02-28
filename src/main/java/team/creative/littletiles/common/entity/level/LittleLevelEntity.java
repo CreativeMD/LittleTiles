@@ -9,6 +9,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
+import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -22,8 +25,8 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
         super(type, level);
     }
     
-    public LittleLevelEntity(EntityType<?> type, Level level, LittleSubLevel subLevel, BlockPos pos) {
-        super(type, level, subLevel, pos);
+    public LittleLevelEntity(Level level, LittleSubLevel subLevel, BlockPos pos) {
+        super(LittleTilesRegistry.ENTITY_LEVEL.get(), level, subLevel, pos);
     }
     
     @Override
@@ -63,7 +66,13 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
     public void initSubLevelClient(CompoundTag extraData) {
         setSubLevel(SubServerLevel.createSubLevel(level));
+        ((LittleClientLevel) subLevel).renderManager = new LittleLevelRenderManager(this);
         physic.load(extraData.getCompound("physic"));
+    }
+    
+    @Override
+    public LittleLevelRenderManager getRenderManager() {
+        return ((LittleClientLevel) subLevel).renderManager;
     }
     
     @Override

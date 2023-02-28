@@ -64,7 +64,6 @@ import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
@@ -94,7 +93,6 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
-import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.premade.LittleExporter;
@@ -307,8 +305,7 @@ public class LittleTiles {
                 PlacementResult result = placement.place();
                 if (result == null)
                     throw new LittleActionException("Could not be placed");
-                LittleEntity entity = new LittleLevelEntity(LittleTilesRegistry.ENTITY_LEVEL_LARGE
-                        .get(), level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new LocalStructureLocation(result.parentStructure));
+                LittleEntity entity = new LittleLevelEntity(level, subLevel, pos);
                 
                 level.addFreshEntity(entity);
                 x.getSource().sendSystemMessage(Component.literal("Spawned animation"));

@@ -51,7 +51,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public boolean preventNeighborUpdate = false;
     
     private RegistryAccess access;
-    public LittleLevelRenderManager renderManager = new LittleLevelRenderManager(this);
+    public LittleLevelRenderManager renderManager;
     public final LittleClientConnection connection;
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     

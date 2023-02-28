@@ -32,14 +32,7 @@ public class AnimationGuiHandler {
     
     public AnimationGuiHandler() {}
     
-    public void takeInitialState(LittleEntity animation) {
-        this.offX = animation.initalOffX;
-        this.offY = animation.initalOffY;
-        this.offZ = animation.initalOffZ;
-        this.rotX = animation.initalRotX;
-        this.rotY = animation.initalRotY;
-        this.rotZ = animation.initalRotZ;
-    }
+    public void takeInitialState(LittleEntity animation) {}
     
     private int setDuration = 0;
     private int lastTick = -1;

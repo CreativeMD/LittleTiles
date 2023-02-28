@@ -41,6 +41,7 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic implements Level
         this.bb = parent.getBoundingBox();
     }
     
+    @Override
     public void setSubLevel(LittleSubLevel level) {
         updateSystem = new BlockUpdateLevelSystem(level);
     }
@@ -88,20 +89,6 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic implements Level
     @Override
     public Vec3 getCenter() {
         return center;
-    }
-    
-    @Override
-    public void ignoreCollision(Runnable run) {
-        preventPush = true;
-        try {
-            run.run();
-        } finally {
-            preventPush = false;
-        }
-    }
-    
-    public boolean shouldPush() {
-        return !preventPush;
     }
     
     public double get(Facing facing) {

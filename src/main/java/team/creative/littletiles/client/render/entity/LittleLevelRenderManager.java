@@ -1,10 +1,8 @@
 package team.creative.littletiles.client.render.entity;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -13,43 +11,44 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Sets;
+import org.joml.Matrix4f;
+
+import com.google.common.collect.Lists;
+import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.PrioritizeChunkUpdates;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ForgeConfig;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkCompileTask;
 import team.creative.littletiles.client.render.level.LittleRenderChunks;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.level.little.LittleLevel;
 
 @OnlyIn(Dist.CLIENT)
-public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
+public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLevelEntity> implements Iterable<LittleRenderChunk> {
     
     private static final Minecraft mc = Minecraft.getInstance();
-    
-    public final LittleLevel level;
-    
-    public boolean needsFullRenderChunkUpdate = false;
-    public Boolean isInSight;
     
     private Vec3d camera;
     private Vec3d chunkCamera = new Vec3d(0, 0, 0);
@@ -64,12 +63,8 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
     private final BlockingQueue<LittleRenderChunk> queuedCompiled = new LinkedBlockingQueue<>();
     private final BlockingQueue<LittleRenderChunk> emptyCompiled = new LinkedBlockingQueue<>();
     
-    private final Int2ObjectMap<BlockDestructionProgress> destroyingBlocks = new Int2ObjectOpenHashMap<>();
-    private final Long2ObjectMap<SortedSet<BlockDestructionProgress>> destructionProgress = new Long2ObjectOpenHashMap<>();
-    private int ticks;
-    
-    public LittleLevelRenderManager(LittleLevel level) {
-        this.level = level;
+    public LittleLevelRenderManager(LittleLevelEntity entity) {
+        super(entity);
     }
     
     public synchronized LittleRenderChunk getChunk(BlockPos pos) {
@@ -124,11 +119,9 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
             queuedCompiled.add(chunk);
     }
     
-    public void setupRender(LittleLevelEntity animation, Vec3d cam, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
-        if (frustum != null)
-            isInSight = LittleLevelRenderer.isVisible(animation, frustum, cam.x, cam.y, cam.z); // needs to original camera position
-        else
-            isInSight = true;
+    @Override
+    public void setupRender(Vec3d cam, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
+        super.setupRender(cam, frustum, capturedFrustum, spectator);
         
         synchronized (this) {
             while (!emptyCompiled.isEmpty()) {
@@ -140,7 +133,7 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
             }
         }
         
-        animation.getOrigin().transformPointToFakeWorld(cam); // from here on the camera is transformed to the sub level
+        entity.getOrigin().transformPointToFakeWorld(cam); // from here on the camera is transformed to the sub level
         
         this.camera = cam;
         this.cameraPos.set(cam.x, cam.y, cam.z);
@@ -171,6 +164,83 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
                         sortedChunks.add(chunk);
                 }
             }
+    }
+    
+    @Override
+    public void compileChunks() {
+        mc.getProfiler().push("compile_animation_chunks");
+        List<LittleRenderChunk> schedule = Lists.newArrayList();
+        
+        LittleClientLevel level = (LittleClientLevel) getLevel();
+        
+        for (LittleRenderChunk chunk : this) {
+            ChunkPos chunkpos = new ChunkPos(chunk.pos);
+            if (chunk.isDirty() && (!entity.isReal() || level.getChunk(chunkpos.x, chunkpos.z).isClientLightReady())) {
+                boolean immediate = false;
+                if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED)
+                    immediate = chunk.isDirtyFromPlayer();
+                else if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.NEARBY) {
+                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread
+                            .get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk.isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
+                }
+                
+                if (immediate) {
+                    chunk.compile();
+                    chunk.setNotDirty();
+                } else
+                    schedule.add(chunk);
+            }
+        }
+        
+        for (LittleRenderChunk chunk : schedule) {
+            chunk.compileASync();
+            chunk.setNotDirty();
+        }
+        
+        mc.getProfiler().pop();
+    }
+    
+    @Override
+    protected void renderAllBlockEntities(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
+        for (LittleRenderChunk chunk : this) {
+            List<BlockEntity> list = chunk.getCompiledChunk().getRenderableBlockEntities();
+            if (list.isEmpty())
+                continue;
+            
+            for (BlockEntity blockentity : list)
+                renderBlockEntity(blockentity, pose, frustum, cam, frameTime, bufferSource);
+        }
+    }
+    
+    @Override
+    public void resortTransparency(RenderType layer, double x, double y, double z) {
+        int i = 0;
+        for (LittleRenderChunk chunk : visibleChunks()) {
+            if (i > 14)
+                return;
+            if (chunk.resortTransparency(layer))
+                i++;
+        }
+    }
+    
+    @Override
+    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset) {
+        for (Iterator<LittleRenderChunk> iterator = layer == RenderType.translucent() ? visibleChunksInverse() : visibleChunks().iterator(); iterator.hasNext();) {
+            LittleRenderChunk chunk = iterator.next();
+            if (!chunk.getCompiledChunk().isEmpty(layer)) {
+                VertexBuffer vertexbuffer = chunk.getVertexBuffer(layer);
+                if (offset != null) {
+                    offset.set((float) (chunk.pos.getX() - x), (float) (chunk.pos.getY() - y), (float) (chunk.pos.getZ() - z));
+                    offset.upload();
+                }
+                
+                vertexbuffer.bind();
+                vertexbuffer.draw();
+            }
+        }
+        
+        if (offset != null)
+            offset.set(0F, 0F, 0F);
     }
     
     public ChunkBufferBuilderPack fixedBuffers() {
@@ -258,12 +328,12 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
         return cameraPos;
     }
     
+    @Override
     public synchronized void unload() {
         for (LittleRenderChunk chunk : this)
-            chunk.updateGlobalBlockEntities(Collections.EMPTY_LIST);
-        
-        for (LittleRenderChunk chunk : this)
             chunk.releaseBuffers();
+        
+        super.unload();
     }
     
     @Override
@@ -279,7 +349,9 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
         return sortedChunks.inverseIterator();
     }
     
+    @Override
     public void allChanged() {
+        super.allChanged();
         needsFullRenderChunkUpdate = true;
         
         if (this.lastFullRenderChunkUpdate != null)
@@ -293,58 +365,4 @@ public class LittleLevelRenderManager implements Iterable<LittleRenderChunk> {
         this.queuedCompiled.clear();
     }
     
-    public Iterable<Long2ObjectMap.Entry<SortedSet<BlockDestructionProgress>>> getDestructions() {
-        return destructionProgress.long2ObjectEntrySet();
-    }
-    
-    public SortedSet<BlockDestructionProgress> getDestructionProgress(BlockPos pos) {
-        return destructionProgress.get(pos.asLong());
-    }
-    
-    public void clientTick() {
-        this.ticks++;
-        if (this.ticks % 20 == 0) {
-            Iterator<BlockDestructionProgress> iterator = this.destroyingBlocks.values().iterator();
-            
-            while (iterator.hasNext()) {
-                BlockDestructionProgress destruction = iterator.next();
-                int i = destruction.getUpdatedRenderTick();
-                if (this.ticks - i > 400) {
-                    iterator.remove();
-                    this.removeProgress(destruction);
-                }
-            }
-            
-        }
-    }
-    
-    public void destroyBlockProgress(int id, BlockPos pos, int progress) {
-        if (progress >= 0 && progress < 10) {
-            BlockDestructionProgress destruction = this.destroyingBlocks.get(id);
-            if (destruction != null)
-                this.removeProgress(destruction);
-            
-            if (destruction == null || !destruction.getPos().equals(pos)) {
-                destruction = new BlockDestructionProgress(id, pos);
-                this.destroyingBlocks.put(id, destruction);
-            }
-            
-            destruction.setProgress(progress);
-            destruction.updateTick(this.ticks);
-            this.destructionProgress.computeIfAbsent(destruction.getPos().asLong(), (x) -> Sets.newTreeSet()).add(destruction);
-        } else {
-            BlockDestructionProgress destruction = this.destroyingBlocks.remove(id);
-            if (destruction != null)
-                this.removeProgress(destruction);
-        }
-        
-    }
-    
-    private void removeProgress(BlockDestructionProgress destruction) {
-        long i = destruction.getPos().asLong();
-        Set<BlockDestructionProgress> set = this.destructionProgress.get(i);
-        set.remove(destruction);
-        if (set.isEmpty())
-            this.destructionProgress.remove(i);
-    }
 }

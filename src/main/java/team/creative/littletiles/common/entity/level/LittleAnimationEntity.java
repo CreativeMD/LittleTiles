@@ -4,6 +4,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.entity.physic.LittleEntityPhysic;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -25,8 +27,8 @@ public class LittleAnimationEntity extends LittleEntity<LittleEntityPhysic> {
         super(type, level);
     }
     
-    public LittleAnimationEntity(EntityType<?> type, Level level, LittleSubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
-        super(type, level, subLevel, center.baseOffset);
+    public LittleAnimationEntity(Level level, LittleSubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
+        super(LittleTilesRegistry.ENTITY_ANIMATION.get(), level, subLevel, center.baseOffset);
         setCenter(center);
         this.structure = new StructureConnection((Level) subLevel, location);
     }
@@ -78,5 +80,23 @@ public class LittleAnimationEntity extends LittleEntity<LittleEntityPhysic> {
         setSubLevel(SubServerLevel.createSubLevel(level));
         setCenter(absolute);
         physic.load(extraData.getCompound("physic"));
+    }
+    
+    @Override
+    public void internalTick() {}
+    
+    @Override
+    public void initialTick() {}
+    
+    @Override
+    protected LittleEntityPhysic createPhysic() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public LittleEntityRenderManager getRenderManager() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

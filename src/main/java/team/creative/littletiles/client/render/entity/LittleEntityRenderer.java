@@ -5,16 +5,25 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-import team.creative.littletiles.common.entity.level.LittleAnimationEntity;
+import team.creative.littletiles.common.entity.level.LittleEntity;
 
-public class LittleAnimationRenderer extends EntityRenderer<LittleAnimationEntity> {
+public class LittleEntityRenderer extends EntityRenderer<LittleEntity> {
     
-    public LittleAnimationRenderer(EntityRendererProvider.Context context) {
+    public LittleEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
     
     @Override
-    public boolean shouldRender(LittleAnimationEntity animation, Frustum frustum, double camX, double camY, double camZ) {
+    public boolean shouldRender(LittleEntity animation, Frustum frustum, double camX, double camY, double camZ) {
+        return isVisible(animation, frustum, camX, camY, camZ);
+    }
+    
+    @Override
+    public ResourceLocation getTextureLocation(LittleEntity animation) {
+        return InventoryMenu.BLOCK_ATLAS;
+    }
+    
+    public static boolean isVisible(LittleEntity animation, Frustum frustum, double camX, double camY, double camZ) {
         if (!animation.hasLoaded())
             return false;
         if (animation.getRenderManager().isInSight == null)
@@ -22,8 +31,4 @@ public class LittleAnimationRenderer extends EntityRenderer<LittleAnimationEntit
         return animation.getRenderManager().isInSight;
     }
     
-    @Override
-    public ResourceLocation getTextureLocation(LittleAnimationEntity animation) {
-        return InventoryMenu.BLOCK_ATLAS;
-    }
 }
