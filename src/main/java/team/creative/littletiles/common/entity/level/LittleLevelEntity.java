@@ -12,7 +12,7 @@ import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
-import team.creative.littletiles.common.entity.physic.LittleLevelEntityPhysic;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacket;
@@ -25,8 +25,13 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
         super(type, level);
     }
     
-    public LittleLevelEntity(Level level, LittleSubLevel subLevel, BlockPos pos) {
-        super(LittleTilesRegistry.ENTITY_LEVEL.get(), level, subLevel, pos);
+    public LittleLevelEntity(Level level, BlockPos pos) {
+        super(LittleTilesRegistry.ENTITY_LEVEL.get(), level, pos);
+    }
+    
+    @Override
+    protected LittleSubLevel createLevel() {
+        return SubServerLevel.createSubLevel(level);
     }
     
     @Override
@@ -65,7 +70,7 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     }
     
     public void initSubLevelClient(CompoundTag extraData) {
-        setSubLevel(SubServerLevel.createSubLevel(level));
+        setSubLevel(createLevel());
         ((LittleClientLevel) subLevel).renderManager = new LittleLevelRenderManager(this);
         physic.load(extraData.getCompound("physic"));
     }

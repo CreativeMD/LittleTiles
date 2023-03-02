@@ -2,7 +2,7 @@ package team.creative.littletiles.common.packet.entity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 
 public class LittleEntityPhysicPacket extends LittleEntityPacket<LittleEntity> {
     

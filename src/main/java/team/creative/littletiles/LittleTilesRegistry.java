@@ -34,7 +34,7 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.block.mc.BlockWater;
 import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
-import team.creative.littletiles.common.entity.level.LittleAnimationEntity;
+import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;

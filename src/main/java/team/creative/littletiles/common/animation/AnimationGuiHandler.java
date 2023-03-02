@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 

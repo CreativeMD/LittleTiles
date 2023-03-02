@@ -1,148 +1,80 @@
-package team.creative.littletiles.common.entity.physic;
+package team.creative.littletiles.common.entity;
 
-import java.util.function.Predicate;
-
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.api.common.block.LittlePhysicBlock;
-import team.creative.littletiles.common.entity.INoPushEntity;
-import team.creative.littletiles.common.entity.level.LittleEntity;
-import team.creative.littletiles.common.level.little.BlockUpdateLevelSystem;
-import team.creative.littletiles.common.level.little.LevelBoundsListener;
-import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
-public class LittleLevelEntityPhysic extends LittleEntityPhysic implements LevelBoundsListener {
+public abstract class LittleEntityPhysic<T extends LittleEntity> {
     
-    protected static final Predicate<Entity> noAnimation = x -> !(x.getFirstPassenger() instanceof INoPushEntity);
-    
-    private double minX;
-    private double minY;
-    private double minZ;
-    private double maxX;
-    private double maxY;
-    private double maxZ;
+    protected boolean preventPush = false;
     private AABB bb;
     private Vec3 center;
     private boolean bbChanged = false;
-    private BlockUpdateLevelSystem updateSystem;
-    public boolean noCollision = false;
+    public final T parent;
     
-    public LittleLevelEntityPhysic(LittleEntity parent) {
-        super(parent);
+    public LittleEntityPhysic(T parent) {
+        this.parent = parent;
         this.bb = parent.getBoundingBox();
-    }
-    
-    @Override
-    public void setSubLevel(LittleSubLevel level) {
-        updateSystem = new BlockUpdateLevelSystem(level);
     }
     
     public IVecOrigin getOrigin() {
         return parent.getOrigin();
     }
     
-    @Override
-    public void load(CompoundTag nbt) {
-        minX = nbt.getDouble("x");
-        minY = nbt.getDouble("y");
-        minZ = nbt.getDouble("z");
-        maxX = nbt.getDouble("x2");
-        maxY = nbt.getDouble("y2");
-        maxZ = nbt.getDouble("z2");
-        bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
-        bbChanged = true;
-        updateSystem.load(nbt.getCompound("bounds"));
+    public void ignoreCollision(Runnable run) {
+        preventPush = true;
+        try {
+            run.run();
+        } finally {
+            preventPush = false;
+        }
     }
     
-    @Override
-    public CompoundTag save() {
-        CompoundTag nbt = new CompoundTag();
-        nbt.putDouble("x", minX);
-        nbt.putDouble("y", minY);
-        nbt.putDouble("z", minZ);
-        nbt.putDouble("x2", maxX);
-        nbt.putDouble("y2", maxY);
-        nbt.putDouble("z2", maxZ);
-        nbt.put("bounds", updateSystem.save());
-        return nbt;
+    public boolean shouldPush() {
+        return !preventPush;
     }
     
-    @Override
+    public abstract void setSubLevel(LittleSubLevel level);
+    
+    public abstract void tick();
+    
+    public void setBB(AABB bb) {
+        this.bb = bb;
+        this.bbChanged = true;
+    }
+    
+    public void updateBoundingBox() {
+        if (bb == null || parent.getSubLevel() == null)
+            return;
+        
+        if (parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged()) {
+            parent.markOriginChange();
+            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
+            parent.resetOriginChange();
+            center = parent.getBoundingBox().getCenter();
+            bbChanged = false;
+        } else if (bbChanged) {
+            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
+            center = parent.getBoundingBox().getCenter();
+            bbChanged = false;
+        }
+    }
+    
     public AABB getOBB() {
         return bb;
     }
     
-    @Override
-    public AABB getBB() {
-        return getOrigin().getAABB(bb);
-    }
-    
-    @Override
     public Vec3 getCenter() {
         return center;
     }
     
-    public double get(Facing facing) {
-        return switch (facing) {
-            case EAST -> maxX;
-            case WEST -> minX;
-            case UP -> maxY;
-            case DOWN -> minY;
-            case SOUTH -> maxZ;
-            case NORTH -> minZ;
-        };
-    }
+    public abstract void load(CompoundTag nbt);
     
-    public void set(Facing facing, double value) {
-        switch (facing) {
-            case EAST -> maxX = value;
-            case WEST -> minX = value;
-            case UP -> maxY = value;
-            case DOWN -> minY = value;
-            case SOUTH -> maxZ = value;
-            case NORTH -> minZ = value;
-        };
-    }
-    
-    @Override
-    public void tick() {
-        updateSystem.tick(parent);
-    }
-    
-    public BlockUpdateLevelSystem getBlockUpdateLevelSystem() {
-        return updateSystem;
-    }
-    
-    @Override
-    public void rescan(LittleLevel level, BlockUpdateLevelSystem system, Facing facing, Iterable<BlockPos> possible, int boundary) {
-        double value = facing.positive ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
-        for (BlockPos pos : possible) {
-            BlockState state = level.getBlockState(pos);
-            if (state.getBlock() instanceof LittlePhysicBlock block)
-                value = facing.positive ? Math.max(value, block.bound(level, pos, facing)) : Math.min(value, block.bound(level, pos, facing));
-            else
-                value = facing.positive ? Math.max(value, pos.get(facing.axis.toVanilla()) + 1) : Math.min(value, pos.get(facing.axis.toVanilla()));
-            
-            if (value == boundary)
-                break;
-        }
-        set(facing, value);
-    }
-    
-    @Override
-    public void afterChangesApplied(BlockUpdateLevelSystem system) {
-        bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
-        bbChanged = true;
-    }
+    public abstract CompoundTag save();
     
     public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
         if (x == 0 && y == 0 && z == 0 && rotX == 0 && rotY == 0 && rotZ == 0)
@@ -154,7 +86,6 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic implements Level
         coordinator.move();
     }
     
-    @Override
     public void transform(CollisionCoordinator coordinator) {
         /*if (preventPush)
             return;
@@ -368,21 +299,4 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic implements Level
         noCollision = false;*/
     }
     
-    @Override
-    public void updateBoundingBox() {
-        if (bb == null || parent.getSubLevel() == null)
-            return;
-        
-        if (parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged()) {
-            parent.markOriginChange();
-            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
-            parent.resetOriginChange();
-            center = parent.getBoundingBox().getCenter();
-            bbChanged = false;
-        } else if (bbChanged) {
-            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
-            center = parent.getBoundingBox().getCenter();
-            bbChanged = false;
-        }
-    }
 }

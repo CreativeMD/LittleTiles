@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.level.little;
+package team.creative.littletiles.common.entity.level;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,9 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.set.QuadBitSet;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.level.little.LevelBoundsListener;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.packet.entity.LittleEntityPhysicPacket;
 
 public class BlockUpdateLevelSystem {

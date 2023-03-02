@@ -12,7 +12,7 @@ import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public class NeighborUpdate extends CreativePacket {

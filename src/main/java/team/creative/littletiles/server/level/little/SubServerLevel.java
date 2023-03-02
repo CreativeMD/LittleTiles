@@ -44,7 +44,7 @@ public class SubServerLevel extends LittleServerLevel implements LittleSubLevel 
         return new SubClientLevel(level);
     }
     
-    public Level parentLevel;
+    public final Level parentLevel;
     
     protected SubServerLevel(ServerLevel parent) {
         super(parent.getServer(), (ServerLevelData) parent.getLevelData(), parent.dimension(), false, parent.getSeed(), parent.registryAccess());

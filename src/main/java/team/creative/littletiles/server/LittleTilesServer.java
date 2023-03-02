@@ -10,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LevelHandlers;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;

@@ -1,6 +1,10 @@
-package team.creative.littletiles.client.level.little;
+package team.creative.littletiles.common.entity.animation;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -9,18 +13,36 @@ import org.joml.Vector3d;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.PacketListener;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.GameEvent.Context;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.ticks.BlackholeTickAccess;
+import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.IOrientatedLevel;
@@ -28,30 +50,70 @@ import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
+import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
-@OnlyIn(Dist.CLIENT)
-public class SubClientLevel extends LittleClientLevel implements LittleSubLevel {
+public class LittleAnimationLevel extends Level implements LittleSubLevel {
+    
+    private LevelEntityGetter<Entity> entities = new LevelEntityGetter<Entity>() {
+        
+        @Override
+        public Entity get(int p_156931_) {
+            return null;
+        }
+        
+        @Override
+        public Entity get(UUID p_156939_) {
+            return null;
+        }
+        
+        @Override
+        public Iterable<Entity> getAll() {
+            return Collections.EMPTY_LIST;
+        }
+        
+        @Override
+        public <U extends Entity> void get(EntityTypeTest<Entity, U> p_156935_, AbortableIterationConsumer<U> p_261602_) {}
+        
+        @Override
+        public void get(AABB p_156937_, Consumer<Entity> p_156938_) {}
+        
+        @Override
+        public <U extends Entity> void get(EntityTypeTest<Entity, U> p_156932_, AABB p_156933_, AbortableIterationConsumer<U> p_261542_) {}
+    };
     
     public final Level parentLevel;
+    public Entity holder;
+    public IVecOrigin origin;
+    public LittleAnimationChunkCache chunks;
+    private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
+    @OnlyIn(Dist.CLIENT)
+    public LittleAnimationRenderManager renderManager;
     
-    public boolean shouldRender;
+    public LittleAnimationLevel(Level level) {
+        super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE)
+                .getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), level.getProfilerSupplier(), level.isClientSide, level.isDebug(), 0, 1000000);
+        this.parentLevel = level;
+        this.chunks = new LittleAnimationChunkCache(this);
+    }
     
-    public SubClientLevel(Level parent) {
-        super(LittleClientPacketListener.allocateInstance(), (ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent
-                .registryAccess());
-        this.parentLevel = parent;
-        this.gatherCapabilities();
+    @Override
+    public Level getParent() {
+        return parentLevel;
+    }
+    
+    @Override
+    public Level getRealLevel() {
+        if (parentLevel instanceof LittleSubLevel sub)
+            return sub.getRealLevel();
+        return parentLevel;
     }
     
     @Override
     public UUID key() {
         return getHolder().getUUID();
-    }
-    
-    @Override
-    protected LittleClientConnection createConnection() {
-        return new LittleClientConnection(this);
     }
     
     @Override
@@ -68,24 +130,133 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     }
     
     @Override
-    public Level getParent() {
-        return parentLevel;
+    public LevelTickAccess<Block> getBlockTicks() {
+        return BlackholeTickAccess.emptyLevelList();
     }
     
     @Override
-    public Level getRealLevel() {
-        if (parentLevel instanceof LittleSubLevel sub)
-            return sub.getRealLevel();
-        return parentLevel;
+    public LevelTickAccess<Fluid> getFluidTicks() {
+        return BlackholeTickAccess.emptyLevelList();
     }
     
     @Override
-    public void playSeededSound(Player p_262953_, double x, double y, double z, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_, float p_262914_, long p_262991_) {
-        if (getOrigin() == null)
-            return;
-        Vector3d vec = new Vector3d(x, y, z);
-        getOrigin().transformPointToWorld(vec);
-        getRealLevel().playSeededSound(p_262953_, vec.x, vec.y, vec.z, p_263359_, p_263020_, p_263055_, p_262914_, p_262991_);
+    public LittleAnimationChunkCache getChunkSource() {
+        return chunks;
+    }
+    
+    @Override
+    public void gameEvent(GameEvent event, Vec3 vec, Context context) {
+        getRealLevel().gameEvent(event, vec, context);
+    }
+    
+    @Override
+    public List<? extends Player> players() {
+        return Collections.EMPTY_LIST;
+    }
+    
+    @Override
+    public RegistryAccess registryAccess() {
+        return getRealLevel().registryAccess();
+    }
+    
+    @Override
+    public Entity getHolder() {
+        return holder;
+    }
+    
+    @Override
+    public void setHolder(Entity entity) {
+        this.holder = entity;
+    }
+    
+    @Override
+    public PacketListener getPacketListener(Player player) {
+        return null;
+    }
+    
+    @Override
+    public void unload(LevelChunk chunk) {
+        chunk.clearAllBlockEntities();
+        if (isClientSide)
+            this.getChunkSource().getLightEngine().enableLightSources(chunk.getPos(), false);
+    }
+    
+    @Override
+    public void unload() {
+        if (isClientSide && renderManager != null)
+            renderManager.unload();
+    }
+    
+    @Override
+    public Iterable<Entity> entities() {
+        return Collections.EMPTY_LIST;
+    }
+    
+    @Override
+    public Iterable<? extends ChunkAccess> chunks() {
+        return chunks.all();
+    }
+    
+    @Override
+    public void tick() {
+        tickBlockEntities();
+    }
+    
+    @Override
+    public void stopTracking(ServerPlayer player) {}
+    
+    @Override
+    public void registerBlockChangeListener(LevelBlockChangeListener listener) {
+        blockChangeListeners.add(listener);
+    }
+    
+    @Override
+    public void sendBlockUpdated(BlockPos pos, BlockState actualState, BlockState setState, int p_104688_) {
+        if (isClientSide)
+            this.renderManager.blockChanged(this, pos, actualState, setState, p_104688_);
+    }
+    
+    @Override
+    public void setBlocksDirty(BlockPos pos, BlockState actualState, BlockState setState) {
+        if (isClientSide)
+            this.renderManager.setBlockDirty(pos, actualState, setState);
+        blockChangeListeners.forEach(x -> x.blockChanged(pos, setState));
+    }
+    
+    @Override
+    public String gatherChunkSourceStats() {
+        return "";
+    }
+    
+    @Override
+    public Entity getEntity(int p_46492_) {
+        return entities.get(p_46492_);
+    }
+    
+    @Override
+    public MapItemSavedData getMapData(String key) {
+        return getRealLevel().getMapData(key);
+    }
+    
+    @Override
+    public void setMapData(String key, MapItemSavedData data) {
+        getRealLevel().setMapData(key, data);
+    }
+    
+    @Override
+    public int getFreeMapId() {
+        return getRealLevel().getFreeMapId();
+    }
+    
+    @Override
+    public void destroyBlockProgress(int id, BlockPos pos, int progress) {
+        if (isClientSide)
+            renderManager.destroyBlockProgress(id, pos, progress);
+    }
+    
+    @Override
+    protected LevelEntityGetter<Entity> getEntities() {
+        return entities;
     }
     
     @Override
@@ -118,6 +289,15 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
             return;
         Vector3d vec = getOrigin().transformPointToWorld(new Vector3d(x, y, z));
         getRealLevel().playLocalSound(vec.x, vec.y, vec.z, p_184134_7_, p_184134_8_, p_184134_9_, p_184134_10_, p_184134_11_);
+    }
+    
+    @Override
+    public void playSeededSound(Player p_262953_, double x, double y, double z, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_, float p_262914_, long p_262991_) {
+        if (getOrigin() == null)
+            return;
+        Vector3d vec = new Vector3d(x, y, z);
+        getOrigin().transformPointToWorld(vec);
+        getRealLevel().playSeededSound(p_262953_, vec.x, vec.y, vec.z, p_263359_, p_263020_, p_263055_, p_262914_, p_262991_);
     }
     
     @Override
@@ -201,7 +381,7 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     
     @Override
     public String toString() {
-        return "SubClientLevel[" + holder.getStringUUID() + "]";
+        return "SubAnimationLevel[" + holder.getStringUUID() + "]";
     }
     
     @Override

@@ -11,7 +11,7 @@ import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.server.LittleTilesServer;
 import team.creative.littletiles.server.level.handler.LittleAnimationHandlerServer;
 

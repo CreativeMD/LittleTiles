@@ -19,7 +19,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;

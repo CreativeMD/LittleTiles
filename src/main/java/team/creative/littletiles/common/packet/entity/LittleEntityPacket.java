@@ -5,7 +5,7 @@ import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public abstract class LittleEntityPacket<T extends LittleEntity> extends CreativePacket {

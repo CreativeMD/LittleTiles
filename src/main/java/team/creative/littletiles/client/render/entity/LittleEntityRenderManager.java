@@ -26,14 +26,17 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.BlockDestructionProgress;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 @OnlyIn(Dist.CLIENT)
@@ -216,4 +219,72 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     public abstract void resortTransparency(RenderType layer, double x, double y, double z);
     
     public abstract void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset);
+    
+    public void blockChanged(BlockGetter level, BlockPos pos, BlockState actualState, BlockState setState, int updateType) {
+        this.setBlockDirty(pos, (updateType & 8) != 0);
+    }
+    
+    private void setBlockDirty(BlockPos pos, boolean playerChanged) {
+        for (int i = pos.getZ() - 1; i <= pos.getZ() + 1; ++i)
+            for (int j = pos.getX() - 1; j <= pos.getX() + 1; ++j)
+                for (int k = pos.getY() - 1; k <= pos.getY() + 1; ++k)
+                    this.setSectionDirty(SectionPos.blockToSectionCoord(j), SectionPos.blockToSectionCoord(k), SectionPos.blockToSectionCoord(i), playerChanged);
+    }
+    
+    public void setBlocksDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        for (int i = minZ - 1; i <= maxZ + 1; ++i)
+            for (int j = minX - 1; j <= maxX + 1; ++j)
+                for (int k = minY - 1; k <= maxY + 1; ++k)
+                    this.setSectionDirty(SectionPos.blockToSectionCoord(j), SectionPos.blockToSectionCoord(k), SectionPos.blockToSectionCoord(i));
+                
+    }
+    
+    public void setBlockDirty(BlockPos pos, BlockState actualState, BlockState setState) {
+        if (mc.getModelManager().requiresRender(actualState, setState))
+            this.setBlocksDirty(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
+    }
+    
+    public void setSectionDirtyWithNeighbors(int x, int y, int z) {
+        this.setSectionDirty(x - 1, y - 1, z - 1);
+        this.setSectionDirty(x - 1, y, z - 1);
+        this.setSectionDirty(x - 1, y + 1, z - 1);
+        
+        this.setSectionDirty(x, y - 1, z - 1);
+        this.setSectionDirty(x, y, z - 1);
+        this.setSectionDirty(x, y + 1, z - 1);
+        
+        this.setSectionDirty(x + 1, y - 1, z - 1);
+        this.setSectionDirty(x + 1, y, z - 1);
+        this.setSectionDirty(x + 1, y + 1, z - 1);
+        
+        this.setSectionDirty(x - 1, y - 1, z);
+        this.setSectionDirty(x - 1, y, z);
+        this.setSectionDirty(x - 1, y + 1, z);
+        
+        this.setSectionDirty(x, y - 1, z);
+        this.setSectionDirty(x, y, z);
+        this.setSectionDirty(x, y + 1, z);
+        
+        this.setSectionDirty(x + 1, y - 1, z);
+        this.setSectionDirty(x + 1, y, z);
+        this.setSectionDirty(x + 1, y + 1, z);
+        
+        this.setSectionDirty(x - 1, y - 1, z + 1);
+        this.setSectionDirty(x - 1, y, z + 1);
+        this.setSectionDirty(x - 1, y + 1, z + 1);
+        
+        this.setSectionDirty(x, y - 1, z + -1);
+        this.setSectionDirty(x, y, z + 1);
+        this.setSectionDirty(x, y + 1, z + 1);
+        
+        this.setSectionDirty(x + 1, y - 1, z + 1);
+        this.setSectionDirty(x + 1, y, z + 1);
+        this.setSectionDirty(x + 1, y + 1, z + 1);
+    }
+    
+    public void setSectionDirty(int x, int y, int z) {
+        this.setSectionDirty(x, y, z, false);
+    }
+    
+    protected abstract void setSectionDirty(int x, int y, int z, boolean playerChanged);
 }

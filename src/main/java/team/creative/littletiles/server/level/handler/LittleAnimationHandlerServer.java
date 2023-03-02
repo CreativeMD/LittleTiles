@@ -9,7 +9,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent.StopTracking;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 
 public class LittleAnimationHandlerServer extends LittleAnimationHandler {

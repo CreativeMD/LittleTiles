@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.entity.level;
+package team.creative.littletiles.common.entity;
 
 import javax.annotation.Nullable;
 
@@ -31,15 +31,11 @@ import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
-import team.creative.littletiles.common.entity.INoPushEntity;
-import team.creative.littletiles.common.entity.OrientationAwareEntity;
-import team.creative.littletiles.common.entity.physic.LittleEntityPhysic;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
-import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity implements OrientationAwareEntity, INoPushEntity {
     
@@ -56,6 +52,14 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         super(type, level);
     }
     
+    public LittleEntity(EntityType<?> type, Level level, BlockPos center) {
+        super(type, level);
+        setSubLevel(createLevel());
+        setPos(center.getX(), center.getY(), center.getZ());
+        origin.tick();
+        physic.ignoreCollision(() -> initialTick());
+    }
+    
     public LittleEntity(EntityType<?> type, Level level, LittleSubLevel subLevel, BlockPos center) {
         super(type, level);
         setSubLevel(subLevel);
@@ -63,6 +67,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         origin.tick();
         physic.ignoreCollision(() -> initialTick());
     }
+    
+    protected abstract LittleSubLevel createLevel();
     
     protected abstract T createPhysic();
     
@@ -191,7 +197,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
-        setSubLevel(SubServerLevel.createSubLevel(level));
+        setSubLevel(createLevel());
         
         physic.load(nbt.getCompound("physic"));
         
@@ -237,7 +243,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     protected AABB makeBoundingBox() {
-        return physic.getBB();
+        return origin.getAABB(physic.getOBB());
     }
     
     @Override

@@ -1,13 +1,14 @@
-package team.creative.littletiles.common.entity.level;
+package team.creative.littletiles.common.entity.animation;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.entity.OrientationAwareEntity;
-import team.creative.littletiles.common.entity.physic.LittleEntityPhysic;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
@@ -18,7 +19,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.server.level.little.SubServerLevel;
 
-public class LittleAnimationEntity extends LittleEntity<LittleEntityPhysic> {
+public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhysic> {
     
     private StructureAbsolute center;
     private StructureConnection structure;
@@ -31,6 +32,11 @@ public class LittleAnimationEntity extends LittleEntity<LittleEntityPhysic> {
         super(LittleTilesRegistry.ENTITY_ANIMATION.get(), level, subLevel, center.baseOffset);
         setCenter(center);
         this.structure = new StructureConnection((Level) subLevel, location);
+    }
+    
+    @Override
+    protected LittleSubLevel createLevel() {
+        return new LittleAnimationLevel(level);
     }
     
     public void setCenter(StructureAbsolute center) {
@@ -80,6 +86,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleEntityPhysic> {
         setSubLevel(SubServerLevel.createSubLevel(level));
         setCenter(absolute);
         physic.load(extraData.getCompound("physic"));
+        ((LittleAnimationLevel) subLevel).renderManager = new LittleAnimationRenderManager(this);
     }
     
     @Override
@@ -89,14 +96,12 @@ public class LittleAnimationEntity extends LittleEntity<LittleEntityPhysic> {
     public void initialTick() {}
     
     @Override
-    protected LittleEntityPhysic createPhysic() {
-        // TODO Auto-generated method stub
-        return null;
+    protected LittleAnimationEntityPhysic createPhysic() {
+        return new LittleAnimationEntityPhysic(this);
     }
     
     @Override
     public LittleEntityRenderManager getRenderManager() {
-        // TODO Auto-generated method stub
-        return null;
+        return ((LittleAnimationLevel) subLevel).renderManager;
     }
 }

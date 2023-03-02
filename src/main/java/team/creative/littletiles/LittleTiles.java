@@ -55,7 +55,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
-import team.creative.littletiles.common.entity.level.LittleEntity;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
@@ -99,7 +99,6 @@ import team.creative.littletiles.common.structure.type.premade.LittleExporter;
 import team.creative.littletiles.common.structure.type.premade.LittleImporter;
 import team.creative.littletiles.mixin.server.level.ChunkMapAccessor;
 import team.creative.littletiles.server.LittleTilesServer;
-import team.creative.littletiles.server.level.little.SubServerLevel;
 
 @Mod(LittleTiles.MODID)
 public class LittleTiles {
@@ -291,8 +290,11 @@ public class LittleTiles {
         event.getServer().getCommands().getDispatcher().register(Commands.literal("animation").executes((x) -> {
             try {
                 ServerLevel level = x.getSource().getLevel();
-                LittleSubLevel subLevel = SubServerLevel.createSubLevel(level);
                 BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
+                
+                LittleEntity entity = new LittleLevelEntity(level, pos);
+                
+                LittleSubLevel subLevel = entity.getSubLevel();
                 LittleGrid grid = LittleGrid.defaultGrid();
                 CompoundTag nbt = new CompoundTag();
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
@@ -305,7 +307,6 @@ public class LittleTiles {
                 PlacementResult result = placement.place();
                 if (result == null)
                     throw new LittleActionException("Could not be placed");
-                LittleEntity entity = new LittleLevelEntity(level, subLevel, pos);
                 
                 level.addFreshEntity(entity);
                 x.getSource().sendSystemMessage(Component.literal("Spawned animation"));

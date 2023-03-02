@@ -28,10 +28,8 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.SectionPos;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -247,73 +245,8 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
         return LittleTilesClient.ANIMATION_HANDLER.fixedBuffers;
     }
     
-    public void blockChanged(BlockGetter level, BlockPos pos, BlockState actualState, BlockState setState, int updateType) {
-        this.setBlockDirty(pos, (updateType & 8) != 0);
-    }
-    
-    private void setBlockDirty(BlockPos pos, boolean playerChanged) {
-        for (int i = pos.getZ() - 1; i <= pos.getZ() + 1; ++i)
-            for (int j = pos.getX() - 1; j <= pos.getX() + 1; ++j)
-                for (int k = pos.getY() - 1; k <= pos.getY() + 1; ++k)
-                    this.setSectionDirty(SectionPos.blockToSectionCoord(j), SectionPos.blockToSectionCoord(k), SectionPos.blockToSectionCoord(i), playerChanged);
-    }
-    
-    public void setBlocksDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-        for (int i = minZ - 1; i <= maxZ + 1; ++i)
-            for (int j = minX - 1; j <= maxX + 1; ++j)
-                for (int k = minY - 1; k <= maxY + 1; ++k)
-                    this.setSectionDirty(SectionPos.blockToSectionCoord(j), SectionPos.blockToSectionCoord(k), SectionPos.blockToSectionCoord(i));
-                
-    }
-    
-    public void setBlockDirty(BlockPos pos, BlockState actualState, BlockState setState) {
-        if (mc.getModelManager().requiresRender(actualState, setState))
-            this.setBlocksDirty(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
-    }
-    
-    public void setSectionDirtyWithNeighbors(int x, int y, int z) {
-        this.setSectionDirty(x - 1, y - 1, z - 1);
-        this.setSectionDirty(x - 1, y, z - 1);
-        this.setSectionDirty(x - 1, y + 1, z - 1);
-        
-        this.setSectionDirty(x, y - 1, z - 1);
-        this.setSectionDirty(x, y, z - 1);
-        this.setSectionDirty(x, y + 1, z - 1);
-        
-        this.setSectionDirty(x + 1, y - 1, z - 1);
-        this.setSectionDirty(x + 1, y, z - 1);
-        this.setSectionDirty(x + 1, y + 1, z - 1);
-        
-        this.setSectionDirty(x - 1, y - 1, z);
-        this.setSectionDirty(x - 1, y, z);
-        this.setSectionDirty(x - 1, y + 1, z);
-        
-        this.setSectionDirty(x, y - 1, z);
-        this.setSectionDirty(x, y, z);
-        this.setSectionDirty(x, y + 1, z);
-        
-        this.setSectionDirty(x + 1, y - 1, z);
-        this.setSectionDirty(x + 1, y, z);
-        this.setSectionDirty(x + 1, y + 1, z);
-        
-        this.setSectionDirty(x - 1, y - 1, z + 1);
-        this.setSectionDirty(x - 1, y, z + 1);
-        this.setSectionDirty(x - 1, y + 1, z + 1);
-        
-        this.setSectionDirty(x, y - 1, z + -1);
-        this.setSectionDirty(x, y, z + 1);
-        this.setSectionDirty(x, y + 1, z + 1);
-        
-        this.setSectionDirty(x + 1, y - 1, z + 1);
-        this.setSectionDirty(x + 1, y, z + 1);
-        this.setSectionDirty(x + 1, y + 1, z + 1);
-    }
-    
-    public void setSectionDirty(int x, int y, int z) {
-        this.setSectionDirty(x, y, z, false);
-    }
-    
-    private void setSectionDirty(int x, int y, int z, boolean playerChanged) {
+    @Override
+    protected void setSectionDirty(int x, int y, int z, boolean playerChanged) {
         LittleRenderChunk chunk = chunks.get(SectionPos.asLong(x, y, z));
         if (chunk == null)
             chunk = create(SectionPos.of(x, y, z));
