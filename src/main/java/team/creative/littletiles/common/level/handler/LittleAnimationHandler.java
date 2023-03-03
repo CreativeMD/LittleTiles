@@ -16,6 +16,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.MinecraftForge;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.box.OBBVoxelShape;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
@@ -65,9 +66,11 @@ public abstract class LittleAnimationHandler extends LevelHandler {
     }
     
     public Iterable<VoxelShape> collisionExcept(@Nullable Entity colliding, AABB box, Level level) {
+        if (level instanceof ISubLevel)
+            return null;
         List<VoxelShape> shapes = null;
         for (LittleEntity entity : find(box)) {
-            if (!entity.physic.shouldPush() || entity.getSubLevel() == level)
+            if (!entity.physic.shouldPush())
                 continue;
             
             for (VoxelShape shape : entity.getSubLevel().getBlockCollisions(colliding, entity.getOrigin().getOBB(box)))
