@@ -282,7 +282,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             animation.getRenderManager().renderBlockEntitiesAndDestruction(pose, frustum, cam, frameTime, bufferSource);
         
         for (LittleEntity animation : entities)
-            animation.getRenderManager().renderGlobalEntities(pose, frustum, cam, frameTime, bufferSource);
+            if (animation.hasLoaded())
+                animation.getRenderManager().renderGlobalEntities(pose, frustum, cam, frameTime, bufferSource);
     }
     
     public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
@@ -320,8 +321,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             tick();
             
             for (LittleEntity entity : entities) {
+                if (!entity.hasLoaded())
+                    continue;
                 entity.getRenderManager().clientTick();
-                if (entity.level instanceof ISubLevel || !entity.hasLoaded())
+                if (entity.level instanceof ISubLevel)
                     continue;
                 entity.performTick();
             }
