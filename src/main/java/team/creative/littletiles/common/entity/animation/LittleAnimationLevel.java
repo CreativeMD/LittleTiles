@@ -186,8 +186,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     @Override
     public void unload(LevelChunk chunk) {
         chunk.clearAllBlockEntities();
-        if (isClientSide)
-            this.getChunkSource().getLightEngine().enableLightSources(chunk.getPos(), false);
+        this.getChunkSource().getLightEngine().enableLightSources(chunk.getPos(), false);
     }
     
     @Override

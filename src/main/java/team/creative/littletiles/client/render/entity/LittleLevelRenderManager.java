@@ -1,5 +1,6 @@
 package team.creative.littletiles.client.render.entity;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.PrioritizeChunkUpdates;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
@@ -118,8 +120,8 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     }
     
     @Override
-    public void setupRender(Vec3d cam, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
-        super.setupRender(cam, frustum, capturedFrustum, spectator);
+    public void setupRender(Camera camera, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
+        super.setupRender(camera, frustum, capturedFrustum, spectator);
         
         synchronized (this) {
             while (!emptyCompiled.isEmpty()) {
@@ -131,6 +133,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
             }
         }
         
+        Vec3d cam = new Vec3d(camera.getPosition());
         entity.getOrigin().transformPointToFakeWorld(cam); // from here on the camera is transformed to the sub level
         
         this.camera = cam;
@@ -165,7 +168,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     }
     
     @Override
-    public void compileChunks() {
+    public void compileChunks(Camera camera) {
         mc.getProfiler().push("compile_animation_chunks");
         List<LittleRenderChunk> schedule = Lists.newArrayList();
         
@@ -259,6 +262,13 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     
     public BlockPos getCameraBlockPos() {
         return cameraPos;
+    }
+    
+    public void updateGlobalBlockEntities(Collection<BlockEntity> oldBlockEntities, Collection<BlockEntity> newBlockEntities) {
+        synchronized (this.globalBlockEntities) {
+            this.globalBlockEntities.removeAll(oldBlockEntities);
+            this.globalBlockEntities.addAll(newBlockEntities);
+        }
     }
     
     @Override

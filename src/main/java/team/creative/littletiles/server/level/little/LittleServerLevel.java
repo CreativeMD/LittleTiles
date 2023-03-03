@@ -1,5 +1,6 @@
 package team.creative.littletiles.server.level.little;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -142,7 +143,11 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
-    public void unload() {}
+    public void unload() {
+        try {
+            close();
+        } catch (IOException e) {}
+    }
     
     @Override
     public int getFreeMapId() {

@@ -220,8 +220,8 @@ public class RenderingThread extends Thread {
                             int overlay = OverlayTexture.NO_OVERLAY;
                             //ModelBlockRenderer.enableCaching();
                             
-                            posestack.pushPose();
-                            posestack.translate(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+                            posestack.setIdentity();
+                            data.chunk.prepareBlockTranslation(posestack, pos);
                             
                             // Render vertex buffer
                             for (Entry<RenderType, List<LittleRenderBox>> entry : data.be.render.boxCache.entrySet()) {
@@ -288,7 +288,6 @@ public class RenderingThread extends Thread {
                             }
                             
                             ((CreativeQuadLighter) lighter).setCustomTint(-1);
-                            posestack.popPose();
                             //ModelBlockRenderer.clearCache();
                             lighter.reset();
                             

@@ -1,6 +1,5 @@
 package team.creative.littletiles.client.render.entity;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
@@ -20,6 +19,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -35,7 +35,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
@@ -47,7 +46,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     public Boolean isInSight;
     public boolean needsFullRenderChunkUpdate = false;
     
-    private final Set<BlockEntity> globalBlockEntities = Sets.newHashSet();
+    protected final Set<BlockEntity> globalBlockEntities = Sets.newHashSet();
     
     private final Int2ObjectMap<BlockDestructionProgress> destroyingBlocks = new Int2ObjectOpenHashMap<>();
     private final Long2ObjectMap<SortedSet<BlockDestructionProgress>> destructionProgress = new Long2ObjectOpenHashMap<>();
@@ -63,7 +62,8 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
         return entity.getSubLevel();
     }
     
-    public void setupRender(Vec3d cam, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
+    public void setupRender(Camera camera, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
+        Vec3 cam = camera.getPosition();
         if (frustum != null)
             isInSight = LittleEntityRenderer.isVisible(entity, frustum, cam.x, cam.y, cam.z); // needs to original camera position
         else
@@ -77,13 +77,6 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     public void allChanged() {
         synchronized (this.globalBlockEntities) {
             this.globalBlockEntities.clear();
-        }
-    }
-    
-    public void updateGlobalBlockEntities(Collection<BlockEntity> oldBlockEntities, Collection<BlockEntity> newBlockEntities) {
-        synchronized (this.globalBlockEntities) {
-            this.globalBlockEntities.removeAll(oldBlockEntities);
-            this.globalBlockEntities.addAll(newBlockEntities);
         }
     }
     
@@ -142,7 +135,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
             this.destructionProgress.remove(i);
     }
     
-    public abstract void compileChunks();
+    public abstract void compileChunks(Camera camera);
     
     protected MultiBufferSource prepareBlockEntity(PoseStack pose, LittleSubLevel level, BlockPos pos, MultiBufferSource bufferSource) {
         SortedSet<BlockDestructionProgress> sortedset = getDestructionProgress(pos);

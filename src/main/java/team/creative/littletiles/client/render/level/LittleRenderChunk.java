@@ -146,10 +146,6 @@ public class LittleRenderChunk implements RenderChunkExtender {
     
     @Override
     public void begin(BufferBuilder builder) {
-        beginLayer(builder);
-    }
-    
-    private void beginLayer(BufferBuilder builder) {
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
     }
     
@@ -391,7 +387,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
                         RenderType rendertype = ItemBlockRenderTypes.getRenderLayer(fluidstate);
                         BufferBuilder bufferbuilder = pack.builder(rendertype);
                         if (renderTypes.add(rendertype))
-                            LittleRenderChunk.this.beginLayer(bufferbuilder);
+                            LittleRenderChunk.this.begin(bufferbuilder);
                         
                         blockrenderdispatcher.renderLiquid(blockpos2, renderchunkregion, bufferbuilder, blockstate1, fluidstate);
                     }
@@ -403,7 +399,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
                         for (RenderType rendertype2 : model.getRenderTypes(blockstate, randomsource, modelData)) {
                             BufferBuilder bufferbuilder2 = pack.builder(rendertype2);
                             if (renderTypes.add(rendertype2))
-                                LittleRenderChunk.this.beginLayer(bufferbuilder2);
+                                LittleRenderChunk.this.begin(bufferbuilder2);
                             
                             posestack.pushPose();
                             posestack.translate(blockpos2.getX() & 15, blockpos2.getY() & 15, blockpos2.getZ() & 15);
@@ -536,7 +532,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
             BufferBuilder.SortState sortstate = ((CompiledChunkAccessor) this.compiledChunk).getTransparencyState();
             if (sortstate != null && !this.compiledChunk.isEmpty(RenderType.translucent())) {
                 BufferBuilder bufferbuilder = p_112893_.builder(RenderType.translucent());
-                LittleRenderChunk.this.beginLayer(bufferbuilder);
+                LittleRenderChunk.this.begin(bufferbuilder);
                 bufferbuilder.restoreSortState(sortstate);
                 bufferbuilder.setQuadSortOrigin((float) cam.x - pos.getX(), (float) cam.y - pos.getY(), (float) cam.z - pos.getZ());
                 ((CompiledChunkAccessor) this.compiledChunk).setTransparencyState(bufferbuilder.getSortState());

@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
 
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
@@ -32,6 +33,8 @@ import team.creative.littletiles.common.animation.preview.AnimationPreview;
 import team.creative.littletiles.mixin.client.render.LightTextureAccessor;
 
 public class GuiAnimationViewer extends GuiControl {
+    
+    private static final Camera FAKE_CAMERA = new Camera();
     
     public SmoothValue offX = new SmoothValue(200);
     public SmoothValue offY = new SmoothValue(200);
@@ -138,8 +141,8 @@ public class GuiAnimationViewer extends GuiControl {
     
     @OnlyIn(Dist.CLIENT)
     public void renderPreview(PoseStack pose, PoseStack projection, AnimationPreview preview, Minecraft mc) {
-        preview.animation.getRenderManager().setupRender(new Vec3d(), null, false, false);
-        preview.animation.getRenderManager().compileChunks();
+        preview.animation.getRenderManager().setupRender(FAKE_CAMERA, null, false, false);
+        preview.animation.getRenderManager().compileChunks(FAKE_CAMERA);
         
         Matrix4f matrix = projection.last().pose();
         
