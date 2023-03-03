@@ -56,6 +56,8 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.entity.EntitySizeHandler;
 import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
+import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
@@ -64,6 +66,7 @@ import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
@@ -94,6 +97,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
+import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.premade.LittleExporter;
@@ -289,7 +293,7 @@ public class LittleTiles {
             return 0;
         }));
         
-        event.getServer().getCommands().getDispatcher().register(Commands.literal("animation").executes((x) -> {
+        event.getServer().getCommands().getDispatcher().register(Commands.literal("level").executes((x) -> {
             try {
                 ServerLevel level = x.getSource().getLevel();
                 BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
@@ -309,6 +313,40 @@ public class LittleTiles {
                 PlacementResult result = placement.place();
                 if (result == null)
                     throw new LittleActionException("Could not be placed");
+                
+                level.addFreshEntity(entity);
+                x.getSource().sendSystemMessage(Component.literal("Spawned level"));
+            } catch (LittleActionException e) {
+                x.getSource().sendFailure(e.getTranslatable());
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            } catch (Error e) {
+                e.printStackTrace();
+            }
+            
+            return 0;
+        }));
+        
+        event.getServer().getCommands().getDispatcher().register(Commands.literal("animation").executes((x) -> {
+            try {
+                ServerLevel level = x.getSource().getLevel();
+                BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
+                
+                LittleSubLevel subLevel = new LittleAnimationLevel(level);
+                LittleGrid grid = LittleGrid.defaultGrid();
+                CompoundTag nbt = new CompoundTag();
+                nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
+                LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
+                group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
+                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
+                
+                Placement placement = new Placement(null, (Level) subLevel, preview);
+                PlacementResult result = placement.place();
+                if (result == null)
+                    throw new LittleActionException("Could not be placed");
+                
+                LittleEntity entity = new LittleAnimationEntity(level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new LocalStructureLocation(result.parentStructure));
                 
                 level.addFreshEntity(entity);
                 x.getSource().sendSystemMessage(Component.literal("Spawned animation"));
