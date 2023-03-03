@@ -2,7 +2,6 @@ package team.creative.littletiles.common.entity;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -29,6 +28,7 @@ import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.item.ItemLittleWrench;
@@ -52,18 +52,18 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         super(type, level);
     }
     
-    public LittleEntity(EntityType<?> type, Level level, BlockPos center) {
+    public LittleEntity(EntityType<?> type, Level level, Vec3d center) {
         super(type, level);
-        setSubLevel(createLevel());
-        setPos(center.getX(), center.getY(), center.getZ());
+        setSubLevel(createLevel(), center);
+        setPos(center.x, center.y, center.z);
         origin.tick();
         physic.ignoreCollision(() -> initialTick());
     }
     
-    public LittleEntity(EntityType<?> type, Level level, LittleSubLevel subLevel, BlockPos center) {
+    public LittleEntity(EntityType<?> type, Level level, LittleSubLevel subLevel, Vec3d center) {
         super(type, level);
-        setSubLevel(subLevel);
-        setPos(center.getX(), center.getY(), center.getZ());
+        setSubLevel(subLevel, center);
+        setPos(center.x, center.y, center.z);
         origin.tick();
         physic.ignoreCollision(() -> initialTick());
     }
@@ -117,9 +117,10 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     public abstract CreativePacket initClientPacket();
     
-    protected void setSubLevel(LittleSubLevel subLevel) {
+    protected void setSubLevel(LittleSubLevel subLevel, Vec3d center) {
         this.subLevel = subLevel;
         this.subLevel.setHolder(this);
+        this.subLevel.setOrigin(center);
         this.origin = subLevel.getOrigin();
         physic.setSubLevel(subLevel);
     }
@@ -195,9 +196,11 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     // ================Save&Load================
     
+    protected abstract Vec3d loadCenter(CompoundTag nbt);
+    
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
-        setSubLevel(createLevel());
+        setSubLevel(createLevel(), loadCenter(nbt));
         
         physic.load(nbt.getCompound("physic"));
         

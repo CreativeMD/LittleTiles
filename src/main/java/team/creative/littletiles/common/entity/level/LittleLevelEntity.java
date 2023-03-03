@@ -9,6 +9,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
@@ -21,12 +22,15 @@ import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
+    public BlockPos center;
+    
     public LittleLevelEntity(EntityType<?> type, Level level) {
         super(type, level);
     }
     
     public LittleLevelEntity(Level level, BlockPos pos) {
-        super(LittleTilesRegistry.ENTITY_LEVEL.get(), level, pos);
+        super(LittleTilesRegistry.ENTITY_LEVEL.get(), level, new Vec3d(pos));
+        this.center = pos;
     }
     
     @Override
@@ -40,7 +44,13 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     }
     
     @Override
+    protected Vec3d loadCenter(CompoundTag nbt) {
+        return new Vec3d(nbt.getInt("cX"), nbt.getInt("cY"), nbt.getInt("cZ"));
+    }
+    
+    @Override
     public void loadEntity(CompoundTag nbt) {
+        center = new BlockPos(nbt.getInt("cX"), nbt.getInt("cY"), nbt.getInt("cZ"));
         LittleServerLevel sub = (LittleServerLevel) subLevel;
         ListTag chunks = nbt.getList("chunks", Tag.TAG_COMPOUND);
         for (int i = 0; i < chunks.size(); i++) {
@@ -51,6 +61,9 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
     @Override
     public void saveEntity(CompoundTag nbt) {
+        nbt.putInt("cX", center.getX());
+        nbt.putInt("cY", center.getY());
+        nbt.putInt("cZ", center.getZ());
         LittleServerLevel sub = (LittleServerLevel) subLevel;
         ListTag chunks = new ListTag();
         for (ChunkAccess chunk : sub.chunks())
@@ -65,12 +78,15 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
     public CompoundTag saveExtraClientData() {
         CompoundTag nbt = new CompoundTag();
+        nbt.putInt("cX", center.getX());
+        nbt.putInt("cY", center.getY());
+        nbt.putInt("cZ", center.getZ());
         nbt.put("physic", physic.save());
         return nbt;
     }
     
     public void initSubLevelClient(CompoundTag extraData) {
-        setSubLevel(createLevel());
+        setSubLevel(createLevel(), new Vec3d(extraData.getInt("cX"), extraData.getInt("cY"), extraData.getInt("cZ")));
         ((LittleClientLevel) subLevel).renderManager = new LittleLevelRenderManager(this);
         physic.load(extraData.getCompound("physic"));
     }

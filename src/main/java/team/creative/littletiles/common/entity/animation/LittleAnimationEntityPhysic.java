@@ -9,7 +9,7 @@ import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 public class LittleAnimationEntityPhysic extends LittleEntityPhysic<LittleAnimationEntity> {
     
-    private boolean blocksChanged = false;
+    private boolean blocksChanged = true;
     
     public LittleAnimationEntityPhysic(LittleAnimationEntity parent) {
         super(parent);

@@ -29,6 +29,8 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic<LittleLevelEntit
     @Override
     public void setSubLevel(LittleSubLevel level) {
         updateSystem = new BlockUpdateLevelSystem(level);
+        level.registerBlockChangeListener(updateSystem::blockChanged);
+        updateSystem.registerLevelBoundListener(this);
     }
     
     @Override

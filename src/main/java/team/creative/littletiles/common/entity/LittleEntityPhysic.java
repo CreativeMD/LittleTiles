@@ -80,14 +80,13 @@ public abstract class LittleEntityPhysic<T extends LittleEntity> {
         if (bb == null || parent.getSubLevel() == null)
             return;
         
-        if (parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged()) {
-            parent.markOriginChange();
+        boolean originChanged = parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged();
+        if (bbChanged || originChanged) {
+            if (originChanged)
+                parent.markOriginChange();
             parent.setBoundingBox(parent.getOrigin().getAABB(bb));
-            parent.resetOriginChange();
-            center = parent.getBoundingBox().getCenter();
-            bbChanged = false;
-        } else if (bbChanged) {
-            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
+            if (originChanged)
+                parent.resetOriginChange();
             center = parent.getBoundingBox().getCenter();
             bbChanged = false;
         }

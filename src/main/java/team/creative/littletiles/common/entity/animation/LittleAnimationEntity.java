@@ -10,6 +10,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
@@ -56,7 +57,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     public LittleAnimationEntity(Level level, LittleSubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
-        super(LittleTilesRegistry.ENTITY_ANIMATION.get(), level, subLevel, center.baseOffset);
+        super(LittleTilesRegistry.ENTITY_ANIMATION.get(), level, subLevel, center.rotationCenter);
         setCenter(center);
         this.structure = new StructureConnection((Level) subLevel, location);
     }
@@ -73,7 +74,6 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     
     public void setCenter(StructureAbsolute center) {
         this.center = center;
-        this.subLevel.setOrigin(center.rotationCenter);
         for (OrientationAwareEntity entity : children())
             entity.parentVecOriginChange(origin);
     }
@@ -109,8 +109,14 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     @Override
+    protected Vec3d loadCenter(CompoundTag nbt) {
+        this.center = new StructureAbsolute("c", nbt);
+        return center.rotationCenter;
+    }
+    
+    @Override
     public void loadEntity(CompoundTag nbt) {
-        setCenter(new StructureAbsolute("c", nbt));
+        setCenter(center); // center half way loaded due to loadCenter called before
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("s"));
         try {
             this.structure.getStructure();
@@ -140,7 +146,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     public void initSubLevelClient(StructureAbsolute absolute, CompoundTag extraData) {
-        setSubLevel(SubServerLevel.createSubLevel(level));
+        setSubLevel(SubServerLevel.createSubLevel(level), absolute.rotationCenter);
         setCenter(absolute);
         ((LittleAnimationLevel) subLevel).renderManager = new LittleAnimationRenderManager(this);
         loadBlocks(extraData);
