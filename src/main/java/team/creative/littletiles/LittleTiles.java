@@ -70,6 +70,7 @@ import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
 import team.creative.littletiles.common.packet.entity.LittleEntityPhysicPacket;
+import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacket;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
@@ -202,6 +203,7 @@ public class LittleTiles {
         NETWORK.registerType(LittleEntityPhysicPacket.class, LittleEntityPhysicPacket::new);
         
         NETWORK.registerType(LittleAnimationInitPacket.class, LittleAnimationInitPacket::new);
+        NETWORK.registerType(LittleAnimationBlocksPacket.class, LittleAnimationBlocksPacket::new);
         
         NETWORK.registerType(LittleLevelPacket.class, LittleLevelPacket::new);
         NETWORK.registerType(LittleLevelPackets.class, LittleLevelPackets::new);

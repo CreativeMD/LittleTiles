@@ -324,7 +324,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         level.updateNeighborsAt(getBlockPos(), getBlockState().getBlock());
     }
     
-    public VoxelShape getBlockShape() {
+    private LittleBox getLittleBlockBox() {
         int minX = grid.count;
         int minY = grid.count;
         int minZ = grid.count;
@@ -341,7 +341,15 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
                 maxZ = Math.max(box.maxZ, maxZ);
             }
         }
-        return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ).getShape(grid);
+        return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+    
+    public AABB getBlockBB() {
+        return getLittleBlockBox().getBB(grid);
+    }
+    
+    public VoxelShape getBlockShape() {
+        return getLittleBlockBox().getShape(grid);
     }
     
     public void rebuildFaces() {

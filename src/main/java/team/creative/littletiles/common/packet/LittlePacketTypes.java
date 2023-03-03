@@ -29,6 +29,7 @@ import team.creative.littletiles.common.math.location.TileLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.packet.entity.animation.LittleBlockChange;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -446,5 +447,23 @@ public class LittlePacketTypes {
             }
             
         }, SignalState.class);
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<LittleBlockChange>() {
+            
+            @Override
+            protected void writeContent(LittleBlockChange content, FriendlyByteBuf buffer) {
+                buffer.writeBlockPos(content.pos());
+                if (content.block() != null) {
+                    buffer.writeBoolean(true);
+                    buffer.writeNbt(content.block());
+                } else
+                    buffer.writeBoolean(false);
+            }
+            
+            @Override
+            protected LittleBlockChange readContent(FriendlyByteBuf buffer) {
+                return new LittleBlockChange(buffer.readBlockPos(), buffer.readBoolean() ? buffer.readAnySizeNbt() : null);
+            }
+        }, LittleBlockChange.class);
     }
 }

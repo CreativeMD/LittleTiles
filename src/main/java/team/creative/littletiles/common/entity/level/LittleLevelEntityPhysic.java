@@ -19,12 +19,6 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic<LittleLevelEntit
     
     protected static final Predicate<Entity> noAnimation = x -> !(x.getFirstPassenger() instanceof INoPushEntity);
     
-    private double minX;
-    private double minY;
-    private double minZ;
-    private double maxX;
-    private double maxY;
-    private double maxZ;
     private BlockUpdateLevelSystem updateSystem;
     public boolean noCollision = false;
     
@@ -38,50 +32,13 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic<LittleLevelEntit
     }
     
     @Override
-    public void load(CompoundTag nbt) {
-        minX = nbt.getDouble("x");
-        minY = nbt.getDouble("y");
-        minZ = nbt.getDouble("z");
-        maxX = nbt.getDouble("x2");
-        maxY = nbt.getDouble("y2");
-        maxZ = nbt.getDouble("z2");
-        setBB(new AABB(minX, minY, minZ, maxX, maxY, maxZ));
+    public void loadExtra(CompoundTag nbt) {
         updateSystem.load(nbt.getCompound("bounds"));
     }
     
     @Override
-    public CompoundTag save() {
-        CompoundTag nbt = new CompoundTag();
-        nbt.putDouble("x", minX);
-        nbt.putDouble("y", minY);
-        nbt.putDouble("z", minZ);
-        nbt.putDouble("x2", maxX);
-        nbt.putDouble("y2", maxY);
-        nbt.putDouble("z2", maxZ);
+    protected void saveExtra(CompoundTag nbt) {
         nbt.put("bounds", updateSystem.save());
-        return nbt;
-    }
-    
-    public double get(Facing facing) {
-        return switch (facing) {
-            case EAST -> maxX;
-            case WEST -> minX;
-            case UP -> maxY;
-            case DOWN -> minY;
-            case SOUTH -> maxZ;
-            case NORTH -> minZ;
-        };
-    }
-    
-    public void set(Facing facing, double value) {
-        switch (facing) {
-            case EAST -> maxX = value;
-            case WEST -> minX = value;
-            case UP -> maxY = value;
-            case DOWN -> minY = value;
-            case SOUTH -> maxZ = value;
-            case NORTH -> minZ = value;
-        };
     }
     
     @Override

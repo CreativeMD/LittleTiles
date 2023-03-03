@@ -3,6 +3,7 @@ package team.creative.littletiles.common.entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTiles;
@@ -10,6 +11,12 @@ import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 public abstract class LittleEntityPhysic<T extends LittleEntity> {
     
+    protected double minX;
+    protected double minY;
+    protected double minZ;
+    protected double maxX;
+    protected double maxY;
+    protected double maxZ;
     protected boolean preventPush = false;
     private AABB bb;
     private Vec3 center;
@@ -19,6 +26,28 @@ public abstract class LittleEntityPhysic<T extends LittleEntity> {
     public LittleEntityPhysic(T parent) {
         this.parent = parent;
         this.bb = parent.getBoundingBox();
+    }
+    
+    public double get(Facing facing) {
+        return switch (facing) {
+            case EAST -> maxX;
+            case WEST -> minX;
+            case UP -> maxY;
+            case DOWN -> minY;
+            case SOUTH -> maxZ;
+            case NORTH -> minZ;
+        };
+    }
+    
+    public void set(Facing facing, double value) {
+        switch (facing) {
+            case EAST -> maxX = value;
+            case WEST -> minX = value;
+            case UP -> maxY = value;
+            case DOWN -> minY = value;
+            case SOUTH -> maxZ = value;
+            case NORTH -> minZ = value;
+        };
     }
     
     public IVecOrigin getOrigin() {
@@ -72,9 +101,32 @@ public abstract class LittleEntityPhysic<T extends LittleEntity> {
         return center;
     }
     
-    public abstract void load(CompoundTag nbt);
+    public void load(CompoundTag nbt) {
+        minX = nbt.getDouble("x");
+        minY = nbt.getDouble("y");
+        minZ = nbt.getDouble("z");
+        maxX = nbt.getDouble("x2");
+        maxY = nbt.getDouble("y2");
+        maxZ = nbt.getDouble("z2");
+        setBB(new AABB(minX, minY, minZ, maxX, maxY, maxZ));
+        loadExtra(nbt);
+    }
     
-    public abstract CompoundTag save();
+    public abstract void loadExtra(CompoundTag nbt);
+    
+    public CompoundTag save() {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putDouble("x", minX);
+        nbt.putDouble("y", minY);
+        nbt.putDouble("z", minZ);
+        nbt.putDouble("x2", maxX);
+        nbt.putDouble("y2", maxY);
+        nbt.putDouble("z2", maxZ);
+        saveExtra(nbt);
+        return nbt;
+    }
+    
+    protected abstract void saveExtra(CompoundTag nbt);
     
     public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
         if (x == 0 && y == 0 && z == 0 && rotX == 0 && rotY == 0 && rotZ == 0)

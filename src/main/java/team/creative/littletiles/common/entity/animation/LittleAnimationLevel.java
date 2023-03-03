@@ -2,6 +2,8 @@ package team.creative.littletiles.common.entity.animation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -29,7 +31,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
@@ -50,12 +51,17 @@ import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.type.itr.FilterIterator;
+import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
+import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
 
-public class LittleAnimationLevel extends Level implements LittleSubLevel {
+public class LittleAnimationLevel extends Level implements LittleSubLevel, Iterable<BETiles> {
     
     private LevelEntityGetter<Entity> entities = new LevelEntityGetter<Entity>() {
         
@@ -91,12 +97,15 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel {
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     @OnlyIn(Dist.CLIENT)
     public LittleAnimationRenderManager renderManager;
+    private HashSet<BlockPos> trackedChanges;
     
     public LittleAnimationLevel(Level level) {
         super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE)
                 .getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), level.getProfilerSupplier(), level.isClientSide, level.isDebug(), 0, 1000000);
         this.parentLevel = level;
         this.chunks = new LittleAnimationChunkCache(this);
+        if (!isClientSide)
+            this.trackedChanges = new HashSet<>();
     }
     
     @Override
@@ -193,12 +202,17 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel {
     }
     
     @Override
-    public Iterable<? extends ChunkAccess> chunks() {
+    public Iterable<LevelChunk> chunks() {
         return chunks.all();
     }
     
     @Override
     public void tick() {
+        if (!isClientSide && trackedChanges.isEmpty()) {
+            LittleTiles.NETWORK.sendToClientTracking(new LittleAnimationBlocksPacket((LittleAnimationEntity) holder, trackedChanges), holder);
+            trackedChanges.clear();
+        }
+        
         tickBlockEntities();
     }
     
@@ -214,6 +228,8 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel {
     public void sendBlockUpdated(BlockPos pos, BlockState actualState, BlockState setState, int p_104688_) {
         if (isClientSide)
             this.renderManager.blockChanged(this, pos, actualState, setState, p_104688_);
+        else
+            trackedChanges.add(pos);
     }
     
     @Override
@@ -252,6 +268,11 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel {
     public void destroyBlockProgress(int id, BlockPos pos, int progress) {
         if (isClientSide)
             renderManager.destroyBlockProgress(id, pos, progress);
+    }
+    
+    @Override
+    public Iterator<BETiles> iterator() {
+        return new NestedFunctionIterator<BETiles>(chunks(), x -> () -> new FilterIterator<>(x.getBlockEntities().values(), BETiles.class));
     }
     
     @Override
