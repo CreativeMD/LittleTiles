@@ -9,7 +9,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.LevelChunk;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.entity.level.LittleLevelPacketListener;
 import team.creative.littletiles.common.packet.entity.LittleEntityPacket;
 import team.creative.littletiles.server.level.little.LittleChunkMap;
 import team.creative.littletiles.server.level.little.LittleServerChunkCache;
@@ -36,7 +36,7 @@ public class LittleLevelInitPacket extends LittleEntityPacket<LittleLevelEntity>
         
         entity.initSubLevelClient(extraData);
         
-        ClientGamePacketListener listener = (ClientGamePacketListener) ((LittleLevel) entity.getSubLevel()).getPacketListener(player);
+        ClientGamePacketListener listener = (ClientGamePacketListener) ((LittleLevelPacketListener) entity.getSubLevel()).getPacketListener(player);
         for (ClientboundLevelChunkWithLightPacket packet : chunks)
             packet.handle(listener);
     }

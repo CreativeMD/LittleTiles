@@ -18,7 +18,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.PacketListener;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -176,11 +175,6 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     @Override
     public void setHolder(Entity entity) {
         this.holder = entity;
-    }
-    
-    @Override
-    public PacketListener getPacketListener(Player player) {
-        return null;
     }
     
     @Override

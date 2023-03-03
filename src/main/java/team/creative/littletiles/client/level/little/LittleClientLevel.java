@@ -38,12 +38,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
+import team.creative.littletiles.common.entity.level.LittleLevelPacketListener;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class LittleClientLevel extends ClientLevel implements LittleLevel {
+public abstract class LittleClientLevel extends ClientLevel implements LittleLevel, LittleLevelPacketListener {
     
     public Entity holder;
     public IVecOrigin origin;

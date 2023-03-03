@@ -33,12 +33,13 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.ServerLevelData;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.littletiles.common.entity.level.LittleLevelPacketListener;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.server.level.MinecraftServerAccessor;
 
-public abstract class LittleServerLevel extends ServerLevel implements LittleLevel {
+public abstract class LittleServerLevel extends ServerLevel implements LittleLevel, LittleLevelPacketListener {
     
     private static LevelStem overworldStem(MinecraftServer server) {
         Registry<LevelStem> registry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
