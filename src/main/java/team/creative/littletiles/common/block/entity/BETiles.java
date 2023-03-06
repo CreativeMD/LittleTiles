@@ -348,6 +348,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         return getLittleBlockBox().getBB(grid);
     }
     
+    public AABB getBlockBBWithOffset() {
+        return getLittleBlockBox().getBB(grid, worldPosition);
+    }
+    
     public VoxelShape getBlockShape() {
         return getLittleBlockBox().getShape(grid);
     }

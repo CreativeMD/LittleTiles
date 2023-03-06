@@ -37,7 +37,7 @@ public class LittleAnimationEntityPhysic extends LittleEntityPhysic<LittleAnimat
             for (BETiles block : parent.getSubLevel()) {
                 if (block.isEmpty() || isWithinBoundsNoEdge(block.getBlockPos()))
                     continue;
-                AABB bb = block.getBlockBB();
+                AABB bb = block.getBlockBBWithOffset();
                 minX = Math.min(minX, bb.minX);
                 minY = Math.min(minY, bb.minY);
                 minZ = Math.min(minZ, bb.minZ);
