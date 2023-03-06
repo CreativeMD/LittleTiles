@@ -56,6 +56,7 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.level.LittleInteractionHandlerClient;
+import team.creative.littletiles.client.player.LittleClientPlayerConnection;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderer;
@@ -94,6 +95,7 @@ public class LittleTilesClient {
     public static LittleInteractionHandlerClient INTERACTION_HANDLER;
     public static PreviewRenderer PREVIEW_RENDERER;
     public static ItemRenderCache ITEM_RENDER_CACHE;
+    public static LittleClientPlayerConnection PLAYER_CONNECTION;
     
     public static KeyMapping flip;
     public static KeyMapping mark;
@@ -164,6 +166,7 @@ public class LittleTilesClient {
         LEVEL_HANDLERS.register(LittleInteractionHandlerClient::new, x -> INTERACTION_HANDLER = x);
         LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
         LEVEL_HANDLERS.register(ITEM_RENDER_CACHE = new ItemRenderCache());
+        LEVEL_HANDLERS.register(PLAYER_CONNECTION = new LittleClientPlayerConnection());
         
         // Init overlays
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);

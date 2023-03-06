@@ -46,6 +46,7 @@ public class LittleAnimationEntityPhysic extends LittleEntityPhysic<LittleAnimat
                 maxZ = Math.max(maxZ, bb.maxZ);
             }
             setBB(new AABB(minX, minY, minZ, maxX, maxY, maxZ));
+            blocksChanged = false;
         }
     }
     

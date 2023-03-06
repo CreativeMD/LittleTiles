@@ -3,6 +3,7 @@ package team.creative.littletiles.client.level;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.client.multiplayer.prediction.PredictiveAction;
@@ -42,7 +43,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
-import team.creative.littletiles.client.level.little.LittleClientLevel;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.level.handler.LevelHandler;
 import team.creative.littletiles.mixin.client.MultiPlayerGameModeAccessor;
 import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
@@ -51,7 +52,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     
     private static Minecraft mc = Minecraft.getInstance();
     
-    private LittleClientLevel destroyLevel;
+    private Level destroyLevel;
     private BlockPos destroyBlockPos = new BlockPos(-1, -1, -1);
     private ItemStack destroyingItem = ItemStack.EMPTY;
     private float destroyProgress;
@@ -78,7 +79,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         ((MultiPlayerGameModeAccessor) mc.gameMode).callEnsureHasSentCarriedItem();
     }
     
-    public boolean destroyBlock(LittleClientLevel level, BlockPos pos) {
+    public boolean destroyBlock(Level level, BlockPos pos) {
         Player player = getPlayer();
         if (player.getMainHandItem().onBlockStartBreak(pos, player))
             return false;
@@ -104,7 +105,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return flag;
     }
     
-    public boolean startDestroyBlock(LittleClientLevel level, BlockPos pos, Direction direction) {
+    public boolean startDestroyBlock(Level level, BlockPos pos, Direction direction) {
         Player player = getPlayer();
         if (player.blockActionRestricted(level, pos, getGameMode()))
             return false;
@@ -114,7 +115,8 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         
         if (getGameMode().isCreative()) {
             BlockState blockstate = level.getBlockState(pos);
-            mc.getTutorial().onDestroyBlock(level, pos, blockstate, 1.0F);
+            if (level instanceof ClientLevel client)
+                mc.getTutorial().onDestroyBlock(client, pos, blockstate, 1.0F);
             this.startPrediction(level, (sequence) -> {
                 if (!ForgeHooks.onLeftClickBlock(player, pos, direction).isCanceled())
                     this.destroyBlock(level, pos);
@@ -126,11 +128,13 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         
         if (!this.isDestroying || !this.sameDestroyTarget(level, pos)) {
             if (this.isDestroying)
-                level.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, direction));
+                LittleTilesClient.PLAYER_CONNECTION
+                        .send(level, new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, direction));
             PlayerInteractEvent.LeftClickBlock event = ForgeHooks.onLeftClickBlock(player, pos, direction);
             
             BlockState blockstate1 = level.getBlockState(pos);
-            mc.getTutorial().onDestroyBlock(level, pos, blockstate1, 0.0F);
+            if (level instanceof ClientLevel client)
+                mc.getTutorial().onDestroyBlock(client, pos, blockstate1, 0.0F);
             this.startPrediction(level, (sequence) -> {
                 boolean flag = !blockstate1.isAir();
                 if (flag && this.destroyProgress == 0.0F)
@@ -164,18 +168,20 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         if (this.isDestroying) {
             Player player = getPlayer();
             BlockState blockstate = destroyLevel.getBlockState(this.destroyBlockPos);
-            mc.getTutorial().onDestroyBlock(destroyLevel, this.destroyBlockPos, blockstate, -1.0F);
-            destroyLevel.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, Direction.DOWN));
+            if (destroyLevel instanceof ClientLevel client)
+                mc.getTutorial().onDestroyBlock(client, this.destroyBlockPos, blockstate, -1.0F);
+            LittleTilesClient.PLAYER_CONNECTION
+                    .send(destroyLevel, new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, Direction.DOWN));
             this.isDestroying = false;
+            this.destroyLevel.destroyBlockProgress(player.getId(), this.destroyBlockPos, -1);
             this.destroyLevel = null;
             this.destroyProgress = 0.0F;
-            level.destroyBlockProgress(player.getId(), this.destroyBlockPos, -1);
             player.resetAttackStrengthTicker();
         }
         
     }
     
-    public boolean continueDestroyBlock(LittleClientLevel level, BlockPos pos, Direction direction) {
+    public boolean continueDestroyBlock(Level level, BlockPos pos, Direction direction) {
         ensureHasSentCarriedItem();
         if (((MultiPlayerGameModeAccessor) mc.gameMode).getDestroyDelay() > 0) {
             ((MultiPlayerGameModeAccessor) mc.gameMode).setDestroyDelay(((MultiPlayerGameModeAccessor) mc.gameMode).getDestroyDelay() - 1);
@@ -187,7 +193,8 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         if (getGameMode().isCreative() && level.getWorldBorder().isWithinBounds(pos)) {
             ((MultiPlayerGameModeAccessor) mc.gameMode).setDestroyDelay(5);
             BlockState blockstate1 = level.getBlockState(pos);
-            mc.getTutorial().onDestroyBlock(level, pos, blockstate1, 1.0F);
+            if (level instanceof ClientLevel client)
+                mc.getTutorial().onDestroyBlock(client, pos, blockstate1, 1.0F);
             this.startPrediction(level, (sequence) -> {
                 if (!ForgeHooks.onLeftClickBlock(player, pos, direction).isCanceled())
                     this.destroyBlock(level, pos);
@@ -212,7 +219,8 @@ public class LittleInteractionHandlerClient extends LevelHandler {
             }
             
             ++this.destroyTicks;
-            mc.getTutorial().onDestroyBlock(level, pos, blockstate, Mth.clamp(this.destroyProgress, 0.0F, 1.0F));
+            if (level instanceof ClientLevel client)
+                mc.getTutorial().onDestroyBlock(client, pos, blockstate, Mth.clamp(this.destroyProgress, 0.0F, 1.0F));
             if (ForgeHooks.onLeftClickBlock(player, pos, direction).getUseItem() == Event.Result.DENY)
                 return true;
             if (this.destroyProgress >= 1.0F) {
@@ -233,11 +241,11 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return this.startDestroyBlock(level, pos, direction);
     }
     
-    private void startPrediction(LittleClientLevel level, PredictiveAction p_233731_) {
+    private void startPrediction(Level level, PredictiveAction action) {
         try (BlockStatePredictionHandler blockstatepredictionhandler = ((ClientLevelAccessor) level).callGetBlockStatePredictionHandler().startPredicting()) {
             int i = blockstatepredictionhandler.currentSequence();
-            Packet<ServerGamePacketListener> packet = p_233731_.predict(i);
-            level.connection.send(packet);
+            Packet<ServerGamePacketListener> packet = action.predict(i);
+            LittleTilesClient.PLAYER_CONNECTION.send(level, packet);
         }
         
     }
@@ -246,7 +254,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return (float) getPlayer().getReachDistance();
     }
     
-    private boolean sameDestroyTarget(LittleClientLevel level, BlockPos pos) {
+    private boolean sameDestroyTarget(Level level, BlockPos pos) {
         if (level != destroyLevel)
             return false;
         ItemStack itemstack = getPlayer().getMainHandItem();
@@ -257,7 +265,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return pos.equals(this.destroyBlockPos) && flag;
     }
     
-    public InteractionResult useItemOn(LittleClientLevel level, LocalPlayer player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult useItemOn(Level level, LocalPlayer player, InteractionHand hand, BlockHitResult result) {
         ensureHasSentCarriedItem();
         if (!level.getWorldBorder().isWithinBounds(result.getBlockPos()))
             return InteractionResult.FAIL;
@@ -269,7 +277,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return mutableobject.getValue();
     }
     
-    private InteractionResult performUseItemOn(LittleClientLevel level, LocalPlayer player, InteractionHand hand, BlockHitResult hit) {
+    private InteractionResult performUseItemOn(Level level, LocalPlayer player, InteractionHand hand, BlockHitResult hit) {
         BlockPos blockpos = hit.getBlockPos();
         ItemStack itemstack = player.getItemInHand(hand);
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock(player, hand, blockpos, hit);
@@ -315,7 +323,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return InteractionResult.PASS;
     }
     
-    public InteractionResult useItem(LittleClientLevel level, Player player, InteractionHand hand) {
+    public InteractionResult useItem(Level level, Player player, InteractionHand hand) {
         if (this.getGameMode() == GameType.SPECTATOR)
             return InteractionResult.PASS;
         this.ensureHasSentCarriedItem();
@@ -348,25 +356,25 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return mutableobject.getValue();
     }
     
-    public void attack(LittleClientLevel level, Player player, Entity entity) {
+    public void attack(Level level, Player player, Entity entity) {
         ensureHasSentCarriedItem();
-        level.connection.send(ServerboundInteractPacket.createAttackPacket(entity, player.isShiftKeyDown()));
+        LittleTilesClient.PLAYER_CONNECTION.send(level, ServerboundInteractPacket.createAttackPacket(entity, player.isShiftKeyDown()));
         if (this.getGameMode() != GameType.SPECTATOR) {
             player.attack(entity);
             player.resetAttackStrengthTicker();
         }
     }
     
-    public InteractionResult interact(LittleClientLevel level, Player player, Entity entity, InteractionHand hand) {
+    public InteractionResult interact(Level level, Player player, Entity entity, InteractionHand hand) {
         this.ensureHasSentCarriedItem();
-        level.connection.send(ServerboundInteractPacket.createInteractionPacket(entity, player.isShiftKeyDown(), hand));
+        LittleTilesClient.PLAYER_CONNECTION.send(level, ServerboundInteractPacket.createInteractionPacket(entity, player.isShiftKeyDown(), hand));
         return this.getGameMode() == GameType.SPECTATOR ? InteractionResult.PASS : player.interactOn(entity, hand);
     }
     
-    public InteractionResult interactAt(LittleClientLevel level, Player player, Entity entity, EntityHitResult hit, InteractionHand hand) {
+    public InteractionResult interactAt(Level level, Player player, Entity entity, EntityHitResult hit, InteractionHand hand) {
         this.ensureHasSentCarriedItem();
         Vec3 vec3 = hit.getLocation().subtract(entity.getX(), entity.getY(), entity.getZ());
-        level.connection.send(ServerboundInteractPacket.createInteractionPacket(entity, player.isShiftKeyDown(), hand, vec3));
+        LittleTilesClient.PLAYER_CONNECTION.send(level, ServerboundInteractPacket.createInteractionPacket(entity, player.isShiftKeyDown(), hand, vec3));
         if (this.getGameMode() == GameType.SPECTATOR)
             return InteractionResult.PASS; // don't fire for spectators to match non-specific EntityInteract
         InteractionResult cancelResult = ForgeHooks.onInteractEntityAt(player, entity, hit, hand);
@@ -375,9 +383,9 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         return this.getGameMode() == GameType.SPECTATOR ? InteractionResult.PASS : entity.interactAt(player, vec3, hand);
     }
     
-    public void releaseUsingItem(LittleClientLevel level, Player player) {
+    public void releaseUsingItem(Level level, Player player) {
         this.ensureHasSentCarriedItem();
-        level.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.RELEASE_USE_ITEM, BlockPos.ZERO, Direction.DOWN));
+        LittleTilesClient.PLAYER_CONNECTION.send(level, new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.RELEASE_USE_ITEM, BlockPos.ZERO, Direction.DOWN));
         player.releaseUsingItem();
     }
     

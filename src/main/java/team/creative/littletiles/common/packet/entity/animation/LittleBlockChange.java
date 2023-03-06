@@ -20,6 +20,10 @@ public record LittleBlockChange(BlockPos pos, CompoundTag block) {
         this(pos, get(level, pos));
     }
     
+    public LittleBlockChange(BETiles entity) {
+        this(entity.getBlockPos(), LittleAnimationEntity.saveBE(entity));
+    }
+    
     public boolean isEmpty() {
         return block == null;
     }

@@ -27,7 +27,6 @@ import team.creative.littletiles.common.structure.connection.direct.StructureCon
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
-import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhysic> {
     
@@ -146,11 +145,18 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     public void initSubLevelClient(StructureAbsolute absolute, CompoundTag extraData) {
-        setSubLevel(SubServerLevel.createSubLevel(level), absolute.rotationCenter);
+        setSubLevel(new LittleAnimationLevel(level), absolute.rotationCenter);
         setCenter(absolute);
         ((LittleAnimationLevel) subLevel).renderManager = new LittleAnimationRenderManager(this);
         loadBlocks(extraData);
         physic.load(extraData.getCompound("physic"));
+    }
+    
+    @Override
+    public void performTick() {
+        super.performTick();
+        if (!level.isClientSide && getSubLevel().isEmpty())
+            destroyAnimation();
     }
     
     @Override

@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -37,17 +38,17 @@ public class FakeClientLevel extends LittleClientLevel {
     }
     
     protected FakeClientLevel(ClientLevelData worldInfo, Supplier<ProfilerFiller> supplier, boolean debug, long seed) {
-        super(null, worldInfo, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
+        super(worldInfo, OVERWORLD, supplier, debug, seed, Minecraft.getInstance().getConnection().registryAccess());
         effects = DimensionSpecialEffects.forType(dimensionType());
     }
     
     @Override
-    public UUID key() {
-        return null;
+    public FeatureFlagSet enabledFeatures() {
+        return FeatureFlagSet.of();
     }
     
     @Override
-    protected LittleClientConnection createConnection() {
+    public UUID key() {
         return null;
     }
     

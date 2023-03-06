@@ -46,7 +46,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     
     private final Map<RenderType, VertexBuffer> buffers = new HashMap<>();
     private final Set<RenderType> hasBlocks = new ObjectArraySet<>(RenderType.chunkBufferLayers().size());
-    private List<BlockEntity> renderableBlockEntities;
+    private List<BlockEntity> renderableBlockEntities = new ArrayList<>();
     private BufferBuilder.SortState transparencyState;
     private boolean needsUpdate = false;
     
@@ -74,7 +74,10 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     
     @Override
     public VertexBuffer getVertexBuffer(RenderType layer) {
-        return this.buffers.get(layer);
+        VertexBuffer buffer = this.buffers.get(layer);
+        if (buffer == null)
+            this.buffers.put(layer, buffer = new VertexBuffer());
+        return buffer;
     }
     
     @Override

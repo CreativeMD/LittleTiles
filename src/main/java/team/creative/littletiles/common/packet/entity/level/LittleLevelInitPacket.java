@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.LevelChunk;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.entity.level.LittleLevelPacketListener;
 import team.creative.littletiles.common.packet.entity.LittleEntityPacket;
 import team.creative.littletiles.server.level.little.LittleChunkMap;
 import team.creative.littletiles.server.level.little.LittleServerChunkCache;
@@ -36,9 +35,11 @@ public class LittleLevelInitPacket extends LittleEntityPacket<LittleLevelEntity>
         
         entity.initSubLevelClient(extraData);
         
-        ClientGamePacketListener listener = (ClientGamePacketListener) ((LittleLevelPacketListener) entity.getSubLevel()).getPacketListener(player);
-        for (ClientboundLevelChunkWithLightPacket packet : chunks)
-            packet.handle(listener);
+        LittleTilesClient.PLAYER_CONNECTION.runInContext(entity.getSubLevel(), x -> {
+            for (ClientboundLevelChunkWithLightPacket packet : chunks)
+                packet.handle(x);
+        });
+        
     }
     
 }

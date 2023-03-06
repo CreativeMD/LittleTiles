@@ -3,12 +3,11 @@ package team.creative.littletiles.common.packet.entity.level;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.player.Player;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
-import team.creative.littletiles.common.entity.level.LittleLevelPacketListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.level.little.LittlePlayerConnection;
 import team.creative.littletiles.common.packet.entity.LittleEntityPacket;
 
 public class LittleLevelPackets extends LittleEntityPacket<LittleLevelEntity> {
@@ -29,9 +28,10 @@ public class LittleLevelPackets extends LittleEntityPacket<LittleLevelEntity> {
     
     @Override
     public void execute(Player player, LittleLevelEntity entity) {
-        PacketListener listener = ((LittleLevelPacketListener) entity.getSubLevel()).getPacketListener(player);
-        for (Packet packet : packets)
-            packet.handle(listener);
+        LittlePlayerConnection.runInContext(entity.getSubLevel(), player, x -> {
+            for (Packet packet : packets)
+                packet.handle(x);
+        });
     }
     
 }

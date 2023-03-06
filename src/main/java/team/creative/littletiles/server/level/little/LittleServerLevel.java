@@ -16,14 +16,12 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -33,13 +31,13 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.ServerLevelData;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.littletiles.common.entity.level.LittleLevelPacketListener;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.server.level.MinecraftServerAccessor;
+import team.creative.littletiles.server.player.LittleServerPlayerConnection;
 
-public abstract class LittleServerLevel extends ServerLevel implements LittleLevel, LittleLevelPacketListener {
+public abstract class LittleServerLevel extends ServerLevel implements LittleLevel {
     
     private static LevelStem overworldStem(MinecraftServer server) {
         Registry<LevelStem> registry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
@@ -49,7 +47,6 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     public Entity holder;
     public IVecOrigin origin;
     
-    public final LittleServerPlayerConnections connections = new LittleServerPlayerConnections();
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     public boolean hasChanged = false;
     public boolean preventNeighborUpdate = false;
@@ -60,16 +57,6 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
         super(server, Util.backgroundExecutor(), ((MinecraftServerAccessor) server)
                 .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false);
         this.access = access;
-    }
-    
-    @Override
-    public void stopTracking(ServerPlayer player) {
-        connections.remove(player);
-    }
-    
-    @Override
-    public PacketListener getPacketListener(Player player) {
-        return connections.getOrCreate(this, (ServerPlayer) player);
     }
     
     @Override
@@ -164,7 +151,6 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     public void tick() {
         while (getChunkSource().pollTask()) {}
         tick(((MinecraftServerAccessor) getServer())::callHaveTime);
-        connections.tick();
     }
     
     @Override
@@ -194,7 +180,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
                 double d1 = pos.getY() - serverplayer.getY();
                 double d2 = pos.getZ() - serverplayer.getZ();
                 if (d0 * d0 + d1 * d1 + d2 * d2 < 1024.0D)
-                    connections.getOrCreate(this, serverplayer).send(new ClientboundBlockDestructionPacket(id, pos, progress));
+                    LittleServerPlayerConnection.send(this, serverplayer, new ClientboundBlockDestructionPacket(id, pos, progress));
             }
         }
         

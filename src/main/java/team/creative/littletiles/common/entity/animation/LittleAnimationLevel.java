@@ -18,7 +18,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer;
@@ -210,9 +209,6 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public void stopTracking(ServerPlayer player) {}
-    
-    @Override
     public void registerBlockChangeListener(LevelBlockChangeListener listener) {
         blockChangeListeners.add(listener);
     }
@@ -401,5 +397,12 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     @Override
     public FeatureFlagSet enabledFeatures() {
         return getParent().enabledFeatures();
+    }
+    
+    public boolean isEmpty() {
+        for (LevelChunk chunk : chunks())
+            if (!chunk.getBlockEntities().isEmpty())
+                return false;
+        return true;
     }
 }

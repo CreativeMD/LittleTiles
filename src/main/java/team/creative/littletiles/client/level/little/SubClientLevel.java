@@ -38,8 +38,7 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     public boolean shouldRender;
     
     public SubClientLevel(Level parent) {
-        super(LittleClientPacketListener.allocateInstance(), (ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent
-                .registryAccess());
+        super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
         this.parentLevel = parent;
         this.gatherCapabilities();
     }
@@ -47,11 +46,6 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     @Override
     public UUID key() {
         return getHolder().getUUID();
-    }
-    
-    @Override
-    protected LittleClientConnection createConnection() {
-        return new LittleClientConnection(this);
     }
     
     @Override

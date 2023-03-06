@@ -14,11 +14,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,14 +38,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
-import team.creative.littletiles.common.entity.level.LittleLevelPacketListener;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class LittleClientLevel extends ClientLevel implements LittleLevel, LittleLevelPacketListener {
+public abstract class LittleClientLevel extends ClientLevel implements LittleLevel {
     
     public Entity holder;
     public IVecOrigin origin;
@@ -53,30 +54,32 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     
     private RegistryAccess access;
     public LittleLevelRenderManager renderManager;
-    public final LittleClientConnection connection;
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     
-    protected LittleClientLevel(LittleClientPacketListener listener, ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
-        super(listener, data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
+    protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
+        super(null, data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
         this.access = access;
-        this.connection = createConnection();
-        if (listener != null)
-            listener.init(Minecraft.getInstance(), this, data, connection);
     }
     
-    protected abstract LittleClientConnection createConnection();
-    
     @Override
-    public void stopTracking(ServerPlayer player) {}
-    
-    @Override
-    public LittleClientPacketListener getPacketListener(Player player) {
-        return (LittleClientPacketListener) ((ClientLevelAccessor) this).getConnection();
+    public void sendPacketToServer(Packet packet) {
+        LittleTilesClient.PLAYER_CONNECTION.send((LittleLevel) this, packet);
     }
+    
+    @Override
+    public abstract RecipeManager getRecipeManager();
+    
+    @Override
+    public abstract FeatureFlagSet enabledFeatures();
     
     @Override
     public LevelEntityGetter<Entity> getEntities() {
         return super.getEntities();
+    }
+    
+    @Override
+    public void disconnect() {
+        Minecraft.getInstance().level.disconnect();
     }
     
     @Override

@@ -1,35 +1,24 @@
 package team.creative.littletiles.mixin.client.network;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 
 @Mixin(ClientPacketListener.class)
 public interface ClientPacketListenerAccessor {
     
     @Accessor
-    @Mutable
-    public void setMinecraft(Minecraft mc);
+    public RandomSource getRandom();
     
-    @Accessor
-    public Minecraft getMinecraft();
+    @Invoker
+    public void callPostAddEntitySoundInstance(Entity entity);
     
-    @Accessor
-    public void setLevel(ClientLevel level);
-    
-    @Accessor
-    public ClientLevel getLevel();
-    
-    @Accessor
-    public void setLevelData(ClientLevel.ClientLevelData data);
-    
-    @Accessor
-    @Mutable
-    public void setConnection(Connection con);
+    @Invoker
+    public void callApplyLightData(int x, int z, ClientboundLightUpdatePacketData data);
     
 }

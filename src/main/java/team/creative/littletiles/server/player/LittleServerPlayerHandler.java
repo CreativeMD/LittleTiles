@@ -1,4 +1,4 @@
-package team.creative.littletiles.server.level.little;
+package team.creative.littletiles.server.player;
 
 import java.util.List;
 import java.util.Objects;
@@ -9,6 +9,9 @@ import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.Logger;
 
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -23,7 +26,6 @@ import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundTagQueryPacket;
@@ -78,6 +80,8 @@ import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.RunningOnDifferentThreadException;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -116,6 +120,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
 import team.creative.littletiles.mixin.server.network.ServerGamePacketListenerImplAccessor;
 
@@ -125,22 +130,35 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     private final MinecraftServer server;
     public final ServerPlayer player;
     
-    protected LittleServerLevel level;
+    public Level level;
     
     private boolean isDestroyingBlock;
     private int destroyProgressStart;
     private BlockPos destroyPos = BlockPos.ZERO;
+    private Level destroyLevel;
     private int gameTicks;
     private boolean hasDelayedDestroy;
     private BlockPos delayedDestroyPos = BlockPos.ZERO;
     private int delayedTickStart;
     private int lastSentState = -1;
-    private int ackBlockChangesUpTo = -1;
+    private Object2IntMap<Level> ackBlockChanges = new Object2IntArrayMap<>();
     
-    public LittleServerPlayerHandler(LittleServerLevel level, ServerPlayer player) {
+    LittleServerPlayerHandler(ServerPlayer player) {
         this.server = player.getServer();
-        this.level = level;
         this.player = player;
+    }
+    
+    public void ensureRunningOnSameThread(Packet packet) throws RunningOnDifferentThreadException {
+        if (!server.isSameThread()) {
+            server.executeIfPossible(() -> LittleServerPlayerConnection.runInContext((LittleLevel) level, player, x -> packet.handle(x)));
+            throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
+        }
+    }
+    
+    public ServerLevel requiresServerLevel() {
+        if (level instanceof ServerLevel s)
+            return s;
+        throw new RuntimeException("Cannot run this packet on this level " + level);
     }
     
     @Override
@@ -194,7 +212,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleSetCommandBlock(ServerboundSetCommandBlockPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
         if (!this.server.isCommandBlockEnabled())
             this.player.sendSystemMessage(Component.translatable("advMode.notEnabled"));
         else if (!this.player.canUseGameMasterBlocks())
@@ -248,7 +266,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleSetCommandMinecart(ServerboundSetCommandMinecartPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
         if (!this.server.isCommandBlockEnabled())
             this.player.sendSystemMessage(Component.translatable("advMode.notEnabled"));
         else if (!this.player.canUseGameMasterBlocks())
@@ -285,7 +303,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleSetStructureBlock(ServerboundSetStructureBlockPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
+        ServerLevel level = requiresServerLevel();
         if (this.player.canUseGameMasterBlocks()) {
             BlockPos blockpos = packet.getPos();
             BlockState blockstate = level.getBlockState(blockpos);
@@ -334,7 +353,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleSetJigsawBlock(ServerboundSetJigsawBlockPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
         if (this.player.canUseGameMasterBlocks()) {
             BlockPos blockpos = packet.getPos();
             BlockState blockstate = level.getBlockState(blockpos);
@@ -354,7 +373,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleJigsawGenerate(ServerboundJigsawGeneratePacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
+        ServerLevel level = requiresServerLevel();
         if (this.player.canUseGameMasterBlocks()) {
             BlockEntity blockentity = level.getBlockEntity(packet.getPos());
             if (blockentity instanceof JigsawBlockEntity jigsawblockentity)
@@ -374,7 +394,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleEntityTagQuery(ServerboundEntityTagQuery packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
         if (this.player.hasPermissions(2)) {
             Entity entity = level.getEntity(packet.getEntityId());
             if (entity != null)
@@ -384,7 +404,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
         if (this.player.hasPermissions(2)) {
             BlockEntity blockentity = level.getBlockEntity(packet.getPos());
             CompoundTag compoundtag = blockentity != null ? blockentity.saveWithoutMetadata() : null;
@@ -399,37 +419,21 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handlePlayerAction(ServerboundPlayerActionPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
+        ensureRunningOnSameThread(packet);
         BlockPos blockpos = packet.getPos();
         this.player.resetLastActionTime();
         switch (packet.getAction()) {
             case SWAP_ITEM_WITH_OFFHAND:
-                if (!this.player.isSpectator()) {
-                    ItemStack itemstack = this.player.getItemInHand(InteractionHand.OFF_HAND);
-                    this.player.setItemInHand(InteractionHand.OFF_HAND, this.player.getItemInHand(InteractionHand.MAIN_HAND));
-                    this.player.setItemInHand(InteractionHand.MAIN_HAND, itemstack);
-                    this.player.stopUsingItem();
-                }
-                
-                return;
             case DROP_ITEM:
-                if (!this.player.isSpectator())
-                    this.player.drop(false);
-                
-                return;
             case DROP_ALL_ITEMS:
-                if (!this.player.isSpectator())
-                    this.player.drop(true);
-                
-                return;
             case RELEASE_USE_ITEM:
-                this.player.releaseUsingItem();
+                getVanilla().handlePlayerAction(packet);
                 return;
             case START_DESTROY_BLOCK:
             case ABORT_DESTROY_BLOCK:
             case STOP_DESTROY_BLOCK:
                 handleBlockBreakAction(blockpos, packet.getAction(), packet.getDirection(), level.getMaxBuildHeight(), packet.getSequence());
-                ackBlockChangesUpTo(packet.getSequence());
+                ackBlockChangesUpTo(level, packet.getSequence());
                 return;
             default:
                 throw new IllegalArgumentException("Invalid player action");
@@ -445,8 +449,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleUseItemOn(ServerboundUseItemOnPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
-        ackBlockChangesUpTo(packet.getSequence());
+        ensureRunningOnSameThread(packet);
+        ackBlockChangesUpTo(level, packet.getSequence());
         InteractionHand interactionhand = packet.getHand();
         ItemStack itemstack = this.player.getItemInHand(interactionhand);
         if (itemstack.isItemEnabled(level.enabledFeatures())) {
@@ -462,7 +466,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                     int i = level.getMaxBuildHeight();
                     if (blockpos.getY() < i) {
                         if (((ServerGamePacketListenerImplAccessor) getVanilla()).getAwaitingPositionFromClient() == null && level.mayInteract(this.player, blockpos)) {
-                            InteractionResult interactionresult = useItemOn(this.player, itemstack, interactionhand, blockhitresult);
+                            InteractionResult interactionresult = useItemOn(level, itemstack, interactionhand, blockhitresult);
                             if (direction == Direction.UP && !interactionresult.consumesAction() && blockpos.getY() >= i - 1 && wasBlockPlacementAttempt(this.player, itemstack)) {
                                 Component component = Component.translatable("build.tooHigh", i - 1).withStyle(ChatFormatting.RED);
                                 this.player.sendSystemMessage(component, true);
@@ -484,13 +488,13 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void handleUseItem(ServerboundUseItemPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, level);
-        this.ackBlockChangesUpTo(packet.getSequence());
+        ensureRunningOnSameThread(packet);
+        this.ackBlockChangesUpTo(level, packet.getSequence());
         InteractionHand interactionhand = packet.getHand();
         ItemStack itemstack = this.player.getItemInHand(interactionhand);
         this.player.resetLastActionTime();
         if (!itemstack.isEmpty() && itemstack.isItemEnabled(level.enabledFeatures()))
-            if (useItem(this.player, itemstack, interactionhand).shouldSwing())
+            if (useItem(level, itemstack, interactionhand).shouldSwing())
                 this.player.swing(interactionhand, true);
     }
     
@@ -519,20 +523,24 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         getVanilla().onDisconnect(component);
     }
     
-    public void ackBlockChangesUpTo(int sequence) {
+    public void ackBlockChangesUpTo(Level level, int sequence) {
         if (sequence < 0)
             throw new IllegalArgumentException("Expected packet sequence nr >= 0");
-        this.ackBlockChangesUpTo = Math.max(sequence, this.ackBlockChangesUpTo);
+        ackBlockChanges.put(level, Math.max(sequence, ackBlockChanges.getOrDefault(level, -1)));
     }
     
     @Override
     public void send(Packet<?> packet) {
-        this.send(packet, (PacketSendListener) null);
+        send(level, packet);
     }
     
-    public void send(Packet<?> packet, @Nullable PacketSendListener listener) {
+    public void send(Level level, Packet<?> packet) {
+        send(level, packet, null);
+    }
+    
+    public void send(Level level, Packet<?> packet, @Nullable PacketSendListener listener) {
         try {
-            LittleTiles.NETWORK.sendToClient(new LittleLevelPacket(level, packet), player);
+            LittleTiles.NETWORK.sendToClient(new LittleLevelPacket((LittleLevel) level, packet), player);
             if (listener != null)
                 listener.onSuccess();
         } catch (Throwable throwable) {
@@ -681,41 +689,44 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     @Override
     public void tick() {
-        if (this.ackBlockChangesUpTo > -1) {
-            this.send(new ClientboundBlockChangedAckPacket(this.ackBlockChangesUpTo));
-            this.ackBlockChangesUpTo = -1;
+        if (!ackBlockChanges.isEmpty()) {
+            for (Entry<Level> entry : ackBlockChanges.object2IntEntrySet())
+                this.send(entry.getKey(), new ClientboundBlockChangedAckPacket(entry.getIntValue()));
+            ackBlockChanges.clear();
         }
         
         ++this.gameTicks;
         if (this.hasDelayedDestroy) {
-            BlockState blockstate = this.level.getBlockState(this.delayedDestroyPos);
+            BlockState blockstate = destroyLevel.getBlockState(this.delayedDestroyPos);
             if (blockstate.isAir())
                 this.hasDelayedDestroy = false;
             else {
-                float f = this.incrementDestroyProgress(blockstate, this.delayedDestroyPos, this.delayedTickStart);
+                float f = this.incrementDestroyProgress(destroyLevel, blockstate, this.delayedDestroyPos, this.delayedTickStart);
                 if (f >= 1.0F) {
                     this.hasDelayedDestroy = false;
-                    this.destroyBlock(this.delayedDestroyPos);
+                    this.destroyBlock(destroyLevel, this.delayedDestroyPos);
+                    destroyLevel = null;
                 }
             }
         } else if (this.isDestroyingBlock) {
-            BlockState blockstate1 = this.level.getBlockState(this.destroyPos);
+            BlockState blockstate1 = destroyLevel.getBlockState(this.destroyPos);
             if (blockstate1.isAir()) {
-                this.level.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
+                destroyLevel.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
                 this.lastSentState = -1;
                 this.isDestroyingBlock = false;
+                destroyLevel = null;
             } else
-                this.incrementDestroyProgress(blockstate1, this.destroyPos, this.destroyProgressStart);
+                this.incrementDestroyProgress(destroyLevel, blockstate1, this.destroyPos, this.destroyProgressStart);
         }
         
     }
     
-    private float incrementDestroyProgress(BlockState state, BlockPos pos, int ticks) {
+    private float incrementDestroyProgress(Level level, BlockState state, BlockPos pos, int ticks) {
         int i = this.gameTicks - ticks;
         float f = state.getDestroyProgress(this.player, level, pos) * (i + 1);
         int j = (int) (f * 10.0F);
         if (j != this.lastSentState) {
-            this.level.destroyBlockProgress(this.player.getId(), pos, j);
+            level.destroyBlockProgress(this.player.getId(), pos, j);
             this.lastSentState = j;
         }
         
@@ -740,61 +751,63 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         if (!this.player.canInteractWith(pos, 1))
             this.debugLogging(pos, false, sequence, "too far");
         else if (pos.getY() >= buildHeight) {
-            send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));
+            send(new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
             this.debugLogging(pos, false, sequence, "too high");
         } else {
             if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
-                if (!this.level.mayInteract(this.player, pos)) {
-                    send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));
+                if (!level.mayInteract(this.player, pos)) {
+                    send(new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
                     this.debugLogging(pos, false, sequence, "may not interact");
                     return;
                 }
                 
                 if (this.isCreative()) {
-                    this.destroyAndAck(pos, sequence, "creative destroy");
+                    this.destroyAndAck(level, pos, sequence, "creative destroy");
                     return;
                 }
                 
-                if (this.player.blockActionRestricted(this.level, pos, getGameMode())) {
-                    send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));
+                if (this.player.blockActionRestricted(level, pos, getGameMode())) {
+                    send(new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
                     this.debugLogging(pos, false, sequence, "block action restricted");
                     return;
                 }
                 
                 this.destroyProgressStart = this.gameTicks;
                 float f = 1.0F;
-                BlockState blockstate = this.level.getBlockState(pos);
+                BlockState blockstate = level.getBlockState(pos);
                 if (!blockstate.isAir()) {
                     if (event.getUseBlock() != Event.Result.DENY)
-                        blockstate.attack(this.level, pos, this.player);
+                        blockstate.attack(level, pos, this.player);
                     f = blockstate.getDestroyProgress(this.player, level, pos);
                 }
                 
                 if (!blockstate.isAir() && f >= 1.0F) {
-                    this.destroyAndAck(pos, sequence, "insta mine");
+                    this.destroyAndAck(level, pos, sequence, "insta mine");
                 } else {
                     if (this.isDestroyingBlock) {
-                        send(new ClientboundBlockUpdatePacket(this.destroyPos, this.level.getBlockState(this.destroyPos)));
+                        send(new ClientboundBlockUpdatePacket(this.destroyPos, level.getBlockState(this.destroyPos)));
                         this.debugLogging(pos, false, sequence, "abort destroying since another started (client insta mine, server disagreed)");
                     }
                     
                     this.isDestroyingBlock = true;
                     this.destroyPos = pos.immutable();
+                    this.destroyLevel = level;
                     int i = (int) (f * 10.0F);
-                    this.level.destroyBlockProgress(this.player.getId(), pos, i);
+                    level.destroyBlockProgress(this.player.getId(), pos, i);
                     this.debugLogging(pos, true, sequence, "actual start of destroying");
                     this.lastSentState = i;
                 }
             } else if (action == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK) {
-                if (pos.equals(this.destroyPos)) {
+                if (pos.equals(this.destroyPos) && destroyLevel == level) {
                     int j = this.gameTicks - this.destroyProgressStart;
-                    BlockState blockstate1 = this.level.getBlockState(pos);
+                    BlockState blockstate1 = level.getBlockState(pos);
                     if (!blockstate1.isAir()) {
                         float f1 = blockstate1.getDestroyProgress(this.player, level, pos) * (j + 1);
                         if (f1 >= 0.7F) {
                             this.isDestroyingBlock = false;
-                            this.level.destroyBlockProgress(this.player.getId(), pos, -1);
-                            this.destroyAndAck(pos, sequence, "destroyed");
+                            level.destroyBlockProgress(this.player.getId(), pos, -1);
+                            this.destroyAndAck(level, pos, sequence, "destroyed");
+                            this.destroyLevel = null;
                             return;
                         }
                         
@@ -803,6 +816,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                             this.hasDelayedDestroy = true;
                             this.delayedDestroyPos = pos;
                             this.delayedTickStart = this.destroyProgressStart;
+                            this.destroyLevel = null;
                         }
                     }
                 }
@@ -812,118 +826,125 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                 this.isDestroyingBlock = false;
                 if (!Objects.equals(this.destroyPos, pos)) {
                     LOGGER.warn("Mismatch in destroy block pos: {} {}", this.destroyPos, pos);
-                    this.level.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
+                    destroyLevel.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
                     this.debugLogging(pos, true, sequence, "aborted mismatched destroying");
                 }
                 
-                this.level.destroyBlockProgress(this.player.getId(), pos, -1);
+                if (!Objects.equals(this.destroyLevel, level)) {
+                    LOGGER.warn("Mismatch in destroy level: {} {}", this.destroyLevel, level);
+                    destroyLevel.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
+                    this.debugLogging(pos, true, sequence, "aborted mismatched destroying");
+                }
+                
+                destroyLevel.destroyBlockProgress(this.player.getId(), pos, -1);
+                destroyLevel = null;
                 this.debugLogging(pos, true, sequence, "aborted destroying");
             }
             
         }
     }
     
-    public void destroyAndAck(BlockPos pos, int sequence, String message) {
-        if (this.destroyBlock(pos))
+    public void destroyAndAck(Level level, BlockPos pos, int sequence, String message) {
+        if (this.destroyBlock(level, pos))
             this.debugLogging(pos, true, sequence, message);
         else {
-            send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));
+            send(level, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
             this.debugLogging(pos, false, sequence, message);
         }
         
     }
     
-    public boolean destroyBlock(BlockPos pos) {
-        BlockState blockstate = this.level.getBlockState(pos);
-        int exp = onBlockBreakEvent(level, getGameMode(), player, pos);
+    public boolean destroyBlock(Level level, BlockPos pos) {
+        BlockState blockstate = level.getBlockState(pos);
+        int exp = onBlockBreakEvent(level, getGameMode(), pos);
         if (exp == -1)
             return false;
         
-        BlockEntity blockentity = this.level.getBlockEntity(pos);
+        BlockEntity blockentity = level.getBlockEntity(pos);
         Block block = blockstate.getBlock();
         if (block instanceof GameMasterBlock && !this.player.canUseGameMasterBlocks()) {
-            this.level.sendBlockUpdated(pos, blockstate, blockstate, 3);
+            level.sendBlockUpdated(pos, blockstate, blockstate, 3);
             return false;
         }
         
         if (player.getMainHandItem().onBlockStartBreak(pos, player))
             return false;
         
-        if (this.player.blockActionRestricted(this.level, pos, getGameMode()))
+        if (this.player.blockActionRestricted(level, pos, getGameMode()))
             return false;
         
         if (this.isCreative()) {
-            removeBlock(pos, false);
+            removeBlock(level, pos, false);
             return true;
         }
         
         ItemStack itemstack = this.player.getMainHandItem();
         ItemStack itemstack1 = itemstack.copy();
-        boolean flag1 = blockstate.canHarvestBlock(this.level, pos, this.player); // previously player.hasCorrectToolForDrops(blockstate)
-        itemstack.mineBlock(this.level, blockstate, pos, this.player);
+        boolean flag1 = blockstate.canHarvestBlock(level, pos, this.player); // previously player.hasCorrectToolForDrops(blockstate)
+        itemstack.mineBlock(level, blockstate, pos, this.player);
         if (itemstack.isEmpty() && !itemstack1.isEmpty())
             ForgeEventFactory.onPlayerDestroyItem(this.player, itemstack1, InteractionHand.MAIN_HAND);
-        boolean flag = removeBlock(pos, flag1);
+        boolean flag = removeBlock(level, pos, flag1);
         
         if (flag && flag1)
-            block.playerDestroy(this.level, this.player, pos, blockstate, blockentity, itemstack1);
+            block.playerDestroy(level, this.player, pos, blockstate, blockentity, itemstack1);
         
-        if (flag && exp > 0)
-            blockstate.getBlock().popExperience(level, pos, exp);
+        if (flag && exp > 0 && level instanceof ServerLevel s)
+            blockstate.getBlock().popExperience(s, pos, exp);
         
         return true;
     }
     
-    private boolean removeBlock(BlockPos pos, boolean canHarvest) {
-        BlockState state = this.level.getBlockState(pos);
-        boolean removed = state.onDestroyedByPlayer(this.level, pos, this.player, canHarvest, this.level.getFluidState(pos));
+    private boolean removeBlock(Level level, BlockPos pos, boolean canHarvest) {
+        BlockState state = level.getBlockState(pos);
+        boolean removed = state.onDestroyedByPlayer(level, pos, this.player, canHarvest, level.getFluidState(pos));
         if (removed)
-            state.getBlock().destroy(this.level, pos, state);
+            state.getBlock().destroy(level, pos, state);
         return removed;
     }
     
-    public int onBlockBreakEvent(Level level, GameType gameType, ServerPlayer entityPlayer, BlockPos pos) {
+    public int onBlockBreakEvent(Level level, GameType gameType, BlockPos pos) {
         boolean preCancelEvent = false;
-        ItemStack itemstack = entityPlayer.getMainHandItem();
-        if (!itemstack.isEmpty() && !itemstack.getItem().canAttackBlock(level.getBlockState(pos), level, pos, entityPlayer))
+        ItemStack itemstack = player.getMainHandItem();
+        if (!itemstack.isEmpty() && !itemstack.getItem().canAttackBlock(level.getBlockState(pos), level, pos, player))
             preCancelEvent = true;
         
         if (gameType.isBlockPlacingRestricted()) {
             if (gameType == GameType.SPECTATOR)
                 preCancelEvent = true;
             
-            if (!entityPlayer.mayBuild() && itemstack.isEmpty() || !itemstack
+            if (!player.mayBuild() && itemstack.isEmpty() || !itemstack
                     .hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), new BlockInWorld(level, pos, false)))
                 preCancelEvent = true;
         }
         
         // Tell client the block is gone immediately then process events
         if (level.getBlockEntity(pos) == null)
-            send(new ClientboundBlockUpdatePacket(pos, level.getFluidState(pos).createLegacyBlock()));
+            send(level, new ClientboundBlockUpdatePacket(pos, level.getFluidState(pos).createLegacyBlock()));
         
         // Post the block break event
         BlockState state = level.getBlockState(pos);
-        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, entityPlayer);
+        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
         event.setCanceled(preCancelEvent);
         MinecraftForge.EVENT_BUS.post(event);
         
         // Handle if the event is canceled
         if (event.isCanceled()) {
             // Let the client know the block still exists
-            send(new ClientboundBlockUpdatePacket(level, pos));
+            send(level, new ClientboundBlockUpdatePacket(level, pos));
             
             // Update any tile entity data for this block
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity != null) {
                 Packet<?> pkt = blockEntity.getUpdatePacket();
                 if (pkt != null)
-                    send(pkt);
+                    send(level, pkt);
             }
         }
         return event.isCanceled() ? -1 : event.getExpToDrop();
     }
     
-    public InteractionResult useItem(ServerPlayer player, ItemStack stack, InteractionHand hand) {
+    public InteractionResult useItem(Level level, ItemStack stack, InteractionHand hand) {
         if (this.getGameMode() == GameType.SPECTATOR)
             return InteractionResult.PASS;
         if (player.getCooldowns().isOnCooldown(stack.getItem()))
@@ -961,7 +982,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         return result.getResult();
     }
     
-    public InteractionResult useItemOn(ServerPlayer player, ItemStack stack, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useItemOn(Level level, ItemStack stack, InteractionHand hand, BlockHitResult hit) {
         BlockPos blockpos = hit.getBlockPos();
         BlockState blockstate = level.getBlockState(blockpos);
         if (!blockstate.getBlock().isEnabled(level.enabledFeatures()))
