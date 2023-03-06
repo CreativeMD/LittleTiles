@@ -97,7 +97,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         LittleAnimationLevel level = getSubLevel();
         ListTag blocks = nbt.getList("b", Tag.TAG_COMPOUND);
         for (int i = 0; i < blocks.size(); i++)
-            loadBE(level, nbt);
+            loadBE(level, blocks.getCompound(i));
     }
     
     protected void saveBlocks(CompoundTag nbt) {
@@ -116,13 +116,15 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     @Override
     public void loadEntity(CompoundTag nbt) {
         setCenter(center); // center half way loaded due to loadCenter called before
+        loadBlocks(nbt);
+        
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("s"));
         try {
             this.structure.getStructure();
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             e.printStackTrace();
         }
-        loadBlocks(nbt);
+        
     }
     
     @Override
