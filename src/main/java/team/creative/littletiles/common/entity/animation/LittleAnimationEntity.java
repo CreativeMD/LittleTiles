@@ -119,11 +119,6 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         loadBlocks(nbt);
         
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("s"));
-        try {
-            this.structure.getStructure();
-        } catch (CorruptedConnectionException | NotYetConnectedException e) {
-            e.printStackTrace();
-        }
         
     }
     

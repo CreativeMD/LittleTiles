@@ -333,7 +333,7 @@ public class LittleTiles {
                 ServerLevel level = x.getSource().getLevel();
                 BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
                 
-                LittleSubLevel subLevel = new LittleAnimationLevel(level);
+                LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
                 LittleGrid grid = LittleGrid.defaultGrid();
                 CompoundTag nbt = new CompoundTag();
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
@@ -341,7 +341,7 @@ public class LittleTiles {
                 group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
                 PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
                 
-                Placement placement = new Placement(null, (Level) subLevel, preview);
+                Placement placement = new Placement(null, subLevel, preview);
                 PlacementResult result = placement.place();
                 if (result == null)
                     throw new LittleActionException("Could not be placed");

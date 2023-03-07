@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.world.level.entity.TransientEntitySectionManager;
 
@@ -14,9 +13,6 @@ public interface ClientLevelAccessor {
     
     @Accessor
     public TransientEntitySectionManager getEntityStorage();
-    
-    @Accessor
-    public ClientPacketListener getConnection();
     
     @Invoker
     public BlockStatePredictionHandler callGetBlockStatePredictionHandler();

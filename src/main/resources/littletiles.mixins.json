@@ -10,6 +10,7 @@
         "common.entity.PlayerBedMixin",
         "common.entity.PrimedTntAccessor",
         "common.level.BlockBehaviourAccessor",
+        "common.item.BlockPlaceContextMixin",
         "server.level.ChunkSerializerAccessor",
         "server.level.MinecraftServerAccessor",
         "server.level.ServerChunkCacheMixin",

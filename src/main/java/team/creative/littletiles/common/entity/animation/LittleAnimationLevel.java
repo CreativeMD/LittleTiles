@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3d;
 
+import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEvent.Context;
 import net.minecraft.world.level.material.Fluid;
@@ -58,8 +60,9 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
+import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
-public class LittleAnimationLevel extends Level implements LittleSubLevel, Iterable<BETiles> {
+public class LittleAnimationLevel extends Level implements LittleSubLevel, Iterable<BETiles>, ClientLevelAccessor {
     
     private LevelEntityGetter<Entity> entities = new LevelEntityGetter<Entity>() {
         
@@ -96,6 +99,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     @OnlyIn(Dist.CLIENT)
     public LittleAnimationRenderManager renderManager;
     private HashSet<BlockPos> trackedChanges;
+    private final BlockStatePredictionHandler blockStatePredictionHandler = new BlockStatePredictionHandler();
     
     public LittleAnimationLevel(Level level) {
         super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE)
@@ -104,6 +108,21 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         this.chunks = new LittleAnimationChunkCache(this);
         if (!isClientSide)
             this.trackedChanges = new HashSet<>();
+    }
+    
+    @Override
+    public BlockStatePredictionHandler callGetBlockStatePredictionHandler() {
+        return blockStatePredictionHandler;
+    }
+    
+    @Override
+    public TransientEntitySectionManager getEntityStorage() {
+        return null;
+    }
+    
+    @Override
+    public boolean allowPlacement() {
+        return false;
     }
     
     @Override

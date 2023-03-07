@@ -24,7 +24,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 @Mixin(Minecraft.class)
@@ -53,7 +52,7 @@ public class MinecraftMixin {
                     return;
                 }
                 Direction direction = blockhitresult.getDirection();
-                if (LittleTilesClient.INTERACTION_HANDLER.continueDestroyBlock((LittleClientLevel) result.level, blockpos, direction) && inputEvent.shouldSwingHand()) {
+                if (LittleTilesClient.INTERACTION_HANDLER.continueDestroyBlock(result.level.asLevel(), blockpos, direction) && inputEvent.shouldSwingHand()) {
                     mc.particleEngine.addBlockHitEffects(blockpos, blockhitresult);
                     mc.player.swing(InteractionHand.MAIN_HAND);
                 }
@@ -73,14 +72,14 @@ public class MinecraftMixin {
         Minecraft mc = asMinecraft();
         if (mc.hitResult instanceof LittleHitResult hit) {
             if (hit.isEntity()) {
-                LittleTilesClient.INTERACTION_HANDLER.attack((LittleClientLevel) hit.level, mc.player, hit.asEntityHit().getEntity());
+                LittleTilesClient.INTERACTION_HANDLER.attack(hit.level.asLevel(), mc.player, hit.asEntityHit().getEntity());
                 info.setReturnValue(false);
             }
             
             BlockHitResult blockhitresult = hit.asBlockHit();
             BlockPos blockpos = blockhitresult.getBlockPos();
             if (!hit.level.isEmptyBlock(blockpos)) {
-                LittleTilesClient.INTERACTION_HANDLER.startDestroyBlock((LittleClientLevel) hit.level, blockpos, blockhitresult.getDirection());
+                LittleTilesClient.INTERACTION_HANDLER.startDestroyBlock(hit.level.asLevel(), blockpos, blockhitresult.getDirection());
                 info.setReturnValue(hit.level.getBlockState(blockpos).isAir());
             }
             
@@ -106,10 +105,9 @@ public class MinecraftMixin {
                 
                 if (!player.canInteractWith(entityhitresult.getEntity(), 0))
                     return; //Forge: Entity may be traced via attack range, but the player may not have sufficient reach.  No padding in client code.
-                InteractionResult interactionresult = LittleTilesClient.INTERACTION_HANDLER
-                        .interactAt((LittleClientLevel) hit.level, player, entity, entityhitresult, interactionhand);
+                InteractionResult interactionresult = LittleTilesClient.INTERACTION_HANDLER.interactAt(hit.level.asLevel(), player, entity, entityhitresult, interactionhand);
                 if (!interactionresult.consumesAction())
-                    interactionresult = LittleTilesClient.INTERACTION_HANDLER.interact((LittleClientLevel) hit.level, player, entity, interactionhand);
+                    interactionresult = LittleTilesClient.INTERACTION_HANDLER.interact(hit.level.asLevel(), player, entity, interactionhand);
                 
                 if (interactionresult.consumesAction()) {
                     if (interactionresult.shouldSwing() && inputEvent.shouldSwingHand())
@@ -121,7 +119,7 @@ public class MinecraftMixin {
             
             BlockHitResult blockhitresult = hit.asBlockHit();
             int i = itemstack.getCount();
-            InteractionResult interactionresult1 = LittleTilesClient.INTERACTION_HANDLER.useItemOn((LittleClientLevel) hit.level, player, interactionhand, blockhitresult);
+            InteractionResult interactionresult1 = LittleTilesClient.INTERACTION_HANDLER.useItemOn(hit.level.asLevel(), player, interactionhand, blockhitresult);
             if (interactionresult1.consumesAction()) {
                 if (interactionresult1.shouldSwing() && inputEvent.shouldSwingHand()) {
                     player.swing(interactionhand);

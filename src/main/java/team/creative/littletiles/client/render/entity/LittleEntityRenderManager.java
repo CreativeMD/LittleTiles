@@ -35,6 +35,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.data.ModelDataManager;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
@@ -186,7 +187,10 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
                     PoseStack.Pose last = pose.last();
                     VertexConsumer consumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(k1)), last
                             .pose(), last.normal(), 1.0F);
-                    ModelData modelData = level.getModelDataManager().getAt(blockpos2);
+                    ModelDataManager manager = level.getModelDataManager();
+                    ModelData modelData = null;
+                    if (manager != null)
+                        modelData = manager.getAt(blockpos2);
                     mc.getBlockRenderer().renderBreakingTexture(level.getBlockState(blockpos2), blockpos2, level, pose, consumer, modelData == null ? ModelData.EMPTY : modelData);
                     pose.popPose();
                 }

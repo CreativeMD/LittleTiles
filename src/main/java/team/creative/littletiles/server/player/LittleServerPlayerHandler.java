@@ -1028,9 +1028,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                 int i = stack.getCount();
                 interactionresult1 = stack.useOn(useoncontext);
                 stack.setCount(i);
-            } else {
+            } else
                 interactionresult1 = stack.useOn(useoncontext);
-            }
             
             if (interactionresult1.consumesAction())
                 CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(player, blockpos, itemstack);

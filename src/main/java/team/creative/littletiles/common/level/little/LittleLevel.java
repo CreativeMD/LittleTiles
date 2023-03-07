@@ -35,4 +35,8 @@ public interface LittleLevel extends IOrientatedLevel {
     
     public void tick();
     
+    public default boolean allowPlacement() {
+        return true;
+    }
+    
 }
