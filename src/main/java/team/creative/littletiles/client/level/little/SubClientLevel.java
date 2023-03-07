@@ -35,8 +35,6 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     
     public final Level parentLevel;
     
-    public boolean shouldRender;
-    
     public SubClientLevel(Level parent) {
         super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
         this.parentLevel = parent;

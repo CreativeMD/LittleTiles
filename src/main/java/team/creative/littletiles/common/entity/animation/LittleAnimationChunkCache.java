@@ -22,7 +22,7 @@ public class LittleAnimationChunkCache extends ChunkSource {
     public LittleAnimationChunkCache(LittleAnimationLevel level) {
         this.level = level;
         this.chunks = new HashMap<>();
-        this.lightEngine = new LevelLightEngine(this, true, false);
+        this.lightEngine = new LevelLightEngine(this, false, false);
     }
     
     public void addLoadedChunk(LevelChunk chunk) {

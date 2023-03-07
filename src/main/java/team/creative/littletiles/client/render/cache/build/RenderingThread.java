@@ -39,13 +39,13 @@ import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
-import team.creative.littletiles.client.level.little.SubClientLevel;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
 import team.creative.littletiles.mixin.client.render.ViewAreaAccessor;
 
@@ -208,8 +208,8 @@ public class RenderingThread extends Thread {
                         VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
                             Level renderLevel = data.be.getLevel();
-                            if (renderLevel instanceof SubClientLevel && !((SubClientLevel) renderLevel).shouldRender)
-                                renderLevel = ((SubClientLevel) renderLevel).getRealLevel();
+                            while (renderLevel instanceof LittleSubLevel sub && !sub.shouldUseLightingForRenderig())
+                                renderLevel = sub.getParent();
                             
                             ForgeModelBlockRendererAccessor renderer = (ForgeModelBlockRendererAccessor) mc.getBlockRenderer().getModelRenderer();
                             boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0;

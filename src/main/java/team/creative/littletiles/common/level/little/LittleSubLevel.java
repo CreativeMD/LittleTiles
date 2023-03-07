@@ -10,4 +10,8 @@ public interface LittleSubLevel extends ISubLevel, LittleLevel {
         return getParent().enabledFeatures();
     }
     
+    public default boolean shouldUseLightingForRenderig() {
+        return true;
+    }
+    
 }

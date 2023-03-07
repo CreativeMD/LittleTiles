@@ -418,6 +418,11 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         return getParent().enabledFeatures();
     }
     
+    @Override
+    public boolean shouldUseLightingForRenderig() {
+        return false;
+    }
+    
     public boolean isEmpty() {
         for (LevelChunk chunk : chunks())
             if (!chunk.getBlockEntities().isEmpty())
