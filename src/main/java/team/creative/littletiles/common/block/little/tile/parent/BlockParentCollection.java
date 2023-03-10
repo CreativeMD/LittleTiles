@@ -373,7 +373,7 @@ public class BlockParentCollection extends ParentCollection {
         for (Iterator<StructureParentCollection> iterator = structures.values().iterator(); iterator.hasNext();) {
             StructureParentCollection child = iterator.next();
             if (child.isEmpty()) {
-                child.isRemoved();
+                child.removed();
                 iterator.remove();
             }
         }
