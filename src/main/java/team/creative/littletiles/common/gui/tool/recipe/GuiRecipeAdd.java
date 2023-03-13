@@ -33,8 +33,9 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
-import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.controls.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
 import team.creative.littletiles.common.gui.controls.GuiAnimationViewer.GuiAnimationViewerStorage;
@@ -128,7 +129,13 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
                 requestedPreview++;
             }
             final int request = requestedPreview;
-            CompletableFuture.supplyAsync(() -> new AnimationPreview(group)).whenComplete((preview, throwable) -> {
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new AnimationPreview(group);
+                } catch (LittleActionException e) {
+                    throw new RuntimeException(e);
+                }
+            }).whenComplete((preview, throwable) -> {
                 setAnimation(request, preview);
                 if (throwable != null)
                     throwable.printStackTrace();

@@ -141,8 +141,8 @@ public class LittleBed extends LittleStructure {
     }
     
     @Override
-    public void onLittleTileDestroy() throws CorruptedConnectionException, NotYetConnectedException {
-        super.onLittleTileDestroy();
+    public void tileDestroyed() throws CorruptedConnectionException, NotYetConnectedException {
+        super.tileDestroyed();
         if (sleepingPlayer != null)
             ((ILittleBedPlayerExtension) sleepingPlayer).setBed(null);
     }

@@ -26,9 +26,9 @@ import team.creative.littletiles.common.structure.type.LittleLight;
 import team.creative.littletiles.common.structure.type.LittleNoClipStructure;
 import team.creative.littletiles.common.structure.type.LittleStorage;
 import team.creative.littletiles.common.structure.type.LittleStorage.LittleStorageType;
+import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
-import team.creative.littletiles.common.structure.type.door.LittleDoor;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder.LittleStructureBuilderType;
 

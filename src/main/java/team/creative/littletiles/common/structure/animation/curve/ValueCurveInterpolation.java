@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.animation.curve;
+package team.creative.littletiles.common.structure.animation.curve;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -10,7 +10,6 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VecNd;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
-import team.creative.littletiles.common.animation.property.AnimationProperty;
 
 public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurve<T> {
     
@@ -44,10 +43,19 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
     
     public void add(int key, T vec) {
         points.add(key, vec);
-        changed();
     }
     
-    public void changed() {}
+    @Override
+    public void start(T start, T end, int duration) { // used to add start and end state
+        points.add(0, new Pair<>(0, start));
+        points.add(new Pair<>(duration, end));
+    }
+    
+    @Override
+    public void end() { // start and end state will be removed again
+        points.remove(0);
+        points.remove(points.size() - 1);
+    }
     
     @Override
     public T value(int tick) {
@@ -76,20 +84,6 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
     }
     
     public abstract double valueAt(double mu, double before, int pointIndex, double after, int pointIndexNext, int dim);
-    
-    @Override
-    public T first(AnimationProperty<T> key) {
-        if (points.isEmpty())
-            return key.defaultValue();
-        return points.getFirst().value;
-    }
-    
-    @Override
-    public T last(AnimationProperty<T> key) {
-        if (points.isEmpty())
-            return key.defaultValue();
-        return points.getLast().value;
-    }
     
     @Override
     public void saveExtra(CompoundTag nbt) {
@@ -143,7 +137,7 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
             super(nbt);
         }
         
-        protected LinearCurve() {}
+        public LinearCurve() {}
         
         @Override
         public double valueAt(double mu, double before, int pointIndex, double after, int pointIndexNext, int dim) {
@@ -166,7 +160,7 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
             super(nbt);
         }
         
-        protected CosineCurve() {}
+        public CosineCurve() {}
         
         @Override
         public double valueAt(double mu, double before, int pointIndex, double after, int pointIndexNext, int dim) {
@@ -238,8 +232,8 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
     
     public static class HermiteCurve<T extends VecNd> extends AdvancedValue<T> {
         
-        public static final Tension tension = Tension.Normal;
-        public static final double bias = 0;
+        public static final Tension TENSION = Tension.Normal;
+        public static final double BIAS = 0;
         
         public HermiteCurve(CompoundTag nbt) {
             super(nbt);
@@ -259,10 +253,10 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
             
             mu2 = mu * mu;
             mu3 = mu2 * mu;
-            m0 = (v1 - v0) * (1 + bias) * (1 - tension.value) / 2;
-            m0 += (v2 - v1) * (1 - bias) * (1 - tension.value) / 2;
-            m1 = (v2 - v1) * (1 + bias) * (1 - tension.value) / 2;
-            m1 += (v3 - v2) * (1 - bias) * (1 - tension.value) / 2;
+            m0 = (v1 - v0) * (1 + BIAS) * (1 - TENSION.value) / 2;
+            m0 += (v2 - v1) * (1 - BIAS) * (1 - TENSION.value) / 2;
+            m1 = (v2 - v1) * (1 + BIAS) * (1 - TENSION.value) / 2;
+            m1 += (v3 - v2) * (1 - BIAS) * (1 - TENSION.value) / 2;
             a0 = 2 * mu3 - 3 * mu2 + 1;
             a1 = mu3 - 2 * mu2 + mu;
             a2 = mu3 - mu2;

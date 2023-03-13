@@ -843,7 +843,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
                 
                 for (StructureParentCollection list : x.structures())
                     try {
-                        list.getStructure().onLittleTileDestroy();
+                        list.getStructure().tileDestroyed();
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {
                         e.printStackTrace();
                     }

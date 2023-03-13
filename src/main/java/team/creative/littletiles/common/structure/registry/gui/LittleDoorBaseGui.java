@@ -4,9 +4,9 @@ import javax.annotation.Nullable;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {

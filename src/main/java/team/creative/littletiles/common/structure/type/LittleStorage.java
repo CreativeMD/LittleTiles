@@ -90,8 +90,8 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    public void onStructureDestroyed() {
-        super.onStructureDestroyed();
+    public void structureDestroyed() {
+        super.structureDestroyed();
         if (!isClient()) {
             for (GuiStorage container : openContainers) {
                 container.storage = null;

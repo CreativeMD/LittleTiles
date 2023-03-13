@@ -347,7 +347,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                         if (!stack.isEmpty() && !player.addItem(stack))
                             LevelUtils.dropItem(player, stack);
                     }
-                    structure.structure.onLittleTileDestroy();
+                    structure.structure.tileDestroyed();
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }

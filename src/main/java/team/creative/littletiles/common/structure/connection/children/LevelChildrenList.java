@@ -10,7 +10,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.structure.IAnimatedStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -64,12 +63,6 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
             CompoundTag extension = list.getCompound(i);
             extensions.put(extension.getString(LittleGroup.EXTENSION_ID_KEY), StructureChildConnection.load(owner, extension, false));
         }
-        
-        if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
-            for (StructureChildConnection child : all())
-                if (child instanceof StructureChildToSubLevelConnection && ((StructureChildToSubLevelConnection) child).entityUUID
-                        .equals(((IAnimatedStructure) this).getAnimation().getUUID()))
-                    throw new RuntimeException("Something went wrong during loading!");
     }
     
     public void save(CompoundTag nbt) {

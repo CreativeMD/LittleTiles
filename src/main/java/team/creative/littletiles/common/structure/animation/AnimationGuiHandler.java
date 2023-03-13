@@ -1,11 +1,10 @@
-package team.creative.littletiles.common.animation;
+package team.creative.littletiles.common.structure.animation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-import team.creative.littletiles.common.animation.timeline.AnimationTimeline;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.structure.LittleStructure;

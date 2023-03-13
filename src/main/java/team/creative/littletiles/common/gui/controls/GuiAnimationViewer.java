@@ -29,7 +29,7 @@ import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.mixin.client.render.LightTextureAccessor;
 
 public class GuiAnimationViewer extends GuiControl {

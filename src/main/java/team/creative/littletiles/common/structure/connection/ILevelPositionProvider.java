@@ -9,6 +9,6 @@ public interface ILevelPositionProvider {
     
     public BlockPos getPos();
     
-    public void onStructureDestroyed();
+    public void structureDestroyed();
     
 }

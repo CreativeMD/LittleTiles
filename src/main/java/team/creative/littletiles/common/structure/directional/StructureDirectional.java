@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 import team.creative.creativecore.common.util.mc.ColorUtils;
 
+/** A system used to make a field aware of transformations. The type of the field must be registered in {@link StructureDirectionalType} */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface StructureDirectional {

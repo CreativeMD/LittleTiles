@@ -14,6 +14,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -22,6 +23,8 @@ import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
 import team.creative.littletiles.common.packet.entity.animation.LittleBlockChange;
+import team.creative.littletiles.common.placement.Placement;
+import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.direct.StructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -55,10 +58,13 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         super(type, level);
     }
     
-    public LittleAnimationEntity(Level level, LittleSubLevel subLevel, StructureAbsolute center, LocalStructureLocation location) {
+    public LittleAnimationEntity(Level level, LittleSubLevel subLevel, StructureAbsolute center, Placement placement) throws LittleActionException {
         super(LittleTilesRegistry.ENTITY_ANIMATION.get(), level, subLevel, center.rotationCenter);
         setCenter(center);
-        this.structure = new StructureConnection((Level) subLevel, location);
+        PlacementResult result = placement.place();
+        if (result == null)
+            throw new LittleActionException("Could not be placed");
+        this.structure = new StructureConnection((Level) subLevel, new LocalStructureLocation(result.parentStructure));
     }
     
     @Override
@@ -79,6 +85,10 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     
     public StructureAbsolute getCenter() {
         return center;
+    }
+    
+    public boolean is(LittleStructure structure) {
+        return this.structure.is(structure);
     }
     
     public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {

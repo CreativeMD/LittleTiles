@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
+import team.creative.littletiles.common.level.LittleUpdateCollector;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.IStructureConnection;
@@ -74,9 +74,14 @@ public class StructureChildConnection implements IStructureConnection {
         return nbt;
     }
     
-    public void destroyStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
+    public void destroyStructure(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         if (!isChild())
             getStructure().removeStructure(neighbor);
+    }
+    
+    public void destroyStructureSameLevel(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
+        if (!isChild())
+            getStructure().removeStructureSameLevel(neighbor);
     }
     
     public LittleEntity getAnimation() {

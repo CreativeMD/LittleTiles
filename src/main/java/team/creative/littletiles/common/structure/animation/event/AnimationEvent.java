@@ -1,8 +1,8 @@
-package team.creative.littletiles.common.animation.event;
+package team.creative.littletiles.common.structure.animation.event;
 
 import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
-import team.creative.littletiles.common.animation.context.AnimationContext;
+import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 
 public abstract class AnimationEvent<T extends Tag> {
     

@@ -115,7 +115,7 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
     }
     
     @Override
-    public void onStructureDestroyed() {}
+    public void structureDestroyed() {}
     
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {

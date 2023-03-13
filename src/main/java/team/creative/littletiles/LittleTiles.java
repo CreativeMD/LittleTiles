@@ -66,7 +66,6 @@ import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
@@ -83,11 +82,13 @@ import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
+import team.creative.littletiles.common.packet.structure.StructureBlockToEntityPacket;
+import team.creative.littletiles.common.packet.structure.StructureEntityToBlockPacket;
+import team.creative.littletiles.common.packet.structure.StructureUpdate;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
 import team.creative.littletiles.common.packet.update.BlocksUpdate;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
 import team.creative.littletiles.common.packet.update.OutputUpdate;
-import team.creative.littletiles.common.packet.update.StructureUpdate;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
@@ -191,14 +192,16 @@ public class LittleTiles {
         NETWORK.registerType(VanillaBlockPacket.class, VanillaBlockPacket::new);
         NETWORK.registerType(BlockPacket.class, BlockPacket::new);
         
-        NETWORK.registerType(BedUpdate.class, BedUpdate::new);
-        
         NETWORK.registerType(RotatePacket.class, RotatePacket::new);
         NETWORK.registerType(MirrorPacket.class, MirrorPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
         NETWORK.registerType(ScrewdriverSelectionPacket.class, ScrewdriverSelectionPacket::new);
         
+        NETWORK.registerType(BedUpdate.class, BedUpdate::new);
+        NETWORK.registerType(StructureBlockToEntityPacket.class, StructureBlockToEntityPacket::new);
+        NETWORK.registerType(StructureEntityToBlockPacket.class, StructureEntityToBlockPacket::new);
         NETWORK.registerType(StructureUpdate.class, StructureUpdate::new);
+        
         NETWORK.registerType(NeighborUpdate.class, NeighborUpdate::new);
         NETWORK.registerType(BlockUpdate.class, BlockUpdate::new);
         NETWORK.registerType(BlocksUpdate.class, BlocksUpdate::new);
@@ -340,25 +343,14 @@ public class LittleTiles {
                 LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
                 group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
                 PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
-                
-                Placement placement = new Placement(null, subLevel, preview);
-                PlacementResult result = placement.place();
-                if (result == null)
-                    throw new LittleActionException("Could not be placed");
-                
-                LittleEntity entity = new LittleAnimationEntity(level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new LocalStructureLocation(result.parentStructure));
-                
-                level.addFreshEntity(entity);
+                level.addFreshEntity(new LittleAnimationEntity(level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new Placement(null, subLevel, preview)));
                 x.getSource().sendSystemMessage(Component.literal("Spawned animation"));
             } catch (LittleActionException e) {
                 x.getSource().sendFailure(e.getTranslatable());
-            } catch (Exception e) {
+            } catch (Error | Exception e) {
                 e.printStackTrace();
                 throw e;
-            } catch (Error e) {
-                e.printStackTrace();
             }
-            
             return 0;
         }));
         

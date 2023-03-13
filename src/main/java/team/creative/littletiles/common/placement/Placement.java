@@ -47,7 +47,7 @@ import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
-import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
+import team.creative.littletiles.common.level.LittleUpdateCollector;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
@@ -224,7 +224,7 @@ public class Placement {
         
         result.parentStructure = origin.isStructure() ? origin.getStructure() : null;
         
-        LittleNeighborUpdateCollector neighbor = new LittleNeighborUpdateCollector(level, blocks.keySet());
+        LittleUpdateCollector neighbor = new LittleUpdateCollector(level, blocks.keySet());
         
         for (Iterator iterator = blocks.values().iterator(); iterator.hasNext();) {
             PlacementBlock block = (PlacementBlock) iterator.next();

@@ -130,10 +130,6 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         ((ChildVecOrigin) origin).parent = origin;
     }
     
-    public void markRemoved() {
-        // TODO THINK ABOUT WHAT TO DO WITH THIS METHOD
-    }
-    
     @Override
     public void transform(CollisionCoordinator coordinator) {
         physic.transform(coordinator);

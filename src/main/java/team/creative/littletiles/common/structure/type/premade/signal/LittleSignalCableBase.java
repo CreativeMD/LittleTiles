@@ -486,7 +486,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    public void onStructureDestroyed() {
+    public void structureDestroyed() {
         if (network != null)
             if (network.remove(this)) {
                 for (int i = 0; i < faces.length; i++) {

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.animation.preview;
+package team.creative.littletiles.common.gui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +19,8 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
-import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -38,7 +36,7 @@ public class AnimationPreview {
     public final LittleGrid grid;
     public final AABB box;
     
-    public AnimationPreview(LittleGroup previews) {
+    public AnimationPreview(LittleGroup previews) throws LittleActionException {
         this.previews = previews;
         this.grid = previews.getGrid();
         BlockPos pos = new BlockPos(0, 0, 0);
@@ -58,18 +56,10 @@ public class AnimationPreview {
             previews = group;
         }
         
-        Placement placement;
-        PlacementResult result = null;
-        try {
-            placement = new Placement(null, (Level) subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
-            result = placement.place();
-        } catch (LittleActionException e) {
-            e.printStackTrace();
-        }
-        
+        Placement placement = new Placement(null, (Level) subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), new LocalStructureLocation(result.parentStructure));
+        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), placement);
     }
     
     public void unload() {

@@ -93,6 +93,15 @@ public class StructureConnection implements IStructureConnection {
         throw new MissingStructureException(be.getBlockPos());
     }
     
+    public boolean is(LittleStructure structure) {
+        if (getStructurePosition().equals(structure.getPos()) && index == structure.getIndex()) {
+            if (attribute == LittleStructureAttribute.INVALID)
+                attribute = structure.getAttribute();
+            return true;
+        }
+        return false;
+    }
+    
     @Override
     public int getIndex() {
         return index;

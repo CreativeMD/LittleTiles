@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.LittleNeighborUpdateCollector;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -45,18 +44,6 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
     @Override
     public LittleEntity getAnimation() {
         return null;
-    }
-    
-    @Override
-    public void destroyStructure(LittleNeighborUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
-        getStructure().onStructureDestroyed();
-        LittleEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
-        if (animation != null)
-            animation.markRemoved();
-        neighbor = animation != null ? new LittleNeighborUpdateCollector((Level) animation.getSubLevel()) : LittleNeighborUpdateCollector.EMPTY;
-        for (StructureChildConnection child : getStructure().children.all())
-            child.destroyStructure(neighbor);
-        neighbor.process();
     }
     
     @Override

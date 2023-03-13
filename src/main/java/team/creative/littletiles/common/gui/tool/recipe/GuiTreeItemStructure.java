@@ -23,8 +23,9 @@ import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTilesGuiRegistry;
-import team.creative.littletiles.common.animation.preview.AnimationPreview;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
@@ -290,7 +291,13 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     
     @OnlyIn(Dist.CLIENT)
     public void refreshAnimation() {
-        CompletableFuture.supplyAsync(() -> new AnimationPreview(group)).whenComplete((preview, throwable) -> {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return new AnimationPreview(group);
+            } catch (LittleActionException e) {
+                throw new RuntimeException(e);
+            }
+        }).whenComplete((preview, throwable) -> {
             recipe.storage.completed(this, preview);
             if (throwable != null)
                 throwable.printStackTrace();
