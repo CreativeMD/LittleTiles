@@ -1,71 +1,58 @@
 package team.creative.littletiles.common.level.handler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.util.type.map.HashMapList;
-import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.creativecore.common.util.type.itr.FilterIterator;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 public class LevelHandlers<T extends LevelHandler> {
     
-    private List<Function<Level, T>> factories = new ArrayList<>();
-    private HashMapList<Level, T> handlers = new HashMapList<>();
-    public final boolean client;
-    
-    public LevelHandlers(boolean client) {
-        this.client = client;
-        MinecraftForge.EVENT_BUS.register(this);
+    public static boolean isInvalidLevel(LevelAccessor level) {
+        return !(level instanceof LittleSubLevel);
     }
     
-    protected Iterable<T> all() {
-        return handlers;
+    private final Function<Level, T> factory;
+    private HashMap<Level, T> handlers = new HashMap<>();
+    
+    public LevelHandlers(Function<Level, T> factory) {
+        this.factory = factory;
+        MinecraftForge.EVENT_BUS.addListener(this::unloadEvent);
     }
     
-    protected List<T> getHandlers(Level level) {
-        return handlers.get(level);
+    public Iterable<T> handlers(boolean client) {
+        return () -> new FilterIterator<>(handlers.values(), x -> x.level.isClientSide == client);
     }
     
-    public void register(Function<Level, T> function) {
-        factories.add(function);
+    public Iterable<T> handlers() {
+        return handlers.values();
     }
     
-    protected void load(Level level) {
-        List<T> levelHandlers = handlers.removeKey(level);
-        if (levelHandlers != null)
-            throw new RuntimeException("This should not happen");
+    public T get(Level level) {
+        if (level instanceof ISubLevel sub)
+            level = sub.getRealLevel();
+        T handler = handlers.get(level);
+        if (handler == null) {
+            handler = factory.apply(level);
+            if (handler == null)
+                return null;
+            return handlers.put(level, handler);
+        }
+        return handler;
+    }
+    
+    public void unloadEvent(LevelEvent.Unload event) {
+        if (isInvalidLevel(event.getLevel()))
+            return;
         
-        List<T> newHandlers = new ArrayList<>(factories.size());
-        for (Function<Level, T> func : factories)
-            newHandlers.add(func.apply(level));
-        handlers.add(level, newHandlers);
-        for (LevelHandler handler : newHandlers)
-            handler.load();
-    }
-    
-    protected void unload(Level level) {
-        List<T> levelHandlers = handlers.removeKey(level);
-        if (levelHandlers != null)
-            for (LevelHandler handler : levelHandlers)
-                handler.unload();
-    }
-    
-    @SubscribeEvent
-    public void load(LevelEvent.Load event) {
-        if (event.getLevel().isClientSide() != client || event.getLevel() instanceof LittleLevel)
-            return;
-        load((Level) event.getLevel());
-    }
-    
-    @SubscribeEvent
-    public void unload(LevelEvent.Unload event) {
-        if (event.getLevel().isClientSide() != client)
-            return;
-        unload((Level) event.getLevel());
+        T handler = handlers.remove(event.getLevel());
+        if (handler != null)
+            handler.unload();
     }
     
 }

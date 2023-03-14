@@ -21,6 +21,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -32,7 +33,6 @@ import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -172,7 +172,7 @@ public class BlockPacket extends CreativePacket {
         LevelAccessor level = player.level;
         
         if (uuid != null) {
-            LittleEntity entity = LittleAnimationHandlers.find(false, uuid);
+            LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(false, uuid);
             if (entity == null)
                 return;
             

@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import team.creative.creativecore.client.render.model.CreativeBakedBoxModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -30,8 +32,12 @@ public class ItemRenderCache implements LevelAwareHandler {
     }
     
     private HashMap<ItemStack, ItemModelCache> caches = new HashMap<>();
+    private int slowTicker = 0;
+    private int timeToCheckSlowTick = 100;
     
-    public ItemRenderCache() {}
+    public ItemRenderCache() {
+        MinecraftForge.EVENT_BUS.addListener(this::tick);
+    }
     
     public int countCaches() {
         return caches.size();
@@ -61,11 +67,14 @@ public class ItemRenderCache implements LevelAwareHandler {
         THREAD.items.clear();
     }
     
-    @Override
-    public void slowTick() {
-        for (Iterator<ItemModelCache> iterator = caches.values().iterator(); iterator.hasNext();)
-            if (iterator.next().expired())
-                iterator.remove();
+    public void tick(ClientTickEvent event) {
+        slowTicker++;
+        if (slowTicker >= timeToCheckSlowTick) {
+            for (Iterator<ItemModelCache> iterator = caches.values().iterator(); iterator.hasNext();)
+                if (iterator.next().expired())
+                    iterator.remove();
+            slowTicker = 0;
+        }
     }
     
     public static class RenderingThreadItem extends Thread {

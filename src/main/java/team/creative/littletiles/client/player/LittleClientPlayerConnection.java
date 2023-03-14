@@ -46,10 +46,4 @@ public class LittleClientPlayerConnection implements LevelAwareHandler {
         INSTANCE = null;
     }
     
-    @Override
-    public void slowTick() {
-        if (INSTANCE != null)
-            INSTANCE.tick();
-    }
-    
 }

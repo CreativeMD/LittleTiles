@@ -10,8 +10,6 @@ public class LevelHandler {
         this.level = level;
     }
     
-    public void load() {}
-    
     public void unload() {}
     
 }

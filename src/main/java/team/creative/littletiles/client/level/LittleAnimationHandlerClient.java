@@ -49,19 +49,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
@@ -300,35 +294,18 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                     animation.getRenderManager().isInSight = null;
     }
     
-    @SubscribeEvent
-    public void rightClick(PlayerInteractEvent event) {
-        if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific) {
-            
-            if (mc.hitResult instanceof LittleHitResult result && result.level instanceof ISubLevel) {
-                Entity entity = ((ISubLevel) result.level).getHolder();
-                if (entity instanceof LittleEntity levelEntity)
-                    levelEntity.onRightClick(event.getEntity(), result.hit);
-            }
-        }
+    @Override
+    public void unload() {
+        super.unload();
+        LittleTilesClient.ANIMATION_HANDLER = null;
     }
     
     @Override
-    public void unload() {}
-    
-    @SubscribeEvent
-    public void tickClient(ClientTickEvent event) {
-        if (event.phase == Phase.END && (!mc.hasSingleplayerServer() || !mc.isPaused())) {
-            tick();
-            
-            for (LittleEntity entity : entities) {
-                if (!entity.hasLoaded())
-                    continue;
-                entity.getRenderManager().clientTick();
-                if (entity.level instanceof ISubLevel)
-                    continue;
-                entity.performTick();
-            }
-        }
+    protected void tickEntity(LittleEntity entity) {
+        if (!entity.hasLoaded())
+            return;
+        entity.getRenderManager().clientTick();
+        super.tickEntity(entity);
     }
     
     private boolean shouldRenderBlockOutline() {

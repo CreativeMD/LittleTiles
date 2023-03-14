@@ -25,7 +25,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaTooLarge;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -119,7 +118,7 @@ public class AreaSelectionMode extends SelectionMode {
         search.scanLevel(level, minX, minY, minZ, maxX, maxY, maxZ);
         
         AABB bb = new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
-        for (LittleEntity animation : LittleAnimationHandlers.get(level).find(bb))
+        for (LittleEntity animation : LittleTiles.ANIMATION_HANDLERS.get(level).find(bb))
             search.scanLevel(level, animation.getOrigin().getOBB(bb));
         
         return search.build();

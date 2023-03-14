@@ -25,8 +25,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 @Mixin(BlockCollisions.class)
 public class BlockCollisionsMixin {
@@ -72,7 +72,7 @@ public class BlockCollisionsMixin {
     
     @Inject(method = "<init>(Lnet/minecraft/world/level/CollisionGetter;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Z)V", at = @At("RETURN"), require = 1)
     private void constructorEnd(CollisionGetter level, @Nullable Entity entity, AABB bb, boolean onlySuffocatingBlocks, CallbackInfo info) {
-        Iterable<VoxelShape> shapes = LittleAnimationHandlers.get((Level) collisionGetter).collisionExcept(entity, box, (Level) collisionGetter);
+        Iterable<VoxelShape> shapes = LittleTiles.ANIMATION_HANDLERS.get((Level) collisionGetter).collisionExcept(entity, box, (Level) collisionGetter);
         if (shapes != null)
             extraShapes = shapes.iterator();
     }

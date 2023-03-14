@@ -63,6 +63,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.LittleToolHandler;
+import team.creative.littletiles.common.level.handler.LevelHandlers;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -114,6 +115,12 @@ public class LittleTiles {
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
+    public static final LittleAnimationHandlers ANIMATION_HANDLERS = new LittleAnimationHandlers();
+    public static final LevelHandlers<LittleSignalHandler> SIGNAL_HANDLERS = new LevelHandlers<LittleSignalHandler>(level -> {
+        if (level.isClientSide)
+            return null;
+        return new LittleSignalHandler(level);
+    });
     
     public static TagKey<Block> STORAGE_BLOCKS;
     
@@ -230,7 +237,6 @@ public class LittleTiles {
         MinecraftForge.EVENT_BUS.register(new LittleBedEventHandler());
         MinecraftForge.EVENT_BUS.register(LittleAnimationHandlers.class);
         // MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
-        MinecraftForge.EVENT_BUS.register(new LittleSignalHandler());
         MinecraftForge.EVENT_BUS.register(new LittleToolHandler());
         
         LittleTilesServer.init(event);

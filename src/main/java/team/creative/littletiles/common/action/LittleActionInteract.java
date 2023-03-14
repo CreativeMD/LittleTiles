@@ -16,11 +16,11 @@ import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public abstract class LittleActionInteract<T> extends LittleAction<T> {
     
@@ -84,7 +84,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
         transformedLook = this.look;
         
         if (uuid != null) {
-            LittleEntity animation = LittleAnimationHandlers.find(player.level.isClientSide, uuid);
+            LittleEntity animation = LittleTiles.ANIMATION_HANDLERS.find(player.level.isClientSide, uuid);
             if (animation == null)
                 onEntityNotFound();
             

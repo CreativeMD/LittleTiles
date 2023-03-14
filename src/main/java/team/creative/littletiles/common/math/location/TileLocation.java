@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -15,7 +16,6 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
@@ -78,7 +78,7 @@ public class TileLocation {
     
     public LittleTileContext find(LevelAccessor level) throws LittleActionException {
         if (levelUUID != null) {
-            LittleEntity entity = LittleAnimationHandlers.find(level.isClientSide(), levelUUID);
+            LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide(), levelUUID);
             if (entity == null)
                 throw new MissingAnimationException(levelUUID);
             

@@ -3,6 +3,7 @@ package team.creative.littletiles.common.structure.signal.schedule;
 import java.lang.ref.WeakReference;
 
 import net.minecraft.world.level.Level;
+import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
@@ -37,7 +38,7 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
         if (inShortQueue()) {
             SignalOutputHandler handler = outputCondition.get();
             if (handler != null)
-                return SignalTicker.get(handler.component).getDelayOfQueue(delay);
+                return LittleSignalHandler.get(handler.component).getDelayOfQueue(delay);
         }
         return delay;
     }
@@ -51,7 +52,7 @@ public class SignalScheduleTicket implements ISignalScheduleTicket {
     }
     
     public boolean inShortQueue() {
-        return delay < SignalTicker.queueLength;
+        return delay < LittleSignalHandler.QUEUE_LENGTH;
     }
     
     public void enterShortQueue(int index) {

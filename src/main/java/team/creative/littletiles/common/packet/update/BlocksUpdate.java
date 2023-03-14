@@ -15,8 +15,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public class BlocksUpdate extends CreativePacket {
     
@@ -66,7 +66,7 @@ public class BlocksUpdate extends CreativePacket {
         LevelAccessor level = player.level;
         
         if (uuid != null) {
-            LittleEntity entity = LittleAnimationHandlers.find(true, uuid);
+            LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(true, uuid);
             if (entity == null)
                 return;
             
@@ -74,8 +74,8 @@ public class BlocksUpdate extends CreativePacket {
         }
         
         for (int i = 0; i < positions.size(); i++) {
-            if (level instanceof ClientLevel) {
-                ((ClientLevel) level).setBlocksDirty(positions.get(i), states.get(i), states.get(i));
+            if (level instanceof ClientLevel c) {
+                c.setBlocksDirty(positions.get(i), states.get(i), states.get(i));
                 if (tags.get(i) != null)
                     level.getBlockEntity(positions.get(i)).load(tags.get(i));
             } else {

@@ -141,9 +141,6 @@ public class PreviewRenderer implements LevelAwareHandler {
         marked = null;
     }
     
-    @Override
-    public void slowTick() {}
-    
     private void handleUndoAndRedo() {
         while (LittleTilesClient.undo.consumeClick()) {
             try {

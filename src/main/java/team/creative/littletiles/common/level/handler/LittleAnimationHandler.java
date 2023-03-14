@@ -16,6 +16,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.box.OBBVoxelShape;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -37,7 +40,17 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
     
-    public void tick() {}
+    protected void tickEntity(LittleEntity entity) {
+        if (entity.level != level || entity.level instanceof IOrientatedLevel)
+            return;
+        entity.performTick();
+    }
+    
+    public void tick(LevelTickEvent event) {
+        if (event.phase == Phase.END)
+            for (LittleEntity entity : entities)
+                tickEntity(entity);
+    }
     
     public List<LittleEntity> find(AABB bb) {
         if (entities.isEmpty())

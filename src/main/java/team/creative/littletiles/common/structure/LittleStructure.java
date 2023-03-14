@@ -79,7 +79,6 @@ import team.creative.littletiles.common.structure.exception.MissingParentExcepti
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.exception.RemovedStructureException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
-import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -628,6 +627,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         collector.process();
     }
     
+    public void animationTick(LittleAnimationEntity entity) {}
+    
     // ================Signal================
     
     public Iterable<ISignalStructureComponent> inputs() {
@@ -891,7 +892,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public void updateStructure() {
         if (getLevel() == null || isClient())
             return;
-        LittleSignalHandler.queueStructureForUpdatePacket(this);
+        LittleTiles.SIGNAL_HANDLERS.get(getLevel()).queueStructureForUpdatePacket(this);
     }
     
     public void sendUpdatePacket() {
@@ -970,7 +971,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     /** only server side **/
     public void queueForNextTick() {
-        LittleSignalHandler.queueStructureForNextTick(this);
+        LittleTiles.SIGNAL_HANDLERS.get(getLevel()).queueStructureForNextTick(this);
     }
     
     /** only server side **/

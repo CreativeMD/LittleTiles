@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.entity;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -11,7 +9,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -30,9 +27,8 @@ import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
-import team.creative.littletiles.common.item.ItemLittleWrench;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
@@ -224,13 +220,13 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-        LittleAnimationHandlers.get(level).add(this);
+        LittleTiles.ANIMATION_HANDLERS.get(level).add(this);
     }
     
     @Override
     public void onRemovedFromWorld() {
         super.onRemovedFromWorld();
-        LittleAnimationHandlers.get(level).remove(this);
+        LittleTiles.ANIMATION_HANDLERS.get(level).remove(this);
     }
     
     // ================MC Hooks================
@@ -327,16 +323,6 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         if (result == null || pos.distanceTo(tempResult.getLocation()) < distance)
             return new LittleHitResult(this, tempResult, subLevel);
         return result;
-    }
-    
-    public InteractionResult onRightClick(@Nullable Player player, HitResult result) {
-        if (result == null || !(result instanceof BlockHitResult))
-            return InteractionResult.PASS;
-        
-        if (player != null && player.getMainHandItem().getItem() instanceof ItemLittleWrench)
-            return ((ItemLittleWrench) player.getMainHandItem().getItem()).useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, (BlockHitResult) result));
-        
-        return subLevel.getBlockState(((BlockHitResult) result).getBlockPos()).use((Level) subLevel, player, InteractionHand.MAIN_HAND, (BlockHitResult) result);
     }
     
     // ================CLIENT================

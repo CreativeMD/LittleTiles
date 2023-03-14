@@ -5,24 +5,19 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.LevelEvent;
 import team.creative.littletiles.common.level.handler.LevelHandler;
-import team.creative.littletiles.common.level.handler.LevelHandlers;
 
-public class LevelHandlersClient extends LevelHandlers<LevelHandler> {
+public class LevelHandlersClient {
     
     private List<LevelAwareHandler> awareHandlers = new ArrayList<>();
-    private List<Consumer<? extends LevelHandler>> unloaders = new ArrayList<>();
-    private boolean loaded = false;
-    private int slowTicker = 0;
-    private int timeToCheckSlowTick = 100;
+    private List<LevelHandlerClient> handlers = new ArrayList<>();
     
     public LevelHandlersClient() {
-        super(true);
+        MinecraftForge.EVENT_BUS.addListener(this::load);
+        MinecraftForge.EVENT_BUS.addListener(this::unload);
     }
     
     public void register(LevelAwareHandler handler) {
@@ -30,34 +25,35 @@ public class LevelHandlersClient extends LevelHandlers<LevelHandler> {
     }
     
     public <T extends LevelHandler> void register(Function<Level, T> function, Consumer<T> consumer) {
-        register(x -> {
-            T handler = function.apply(x);
-            consumer.accept(handler);
-            return handler;
-        });
-        unloaders.add(consumer);
+        handlers.add(new LevelHandlerClient<>(function, consumer));
     }
     
-    @Override
-    protected void unload(Level level) {
-        super.unload(level);
-        unloaders.forEach(x -> x.accept(null));
+    public void load(LevelEvent.Load event) {
+        if (!event.getLevel().isClientSide())
+            return;
+        
+        for (int i = 0; i < handlers.size(); i++)
+            handlers.get(i).load((Level) event.getLevel());
+        
+        awareHandlers.forEach(x -> x.unload());
     }
     
-    @SubscribeEvent
-    public void tick(ClientTickEvent event) {
-        if (event.phase == Phase.START && ((Minecraft.getInstance().player != null) != loaded)) {
-            loaded = Minecraft.getInstance().player != null;
-            if (!loaded)
-                awareHandlers.forEach(x -> x.unload());
+    public void unload(LevelEvent.Unload event) {
+        if (!event.getLevel().isClientSide())
+            return;
+        
+        for (int i = 0; i < handlers.size(); i++)
+            handlers.get(i).unload();
+    }
+    
+    private static record LevelHandlerClient<T extends LevelHandler>(Function<Level, T> factory, Consumer<T> consumer) {
+        
+        public void load(Level level) {
+            consumer.accept(factory.apply(level));
         }
         
-        if (Minecraft.getInstance().player != null) {
-            slowTicker++;
-            if (slowTicker >= timeToCheckSlowTick) {
-                awareHandlers.forEach(x -> x.slowTick());
-                slowTicker = 0;
-            }
+        public void unload() {
+            consumer.accept(null);
         }
     }
 }

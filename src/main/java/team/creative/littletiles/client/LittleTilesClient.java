@@ -162,7 +162,6 @@ public class LittleTilesClient {
         MinecraftForge.EVENT_BUS.register(new LittleClientEventHandler());
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
-        LEVEL_HANDLERS.register(LittleAnimationHandlerClient::new, x -> ANIMATION_HANDLER = x);
         LEVEL_HANDLERS.register(LittleInteractionHandlerClient::new, x -> INTERACTION_HANDLER = x);
         LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
         LEVEL_HANDLERS.register(ITEM_RENDER_CACHE = new ItemRenderCache());

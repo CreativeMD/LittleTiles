@@ -13,11 +13,11 @@ import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalScheduleTicket;
-import team.creative.littletiles.common.structure.signal.schedule.SignalTicker;
 
 public enum SignalMode {
     
@@ -33,14 +33,14 @@ public enum SignalMode {
                 
                 @Override
                 public void queue(SignalState state) {
-                    SignalTicker.schedule(this, state, delay);
+                    LittleSignalHandler.schedule(this, state, delay);
                 }
                 
                 @Override
                 public void write(boolean preview, CompoundTag nbt) {
                     if (preview)
                         return;
-                    List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
+                    List<ISignalScheduleTicket> tickets = LittleSignalHandler.findTickets(component, this);
                     ListTag list = new ListTag();
                     for (int i = 0; i < tickets.size(); i++) {
                         ISignalScheduleTicket ticket = tickets.get(i);
@@ -58,7 +58,7 @@ public enum SignalMode {
                     if (array.length == 2) {
                         try {
                             SignalState state = SignalState.create(component.getBandwidth()).load(array[1]);
-                            SignalTicker.schedule(handler, state, array[0]);
+                            LittleSignalHandler.schedule(handler, state, array[0]);
                         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                         
                     }
@@ -109,7 +109,7 @@ public enum SignalMode {
                     if (array.length == 2) {
                         try {
                             SignalState state = SignalState.create(component.getBandwidth()).load(array[1]);
-                            SignalTicker.schedule(handler, state, array[0]);
+                            LittleSignalHandler.schedule(handler, state, array[0]);
                         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                     }
                 }
@@ -141,10 +141,10 @@ public enum SignalMode {
             SignalOutputHandler condition = new SignalOutputHandlerPulse(component, delay, nbt);
             if (hasWorld) {
                 if (nbt.contains("start")) {
-                    SignalTicker.schedule(condition, SignalState.TRUE, nbt.getInt("start"));
-                    SignalTicker.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
+                    LittleSignalHandler.schedule(condition, SignalState.TRUE, nbt.getInt("start"));
+                    LittleSignalHandler.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
                 } else if (nbt.contains("end"))
-                    SignalTicker.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
+                    LittleSignalHandler.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
             }
             return condition;
         }
@@ -181,7 +181,7 @@ public enum SignalMode {
                     if (ticket != null)
                         ticket.overwriteState(state);
                     else
-                        ticket = SignalTicker.schedule(this, state, delay);
+                        ticket = LittleSignalHandler.schedule(this, state, delay);
                 }
                 
                 @Override
@@ -208,7 +208,7 @@ public enum SignalMode {
                     if (array.length == 2) {
                         try {
                             SignalState state = SignalState.create(component.getBandwidth()).load(array[1]);
-                            handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                            handler.ticket = LittleSignalHandler.schedule(handler, state, array[0]);
                         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                     }
                 }
@@ -242,7 +242,7 @@ public enum SignalMode {
                 public void queue(SignalState state) {
                     if (ticket != null)
                         ticket.markObsolete();
-                    ticket = SignalTicker.schedule(this, state, delay);
+                    ticket = LittleSignalHandler.schedule(this, state, delay);
                 }
                 
                 @Override
@@ -271,7 +271,7 @@ public enum SignalMode {
                     if (array.length == 2) {
                         try {
                             SignalState state = SignalState.create(component.getBandwidth()).load(array[1]);
-                            handler.ticket = SignalTicker.schedule(handler, state, array[0]);
+                            handler.ticket = LittleSignalHandler.schedule(handler, state, array[0]);
                         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                     }
                 }
@@ -302,10 +302,10 @@ public enum SignalMode {
             SignalOutputHandler condition = new SignalOutputHandlerExtender(component, delay, nbt);
             if (hasWorld) {
                 if (nbt.contains("start")) {
-                    SignalTicker.schedule(condition, SignalState.TRUE, nbt.getInt("start"));
-                    SignalTicker.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
+                    LittleSignalHandler.schedule(condition, SignalState.TRUE, nbt.getInt("start"));
+                    LittleSignalHandler.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
                 } else if (nbt.contains("end"))
-                    SignalTicker.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
+                    LittleSignalHandler.schedule(condition, SignalState.FALSE, nbt.getInt("end"));
             }
             return condition;
         }
@@ -403,7 +403,7 @@ public enum SignalMode {
                         result = result.set(i, !result.is(i));
                     stateBefore = stateBefore.set(i, state.is(i));
                 }
-                SignalTicker.schedule(this, result, delay);
+                LittleSignalHandler.schedule(this, result, delay);
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
         
@@ -418,7 +418,7 @@ public enum SignalMode {
             }
             if (preview)
                 return;
-            List<ISignalScheduleTicket> tickets = SignalTicker.findTickets(component, this);
+            List<ISignalScheduleTicket> tickets = LittleSignalHandler.findTickets(component, this);
             ListTag list = new ListTag();
             for (int i = 0; i < tickets.size(); i++) {
                 ISignalScheduleTicket ticket = tickets.get(i);
@@ -471,8 +471,8 @@ public enum SignalMode {
                     int bandwidth = getBandwidth();
                     SignalState startState = SignalState.create(bandwidth).fill(true);
                     SignalState endState = SignalState.create(bandwidth);
-                    pulseStart = SignalTicker.schedule(this, startState, delay);
-                    pulseEnd = SignalTicker.schedule(this, endState, delay + pulseLength);
+                    pulseStart = LittleSignalHandler.schedule(this, startState, delay);
+                    pulseEnd = LittleSignalHandler.schedule(this, endState, delay + pulseLength);
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             }
             stateBefore = current;
@@ -538,7 +538,7 @@ public enum SignalMode {
                     } else if (pulseStart == null) {
                         
                         SignalState startState = SignalState.create(bandwidth).fill(true);
-                        pulseStart = SignalTicker.schedule(this, startState, delay);
+                        pulseStart = LittleSignalHandler.schedule(this, startState, delay);
                     }
                 } else if (stateBefore && !current) { // switch from on to off
                     if (pulseEnd != null) {
@@ -546,7 +546,7 @@ public enum SignalMode {
                         pulseEnd = null;
                     }
                     
-                    pulseEnd = SignalTicker.schedule(this, SignalState.create(bandwidth), delay + pulseLength);
+                    pulseEnd = LittleSignalHandler.schedule(this, SignalState.create(bandwidth), delay + pulseLength);
                 }
                 stateBefore = current;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}

@@ -11,9 +11,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 
 public class NeighborUpdate extends CreativePacket {
     
@@ -34,7 +34,7 @@ public class NeighborUpdate extends CreativePacket {
         Level level = player.level;
         
         if (uuid != null) {
-            LittleEntity entity = LittleAnimationHandlers.find(true, uuid);
+            LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(true, uuid);
             if (entity == null)
                 return;
             

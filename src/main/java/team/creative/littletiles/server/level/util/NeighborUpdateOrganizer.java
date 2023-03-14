@@ -57,33 +57,31 @@ public class NeighborUpdateOrganizer {
                             LittleTiles.NETWORK.sendToClient(new NeighborUpdate(level, collected), (ServerPlayer) player);
                     }
                     
-                } else if (level instanceof ISubLevel)
-                    LittleTiles.NETWORK.sendToClientTracking(new NeighborUpdate(level, entry.getValue()), ((ISubLevel) level).getHolder());
+                } else if (level instanceof ISubLevel sub)
+                    LittleTiles.NETWORK.sendToClientTracking(new NeighborUpdate(level, entry.getValue()), sub.getHolder());
             }
             
             positions.clear();
         }
     }
     
-    private static int checkerboardDistance(ChunkPos p_140339_, ServerPlayer p_140340_, boolean p_140341_) {
+    private static int checkerboardDistance(ChunkPos pos, ServerPlayer player, boolean p_140341_) {
         int i;
         int j;
         if (p_140341_) {
-            SectionPos sectionpos = p_140340_.getLastSectionPos();
+            SectionPos sectionpos = player.getLastSectionPos();
             i = sectionpos.x();
             j = sectionpos.z();
         } else {
-            i = SectionPos.blockToSectionCoord(p_140340_.getBlockX());
-            j = SectionPos.blockToSectionCoord(p_140340_.getBlockZ());
+            i = SectionPos.blockToSectionCoord(player.getBlockX());
+            j = SectionPos.blockToSectionCoord(player.getBlockZ());
         }
         
-        return checkerboardDistance(p_140339_, i, j);
+        return checkerboardDistance(pos, i, j);
     }
     
-    private static int checkerboardDistance(ChunkPos p_140207_, int p_140208_, int p_140209_) {
-        int i = p_140207_.x - p_140208_;
-        int j = p_140207_.z - p_140209_;
-        return Math.max(Math.abs(i), Math.abs(j));
+    private static int checkerboardDistance(ChunkPos pos, int x, int z) {
+        return Math.max(Math.abs(pos.x - x), Math.abs(pos.z - z));
     }
     
     @SubscribeEvent

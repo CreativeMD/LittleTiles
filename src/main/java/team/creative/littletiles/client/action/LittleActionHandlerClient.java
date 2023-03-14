@@ -147,4 +147,9 @@ public class LittleActionHandlerClient extends LevelHandler {
         return false;
     }
     
+    @Override
+    public void unload() {
+        lastActions.clear();
+        index = 0;
+    }
 }

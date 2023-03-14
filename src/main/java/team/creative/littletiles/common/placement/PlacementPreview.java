@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
@@ -22,7 +23,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -221,7 +221,7 @@ public class PlacementPreview {
     public Level getLevel(Entity entity) throws MissingAnimationException {
         Level level = entity.level;
         if (levelUUID != null) {
-            LittleEntity levelEntity = LittleAnimationHandlers.find(level.isClientSide, levelUUID);
+            LittleEntity levelEntity = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide, levelUUID);
             if (levelEntity == null)
                 throw new MissingAnimationException(levelUUID);
             

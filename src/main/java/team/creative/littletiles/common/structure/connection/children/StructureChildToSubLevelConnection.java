@@ -5,8 +5,8 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
@@ -35,7 +35,7 @@ public class StructureChildToSubLevelConnection extends StructureChildConnection
     
     @Override
     protected Level getLevel() throws CorruptedConnectionException, NotYetConnectedException {
-        LittleEntity animation = LittleAnimationHandlers.get(super.getLevel()).find(entityUUID);
+        LittleEntity animation = LittleTiles.ANIMATION_HANDLERS.get(super.getLevel()).find(entityUUID);
         if (animation != null)
             return (Level) animation.getSubLevel();
         throw new MissingAnimationException(entityUUID);

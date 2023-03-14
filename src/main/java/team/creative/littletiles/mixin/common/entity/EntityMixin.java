@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 @Mixin(Entity.class)
@@ -28,7 +28,7 @@ public class EntityMixin {
         Entity entity = asEntity();
         HitResult result = info.getReturnValue();
         double reachDistance = result != null ? pos.distanceTo(result.getLocation()) : (entity instanceof Player p ? PlayerUtils.getReach(p) : 4);
-        LittleHitResult hit = LittleAnimationHandlers.get(entity.level).getHit(pos, look, reachDistance);
+        LittleHitResult hit = LittleTiles.ANIMATION_HANDLERS.get(entity.level).getHit(pos, look, reachDistance);
         if (hit != null)
             info.setReturnValue(hit);
     }
