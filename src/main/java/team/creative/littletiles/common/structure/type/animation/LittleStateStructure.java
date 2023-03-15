@@ -13,6 +13,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -124,6 +125,13 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     public boolean isChanging() {
         return aimedState != -1;
+    }
+    
+    @Override
+    public void animationTick(LittleAnimationEntity entity) {
+        adsads
+        // TODO Auto-generated method stub
+        super.animationTick(entity);
     }
     
     protected abstract T createState(CompoundTag nbt);

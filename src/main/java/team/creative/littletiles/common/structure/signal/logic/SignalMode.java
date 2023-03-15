@@ -17,7 +17,7 @@ import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
-import team.creative.littletiles.common.structure.signal.schedule.ISignalScheduleTicket;
+import team.creative.littletiles.common.structure.signal.schedule.SignalScheduleTicket;
 
 public enum SignalMode {
     
@@ -40,10 +40,10 @@ public enum SignalMode {
                 public void write(boolean preview, CompoundTag nbt) {
                     if (preview)
                         return;
-                    List<ISignalScheduleTicket> tickets = LittleSignalHandler.findTickets(component, this);
+                    List<SignalScheduleTicket> tickets = LittleSignalHandler.findTickets(component, this);
                     ListTag list = new ListTag();
                     for (int i = 0; i < tickets.size(); i++) {
-                        ISignalScheduleTicket ticket = tickets.get(i);
+                        SignalScheduleTicket ticket = tickets.get(i);
                         list.add(new IntArrayTag(new int[] { ticket.getDelay(), ticket.getState().number() }));
                     }
                     if (!list.isEmpty())
@@ -352,7 +352,7 @@ public enum SignalMode {
     
     public static abstract class SignalOutputHandlerStoreOne extends SignalOutputHandler {
         
-        ISignalScheduleTicket ticket;
+        SignalScheduleTicket ticket;
         
         public SignalOutputHandlerStoreOne(ISignalComponent component, int delay, CompoundTag nbt) {
             super(component, delay, nbt);
@@ -418,10 +418,10 @@ public enum SignalMode {
             }
             if (preview)
                 return;
-            List<ISignalScheduleTicket> tickets = LittleSignalHandler.findTickets(component, this);
+            List<SignalScheduleTicket> tickets = LittleSignalHandler.findTickets(component, this);
             ListTag list = new ListTag();
             for (int i = 0; i < tickets.size(); i++) {
-                ISignalScheduleTicket ticket = tickets.get(i);
+                SignalScheduleTicket ticket = tickets.get(i);
                 list.add(new IntArrayTag(new int[] { ticket.getDelay(), ticket.getState().number() }));
             }
             if (!list.isEmpty())
@@ -433,8 +433,8 @@ public enum SignalMode {
         
         public final int pulseLength;
         public boolean stateBefore;
-        public ISignalScheduleTicket pulseStart;
-        public ISignalScheduleTicket pulseEnd;
+        public SignalScheduleTicket pulseStart;
+        public SignalScheduleTicket pulseEnd;
         
         public SignalOutputHandlerPulse(ISignalComponent component, int delay, CompoundTag nbt) {
             super(component, delay, nbt);
@@ -496,8 +496,8 @@ public enum SignalMode {
         
         public final int pulseLength;
         public boolean stateBefore;
-        public ISignalScheduleTicket pulseStart;
-        public ISignalScheduleTicket pulseEnd;
+        public SignalScheduleTicket pulseStart;
+        public SignalScheduleTicket pulseEnd;
         
         public SignalOutputHandlerExtender(ISignalComponent component, int delay, CompoundTag nbt) {
             super(component, delay, nbt);

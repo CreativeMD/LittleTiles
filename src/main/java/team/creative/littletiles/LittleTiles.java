@@ -63,9 +63,9 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.LittleToolHandler;
-import team.creative.littletiles.common.level.handler.LevelHandlers;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
+import team.creative.littletiles.common.level.tick.LittleTickers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
@@ -100,7 +100,6 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
-import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.premade.LittleExporter;
 import team.creative.littletiles.common.structure.type.premade.LittleImporter;
@@ -116,11 +115,7 @@ public class LittleTiles {
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
     public static final LittleAnimationHandlers ANIMATION_HANDLERS = new LittleAnimationHandlers();
-    public static final LevelHandlers<LittleSignalHandler> SIGNAL_HANDLERS = new LevelHandlers<LittleSignalHandler>(level -> {
-        if (level.isClientSide)
-            return null;
-        return new LittleSignalHandler(level);
-    });
+    public static final LittleTickers TICKERS = new LittleTickers();
     
     public static TagKey<Block> STORAGE_BLOCKS;
     

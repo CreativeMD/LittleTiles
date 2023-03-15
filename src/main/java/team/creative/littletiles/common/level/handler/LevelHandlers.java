@@ -17,12 +17,21 @@ public class LevelHandlers<T extends LevelHandler> {
         return !(level instanceof LittleSubLevel);
     }
     
-    private final Function<Level, T> factory;
+    protected final Function<Level, T> factory;
     private HashMap<Level, T> handlers = new HashMap<>();
+    
+    public LevelHandlers() {
+        this.factory = createFactory();
+        MinecraftForge.EVENT_BUS.addListener(this::unloadEvent);
+    }
     
     public LevelHandlers(Function<Level, T> factory) {
         this.factory = factory;
         MinecraftForge.EVENT_BUS.addListener(this::unloadEvent);
+    }
+    
+    protected Function<Level, T> createFactory() {
+        return null;
     }
     
     public Iterable<T> handlers(boolean client) {
@@ -52,7 +61,11 @@ public class LevelHandlers<T extends LevelHandler> {
         
         T handler = handlers.remove(event.getLevel());
         if (handler != null)
-            handler.unload();
+            unloadHandler(handler);
+    }
+    
+    protected void unloadHandler(T handler) {
+        handler.unload();
     }
     
 }

@@ -49,7 +49,7 @@ public class LittleClientEventHandler {
         if (event.getOverlayType() == OverlayType.WATER) {
             PoseStack pose = new PoseStack();
             Player player = event.getPlayer();
-            BlockPos blockpos = new BlockPos(player.getEyePosition(TickUtils.getFrameTime(player.level)));
+            BlockPos blockpos = BlockPos.containing(player.getEyePosition(TickUtils.getFrameTime(player.level)));
             BlockEntity blockEntity = player.level.getBlockEntity(blockpos);
             if (blockEntity instanceof BETiles be) {
                 AABB bb = player.getBoundingBox();
@@ -58,7 +58,6 @@ public class LittleClientEventHandler {
                     if (tile.isMaterial(Material.WATER) && tile.intersectsWith(bb, pair.key)) {
                         
                         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                        RenderSystem.enableTexture();
                         RenderSystem.setShaderTexture(0, RES_UNDERWATER_OVERLAY);
                         
                         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
