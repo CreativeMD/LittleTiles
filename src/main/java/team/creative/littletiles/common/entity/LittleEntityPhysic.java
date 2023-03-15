@@ -8,6 +8,7 @@ import team.creative.creativecore.common.util.math.collision.CollisionCoordinato
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
+import team.creative.littletiles.common.structure.animation.PhysicalState;
 
 public abstract class LittleEntityPhysic<T extends LittleEntity> {
     
@@ -126,6 +127,12 @@ public abstract class LittleEntityPhysic<T extends LittleEntity> {
     }
     
     protected abstract void saveExtra(CompoundTag nbt);
+    
+    public void set(PhysicalState state) {
+        IVecOrigin origin = getOrigin();
+        moveAndRotateAnimation(state.offX() - origin.offX(), state.offY() - origin.offY(), state.offZ() - origin.offZ(), state.rotX() - origin.rotX(), state.rotY() - origin
+                .rotY(), state.rotZ() - origin.rotZ());
+    }
     
     public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
         if (x == 0 && y == 0 && z == 0 && rotX == 0 && rotY == 0 && rotZ == 0)

@@ -60,7 +60,7 @@ public class LittleNoClipStructure extends LittleStructure {
     }
     
     @Override
-    public boolean queueTick() {
+    public boolean queuedTick() {
         int players = 0;
         for (Entity entity : entities)
             if (entity instanceof Player)

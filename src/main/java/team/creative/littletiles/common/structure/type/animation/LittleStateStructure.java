@@ -21,11 +21,12 @@ import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTransition;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
+import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
-public abstract class LittleStateStructure<T extends AnimationState> extends LittleStructure {
+public abstract class LittleStateStructure<T extends AnimationState> extends LittleStructure implements AnimationContext {
     
     @StructureDirectional
     private List<T> states = new ArrayList<>();
@@ -78,11 +79,28 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             this.timeline = timeline;
             this.timeline.start(states.get(start), states.get(end));
             this.physical = new PhysicalState();
+            queueForNextTick();
             return true;
         } catch (LittleActionException e) {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    @Override
+    public boolean queuedTick() {
+        if (timeline == null)
+            return false;
+        
+        LittleAnimationEntity animation = getAnimationEntity();
+        boolean done = timeline.tick(physical, this);
+        if (animation != null)
+            animation.physic.set(physical);
+        
+        if (done)
+            endTransition();
+        
+        return isChanging();
     }
     
     protected abstract boolean shouldStayAnimatedAfterTransitionEnd();
@@ -125,11 +143,6 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     public boolean isChanging() {
         return aimedState != -1;
-    }
-    
-    @Override
-    public void animationTick(LittleAnimationEntity entity) {
-        super.animationTick(entity);
     }
     
     protected abstract T createState(CompoundTag nbt);

@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.structure.animation;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -86,7 +85,6 @@ public abstract class AnimationTimeline {
     private int tick;
     private int eventIndex = 0;
     private List<AnimationEventEntry> events = new ArrayList<>();
-    private BitSet activeEvents = new BitSet();
     protected PhysicalState start;
     protected PhysicalState end;
     
@@ -98,10 +96,6 @@ public abstract class AnimationTimeline {
         ListTag list = nbt.getList("e", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
             events.add(new AnimationEventEntry(list.getCompound(i)));
-        
-        for (int i = 0; i < events.size(); i++)
-            if (events.get(i).active)
-                activeEvents.set(i);
     }
     
     public AnimationTimeline(int duration) {
@@ -116,7 +110,6 @@ public abstract class AnimationTimeline {
     }
     
     public void start(PhysicalState start, PhysicalState end) {
-        activeEvents.clear();
         this.start = start;
         this.end = end;
     }
@@ -131,26 +124,20 @@ public abstract class AnimationTimeline {
         tickState(tick, state);
         
         if (eventIndex < events.size()) {
-            while (events.get(eventIndex).tick <= tick) {
+            while (events.get(eventIndex).start <= tick) {
                 AnimationEventEntry entry = events.get(eventIndex);
                 entry.start(context);
-                activeEvents.set(eventIndex);
                 eventIndex++;
             }
             
-            int next = 0;
-            while ((next = activeEvents.nextSetBit(next)) != -1) {
-                AnimationEventEntry entry = events.get(next);
-                entry.tick(context);
-                if (entry.endTick >= tick) {
+            for (AnimationEventEntry entry : events) {
+                entry.tick(tick, context);
+                if (entry.start + entry.duration >= tick)
                     entry.end(context);
-                    activeEvents.clear(next);
-                }
-                next++;
             }
         }
         
-        return true;
+        return tick > duration;
     }
     
     public void end() {
@@ -534,27 +521,27 @@ public abstract class AnimationTimeline {
         
     }
     
-    public class AnimationEventEntry implements Comparable<AnimationEventEntry> {
+    public static class AnimationEventEntry implements Comparable<AnimationEventEntry> {
         
         public final AnimationEvent event;
-        public final int tick;
-        public final int endTick;
+        public final int start;
+        public final int duration;
         private boolean active = false;
         
         AnimationEventEntry(CompoundTag nbt) {
-            this.tick = nbt.getInt("tick");
-            this.endTick = nbt.getInt("end");
+            this.start = nbt.getInt("t");
+            this.duration = nbt.getInt("d");
             try {
-                this.event = AnimationEvent.REGISTRY.create(nbt.getString("id"), nbt.get("data"));
+                this.event = AnimationEvent.REGISTRY.create(nbt.getString("id"), nbt.get("e"));
             } catch (RegistryException e) {
                 throw new RuntimeException(e);
             }
-            this.active = nbt.getBoolean("active");
+            this.active = nbt.getBoolean("a");
         }
         
-        public AnimationEventEntry(int tick, int endTick, AnimationEvent event) {
-            this.tick = tick;
-            this.endTick = endTick;
+        public AnimationEventEntry(int tick, int duration, AnimationEvent event) {
+            this.start = tick;
+            this.duration = duration;
             this.event = event;
         }
         
@@ -563,27 +550,27 @@ public abstract class AnimationTimeline {
             event.start(context);
         }
         
-        public void tick(AnimationContext context) {
-            event.tick(tick, duration, context);
+        public void tick(int current, AnimationContext context) {
+            event.tick(current - start, duration, context);
         }
         
         public void end(AnimationContext context) {
             active = false;
-            event.start(context);
+            event.end(context);
         }
         
         @Override
         public int compareTo(AnimationEventEntry o) {
-            return Integer.compare(tick, o.tick);
+            return Integer.compare(start, o.start);
         }
         
         public CompoundTag save() {
             CompoundTag nbt = new CompoundTag();
-            nbt.putInt("tick", tick);
-            nbt.putInt("end", endTick);
-            nbt.putBoolean("active", active);
+            nbt.putInt("t", start);
+            nbt.putInt("d", duration);
+            nbt.putBoolean("a", active);
             nbt.putString("id", AnimationEvent.REGISTRY.getId(event));
-            nbt.put("data", event.save());
+            nbt.put("e", event.save());
             return nbt;
         }
         

@@ -627,8 +627,6 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         collector.process();
     }
     
-    public void animationTick(LittleAnimationEntity entity) {}
-    
     // ================Signal================
     
     public Iterable<ISignalStructureComponent> inputs() {
@@ -975,7 +973,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     /** only server side **/
-    public boolean queueTick() {
+    public boolean queuedTick() {
         return false;
     }
     
