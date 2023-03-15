@@ -221,8 +221,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         }
         
         private void handleBlockEntity(CompileResults results, BETiles entity) {
-            if (entity instanceof BETiles tiles)
-                LittleChunkDispatcher.add(LittleAnimationRenderManager.this, tiles, this);
+            LittleChunkDispatcher.add(LittleAnimationRenderManager.this, entity, this);
             BlockEntityRenderer blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))
