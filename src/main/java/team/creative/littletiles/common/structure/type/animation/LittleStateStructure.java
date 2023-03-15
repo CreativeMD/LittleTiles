@@ -129,8 +129,6 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     @Override
     public void animationTick(LittleAnimationEntity entity) {
-        adsads
-        // TODO Auto-generated method stub
         super.animationTick(entity);
     }
     

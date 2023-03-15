@@ -103,6 +103,10 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
         this.renderManager.setSectionDirtyWithNeighbors(x, y, z);
     }
     
+    public void setSectionDirty(int x, int y, int z) {
+        this.renderManager.setSectionDirty(x, y, z);
+    }
+    
     @Override
     public void setLightReady(int x, int z) {
         LevelChunk levelchunk = this.getChunkSource().getChunk(x, z, false);

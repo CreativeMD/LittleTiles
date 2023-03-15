@@ -117,7 +117,6 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.disableTexture();
         RenderSystem.setShaderColor(1, 1, 1, 1);
         
         PoseStack empty = new PoseStack();

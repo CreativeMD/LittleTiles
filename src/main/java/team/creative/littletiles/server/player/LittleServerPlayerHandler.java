@@ -21,7 +21,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
@@ -164,11 +163,6 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     @Override
     public ServerPlayer getPlayer() {
         return player;
-    }
-    
-    @Override
-    public Connection getConnection() {
-        return null;
     }
     
     public ServerGamePacketListenerImpl getVanilla() {
@@ -1039,8 +1033,14 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         return InteractionResult.PASS;
     }
     
+    @Override
+    public boolean isAcceptingMessages() {
+        return getVanilla().isAcceptingMessages();
+    }
+    
     @FunctionalInterface
     interface EntityInteraction {
         InteractionResult run(ServerPlayer player, Entity entity, InteractionHand hand);
     }
+    
 }

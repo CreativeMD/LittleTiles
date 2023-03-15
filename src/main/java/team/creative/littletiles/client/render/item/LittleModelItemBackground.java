@@ -7,10 +7,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -40,10 +40,10 @@ public class LittleModelItemBackground extends CreativeItemModel {
     }
     
     @Override
-    public void applyCustomOpenGLHackery(PoseStack pose, ItemStack stack, TransformType cameraTransformType) {
-        if (cameraTransformType == TransformType.GUI || shouldRenderFake(stack)) {
+    public void applyCustomOpenGLHackery(PoseStack pose, ItemStack stack, ItemDisplayContext cameraTransformType) {
+        if (cameraTransformType == ItemDisplayContext.GUI || shouldRenderFake(stack)) {
             
-            if (cameraTransformType == TransformType.GUI)
+            if (cameraTransformType == ItemDisplayContext.GUI)
                 RenderSystem.disableDepthTest();
             
             pose.pushPose();
@@ -58,7 +58,7 @@ public class LittleModelItemBackground extends CreativeItemModel {
             mc.getItemRenderer().render(toFake, cameraTransformType, false, pose, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, model);
             multibuffersource$buffersource.endBatch();
             
-            if (cameraTransformType == TransformType.GUI)
+            if (cameraTransformType == ItemDisplayContext.GUI)
                 RenderSystem.enableDepthTest();
             
             pose.popPose();

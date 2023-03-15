@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import com.mojang.datafixers.DataFixer;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -40,8 +41,8 @@ import team.creative.littletiles.server.level.little.LittleServerLevel;
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level {
     
-    protected ServerLevelMixin(WritableLevelData data, ResourceKey<Level> key, Holder<DimensionType> dim, Supplier<ProfilerFiller> prof, boolean p_220356_, boolean p_220357_, long p_220358_, int p_220359_) {
-        super(data, key, dim, prof, p_220356_, p_220357_, p_220358_, p_220359_);
+    protected ServerLevelMixin(WritableLevelData data, ResourceKey<Level> key, RegistryAccess access, Holder<DimensionType> dim, Supplier<ProfilerFiller> prof, boolean p_220356_, boolean p_220357_, long p_220358_, int p_220359_) {
+        super(data, key, access, dim, prof, p_220356_, p_220357_, p_220358_, p_220359_);
     }
     
     @Redirect(at = @At(value = "NEW", target = "net/minecraft/server/level/ServerChunkCache"), method = "<init>", require = 1)

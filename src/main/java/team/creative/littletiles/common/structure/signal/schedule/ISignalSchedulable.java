@@ -1,9 +1,9 @@
 package team.creative.littletiles.common.structure.signal.schedule;
 
 import net.minecraft.world.level.Level;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.common.structure.signal.LittleSignalHandler;
 
 public interface ISignalSchedulable {
     
@@ -26,7 +26,7 @@ public interface ISignalSchedulable {
     
     public default void schedule() {
         if (!hasChanged() && isStillAvailable()) {
-            LittleSignalHandler.schedule(getComponentLevel(), this);
+            LittleTiles.TICKERS.markSignalChanged(getComponentLevel(), this);
             markChanged();
         }
     }

@@ -134,7 +134,7 @@ public class LittleTiles {
     
     public void buildContents(CreativeModeTabEvent.Register event) {
         event.registerCreativeModeTab(new ResourceLocation(MODID, "items"), x -> x.title(Component.translatable("itemGroup.littletiles"))
-                .icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.get())).displayItems((features, output, permission) -> {
+                .icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.get())).displayItems((features, output) -> {
                     for (ExampleStructures example : ExampleStructures.values())
                         if (example.stack != null)
                             output.accept(example.stack);
@@ -300,7 +300,7 @@ public class LittleTiles {
         event.getServer().getCommands().getDispatcher().register(Commands.literal("level").executes((x) -> {
             try {
                 ServerLevel level = x.getSource().getLevel();
-                BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
+                BlockPos pos = BlockPos.containing(x.getSource().getPosition()).above();
                 
                 LittleEntity entity = new LittleLevelEntity(level, pos);
                 
@@ -335,7 +335,7 @@ public class LittleTiles {
         event.getServer().getCommands().getDispatcher().register(Commands.literal("animation").executes((x) -> {
             try {
                 ServerLevel level = x.getSource().getLevel();
-                BlockPos pos = new BlockPos(x.getSource().getPosition()).above();
+                BlockPos pos = BlockPos.containing(x.getSource().getPosition()).above();
                 
                 LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
                 LittleGrid grid = LittleGrid.defaultGrid();

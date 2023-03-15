@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -20,6 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
@@ -143,8 +143,7 @@ public class LittleChunkSerializer {
     
     public static CompoundTag write(LittleServerLevel level, ChunkAccess chunk) {
         ChunkPos chunkpos = chunk.getPos();
-        CompoundTag nbt = new CompoundTag();
-        nbt.putInt("DataVersion", SharedConstants.getCurrentVersion().getWorldVersion());
+        CompoundTag nbt = NbtUtils.addCurrentDataVersion(new CompoundTag());
         nbt.putInt("xPos", chunkpos.x);
         nbt.putInt("yPos", chunk.getMinSection());
         nbt.putInt("zPos", chunkpos.z);

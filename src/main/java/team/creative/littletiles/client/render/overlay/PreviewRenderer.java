@@ -197,7 +197,6 @@ public class PreviewRenderer implements LevelAwareHandler {
                         RenderSystem
                                 .blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                         RenderSystem.setShaderColor(1, 1, 1, 1);
-                        RenderSystem.enableTexture();
                         
                         RenderSystem.setShaderTexture(0, WHITE_TEXTURE);
                         mc.textureManager.bindForSetup(WHITE_TEXTURE);
@@ -237,7 +236,6 @@ public class PreviewRenderer implements LevelAwareHandler {
                         }
                         
                         RenderSystem.depthMask(true);
-                        RenderSystem.enableTexture();
                         RenderSystem.disableBlend();
                     }
                     
@@ -357,7 +355,6 @@ public class PreviewRenderer implements LevelAwareHandler {
             RenderSystem.disableCull();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.disableTexture();
             RenderSystem.enableDepthTest();
             
             if (stack.getItem() instanceof ILittleEditor) {

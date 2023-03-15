@@ -892,7 +892,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public void updateStructure() {
         if (getLevel() == null || isClient())
             return;
-        LittleTiles.SIGNAL_HANDLERS.get(getLevel()).queueStructureForUpdatePacket(this);
+        LittleTiles.TICKERS.markUpdate(this);
     }
     
     public void sendUpdatePacket() {
@@ -971,7 +971,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     /** only server side **/
     public void queueForNextTick() {
-        LittleTiles.SIGNAL_HANDLERS.get(getLevel()).queueStructureForNextTick(this);
+        LittleTiles.TICKERS.queueNexTick(this);
     }
     
     /** only server side **/

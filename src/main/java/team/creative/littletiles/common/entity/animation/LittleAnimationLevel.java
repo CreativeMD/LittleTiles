@@ -102,7 +102,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     private final BlockStatePredictionHandler blockStatePredictionHandler = new BlockStatePredictionHandler();
     
     public LittleAnimationLevel(Level level) {
-        super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE)
+        super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess(), level.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE)
                 .getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), level.getProfilerSupplier(), level.isClientSide, level.isDebug(), 0, 1000000);
         this.parentLevel = level;
         this.chunks = new LittleAnimationChunkCache(this);
