@@ -50,7 +50,7 @@ public class LevelHandlers<T extends LevelHandler> {
             handler = factory.apply(level);
             if (handler == null)
                 return null;
-            return handlers.put(level, handler);
+            handlers.put(level, handler);
         }
         return handler;
     }
