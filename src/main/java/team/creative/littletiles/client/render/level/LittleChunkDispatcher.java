@@ -24,7 +24,8 @@ public class LittleChunkDispatcher {
     public static void onReloadRenderers(LevelRenderer levelRenderer) {
         if (mc.levelRenderer == levelRenderer)
             currentRenderState++;
-        LittleTilesClient.ANIMATION_HANDLER.allChanged();
+        if (LittleTilesClient.ANIMATION_HANDLER != null)
+            LittleTilesClient.ANIMATION_HANDLER.allChanged();
     }
     
     public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunkExtender chunk) {
