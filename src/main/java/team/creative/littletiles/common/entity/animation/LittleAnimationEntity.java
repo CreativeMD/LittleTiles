@@ -58,14 +58,17 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         super(type, level);
     }
     
-    public LittleAnimationEntity(Level level, LittleSubLevel subLevel, StructureAbsolute center, Placement placement) throws LittleActionException {
+    public LittleAnimationEntity(Level level, LittleAnimationLevel subLevel, StructureAbsolute center, Placement placement) throws LittleActionException {
         super(LittleTilesRegistry.ENTITY_ANIMATION.get(), level, subLevel, center.rotationCenter);
         setCenter(center);
+        beforeInitalPlacement();
         PlacementResult result = placement.place();
         if (result == null)
             throw new LittleActionException("Could not be placed");
-        this.structure = new StructureConnection((Level) subLevel, new LocalStructureLocation(result.parentStructure));
+        this.structure = new StructureConnection(subLevel, new LocalStructureLocation(result.parentStructure));
     }
+    
+    protected void beforeInitalPlacement() {}
     
     @Override
     protected LittleSubLevel createLevel() {

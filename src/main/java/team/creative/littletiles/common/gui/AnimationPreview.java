@@ -6,18 +6,18 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
+import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
+import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
@@ -26,7 +26,6 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
 import team.creative.littletiles.server.level.little.FakeServerLevel;
-import team.creative.littletiles.server.level.little.SubServerLevel;
 
 public class AnimationPreview {
     
@@ -42,7 +41,7 @@ public class AnimationPreview {
         BlockPos pos = new BlockPos(0, 0, 0);
         FakeClientLevel fakeWorld = FakeServerLevel.createClient("animationViewer");
         fakeWorld.setOrigin(new Vec3d());
-        LittleSubLevel subLevel = SubServerLevel.createSubLevel(fakeWorld);
+        LittleAnimationLevel subLevel = new LittleAnimationLevel(fakeWorld);
         
         if (!previews.hasStructure()) {
             CompoundTag nbt = new CompoundTag();
@@ -56,10 +55,15 @@ public class AnimationPreview {
             previews = group;
         }
         
-        Placement placement = new Placement(null, (Level) subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), placement);
+        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), placement) {
+            @Override
+            protected void beforeInitalPlacement() {
+                getSubLevel().renderManager = new LittleAnimationRenderManager(this);
+            }
+        };
     }
     
     public void unload() {
