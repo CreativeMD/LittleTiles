@@ -4,16 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.mojang.authlib.GameProfile;
+
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -37,6 +44,7 @@ import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
@@ -57,7 +65,8 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     
     protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
-        super(null, data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
+        super(FakeClientPacketListener.get(access), data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE)
+                .getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
         this.access = access;
     }
     
@@ -235,5 +244,27 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     @Override
     public void tick() {
         tickBlockEntities();
+    }
+    
+    private static class FakeClientPacketListener extends ClientPacketListener {
+        
+        private static final FakeClientPacketListener INSTANCE = CreativeHackery.allocateInstance(FakeClientPacketListener.class);
+        
+        public static FakeClientPacketListener get(RegistryAccess access) {
+            INSTANCE.access = access;
+            return INSTANCE;
+        }
+        
+        private RegistryAccess access;
+        
+        public FakeClientPacketListener(Minecraft p_253924_, Screen p_254239_, Connection p_253614_, ServerData p_254072_, GameProfile p_254079_, WorldSessionTelemetryManager p_262115_) {
+            super(p_253924_, p_254239_, p_253614_, p_254072_, p_254079_, p_262115_);
+        }
+        
+        @Override
+        public RegistryAccess registryAccess() {
+            return access;
+        }
+        
     }
 }
