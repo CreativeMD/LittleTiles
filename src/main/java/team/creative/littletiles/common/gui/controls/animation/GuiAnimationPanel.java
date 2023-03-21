@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.controls;
+package team.creative.littletiles.common.gui.controls.animation;
 
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -8,7 +8,6 @@ import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.util.text.TextBuilder;
-import team.creative.littletiles.common.gui.controls.GuiAnimationViewer.GuiAnimationViewerStorage;
 
 public class GuiAnimationPanel extends GuiParent {
     

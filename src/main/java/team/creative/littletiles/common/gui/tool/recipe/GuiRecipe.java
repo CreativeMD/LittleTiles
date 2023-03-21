@@ -40,7 +40,7 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.recipe.test.GuiRecipeTest;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;

@@ -1,9 +1,12 @@
 package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -16,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -36,9 +41,8 @@ import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.AnimationPreview;
-import team.creative.littletiles.common.gui.controls.GuiAnimationPanel;
-import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
-import team.creative.littletiles.common.gui.controls.GuiAnimationViewer.GuiAnimationViewerStorage;
+import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.controls.animation.GuiAnimationViewerStorage;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage {
@@ -290,8 +294,15 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
     public void highlightSelected(boolean value) {}
     
     @Override
-    public void render(PoseStack pose, PoseStack projection, GuiAnimationViewer viewer, Minecraft mc) {
-        viewer.renderPreview(pose, projection, current, mc);
+    @OnlyIn(Dist.CLIENT)
+    public Iterable<AnimationPreview> previewsToRender() {
+        return Collections.EMPTY_LIST;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void renderAll(PoseStack pose, Matrix4f projection, Minecraft mc) {
+        renderPreview(pose, projection, current, mc);
     }
     
     public static class GuiRecipeAddTreeItem extends GuiTreeItem {

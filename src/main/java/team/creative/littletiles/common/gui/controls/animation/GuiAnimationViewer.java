@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.controls;
+package team.creative.littletiles.common.gui.controls.animation;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -8,17 +8,11 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
 
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
@@ -28,13 +22,8 @@ import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.littletiles.common.gui.AnimationPreview;
-import team.creative.littletiles.mixin.client.render.LightTextureAccessor;
 
 public class GuiAnimationViewer extends GuiControl {
-    
-    private static final Camera FAKE_CAMERA = new Camera();
     
     public SmoothValue offX = new SmoothValue(200);
     public SmoothValue offY = new SmoothValue(200);
@@ -118,86 +107,6 @@ public class GuiAnimationViewer extends GuiControl {
         initialized = false;
     }
     
-    public static int[][] makeLightBright() {
-        int[][] pixels = new int[16][16];
-        LightTextureAccessor texture = (LightTextureAccessor) Minecraft.getInstance().gameRenderer.lightTexture();
-        for (int x = 0; x < 16; x++)
-            for (int y = 0; y < 16; y++) {
-                pixels[x][y] = texture.getLightPixels().getPixelRGBA(x, y);
-                texture.getLightPixels().setPixelRGBA(x, y, ColorUtils.WHITE);
-            }
-        
-        texture.getLightTexture().upload();
-        return pixels;
-    }
-    
-    public static void resetLight(int[][] pixels) {
-        LightTextureAccessor texture = (LightTextureAccessor) Minecraft.getInstance().gameRenderer.lightTexture();
-        for (int x = 0; x < 16; x++)
-            for (int y = 0; y < 16; y++)
-                texture.getLightPixels().setPixelRGBA(x, y, pixels[x][y]);
-        texture.getLightTexture().upload();
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public void renderPreview(PoseStack pose, PoseStack projection, AnimationPreview preview, Minecraft mc) {
-        preview.animation.getRenderManager().setupRender(FAKE_CAMERA, null, false, false);
-        preview.animation.getRenderManager().compileChunks(FAKE_CAMERA);
-        
-        Matrix4f matrix = projection.last().pose();
-        
-        renderChunkLayer(preview, RenderType.solid(), pose, matrix);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-        renderChunkLayer(preview, RenderType.cutoutMipped(), pose, matrix);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
-        renderChunkLayer(preview, RenderType.cutout(), pose, matrix);
-        
-        renderChunkLayer(preview, RenderType.translucent(), pose, matrix);
-    }
-    
-    protected void renderChunkLayer(AnimationPreview preview, RenderType layer, PoseStack pose, Matrix4f matrix) {
-        layer.setupRenderState();
-        ShaderInstance shaderinstance = RenderSystem.getShader();
-        
-        for (int i = 0; i < 12; ++i)
-            shaderinstance.setSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
-        
-        if (shaderinstance.MODEL_VIEW_MATRIX != null)
-            shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
-        
-        if (shaderinstance.PROJECTION_MATRIX != null)
-            shaderinstance.PROJECTION_MATRIX.set(matrix);
-        
-        if (shaderinstance.COLOR_MODULATOR != null)
-            shaderinstance.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
-        
-        if (shaderinstance.FOG_START != null)
-            shaderinstance.FOG_START.set(RenderSystem.getShaderFogStart());
-        
-        if (shaderinstance.FOG_END != null)
-            shaderinstance.FOG_END.set(RenderSystem.getShaderFogEnd());
-        
-        if (shaderinstance.FOG_COLOR != null)
-            shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
-        
-        if (shaderinstance.FOG_SHAPE != null)
-            shaderinstance.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
-        
-        if (shaderinstance.TEXTURE_MATRIX != null)
-            shaderinstance.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
-        
-        if (shaderinstance.GAME_TIME != null)
-            shaderinstance.GAME_TIME.set(RenderSystem.getShaderGameTime());
-        
-        RenderSystem.setupShaderLights(shaderinstance);
-        shaderinstance.apply();
-        
-        preview.animation.getRenderManager().renderChunkLayer(layer, pose, 0, 0, 0, matrix, shaderinstance.CHUNK_OFFSET);
-        shaderinstance.clear();
-        VertexBuffer.unbind();
-        layer.clearRenderState();
-    }
-    
     public PoseStack getProjectionMatrix(Minecraft mc, double fov, float width, float height) {
         PoseStack posestack = new PoseStack();
         posestack.setIdentity();
@@ -264,7 +173,6 @@ public class GuiAnimationViewer extends GuiControl {
         }
         Minecraft mc = Minecraft.getInstance();
         Window window = mc.getWindow();
-        int[][] pixels = makeLightBright();
         
         rotX.tick();
         rotY.tick();
@@ -311,7 +219,7 @@ public class GuiAnimationViewer extends GuiControl {
         Vec3d center = storage.center();
         this.projection.prepareRendering(pose, center, this);
         
-        storage.render(pose, projection, this, mc);
+        storage.renderAll(pose, projection.last().pose(), mc);
         
         pose.popPose();
         
@@ -324,7 +232,7 @@ public class GuiAnimationViewer extends GuiControl {
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
-        resetLight(pixels);
+        
     }
     
     @Override
@@ -497,25 +405,6 @@ public class GuiAnimationViewer extends GuiControl {
         public abstract void lateral(float amount, GuiAnimationViewer viewer);
         
         public abstract void up(float amount, GuiAnimationViewer viewer);
-        
-    }
-    
-    public interface GuiAnimationViewerStorage {
-        
-        public boolean isReady();
-        
-        public double longestSide();
-        
-        public AABB overall();
-        
-        public Vec3d center();
-        
-        public boolean highlightSelected();
-        
-        public void highlightSelected(boolean value);
-        
-        @OnlyIn(Dist.CLIENT)
-        public void render(PoseStack pose, PoseStack projection, GuiAnimationViewer viewer, Minecraft mc);
         
     }
 }

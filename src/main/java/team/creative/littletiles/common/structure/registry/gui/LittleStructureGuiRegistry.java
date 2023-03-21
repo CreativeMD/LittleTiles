@@ -90,7 +90,7 @@ public class LittleStructureGuiRegistry {
         LittleStructureGui advancedDoor = new LittleStructureGui("door.advanced", door, LittleDoorAdvancedGui::new);
         LittleStructureGui activatorDoor = new LittleStructureGui("door.activator", door, LittleDoorActivatorGui::new);
         register((type, group) -> {
-            if (type != door)
+            if (type != door || group.getStructureTag() == null)
                 return null;
             return switch (group.getStructureTag().getString("parser")) {
                 case "axis" -> axisDoor;

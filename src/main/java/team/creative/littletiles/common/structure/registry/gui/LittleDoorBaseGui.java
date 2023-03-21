@@ -4,9 +4,17 @@ import javax.annotation.Nullable;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
+import team.creative.littletiles.common.structure.relative.StructureRelative;
+import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
@@ -21,6 +29,21 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
     @Override
     public void create(@Nullable LittleStructure structure) {
+        LittleGrid grid;
+        LittleBox box;
+        ValueInterpolation inter;
+        if (structure instanceof LittleDoor door) {
+            grid = door.center.getGrid();
+            box = door.center.getBox();
+            inter = door.interpolation;
+        } else {
+            grid = item.group.getGrid();
+            box = new LittleBox(item.group.getMinVec());
+            inter = ValueInterpolation.HERMITE;
+        }
+        
+        add(new GuiIsoAnimationViewer("viewer", item, box, grid).setDim(200, 200));
+        add(new GuiStateButtonMapped<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>().addComponent(ValueInterpolation.values(), x -> x.translate())));
         /*boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
         boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
         boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
@@ -37,9 +60,9 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
     @Override
     public LittleStructure save(LittleStructure structure) {
-        /*LittleDoorBase door = (LittleDoorBase) structure;
+        LittleDoor door = (LittleDoor) structure;
         
-        GuiDoorSettingsButton settings = get("settings", GuiDoorSettingsButton.class);
+        /*GuiDoorSettingsButton settings = get("settings", GuiDoorSettingsButton.class);
         
         door.duration = (int) get("duration_s", GuiSteppedSlider.class).value;
         door.stayAnimated = settings.stayAnimated;
@@ -48,6 +71,10 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         door.playPlaceSounds = settings.playPlaceSounds;
         door.events = get("children_activate", GuiDoorEventsButton.class).events;
         door.interpolation = get("interpolation", GuiStateButton.class).getState();*/
+        GuiIsoAnimationViewer viewer = get("viewer");
+        GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
+        door.center = new StructureRelative(viewer.getBox(), viewer.getGrid());
+        door.interpolation = inter.getSelected();
         return structure;
     }
     

@@ -1,10 +1,13 @@
 package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -23,14 +26,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.AnimationPreview;
-import team.creative.littletiles.common.gui.controls.GuiAnimationViewer;
-import team.creative.littletiles.common.gui.controls.GuiAnimationViewer.GuiAnimationViewerStorage;
+import team.creative.littletiles.common.gui.controls.animation.GuiAnimationViewerStorage;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
@@ -93,7 +96,13 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack pose, PoseStack projection, GuiAnimationViewer viewer, Minecraft mc) {
+    public Iterable<AnimationPreview> previewsToRender() {
+        return Collections.EMPTY_LIST;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void renderAll(PoseStack pose, Matrix4f projection, Minecraft mc) {
         GuiTreeItemStructure selected = null;
         for (Entry<GuiTreeItemStructure, AnimationPreview> entry : this) {
             if (entry.getKey().tree.hasCheckboxes() && !entry.getKey().isChecked())
@@ -105,7 +114,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             if (offset != null)
                 pose.translate(offset.getPosX(), offset.getPosY(), offset.getPosZ());
             
-            viewer.renderPreview(pose, projection, entry.getValue(), mc);
+            renderPreview(pose, projection, entry.getValue(), mc);
             
             if (highlightSelected && entry.getKey().selected())
                 selected = entry.getKey();
@@ -122,7 +131,6 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         PoseStack empty = new PoseStack();
         empty.setIdentity();
         
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
         RenderSystem.applyModelViewMatrix();
         
         if (selected != null) {
@@ -144,6 +152,8 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.getBuilder();
             
+            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            
             bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             RenderSystem.lineWidth(1.0F);
             PreviewRenderer.renderShape(empty, bufferbuilder, shape, x, y, z, 1, 1, 1, 1);
@@ -151,7 +161,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         }
         
         if (hasOverlap()) {
-            
+            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.getBuilder();
             int colorAlpha = 102;
@@ -164,13 +174,19 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
                 
                 for (LittleBox box : entry.getValue()) {
                     RenderBox renderBox = box.getRenderingBox(grid);
+                    
                     RenderSystem.disableDepthTest();
-                    RenderSystem.lineWidth(8.0F);
-                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
-                    RenderSystem.enableDepthTest();
                     RenderSystem.lineWidth(4.0F);
-                    renderBox.color = ColorUtils.RED;
+                    bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                     renderBox.renderLines(empty, bufferbuilder, colorAlpha);
+                    tesselator.end();
+                    
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.lineWidth(2.0F);
+                    renderBox.color = ColorUtils.RED;
+                    bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
+                    tesselator.end();
                 }
                 pose.popPose();
             }
@@ -220,8 +236,34 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         return overall;
     }
     
+    public boolean isReady(GuiTreeItemStructure structure) {
+        return availablePreviews.containsKey(structure);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public void renderItemAndChildren(PoseStack pose, Matrix4f projection, Minecraft mc, GuiTreeItemStructure structure) {
+        int[][] pixels = GuiAnimationViewerStorage.makeLightBright();
+        renderItemAndChildrenInternal(pose, projection, mc, structure);
+        GuiAnimationViewerStorage.resetLight(pixels);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    protected void renderItemAndChildrenInternal(PoseStack pose, Matrix4f projection, Minecraft mc, GuiTreeItemStructure structure) {
+        AnimationPreview preview = availablePreviews.get(structure);
+        if (preview != null)
+            renderPreview(pose, projection, preview, mc);
+        for (GuiTreeItem item : structure.items())
+            renderItemAndChildrenInternal(pose, projection, mc, (GuiTreeItemStructure) item);
+    }
+    
+    public AnimationPreview get(GuiTreeItemStructure structure) {
+        return availablePreviews.get(structure);
+    }
+    
     protected void remove(GuiTreeItemStructure structure) {
-        availablePreviews.remove(structure).unload();
+        AnimationPreview removed = availablePreviews.remove(structure);
+        if (removed != null)
+            removed.unload();
         updateBox();
     }
     
