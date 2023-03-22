@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.gui.controls.animation;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -16,6 +17,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
@@ -35,7 +37,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 
 public class GuiIsoAnimationViewer extends GuiControl {
     
-    private static final int DRAG_TIME = 20;
+    private static final float MAXIMUM_ZOOM = 1F / (float) LittleGrid.defaultGrid().pixelLength;
     
     protected SmoothValue rotX = new SmoothValue(200);
     protected SmoothValue rotY = new SmoothValue(200);
@@ -47,7 +49,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
     
     private GuiIsoView view;
     
-    private int clicked = -1;
+    private boolean initialized = false;
     private boolean grabbed = false;
     public double grabX;
     public double grabY;
@@ -116,53 +118,83 @@ public class GuiIsoAnimationViewer extends GuiControl {
         super.mouseMoved(rect, x, y);
         if (!grabbed)
             return;
-        offX.add((x - grabX) / 100);
-        offY.add((y - grabY) / 100);
+        double scale = calculateScale(rect);
+        offX.add((x - grabX) / scale);
+        offY.add((y - grabY) / scale);
         grabX = x;
         grabY = y;
-    }
-    
-    @Override
-    public void mouseDragged(Rect rect, double x, double y, int button, double dragX, double dragY, double time) {
-        if (clicked == button && time > DRAG_TIME)
-            grabbed = true;
     }
     
     @Override
     public boolean mouseClicked(Rect rect, double x, double y, int button) {
-        if (button == 2) {
-            offX.set(0);
-            offY.set(0);
-            scale.set(1);
-            setView(GuiIsoView.values()[(view.ordinal() + 1) % GuiIsoView.values().length]);
+        switch (button) {
+            case 0 -> {
+                grabX = x;
+                grabY = y;
+                grabbed = true;
+            }
+            case 1 -> clickToSetAxis(rect, x, y);
+            case 2 -> {
+                resetView();
+                setView(GuiIsoView.values()[(view.ordinal() + 1) % GuiIsoView.values().length]);
+            }
         }
-        grabX = x;
-        grabY = y;
-        clicked = button;
         return true;
     }
     
     @Override
     public void mouseReleased(Rect rect, double x, double y, int button) {
-        if (clicked == button && !grabbed)
-            click(rect, x, y, button);
-        clicked = -1;
         grabbed = false;
     }
     
     @Override
     public boolean mouseScrolled(Rect rect, double x, double y, double delta) {
-        scale.add(4 * delta * (Screen.hasControlDown() ? 5 : 1));
+        scale.add(0.05 * delta * (Screen.hasControlDown() ? 5 : 1));
+        if (Math.pow(scale.aimed(), 2) > MAXIMUM_ZOOM)
+            scale.set(Math.sqrt(MAXIMUM_ZOOM));
+        if (scale.aimed() < 0)
+            scale.set(0);
         return true;
     }
     
-    public void click(Rect rect, double x, double y, int button) {
+    public void clickToSetAxis(Rect rect, double x, double y) {
+        GuiRecipeAnimationStorage storage = item.recipe.storage;
+        if (!storage.isReady() || !storage.isReady(item))
+            return;
         
+        float scale = calculateScale(rect);
+        Vec3d center = storage.center();
+        
+        team.creative.creativecore.common.util.math.base.Axis one = view.xAxis.axis;
+        int posOne = grid.toGrid(-offX.current() * view.xAxis.offset() + ((x - rect.getWidth() / 2) / scale) * view.xAxis.offset() + center.get(one));
+        int sizeOne = box.getSize(one);
+        box.setMax(one, posOne + sizeOne);
+        box.setMin(one, posOne);
+        
+        team.creative.creativecore.common.util.math.base.Axis two = view.yAxis.axis;
+        int posTwo = grid.toGrid((-offY.current() + (y - rect.getHeight() / 2) / scale) * -view.yAxis.offset() + center.get(two));
+        int sizeTwo = box.getSize(two);
+        box.setMax(two, posTwo + sizeTwo);
+        box.setMin(two, posTwo);
+        
+        playSound(SoundEvents.WOODEN_BUTTON_CLICK_ON);
     }
     
     @Override
     public ControlFormatting getControlFormatting() {
         return ControlFormatting.NESTED_NO_PADDING;
+    }
+    
+    public void resetView() {
+        offX.set(0);
+        offY.set(0);
+        
+        scale.set(Math.sqrt(0.9 / item.recipe.storage.longestSide()));
+    }
+    
+    protected float calculateScale(Rect rect) {
+        float dimensionScale = Math.min((float) rect.getWidth(), (float) rect.getHeight());
+        return (float) (dimensionScale * Math.pow(this.scale.current(), 2));
     }
     
     @Override
@@ -172,6 +204,11 @@ public class GuiIsoAnimationViewer extends GuiControl {
         
         if (!storage.isReady() || !storage.isReady(item))
             return;
+        
+        if (!initialized) {
+            resetView();
+            initialized = true;
+        }
         
         rotX.tick();
         rotY.tick();
@@ -202,27 +239,26 @@ public class GuiIsoAnimationViewer extends GuiControl {
         projection.setIdentity();
         projection.mulPoseMatrix(new Matrix4f().setOrtho(0.0F, (float) rect.getWidth(), 0, (float) rect.getHeight(), 1000.0F, ForgeHooksClient.getGuiFarPlane()));
         RenderSystem.setProjectionMatrix(projection.last().pose());
+        Matrix3f matrix3f = new Matrix3f(projection.last().normal()).invert();
+        RenderSystem.setInverseViewRotationMatrix(matrix3f);
         
         Vec3d center = storage.center();
         
         pose.translate(rect.getWidth() / 2, rect.getHeight() / 2, 0);
         
-        float scale = Math.max(1F, (float) (Math.min(rect.getWidth(), rect.getHeight()) + this.scale.current()));
+        float scale = calculateScale(rect);
         pose.scale(scale, scale, scale);
         
-        pose.translate(offX.current(), offY.current(), 0);
+        pose.translate(offX.current(), -offY.current(), 0);
         
         pose.mulPose(Axis.XP.rotationDegrees((float) rotX.current()));
         pose.mulPose(Axis.YP.rotationDegrees((float) rotY.current()));
         pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         pose.translate(-center.x, -center.y, -center.z);
         
-        pose.pushPose();
-        RenderSystem.applyModelViewMatrix();
-        //storage.renderItemAndChildren(pose, RenderSystem.getProjectionMatrix(), mc, item);
         storage.renderAll(pose, projection.last().pose(), mc);
-        pose.popPose();
         
+        RenderSystem.applyModelViewMatrix();
         RenderSystem.depthMask(true);
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
@@ -230,8 +266,6 @@ public class GuiIsoAnimationViewer extends GuiControl {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         if (visibleAxis) {
             RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-            RenderSystem.applyModelViewMatrix();
-            
             PoseStack empty = new PoseStack();
             empty.setIdentity();
             
@@ -244,8 +278,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
             RenderSystem.disableDepthTest();
             RenderSystem.lineWidth(8.0F);
             renderBox.renderLines(empty, bufferbuilder, colorAlpha);
-            
             tesselator.end();
+            
         }
         
         pose.popPose();
@@ -288,12 +322,12 @@ public class GuiIsoAnimationViewer extends GuiControl {
     
     static enum GuiIsoView {
         
-        UP(90, 90, 0, Facing.EAST, Facing.SOUTH, Facing.UP),
-        DOWN(-90, 90, 0, Facing.EAST, Facing.NORTH, Facing.DOWN),
-        EAST(0, 0, 0, Facing.SOUTH, Facing.UP, Facing.EAST),
-        WEST(0, 180, 0, Facing.NORTH, Facing.UP, Facing.WEST),
-        SOUTH(0, -90, 0, Facing.WEST, Facing.UP, Facing.SOUTH),
-        NORTH(0, 90, 0, Facing.EAST, Facing.UP, Facing.SOUTH);
+        UP(90, 90, 0, Facing.SOUTH, Facing.EAST, Facing.UP),
+        DOWN(-90, 90, 0, Facing.SOUTH, Facing.WEST, Facing.DOWN),
+        EAST(0, -90, 0, Facing.NORTH, Facing.UP, Facing.EAST),
+        WEST(0, 90, 0, Facing.SOUTH, Facing.UP, Facing.WEST),
+        SOUTH(0, 0, 0, Facing.EAST, Facing.UP, Facing.SOUTH),
+        NORTH(0, 180, 0, Facing.WEST, Facing.UP, Facing.NORTH);
         
         public final float rotX;
         public final float rotY;
