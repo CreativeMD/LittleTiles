@@ -7,7 +7,7 @@ import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
 
-public class LittleDoor extends LittleUndirectedStateStructure {
+public abstract class LittleDoor extends LittleUndirectedStateStructure {
     
     public int duration;
     public ValueInterpolation interpolation;

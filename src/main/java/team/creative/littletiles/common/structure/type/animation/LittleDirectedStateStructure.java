@@ -20,6 +20,8 @@ import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleDirectedStateStructure extends LittleStateStructure<AnimationStateDirected> {
     
+    private static final AnimationStateDirected EMPTY = new AnimationStateDirected("");
+    
     @StructureDirectional
     private List<AnimationTransition> transitions = new ArrayList<>();
     private int currentTransition = -1;
@@ -31,6 +33,11 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     @Override
     protected AnimationStateDirected createState(CompoundTag nbt) {
         return new AnimationStateDirected(nbt);
+    }
+    
+    @Override
+    protected AnimationStateDirected getEmptyState() {
+        return EMPTY;
     }
     
     @Override

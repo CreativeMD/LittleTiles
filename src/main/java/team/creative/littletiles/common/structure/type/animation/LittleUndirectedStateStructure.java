@@ -14,6 +14,8 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 
 public abstract class LittleUndirectedStateStructure extends LittleStateStructure<AnimationState> {
     
+    private static final AnimationState EMPTY = new AnimationState("");
+    
     @StructureDirectional
     private List<AnimationTransition> transitions = new ArrayList<>();
     
@@ -24,6 +26,11 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     @Override
     protected AnimationState createState(CompoundTag nbt) {
         return new AnimationState(nbt);
+    }
+    
+    @Override
+    protected AnimationState getEmptyState() {
+        return EMPTY;
     }
     
     @Override

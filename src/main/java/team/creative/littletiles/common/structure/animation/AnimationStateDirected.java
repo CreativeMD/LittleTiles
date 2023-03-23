@@ -22,6 +22,10 @@ public class AnimationStateDirected extends AnimationState {
             triggers.add(new AnimationSignalTrigger(list.getCompound(i)));
     }
     
+    public AnimationStateDirected(String name) {
+        super(name);
+    }
+    
     @Override
     public CompoundTag save() {
         CompoundTag nbt = super.save();

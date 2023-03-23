@@ -134,7 +134,9 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     }
     
     public T current() {
-        return states.get(currentState);
+        if (currentState >= 0 || currentState < states.size())
+            return states.get(currentState);
+        return getEmptyState();
     }
     
     public int currentIndex() {
@@ -147,6 +149,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     protected abstract T createState(CompoundTag nbt);
     
+    protected abstract T getEmptyState();
+    
     @Override
     protected void loadExtra(CompoundTag nbt) {
         ListTag stateList = nbt.getList("s", Tag.TAG_COMPOUND);
@@ -156,11 +160,11 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         this.states = new ObjectImmutableList<>(states);
         
         currentState = nbt.getInt("cS");
-        if (currentState < 0 || currentState >= states.size())
-            throw new RuntimeException("Invalid state structure! State " + currentState + " not found. Only got " + states.size() + " states");
+        //if (currentState < 0 || currentState >= states.size()) 
+        //throw new RuntimeException("Invalid state structure! State " + currentState + " not found. Only got " + states.size() + " states");
         
         aimedState = nbt.getInt("aS");
-        if (aimedState < 0 || aimedState >= states.size())
+        if (aimedState >= 0 || aimedState >= states.size())
             throw new RuntimeException("Invalid state structure! Aimed State " + aimedState + " not found. Only got " + states.size() + " states");
         
         if (nbt.contains("timeline"))
@@ -196,6 +200,15 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             nbt.putBoolean("stay", stayAnimated);
         else
             nbt.remove("stay");
+    }
+    
+    public void putState(T state) {
+        for (int i = 0; i < states.size(); i++)
+            if (states.get(i).name.equals(state.name)) {
+                states.set(i, state);
+                return;
+            }
+        states.add(state);
     }
     
 }

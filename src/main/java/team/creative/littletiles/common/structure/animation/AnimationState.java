@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 
 public class AnimationState extends PhysicalState {
     
-    private final String name;
+    public final String name;
     
     private boolean backToBlockform;
     
@@ -12,6 +12,12 @@ public class AnimationState extends PhysicalState {
         super(nbt);
         this.name = nbt.getString("n");
         this.backToBlockform = nbt.getBoolean("b");
+    }
+    
+    public AnimationState(String name) {
+        super();
+        this.name = name;
+        this.backToBlockform = true;
     }
     
     @Override

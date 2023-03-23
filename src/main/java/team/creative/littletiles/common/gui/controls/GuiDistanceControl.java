@@ -2,6 +2,7 @@ package team.creative.littletiles.common.gui.controls;
 
 import net.minecraft.util.Mth;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
@@ -10,14 +11,15 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 
-public class GuiLTDistance extends GuiParent {
+public class GuiDistanceControl extends GuiParent {
     
-    public GuiLTDistance(String name, LittleGrid context, int distance) {
+    public GuiDistanceControl(String name, LittleGrid context, int distance) {
         super(name);
         add(new GuiTextfield("blocks", "").setNumbersIncludingNegativeOnly().setTooltip(new TextBuilder().translate("gui.distance.blocks").build()));
         add(new GuiStateButtonMapped<LittleGrid>("grid", LittleGrid.mapBuilder()));
         add(new GuiTextfield("ltdistance", "").setNumbersIncludingNegativeOnly().setTooltip(new TextBuilder().translate("gui.distance.pixels").build()));
         setDistance(context, distance);
+        setVAlign(VAlign.STRETCH);
     }
     
     @Override
@@ -67,6 +69,10 @@ public class GuiLTDistance extends GuiParent {
     public LittleGrid getDistanceGrid() {
         GuiStateButtonMapped<LittleGrid> contextBox = (GuiStateButtonMapped<LittleGrid>) get("grid");
         return contextBox.getSelected(LittleGrid.defaultGrid());
+    }
+    
+    public double getVanillaDistance() {
+        return getDistanceGrid().toVanillaGrid(getDistance());
     }
     
 }

@@ -84,27 +84,10 @@ public class LittleStructureGuiRegistry {
         register("simple.light", get("light"), LittleLightGui::new);
         register("simple.message", get("message"), LittleMessageGui::new);
         
-        LittleStructureType door = get("door");
-        LittleStructureGui axisDoor = new LittleStructureGui("door.axis", door, LittleDoorAxisGui::new);
-        LittleStructureGui slidingDoor = new LittleStructureGui("door.sliding", door, LittleDoorSlidingGui::new);
-        LittleStructureGui advancedDoor = new LittleStructureGui("door.advanced", door, LittleDoorAdvancedGui::new);
-        LittleStructureGui activatorDoor = new LittleStructureGui("door.activator", door, LittleDoorActivatorGui::new);
-        register((type, group) -> {
-            if (type != door || group.getStructureTag() == null)
-                return null;
-            return switch (group.getStructureTag().getString("parser")) {
-                case "axis" -> axisDoor;
-                case "sliding" -> slidingDoor;
-                case "advanced" -> advancedDoor;
-                case "activator" -> activatorDoor;
-                default -> null;
-            };
-        });
-        
-        registerTreeOnly(axisDoor);
-        registerTreeOnly(slidingDoor);
-        registerTreeOnly(advancedDoor);
-        registerTreeOnly(activatorDoor);
+        register("door.axis", get("axis"), LittleDoorAxisGui::new);
+        register("door.sliding", get("sliding"), LittleDoorSlidingGui::new);
+        register("door.advanced", get("door"), LittleDoorAdvancedGui::new);
+        register("door.activator", get("activator"), LittleDoorActivatorGui::new);
     }
     
 }

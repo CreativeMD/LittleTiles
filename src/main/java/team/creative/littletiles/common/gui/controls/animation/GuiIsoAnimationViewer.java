@@ -21,15 +21,18 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
+import team.creative.creativecore.client.render.GuiRenderHelper;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
+import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationStorage;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
@@ -80,7 +83,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
     public void setAxis(LittleBox box, LittleGrid grid) {
         this.box = box.copy();
         this.grid = grid;
-        raiseEvent(new GuiControlChangedEvent(this));
+        raiseEvent(new GuiAnimationAxisChangedEvent(this));
     }
     
     public boolean isEven() {
@@ -103,7 +106,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
             box.minY += 1;
             box.minZ += 1;
         }
-        raiseEvent(new GuiControlChangedEvent(this));
+        raiseEvent(new GuiAnimationAxisChangedEvent(this));
     }
     
     public void setView(GuiIsoView view) {
@@ -111,6 +114,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
         this.rotX.set(view.rotX);
         this.rotY.set(view.rotY);
         this.rotZ.set(view.rotZ);
+        if (getParent() != null)
+            raiseEvent(new GuiAnimationViewChangedEvent(this));
     }
     
     @Override
@@ -134,10 +139,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
                 grabbed = true;
             }
             case 1 -> clickToSetAxis(rect, x, y);
-            case 2 -> {
-                resetView();
-                setView(GuiIsoView.values()[(view.ordinal() + 1) % GuiIsoView.values().length]);
-            }
+            case 2 -> resetView();
         }
         return true;
     }
@@ -177,6 +179,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
         box.setMax(two, posTwo + sizeTwo);
         box.setMin(two, posTwo);
         
+        raiseEvent(new GuiAnimationAxisChangedEvent(this));
+        
         playSound(SoundEvents.WOODEN_BUTTON_CLICK_ON);
     }
     
@@ -190,6 +194,26 @@ public class GuiIsoAnimationViewer extends GuiControl {
         offY.set(0);
         
         scale.set(Math.sqrt(0.9 / item.recipe.storage.longestSide()));
+    }
+    
+    public void nextAxis() {
+        setView(team.creative.creativecore.common.util.math.base.Axis
+                .values()[(view.zAxis.axis.ordinal() + 1) % team.creative.creativecore.common.util.math.base.Axis.values().length].facing(true));
+    }
+    
+    public void mirrorView() {
+        setView(view.zAxis.opposite());
+    }
+    
+    public void setView(Facing facing) {
+        setView(switch (facing) {
+            case EAST -> GuiIsoView.EAST;
+            case WEST -> GuiIsoView.WEST;
+            case UP -> GuiIsoView.UP;
+            case DOWN -> GuiIsoView.DOWN;
+            case SOUTH -> GuiIsoView.SOUTH;
+            case NORTH -> GuiIsoView.NORTH;
+        });
     }
     
     protected float calculateScale(Rect rect) {
@@ -290,9 +314,29 @@ public class GuiIsoAnimationViewer extends GuiControl {
                         .getGuiFarPlane()));
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
-        RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
+        
+        {
+            pose.pushPose();
+            RenderSystem.applyModelViewMatrix();
+            
+            int axisWidth = 20;
+            int axisHeight = 16;
+            pose.translate(rect.getWidth() / 2 - axisWidth / 2, rect.getHeight() - axisHeight - 2, 0);
+            Minecraft.getInstance().font.drawShadow(pose, view.xAxis.axis.name(), 0, 0, ColorUtils.WHITE);
+            GuiIcon icon = view.xAxis.positive ? GuiIcon.ARROW_RIGHT : GuiIcon.ARROW_LEFT;
+            RenderSystem.setShaderTexture(0, icon.location());
+            RenderSystem.setShaderColor(0, 0, 0, 1);
+            GuiRenderHelper.textureRect(pose, 5, 0, icon.minX(), icon.minY(), icon.minX() + icon.width(), icon.minY() + icon.height());
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            GuiRenderHelper.textureRect(pose, 4, 0, icon.minX(), icon.minY(), icon.minX() + icon.width(), icon.minY() + icon.height());
+            
+            pose.popPose();
+        }
+        
+        RenderSystem.applyModelViewMatrix();
+        
     }
     
     @Override
@@ -318,6 +362,34 @@ public class GuiIsoAnimationViewer extends GuiControl {
     @Override
     protected int preferredHeight(int width, int availableHeight) {
         return 10;
+    }
+    
+    public Facing getXFacing() {
+        return view.xAxis;
+    }
+    
+    public Facing getYFacing() {
+        return view.yAxis;
+    }
+    
+    public Facing getZFacing() {
+        return view.zAxis;
+    }
+    
+    public static class GuiAnimationAxisChangedEvent extends GuiControlChangedEvent {
+        
+        public GuiAnimationAxisChangedEvent(GuiIsoAnimationViewer viewer) {
+            super(viewer);
+        }
+        
+    }
+    
+    public static class GuiAnimationViewChangedEvent extends GuiControlChangedEvent {
+        
+        public GuiAnimationViewChangedEvent(GuiIsoAnimationViewer viewer) {
+            super(viewer);
+        }
+        
     }
     
     static enum GuiIsoView {

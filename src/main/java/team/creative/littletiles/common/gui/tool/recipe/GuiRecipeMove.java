@@ -19,7 +19,7 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.itr.TreeIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiLTDistance;
+import team.creative.littletiles.common.gui.controls.GuiDistanceControl;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -81,7 +81,7 @@ public class GuiRecipeMove extends GuiLayer {
         GuiParent config = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.CENTER);
         upper.add(config.setDim(new GuiSizeRatioRules().widthRatio(0.3F)));
         
-        config.add(new GuiLTDistance("distance", LittleGrid.defaultGrid(), 1));
+        config.add(new GuiDistanceControl("distance", LittleGrid.defaultGrid(), 1));
         
         GuiParent row1 = new GuiParent();
         config.add(row1);
@@ -115,7 +115,7 @@ public class GuiRecipeMove extends GuiLayer {
     }
     
     public void move(Facing facing) {
-        GuiLTDistance distance = get("distance");
+        GuiDistanceControl distance = get("distance");
         GuiStateButtonMapped<GuiRecipeMoveMode> modes = get("modes");
         LittleVec direction = new LittleVec(facing);
         direction.scale(distance.getDistance());

@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.animation;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 
@@ -66,6 +67,20 @@ public class PhysicalState {
         return rotation.z;
     }
     
+    public void off(Axis axis, double value) {
+        offset.set(axis, value);
+    }
+    
+    public void off(Facing facing, double value) {
+        offset.set(facing.axis, facing.offset() * value);
+    }
+    
+    public void off(double x, double y, double z) {
+        offset.x = x;
+        offset.y = y;
+        offset.z = z;
+    }
+    
     public void offX(double value) {
         offset.x = value;
     }
@@ -76,6 +91,12 @@ public class PhysicalState {
     
     public void offZ(double value) {
         offset.z = value;
+    }
+    
+    public void rot(double x, double y, double z) {
+        rotation.x = x;
+        rotation.y = y;
+        rotation.z = z;
     }
     
     public void rotX(double value) {

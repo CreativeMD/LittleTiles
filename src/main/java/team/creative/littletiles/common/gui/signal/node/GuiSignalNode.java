@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalController;
@@ -68,12 +67,12 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
     }
     
     public void reset() {
-        setTooltip(null);
+        setTooltip((List) null);
         setDefaultColor(ColorUtils.WHITE);
     }
     
     public void setError(String error) {
-        setTooltip(new TextBuilder().translate(error).build());
+        setTooltip(error);
         setDefaultColor(ColorUtils.RED);
     }
     

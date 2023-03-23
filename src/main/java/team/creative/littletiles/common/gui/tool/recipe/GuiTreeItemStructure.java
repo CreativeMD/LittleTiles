@@ -258,7 +258,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     
     public void updateTooltip() {
         if (errors == null || errors.isEmpty()) {
-            setTooltip(null);
+            setTooltip((List) null);
             return;
         }
         
