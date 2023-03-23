@@ -75,9 +75,6 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
     @Override
     public T action(Player player) throws LittleActionException {
         
-        if (isRightClick())
-            return ignored();
-        
         Level level = player.level;
         
         transformedPos = this.pos;

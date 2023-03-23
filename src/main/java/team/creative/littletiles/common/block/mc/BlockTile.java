@@ -271,26 +271,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         return getCollisionShape(state, level, pos, CollisionContext.empty());
     }
     
-    @Override
-    public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        // All tiles that can interact (be right clicked)
-        VoxelShape shape = Shapes.empty();
-        BETiles be = loadBE(level, pos);
-        if (be != null) {
-            for (IParentCollection parent : be.groups()) {
-                try {
-                    boolean canInteract = parent.isStructure() && parent.getStructure().canInteract();
-                    for (LittleTile tile : parent)
-                        if (canInteract || tile.canInteract())
-                            shape = Shapes.or(shape, tile.getShapes(parent));
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-                
-            }
-        }
-        
-        return shape;
-    }
-    
     @OnlyIn(Dist.CLIENT)
     public VoxelShape getSelectionShape(BlockGetter level, BlockPos pos) {
         LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
