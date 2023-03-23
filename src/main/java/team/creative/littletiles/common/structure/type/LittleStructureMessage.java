@@ -32,7 +32,7 @@ public class LittleStructureMessage extends LittleStructure {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (allowRightClick) {
-            player.sendSystemMessage(Component.literal(text));
+            player.displayClientMessage(Component.literal(text), true);
             return InteractionResult.SUCCESS;
         }
         return super.use(level, context, pos, player, result);
