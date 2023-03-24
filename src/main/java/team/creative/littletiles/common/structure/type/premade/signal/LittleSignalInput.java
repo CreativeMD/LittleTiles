@@ -24,7 +24,6 @@ import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -39,7 +38,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     @StructureDirectional
     public Facing facing;
     
-    public LittleSignalInput(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleSignalInput(LittleStructureTypeInput type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
         this.state = SignalState.create(getBandwidth());
     }
@@ -285,7 +284,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     
     public static class LittleStructureTypeInput extends LittleStructureTypeNetwork {
         
-        public <T extends LittleStructure> LittleStructureTypeInput(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth) {
+        public <T extends LittleSignalInput> LittleStructureTypeInput(String id, Class<T> structureClass, BiFunction<? extends LittleStructureTypeInput, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth) {
             super(id, structureClass, factory, attribute, modid, bandwidth, 1);
         }
         

@@ -4,7 +4,6 @@ import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 
 public class LittleSlidingDoor extends LittleDoor {
@@ -14,7 +13,7 @@ public class LittleSlidingDoor extends LittleDoor {
     public LittleGrid grid;
     public int distance;
     
-    public LittleSlidingDoor(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleSlidingDoor(LittleStateStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     

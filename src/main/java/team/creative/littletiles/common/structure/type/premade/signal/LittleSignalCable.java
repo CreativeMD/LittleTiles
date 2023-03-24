@@ -14,8 +14,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.SurroundingBox;
-import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -23,7 +21,7 @@ import team.creative.littletiles.common.structure.signal.network.ISignalStructur
 
 public class LittleSignalCable extends LittleSignalCableBase implements ISignalStructureTransmitter {
     
-    public LittleSignalCable(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleSignalCable(LittleStructureTypeCable type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -47,14 +45,14 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
     public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
         super.render(box, overallBox, cubes);
         
-        LittleRenderBox block = (LittleRenderBox) new LittleRenderBox(box.getGrid(), overallBox, LittleTilesRegistry.CLEAN.get().defaultBlockState()).setColor(color);
+        LittleRenderBox block = new LittleRenderBox(box.getGrid(), overallBox, LittleTilesRegistry.CLEAN.get().defaultBlockState()).setColor(color);
         block.allowOverlap = true;
         cubes.add(block);
     }
     
     public static class LittleStructureTypeCable extends LittleStructureTypeNetwork {
         
-        public <T extends LittleStructure> LittleStructureTypeCable(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth) {
+        public <T extends LittleSignalCable> LittleStructureTypeCable(String id, Class<T> structureClass, BiFunction<? extends LittleStructureTypeCable, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth) {
             super(id, structureClass, factory, attribute, modid, bandwidth, 6);
         }
         

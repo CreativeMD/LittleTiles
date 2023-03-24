@@ -30,6 +30,7 @@ import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 import team.creative.littletiles.common.structure.type.animation.LittleActivatorDoor;
 import team.creative.littletiles.common.structure.type.animation.LittleAdvancedDoor;
 import team.creative.littletiles.common.structure.type.animation.LittleAxisDoor;
+import team.creative.littletiles.common.structure.type.animation.LittleDoor.LittleDoorType;
 import team.creative.littletiles.common.structure.type.animation.LittleSlidingDoor;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
@@ -73,10 +74,10 @@ public class LittleStructureRegistry {
                 .register(new LittleStructureBuilderType(register("item_holder", LittleItemHolder.class, LittleItemHolder::new, new LittleAttributeBuilder().extraRendering())
                         .addInput("filled", 1), "frame"));
         
-        register("axis", LittleAxisDoor.class, LittleAxisDoor::new, LittleAttributeBuilder.NONE);
-        register("sliding", LittleSlidingDoor.class, LittleSlidingDoor::new, LittleAttributeBuilder.NONE);
-        register("door", LittleAdvancedDoor.class, LittleAdvancedDoor::new, LittleAttributeBuilder.NONE);
-        register("activator", LittleActivatorDoor.class, LittleActivatorDoor::new, LittleAttributeBuilder.NONE);
+        register(new LittleDoorType("axis", LittleAxisDoor.class, LittleAxisDoor::new, LittleAttributeBuilder.NONE));
+        register(new LittleDoorType("sliding", LittleSlidingDoor.class, LittleSlidingDoor::new, LittleAttributeBuilder.NONE));
+        register(new LittleDoorType("door", LittleAdvancedDoor.class, LittleAdvancedDoor::new, LittleAttributeBuilder.NONE));
+        register(new LittleDoorType("activator", LittleActivatorDoor.class, LittleActivatorDoor::new, LittleAttributeBuilder.NONE));
         
         LittlePremadeRegistry.initStructures();
     }

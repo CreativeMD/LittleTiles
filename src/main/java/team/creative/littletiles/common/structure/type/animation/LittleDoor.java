@@ -1,11 +1,14 @@
 package team.creative.littletiles.common.structure.type.animation;
 
+import java.util.function.BiFunction;
+
 import net.minecraft.nbt.CompoundTag;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public abstract class LittleDoor extends LittleUndirectedStateStructure {
     
@@ -17,7 +20,7 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     public boolean noClip = false;
     public boolean playPlaceSounds = true;
     
-    public LittleDoor(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleDoor(LittleStateStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -69,6 +72,14 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
             nbt.putBoolean("sound", playPlaceSounds);
         else
             nbt.remove("sound");
+    }
+    
+    public static class LittleDoorType extends LittleStateStructureType {
+        
+        public <T extends LittleDoor> LittleDoorType(String id, Class<T> structureClass, BiFunction<? extends LittleStateStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
+            super(id, structureClass, factory, attribute, 1, SignalMode.TOGGLE);
+        }
+        
     }
     
 }

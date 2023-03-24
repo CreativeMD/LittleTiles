@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.type.animation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import javax.annotation.Nullable;
 
@@ -22,9 +23,11 @@ import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTransition;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
+import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
+import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public abstract class LittleStateStructure<T extends AnimationState> extends LittleStructure implements AnimationContext {
     
@@ -40,7 +43,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     public boolean stayAnimated = false;
     
-    public LittleStateStructure(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleStateStructure(LittleStateStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -73,13 +76,15 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         }
         
         try {
+            LittleStateStructure structure = this;
             if (!states.get(end).isAligned() && !isAnimated())
-                changeToEntityForm();
-            this.aimedState = end;
-            this.timeline = timeline;
-            this.timeline.start(states.get(start), states.get(end));
-            this.physical = new PhysicalState();
-            queueForNextTick();
+                structure = (LittleStateStructure) changeToEntityForm().getStructure();
+            
+            structure.aimedState = end;
+            structure.timeline = timeline;
+            structure.timeline.start(states.get(start), states.get(end));
+            structure.physical = new PhysicalState();
+            structure.queueForNextTick();
             return true;
         } catch (LittleActionException e) {
             e.printStackTrace();
@@ -156,7 +161,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         ListTag stateList = nbt.getList("s", Tag.TAG_COMPOUND);
         List<T> states = new ArrayList<>(stateList.size());
         for (int i = 0; i < stateList.size(); i++)
-            states.add(createState(nbt));
+            states.add(createState(stateList.getCompound(i)));
         this.states = new ObjectImmutableList<>(states);
         
         currentState = nbt.getInt("cS");
@@ -164,7 +169,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         //throw new RuntimeException("Invalid state structure! State " + currentState + " not found. Only got " + states.size() + " states");
         
         aimedState = nbt.getInt("aS");
-        if (aimedState >= 0 || aimedState >= states.size())
+        if (aimedState >= states.size())
             throw new RuntimeException("Invalid state structure! Aimed State " + aimedState + " not found. Only got " + states.size() + " states");
         
         if (nbt.contains("timeline"))
@@ -178,6 +183,9 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             physical = null;
         
         this.stayAnimated = nbt.getBoolean("stay");
+        
+        if (isChanging())
+            queueForNextTick();
     }
     
     @Override
@@ -209,6 +217,15 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
                 return;
             }
         states.add(state);
+    }
+    
+    public static class LittleStateStructureType extends LittleStructureType {
+        
+        public <T extends LittleStateStructure> LittleStateStructureType(String id, Class<T> structureClass, BiFunction<? extends LittleStateStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, int bandwidth, SignalMode mode) {
+            super(id, structureClass, factory, attribute);
+            addOutput("state", bandwidth, mode);
+        }
+        
     }
     
 }

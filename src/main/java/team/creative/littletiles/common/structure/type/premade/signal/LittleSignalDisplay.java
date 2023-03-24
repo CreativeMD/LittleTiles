@@ -26,7 +26,6 @@ import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.signal.SignalState;
@@ -48,7 +47,7 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     
     private int textureId = -1;
     
-    public LittleSignalDisplay(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleSignalDisplay(LittlePremadeType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     

@@ -11,13 +11,12 @@ import team.creative.creativecore.common.gui.creator.GuiCreator.GuiCreatorBasic;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.premade.GuiExport;
-import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class LittleExporter extends LittleStructurePremade {
     
     public static final GuiCreatorBasic GUI = GuiCreator.register("exporter", new GuiCreatorBasic((nbt, player) -> new GuiExport()));
     
-    public LittleExporter(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleExporter(LittlePremadeType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     

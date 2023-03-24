@@ -24,7 +24,7 @@ import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadePreview;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
-import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 public class ItemPremadeStructure extends Item implements ILittlePlacer {
     

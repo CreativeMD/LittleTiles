@@ -11,7 +11,6 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
-import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
@@ -58,12 +57,7 @@ public class AnimationPreview {
         Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), placement) {
-            @Override
-            protected void beforeInitalPlacement() {
-                getSubLevel().renderManager = new LittleAnimationRenderManager(this);
-            }
-        };
+        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), placement);
     }
     
     public void unload() {

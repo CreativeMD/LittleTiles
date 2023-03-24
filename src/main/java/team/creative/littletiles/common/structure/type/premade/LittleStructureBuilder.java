@@ -47,7 +47,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     public String lastStructureType;
     public int lastGrid = 16;
     
-    public LittleStructureBuilder(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleStructureBuilder(LittlePremadeType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     

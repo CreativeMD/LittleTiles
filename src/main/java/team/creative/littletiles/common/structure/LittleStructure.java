@@ -51,7 +51,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
-import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -584,9 +583,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     /** for this method to work <code>createAnimationCenter()</code> needs to be overridden */
-    public void changeToEntityForm() throws LittleActionException {
+    public LittleAnimationEntity changeToEntityForm() throws LittleActionException {
         if (isAnimated())
-            return;
+            return null;
         
         checkConnections();
         
@@ -595,16 +594,18 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
         
         BlockPos pos = getPos();
-        Placement placement = new Placement(null, subLevel, PlacementPreview.absolute(subLevel, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.absolute(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
         
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
-        LittleEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(), placement);
+        LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(), placement);
         level.addFreshEntity(entity);
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location), entity);
         removeStructureSameLevel(collector);
         
         collector.process();
+        entity.initialTick();
+        return entity;
     }
     
     public void changeToBlockForm() throws LittleActionException {

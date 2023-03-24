@@ -11,7 +11,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.animation.AnimationStateDirected;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTransition;
@@ -26,7 +25,7 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     private List<AnimationTransition> transitions = new ArrayList<>();
     private int currentTransition = -1;
     
-    public LittleDirectedStateStructure(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleDirectedStateStructure(LittleStateStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     

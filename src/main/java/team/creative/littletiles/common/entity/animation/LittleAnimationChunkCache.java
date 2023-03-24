@@ -37,8 +37,11 @@ public class LittleAnimationChunkCache extends ChunkSource {
     @Nullable
     public LevelChunk getChunk(int x, int z, ChunkStatus status, boolean create) {
         LevelChunk chunk = chunks.get(ChunkPos.asLong(x, z));
-        if (chunk == null && create)
-            chunks.put(ChunkPos.asLong(x, z), chunk = new LevelChunk(level, new ChunkPos(x, z)));
+        if (chunk == null && create) {
+            chunk = new LevelChunk(level, new ChunkPos(x, z));
+            chunk.setLoaded(true);
+            chunks.put(ChunkPos.asLong(x, z), chunk);
+        }
         return chunk;
     }
     

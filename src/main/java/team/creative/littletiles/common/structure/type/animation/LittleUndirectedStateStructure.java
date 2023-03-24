@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTransition;
@@ -25,7 +24,7 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     @StructureDirectional
     private List<AnimationTransition> transitions = new ArrayList<>();
     
-    public LittleUndirectedStateStructure(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleUndirectedStateStructure(LittleStateStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -55,7 +54,7 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     
     protected boolean startTransitionIfNecessary(InternalSignalOutput output) {
         int state = output.getState().number();
-        if (isChanging() && hasState(state)) {
+        if (!isChanging() && hasState(state) && state != currentIndex()) {
             startTransition(currentIndex(), state, getTransition(currentIndex(), state));
             return true;
         }
@@ -76,7 +75,8 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (canRightClick()) {
-            getOutput(0).toggle();
+            if (!isClient())
+                getOutput(0).toggle();
             return InteractionResult.SUCCESS;
         }
         return super.use(level, context, pos, player, result);

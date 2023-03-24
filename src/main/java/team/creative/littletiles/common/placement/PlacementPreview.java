@@ -147,7 +147,7 @@ public class PlacementPreview {
     }
     
     PlacementPreview(Level level, LittleGroupAbsolute previews, PlacementMode mode, Facing facing, boolean canBeMoved) {
-        this(level instanceof ISubLevel ? ((ISubLevel) level).getHolder().getUUID() : null, previews, mode, facing, canBeMoved);
+        this(level instanceof ISubLevel sub ? sub.getHolder().getUUID() : null, previews, mode, facing, canBeMoved);
     }
     
     PlacementPreview(UUID levelUUID, LittleGroupAbsolute previews, PlacementMode mode, Facing facing, boolean canBeMoved) {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
@@ -26,6 +27,8 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
     
     public LittleTickers() {
         super();
+        MinecraftForge.EVENT_BUS.addListener(this::clientTick);
+        MinecraftForge.EVENT_BUS.addListener(this::serverTick);
     }
     
     @Override

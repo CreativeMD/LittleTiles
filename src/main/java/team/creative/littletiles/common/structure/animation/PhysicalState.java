@@ -129,4 +129,9 @@ public class PhysicalState {
         rotation.transform(this.rotation);
     }
     
+    @Override
+    public String toString() {
+        return "off" + offset + ",rot" + rotation;
+    }
+    
 }

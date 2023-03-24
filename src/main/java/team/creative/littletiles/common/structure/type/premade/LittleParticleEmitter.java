@@ -36,11 +36,8 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxFacing;
-import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
-import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
     
@@ -55,7 +52,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     public int count = 1;
     protected int ticker = 0;
     
-    public LittleParticleEmitter(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleParticleEmitter(LittleStructureTypeParticleEmitter type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -366,7 +363,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         @OnlyIn(Dist.CLIENT)
         public List<RenderBox> cubes;
         
-        public <T extends LittleStructure> LittleStructureTypeParticleEmitter(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
+        public <T extends LittleParticleEmitter> LittleStructureTypeParticleEmitter(String id, Class<T> structureClass, BiFunction<LittleStructureTypeParticleEmitter, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
             super(id, structureClass, factory, attribute, modid);
         }
         

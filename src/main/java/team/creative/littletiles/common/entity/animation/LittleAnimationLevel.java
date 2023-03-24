@@ -217,6 +217,10 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         return chunks.all();
     }
     
+    public void initialTick() {
+        tickBlockEntities();
+    }
+    
     @Override
     public void tick() {
         if (!isClientSide && trackedChanges.isEmpty()) {

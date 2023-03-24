@@ -38,14 +38,14 @@ public class LittleStructureType {
     
     public final String id;
     public final Class<? extends LittleStructure> clazz;
-    public final BiFunction<LittleStructureType, IStructureParentCollection, ? extends LittleStructure> factory;
+    public final BiFunction<? extends LittleStructureType, IStructureParentCollection, ? extends LittleStructure> factory;
     public final int attribute;
     public final List<StructureDirectionalField> directional;
     public final List<InternalComponent> inputs = new ArrayList<>();
     public final List<InternalComponentOutput> outputs = new ArrayList<>();
     protected List<IStructureIngredientRule> ingredientRules = null;
     
-    public <T extends LittleStructure> LittleStructureType(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
+    public <T extends LittleStructure> LittleStructureType(String id, Class<T> structureClass, BiFunction<? extends LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
         this.id = id;
         this.factory = factory;
         this.clazz = structureClass;
@@ -105,7 +105,11 @@ public class LittleStructureType {
     }
     
     public LittleStructure createStructure(StructureParentCollection mainBlock) {
-        return factory.apply(this, mainBlock);
+        return factory.apply(type(), mainBlock);
+    }
+    
+    private <T extends LittleStructureType> T type() {
+        return (T) this;
     }
     
     @OnlyIn(Dist.CLIENT)

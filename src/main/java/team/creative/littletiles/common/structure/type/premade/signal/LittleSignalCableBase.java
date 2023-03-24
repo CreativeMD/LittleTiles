@@ -37,11 +37,9 @@ import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureBase;
 import team.creative.littletiles.common.structure.signal.component.InvalidSignalComponent;
@@ -57,7 +55,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     public int color;
     protected LittleConnectionFace[] faces;
     
-    public LittleSignalCableBase(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittleSignalCableBase(LittleStructureTypeNetwork type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
         this.faces = new LittleConnectionFace[getNumberOfConnections()];
     }
@@ -612,7 +610,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         public final int bandwidth;
         public final int numberOfConnections;
         
-        public <T extends LittleStructure> LittleStructureTypeNetwork(String id, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth, int numberOfConnections) {
+        public <T extends LittleSignalCableBase> LittleStructureTypeNetwork(String id, Class<T> structureClass, BiFunction<? extends LittleStructureTypeNetwork, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid, int bandwidth, int numberOfConnections) {
             super(id, structureClass, factory, attribute.neighborListener(), modid);
             this.bandwidth = bandwidth;
             this.numberOfConnections = numberOfConnections;

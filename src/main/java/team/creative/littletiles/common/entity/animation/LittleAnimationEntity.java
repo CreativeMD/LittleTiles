@@ -68,7 +68,10 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         this.structure = new StructureConnection(subLevel, new LocalStructureLocation(result.parentStructure));
     }
     
-    protected void beforeInitalPlacement() {}
+    protected void beforeInitalPlacement() {
+        if (level.isClientSide)
+            getSubLevel().renderManager = new LittleAnimationRenderManager(this);
+    }
     
     @Override
     protected LittleSubLevel createLevel() {
@@ -172,7 +175,9 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     public void internalTick() {}
     
     @Override
-    public void initialTick() {}
+    public void initialTick() {
+        getSubLevel().initialTick();
+    }
     
     @Override
     protected LittleAnimationEntityPhysic createPhysic() {

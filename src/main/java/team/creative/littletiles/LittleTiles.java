@@ -98,11 +98,11 @@ import team.creative.littletiles.common.recipe.StructureIngredient.StructureIngr
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
-import team.creative.littletiles.common.structure.registry.premade.LittlePremadeType;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.common.structure.type.premade.LittleExporter;
 import team.creative.littletiles.common.structure.type.premade.LittleImporter;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 import team.creative.littletiles.mixin.server.level.ChunkMapAccessor;
 import team.creative.littletiles.server.LittleTilesServer;
 

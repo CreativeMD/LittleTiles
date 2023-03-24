@@ -20,7 +20,6 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
-import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
@@ -32,6 +31,7 @@ import team.creative.littletiles.common.structure.type.premade.LittleParticleEmi
 import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter.LittleStructureTypeParticleEmitter;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 import team.creative.littletiles.common.structure.type.premade.LittleWorkbench;
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalCable;
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalCable.LittleStructureTypeCable;
@@ -79,11 +79,11 @@ public class LittlePremadeRegistry {
         LittleTiles.LOGGER.info("Loaded {} premade structure models", loaded);
     }
     
-    public static <T extends LittleStructure> LittlePremadeType register(String id, String modid, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory) {
+    public static <T extends LittleStructurePremade> LittlePremadeType register(String id, String modid, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory) {
         return register(id, modid, structureClass, factory, new LittleAttributeBuilder());
     }
     
-    public static <T extends LittleStructure> LittlePremadeType register(String id, String modid, Class<T> structureClass, BiFunction<LittleStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
+    public static <T extends LittleStructurePremade> LittlePremadeType register(String id, String modid, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
         LittlePremadeType type = (LittlePremadeType) LittleStructureRegistry.register(new LittlePremadeType(id, structureClass, factory, attribute, modid));
         STRUCTURES.add(type);
         return type;
