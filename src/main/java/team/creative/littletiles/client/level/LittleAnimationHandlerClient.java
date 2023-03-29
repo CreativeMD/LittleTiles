@@ -28,6 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -282,8 +283,18 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
         Uniform offset = RenderSystem.getShader().CHUNK_OFFSET;
-        for (LittleEntity animation : this)
+        ShaderInstance shaderinstance = RenderSystem.getShader();
+        float partialTicks = mc.getPartialTick();
+        for (LittleEntity animation : this) {
+            pose.pushPose();
+            animation.getOrigin().setupRendering(pose, animation, partialTicks);
+            if (shaderinstance.MODEL_VIEW_MATRIX != null)
+                shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
+            shaderinstance.apply();
             animation.getRenderManager().renderChunkLayer(layer, pose, x, y, z, projectionMatrix, offset);
+            pose.popPose();
+        }
+        
     }
     
     @SubscribeEvent
