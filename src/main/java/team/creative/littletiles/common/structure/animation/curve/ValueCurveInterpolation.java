@@ -13,13 +13,6 @@ import team.creative.creativecore.common.util.type.list.PairList;
 
 public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurve<T> {
     
-    static {
-        ValueCurve.REGISTRY.register("linear", LinearCurve.class);
-        ValueCurve.REGISTRY.register("cosine", CosineCurve.class);
-        ValueCurve.REGISTRY.register("cubic", CubicCurve.class);
-        ValueCurve.REGISTRY.register("hermite", HermiteCurve.class);
-    }
-    
     protected PairList<Integer, T> points = new PairList<>();
     
     protected ValueCurveInterpolation() {}
@@ -31,11 +24,11 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         int j = 0;
         for (int i = 0; i < timestamps.length; i++) {
             if (dimension == 1)
-                points.add(timestamps[0], (T) new Vec1d(Double.longBitsToDouble(data[j])));
+                points.add(timestamps[i], (T) new Vec1d(Double.longBitsToDouble(data[j])));
             else if (dimension == 2)
-                points.add(timestamps[0], (T) new Vec2d(Double.longBitsToDouble(data[j]), Double.longBitsToDouble(data[j + 1])));
+                points.add(timestamps[i], (T) new Vec2d(Double.longBitsToDouble(data[j]), Double.longBitsToDouble(data[j + 1])));
             else
-                points.add(timestamps[0], (T) new Vec3d(Double.longBitsToDouble(data[j]), Double.longBitsToDouble(data[j + 1]), Double.longBitsToDouble(data[j + 2])));
+                points.add(timestamps[i], (T) new Vec3d(Double.longBitsToDouble(data[j]), Double.longBitsToDouble(data[j + 1]), Double.longBitsToDouble(data[j + 2])));
             
             j += dimension;
         }

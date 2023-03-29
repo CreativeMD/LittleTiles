@@ -8,6 +8,10 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VecNd;
 import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
 import team.creative.creativecore.common.util.registry.exception.RegistryException;
+import team.creative.littletiles.common.structure.animation.curve.ValueCurveInterpolation.CosineCurve;
+import team.creative.littletiles.common.structure.animation.curve.ValueCurveInterpolation.CubicCurve;
+import team.creative.littletiles.common.structure.animation.curve.ValueCurveInterpolation.HermiteCurve;
+import team.creative.littletiles.common.structure.animation.curve.ValueCurveInterpolation.LinearCurve;
 
 public abstract class ValueCurve<T extends VecNd> {
     
@@ -89,6 +93,13 @@ public abstract class ValueCurve<T extends VecNd> {
         } catch (RegistryException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    static {
+        ValueCurve.REGISTRY.register("linear", LinearCurve.class);
+        ValueCurve.REGISTRY.register("cosine", CosineCurve.class);
+        ValueCurve.REGISTRY.register("cubic", CubicCurve.class);
+        ValueCurve.REGISTRY.register("hermite", HermiteCurve.class);
     }
     
     public ValueCurve() {}
