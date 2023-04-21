@@ -11,10 +11,10 @@ import team.creative.littletiles.common.math.box.LittleBox;
 
 public class GuiIsoAnimationPanel extends GuiParent {
     
-    public GuiIsoAnimationPanel(GuiTreeItemStructure item, LittleBox box, LittleGrid grid) {
+    public GuiIsoAnimationPanel(GuiTreeItemStructure item, LittleBox box, LittleGrid grid, boolean even) {
         flow = GuiFlow.STACK_Y;
         align = Align.STRETCH;
-        GuiIsoAnimationViewer viewer = new GuiIsoAnimationViewer("viewer", item, box, grid);
+        GuiIsoAnimationViewer viewer = new GuiIsoAnimationViewer("viewer", item, box, grid, even);
         add(viewer.setDim(200, 200));
         GuiParent buttons = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
         add(buttons);

@@ -7,12 +7,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.parent.GuiTabsMapped;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
@@ -27,6 +30,10 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
     
     public LittleDoorAxisGui(LittleStructureGui gui, GuiTreeItemStructure item) {
         super(gui, item);
+        registerEventChanged(x -> {
+            if (x.control.is("even"))
+                get("viewer", GuiIsoAnimationViewer.class).setEven(((GuiCheckBox) x.control).value);
+        });
     }
     
     @Override
@@ -59,6 +66,30 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
             tabs.select(0);
         else
             tabs.select(1);
+        
+        add(new GuiCheckBox("even", viewer.isEven()).setTranslate("gui.door.axis.even"));
+        
+        add(new GuiGridConfig("grid", viewer.getGrid(), x -> {
+            LittleBox box = viewer.getBox();
+            box.convertTo(viewer.getGrid(), x);
+            
+            if (viewer.isEven())
+                box.maxX = box.minX + 2;
+            else
+                box.maxX = box.minX + 1;
+            
+            if (viewer.isEven())
+                box.maxY = box.minY + 2;
+            else
+                box.maxY = box.minY + 1;
+            
+            if (viewer.isEven())
+                box.maxZ = box.minZ + 2;
+            else
+                box.maxZ = box.minZ + 1;
+            
+            viewer.setAxis(box, x);
+        }));
         
     }
     

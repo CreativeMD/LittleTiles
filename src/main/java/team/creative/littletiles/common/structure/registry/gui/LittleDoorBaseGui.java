@@ -42,6 +42,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     public void create(@Nullable LittleStructure structure) {
         LittleGrid grid;
         LittleBox box;
+        boolean even;
         ValueInterpolation inter;
         int duration;
         boolean stayAnimated;
@@ -51,6 +52,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         if (structure instanceof LittleDoor door) {
             grid = door.center.getGrid();
             box = door.center.getBox();
+            even = door.center.isEven();
             inter = door.interpolation;
             duration = door.duration;
             stayAnimated = door.stayAnimated;
@@ -60,6 +62,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         } else {
             grid = item.group.getGrid();
             box = new LittleBox(item.group.getMinVec());
+            even = false;
             inter = ValueInterpolation.HERMITE;
             duration = 10;
             stayAnimated = false;
@@ -84,7 +87,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         settings.add(new GuiCheckBox("noClip", noClip).setTranslate("gui.no_clip").setTooltip("gui.door.no_clip.tooltip"));
         settings.add(new GuiCheckBox("playPlaceSounds", playPlaceSounds).setTranslate("gui.door.play_place_sound").setTooltip("gui.door.play_place_sound.tooltip"));
         
-        add(new GuiIsoAnimationPanel(item, box, grid).setVisibleAxis(hasAxis()));
+        add(new GuiIsoAnimationPanel(item, box, grid, even).setVisibleAxis(hasAxis()));
         
         createSpecific(structure instanceof LittleDoor ? (LittleDoor) structure : null);
         /*parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));

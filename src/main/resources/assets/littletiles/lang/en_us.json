@@ -133,6 +133,7 @@
 	"gui.door.distance": "Distance",
 	"gui.door.rotation.direction": "Direction",
 	"gui.door.rotation.angle": "Angle",
+	"gui.door.axis.even": "Even",
 	
 	"dialog.invalid_grid": "Invalid grid size \u00A72%s",
 	
