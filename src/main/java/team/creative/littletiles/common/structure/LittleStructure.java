@@ -447,9 +447,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         for (StructureDirectionalField field : type.directional) {
             Object value = field.get(this);
-            field.move(value, vec);
+            field.set(this, field.move(value, vec));
             field.save(nbt, value);
-            field.move(value, inverted);
+            field.set(this, field.move(value, inverted));
         }
         
         saveInternalExtra(nbt, true);
@@ -1016,7 +1016,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.addAll(newBlocks);
         
         for (StructureDirectionalField relative : type.directional)
-            relative.mirror(relative.get(this), context, axis, context.rotationCenter);
+            relative.set(this, relative.mirror(relative.get(this), context, axis, context.rotationCenter));
     }
     
     @Deprecated
@@ -1033,7 +1033,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.addAll(newBlocks);
         
         for (StructureDirectionalField relative : type.directional)
-            relative.rotate(relative.get(this), context, rotation, context.rotationCenter);
+            relative.set(this, relative.rotate(relative.get(this), context, rotation, context.rotationCenter));
     }
     
     public String info() {
