@@ -46,7 +46,6 @@ import net.minecraftforge.eventbus.api.Event;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.level.handler.LevelHandler;
 import team.creative.littletiles.mixin.client.MultiPlayerGameModeAccessor;
-import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
 public class LittleInteractionHandlerClient extends LevelHandler {
     
@@ -242,7 +241,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     }
     
     private void startPrediction(Level level, PredictiveAction action) {
-        try (BlockStatePredictionHandler blockstatepredictionhandler = ((ClientLevelAccessor) level).callGetBlockStatePredictionHandler().startPredicting()) {
+        try (BlockStatePredictionHandler blockstatepredictionhandler = ((ClientLevelExtender) level).blockStatePredictionHandler().startPredicting()) {
             int i = blockstatepredictionhandler.currentSequence();
             Packet<ServerGamePacketListener> packet = action.predict(i);
             LittleTilesClient.PLAYER_CONNECTION.send(level, packet);

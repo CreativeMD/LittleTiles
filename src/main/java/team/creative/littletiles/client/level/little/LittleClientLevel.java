@@ -47,10 +47,10 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class LittleClientLevel extends ClientLevel implements LittleLevel {
@@ -124,7 +124,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     public TransientEntitySectionManager<Entity> getEStorage() {
-        return ((ClientLevelAccessor) this).getEntityStorage();
+        return ((ClientLevelExtender) this).getEntityStorage();
     }
     
     public void onChunkLoaded(LevelChunk chunk) {

@@ -23,7 +23,6 @@
     "client": [
         "client.MinecraftMixin",
         "client.MultiPlayerGameModeAccessor",
-        "client.level.ClientLevelAccessor",
         "client.level.ClientLevelMixin",
         "client.level.ClientChunkCacheAccessor",
         "client.network.ClientPacketListenerAccessor",
