@@ -26,7 +26,7 @@ public class GuiGridConfig extends GuiParent {
         this.consumer = consumer;
         registerEventChanged(x -> {
             if (x.control.is("grid"))
-                consumer.accept(grid);
+                consumer.accept(get());
         });
     }
     
