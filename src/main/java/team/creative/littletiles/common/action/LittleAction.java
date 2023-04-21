@@ -431,7 +431,11 @@ public abstract class LittleAction<T> extends CreativePacket {
             return true;
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
             return true;
-        return state.isSolidRender(null, null);
+        try {
+            return state.isSolidRender(null, null);
+        } catch (Exception e) {
+            return false;
+        }
     }
     
 }
