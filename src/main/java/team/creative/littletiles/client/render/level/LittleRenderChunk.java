@@ -65,6 +65,7 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.client.render.CompiledChunkAccessor;
 
+@OnlyIn(Dist.CLIENT)
 public class LittleRenderChunk implements RenderChunkExtender {
     
     public final LittleLevelRenderManager manager;
