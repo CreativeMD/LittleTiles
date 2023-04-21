@@ -9,6 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -145,6 +147,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public CreativePacket initClientPacket() {
         return new LittleAnimationInitPacket(this);
     }
@@ -156,6 +159,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         return nbt;
     }
     
+    @OnlyIn(Dist.CLIENT)
     public void initSubLevelClient(StructureAbsolute absolute, CompoundTag extraData) {
         setSubLevel(new LittleAnimationLevel(level), absolute.rotationCenter);
         setCenter(absolute);
@@ -185,6 +189,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public LittleEntityRenderManager getRenderManager() {
         return ((LittleAnimationLevel) subLevel).renderManager;
     }

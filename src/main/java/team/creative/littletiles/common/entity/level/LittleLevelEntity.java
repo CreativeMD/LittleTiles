@@ -8,10 +8,13 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
@@ -72,10 +75,12 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public CreativePacket initClientPacket() {
         return new LittleLevelInitPacket(this);
     }
     
+    @OnlyIn(Dist.CLIENT)
     public CompoundTag saveExtraClientData() {
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("cX", center.getX());
@@ -85,6 +90,7 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
         return nbt;
     }
     
+    @OnlyIn(Dist.CLIENT)
     public void initSubLevelClient(CompoundTag extraData) {
         setSubLevel(createLevel(), new Vec3d(extraData.getInt("cX"), extraData.getInt("cY"), extraData.getInt("cZ")));
         ((LittleClientLevel) subLevel).renderManager = new LittleLevelRenderManager(this);
@@ -92,7 +98,8 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     }
     
     @Override
-    public LittleLevelRenderManager getRenderManager() {
+    @OnlyIn(Dist.CLIENT)
+    public LittleEntityRenderManager getRenderManager() {
         return ((LittleClientLevel) subLevel).renderManager;
     }
     

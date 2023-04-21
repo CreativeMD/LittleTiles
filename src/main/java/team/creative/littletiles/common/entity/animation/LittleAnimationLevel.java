@@ -55,14 +55,14 @@ import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
-import team.creative.littletiles.mixin.client.level.ClientLevelAccessor;
 
-public class LittleAnimationLevel extends Level implements LittleSubLevel, Iterable<BETiles>, ClientLevelAccessor {
+public class LittleAnimationLevel extends Level implements LittleSubLevel, Iterable<BETiles>, ClientLevelExtender {
     
     private LevelEntityGetter<Entity> entities = new LevelEntityGetter<Entity>() {
         
@@ -111,7 +111,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public BlockStatePredictionHandler callGetBlockStatePredictionHandler() {
+    public BlockStatePredictionHandler blockStatePredictionHandler() {
         return blockStatePredictionHandler;
     }
     
