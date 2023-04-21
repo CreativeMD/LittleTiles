@@ -131,6 +131,8 @@ public class LittleTiles {
         LittleTilesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::buildContents);
+        
+        LittlePacketTypes.init();
     }
     
     public void buildContents(CreativeModeTabEvent.Register event) {
@@ -189,7 +191,6 @@ public class LittleTiles {
         
         IngredientRules.loadRules();
         LittleStructureRegistry.initStructures();
-        LittlePacketTypes.init();
         
         NETWORK.registerType(ActionMessagePacket.class, ActionMessagePacket::new);
         NETWORK.registerType(VanillaBlockPacket.class, VanillaBlockPacket::new);
