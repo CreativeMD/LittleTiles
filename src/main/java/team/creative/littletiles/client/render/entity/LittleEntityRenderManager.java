@@ -168,7 +168,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     
     public void renderBlockEntitiesAndDestruction(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         pose.pushPose();
-        entity.getOrigin().setupRendering(pose, entity, frameTime);
+        entity.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, entity, frameTime);
         
         renderAllBlockEntities(pose, frustum, cam, frameTime, bufferSource);
         
@@ -205,7 +205,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
                 return;
             
             pose.pushPose();
-            entity.getOrigin().setupRendering(pose, entity, frameTime);
+            entity.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, entity, frameTime);
             
             for (BlockEntity blockEntity : globalBlockEntities)
                 renderBlockEntity(blockEntity, pose, frustum, cam, frameTime, bufferSource);
