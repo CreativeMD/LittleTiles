@@ -12,6 +12,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -85,7 +87,8 @@ public class GuiRecipe extends GuiConfigure {
     public LittleStructureGuiControl control;
     public GuiLabel testReport;
     public GuiParent sidebarButtons;
-    public final GuiRecipeAnimationStorage storage = new GuiRecipeAnimationStorage();
+    @OnlyIn(Dist.CLIENT)
+    public GuiRecipeAnimationStorage storage;
     private boolean selectedBefore = true;
     
     public GuiRecipe(ContainerSlotView view) {
@@ -187,6 +190,9 @@ public class GuiRecipe extends GuiConfigure {
     public void create() {
         if (!isClient())
             return;
+        
+        if (storage == null)
+            storage = new GuiRecipeAnimationStorage();
         
         flow = GuiFlow.STACK_Y;
         align = Align.STRETCH;
