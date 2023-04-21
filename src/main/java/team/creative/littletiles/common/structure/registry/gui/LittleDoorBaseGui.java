@@ -84,9 +84,9 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         settings.add(new GuiCheckBox("noClip", noClip).setTranslate("gui.no_clip").setTooltip("gui.door.no_clip.tooltip"));
         settings.add(new GuiCheckBox("playPlaceSounds", playPlaceSounds).setTranslate("gui.door.play_place_sound").setTooltip("gui.door.play_place_sound.tooltip"));
         
-        createSpecific(structure instanceof LittleDoor ? (LittleDoor) structure : null);
-        
         add(new GuiIsoAnimationPanel(item, box, grid).setVisibleAxis(hasAxis()));
+        
+        createSpecific(structure instanceof LittleDoor ? (LittleDoor) structure : null);
         /*parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
         parent.controls
                 .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));

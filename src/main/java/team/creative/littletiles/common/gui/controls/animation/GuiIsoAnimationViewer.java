@@ -364,6 +364,10 @@ public class GuiIsoAnimationViewer extends GuiControl {
         return 10;
     }
     
+    public team.creative.creativecore.common.util.math.base.Axis axis() {
+        return view.zAxis.axis;
+    }
+    
     public Facing getXFacing() {
         return view.xAxis;
     }

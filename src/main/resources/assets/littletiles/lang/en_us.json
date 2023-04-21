@@ -63,6 +63,8 @@
     "gui.stay_animated": "Stay entity",
     "gui.no_clip": "No-clip",
     "gui.rightclick": "Rightclick",
+    "gui.clockwise": "Clockwise",
+    "gui.counterclockwise": "Counter-Clockwise",
 	
 	"gui.structure_builder.width": "width",
 	"gui.structure_builder.height": "height",
@@ -129,6 +131,8 @@
     "gui.door.no_clip.tooltip": "Whether other things can collide with the door in entity form.",
     "gui.door.play_place_sound.tooltip": "When door transforms to an entity or back to block form it places all of its tiles.\nWhether it should be played or not.",
 	"gui.door.distance": "Distance",
+	"gui.door.rotation.direction": "Direction",
+	"gui.door.rotation.angle": "Angle",
 	
 	"dialog.invalid_grid": "Invalid grid size \u00A72%s",
 	

@@ -3,11 +3,14 @@ package team.creative.littletiles.common.structure.type.animation;
 import java.util.function.BiFunction;
 
 import net.minecraft.nbt.CompoundTag;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
+import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public abstract class LittleDoor extends LittleUndirectedStateStructure {
@@ -78,6 +81,21 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
         
         public <T extends LittleDoor> LittleDoorType(String id, Class<T> structureClass, BiFunction<? extends LittleStateStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
             super(id, structureClass, factory, attribute, 1, SignalMode.TOGGLE);
+        }
+        
+    }
+    
+    public static class LittleDoorTypeInvisibleCenter extends LittleDoorType {
+        
+        public <T extends LittleDoor> LittleDoorTypeInvisibleCenter(String id, Class<T> structureClass, BiFunction<? extends LittleStateStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
+            super(id, structureClass, factory, attribute);
+        }
+        
+        @Override
+        protected LittlePlaceBoxRelative getPlaceBox(Object value, StructureDirectionalField type, LittleGroup previews) {
+            if (type.key.equals("center"))
+                return null;
+            return super.getPlaceBox(value, type, previews);
         }
         
     }
