@@ -67,10 +67,6 @@ public class PhysicalState {
         return rotation.z;
     }
     
-    public void off(Axis axis, double value) {
-        offset.set(axis, value);
-    }
-    
     public void off(Facing facing, double value) {
         offset.set(facing.axis, facing.offset() * value);
     }
@@ -117,6 +113,22 @@ public class PhysicalState {
     
     public Vec3d offset() {
         return offset.copy();
+    }
+    
+    public double rot(Axis axis) {
+        return rotation.get(axis);
+    }
+    
+    public void rot(Axis axis, double value) {
+        rotation.set(axis, value);
+    }
+    
+    public double off(Axis axis) {
+        return offset.get(axis);
+    }
+    
+    public void off(Axis axis, double value) {
+        offset.set(axis, value);
     }
     
     public void mirror(Axis axis) {
