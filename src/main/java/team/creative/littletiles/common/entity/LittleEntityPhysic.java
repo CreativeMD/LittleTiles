@@ -19,7 +19,7 @@ import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 
-public abstract class LittleEntityPhysic<T extends LittleEntity<? extends LittleEntityPhysic>> implements INoPushEntity {
+public abstract class LittleEntityPhysic<T extends LittleEntity<? extends LittleEntityPhysic>> {
     
     private static final Predicate<Entity> NO_ANIMATION = x -> !(x instanceof INoPushEntity);
     
