@@ -166,7 +166,6 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         }
         
         return ingredients;
-        
     }
     
     @Override

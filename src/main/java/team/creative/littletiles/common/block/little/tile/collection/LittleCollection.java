@@ -71,22 +71,29 @@ public class LittleCollection implements Iterable<LittleTile> {
         return true;
     }
     
-    protected void added(LittleTile tile) {}
+    protected void added(LittleElement tile) {}
     
     protected void refresh() {}
     
-    protected void removed(LittleTile tile) {}
+    protected void removed(LittleElement tile) {}
     
     public void removeAll(Iterable<LittleTile> tiles) {
         for (LittleTile tile : tiles)
-            remove(tile);
+            removeElementBoxes(tile);
     }
     
-    public boolean remove(LittleTile tile) {
-        if (content.remove(tile)) {
-            removed(tile);
+    public boolean removeElement(LittleElement element) {
+        if (content.remove(element)) {
+            removed(element);
             return true;
         }
+        return false;
+    }
+    
+    public boolean removeElementBoxes(LittleTile tile) {
+        for (LittleTile other : this)
+            if (other.is(tile))
+                return other.remove(this, tile);
         return false;
     }
     

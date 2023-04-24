@@ -102,10 +102,19 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
             this.boxes.add(box);
     }
     
+    public boolean remove(LittleCollection parent, Iterable<LittleBox> boxes) {
+        boolean result = false;
+        for (LittleBox box : boxes)
+            result |= this.boxes.remove(box);
+        if (this.boxes.isEmpty())
+            parent.removeElement(this);
+        return result;
+    }
+    
     public boolean remove(LittleCollection parent, LittleBox box) {
         boolean result = boxes.remove(box);
         if (boxes.isEmpty())
-            parent.remove(this);
+            parent.removeElement(this);
         return result;
     }
     
@@ -463,10 +472,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     }
     
     // ================Collision================
-    
-    public boolean checkEntityCollision() {
-        return block.checkEntityCollision();
-    }
     
     public void entityCollided(IParentCollection parent, Entity entity) {
         block.entityCollided(parent, this, entity);

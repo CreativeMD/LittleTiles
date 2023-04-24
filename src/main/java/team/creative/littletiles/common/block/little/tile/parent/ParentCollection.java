@@ -5,6 +5,7 @@ import java.util.Iterator;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollectionSafe;
@@ -22,7 +23,7 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     }
     
     @Override
-    protected void added(LittleTile tile) {
+    protected void added(LittleElement tile) {
         if (tile.checkEntityCollision())
             collisionChecks++;
     }
@@ -35,7 +36,7 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     }
     
     @Override
-    protected void removed(LittleTile tile) {
+    protected void removed(LittleElement tile) {
         if (tile.checkEntityCollision())
             collisionChecks--;
     }

@@ -120,6 +120,10 @@ public class LittleElement {
         return "[" + getBlockName() + "|" + color + "]";
     }
     
+    public boolean checkEntityCollision() {
+        return block.checkEntityCollision();
+    }
+    
     public static class NotBlockException extends Exception {}
     
 }
