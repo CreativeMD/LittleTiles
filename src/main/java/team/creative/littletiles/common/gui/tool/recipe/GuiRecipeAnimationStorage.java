@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
@@ -147,7 +148,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             LittleGrid grid = selected.group.getGrid();
             VoxelShape shape = Shapes.empty();
             for (LittleBox box : selected.group.allBoxes())
-                shape = Shapes.or(box.getShape(grid), shape);
+                shape = Shapes.joinUnoptimized(box.getShape(grid), shape, BooleanOp.OR);
             
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.getBuilder();

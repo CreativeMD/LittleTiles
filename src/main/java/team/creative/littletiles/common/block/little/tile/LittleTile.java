@@ -23,6 +23,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
@@ -481,7 +482,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         VoxelShape shape = Shapes.empty();
         for (LittleBox box : boxes)
             if (box.isSolid())
-                shape = Shapes.or(shape, box.getShape(parent.getGrid()));
+                shape = Shapes.joinUnoptimized(shape, box.getShape(parent.getGrid()), BooleanOp.OR);
         return shape;
     }
     

@@ -59,6 +59,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -193,12 +194,12 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
                     continue;
                 if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
                     try {
-                        shape = Shapes.or(shape, list.getStructure().getExtraShape(state, level, pos, context));
+                        shape = Shapes.joinUnoptimized(shape, list.getStructure().getExtraShape(state, level, pos, context), BooleanOp.OR);
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
                 for (LittleTile tile : list)
                     if (!tile.getBlock().noCollision())
-                        shape = Shapes.or(shape, tile.getShapes(list));
+                        shape = Shapes.joinUnoptimized(shape, tile.getShapes(list), BooleanOp.OR);
             }
         }
         return shape;
@@ -258,7 +259,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
                     continue;
                 if (pair.value.getBlock().isTranslucent())
                     continue;
-                shape = Shapes.or(shape, pair.value.getShapes(pair.key));
+                shape = Shapes.joinUnoptimized(shape, pair.value.getShapes(pair.key), BooleanOp.OR);
             }
         }
         
@@ -295,12 +296,12 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
             for (IParentCollection list : be.groups()) {
                 if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
                     try {
-                        shape = Shapes.or(shape, list.getStructure().getExtraShape(state, level, pos, context));
+                        shape = Shapes.joinUnoptimized(shape, list.getStructure().getExtraShape(state, level, pos, context), BooleanOp.OR);
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
                 for (LittleTile tile : list)
                     if (!tile.getBlock().noCollision())
-                        shape = Shapes.or(shape, tile.getShapes(list));
+                        shape = Shapes.joinUnoptimized(shape, tile.getShapes(list), BooleanOp.OR);
             }
         }
         return shape;
