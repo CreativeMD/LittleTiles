@@ -156,7 +156,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     public final boolean rendered;
     
     public BlockTile(Material material, boolean ticking, boolean rendered) {
-        super(BlockBehaviour.Properties.of(material).destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape());
+        super(BlockBehaviour.Properties.of(material).destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape().noOcclusion());
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
         this.ticking = ticking;
         this.rendered = rendered;
@@ -251,6 +251,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     @Override
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         // its cached state wise ... which is a big problem, maybe try to keep the cache empty????
+        // DISABLED at the moment due to noOcclusion in the constructor
         VoxelShape shape = Shapes.empty();
         BETiles be = loadBE(level, pos);
         if (be != null) {
