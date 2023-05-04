@@ -7,7 +7,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.brigadier.Command;
@@ -40,7 +39,7 @@ import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -89,6 +88,19 @@ public class LittleTilesClient {
     
     public static final Minecraft mc = Minecraft.getInstance();
     
+    public static final IKeyConflictContext LITTLE_KEY_CONTEXT = new IKeyConflictContext() {
+        
+        @Override
+        public boolean isActive() {
+            return true;
+        }
+        
+        @Override
+        public boolean conflicts(IKeyConflictContext other) {
+            return this == other;
+        }
+    };
+    
     public static final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
     public static LittleActionHandlerClient ACTION_HANDLER;
     public static LittleAnimationHandlerClient ANIMATION_HANDLER;
@@ -124,23 +136,23 @@ public class LittleTilesClient {
     }
     
     private static void registerKeys(RegisterKeyMappingsEvent event) {
-        up = new KeyMapping("key.rotateup", GLFW.GLFW_KEY_UP, "key.categories.littletiles");
-        down = new KeyMapping("key.rotatedown", GLFW.GLFW_KEY_DOWN, "key.categories.littletiles");
-        right = new KeyMapping("key.rotateright", GLFW.GLFW_KEY_RIGHT, "key.categories.littletiles");
-        left = new KeyMapping("key.rotateleft", GLFW.GLFW_KEY_LEFT, "key.categories.littletiles");
+        up = new LittleKeyMapping("key.rotateup", LITTLE_KEY_CONTEXT, InputConstants.KEY_UP, "key.categories.littletiles");
+        down = new LittleKeyMapping("key.rotatedown", LITTLE_KEY_CONTEXT, InputConstants.KEY_DOWN, "key.categories.littletiles");
+        right = new LittleKeyMapping("key.rotateright", LITTLE_KEY_CONTEXT, InputConstants.KEY_RIGHT, "key.categories.littletiles");
+        left = new LittleKeyMapping("key.rotateleft", LITTLE_KEY_CONTEXT, InputConstants.KEY_LEFT, "key.categories.littletiles");
         
-        flip = new KeyMapping("key.little.flip", GLFW.GLFW_KEY_G, "key.categories.littletiles");
-        mark = new KeyMapping("key.little.mark", GLFW.GLFW_KEY_M, "key.categories.littletiles");
-        mark = new KeyMapping("key.little.mark", GLFW.GLFW_KEY_M, "key.categories.littletiles");
-        configure = new KeyMapping("key.little.config.item", KeyConflictContext.UNIVERSAL, KeyModifier.NONE, InputConstants.Type.KEYSYM, InputConstants.KEY_C, "key.categories.littletiles");
+        flip = new LittleKeyMapping("key.little.flip", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
+        mark = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles");
+        configure = new LittleKeyMapping("key.little.config.item", LITTLE_KEY_CONTEXT, InputConstants.KEY_C, "key.categories.littletiles");
         
-        undo = new KeyMapping("key.little.undo", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Z, "key.categories.littletiles");
-        redo = new KeyMapping("key.little.redo", KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Y, "key.categories.littletiles");
+        undo = new LittleKeyMapping("key.little.undo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Z, "key.categories.littletiles");
+        redo = new LittleKeyMapping("key.little.redo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Y, "key.categories.littletiles");
         
         event.register(up);
         event.register(down);
         event.register(right);
         event.register(left);
+        
         event.register(flip);
         event.register(mark);
         event.register(configure);
@@ -323,6 +335,24 @@ public class LittleTilesClient {
                 LittleTilesProfilerOverlay.start();
             return Command.SINGLE_SUCCESS;
         }));
+    }
+    
+    public static class LittleKeyMapping extends KeyMapping {
+        
+        public LittleKeyMapping(String description, IKeyConflictContext keyConflictContext, int keyCode, String category) {
+            super(description, keyConflictContext, KeyModifier.NONE, InputConstants.Type.KEYSYM, keyCode, category);
+        }
+        
+        public LittleKeyMapping(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, int keyCode, String category) {
+            super(description, keyConflictContext, keyModifier, InputConstants.Type.KEYSYM, keyCode, category);
+        }
+        
+        @Override
+        public boolean same(KeyMapping other) {
+            if (other instanceof LittleKeyMapping && super.same(other))
+                return true;
+            return false;
+        }
     }
     
 }
