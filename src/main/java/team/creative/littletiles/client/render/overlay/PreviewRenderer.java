@@ -431,6 +431,8 @@ public class PreviewRenderer implements LevelAwareHandler {
             renderHitOutline(pose, level, event.getMultiBufferSource().getBuffer(RenderType.lines()), player, vec.x, vec.y, vec.z, event.getTarget().getBlockPos());
             event.setCanceled(true);
         }
+        
+        RenderSystem.enableCull();
     }
     
     private void renderHitOutline(PoseStack pose, Level level, VertexConsumer consumer, Entity entity, double x, double y, double z, BlockPos pos) {
