@@ -149,8 +149,10 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                                     LittleElement coloredElement = element.copy();
                                     coloredElement.color = color;
                                     
-                                    toAdd.add(coloredElement, newBoxes);
-                                    toRemove.add(element, cutout);
+                                    toAdd.add(coloredElement, cutout);
+                                    toAdd.add(element, newBoxes);
+                                    toRemove.add(element, box);
+                                    
                                 }
                             }
                         } else {
