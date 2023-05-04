@@ -49,7 +49,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         if (structurePreview != null)
             return structurePreview.getPlaceAction();
         destroyedTiles.convertToSmallest();
-        return new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(uuid, PlacementMode.normal, destroyedTiles, null));
+        return new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(uuid, PlacementMode.normal, destroyedTiles, Facing.EAST));
     }
     
     @Override
