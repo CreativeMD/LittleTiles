@@ -18,6 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.api.common.block.ILittleMCBlock;
 import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -35,7 +36,7 @@ public class LittleMCBlock implements LittleBlock {
     
     public LittleMCBlock(Block block) {
         this.block = block;
-        this.translucent = !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid(); // Also depends on block model
+        this.translucent = ILittleMCBlock.isTranslucent(block);
     }
     
     @Override

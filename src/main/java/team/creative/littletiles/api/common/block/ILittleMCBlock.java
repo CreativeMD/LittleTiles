@@ -32,7 +32,7 @@ public interface ILittleMCBlock extends LittleBlock {
     static final RandomSource RANDOM = RandomSource.create();
     
     public static boolean isTranslucent(Block block) {
-        return !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolid() || block.defaultBlockState().canOcclude();
+        return !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolidBlocking() || !block.defaultBlockState().canOcclude(); // Also depends on block model which is not considered at the moment
     }
     
     public Block asBlock();
