@@ -86,7 +86,7 @@ public class LittleStructureGuiRegistry {
         
         register("door.axis", get("axis"), LittleDoorAxisGui::new);
         register("door.sliding", get("sliding"), LittleDoorSlidingGui::new);
-        //register("door.advanced", get("door"), LittleDoorAdvancedGui::new);
+        register("door.advanced", get("door"), LittleDoorAdvancedGui::new);
         //register("door.activator", get("activator"), LittleDoorActivatorGui::new);
     }
     
