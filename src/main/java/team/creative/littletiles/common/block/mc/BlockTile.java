@@ -424,13 +424,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     }
     
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState removed, boolean p_50941_) {
-        BETiles be = loadBE(level, pos);
-        if (be != null && be.isEmpty())
-            super.onRemove(state, level, pos, removed, p_50941_);
-    }
-    
-    @Override
     public boolean canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, IPlantable plantable) {
         BETiles be = loadBE(level, pos);
         if (be != null && be.sideCache.get(Facing.get(facing)).doesBlockCollision()) {
