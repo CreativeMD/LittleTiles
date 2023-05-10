@@ -19,7 +19,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 
-@Mixin(LevelRenderer.class)
+@Mixin(value = LevelRenderer.class, priority = 1500)
 public class LevelRendererMixin {
     
     @Inject(at = @At("HEAD"), method = "allChanged()V")
