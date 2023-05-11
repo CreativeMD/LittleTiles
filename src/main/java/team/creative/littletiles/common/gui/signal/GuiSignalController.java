@@ -139,7 +139,8 @@ public class GuiSignalController extends GuiParent {
         pose.pushPose();
         pose.scale(controlScale, controlScale, 1);
         controllerRect = realContentRect;
-        renderContent(pose, contentRect, realContentRect, mouseX, mouseY, FilterListIterator.skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
+        renderControls(pose, contentRect, realContentRect, mouseX, mouseY, FilterListIterator
+                .skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
         controllerRect = null;
         pose.popPose();
         
