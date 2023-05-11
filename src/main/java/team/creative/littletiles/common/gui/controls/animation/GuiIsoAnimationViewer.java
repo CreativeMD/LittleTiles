@@ -301,7 +301,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
             int colorAlpha = 255;
             RenderBox renderBox = box.getRenderingBox(grid);
             RenderSystem.disableDepthTest();
-            RenderSystem.lineWidth(8.0F);
+            RenderSystem.lineWidth(16.0F);
             renderBox.renderLines(empty, bufferbuilder, colorAlpha);
             tesselator.end();
             
