@@ -15,7 +15,7 @@ public class GuiIsoAnimationPanel extends GuiParent {
         flow = GuiFlow.STACK_Y;
         align = Align.STRETCH;
         GuiIsoAnimationViewer viewer = new GuiIsoAnimationViewer("viewer", item, box, grid, even);
-        add(viewer.setDim(200, 200));
+        add(viewer);
         GuiParent buttons = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
         add(buttons);
         buttons.add(new GuiIconButton("reset", GuiIcon.HOUSE, x -> viewer.resetView()));
@@ -25,6 +25,11 @@ public class GuiIsoAnimationPanel extends GuiParent {
     
     public GuiIsoAnimationPanel setVisibleAxis(boolean visible) {
         get("viewer", GuiIsoAnimationViewer.class).visibleAxis = visible;
+        return this;
+    }
+    
+    public GuiIsoAnimationPanel setViewerDim(int width, int height) {
+        get("viewer", GuiIsoAnimationViewer.class).setDim(width, height);
         return this;
     }
     
