@@ -20,6 +20,13 @@ public class AnimationState extends PhysicalState {
         this.backToBlockform = true;
     }
     
+    public AnimationState(String name, PhysicalState state, boolean backToBlockform) {
+        super();
+        this.name = name;
+        set(state);
+        this.backToBlockform = backToBlockform;
+    }
+    
     @Override
     public CompoundTag save() {
         CompoundTag nbt = super.save();

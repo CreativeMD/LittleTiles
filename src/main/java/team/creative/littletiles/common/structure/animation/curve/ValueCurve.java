@@ -47,8 +47,16 @@ public abstract class ValueCurve<T extends VecNd> {
         public void mirror(Axis axis) {}
         
         @Override
+        public void reverse(int duration) {}
+        
+        @Override
         public ValueCurve<Vec1d> copy() {
             return this;
+        }
+        
+        @Override
+        public boolean modifiable() {
+            return false;
         }
         
     };
@@ -81,8 +89,16 @@ public abstract class ValueCurve<T extends VecNd> {
         public void mirror(Axis axis) {}
         
         @Override
+        public void reverse(int duration) {}
+        
+        @Override
         public ValueCurve<Vec3d> copy() {
             return this;
+        }
+        
+        @Override
+        public boolean modifiable() {
+            return false;
         }
         
     };
@@ -125,8 +141,14 @@ public abstract class ValueCurve<T extends VecNd> {
     
     public abstract ValueCurve<T> copy();
     
+    public abstract void reverse(int duration);
+    
     public boolean isEmpty() {
         return false;
+    }
+    
+    public boolean modifiable() {
+        return true;
     }
     
 }

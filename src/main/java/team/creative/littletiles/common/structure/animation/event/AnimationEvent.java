@@ -18,4 +18,6 @@ public abstract class AnimationEvent<T extends Tag> {
     
     public abstract void end(AnimationContext context);
     
+    public abstract AnimationEvent<T> copy();
+    
 }

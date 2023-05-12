@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.structure.animation.curve;
 
+import java.util.Iterator;
+
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.interpolation.HermiteInterpolation.Tension;
@@ -11,7 +13,7 @@ import team.creative.creativecore.common.util.math.vec.VecNd;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
 
-public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurve<T> {
+public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurve<T> implements Iterable<Pair<Integer, T>> {
     
     protected PairList<Integer, T> points = new PairList<>();
     
@@ -34,7 +36,25 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         }
     }
     
+    @Override
+    public Iterator<Pair<Integer, T>> iterator() {
+        return points.iterator();
+    }
+    
     public void add(int key, T vec) {
+        for (int i = 0; i < points.size(); i++) {
+            Pair<Integer, T> other = points.get(i);
+            
+            if (other.key == key) {
+                points.set(key, vec);
+                return;
+            }
+            
+            if (other.key > key) {
+                points.add(i, new Pair<>(key, vec));
+                return;
+            }
+        }
         points.add(key, vec);
     }
     
@@ -122,6 +142,27 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         else
             for (T vec : points.values())
                 vec.invert();
+    }
+    
+    public T getFirst() {
+        return points.getFirst().value;
+    }
+    
+    public T getLast() {
+        return points.getLast().value;
+    }
+    
+    @Override
+    public void reverse(int duration) {
+        PairList<Integer, T> newPoints = new PairList<>();
+        for (int i = points.size() - 1; i >= 0; i--)
+            newPoints.add(duration - points.get(i).key, points.get(i).value);
+        this.points = newPoints;
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return points.isEmpty();
     }
     
     public static class LinearCurve<T extends VecNd> extends ValueCurveInterpolation<T> {

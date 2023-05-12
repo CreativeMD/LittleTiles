@@ -3,11 +3,13 @@ package team.creative.littletiles.common.structure.type.animation;
 import java.util.function.BiFunction;
 
 import net.minecraft.nbt.CompoundTag;
+import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
@@ -29,7 +31,12 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     
     @Override
     protected AnimationTimeline generateTimeline(AnimationState start, AnimationState end) {
-        return AnimationTimeline.generate(start, end, interpolation::create1d, null, duration, false, false);
+        return new AnimationTimeline(duration);
+    }
+    
+    @Override
+    protected ValueCurve<Vec1d> createEmptyCurve() {
+        return interpolation.create1d();
     }
     
     @Override

@@ -134,6 +134,12 @@
 	"gui.door.rotation.direction": "Direction",
 	"gui.door.rotation.angle": "Angle",
 	"gui.door.axis.even": "Even",
+	"gui.door.offx": "offX",
+	"gui.door.offy": "offY",
+	"gui.door.offz": "offZ",
+	"gui.door.rotx": "rotX",
+	"gui.door.roty": "rotY",
+	"gui.door.rotz": "rotZ",
 	
 	"dialog.invalid_grid": "Invalid grid size \u00A72%s",
 	

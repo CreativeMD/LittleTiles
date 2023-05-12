@@ -9,11 +9,13 @@ import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.structure.animation.AnimationStateDirected;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTransition;
+import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.signal.SignalState;
 
@@ -41,6 +43,11 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     
     @Override
     protected AnimationTimeline generateTimeline(AnimationStateDirected start, AnimationStateDirected end) {
+        return null;
+    }
+    
+    @Override
+    protected ValueCurve<Vec1d> createEmptyCurve() {
         return null;
     }
     

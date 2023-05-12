@@ -25,6 +25,33 @@ public class PhysicalState {
         return offset.x == 0 && offset.y == 0 && offset.z == 0 && rotation.x % 360 == 0 && rotation.y % 360 == 0 && rotation.z % 360 == 0;
     }
     
+    public double get(PhysicalPart part) {
+        return switch (part) {
+            case OFFX -> offset.x;
+            case OFFY -> offset.y;
+            case OFFZ -> offset.z;
+            case ROTX -> rotation.x;
+            case ROTY -> rotation.y;
+            case ROTZ -> rotation.z;
+        };
+    }
+    
+    public void set(PhysicalPart part, double value) {
+        switch (part) {
+            case OFFX -> offset.x = value;
+            case OFFY -> offset.y = value;
+            case OFFZ -> offset.z = value;
+            case ROTX -> rotation.x = value;
+            case ROTY -> rotation.y = value;
+            case ROTZ -> rotation.z = value;
+        }
+    }
+    
+    public void set(PhysicalState state) {
+        offset.set(state.offset);
+        rotation.set(state.rotation);
+    }
+    
     public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
         if (offset.x != 0)
@@ -144,6 +171,13 @@ public class PhysicalState {
     @Override
     public String toString() {
         return "off" + offset + ",rot" + rotation;
+    }
+    
+    public PhysicalState copy() {
+        PhysicalState state = new PhysicalState();
+        state.offset.set(offset);
+        state.rotation.set(rotation);
+        return state;
     }
     
 }

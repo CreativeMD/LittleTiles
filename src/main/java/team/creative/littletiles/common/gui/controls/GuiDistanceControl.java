@@ -12,6 +12,8 @@ import team.creative.littletiles.common.grid.LittleGrid;
 
 public class GuiDistanceControl extends GuiParent {
     
+    public static final double EPSILON = 0.00001;
+    
     public GuiDistanceControl(String name, LittleGrid context, int distance) {
         super(name);
         add(new GuiCounter("blocks", 0).setTooltip(new TextBuilder().translate("gui.distance.blocks").build()));
@@ -32,20 +34,32 @@ public class GuiDistanceControl extends GuiParent {
         get("ltdistance", GuiCounter.class).resetTextfield();
     }
     
-    public void setDistance(LittleGrid context, int distance) {
-        int max = LittleTiles.CONFIG.general.maxDoorDistance * context.count;
+    public void setVanillaDistance(double distance) {
+        LittleGrid grid = null;
+        int lt;
+        
+        do {
+            grid = grid == null ? LittleGrid.min() : grid.next();
+            lt = grid.toGrid(distance);
+        } while (Math.abs(grid.toVanillaGrid(lt) - distance) > EPSILON && grid.next() != null);
+        
+        setDistance(grid, lt);
+    }
+    
+    public void setDistance(LittleGrid grid, int distance) {
+        int max = LittleTiles.CONFIG.general.maxDoorDistance * grid.count;
         distance = Mth.clamp(distance, -max, max);
         
         GuiStateButtonMapped<LittleGrid> contextBox = get("grid");
-        contextBox.select(context);
+        contextBox.select(grid);
         
-        int blocks = distance / context.count;
+        int blocks = distance / grid.count;
         GuiCounter blocksTF = get("blocks");
         blocksTF.setValue(blocks);
         blocksTF.resetTextfield();
         
         GuiCounter ltdistanceTF = get("ltdistance");
-        ltdistanceTF.setValue(distance - blocks * context.count);
+        ltdistanceTF.setValue(distance - blocks * grid.count);
         ltdistanceTF.resetTextfield();
     }
     

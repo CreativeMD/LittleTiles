@@ -225,4 +225,10 @@ public class LittleGrid {
         return new LittleBox(0, 0, 0, count, count, count);
     }
     
+    public LittleGrid next() {
+        if (index >= grids.length)
+            return null;
+        return grids[index + 1];
+    }
+    
 }

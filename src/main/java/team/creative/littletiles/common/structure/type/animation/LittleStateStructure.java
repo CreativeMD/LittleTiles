@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
@@ -23,6 +24,7 @@ import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTransition;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
+import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -48,6 +50,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     }
     
     protected abstract AnimationTimeline generateTimeline(T start, T end);
+    
+    protected abstract ValueCurve<Vec1d> createEmptyCurve();
     
     protected boolean startTransition(AnimationTransition transition) {
         return startTransition(transition.start, transition.end, transition.timeline);
@@ -82,7 +86,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             
             structure.aimedState = end;
             structure.timeline = timeline;
-            structure.timeline.start(states.get(start), states.get(end));
+            structure.timeline.start(states.get(start), states.get(end), this::createEmptyCurve);
             structure.physical = new PhysicalState();
             structure.queueForNextTick();
             return true;
@@ -173,7 +177,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             throw new RuntimeException("Invalid state structure! Aimed State " + aimedState + " not found. Only got " + states.size() + " states");
         
         if (nbt.contains("timeline"))
-            timeline = AnimationTimeline.load(nbt.getCompound("timeline"));
+            timeline = new AnimationTimeline(nbt.getCompound("timeline"));
         else
             timeline = null;
         
@@ -210,13 +214,28 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             nbt.remove("stay");
     }
     
-    public void putState(T state) {
+    public T getState(String name) {
+        for (int i = 0; i < states.size(); i++)
+            if (states.get(i).name.equals(name))
+                return states.get(i);
+        return null;
+    }
+    
+    public int indexOfState(String name) {
+        for (int i = 0; i < states.size(); i++)
+            if (states.get(i).name.equals(name))
+                return i;
+        return -1;
+    }
+    
+    public int putState(T state) {
         for (int i = 0; i < states.size(); i++)
             if (states.get(i).name.equals(state.name)) {
                 states.set(i, state);
-                return;
+                return i;
             }
         states.add(state);
+        return states.size() - 1;
     }
     
     public static class LittleStateStructureType extends LittleStructureType {

@@ -5,6 +5,8 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -29,6 +31,24 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     }
     
     @Override
+    protected void loadExtra(CompoundTag nbt) {
+        super.loadExtra(nbt);
+        ListTag transitionList = nbt.getList("t", Tag.TAG_COMPOUND);
+        transitions = new ArrayList<>(transitionList.size());
+        for (int i = 0; i < transitionList.size(); i++)
+            transitions.add(new AnimationTransition(transitionList.getCompound(i)));
+    }
+    
+    @Override
+    protected void saveExtra(CompoundTag nbt) {
+        super.saveExtra(nbt);
+        ListTag transitionList = new ListTag();
+        for (int i = 0; i < transitions.size(); i++)
+            transitionList.add(transitions.get(i).save());
+        nbt.put("t", transitionList);
+    }
+    
+    @Override
     protected AnimationState createState(CompoundTag nbt) {
         return new AnimationState(nbt);
     }
@@ -45,7 +65,32 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
         return false;
     }
     
-    protected AnimationTimeline getTransition(int start, int end) {
+    public void putTransition(AnimationState start, AnimationState end, String name, AnimationTimeline timeline) {
+        putTransition(start.name, end.name, name, timeline);
+    }
+    
+    public void putTransition(String start, String end, String name, AnimationTimeline timeline) {
+        putTransition(indexOfState(start), indexOfState(end), name, timeline);
+    }
+    
+    public void putTransition(int start, int end, String name, AnimationTimeline timeline) {
+        if (!hasState(start) || !hasState(end))
+            return;
+        transitions.add(new AnimationTransition(name, start, end, timeline));
+    }
+    
+    public AnimationTimeline getTransition(String start, String end) {
+        return getTransition(indexOfState(start), indexOfState(end));
+    }
+    
+    public AnimationTimeline getTransition(String name) {
+        for (AnimationTransition transition : transitions)
+            if (transition.name.equals(name))
+                return transition.timeline;
+        return null;
+    }
+    
+    public AnimationTimeline getTransition(int start, int end) {
         for (AnimationTransition transition : transitions)
             if (transition.start == start && transition.end == end)
                 return transition.timeline;
