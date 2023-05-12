@@ -2,9 +2,8 @@ package team.creative.littletiles.common.gui.controls;
 
 import net.minecraft.util.Mth;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.VAlign;
+import team.creative.creativecore.common.gui.controls.simple.GuiCounter;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.event.GuiEvent;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -15,11 +14,10 @@ public class GuiDistanceControl extends GuiParent {
     
     public GuiDistanceControl(String name, LittleGrid context, int distance) {
         super(name);
-        add(new GuiTextfield("blocks", "").setNumbersIncludingNegativeOnly().setTooltip(new TextBuilder().translate("gui.distance.blocks").build()));
-        add(new GuiStateButtonMapped<LittleGrid>("grid", LittleGrid.mapBuilder()));
-        add(new GuiTextfield("ltdistance", "").setNumbersIncludingNegativeOnly().setTooltip(new TextBuilder().translate("gui.distance.pixels").build()));
+        add(new GuiCounter("blocks", 0).setTooltip(new TextBuilder().translate("gui.distance.blocks").build()));
+        add(new GuiStateButtonMapped<LittleGrid>("grid", LittleGrid.mapBuilder()).setDim(20, 10));
+        add(new GuiCounter("ltdistance", 0).setTooltip(new TextBuilder().translate("gui.distance.pixels").build()));
         setDistance(context, distance);
-        setVAlign(VAlign.STRETCH);
     }
     
     @Override
@@ -30,34 +28,34 @@ public class GuiDistanceControl extends GuiParent {
     }
     
     public void resetTextfield() {
-        ((GuiTextfield) get("blocks")).setCursorPositionZero();
-        ((GuiTextfield) get("ltdistance")).setCursorPositionZero();
+        get("blocks", GuiCounter.class).resetTextfield();
+        get("ltdistance", GuiCounter.class).resetTextfield();
     }
     
     public void setDistance(LittleGrid context, int distance) {
         int max = LittleTiles.CONFIG.general.maxDoorDistance * context.count;
         distance = Mth.clamp(distance, -max, max);
         
-        GuiStateButtonMapped<LittleGrid> contextBox = (GuiStateButtonMapped<LittleGrid>) get("grid");
+        GuiStateButtonMapped<LittleGrid> contextBox = get("grid");
         contextBox.select(context);
         
         int blocks = distance / context.count;
-        GuiTextfield blocksTF = (GuiTextfield) get("blocks");
-        blocksTF.setText("" + blocks);
-        blocksTF.setCursorPositionZero();
+        GuiCounter blocksTF = get("blocks");
+        blocksTF.setValue(blocks);
+        blocksTF.resetTextfield();
         
-        GuiTextfield ltdistanceTF = (GuiTextfield) get("ltdistance");
-        ltdistanceTF.setText("" + (distance - blocks * context.count));
-        ltdistanceTF.setCursorPositionZero();
+        GuiCounter ltdistanceTF = get("ltdistance");
+        ltdistanceTF.setValue(distance - blocks * context.count);
+        ltdistanceTF.resetTextfield();
     }
     
     public int getDistance() {
-        GuiTextfield blocksTF = (GuiTextfield) get("blocks");
-        GuiTextfield ltdistanceTF = (GuiTextfield) get("ltdistance");
+        GuiCounter blocksTF = get("blocks");
+        GuiCounter ltdistanceTF = get("ltdistance");
         LittleGrid context = getDistanceGrid();
         
         try {
-            int distance = Integer.parseInt(blocksTF.getText()) * context.count + Integer.parseInt(ltdistanceTF.getText());
+            int distance = blocksTF.getValue() * context.count + ltdistanceTF.getValue();
             int max = LittleTiles.CONFIG.general.maxDoorDistance * context.count;
             distance = Mth.clamp(distance, -max, max);
             return distance;
