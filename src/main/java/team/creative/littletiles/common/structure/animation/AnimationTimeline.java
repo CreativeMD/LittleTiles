@@ -81,6 +81,8 @@ public class AnimationTimeline {
     public void start(PhysicalState start, PhysicalState end, Supplier<ValueCurve<Vec1d>> curve1d) {
         this.start = start;
         this.end = end;
+        this.tick = 0;
+        this.eventIndex = 0;
         for (PhysicalPart part : PhysicalPart.values()) {
             ValueCurve<Vec1d> curve = get(part);
             double s = start.get(part);
