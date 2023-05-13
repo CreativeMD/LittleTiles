@@ -98,7 +98,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     @Override
     public boolean queuedTick() {
-        if (timeline == null)
+        if (timeline == null || mainBlock.isRemoved())
             return false;
         
         LittleAnimationEntity animation = getAnimationEntity();
