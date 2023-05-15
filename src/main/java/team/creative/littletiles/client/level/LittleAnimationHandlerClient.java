@@ -287,7 +287,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         float partialTicks = mc.getPartialTick();
         for (LittleEntity animation : this) {
             pose.pushPose();
-            animation.getOrigin().setupRendering(pose, x, y, z, animation, partialTicks);
+            animation.getOrigin().setupRendering(pose, x, y, z, partialTicks);
             if (shaderinstance.MODEL_VIEW_MATRIX != null)
                 shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
             shaderinstance.apply();
@@ -365,7 +365,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
         LittleEntity entity = result.getHolder();
         Vec3 position = mc.gameRenderer.getMainCamera().getPosition();
-        entity.getOrigin().setupRendering(event.getPoseStack(), position.x, position.y, position.z, entity, event.getPartialTick());
+        entity.getOrigin().setupRendering(event.getPoseStack(), position.x, position.y, position.z, event.getPartialTick());
         RenderSystem.enableDepthTest();
         
         double d0 = pos.getX() - position.x();
