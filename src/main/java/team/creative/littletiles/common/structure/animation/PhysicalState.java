@@ -180,4 +180,9 @@ public class PhysicalState {
         return state;
     }
     
+    public void setZero() {
+        offset.set(0, 0, 0);
+        rotation.set(0, 0, 0);
+    }
+    
 }

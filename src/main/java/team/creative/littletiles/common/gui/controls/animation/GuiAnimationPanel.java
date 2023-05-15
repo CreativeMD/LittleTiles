@@ -8,20 +8,23 @@ import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.util.text.TextBuilder;
+import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
 
 public class GuiAnimationPanel extends GuiParent {
     
     public final GuiTree tree;
     public final GuiAnimationViewerStorage storage;
     public final boolean options;
+    public final GuiRecipeAnimationHandler animation;
     
-    public GuiAnimationPanel(GuiTree tree, GuiAnimationViewerStorage storage, boolean options) {
+    public GuiAnimationPanel(GuiTree tree, GuiAnimationViewerStorage storage, boolean options, GuiRecipeAnimationHandler animation) {
         super("animation", GuiFlow.STACK_Y);
         setExpandable();
         
         this.tree = tree;
         this.storage = storage;
         this.options = options;
+        this.animation = animation;
         
         GuiAnimationViewer viewer = new GuiAnimationViewer("viewer", storage);
         add(viewer.setExpandable());
@@ -32,6 +35,11 @@ public class GuiAnimationPanel extends GuiParent {
         animationButtons
                 .add(new GuiIconButton("perspective", GuiIcon.CAMERA, x -> viewer.nextProjection()).setTooltip(new TextBuilder().translate("gui.recipe.perspective").build()));
         animationButtons.add(new GuiIconButton("home", GuiIcon.HOUSE, x -> viewer.resetView()).setTooltip(new TextBuilder().translate("gui.recipe.home").build()));
+        if (animation != null) {
+            animationButtons.add(new GuiIconButton("play", GuiIcon.PLAY, x -> animation.play()).setTooltip(new TextBuilder().translate("gui.recipe.play").build()));
+            animationButtons.add(new GuiIconButton("pause", GuiIcon.PAUSE, x -> animation.pause()).setTooltip(new TextBuilder().translate("gui.recipe.pause").build()));
+            animationButtons.add(new GuiIconButton("stop", GuiIcon.STOP, x -> animation.stop()).setTooltip(new TextBuilder().translate("gui.recipe.stop").build()));
+        }
         
         GuiParent checkboxes = new GuiParent(GuiFlow.FIT_X).setAlign(Align.CENTER);
         add(checkboxes.setExpandableX());

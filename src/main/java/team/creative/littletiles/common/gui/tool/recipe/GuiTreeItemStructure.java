@@ -33,8 +33,10 @@ import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
+import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 
@@ -52,6 +54,9 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     private int index;
     private String title;
     private List<RecipeTestError> errors;
+    
+    public PhysicalState physicalState = new PhysicalState();
+    private StructureAbsolute center;
     
     public GuiTreeItemStructure(GuiRecipe recipe, GuiTree tree, LittleGroup group, int index) {
         super("tree_item", tree);
@@ -176,6 +181,7 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     }
     
     public void load() {
+        recipe.animation.reset();
         gui = recipe.types.getSelected();
         recipe.control = gui.create(this);
         recipe.control.setExpandableY();
@@ -346,4 +352,24 @@ public class GuiTreeItemStructure extends GuiTreeItem {
         offset = null;
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public void prepareRendering(AnimationPreview preview) {
+        preview.set(physicalState);
+        if (hasNewCenter()) {
+            preview.setCenter(center);
+            center = null;
+        }
+    }
+    
+    public void setNewCenter(StructureAbsolute center) {
+        this.center = center;
+    }
+    
+    public StructureAbsolute getCenter() {
+        return center;
+    }
+    
+    public boolean hasNewCenter() {
+        return center != null;
+    }
 }

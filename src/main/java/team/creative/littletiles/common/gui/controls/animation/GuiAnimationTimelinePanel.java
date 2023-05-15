@@ -6,11 +6,13 @@ import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineKey;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiDistanceControl;
+import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.PhysicalPart;
 import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
@@ -30,11 +32,11 @@ public class GuiAnimationTimelinePanel extends GuiParent {
     
     public GuiTimelineKey edited;
     
-    public GuiAnimationTimelinePanel(AnimationTimeline timeline) {
+    public GuiAnimationTimelinePanel(GuiRecipeAnimationHandler handler, AnimationTimeline timeline) {
         flow = GuiFlow.STACK_Y;
         
         add(new GuiLabeledControl(Component.translatable("gui.duration").append(":"), new GuiTextfield("duration", "" + timeline.duration).setNumbersOnly()));
-        time = new GuiTimeline();
+        time = new GuiTimeline(handler);
         time.setDuration(timeline.duration);
         add(time.setExpandableX());
         
@@ -70,12 +72,17 @@ public class GuiAnimationTimelinePanel extends GuiParent {
         });
         
         editKey.registerEventChanged(x -> {
+            if (x.control instanceof GuiDistanceControl distance) {
+                edited.value = distance.getVanillaDistance();
+                time.raiseEvent(new GuiControlChangedEvent(time));
+            } else if (x.control instanceof GuiTextfield text) {
+                edited.value = text.parseDouble();
+                time.raiseEvent(new GuiControlChangedEvent(time));
+            }
+        });
+        registerEventChanged(x -> {
             if (x.control instanceof GuiTextfield text && text.is("duration"))
                 time.setDuration(Math.max(1, text.parseInteger()));
-            else if (x.control instanceof GuiDistanceControl distance)
-                edited.value = distance.getVanillaDistance();
-            else if (x.control instanceof GuiTextfield text)
-                edited.value = text.parseDouble();
         });
     }
     

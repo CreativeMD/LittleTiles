@@ -87,6 +87,8 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     
     public void setCenter(StructureAbsolute center) {
         this.center = center;
+        if (getOrigin() != null)
+            getOrigin().setCenter(center.rotationCenter);
         for (OrientationAwareEntity entity : children())
             entity.parentVecOriginChange(origin);
     }

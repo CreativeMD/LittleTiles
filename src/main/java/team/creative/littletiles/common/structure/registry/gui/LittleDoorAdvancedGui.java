@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.structure.registry.gui;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,9 +18,12 @@ import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationTimelinePanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationPanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
+import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
+import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -29,6 +33,7 @@ import team.creative.littletiles.common.structure.animation.PhysicalPart;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.animation.curve.ValueCurveInterpolation;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
+import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.type.animation.LittleAdvancedDoor;
 
@@ -111,18 +116,73 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         settings.add(new GuiCheckBox("noClip", noClip).setTranslate("gui.no_clip").setTooltip("gui.door.no_clip.tooltip"));
         settings.add(new GuiCheckBox("playPlaceSounds", playPlaceSounds).setTranslate("gui.door.play_place_sound").setTooltip("gui.door.play_place_sound.tooltip"));
         
+        GuiIsoAnimationViewer viewer = upper.get("viewer");
+        settings.add(new GuiCheckBox("even", viewer.isEven()).setTranslate("gui.door.axis.even"));
+        
+        settings.add(new GuiGridConfig("grid", viewer.getGrid(), x -> {
+            LittleBox viewerBox = viewer.getBox();
+            viewerBox.convertTo(viewer.getGrid(), x);
+            
+            if (viewer.isEven())
+                viewerBox.maxX = viewerBox.minX + 2;
+            else
+                viewerBox.maxX = viewerBox.minX + 1;
+            
+            if (viewer.isEven())
+                viewerBox.maxY = viewerBox.minY + 2;
+            else
+                viewerBox.maxY = viewerBox.minY + 1;
+            
+            if (viewer.isEven())
+                viewerBox.maxZ = viewerBox.minZ + 2;
+            else
+                viewerBox.maxZ = viewerBox.minZ + 1;
+            
+            viewer.setAxis(viewerBox, x);
+        }));
+        
+        settings.registerEventChanged(x -> {
+            if (x.control.is("even"))
+                get("viewer", GuiIsoAnimationViewer.class).setEven(((GuiCheckBox) x.control).value);
+            if (x.control.is("inter"))
+                updateTimeline();
+        });
+        
         GuiTabs tabs = new GuiTabs("tabs");
         
         add(tabs.setExpandableX());
         
         GuiParent single = tabs.createTab(Component.translatable("gui.door.same_transition"));
-        single.add((GuiControl) (same = new GuiTimelineConfigSame(closed, opened, opening)));
+        single.add((GuiControl) (same = new GuiTimelineConfigSame(item.recipe.animation, closed, opened, opening)));
         
         GuiParent different = tabs.createTab(Component.translatable("gui.door.different_transition"));
         tabs.getTabButton(1).setEnabled(false);
         
         tabs.select(sameTransition ? 0 : 1);
         
+        registerEvent(GuiAnimationAxisChangedEvent.class, x -> item.setNewCenter(new StructureAbsolute(new BlockPos(0, 0, 0), viewer.getBox().copy(), viewer.getGrid())));
+        raiseEvent(new GuiAnimationAxisChangedEvent(viewer));
+        
+        tabs.registerEventChanged(x -> {
+            if (x.control instanceof GuiTimeline)
+                updateTimeline();
+        });
+        
+        updateTimeline();
+    }
+    
+    public void updateTimeline() {
+        GuiTimelineConfig config = get("tabs", GuiTabs.class).index() != 0 ? different : same;
+        GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
+        PhysicalState closed = config.closedState();
+        PhysicalState opened = config.openedState();
+        boolean opening = config.openingAnimation();
+        AnimationTimeline timeline = config.generateTimeline(inter.getSelected(), opening);
+        if (opening)
+            timeline.start(closed, opened, inter.getSelected()::create1d);
+        else
+            timeline.start(opened, closed, inter.getSelected()::create1d);
+        item.recipe.animation.setTimeline(item, timeline);
     }
     
     @Override
@@ -157,6 +217,8 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         public PhysicalState openedState();
         
         public AnimationTimeline generateTimeline(ValueInterpolation interpolation, boolean opening);
+        
+        public boolean openingAnimation();
     }
     
     public static class GuiTimelineConfigSame extends GuiAnimationTimelinePanel implements GuiTimelineConfig {
@@ -178,8 +240,8 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
             return timeline;
         }
         
-        public GuiTimelineConfigSame(PhysicalState closed, PhysicalState opened, AnimationTimeline timeline) {
-            super(setup(closed, opened, timeline));
+        public GuiTimelineConfigSame(GuiRecipeAnimationHandler handler, PhysicalState closed, PhysicalState opened, AnimationTimeline timeline) {
+            super(handler, setup(closed, opened, timeline));
         }
         
         @Override
@@ -212,6 +274,10 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
             return timeline;
         }
         
+        @Override
+        public boolean openingAnimation() {
+            return true;
+        }
     }
     
     public static class GuiAdvancedTimelineChannel extends GuiTimelineChannel {

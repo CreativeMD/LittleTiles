@@ -85,6 +85,9 @@
 	"gui.recipe.move": "Move Structures",
 	"gui.recipe.perspective": "Change perspective mode",
 	"gui.recipe.home": "Reset view",
+	"gui.recipe.play": "Play",
+	"gui.recipe.pause": "Pause",
+	"gui.recipe.stop": "Stop",
 	
 	"gui.recipe.view.filter": "Filter rendered",
 	"gui.recipe.view.highlight": "Highlight selected",

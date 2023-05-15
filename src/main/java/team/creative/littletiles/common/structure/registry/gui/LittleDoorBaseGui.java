@@ -7,6 +7,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
@@ -21,6 +22,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.type.animation.LittleDoor;
@@ -31,7 +33,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     public LittleDoorBaseGui(LittleStructureGui gui, GuiTreeItemStructure item) {
         super(gui, item);
         registerEventChanged(x -> {
-            if (x.control.is("duration_s", "children_activate", "interpolation"))
+            if (x.control.is("duration", "inter"))
                 updateTimeline();
         });
     }
@@ -73,7 +75,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         
         flow = GuiFlow.STACK_Y;
         align = Align.STRETCH;
-        GuiParent settings = new GuiParent(GuiFlow.FIT_X);
+        GuiParent settings = new GuiParent(GuiFlow.FIT_X).setVAlign(VAlign.CENTER);
         add(settings);
         
         settings.add(new GuiLabeledControl(Component.translatable("gui.interpolation")
@@ -90,11 +92,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         add(new GuiIsoAnimationPanel(item, box, grid, even).setVisibleAxis(hasAxis()).setViewerDim(200, 200));
         
         createSpecific(structure instanceof LittleDoor ? (LittleDoor) structure : null);
-        /*parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
-        parent.controls
-                .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
-        
-        updateTimeline();*/
+        updateTimeline();
     }
     
     @Override
@@ -105,9 +103,6 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         door.center = new StructureRelative(viewer.getBox(), viewer.getGrid());
         GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
         door.interpolation = inter.getSelected();
-        
-        /*GuiDoorSettingsButton settings = get("settings", GuiDoorSettingsButton.class);
-        door.events = get("children_activate", GuiDoorEventsButton.class).events;*/
         
         door.duration = get("duration", GuiSteppedSlider.class).getValue();
         door.stayAnimated = get("stayAnimated", GuiCheckBox.class).value;
@@ -125,15 +120,15 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
     protected abstract void createSpecific(@Nullable LittleDoor door);
     
-    protected abstract void save(AnimationState state);
-    
-    protected abstract void populateTimeline(AnimationTimeline timeline, int interpolation);
+    protected abstract void save(PhysicalState state);
     
     public void updateTimeline() {
-        /*AnimationTimeline timeline = new AnimationTimeline((int) get("duration_s", GuiSteppedSlider.class).value);
-        
-        populateTimeline(timeline, get("interpolation", GuiStateButton.class).getState());
-        handler.setTimeline(timeline, get("children_activate", GuiDoorEventsButton.class).events);*/
+        AnimationTimeline timeline = new AnimationTimeline(get("duration", GuiSteppedSlider.class).getValue());
+        GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
+        PhysicalState end = new PhysicalState();
+        save(end);
+        timeline.start(new PhysicalState(), end, inter.getSelected()::create1d);
+        item.recipe.animation.setTimeline(item, timeline);
     }
     
 }

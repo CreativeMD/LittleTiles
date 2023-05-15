@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.registry.gui;
 
 import java.util.function.Function;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,11 +15,12 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
+import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.animation.AnimationState;
-import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.PhysicalState;
+import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.animation.LittleAxisDoor;
 import team.creative.littletiles.common.structure.type.animation.LittleAxisDoor.LittleAxisDoorRotation;
 import team.creative.littletiles.common.structure.type.animation.LittleAxisDoor.LittleAxisDoorRotationDirection;
@@ -33,6 +35,8 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
         registerEventChanged(x -> {
             if (x.control.is("even"))
                 get("viewer", GuiIsoAnimationViewer.class).setEven(((GuiCheckBox) x.control).value);
+            if (x.control.is("angle", "direction"))
+                updateTimeline();
         });
     }
     
@@ -91,10 +95,12 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
             viewer.setAxis(box, x);
         }));
         
+        registerEvent(GuiAnimationAxisChangedEvent.class, x -> item.setNewCenter(new StructureAbsolute(new BlockPos(0, 0, 0), viewer.getBox().copy(), viewer.getGrid())));
+        raiseEvent(new GuiAnimationAxisChangedEvent(viewer));
     }
     
     @Override
-    protected void save(AnimationState state) {
+    protected void save(PhysicalState state) {
         GuiTabsMapped<Function<GuiParent, LittleAxisDoorRotation>> tabs = get("tabs");
         
         state.off(0, 0, 0);
@@ -113,8 +119,5 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
         
         return door;
     }
-    
-    @Override
-    public void populateTimeline(AnimationTimeline timeline, int interpolation) {}
     
 }

@@ -181,8 +181,8 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         @Override
         public LinearCurve<T> copy() {
             LinearCurve<T> copy = new LinearCurve<T>();
-            for (Pair<Integer, T> pair : copy.points)
-                points.add(pair.key, (T) pair.value.copy());
+            for (Pair<Integer, T> pair : points)
+                copy.points.add(pair.key, (T) pair.value.copy());
             return copy;
         }
         
@@ -205,8 +205,8 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         @Override
         public CosineCurve<T> copy() {
             CosineCurve<T> copy = new CosineCurve<T>();
-            for (Pair<Integer, T> pair : copy.points)
-                points.add(pair.key, (T) pair.value.copy());
+            for (Pair<Integer, T> pair : points)
+                copy.points.add(pair.key, (T) pair.value.copy());
             return copy;
         }
         
@@ -258,8 +258,8 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         @Override
         public CubicCurve<T> copy() {
             CubicCurve<T> copy = new CubicCurve<T>();
-            for (Pair<Integer, T> pair : copy.points)
-                points.add(pair.key, (T) pair.value.copy());
+            for (Pair<Integer, T> pair : points)
+                copy.points.add(pair.key, (T) pair.value.copy());
             return copy;
         }
     }
@@ -302,8 +302,8 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         @Override
         public HermiteCurve<T> copy() {
             HermiteCurve<T> copy = new HermiteCurve<T>();
-            for (Pair<Integer, T> pair : copy.points)
-                points.add(pair.key, (T) pair.value.copy());
+            for (Pair<Integer, T> pair : points)
+                copy.points.add(pair.key, (T) pair.value.copy());
             return copy;
         }
     }

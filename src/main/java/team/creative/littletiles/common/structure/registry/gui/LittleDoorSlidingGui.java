@@ -18,8 +18,7 @@ import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationVi
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.animation.AnimationState;
-import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 import team.creative.littletiles.common.structure.type.animation.LittleSlidingDoor;
 
@@ -42,6 +41,8 @@ public class LittleDoorSlidingGui extends LittleDoorBaseGui {
                     facing = viewer.getZFacing().positive == facing.positive ? Facing.SOUTH : Facing.NORTH;
                 get("relative", GuiDirectionIndicator.class).setFacing(facing);
             }
+            if (x.control.is("distance", "facing"))
+                updateTimeline();
         });
     }
     
@@ -98,7 +99,7 @@ public class LittleDoorSlidingGui extends LittleDoorBaseGui {
     }
     
     @Override
-    protected void save(AnimationState state) {
+    protected void save(PhysicalState state) {
         GuiStateButtonMapped<Facing> direction = get("facing");
         GuiDistanceControl distance = get("distance");
         
@@ -106,8 +107,5 @@ public class LittleDoorSlidingGui extends LittleDoorBaseGui {
         state.rot(0, 0, 0);
         state.off(direction.getSelected(), distance.getVanillaDistance());
     }
-    
-    @Override
-    public void populateTimeline(AnimationTimeline timeline, int interpolation) {}
     
 }

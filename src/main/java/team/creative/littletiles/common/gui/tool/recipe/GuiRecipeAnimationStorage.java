@@ -109,6 +109,8 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             if (entry.getKey().tree.hasCheckboxes() && !entry.getKey().isChecked())
                 continue;
             
+            entry.getKey().prepareRendering(entry.getValue());
+            
             pose.pushPose();
             RenderSystem.applyModelViewMatrix();
             LittleVecGrid offset = entry.getKey().getOffset();
@@ -291,7 +293,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             change.add(new AnimationPair(structure, preview));
     }
     
-    public void tick() {
+    public void renderTick() {
         offX.tick();
         offY.tick();
         offZ.tick();
@@ -306,6 +308,11 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             }
             updateBox();
         }
+    }
+    
+    public void tick() {
+        for (AnimationPreview preview : availablePreviews.values())
+            preview.tick();
     }
     
     @Override

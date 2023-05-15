@@ -71,6 +71,8 @@ public interface GuiAnimationViewerStorage {
     
     @OnlyIn(Dist.CLIENT)
     public default void renderPreview(PoseStack pose, Matrix4f projection, AnimationPreview preview, Minecraft mc) {
+        preview.setupRendering(pose);
+        
         preview.animation.getRenderManager().setupRender(FAKE_CAMERA, null, false, false);
         preview.animation.getRenderManager().compileChunks(FAKE_CAMERA);
         

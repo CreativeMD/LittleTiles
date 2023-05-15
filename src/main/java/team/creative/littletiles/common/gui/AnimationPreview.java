@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
@@ -21,6 +26,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
@@ -60,8 +66,24 @@ public class AnimationPreview {
         animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), placement);
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public void setupRendering(PoseStack pose) {
+        animation.getOrigin().setupRendering(pose, 0, 0, 0, Minecraft.getInstance().getPartialTick());
+    }
+    
     public void unload() {
         animation.destroyAnimation();
     }
     
+    public void set(PhysicalState state) {
+        animation.physic.set(state);
+    }
+    
+    public void tick() {
+        animation.getOrigin().tick();
+    }
+    
+    public void setCenter(StructureAbsolute center) {
+        animation.setCenter(center);
+    }
 }

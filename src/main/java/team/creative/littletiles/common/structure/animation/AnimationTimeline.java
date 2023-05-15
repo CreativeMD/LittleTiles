@@ -100,8 +100,15 @@ public class AnimationTimeline {
     }
     
     protected void tickState(int tick, PhysicalState state) {
-        for (PhysicalPart part : PhysicalPart.values())
-            state.set(part, get(part).value(tick).x);
+        for (PhysicalPart part : PhysicalPart.values()) {
+            ValueCurve<Vec1d> curve = get(part);
+            state.set(part, curve.isEmpty() ? 0 : get(part).value(tick).x);
+        }
+    }
+    
+    public void executeState(int tick, PhysicalState state, AnimationContext context) {
+        tickState(tick, state);
+        // Check what to do about events
     }
     
     public boolean tick(PhysicalState state, AnimationContext context) {

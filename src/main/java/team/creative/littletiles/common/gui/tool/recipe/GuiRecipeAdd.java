@@ -169,7 +169,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
         GuiTree tree = new GuiTree("tree").setRootVisibility(false).setCheckboxes(true, true);
         upper.add(tree.setDim(new GuiSizeRatioRules().widthRatio(0.3F).maxWidth(100)).setExpandableY());
         
-        upper.add(new GuiAnimationPanel(tree, this, false).setExpandable());
+        upper.add(new GuiAnimationPanel(tree, this, false, null).setExpandable());
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);

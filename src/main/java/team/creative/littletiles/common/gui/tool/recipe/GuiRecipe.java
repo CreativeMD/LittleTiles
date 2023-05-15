@@ -89,6 +89,7 @@ public class GuiRecipe extends GuiConfigure {
     public GuiParent sidebarButtons;
     @OnlyIn(Dist.CLIENT)
     public GuiRecipeAnimationStorage storage;
+    public GuiRecipeAnimationHandler animation = new GuiRecipeAnimationHandler();
     private boolean selectedBefore = true;
     
     public GuiRecipe(ContainerSlotView view) {
@@ -261,7 +262,7 @@ public class GuiRecipe extends GuiConfigure {
                 item.onNameChanged((GuiTextfield) x.control);
         });
         
-        top.add(new GuiAnimationPanel(tree, storage, true));
+        top.add(new GuiAnimationPanel(tree, storage, true, animation));
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom.setVAlign(VAlign.CENTER).setExpandableX());
@@ -289,8 +290,16 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     @Override
+    public void tick() {
+        super.tick();
+        animation.tick();
+        if (storage != null)
+            storage.tick();
+    }
+    
+    @Override
     public void render(PoseStack pose, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
-        storage.tick();
+        storage.renderTick();
         super.render(pose, control, controlRect, realRect, scale, mouseX, mouseY);
     }
     
