@@ -8,16 +8,33 @@ public abstract class AnimationEvent<T extends Tag> {
     
     public static final NamedTypeRegistry<AnimationEvent> REGISTRY = new NamedTypeRegistry<AnimationEvent>().addConstructorPattern(Tag.class);
     
+    static {
+        REGISTRY.register("s", PlaySoundEvent.class);
+        REGISTRY.register("c", ChildDoorEvent.class);
+    }
+    
     public AnimationEvent() {}
     
     public abstract T save();
     
     public abstract void start(AnimationContext context);
     
-    public abstract void tick(int tick, int duration, AnimationContext context);
-    
-    public abstract void end(AnimationContext context);
+    public abstract boolean isDone(int ticksActive, AnimationContext context);
     
     public abstract AnimationEvent<T> copy();
+    
+    public abstract int reverseTick(int start, int duration, AnimationContext context);
+    
+    public AnimationEvent createGuiSpecific() {
+        return this;
+    }
+    
+    public static interface AnimationEventGui {
+        
+        public void prepare(AnimationContext context);
+        
+        public void set(int tick, AnimationContext context);
+        
+    }
     
 }

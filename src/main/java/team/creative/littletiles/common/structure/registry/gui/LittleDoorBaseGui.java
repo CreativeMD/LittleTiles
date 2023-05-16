@@ -92,6 +92,9 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         add(new GuiIsoAnimationPanel(item, box, grid, even).setVisibleAxis(hasAxis()).setViewerDim(200, 200));
         
         createSpecific(structure instanceof LittleDoor ? (LittleDoor) structure : null);
+        
+        Add sound and child configuration
+        
         updateTimeline();
     }
     
@@ -127,7 +130,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
         PhysicalState end = new PhysicalState();
         save(end);
-        timeline.start(new PhysicalState(), end, inter.getSelected()::create1d);
+        timeline.start(new PhysicalState(), end, inter.getSelected()::create1d, true);
         item.recipe.animation.setTimeline(item, timeline);
     }
     

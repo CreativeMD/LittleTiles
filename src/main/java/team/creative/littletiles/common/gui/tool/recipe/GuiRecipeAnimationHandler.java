@@ -4,6 +4,7 @@ import team.creative.creativecore.common.gui.controls.timeline.GuiAnimationHandl
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.util.type.itr.TreeIterator;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 
 public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
     
@@ -82,8 +83,12 @@ public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
     }
     
     protected void updateState() {
-        timeline.executeState(tick, current.physicalState, null);
+        timeline.setStateAtTick(tick, current.physicalState, current);
         lastTick = tick;
+    }
+    
+    public AnimationContext context() {
+        return current;
     }
     
 }

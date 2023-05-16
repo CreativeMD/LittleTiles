@@ -23,6 +23,7 @@ import team.creative.littletiles.common.structure.registry.gui.LittleDoorAdvance
 public class GuiAnimationTimelinePanel extends GuiParent {
     
     public final GuiTimeline time;
+    public final GuiRecipeAnimationHandler handler;
     private GuiAdvancedTimelineChannel rotX;
     private GuiAdvancedTimelineChannel rotY;
     private GuiAdvancedTimelineChannel rotZ;
@@ -34,7 +35,7 @@ public class GuiAnimationTimelinePanel extends GuiParent {
     
     public GuiAnimationTimelinePanel(GuiRecipeAnimationHandler handler, AnimationTimeline timeline) {
         flow = GuiFlow.STACK_Y;
-        
+        this.handler = handler;
         add(new GuiLabeledControl(Component.translatable("gui.duration").append(":"), new GuiTextfield("duration", "" + timeline.duration).setNumbersOnly()));
         time = new GuiTimeline(handler);
         time.setDuration(timeline.duration);

@@ -11,8 +11,10 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
@@ -34,13 +36,14 @@ import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
+import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 
-public class GuiTreeItemStructure extends GuiTreeItem {
+public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContext {
     
     public final GuiRecipe recipe;
     public LittleGroup group;
@@ -371,5 +374,30 @@ public class GuiTreeItemStructure extends GuiTreeItem {
     
     public boolean hasNewCenter() {
         return center != null;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void play(SoundEvent event, float volume, float pitch) {
+        GuiControl.playSound(event, volume, pitch);
+    }
+    
+    @Override
+    public boolean isGui() {
+        return true;
+    }
+    
+    @Override
+    public AnimationContext getChild(int id) {
+        if (id < 0 || itemsCount() <= id)
+            return null;
+        return (AnimationContext) getItem(id);
+    }
+    
+    @Override
+    public LittleStructure getChildStructure(int id) {
+        if (id < 0 || itemsCount() <= id)
+            return null;
+        return ((GuiTreeItemStructure) getItem(id)).structure;
     }
 }

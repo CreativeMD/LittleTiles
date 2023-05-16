@@ -10,6 +10,12 @@ import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.sound.EntitySound;
+import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
@@ -27,6 +33,8 @@ import team.creative.littletiles.common.structure.animation.context.AnimationCon
 import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
@@ -86,7 +94,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             
             structure.aimedState = end;
             structure.timeline = timeline;
-            structure.timeline.start(states.get(start), states.get(end), this::createEmptyCurve);
+            structure.timeline.start(states.get(start), states.get(end), this::createEmptyCurve, false);
             structure.physical = new PhysicalState();
             structure.queueForNextTick();
             return true;
@@ -236,6 +244,45 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             }
         states.add(state);
         return states.size() - 1;
+    }
+    
+    @Override
+    public boolean isClient() {
+        return super.isClient();
+    }
+    
+    @Override
+    public boolean isGui() {
+        return false;
+    }
+    
+    @Override
+    public AnimationContext getChild(int id) {
+        try {
+            LittleStructure structure = children.getChild(id).getStructure();
+            if (structure instanceof AnimationContext context)
+                return context;
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        return null;
+    }
+    
+    @Override
+    public LittleStructure getChildStructure(int id) {
+        try {
+            return children.getChild(id).getStructure();
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        return null;
+    }
+    
+    @Override
+    public void play(SoundEvent event, float volume, float pitch) {
+        if (isClient())
+            playClient(event, volume, pitch);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    private void playClient(SoundEvent event, float volume, float pitch) {
+        GuiControl.playSound(new EntitySound(event, getAnimationEntity(), volume, pitch, SoundSource.BLOCKS));
     }
     
     public static class LittleStateStructureType extends LittleStructureType {

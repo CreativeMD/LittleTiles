@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.structure.animation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -11,16 +12,19 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.registry.exception.RegistryException;
+import team.creative.creativecore.common.util.type.list.MarkIterator;
+import team.creative.creativecore.common.util.type.list.MarkList;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.animation.event.AnimationEvent;
+import team.creative.littletiles.common.structure.animation.event.AnimationEvent.AnimationEventGui;
 
 public class AnimationTimeline {
     
     public final int duration;
     private int tick;
     private int eventIndex = 0;
-    private List<AnimationEventEntry> events = new ArrayList<>();
+    private MarkList<AnimationEventEntry> events;
     protected PhysicalState start;
     protected PhysicalState end;
     
@@ -40,20 +44,25 @@ public class AnimationTimeline {
             if (nbt.contains(part.name()))
                 set(part, ValueCurve.load(nbt.getCompound(part.name())));
             
+        List<AnimationEventEntry> entries = new ArrayList<>();
         ListTag list = nbt.getList("e", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
-            events.add(new AnimationEventEntry(list.getCompound(i)));
+            entries.add(new AnimationEventEntry(list.getCompound(i)));
+        events = new MarkList<>(entries);
     }
     
     public AnimationTimeline(int duration) {
         this.duration = duration;
         this.tick = 0;
+        this.events = MarkList.EMPTY;
     }
     
     public AnimationTimeline(int duration, List<AnimationEventEntry> events) {
         this.duration = duration;
         this.tick = 0;
-        this.events.addAll(events);
+        List<AnimationEventEntry> tempList = new ArrayList<>(events);
+        Collections.sort(tempList);
+        this.events = new MarkList<>(tempList);
     }
     
     public ValueCurve<Vec1d> get(PhysicalPart part) {
@@ -78,11 +87,12 @@ public class AnimationTimeline {
         }
     }
     
-    public void start(PhysicalState start, PhysicalState end, Supplier<ValueCurve<Vec1d>> curve1d) {
+    public void start(PhysicalState start, PhysicalState end, Supplier<ValueCurve<Vec1d>> curve1d, boolean gui) {
         this.start = start;
         this.end = end;
         this.tick = 0;
         this.eventIndex = 0;
+        this.events.clear();
         for (PhysicalPart part : PhysicalPart.values()) {
             ValueCurve<Vec1d> curve = get(part);
             double s = start.get(part);
@@ -97,6 +107,10 @@ public class AnimationTimeline {
             
             curve.start(new Vec1d(s), new Vec1d(e), duration);
         }
+        
+        if (gui)
+            for (AnimationEventEntry entry : events)
+                entry.setupGui();
     }
     
     protected void tickState(int tick, PhysicalState state) {
@@ -106,33 +120,36 @@ public class AnimationTimeline {
         }
     }
     
-    public void executeState(int tick, PhysicalState state, AnimationContext context) {
+    public void setStateAtTick(int tick, PhysicalState state, AnimationContext context) {
         tickState(tick, state);
-        // Check what to do about events
+        for (AnimationEventEntry entry : events)
+            entry.setAtTick(tick, context);
     }
     
     public boolean tick(PhysicalState state, AnimationContext context) {
         if (tick > duration)
-            return false;
-        
-        tick++;
+            tick++;
         tickState(tick, state);
         
-        if (eventIndex < events.size()) {
-            while (events.get(eventIndex).start <= tick) {
-                AnimationEventEntry entry = events.get(eventIndex);
+        if (tick > duration && events.isEmpty())
+            return true;
+        
+        if (eventIndex < events.sizeIgnoreMark()) {
+            while (events.getIgnoreMark(eventIndex).start <= tick) {
+                AnimationEventEntry entry = events.getIgnoreMark(eventIndex);
                 entry.start(context);
                 eventIndex++;
             }
-            
-            for (AnimationEventEntry entry : events) {
-                entry.tick(tick, context);
-                if (entry.start + entry.duration >= tick)
-                    entry.end(context);
-            }
+        }
+        for (MarkIterator<AnimationEventEntry> iterator = events.iterator(); iterator.hasNext();) {
+            AnimationEventEntry entry = iterator.next();
+            if (entry.active() && entry.isDone(tick, context))
+                entry.end();
+            if (!entry.active())
+                iterator.mark();
         }
         
-        return tick > duration;
+        return tick > duration && events.isEmpty();
     }
     
     public void end() {
@@ -207,24 +224,27 @@ public class AnimationTimeline {
         return timeline;
     }
     
-    public void reverse() {
+    public void reverse(AnimationContext context) {
         for (PhysicalPart part : PhysicalPart.values())
             get(part).reverse(duration);
         PhysicalState beginning = start;
         start = end;
         end = beginning;
+        List<AnimationEventEntry> newEvents = new ArrayList<>();
+        for (AnimationEventEntry entry : events.allIgnoreMark())
+            newEvents.add(new AnimationEventEntry(entry.reverseTick(duration, context), entry.event));
+        Collections.sort(newEvents);
+        events = new MarkList<>(newEvents);
     }
     
     public static class AnimationEventEntry implements Comparable<AnimationEventEntry> {
         
-        public final AnimationEvent event;
+        private AnimationEvent event;
         public final int start;
-        public final int duration;
-        private boolean active = false;
+        protected boolean active = false;
         
         AnimationEventEntry(CompoundTag nbt) {
             this.start = nbt.getInt("t");
-            this.duration = nbt.getInt("d");
             try {
                 this.event = AnimationEvent.REGISTRY.create(nbt.getString("id"), nbt.get("e"));
             } catch (RegistryException e) {
@@ -233,10 +253,17 @@ public class AnimationTimeline {
             this.active = nbt.getBoolean("a");
         }
         
-        public AnimationEventEntry(int tick, int duration, AnimationEvent event) {
+        public AnimationEventEntry(int tick, AnimationEvent event) {
             this.start = tick;
-            this.duration = duration;
             this.event = event;
+        }
+        
+        public void setupGui() {
+            event = event.createGuiSpecific();
+        }
+        
+        public boolean active() {
+            return active;
         }
         
         public void start(AnimationContext context) {
@@ -244,13 +271,23 @@ public class AnimationTimeline {
             event.start(context);
         }
         
-        public void tick(int current, AnimationContext context) {
-            event.tick(current - start, duration, context);
+        public void setAtTick(int current, AnimationContext context) {
+            if (event instanceof AnimationEventGui gui)
+                gui.set(current - start, context);
+            else if (current == start)
+                event.start(context); // Only call start, do not set to active
         }
         
-        public void end(AnimationContext context) {
+        public boolean isDone(int current, AnimationContext context) {
+            return event.isDone(current - start, context);
+        }
+        
+        public int reverseTick(int duration, AnimationContext context) {
+            return event.reverseTick(start, duration, context);
+        }
+        
+        public void end() {
             active = false;
-            event.end(context);
         }
         
         @Override
@@ -261,7 +298,6 @@ public class AnimationTimeline {
         public CompoundTag save() {
             CompoundTag nbt = new CompoundTag();
             nbt.putInt("t", start);
-            nbt.putInt("d", duration);
             nbt.putBoolean("a", active);
             nbt.putString("id", AnimationEvent.REGISTRY.getId(event));
             nbt.put("e", event.save());
@@ -269,7 +305,7 @@ public class AnimationTimeline {
         }
         
         public AnimationEventEntry copy() {
-            return new AnimationEventEntry(start, duration, event.copy());
+            return new AnimationEventEntry(start, event.copy());
         }
         
     }

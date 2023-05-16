@@ -98,9 +98,12 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     }
     
     protected boolean startTransitionIfNecessary(InternalSignalOutput output) {
-        int state = output.getState().number();
-        if (!isChanging() && hasState(state) && state != currentIndex()) {
-            startTransition(currentIndex(), state, getTransition(currentIndex(), state));
+        return startTransitionIfNecessary(output.getState().number());
+    }
+    
+    protected boolean startTransitionIfNecessary(int aimed) {
+        if (!isChanging() && hasState(aimed) && aimed != currentIndex()) {
+            startTransition(currentIndex(), aimed, getTransition(currentIndex(), aimed));
             return true;
         }
         return false;

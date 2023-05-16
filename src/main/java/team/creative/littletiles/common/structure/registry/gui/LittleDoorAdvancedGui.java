@@ -80,7 +80,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
             closing = door.getTransition("closing");
             if (sameTransition || closing != null) {
                 closing = opening.copy();
-                closing.reverse();
+                closing.reverse(item);
             }
         } else {
             grid = item.group.getGrid();
@@ -179,9 +179,9 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         boolean opening = config.openingAnimation();
         AnimationTimeline timeline = config.generateTimeline(inter.getSelected(), opening);
         if (opening)
-            timeline.start(closed, opened, inter.getSelected()::create1d);
+            timeline.start(closed, opened, inter.getSelected()::create1d, true);
         else
-            timeline.start(opened, closed, inter.getSelected()::create1d);
+            timeline.start(opened, closed, inter.getSelected()::create1d, true);
         item.recipe.animation.setTimeline(item, timeline);
     }
     
@@ -270,7 +270,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         public AnimationTimeline generateTimeline(ValueInterpolation interpolation, boolean opening) {
             AnimationTimeline timeline = generateTimeline(interpolation);
             if (!opening)
-                timeline.reverse();
+                timeline.reverse(handler.context());
             return timeline;
         }
         
