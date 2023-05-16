@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.structure.animation.event;
 
 import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.Tag;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 import team.creative.littletiles.common.structure.type.animation.LittleDoor;
@@ -10,11 +9,8 @@ public class ChildDoorEvent extends AnimationEvent<IntTag> {
     
     public int childId;
     
-    public ChildDoorEvent(Tag tag) {
-        if (tag instanceof IntTag i)
-            childId = i.getAsInt();
-        else
-            throw new UnsupportedOperationException();
+    public ChildDoorEvent(IntTag tag) {
+        childId = tag.getAsInt();
     }
     
     public ChildDoorEvent(int childId) {

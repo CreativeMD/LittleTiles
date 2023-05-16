@@ -17,12 +17,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
+import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.action.LittleActionException;
@@ -189,7 +191,16 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         recipe.control = gui.create(this);
         recipe.control.setExpandableY();
         recipe.config.clear();
-        recipe.config.add(recipe.control);
+        GuiScrollY scroll = new GuiScrollY("config") {
+            
+            @Override
+            public ControlFormatting getControlFormatting() {
+                return ControlFormatting.TRANSPARENT;
+            }
+            
+        }.setHover(true);
+        scroll.add(recipe.control);
+        recipe.config.add(scroll);
         recipe.control.create(structure);
         recipe.config.init();
         

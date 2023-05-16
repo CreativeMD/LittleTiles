@@ -1,5 +1,8 @@
 package team.creative.littletiles.common.structure.registry.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.network.chat.Component;
@@ -12,16 +15,19 @@ import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationPanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
+import team.creative.littletiles.common.gui.controls.animation.GuiSoundEventPanel;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.AnimationTimeline.AnimationEventEntry;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
@@ -30,12 +36,10 @@ import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 @OnlyIn(Dist.CLIENT)
 public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
+    public GuiSoundEventPanel soundPanel;
+    
     public LittleDoorBaseGui(LittleStructureGui gui, GuiTreeItemStructure item) {
         super(gui, item);
-        registerEventChanged(x -> {
-            if (x.control.is("duration", "inter"))
-                updateTimeline();
-        });
     }
     
     protected abstract boolean hasAxis();
@@ -51,16 +55,20 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         boolean rightClick;
         boolean noClip;
         boolean playPlaceSounds;
+        AnimationTimeline opening;
+        AnimationTimeline closing;
         if (structure instanceof LittleDoor door) {
             grid = door.center.getGrid();
             box = door.center.getBox();
             even = door.center.isEven();
             inter = door.interpolation;
-            duration = door.duration;
+            duration = Math.max(1, door.duration);
             stayAnimated = door.stayAnimated;
             rightClick = door.rightClick;
             noClip = door.noClip;
             playPlaceSounds = door.playPlaceSounds;
+            opening = door.getTransition("opening");
+            closing = door.getTransition("closing");
         } else {
             grid = item.group.getGrid();
             box = new LittleBox(item.group.getMinVec());
@@ -71,6 +79,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
             rightClick = true;
             noClip = false;
             playPlaceSounds = true;
+            opening = closing = null;
         }
         
         flow = GuiFlow.STACK_Y;
@@ -93,9 +102,20 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         
         createSpecific(structure instanceof LittleDoor ? (LittleDoor) structure : null);
         
-        Add sound and child configuration
+        soundPanel = new GuiSoundEventPanel(item.recipe.animation, opening, closing, duration);
+        add(soundPanel);
         
         updateTimeline();
+        
+        registerEventChanged(x -> {
+            if (x.control.is("duration")) {
+                updateTimeline();
+                soundPanel.durationChanged(((GuiSteppedSlider) x.control).getValue());
+            } else if (x.control.is("inter"))
+                updateTimeline();
+            if (x.control instanceof GuiTimeline)
+                updateTimeline();
+        });
     }
     
     @Override
@@ -118,7 +138,28 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         save(state);
         door.putState(state);
         
+        if (soundPanel.isSoundEmpty())
+            return structure;
+        
+        AnimationTimeline opening = saveEventTimeline(door.duration, true);
+        if (opening != null)
+            door.putTransition("closed", "opened", "opening", opening);
+        
+        AnimationTimeline closing = saveEventTimeline(door.duration, false);
+        if (closing != null)
+            door.putTransition("opened", "closed", "closing", closing);
+        
         return structure;
+    }
+    
+    protected AnimationTimeline saveEventTimeline(int duration, boolean opening) {
+        List<AnimationEventEntry> events = new ArrayList<>();
+        soundPanel.collectEvents(duration, events, opening);
+        
+        if (events.isEmpty())
+            return null;
+        
+        return new AnimationTimeline(duration, events);
     }
     
     protected abstract void createSpecific(@Nullable LittleDoor door);
@@ -126,7 +167,10 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     protected abstract void save(PhysicalState state);
     
     public void updateTimeline() {
-        AnimationTimeline timeline = new AnimationTimeline(get("duration", GuiSteppedSlider.class).getValue());
+        int duration = get("duration", GuiSteppedSlider.class).getValue();
+        AnimationTimeline timeline = saveEventTimeline(duration, true);
+        if (timeline == null)
+            timeline = new AnimationTimeline(duration);
         GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
         PhysicalState end = new PhysicalState();
         save(end);

@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.structure.animation.event;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -9,20 +8,21 @@ import team.creative.littletiles.common.structure.animation.context.AnimationCon
 
 public class PlaySoundEvent extends AnimationEvent<CompoundTag> {
     
+    public static SoundEvent get(ResourceLocation location) {
+        SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(location);
+        if (sound != null)
+            return sound;
+        return SoundEvent.createVariableRangeEvent(location);
+    }
+    
     public SoundEvent sound;
     public float volume;
     public float pitch;
     
-    public PlaySoundEvent(Tag tag) {
-        if (tag instanceof CompoundTag nbt) {
-            ResourceLocation location = new ResourceLocation(nbt.getString("s"));
-            sound = ForgeRegistries.SOUND_EVENTS.getValue(location);
-            if (sound == null)
-                sound = SoundEvent.createVariableRangeEvent(location);
-            volume = nbt.getFloat("v");
-            pitch = nbt.getFloat("p");
-        } else
-            throw new UnsupportedOperationException();
+    public PlaySoundEvent(CompoundTag nbt) {
+        sound = get(new ResourceLocation(nbt.getString("s")));
+        volume = nbt.getFloat("v");
+        pitch = nbt.getFloat("p");
     }
     
     public PlaySoundEvent(SoundEvent event, float volume, float pitch) {
@@ -58,6 +58,13 @@ public class PlaySoundEvent extends AnimationEvent<CompoundTag> {
     @Override
     public int reverseTick(int start, int duration, AnimationContext context) {
         return start;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PlaySoundEvent other)
+            return sound.equals(other.sound) && volume == other.volume && pitch == other.pitch;
+        return false;
     }
     
 }

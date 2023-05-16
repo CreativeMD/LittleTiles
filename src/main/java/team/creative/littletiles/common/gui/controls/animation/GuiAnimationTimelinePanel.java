@@ -1,8 +1,6 @@
 package team.creative.littletiles.common.gui.controls.animation;
 
-import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineKey;
@@ -20,10 +18,8 @@ import team.creative.littletiles.common.structure.animation.curve.ValueCurveInte
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
 import team.creative.littletiles.common.structure.registry.gui.LittleDoorAdvancedGui.GuiAdvancedTimelineChannel;
 
-public class GuiAnimationTimelinePanel extends GuiParent {
+public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
     
-    public final GuiTimeline time;
-    public final GuiRecipeAnimationHandler handler;
     private GuiAdvancedTimelineChannel rotX;
     private GuiAdvancedTimelineChannel rotY;
     private GuiAdvancedTimelineChannel rotZ;
@@ -31,18 +27,10 @@ public class GuiAnimationTimelinePanel extends GuiParent {
     private GuiAdvancedTimelineChannel offY;
     private GuiAdvancedTimelineChannel offZ;
     
-    public GuiTimelineKey edited;
+    public GuiTimelineKey<Double> edited;
     
-    public GuiAnimationTimelinePanel(GuiRecipeAnimationHandler handler, AnimationTimeline timeline) {
-        flow = GuiFlow.STACK_Y;
-        this.handler = handler;
-        add(new GuiLabeledControl(Component.translatable("gui.duration").append(":"), new GuiTextfield("duration", "" + timeline.duration).setNumbersOnly()));
-        time = new GuiTimeline(handler);
-        time.setDuration(timeline.duration);
-        add(time.setExpandableX());
-        
-        time.setDim(-1, 100);
-        
+    public GuiAnimationTimelinePanel(GuiRecipeAnimationHandler handler, int duration, AnimationTimeline timeline) {
+        super(handler, duration);
         for (PhysicalPart part : PhysicalPart.values()) {
             GuiAdvancedTimelineChannel channel = new GuiAdvancedTimelineChannel(time, part.offset);
             if (timeline.get(part) instanceof ValueCurveInterpolation<Vec1d> curve) {
@@ -60,7 +48,7 @@ public class GuiAnimationTimelinePanel extends GuiParent {
             if (x.control.channel instanceof GuiAdvancedTimelineChannel c)
                 if (c.distance) {
                     GuiDistanceControl distance = new GuiDistanceControl("distance", LittleGrid.min(), 0);
-                    distance.setVanillaDistance(x.control.value);
+                    distance.setVanillaDistance((double) x.control.value);
                     editKey.add(distance);
                 } else
                     editKey.add(new GuiTextfield("value", "" + x.control.value).setFloatOnly());
@@ -80,10 +68,6 @@ public class GuiAnimationTimelinePanel extends GuiParent {
                 edited.value = text.parseDouble();
                 time.raiseEvent(new GuiControlChangedEvent(time));
             }
-        });
-        registerEventChanged(x -> {
-            if (x.control instanceof GuiTextfield text && text.is("duration"))
-                time.setDuration(Math.max(1, text.parseInteger()));
         });
     }
     
@@ -109,18 +93,15 @@ public class GuiAnimationTimelinePanel extends GuiParent {
         }
     }
     
-    protected ValueCurve<Vec1d> parse(Iterable<GuiTimelineKey> keys, ValueInterpolation interpolation, int duration) {
+    protected ValueCurve<Vec1d> parse(Iterable<GuiTimelineKey<Double>> keys, ValueInterpolation interpolation, int duration) {
         ValueCurveInterpolation<Vec1d> curve = interpolation.create1d();
-        for (GuiTimelineKey key : keys)
+        for (GuiTimelineKey<Double> key : keys)
             if (key.tick != 0 && key.tick < duration)
                 curve.add(key.tick, new Vec1d(key.value));
         return curve;
     }
     
-    public AnimationTimeline generateTimeline(ValueInterpolation interpolation) {
-        GuiTextfield durationT = get("duration");
-        int duration = durationT.parseInteger();
-        
+    public AnimationTimeline generateTimeline(int duration, ValueInterpolation interpolation) {
         AnimationTimeline timeline = new AnimationTimeline(duration);
         for (PhysicalPart part : PhysicalPart.values()) {
             GuiAdvancedTimelineChannel channel = get(part);

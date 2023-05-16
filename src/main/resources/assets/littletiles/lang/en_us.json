@@ -143,6 +143,13 @@
 	"gui.door.rotx": "rotX",
 	"gui.door.roty": "rotY",
 	"gui.door.rotz": "rotZ",
+	"gui.door.direction.both": "Both",
+	"gui.door.direction.opening": "Open",
+	"gui.door.direction.closing": "Close",
+	"gui.door.sound.add.both": "+ Channel",
+	"gui.door.sound.add.opening": "+ Opening",
+	"gui.door.sound.add.closing": "+ Closing",
+	"gui.door.sound.clean.channel": "Clear unused",
 	
 	"dialog.invalid_grid": "Invalid grid size \u00A72%s",
 	

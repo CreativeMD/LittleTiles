@@ -47,7 +47,9 @@ public class AnimationTimeline {
         List<AnimationEventEntry> entries = new ArrayList<>();
         ListTag list = nbt.getList("e", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++)
-            entries.add(new AnimationEventEntry(list.getCompound(i)));
+            try {
+                entries.add(new AnimationEventEntry(list.getCompound(i)));
+            } catch (RegistryException e) {}
         events = new MarkList<>(entries);
     }
     
@@ -122,25 +124,24 @@ public class AnimationTimeline {
     
     public void setStateAtTick(int tick, PhysicalState state, AnimationContext context) {
         tickState(tick, state);
-        for (AnimationEventEntry entry : events)
+        for (AnimationEventEntry entry : events.allIgnoreMark())
             entry.setAtTick(tick, context);
     }
     
     public boolean tick(PhysicalState state, AnimationContext context) {
-        if (tick > duration)
+        if (tick <= duration)
             tick++;
         tickState(tick, state);
         
         if (tick > duration && events.isEmpty())
             return true;
         
-        if (eventIndex < events.sizeIgnoreMark()) {
-            while (events.getIgnoreMark(eventIndex).start <= tick) {
-                AnimationEventEntry entry = events.getIgnoreMark(eventIndex);
-                entry.start(context);
-                eventIndex++;
-            }
+        while (eventIndex < events.sizeIgnoreMark() && events.getIgnoreMark(eventIndex).start <= tick) {
+            AnimationEventEntry entry = events.getIgnoreMark(eventIndex);
+            entry.start(context);
+            eventIndex++;
         }
+        
         for (MarkIterator<AnimationEventEntry> iterator = events.iterator(); iterator.hasNext();) {
             AnimationEventEntry entry = iterator.next();
             if (entry.active() && entry.isDone(tick, context))
@@ -237,19 +238,19 @@ public class AnimationTimeline {
         events = new MarkList<>(newEvents);
     }
     
+    public Iterable<AnimationEventEntry> allEvents() {
+        return events.allIgnoreMark();
+    }
+    
     public static class AnimationEventEntry implements Comparable<AnimationEventEntry> {
         
         private AnimationEvent event;
         public final int start;
         protected boolean active = false;
         
-        AnimationEventEntry(CompoundTag nbt) {
+        AnimationEventEntry(CompoundTag nbt) throws RegistryException {
             this.start = nbt.getInt("t");
-            try {
-                this.event = AnimationEvent.REGISTRY.create(nbt.getString("id"), nbt.get("e"));
-            } catch (RegistryException e) {
-                throw new RuntimeException(e);
-            }
+            this.event = AnimationEvent.REGISTRY.create(nbt.getString("id"), nbt.get("e"));
             this.active = nbt.getBoolean("a");
         }
         
@@ -306,6 +307,10 @@ public class AnimationTimeline {
         
         public AnimationEventEntry copy() {
             return new AnimationEventEntry(start, event.copy());
+        }
+        
+        public AnimationEvent getEvent() {
+            return event;
         }
         
     }
