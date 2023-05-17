@@ -45,8 +45,6 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     }
     
     public synchronized void queueNexTick(LittleStructure structure) {
-        if (structure.isClient())
-            return;
         tickingStructures.add(structure);
     }
     
