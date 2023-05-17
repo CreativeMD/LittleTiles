@@ -291,6 +291,9 @@ public class GuiRecipe extends GuiConfigure {
     
     @Override
     public void tick() {
+        if (!isClient())
+            return;
+        
         super.tick();
         animation.tick();
         if (storage != null)
