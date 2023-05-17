@@ -166,7 +166,7 @@ public class AnimationTimeline {
         nbt.putInt("eI", eventIndex);
         
         ListTag list = new ListTag();
-        for (AnimationEventEntry entry : events)
+        for (AnimationEventEntry entry : events.allIgnoreMark())
             list.add(entry.save());
         nbt.put("e", list);
         
@@ -215,7 +215,7 @@ public class AnimationTimeline {
     
     public AnimationTimeline copy() {
         List<AnimationEventEntry> events = new ArrayList<>();
-        for (AnimationEventEntry entry : this.events)
+        for (AnimationEventEntry entry : this.events.allIgnoreMark())
             events.add(entry.copy());
         AnimationTimeline timeline = new AnimationTimeline(duration, events);
         timeline.start = start != null ? start.copy() : null;
