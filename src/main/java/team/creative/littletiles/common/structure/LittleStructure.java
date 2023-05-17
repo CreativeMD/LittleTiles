@@ -594,7 +594,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
         
         BlockPos pos = getPos();
-        Placement placement = new Placement(null, subLevel, PlacementPreview.absolute(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
         
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
@@ -617,7 +617,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         Level level = entity.getLevel();
         
         BlockPos pos = getPos();
-        Placement placement = new Placement(null, level, PlacementPreview.absolute(level, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
+        Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
         
         LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(location), entity);
         
