@@ -99,7 +99,8 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     @OnlyIn(Dist.CLIENT)
     public LittleAnimationRenderManager renderManager;
     private HashSet<BlockPos> trackedChanges;
-    private final BlockStatePredictionHandler blockStatePredictionHandler = new BlockStatePredictionHandler();
+    @OnlyIn(Dist.CLIENT)
+    private BlockStatePredictionHandler blockStatePredictionHandler;
     
     public LittleAnimationLevel(Level level) {
         super((WritableLevelData) level.getLevelData(), level.dimension(), level.registryAccess(), level.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE)
@@ -108,6 +109,8 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         this.chunks = new LittleAnimationChunkCache(this);
         if (!isClientSide)
             this.trackedChanges = new HashSet<>();
+        else
+            this.blockStatePredictionHandler = new BlockStatePredictionHandler();
     }
     
     @Override
