@@ -111,7 +111,6 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         return this;
     }
     
-    @OnlyIn(Dist.CLIENT)
     public abstract CreativePacket initClientPacket();
     
     protected void setSubLevel(LittleSubLevel subLevel, Vec3d center) {

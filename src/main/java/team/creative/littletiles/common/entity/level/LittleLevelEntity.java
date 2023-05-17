@@ -77,7 +77,6 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
     public CreativePacket initClientPacket() {
         return new LittleLevelInitPacket(this);
     }

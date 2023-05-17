@@ -149,7 +149,6 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
     public CreativePacket initClientPacket() {
         return new LittleAnimationInitPacket(this);
     }
