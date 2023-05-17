@@ -114,6 +114,10 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
     }
     
     public void load(CompoundTag nbt) {
+        preventPush = true; // No need to use ignoreCollision here, because it is internal
+        set(nbt.getDouble("offX"), nbt.getDouble("offY"), nbt.getDouble("offZ"), nbt.getDouble("rotX"), nbt.getDouble("rotY"), nbt.getDouble("rotZ"));
+        preventPush = false;
+        
         minX = nbt.getDouble("x");
         minY = nbt.getDouble("y");
         minZ = nbt.getDouble("z");
@@ -128,6 +132,14 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
     
     public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
+        IVecOrigin origin = getOrigin();
+        nbt.putDouble("offX", origin.offX());
+        nbt.putDouble("offY", origin.offY());
+        nbt.putDouble("offZ", origin.offZ());
+        nbt.putDouble("rotX", origin.rotX());
+        nbt.putDouble("rotY", origin.rotY());
+        nbt.putDouble("rotZ", origin.rotZ());
+        
         nbt.putDouble("x", minX);
         nbt.putDouble("y", minY);
         nbt.putDouble("z", minZ);

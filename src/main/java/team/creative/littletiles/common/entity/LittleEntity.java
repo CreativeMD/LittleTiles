@@ -32,7 +32,6 @@ import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
-import team.creative.littletiles.common.packet.entity.EntityOriginChanged;
 
 public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity implements OrientationAwareEntity, INoPushEntity {
     
@@ -183,15 +182,15 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         physic.tick();
         physic.updateBoundingBox();
         
-        if (!level.isClientSide && (origin.offXLast() != origin.offX() || origin.offYLast() != origin.offY() || origin.offZLast() != origin.offZ() || origin.rotXLast() != origin
-                .rotX() || origin.rotYLast() != origin.rotY() || origin.rotZLast() != origin.rotZ()))
-            LittleTiles.NETWORK.sendToClientTracking(new EntityOriginChanged(this), this);
+        syncMovement();
         
         origin.tick();
         
         Vec3 center = physic.getCenter();
         setPosRaw(center.x, center.y, center.z);
     }
+    
+    public abstract void syncMovement();
     
     // ================Save&Load================
     

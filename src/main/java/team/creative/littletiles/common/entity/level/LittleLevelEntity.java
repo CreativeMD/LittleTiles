@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
@@ -19,6 +20,7 @@ import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
+import team.creative.littletiles.common.packet.entity.EntityOriginChanged;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacket;
 import team.creative.littletiles.server.level.little.LittleServerLevel;
 import team.creative.littletiles.server.level.little.SubServerLevel;
@@ -108,6 +110,13 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
         super.performTick();
         if (!level.isClientSide && physic.getBlockUpdateLevelSystem().isEntirelyEmpty())
             destroyAnimation();
+    }
+    
+    @Override
+    public void syncMovement() {
+        if (!level.isClientSide && (origin.offXLast() != origin.offX() || origin.offYLast() != origin.offY() || origin.offZLast() != origin.offZ() || origin.rotXLast() != origin
+                .rotX() || origin.rotYLast() != origin.rotY() || origin.rotZLast() != origin.rotZ()))
+            LittleTiles.NETWORK.sendToClientTracking(new EntityOriginChanged(this), this);
     }
     
     @Override

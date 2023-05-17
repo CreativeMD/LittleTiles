@@ -33,6 +33,7 @@ import team.creative.littletiles.common.packet.entity.animation.LittleBlockChang
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 import team.creative.littletiles.common.structure.signal.SignalState;
@@ -465,5 +466,18 @@ public class LittlePacketTypes {
                 return new LittleBlockChange(buffer.readBlockPos(), buffer.readBoolean() ? buffer.readAnySizeNbt() : null);
             }
         }, LittleBlockChange.class);
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<AnimationTimeline>() {
+            
+            @Override
+            protected void writeContent(AnimationTimeline content, FriendlyByteBuf buffer) {
+                buffer.writeNbt(content.save());
+            }
+            
+            @Override
+            protected AnimationTimeline readContent(FriendlyByteBuf buffer) {
+                return new AnimationTimeline(buffer.readAnySizeNbt());
+            }
+        }, AnimationTimeline.class);
     }
 }

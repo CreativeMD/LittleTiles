@@ -86,6 +86,7 @@ import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.packet.structure.StructureBlockToEntityPacket;
 import team.creative.littletiles.common.packet.structure.StructureEntityToBlockPacket;
+import team.creative.littletiles.common.packet.structure.StructureStartAnimationPacket;
 import team.creative.littletiles.common.packet.structure.StructureUpdate;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
 import team.creative.littletiles.common.packet.update.BlocksUpdate;
@@ -205,6 +206,7 @@ public class LittleTiles {
         NETWORK.registerType(StructureBlockToEntityPacket.class, StructureBlockToEntityPacket::new);
         NETWORK.registerType(StructureEntityToBlockPacket.class, StructureEntityToBlockPacket::new);
         NETWORK.registerType(StructureUpdate.class, StructureUpdate::new);
+        NETWORK.registerType(StructureStartAnimationPacket.class, StructureStartAnimationPacket::new);
         
         NETWORK.registerType(NeighborUpdate.class, NeighborUpdate::new);
         NETWORK.registerType(BlockUpdate.class, BlockUpdate::new);

@@ -23,6 +23,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.packet.structure.StructureStartAnimationPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.animation.AnimationState;
@@ -96,6 +97,9 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             structure.timeline = timeline;
             structure.timeline.start(states.get(start), states.get(end), this::createEmptyCurve, false);
             structure.physical = new PhysicalState();
+            
+            LittleTiles.NETWORK.sendToClient(new StructureStartAnimationPacket(structure.getStructureLocation(), structure.timeline), structure.getLevel(), structure.getPos());
+            
             structure.queueForNextTick();
             return true;
         } catch (LittleActionException e) {
@@ -113,6 +117,14 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         boolean done = timeline.tick(physical, this);
         if (animation != null)
             animation.physic.set(physical);
+        
+        if (isClient()) {
+            if (done) {
+                timeline = null;
+                physical = null;
+            }
+            return timeline != null;
+        }
         
         if (done)
             endTransition();
@@ -167,6 +179,13 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     protected abstract T createState(CompoundTag nbt);
     
     protected abstract T getEmptyState();
+    
+    @OnlyIn(Dist.CLIENT)
+    public void setClientTimeline(AnimationTimeline timeline) {
+        this.timeline = timeline;
+        this.physical = new PhysicalState();
+        queueForNextTick();
+    }
     
     @Override
     protected void loadExtra(CompoundTag nbt) {

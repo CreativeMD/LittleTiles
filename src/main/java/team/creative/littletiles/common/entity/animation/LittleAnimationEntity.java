@@ -195,4 +195,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     public LittleEntityRenderManager getRenderManager() {
         return ((LittleAnimationLevel) subLevel).renderManager;
     }
+    
+    @Override
+    public void syncMovement() {}
 }
