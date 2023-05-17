@@ -85,6 +85,8 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
     public abstract void tick();
     
     public void setBB(AABB bb) {
+        if (bb.maxX >= Double.MAX_VALUE)
+            return;
         this.bb = bb;
         this.bbChanged = true;
     }
