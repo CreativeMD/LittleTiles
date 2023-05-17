@@ -13,18 +13,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
-import team.creative.littletiles.common.gui.structure.GuiBuilder;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
@@ -35,9 +33,6 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     public static void register(LittleStructureBuilderType type) {
         REGISTRY.register(type.type.id, type);
     }
-    
-    public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("structure_builder", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiBuilder((LittleStructureBuilder) structure)));
     
     public SimpleContainer inventory = new SimpleContainer(1);
     public int lastSizeX = 16;
@@ -58,7 +53,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
-        GUI.open(player, this);
+        LittleTilesGuiRegistry.STRUCTURE_BUILDER.open(player, this);
         return InteractionResult.SUCCESS;
     }
     

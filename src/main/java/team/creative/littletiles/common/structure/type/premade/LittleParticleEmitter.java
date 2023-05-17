@@ -17,12 +17,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -30,8 +30,6 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.entity.particle.LittleParticle;
 import team.creative.littletiles.common.entity.particle.LittleParticlePresets;
 import team.creative.littletiles.common.entity.particle.LittleParticleTexture;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
-import team.creative.littletiles.common.gui.structure.GuiParticle;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
@@ -40,9 +38,6 @@ import team.creative.littletiles.common.structure.attribute.LittleAttributeBuild
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 
 public class LittleParticleEmitter extends LittleStructurePremade {
-    
-    public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("particle", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiParticle((LittleParticleEmitter) structure)));
     
     @StructureDirectional
     public Facing facing = Facing.UP;
@@ -78,7 +73,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide)
-            GUI.open(player, this);
+            LittleTilesGuiRegistry.PARTICLE.open(player, this);
         return InteractionResult.SUCCESS;
     }
     

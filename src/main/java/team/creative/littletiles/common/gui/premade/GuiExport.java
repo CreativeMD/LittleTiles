@@ -24,7 +24,7 @@ public class GuiExport extends GuiLayer {
     public Container exportSlot = new SimpleContainer(1);
     
     public GuiExport() {
-        super("gui.little.export");
+        super("export");
         this.flow = GuiFlow.STACK_Y;
         this.align = Align.STRETCH;
     }

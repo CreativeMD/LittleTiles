@@ -40,6 +40,7 @@ import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
@@ -49,7 +50,6 @@ import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestResults;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
-import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiControl;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
@@ -61,13 +61,13 @@ public class GuiRecipe extends GuiConfigure {
         LittleGrid.min().set(content);
         tool.get().getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, content);
         tool.changed();
-        LittleToolHandler.OPEN_CONFIG.open(getPlayer());
+        LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });
     
     public final GuiSyncLocal<EndTag> REMOVE_CONTENT = getSyncHolder().register("remove_content", tag -> {
         tool.get().getOrCreateTag().remove(ItemLittleBlueprint.CONTENT_KEY);
         tool.changed();
-        LittleToolHandler.OPEN_CONFIG.open(getPlayer());
+        LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });
     
     public final GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", tag -> {

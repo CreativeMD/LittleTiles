@@ -22,10 +22,9 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
-import team.creative.creativecore.common.gui.creator.GuiCreator.GuiCreatorBasic;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.api.common.tool.ILittleTool;
@@ -45,12 +44,6 @@ public class LittleToolHandler {
     
     public static ItemStack lastSelectedItem = null;
     public static ILittleTool tool = null;
-    
-    public static final GuiCreatorBasic OPEN_CONFIG = GuiCreator.register("configure", new GuiCreatorBasic((nbt, player) -> {
-        if (player.getMainHandItem().getItem() instanceof ILittleTool tool)
-            return tool.getConfigure(player, ContainerSlotView.mainHand(player));
-        return null;
-    }));
     
     private boolean leftClicked;
     
@@ -170,7 +163,7 @@ public class LittleToolHandler {
                     if (stack.getItem() instanceof ILittleTool) {
                         GuiConfigure gui = ((ILittleTool) stack.getItem()).getConfigure(mc.player, ContainerSlotView.mainHand(mc.player));
                         if (gui != null)
-                            OPEN_CONFIG.open(mc.player);
+                            LittleTilesGuiRegistry.OPEN_CONFIG.open(mc.player);
                     }
             }
         }

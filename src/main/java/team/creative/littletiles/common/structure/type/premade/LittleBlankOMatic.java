@@ -7,17 +7,12 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
-import team.creative.littletiles.common.gui.structure.GuiBlankOMatic;
 
 public class LittleBlankOMatic extends LittleStructurePremade {
-    
-    public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("blankomatic", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiBlankOMatic((LittleBlankOMatic) structure)));
     
     public SimpleContainer inventory;
     public int whiteColor;
@@ -46,7 +41,7 @@ public class LittleBlankOMatic extends LittleStructurePremade {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide)
-            GUI.open(player, this);
+            LittleTilesGuiRegistry.BLANKOMATIC.open(player, this);
         return InteractionResult.SUCCESS;
     }
     

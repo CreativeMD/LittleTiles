@@ -6,15 +6,11 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
-import team.creative.littletiles.common.gui.structure.GuiWorkbench;
 
 public class LittleWorkbench extends LittleStructurePremade {
-    
-    public static final LittleStructureGuiCreator GUI = GuiCreator.register("workbench", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiWorkbench()));
     
     public LittleWorkbench(LittlePremadeType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
@@ -34,7 +30,7 @@ public class LittleWorkbench extends LittleStructurePremade {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide)
-            GUI.open(player, this);
+            LittleTilesGuiRegistry.WORKBENCH.open(player, this);
         return InteractionResult.SUCCESS;
     }
     

@@ -102,8 +102,6 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
-import team.creative.littletiles.common.structure.type.premade.LittleExporter;
-import team.creative.littletiles.common.structure.type.premade.LittleImporter;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 import team.creative.littletiles.mixin.server.level.ChunkMapAccessor;
 import team.creative.littletiles.server.LittleTilesServer;
@@ -293,12 +291,12 @@ public class LittleTiles {
         }));
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-export").executes((x) -> {
-            LittleExporter.GUI.open(x.getSource().getPlayerOrException());
+            LittleTilesGuiRegistry.EXPORTER.open(x.getSource().getPlayerOrException());
             return 0;
         }));
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-import").executes((x) -> {
-            LittleImporter.GUI.open(x.getSource().getPlayerOrException());
+            LittleTilesGuiRegistry.IMPORTER.open(x.getSource().getPlayerOrException());
             return 0;
         }));
         

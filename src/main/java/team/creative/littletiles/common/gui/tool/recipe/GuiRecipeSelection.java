@@ -21,12 +21,12 @@ import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
-import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 import team.creative.littletiles.common.placement.selection.SelectionMode.SelectionResult;
 
@@ -57,7 +57,7 @@ public class GuiRecipeSelection extends GuiConfigure {
             mode.clear(stack);
             
             tool.changed();
-            LittleToolHandler.OPEN_CONFIG.open(getPlayer());
+            LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
         } catch (LittleActionException e) {
             GuiDialogHandler.openDialog(getIntegratedParent(), "info", Component.translatable("gui.ok"), (x, y) -> {}, DialogButton.OK);
             return;
@@ -69,7 +69,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         tool.get().getOrCreateTag().remove(ItemLittleBlueprint.SELECTION_KEY);
         ItemLittleBlueprint.setSelectionMode(tool.get(), mode);
         tool.changed();
-        LittleToolHandler.OPEN_CONFIG.open(getPlayer());
+        LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });
     
     public GuiRecipeSelection(ContainerSlotView view) {

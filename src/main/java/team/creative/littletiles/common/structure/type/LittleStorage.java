@@ -13,16 +13,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
 import team.creative.littletiles.common.gui.structure.GuiStorage;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.StackIngredient;
@@ -34,9 +33,6 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleStorage extends LittleStructure {
-    
-    public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("storage", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiStorage((LittleStorage) structure, player)));
     
     private List<GuiStorage> openContainers = new ArrayList<GuiStorage>();
     
@@ -124,7 +120,7 @@ public class LittleStorage extends LittleStructure {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide && !hasPlayerOpened(player))
-            GUI.open(player, this);
+            LittleTilesGuiRegistry.STORAGE.open(player, this);
         return InteractionResult.SUCCESS;
     }
     

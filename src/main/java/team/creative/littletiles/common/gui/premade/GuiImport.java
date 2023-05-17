@@ -45,7 +45,7 @@ public class GuiImport extends GuiLayer {
     });
     
     public GuiImport() {
-        super("little.import");
+        super("import");
         flow = GuiFlow.STACK_Y;
         align = Align.STRETCH;
     }
