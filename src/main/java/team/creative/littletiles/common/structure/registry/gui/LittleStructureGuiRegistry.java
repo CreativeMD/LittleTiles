@@ -1,9 +1,11 @@
 package team.creative.littletiles.common.structure.registry.gui;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -11,13 +13,18 @@ import team.creative.creativecore.common.util.type.tree.NamedTree;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.AnimationTimeline.AnimationEventEntry;
+import team.creative.littletiles.common.structure.animation.event.ChildDoorEvent;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
+import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleStructureGuiRegistry {
     
     private static final NamedTree<LittleStructureGui> TREE = new NamedTree<>();
     private static final HashMap<LittleStructureType, LittleStructureGui> BY_TYPE = new HashMap<>();
+    private static final HashMap<LittleStructureType, Consumer<GuiTreeItemStructure>> BY_TYPE_FINALIZER = new HashMap<>();
     private static final List<BiFunction<LittleStructureType, LittleGroup, LittleStructureGui>> SPECIAL = new ArrayList<>();
     
     public static void registerTreeOnly(String id, LittleStructureType type, BiFunction<LittleStructureGui, GuiTreeItemStructure, LittleStructureGuiControl> gui) {
@@ -49,6 +56,15 @@ public class LittleStructureGuiRegistry {
         BY_TYPE.put(gui.type(), gui);
     }
     
+    public static void registerFinalizer(Consumer<GuiTreeItemStructure> finalizer, LittleStructureType... types) {
+        for (int i = 0; i < types.length; i++)
+            BY_TYPE_FINALIZER.put(types[i], finalizer);
+    }
+    
+    public static Consumer<GuiTreeItemStructure> getFinalizer(LittleStructureType type) {
+        return BY_TYPE_FINALIZER.get(type);
+    }
+    
     public static Iterable<LittleStructureGui> registered() {
         return TREE;
     }
@@ -73,6 +89,12 @@ public class LittleStructureGuiRegistry {
         return LittleStructureRegistry.REGISTRY.getOrThrow(id);
     }
     
+    private static void controlledByTransition(GuiTreeItemStructure item, BitSet set, AnimationTimeline timeline) {
+        for (AnimationEventEntry entry : timeline.allEvents())
+            if (entry.getEvent() instanceof ChildDoorEvent event)
+                set.set(event.childId);
+    }
+    
     static {
         register(new LittleStructureGui("none", null, LittleStructureGuiNone::new, false));
         register("simple.fixed", get("fixed"), LittleStructureGuiDefault::new);
@@ -84,10 +106,24 @@ public class LittleStructureGuiRegistry {
         register("simple.light", get("light"), LittleLightGui::new);
         register("simple.message", get("message"), LittleMessageGui::new);
         
-        register("door.axis", get("axis"), LittleDoorAxisGui::new);
-        register("door.sliding", get("sliding"), LittleDoorSlidingGui::new);
-        register("door.advanced", get("door"), LittleDoorAdvancedGui::new);
-        //register("door.activator", get("activator"), LittleDoorActivatorGui::new);
+        LittleStructureType axis = get("axis");
+        LittleStructureType sliding = get("sliding");
+        LittleStructureType advanced = get("door");
+        //LittleStructureType activator = get("activator");
+        register("door.axis", axis, LittleDoorAxisGui::new);
+        register("door.sliding", sliding, LittleDoorSlidingGui::new);
+        register("door.advanced", advanced, LittleDoorAdvancedGui::new);
+        //register("door.activator", activator"), LittleDoorActivatorGui::new);
+        
+        registerFinalizer(x -> {
+            LittleDoor door = (LittleDoor) x.structure;
+            BitSet set = new BitSet();
+            controlledByTransition(x, set, door.getTransition("opening"));
+            controlledByTransition(x, set, door.getTransition("closing"));
+            for (int i = 0; i < x.itemsCount(); i++)
+                if (((GuiTreeItemStructure) x.getItem(i)).structure instanceof LittleDoor child)
+                    child.activateParent = set.get(i);
+        }, axis, sliding, advanced);
     }
     
 }

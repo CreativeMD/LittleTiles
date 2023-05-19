@@ -357,6 +357,10 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     protected LittleGroup reconstructBlueprint(GuiTreeItemStructure item) {
+        Consumer<GuiTreeItemStructure> finalizer = LittleStructureGuiRegistry.getFinalizer(item.getStructureType());
+        if (finalizer != null)
+            finalizer.accept(item);
+        
         List<LittleGroup> children = new ArrayList<>();
         for (GuiTreeItem child : item.items())
             children.add(reconstructBlueprint((GuiTreeItemStructure) child));
