@@ -113,7 +113,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     @Override
     public Level getLevel() {
-        if (mainBlock.isRemoved())
+        if (mainBlock == null || mainBlock.isRemoved())
             return null;
         return mainBlock.getLevel();
     }

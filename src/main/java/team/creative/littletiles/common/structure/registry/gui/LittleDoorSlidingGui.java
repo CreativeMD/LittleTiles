@@ -8,6 +8,7 @@ import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
@@ -66,9 +67,13 @@ public class LittleDoorSlidingGui extends LittleDoorBaseGui {
             facing = Facing.UP;
         }
         
-        add(new GuiLabeledControl(Component.translatable("gui.door.distance").append(":"), new GuiDistanceControl("distance", grid, distance)));
+        GuiParent settings = new GuiParent(GuiFlow.FIT_X);
+        settings.spacing = 12;
+        add(settings.setVAlign(VAlign.CENTER));
+        
+        settings.add(new GuiLabeledControl(Component.translatable("gui.door.distance").append(":"), new GuiDistanceControl("distance", grid, distance)));
         GuiParent direction = new GuiParent();
-        add(direction.setVAlign(VAlign.STRETCH));
+        settings.add(new GuiLabeledControl(Component.translatable("gui.door.direction").append(":"), direction.setVAlign(VAlign.STRETCH)));
         direction.add(new GuiStateButtonMapped<Facing>("facing", facing, new TextMapBuilder<Facing>().addComponent(Facing.VALUES, x -> x.translate())));
         direction.add(new GuiDirectionIndicator("relative", Facing.UP));
         

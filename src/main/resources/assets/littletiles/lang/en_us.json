@@ -134,6 +134,7 @@
     "gui.door.no_clip.tooltip": "Whether other things can collide with the door in entity form.",
     "gui.door.play_place_sound.tooltip": "When door transforms to an entity or back to block form it places all of its tiles.\nWhether it should be played or not.",
 	"gui.door.distance": "Distance",
+	"gui.door.direction": "Direction",
 	"gui.door.rotation.direction": "Direction",
 	"gui.door.rotation.angle": "Angle",
 	"gui.door.axis.even": "Even",
@@ -146,10 +147,9 @@
 	"gui.door.direction.both": "Both",
 	"gui.door.direction.opening": "Open",
 	"gui.door.direction.closing": "Close",
-	"gui.door.sound.add.both": "+ Channel",
-	"gui.door.sound.add.opening": "+ Opening",
-	"gui.door.sound.add.closing": "+ Closing",
-	"gui.door.sound.clean.channel": "Clear unused",
+	"gui.door.sound": "Sound",
+	"gui.door.child": "Children",
+	"gui.door.clean.channel": "Clean",
 	
 	"dialog.invalid_grid": "Invalid grid size \u00A72%s",
 	

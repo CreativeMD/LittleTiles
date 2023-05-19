@@ -19,6 +19,7 @@ import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.controls.animation.GuiChildEventPanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationPanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.controls.animation.GuiSoundEventPanel;
@@ -37,6 +38,7 @@ import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
     public GuiSoundEventPanel soundPanel;
+    public GuiChildEventPanel childPanel;
     
     public LittleDoorBaseGui(LittleStructureGui gui, GuiTreeItemStructure item) {
         super(gui, item);
@@ -102,8 +104,15 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         
         createSpecific(structure instanceof LittleDoor ? (LittleDoor) structure : null);
         
+        GuiParent extraSettings = new GuiParent();
+        add(extraSettings);
+        extraSettings.spacing = 4;
+        
         soundPanel = new GuiSoundEventPanel(item.recipe.animation, opening, closing, duration);
-        add(soundPanel);
+        extraSettings.add(soundPanel);
+        
+        childPanel = new GuiChildEventPanel(item, item.recipe.animation, opening, duration);
+        extraSettings.add(childPanel);
         
         updateTimeline();
         
@@ -111,6 +120,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
             if (x.control.is("duration")) {
                 updateTimeline();
                 soundPanel.durationChanged(((GuiSteppedSlider) x.control).getValue());
+                childPanel.durationChanged(((GuiSteppedSlider) x.control).getValue());
             } else if (x.control.is("inter"))
                 updateTimeline();
             if (x.control instanceof GuiTimeline)
@@ -138,7 +148,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         save(state);
         door.putState(state);
         
-        if (soundPanel.isSoundEmpty())
+        if (soundPanel.isSoundEmpty() && childPanel.isChildEmpty())
             return structure;
         
         AnimationTimeline opening = saveEventTimeline(door.duration, true);
@@ -155,6 +165,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     protected AnimationTimeline saveEventTimeline(int duration, boolean opening) {
         List<AnimationEventEntry> events = new ArrayList<>();
         soundPanel.collectEvents(duration, events, opening);
+        childPanel.collectEvents(duration, events, opening);
         
         if (events.isEmpty())
             return null;

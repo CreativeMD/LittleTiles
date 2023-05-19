@@ -27,6 +27,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -44,6 +45,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     
     private boolean highlightSelected = false;
     
+    private final GuiTree tree;
     private LinkedHashMap<GuiTreeItemStructure, AnimationPreview> availablePreviews = new LinkedHashMap<>();
     private LittleBoxesNoOverlap overlappingBoxes = null;
     private ConcurrentLinkedQueue<AnimationPair> change = new ConcurrentLinkedQueue<>();
@@ -55,7 +57,9 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     
     private boolean unloaded = false;
     
-    public GuiRecipeAnimationStorage() {}
+    public GuiRecipeAnimationStorage(GuiTree tree) {
+        this.tree = tree;
+    }
     
     @Override
     public boolean highlightSelected() {
@@ -101,29 +105,42 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         return Collections.EMPTY_LIST;
     }
     
-    @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderAll(PoseStack pose, Matrix4f projection, Minecraft mc) {
-        GuiTreeItemStructure selected = null;
-        for (Entry<GuiTreeItemStructure, AnimationPreview> entry : this) {
-            if (entry.getKey().tree.hasCheckboxes() && !entry.getKey().isChecked())
-                continue;
+    protected void renderItem(GuiTreeItem item, PoseStack pose, Matrix4f projection, Minecraft mc) {
+        
+        if (item.tree.hasCheckboxes() && !item.isChecked())
+            return;
+        
+        pose.pushPose();
+        
+        if (item instanceof GuiTreeItemStructure s) {
+            AnimationPreview preview = get(s);
+            if (preview == null) {
+                pose.popPose();
+                return;
+            }
             
-            entry.getKey().prepareRendering(entry.getValue());
+            s.prepareRendering(preview);
             
-            pose.pushPose();
             RenderSystem.applyModelViewMatrix();
-            LittleVecGrid offset = entry.getKey().getOffset();
+            LittleVecGrid offset = s.getOffset();
             if (offset != null)
                 pose.translate(offset.getPosX(), offset.getPosY(), offset.getPosZ());
             
-            renderPreview(pose, projection, entry.getValue(), mc);
-            
-            if (highlightSelected && entry.getKey().selected())
-                selected = entry.getKey();
-            
-            pose.popPose();
+            renderPreview(pose, projection, preview, mc);
         }
+        
+        for (GuiTreeItem child : item.items())
+            renderItem(child, pose, projection, mc);
+        
+        pose.popPose();
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void renderAll(PoseStack pose, Matrix4f projection, Minecraft mc) {
+        
+        renderItem(tree.root(), pose, projection, mc);
         
         RenderSystem.depthMask(true);
         RenderSystem.disableCull();
@@ -136,7 +153,9 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         
         RenderSystem.applyModelViewMatrix();
         
-        if (selected != null) {
+        GuiTreeItemStructure selected = (GuiTreeItemStructure) tree.selected();
+        
+        if (highlightSelected && selected != null) {
             LittleVecGrid offset = selected.getOffset();
             double x = 0;
             double y = 0;
@@ -195,6 +214,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             }
             RenderSystem.disableDepthTest();
         }
+        selected = null;
     }
     
     private void updateBox() {

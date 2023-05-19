@@ -192,9 +192,6 @@ public class GuiRecipe extends GuiConfigure {
         if (!isClient())
             return;
         
-        if (storage == null)
-            storage = new GuiRecipeAnimationStorage();
-        
         flow = GuiFlow.STACK_Y;
         align = Align.STRETCH;
         
@@ -213,6 +210,10 @@ public class GuiRecipe extends GuiConfigure {
             }
             
         }.setRootVisibility(false).keepSelected();
+        
+        if (storage == null)
+            storage = new GuiRecipeAnimationStorage(tree);
+        
         buildStructureTree(tree, tree.root(), group, 0);
         tree.root().setTitle(Component.literal("root"));
         tree.updateTree();
@@ -250,7 +251,7 @@ public class GuiRecipe extends GuiConfigure {
                 .setTooltip(new TextBuilder().translate("gui.recipe.merge").build()));
         
         GuiParent topCenter = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
-        top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(300)).setExpandableY());
+        top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(400)).setExpandableY());
         
         // Actual recipe configuration
         types = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureGui>().addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()));

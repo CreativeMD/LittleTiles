@@ -87,6 +87,10 @@ public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
         lastTick = tick;
     }
     
+    public GuiTreeItemStructure current() {
+        return current;
+    }
+    
     public AnimationContext context() {
         return current;
     }

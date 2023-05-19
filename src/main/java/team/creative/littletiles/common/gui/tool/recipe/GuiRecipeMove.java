@@ -17,7 +17,7 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
-import team.creative.creativecore.common.util.type.itr.TreeIterator;
+import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiDistanceControl;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
@@ -141,7 +141,7 @@ public class GuiRecipeMove extends GuiLayer {
             public Iterator<GuiRecipeMoveItem> iterator(GuiTree tree) {
                 if (tree.selected() == null)
                     return Collections.emptyIterator();
-                return new TreeIterator<>((GuiRecipeMoveItem) tree.selected(), x -> new FunctionIterator<GuiRecipeMoveItem>(x.items(), y -> (GuiRecipeMoveItem) y));
+                return new SingleIterator<>((GuiRecipeMoveItem) tree.selected());
             }
         },
         CHECKBOX(true) {

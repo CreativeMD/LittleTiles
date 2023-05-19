@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.gui.controls.animation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapp
 import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineChannel;
@@ -32,23 +32,6 @@ import team.creative.littletiles.common.structure.animation.event.PlaySoundEvent
 
 public class GuiSoundEventPanel extends GuiTimelinePanel {
     
-    public static List<AnimationEventEntry> extract(AnimationTimeline timeline) {
-        if (timeline == null)
-            return Collections.EMPTY_LIST;
-        
-        List<AnimationEventEntry> events = null;
-        for (AnimationEventEntry entry : timeline.allEvents()) {
-            if (entry.getEvent() instanceof PlaySoundEvent) {
-                if (events == null)
-                    events = new ArrayList<>();
-                events.add(entry);
-            }
-        }
-        if (events == null)
-            return Collections.EMPTY_LIST;
-        return events;
-    }
-    
     protected List<GuiSoundTimelineChannel> bothChannels;
     protected List<GuiSoundTimelineChannel> closingChannels;
     protected List<GuiSoundTimelineChannel> openingChannels;
@@ -57,8 +40,8 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
     
     public GuiSoundEventPanel(GuiRecipeAnimationHandler handler, AnimationTimeline opening, AnimationTimeline closing, int duration) {
         super(handler, duration);
-        List<AnimationEventEntry> openingEvents = extract(opening);
-        List<AnimationEventEntry> closingEvents = extract(closing);
+        List<AnimationEventEntry> openingEvents = extract(opening, PlaySoundEvent.class);
+        List<AnimationEventEntry> closingEvents = extract(closing, PlaySoundEvent.class);
         List<AnimationEventEntry> bothEvents = new ArrayList<>();
         
         outer_loop: for (Iterator<AnimationEventEntry> openingItr = openingEvents.iterator(); openingItr.hasNext();) {
@@ -83,15 +66,15 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
         
         GuiParent channelControl = new GuiParent();
         add(channelControl);
-        channelControl.add(new GuiButton("addB", x -> createChannel(AnimationDirection.BOTH)).setTranslate("gui.door.sound.add.both"));
-        channelControl.add(new GuiButton("addO", x -> createChannel(AnimationDirection.OPENING)).setTranslate("gui.door.sound.add.opening"));
-        channelControl.add(new GuiButton("addC", x -> createChannel(AnimationDirection.CLOSING)).setTranslate("gui.door.sound.add.closing"));
+        var soundDirection = new GuiComboBoxMapped<>("sound_direction", new TextMapBuilder<AnimationDirection>().addComponent(AnimationDirection.values(), x -> x.title()));
+        channelControl.add(soundDirection);
+        channelControl.add(new GuiButton("add", x -> createChannel(soundDirection.getSelected())).setTranslate("gui.add"));
         channelControl.add(new GuiButton("removed_unused", x -> {
             clearChannel(bothChannels);
             clearChannel(openingChannels);
             clearChannel(closingChannels);
             reflow();
-        }).setTranslate("gui.door.sound.clean.channel"));
+        }).setTranslate("gui.door.clean.channel"));
         
         GuiParent editKey = new GuiParent(GuiFlow.STACK_Y);
         add(editKey.setExpandableX());
@@ -134,6 +117,11 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
                 value.pitch = (float) slider.value;
             time.raiseEvent(new GuiControlChangedEvent(time));
         });
+    }
+    
+    @Override
+    protected void addBefore() {
+        add(new GuiLabel("soundLabel").setTitle(translatable("gui.door.sound").append(":")));
     }
     
     protected void clearChannel(List<GuiSoundTimelineChannel> channels) {

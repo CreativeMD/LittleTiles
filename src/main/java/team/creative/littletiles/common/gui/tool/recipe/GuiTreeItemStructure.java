@@ -354,11 +354,17 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         return offset;
     }
     
+    public void move(LittleVecGrid vec) {
+        group.move(vec);
+        refreshAnimation();
+        
+        for (GuiTreeItem item : items())
+            ((GuiTreeItemStructure) item).move(vec);
+    }
+    
     public void applyOffset() {
-        if (offset != null) {
-            group.move(offset);
-            refreshAnimation();
-        }
+        if (offset != null)
+            move(offset);
         offset = null;
     }
     
