@@ -17,7 +17,6 @@ import team.creative.creativecore.common.util.type.list.MarkList;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.animation.event.AnimationEvent;
-import team.creative.littletiles.common.structure.animation.event.AnimationEvent.AnimationEventGui;
 
 public class AnimationTimeline {
     
@@ -89,7 +88,7 @@ public class AnimationTimeline {
         }
     }
     
-    public void start(PhysicalState start, PhysicalState end, Supplier<ValueCurve<Vec1d>> curve1d, boolean gui) {
+    public void start(PhysicalState start, PhysicalState end, Supplier<ValueCurve<Vec1d>> curve1d) {
         this.start = start;
         this.end = end;
         this.tick = 0;
@@ -109,10 +108,6 @@ public class AnimationTimeline {
             
             curve.start(new Vec1d(s), new Vec1d(e), duration);
         }
-        
-        if (gui)
-            for (AnimationEventEntry entry : events)
-                entry.setupGui();
     }
     
     protected void tickState(int tick, PhysicalState state) {
@@ -259,10 +254,6 @@ public class AnimationTimeline {
             this.event = event;
         }
         
-        public void setupGui() {
-            event = event.createGuiSpecific();
-        }
-        
         public boolean active() {
             return active;
         }
@@ -273,9 +264,7 @@ public class AnimationTimeline {
         }
         
         public void setAtTick(int current, AnimationContext context) {
-            if (event instanceof AnimationEventGui gui)
-                gui.set(current - start, context);
-            else if (current == start)
+            if (current == start)
                 event.start(context); // Only call start, do not set to active
         }
         

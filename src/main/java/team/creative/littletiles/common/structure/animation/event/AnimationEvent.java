@@ -25,16 +25,4 @@ public abstract class AnimationEvent<T extends Tag> {
     
     public abstract int reverseTick(int start, int duration, AnimationContext context);
     
-    public AnimationEvent createGuiSpecific() {
-        return this;
-    }
-    
-    public static interface AnimationEventGui {
-        
-        public void prepare(AnimationContext context);
-        
-        public void set(int tick, AnimationContext context);
-        
-    }
-    
 }

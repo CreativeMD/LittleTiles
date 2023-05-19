@@ -7,7 +7,7 @@ import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 
 public class ChildDoorEvent extends AnimationEvent<IntTag> {
     
-    public int childId;
+    public final int childId;
     
     public ChildDoorEvent(IntTag tag) {
         childId = tag.getAsInt();
@@ -24,7 +24,7 @@ public class ChildDoorEvent extends AnimationEvent<IntTag> {
     
     @Override
     public void start(AnimationContext context) {
-        if (context.isClient())
+        if (context.isGui() || context.isClient())
             return;
         
         LittleDoor door = getDoor(context);
@@ -60,33 +60,6 @@ public class ChildDoorEvent extends AnimationEvent<IntTag> {
         if (door == null)
             return start;
         return duration - (start + door.duration);
-    }
-    
-    @Override
-    public AnimationEvent createGuiSpecific() {
-        return new ChildDoorGuiEvent(childId);
-    }
-    
-    public static class ChildDoorGuiEvent extends ChildDoorEvent implements AnimationEventGui {
-        
-        public int childId;
-        
-        public ChildDoorGuiEvent(int childId) {
-            super(childId);
-        }
-        
-        @Override
-        public void prepare(AnimationContext context) {
-            // TODO Auto-generated method stub
-            
-        }
-        
-        @Override
-        public void set(int tick, AnimationContext context) {
-            // TODO Auto-generated method stub
-            
-        }
-        
     }
     
 }

@@ -185,7 +185,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
         PhysicalState end = new PhysicalState();
         save(end);
-        timeline.start(new PhysicalState(), end, inter.getSelected()::create1d, true);
+        timeline.start(new PhysicalState(), end, inter.getSelected()::create1d);
         item.recipe.animation.setTimeline(item, timeline);
     }
     

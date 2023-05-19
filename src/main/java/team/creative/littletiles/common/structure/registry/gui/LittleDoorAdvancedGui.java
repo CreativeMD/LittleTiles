@@ -193,9 +193,9 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         boolean opening = config.openingAnimation();
         AnimationTimeline timeline = config.generateTimeline(duration, inter.getSelected(), opening);
         if (opening)
-            timeline.start(closed, opened, inter.getSelected()::create1d, true);
+            timeline.start(closed, opened, inter.getSelected()::create1d);
         else
-            timeline.start(opened, closed, inter.getSelected()::create1d, true);
+            timeline.start(opened, closed, inter.getSelected()::create1d);
         item.recipe.animation.setTimeline(item, timeline);
     }
     
