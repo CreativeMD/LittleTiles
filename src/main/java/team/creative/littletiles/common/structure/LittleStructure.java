@@ -85,6 +85,7 @@ import team.creative.littletiles.common.structure.signal.input.InternalSignalInp
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
+import team.creative.littletiles.mixin.common.entity.EntityAccessor;
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
     
@@ -595,17 +596,34 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         BlockPos pos = getPos();
         Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
-        
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
         LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(), placement);
         level.addFreshEntity(entity);
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location), entity);
         removeStructureSameLevel(collector);
+        entity.getStructure().transferChildrenToAnimation(entity);
         
         collector.process();
         entity.initialTick();
         return entity;
+    }
+    
+    protected void transferChildrenToAnimation(LittleAnimationEntity entity) throws CorruptedConnectionException, NotYetConnectedException {
+        for (StructureChildConnection child : children.all()) {
+            LittleStructure childStructure = child.getStructure();
+            if (child.isLinkToAnotherWorld()) {
+                LittleAnimationEntity subAnimation = childStructure.getAnimationEntity();
+                
+                ((EntityAccessor) subAnimation).getLevelCallback().onRemove(Entity.RemovalReason.CHANGED_DIMENSION);
+                
+                subAnimation.setParentLevel(entity.getSubLevel());
+                entity.getSubLevel().addFreshEntity(subAnimation);
+                subAnimation.initialTick();
+                
+            } else
+                childStructure.transferChildrenToAnimation(entity);
+        }
     }
     
     public void changeToBlockForm() throws LittleActionException {
@@ -618,14 +636,30 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         BlockPos pos = getPos();
         Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
-        
         LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(location), entity);
         
         LittleUpdateCollector collector = new LittleUpdateCollector();
         removeStructureSameLevel(collector);
         placement.place();
         
+        transferChildrenFromAnimation(level);
         collector.process();
+    }
+    
+    protected void transferChildrenFromAnimation(Level level) throws CorruptedConnectionException, NotYetConnectedException {
+        for (StructureChildConnection child : children.all()) {
+            LittleStructure childStructure = child.getStructure();
+            if (child.isLinkToAnotherWorld()) {
+                LittleAnimationEntity subAnimation = childStructure.getAnimationEntity();
+                ((EntityAccessor) subAnimation).getLevelCallback().onRemove(Entity.RemovalReason.CHANGED_DIMENSION);
+                
+                subAnimation.setParentLevel(level);
+                level.addFreshEntity(subAnimation);
+                subAnimation.initialTick();
+                
+            } else
+                childStructure.transferChildrenFromAnimation(level);
+        }
     }
     
     // ================Signal================

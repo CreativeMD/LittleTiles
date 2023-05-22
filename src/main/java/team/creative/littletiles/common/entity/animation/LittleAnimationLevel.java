@@ -18,6 +18,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -63,7 +64,7 @@ import team.creative.littletiles.server.level.little.LittleAnimationLevelServerC
 
 public class LittleAnimationLevel extends Level implements LittleSubLevel, Iterable<BETiles>, ClientLevelExtender {
     
-    public final Level parentLevel;
+    private Level parentLevel;
     public final LittleAnimationLevelCallback entityCallback;
     private final LittleAnimationLevelEntities entities;
     public Entity holder;
@@ -92,6 +93,11 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
+    public MinecraftServer getServer() {
+        return parentLevel.getServer();
+    }
+    
+    @Override
     public BlockStatePredictionHandler blockStatePredictionHandler() {
         return blockStatePredictionHandler;
     }
@@ -116,6 +122,10 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         if (parentLevel instanceof LittleSubLevel sub)
             return sub.getRealLevel();
         return parentLevel;
+    }
+    
+    public void setParent(Level level) {
+        parentLevel = level;
     }
     
     @Override

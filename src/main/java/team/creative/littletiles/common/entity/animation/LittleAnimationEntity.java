@@ -94,6 +94,14 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
             entity.parentVecOriginChange(origin);
     }
     
+    public void setParentLevel(Level subLevel) {
+        this.level = subLevel;
+        getSubLevel().setParent(subLevel);
+        getSubLevel().setOrigin(center.rotationCenter);
+        this.origin = this.subLevel.getOrigin();
+        hasOriginChanged = true;
+    }
+    
     public StructureAbsolute getCenter() {
         return center;
     }
@@ -208,4 +216,5 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     public void stopTracking(ServerPlayer player) {
         getSubLevel().entityCallback.removeTrackingPlayer(player);
     }
+    
 }
