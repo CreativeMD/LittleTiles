@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -21,7 +20,6 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -31,7 +29,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -39,7 +36,6 @@ import net.minecraft.world.level.gameevent.GameEvent.Context;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.WritableLevelData;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.BlackholeTickAccess;
@@ -56,42 +52,20 @@ import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.ClientLevelExtender;
+import team.creative.littletiles.client.level.little.LittleAnimationLevelClientCallback;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
+import team.creative.littletiles.common.level.little.LittleAnimationLevelCallback;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
+import team.creative.littletiles.server.level.little.LittleAnimationLevelServerCallback;
 
 public class LittleAnimationLevel extends Level implements LittleSubLevel, Iterable<BETiles>, ClientLevelExtender {
     
-    private LevelEntityGetter<Entity> entities = new LevelEntityGetter<Entity>() {
-        
-        @Override
-        public Entity get(int p_156931_) {
-            return null;
-        }
-        
-        @Override
-        public Entity get(UUID p_156939_) {
-            return null;
-        }
-        
-        @Override
-        public Iterable<Entity> getAll() {
-            return Collections.EMPTY_LIST;
-        }
-        
-        @Override
-        public <U extends Entity> void get(EntityTypeTest<Entity, U> p_156935_, AbortableIterationConsumer<U> p_261602_) {}
-        
-        @Override
-        public void get(AABB p_156937_, Consumer<Entity> p_156938_) {}
-        
-        @Override
-        public <U extends Entity> void get(EntityTypeTest<Entity, U> p_156932_, AABB p_156933_, AbortableIterationConsumer<U> p_261542_) {}
-    };
-    
     public final Level parentLevel;
+    public final LittleAnimationLevelCallback entityCallback;
+    private final LittleAnimationLevelEntities entities;
     public Entity holder;
     public IVecOrigin origin;
     public LittleAnimationChunkCache chunks;
@@ -107,10 +81,14 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
                 .getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), level.getProfilerSupplier(), level.isClientSide, level.isDebug(), 0, 1000000);
         this.parentLevel = level;
         this.chunks = new LittleAnimationChunkCache(this);
-        if (!isClientSide)
-            this.trackedChanges = new HashSet<>();
-        else
+        if (isClientSide) {
             this.blockStatePredictionHandler = new BlockStatePredictionHandler();
+            this.entityCallback = new LittleAnimationLevelClientCallback(this);
+        } else {
+            this.trackedChanges = new HashSet<>();
+            this.entityCallback = new LittleAnimationLevelServerCallback(this);
+        }
+        this.entities = new LittleAnimationLevelEntities(entityCallback);
     }
     
     @Override
@@ -206,6 +184,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     
     @Override
     public void unload() {
+        entities.removeAll();
         if (isClientSide && renderManager != null)
             renderManager.unload();
     }
@@ -232,6 +211,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         }
         
         tickBlockEntities();
+        entityCallback.tick();
     }
     
     @Override
@@ -260,8 +240,8 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public Entity getEntity(int p_46492_) {
-        return entities.get(p_46492_);
+    public Entity getEntity(int id) {
+        return entities.get(id);
     }
     
     @Override
@@ -435,5 +415,21 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
             if (!chunk.getBlockEntities().isEmpty())
                 return false;
         return true;
+    }
+    
+    public void addFreshEntityFromPacket(Entity entity) {
+        entities.addNewEntityWithoutEvent(entity);
+    }
+    
+    @Override
+    public boolean addFreshEntity(Entity entity) {
+        if (isClientSide || entity.isRemoved())
+            return false;
+        
+        if (this.entities.addNewEntity(entity)) {
+            entity.onAddedToWorld();
+            return true;
+        }
+        return false;
     }
 }

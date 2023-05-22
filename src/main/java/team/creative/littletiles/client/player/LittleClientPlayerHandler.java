@@ -71,6 +71,7 @@ import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
+import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
 import team.creative.littletiles.mixin.client.network.ClientPacketListenerAccessor;
@@ -207,13 +208,16 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleAddEntity(ClientboundAddEntityPacket packet) {
         ensureRunningOnSameThread(packet);
-        ClientLevel level = requiresClientLevel();
+        
         EntityType<?> entitytype = packet.getType();
         Entity entity = entitytype.create(this.level);
         if (entity != null) {
             entity.recreateFromPacket(packet);
             int i = packet.getId();
-            level.putNonPlayerEntity(i, entity);
+            if (level instanceof LittleAnimationLevel a)
+                a.addFreshEntityFromPacket(entity);
+            else
+                requiresClientLevel().putNonPlayerEntity(i, entity);
             vanillaAccessor().callPostAddEntitySoundInstance(entity);
         } else
             LOGGER.warn("Skipping Entity with id {}", entitytype);

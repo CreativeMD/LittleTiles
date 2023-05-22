@@ -3,6 +3,7 @@ package team.creative.littletiles.server.level.handler;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
+import net.minecraftforge.event.entity.player.PlayerEvent.StopTracking;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -16,8 +17,16 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
     
     @SubscribeEvent
     public void trackEntity(StartTracking event) {
-        if (event.getTarget() instanceof LittleEntity levelEntity)
+        if (event.getTarget() instanceof LittleEntity levelEntity) {
+            levelEntity.startTracking((ServerPlayer) event.getEntity());
             LittleTiles.NETWORK.sendToClient(levelEntity.initClientPacket(), (ServerPlayer) event.getEntity());
+        }
+    }
+    
+    @SubscribeEvent
+    public void stopTrackEntity(StopTracking event) {
+        if (event.getTarget() instanceof LittleEntity levelEntity)
+            levelEntity.stopTracking((ServerPlayer) event.getEntity());
     }
     
 }

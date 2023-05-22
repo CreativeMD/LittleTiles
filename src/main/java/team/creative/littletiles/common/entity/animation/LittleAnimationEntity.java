@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -197,4 +198,14 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     
     @Override
     public void syncMovement() {}
+    
+    @Override
+    public void startTracking(ServerPlayer player) {
+        getSubLevel().entityCallback.addTrackingPlayer(player);
+    }
+    
+    @Override
+    public void stopTracking(ServerPlayer player) {
+        getSubLevel().entityCallback.removeTrackingPlayer(player);
+    }
 }
