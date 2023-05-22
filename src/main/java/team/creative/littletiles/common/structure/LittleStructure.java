@@ -413,8 +413,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 field.set(this, failedLoadingRelative(nbt, field));
         }
         
-        if (nbt.contains("s")) {
-            ListTag list = nbt.getList("s", 10);
+        if (nbt.contains("ex")) {
+            ListTag list = nbt.getList("ex", 10);
             externalHandler = new HashMap<>();
             for (int i = 0; i < list.size(); i++) {
                 try {
@@ -489,8 +489,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             ListTag list = new ListTag();
             for (SignalExternalOutputHandler handler : externalHandler.values())
                 list.add(handler.write(preview));
-            nbt.put("s", list);
-        }
+            nbt.put("ex", list);
+        } else
+            nbt.remove("ex");
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
                 inputs[i].save(preview, nbt);
