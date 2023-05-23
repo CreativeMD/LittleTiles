@@ -67,6 +67,7 @@ import team.creative.littletiles.common.packet.structure.StructureEntityToBlockP
 import team.creative.littletiles.common.packet.structure.StructureUpdate;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
 import team.creative.littletiles.common.structure.connection.block.StructureBlockConnector;
@@ -180,6 +181,15 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             } catch (CorruptedConnectionException e) {
                 throw new MissingChildException(child, e);
             }
+    }
+    
+    public void updateConnectionToParent() throws CorruptedConnectionException, NotYetConnectedException {
+        if (getParent() == null)
+            return;
+        int childId = getParent().childId;
+        LittleStructure parent = getParent().getStructure();
+        parent.children.connectToChild(childId, this);
+        this.children.connectToParentAsChild(childId, parent);
     }
     
     /** use it at your own risk getAttribute() must return the new attribute */
@@ -605,6 +615,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location), entity);
         removeStructureSameLevel(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
+        entity.getStructure().updateConnectionToParent();
         
         collector.process();
         entity.clearTrackingChanges();
@@ -643,9 +654,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         LittleUpdateCollector collector = new LittleUpdateCollector();
         removeStructureSameLevel(collector);
-        placement.place();
+        PlacementResult result = placement.place();
         
-        transferChildrenFromAnimation(level);
+        result.parentStructure.transferChildrenFromAnimation(level);
+        result.parentStructure.updateConnectionToParent();
+        
         collector.process();
         
         entity.setRemoved(RemovalReason.KILLED);
