@@ -9,10 +9,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
+import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
@@ -99,9 +102,22 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
-        if (activateParent && canRightClick()) {
-            if (!isClient())
+        if (canRightClick()) {
+            if (!isClient()) {
+                if (activateParent && getParent() != null) {
+                    try {
+                        LittleStructure parentStructure = getParent().getStructure();
+                        if (parentStructure instanceof LittleDoor door)
+                            return door.use(level, context, pos, player, result);
+                        throw new LittleActionException("Invalid parent");
+                    } catch (LittleActionException e) {
+                        LittleTilesClient.displayActionMessage(e.getActionMessage());
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+                
                 toggleState();
+            }
             return InteractionResult.SUCCESS;
         }
         return super.use(level, context, pos, player, result);
