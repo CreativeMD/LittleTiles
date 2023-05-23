@@ -88,6 +88,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     @Override
     public void compileChunks(Camera camera) {
         if (needsUpdate) {
+            needsUpdate = false;
             hasBlocks.clear();
             renderableBlockEntities.clear();
             RebuildTask rebuild = new RebuildTask();
@@ -107,7 +108,6 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
                 hasBlocks.add(layer);
             });
             hasBlocks.addAll(results.renderedLayers.keySet());
-            needsUpdate = false;
         }
     }
     
