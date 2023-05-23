@@ -50,7 +50,7 @@ import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleChunkSerializer;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.LittleVanillaPacket;
 
 public class LittleChunkMap extends ChunkMap {
     
@@ -231,13 +231,13 @@ public class LittleChunkMap extends ChunkMap {
     @Override
     protected void broadcastAndSend(Entity entity, Packet<?> packet) {
         LittleLevel level = (LittleLevel) chunkCache.getLevel();
-        LittleTiles.NETWORK.sendToClientTrackingAndSelf(new LittleLevelPacket(level, packet), level.getHolder());
+        LittleTiles.NETWORK.sendToClientTrackingAndSelf(new LittleVanillaPacket(level, packet), level.getHolder());
     }
     
     @Override
     public void broadcast(Entity entity, Packet<?> packet) {
         LittleLevel level = (LittleLevel) chunkCache.getLevel();
-        LittleTiles.NETWORK.sendToClientTracking(new LittleLevelPacket(level, packet), level.getHolder());
+        LittleTiles.NETWORK.sendToClientTracking(new LittleVanillaPacket(level, packet), level.getHolder());
     }
     
 }

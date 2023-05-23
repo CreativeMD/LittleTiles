@@ -73,7 +73,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.LittleVanillaPacket;
 import team.creative.littletiles.mixin.client.network.ClientPacketListenerAccessor;
 
 public class LittleClientPlayerHandler implements TickablePacketListener, ClientGamePacketListener {
@@ -196,7 +196,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     }
     
     public void send(Packet<?> packet) {
-        LittleTiles.NETWORK.sendToServer(new LittleLevelPacket((LittleLevel) level, packet));
+        LittleTiles.NETWORK.sendToServer(new LittleVanillaPacket((LittleLevel) level, packet));
     }
     
     public void send(Packet<?> packet, @Nullable PacketSendListener listener) {

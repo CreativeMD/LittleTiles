@@ -17,6 +17,8 @@
         "server.level.ServerChunkCacheMixin",
         "server.level.ServerChunkCacheAccessor",
         "server.level.ServerLevelMixin",
+        "server.level.ServerEntityMixin",
+        "server.level.ServerEntityAccessor",
         "server.level.ChunkMapAccessor",
         "server.network.ServerGamePacketListenerImplAccessor",
         "server.network.ServerGamePacketListenerImplMixin"

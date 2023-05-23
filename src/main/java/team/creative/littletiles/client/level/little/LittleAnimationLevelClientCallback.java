@@ -1,8 +1,5 @@
 package team.creative.littletiles.client.level.little;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -12,8 +9,6 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.level.little.LittleAnimationLevelCallback;
 
 public class LittleAnimationLevelClientCallback extends LittleAnimationLevelCallback {
-    
-    private List<Entity> tickingEntities = new ArrayList<>();
     
     public LittleAnimationLevelClientCallback(LittleAnimationLevel level) {
         super(level);
@@ -74,10 +69,8 @@ public class LittleAnimationLevelClientCallback extends LittleAnimationLevelCall
                 ++entity.tickCount;
                 entity.rideTick();
                 
-                for (Entity passenger : entity.getPassengers()) {
+                for (Entity passenger : entity.getPassengers())
                     this.tickPassenger(entity, passenger);
-                }
-                
             }
         } else {
             entity.stopRiding();

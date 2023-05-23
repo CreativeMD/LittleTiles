@@ -2,6 +2,7 @@ package team.creative.littletiles.server.level.little;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -22,12 +23,13 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.level.little.LittleAnimationLevelCallback;
-import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.LittleVanillaPacket;
 
 public class LittleAnimationLevelServerCallback extends LittleAnimationLevelCallback {
     
-    private final Int2ObjectMap<ServerEntity> entities = new Int2ObjectLinkedOpenHashMap<>();
+    private final Int2ObjectMap<LittleServerEntity> entities = new Int2ObjectLinkedOpenHashMap<>();
     private final List<ServerPlayer> seenBy = new ArrayList<>();
+    private final BiConsumer<ServerPlayer, Packet<?>> broadcast = (x, y) -> LittleTiles.NETWORK.sendToClient(new LittleVanillaPacket(level, y), x);
     
     public LittleAnimationLevelServerCallback(LittleAnimationLevel level) {
         super(level);
@@ -52,7 +54,8 @@ public class LittleAnimationLevelServerCallback extends LittleAnimationLevelCall
     public void onTrackingStart(Entity entity) {
         EntityType<?> entitytype = entity.getType();
         if (entitytype.clientTrackingRange() * 16 != 0) {
-            ServerEntity server = new ServerEntity((ServerLevel) level.getRealLevel(), entity, entitytype.updateInterval(), entitytype.trackDeltas(), this::broadcast);
+            LittleServerEntity server = new LittleServerEntity((ServerLevel) level.getRealLevel(), entity, entitytype.updateInterval(), entitytype
+                    .trackDeltas(), this::broadcast, broadcast);
             entities.put(entity.getId(), server);
             for (ServerPlayer player : seenBy)
                 if (entity.broadcastToPlayer(player))
@@ -90,7 +93,7 @@ public class LittleAnimationLevelServerCallback extends LittleAnimationLevelCall
     }
     
     public void broadcast(Packet<?> packet) {
-        LittleLevelPacket lt = new LittleLevelPacket(level, packet);
+        LittleVanillaPacket lt = new LittleVanillaPacket(level, packet);
         for (ServerPlayer player : this.seenBy)
             LittleTiles.NETWORK.sendToClient(lt, player);
     }

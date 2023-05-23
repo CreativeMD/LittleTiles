@@ -74,11 +74,11 @@ import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
 import team.creative.littletiles.common.packet.entity.EntityOriginChanged;
 import team.creative.littletiles.common.packet.entity.LittleEntityPhysicPacket;
+import team.creative.littletiles.common.packet.entity.LittleVanillaPacket;
+import team.creative.littletiles.common.packet.entity.LittleVanillaPackets;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacket;
-import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
-import team.creative.littletiles.common.packet.entity.level.LittleLevelPackets;
 import team.creative.littletiles.common.packet.item.MirrorPacket;
 import team.creative.littletiles.common.packet.item.RotatePacket;
 import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
@@ -217,8 +217,8 @@ public class LittleTiles {
         NETWORK.registerType(LittleAnimationInitPacket.class, LittleAnimationInitPacket::new);
         NETWORK.registerType(LittleAnimationBlocksPacket.class, LittleAnimationBlocksPacket::new);
         
-        NETWORK.registerType(LittleLevelPacket.class, LittleLevelPacket::new);
-        NETWORK.registerType(LittleLevelPackets.class, LittleLevelPackets::new);
+        NETWORK.registerType(LittleVanillaPacket.class, LittleVanillaPacket::new);
+        NETWORK.registerType(LittleVanillaPackets.class, LittleVanillaPackets::new);
         NETWORK.registerType(LittleLevelInitPacket.class, LittleLevelInitPacket::new);
         
         CreativeConfigRegistry.ROOT.registerValue(MODID, CONFIG = new LittleTilesConfig());

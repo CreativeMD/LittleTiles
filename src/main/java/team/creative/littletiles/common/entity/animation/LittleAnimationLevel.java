@@ -43,6 +43,8 @@ import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
@@ -208,7 +210,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     
     @Override
     public Iterable<Entity> entities() {
-        return Collections.EMPTY_LIST;
+        return entities.getAll();
     }
     
     @Override
@@ -435,7 +437,20 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     public void addFreshEntityFromPacket(Entity entity) {
+        if (MinecraftForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, this)))
+            return;
+        removeEntity(entity.getId(), Entity.RemovalReason.DISCARDED);
         entities.addNewEntityWithoutEvent(entity);
+        entity.onAddedToWorld();
+    }
+    
+    public void removeEntity(int id, Entity.RemovalReason reason) {
+        Entity entity = this.getEntities().get(id);
+        if (entity != null) {
+            entity.setRemoved(reason);
+            entity.onClientRemoval();
+        }
+        
     }
     
     public void clearTrackingChanges() {

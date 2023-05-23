@@ -32,7 +32,9 @@ public abstract class LittleEntityPacket<T extends LittleEntity> extends Creativ
         
         try {
             execute(player, (T) entity);
-        } catch (ClassCastException e) {}
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        }
     }
     
     @Override

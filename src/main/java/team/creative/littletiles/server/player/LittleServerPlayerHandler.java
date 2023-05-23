@@ -120,7 +120,7 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleLevel;
-import team.creative.littletiles.common.packet.entity.level.LittleLevelPacket;
+import team.creative.littletiles.common.packet.entity.LittleVanillaPacket;
 import team.creative.littletiles.mixin.server.network.ServerGamePacketListenerImplAccessor;
 
 public class LittleServerPlayerHandler implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
@@ -534,7 +534,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     
     public void send(Level level, Packet<?> packet, @Nullable PacketSendListener listener) {
         try {
-            LittleTiles.NETWORK.sendToClient(new LittleLevelPacket((LittleLevel) level, packet), player);
+            LittleTiles.NETWORK.sendToClient(new LittleVanillaPacket((LittleLevel) level, packet), player);
             if (listener != null)
                 listener.onSuccess();
         } catch (Throwable throwable) {
