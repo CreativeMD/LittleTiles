@@ -20,6 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -606,6 +607,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         entity.getStructure().transferChildrenToAnimation(entity);
         
         collector.process();
+        entity.clearTrackingChanges();
         entity.initialTick();
         return entity;
     }
@@ -645,6 +647,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         transferChildrenFromAnimation(level);
         collector.process();
+        
+        entity.setRemoved(RemovalReason.KILLED);
     }
     
     protected void transferChildrenFromAnimation(Level level) throws CorruptedConnectionException, NotYetConnectedException {

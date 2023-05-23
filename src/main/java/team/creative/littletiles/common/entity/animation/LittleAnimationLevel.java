@@ -431,6 +431,11 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         entities.addNewEntityWithoutEvent(entity);
     }
     
+    public void clearTrackingChanges() {
+        if (trackedChanges != null)
+            trackedChanges.clear();
+    }
+    
     @Override
     public boolean addFreshEntity(Entity entity) {
         if (isClientSide || entity.isRemoved())

@@ -42,9 +42,8 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         level.setBlock(pos, state, 0);
         
         BlockEntity entity = level.getBlockEntity(pos);
-        if (!(entity instanceof BETiles))
-            return;
-        entity.load(nbt);
+        if (entity instanceof BETiles be)
+            be.handleUpdate(nbt, false);
     }
     
     public static CompoundTag saveBE(BETiles tiles) {
@@ -117,7 +116,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     public void applyChanges(Iterable<LittleBlockChange> changes) {
         for (LittleBlockChange change : changes)
             if (change.isEmpty())
-                level.removeBlock(change.pos(), true);
+                subLevel.removeBlock(change.pos(), true);
             else
                 loadBE(subLevel, change.block());
     }
@@ -215,6 +214,10 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     @Override
     public void stopTracking(ServerPlayer player) {
         getSubLevel().entityCallback.removeTrackingPlayer(player);
+    }
+    
+    public void clearTrackingChanges() {
+        getSubLevel().clearTrackingChanges();
     }
     
 }
