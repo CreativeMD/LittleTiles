@@ -28,6 +28,7 @@
         "client.MultiPlayerGameModeAccessor",
         "client.level.ClientLevelMixin",
         "client.level.ClientChunkCacheAccessor",
+        "client.level.BlockStatePredictionHandlerMixin",
         "client.network.ClientPacketListenerAccessor",
         "client.render.RebuildTaskMixin",
         "client.render.RenderChunkMixin",

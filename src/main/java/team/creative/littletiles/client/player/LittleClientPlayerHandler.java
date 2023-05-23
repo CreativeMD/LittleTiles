@@ -539,8 +539,8 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleBlockUpdate(ClientboundBlockUpdatePacket packet) {
         ensureRunningOnSameThread(packet);
-        ClientLevel level = requiresClientLevel();
-        level.setServerVerifiedBlockState(packet.getPos(), packet.getBlockState(), 19);
+        ClientLevelExtender level = requiresClientLevelExtender();
+        level.setServerVerifiedBlockStateExtender(packet.getPos(), packet.getBlockState(), 19);
     }
     
     @Override
@@ -1137,8 +1137,8 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleBlockChangedAck(ClientboundBlockChangedAckPacket packet) {
         ensureRunningOnSameThread(packet);
-        ClientLevel level = requiresClientLevel();
-        level.handleBlockChangedAck(packet.sequence());
+        ClientLevelExtender level = requiresClientLevelExtender();
+        level.handleBlockChangedAckExtender(packet.sequence());
     }
     
     @Override

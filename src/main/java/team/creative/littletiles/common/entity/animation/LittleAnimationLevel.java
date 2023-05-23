@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import org.joml.Vector3d;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,6 +56,7 @@ import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.level.BlockStatePredictionHandlerExtender;
 import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.level.little.LittleAnimationLevelClientCallback;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
@@ -108,6 +110,35 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
+    public void handleBlockChangedAckExtender(int sequence) {
+        ((BlockStatePredictionHandlerExtender) this.blockStatePredictionHandler).setLevel(this);
+        this.blockStatePredictionHandler.endPredictionsUpTo(sequence, null);
+        ((BlockStatePredictionHandlerExtender) this.blockStatePredictionHandler).setLevel(null);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void setServerVerifiedBlockStateExtender(BlockPos pos, BlockState state, int p_233656_) {
+        if (!this.blockStatePredictionHandler.updateKnownServerState(pos, state))
+            super.setBlock(pos, state, p_233656_, 512);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void syncBlockStateExtender(BlockPos pos, BlockState state, Vec3 vec) {
+        BlockState blockstate = this.getBlockState(pos);
+        if (blockstate != state) {
+            this.setBlock(pos, state, 19);
+            Player player = Minecraft.getInstance().player;
+            if (player.isColliding(pos, state))
+                player.absMoveTo(vec.x, vec.y, vec.z);
+        }
+        
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
     public BlockStatePredictionHandler blockStatePredictionHandler() {
         return blockStatePredictionHandler;
     }

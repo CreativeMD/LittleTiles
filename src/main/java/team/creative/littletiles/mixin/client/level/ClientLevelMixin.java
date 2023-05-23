@@ -3,14 +3,18 @@ package team.creative.littletiles.mixin.client.level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.TransientEntitySectionManager;
+import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.level.little.LittleClientChunkCache;
@@ -26,6 +30,11 @@ public class ClientLevelMixin implements ClientLevelExtender {
     @Shadow
     @Final
     private BlockStatePredictionHandler blockStatePredictionHandler;
+    
+    @Unique
+    private ClientLevel as() {
+        return (ClientLevel) (Object) this;
+    }
     
     @Redirect(at = @At(value = "NEW", target = "net/minecraft/client/multiplayer/ClientChunkCache"), method = "<init>", require = 1)
     public ClientChunkCache newClientChunkCache(ClientLevel level, int distance) {
@@ -45,6 +54,21 @@ public class ClientLevelMixin implements ClientLevelExtender {
     @Override
     public BlockStatePredictionHandler blockStatePredictionHandler() {
         return blockStatePredictionHandler;
+    }
+    
+    @Override
+    public void handleBlockChangedAckExtender(int sequence) {
+        as().handleBlockChangedAck(sequence);
+    }
+    
+    @Override
+    public void setServerVerifiedBlockStateExtender(BlockPos pos, BlockState state, int sequence) {
+        as().setServerVerifiedBlockState(pos, state, sequence);
+    }
+    
+    @Override
+    public void syncBlockStateExtender(BlockPos pos, BlockState state, Vec3 vec) {
+        as().syncBlockState(pos, state, vec);
     }
     
 }
