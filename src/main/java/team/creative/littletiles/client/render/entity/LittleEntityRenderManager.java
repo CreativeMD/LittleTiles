@@ -36,6 +36,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelDataManager;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
@@ -62,6 +63,8 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     public LittleSubLevel getLevel() {
         return entity.getSubLevel();
     }
+    
+    public abstract RenderChunkExtender getRenderChunk(BlockPos pos);
     
     public void setupRender(Camera camera, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
         Vec3 cam = camera.getPosition();

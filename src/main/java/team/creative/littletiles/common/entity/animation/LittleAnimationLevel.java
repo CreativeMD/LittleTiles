@@ -55,6 +55,7 @@ import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.level.little.LittleAnimationLevelClientCallback;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleAnimationLevelCallback;
@@ -90,6 +91,12 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
             this.entityCallback = new LittleAnimationLevelServerCallback(this);
         }
         this.entities = new LittleAnimationLevelEntities(entityCallback);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public LittleEntityRenderManager getRenderManager() {
+        return renderManager;
     }
     
     @Override

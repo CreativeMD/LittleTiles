@@ -55,6 +55,11 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
+    public RenderChunkExtender getRenderChunk(BlockPos pos) {
+        return this;
+    }
+    
+    @Override
     public LittleAnimationLevel getLevel() {
         return (LittleAnimationLevel) super.getLevel();
     }

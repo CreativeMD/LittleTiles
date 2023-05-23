@@ -6,7 +6,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 
 public interface LittleLevel extends IOrientatedLevel {
     
@@ -38,5 +41,8 @@ public interface LittleLevel extends IOrientatedLevel {
     public default boolean allowPlacement() {
         return true;
     }
+    
+    @OnlyIn(Dist.CLIENT)
+    public LittleEntityRenderManager getRenderManager();
     
 }

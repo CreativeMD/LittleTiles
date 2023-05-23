@@ -38,13 +38,13 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
-import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
 import team.creative.littletiles.mixin.client.render.ViewAreaAccessor;
@@ -90,8 +90,8 @@ public class RenderingThread extends Thread {
             initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
         
         if (chunk == null)
-            if (be.getLevel() instanceof LittleClientLevel level)
-                chunk = level.renderManager.getOrCreateChunk(be.getBlockPos());
+            if (be.getLevel() instanceof LittleLevel level)
+                chunk = level.getRenderManager().getRenderChunk(be.getBlockPos());
             else
                 chunk = (RenderChunkExtender) ((ViewAreaAccessor) ((LevelRendererAccessor) mc.levelRenderer).getViewArea()).getChunkAt(be.getBlockPos());
             

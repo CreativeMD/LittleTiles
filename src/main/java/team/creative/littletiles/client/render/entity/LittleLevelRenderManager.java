@@ -43,6 +43,7 @@ import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkCompileTask;
 import team.creative.littletiles.client.render.level.LittleRenderChunks;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 
 @OnlyIn(Dist.CLIENT)
@@ -65,6 +66,11 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     
     public LittleLevelRenderManager(LittleLevelEntity entity) {
         super(entity);
+    }
+    
+    @Override
+    public RenderChunkExtender getRenderChunk(BlockPos pos) {
+        return getOrCreateChunk(pos);
     }
     
     public synchronized LittleRenderChunk getChunk(BlockPos pos) {

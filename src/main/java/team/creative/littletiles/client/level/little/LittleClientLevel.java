@@ -48,6 +48,7 @@ import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.ClientLevelExtender;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
@@ -73,6 +74,12 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     @Override
     public void sendPacketToServer(Packet packet) {
         LittleTilesClient.PLAYER_CONNECTION.send((LittleLevel) this, packet);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public LittleEntityRenderManager getRenderManager() {
+        return renderManager;
     }
     
     @Override

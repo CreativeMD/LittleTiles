@@ -30,7 +30,10 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -57,6 +60,12 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
         super(server, Util.backgroundExecutor(), ((MinecraftServerAccessor) server)
                 .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false);
         this.access = access;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public LittleEntityRenderManager getRenderManager() {
+        return null;
     }
     
     @Override
