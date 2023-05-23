@@ -215,7 +215,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     
     @Override
     public void tick() {
-        if (!isClientSide && trackedChanges.isEmpty()) {
+        if (!isClientSide && !trackedChanges.isEmpty()) {
             LittleTiles.NETWORK.sendToClientTracking(new LittleAnimationBlocksPacket((LittleAnimationEntity) holder, trackedChanges), holder);
             trackedChanges.clear();
         }
