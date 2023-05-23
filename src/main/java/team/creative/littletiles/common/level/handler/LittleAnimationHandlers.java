@@ -8,7 +8,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
+import net.minecraftforge.event.entity.player.PlayerEvent.StopTracking;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -32,6 +34,8 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
             return new LittleAnimationHandlerServer(level);
         });
         MinecraftForge.EVENT_BUS.addListener(this::tick);
+        MinecraftForge.EVENT_BUS.addListener(this::trackEntity);
+        MinecraftForge.EVENT_BUS.addListener(this::stopTrackEntity);
     }
     
     public LittleEntity find(boolean client, UUID uuid) {
@@ -43,9 +47,20 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
         return null;
     }
     
-    @SubscribeEvent
     public void tick(LevelTickEvent event) {
         get(event.level).tick(event);
+    }
+    
+    public void trackEntity(StartTracking event) {
+        if (event.getTarget() instanceof LittleEntity levelEntity) {
+            levelEntity.startTracking((ServerPlayer) event.getEntity());
+            LittleTiles.NETWORK.sendToClient(levelEntity.initClientPacket(), (ServerPlayer) event.getEntity());
+        }
+    }
+    
+    public void stopTrackEntity(StopTracking event) {
+        if (event.getTarget() instanceof LittleEntity levelEntity)
+            levelEntity.stopTracking((ServerPlayer) event.getEntity());
     }
     
 }
