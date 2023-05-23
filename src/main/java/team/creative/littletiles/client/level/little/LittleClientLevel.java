@@ -25,6 +25,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
@@ -69,6 +70,11 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
         super(FakeClientPacketListener.get(access), data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE)
                 .getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
         this.access = access;
+    }
+    
+    @Override
+    public void removeEntityById(int id, RemovalReason reason) {
+        removeEntity(id, reason);
     }
     
     @Override

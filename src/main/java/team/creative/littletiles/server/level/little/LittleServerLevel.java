@@ -22,6 +22,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -61,6 +62,9 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
                 .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false);
         this.access = access;
     }
+    
+    @Override
+    public void removeEntityById(int id, RemovalReason reason) {}
     
     @Override
     @OnlyIn(Dist.CLIENT)

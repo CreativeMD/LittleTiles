@@ -22,6 +22,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -439,18 +440,18 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     public void addFreshEntityFromPacket(Entity entity) {
         if (MinecraftForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, this)))
             return;
-        removeEntity(entity.getId(), Entity.RemovalReason.DISCARDED);
+        removeEntityById(entity.getId(), Entity.RemovalReason.DISCARDED);
         entities.addNewEntityWithoutEvent(entity);
         entity.onAddedToWorld();
     }
     
-    public void removeEntity(int id, Entity.RemovalReason reason) {
+    @Override
+    public void removeEntityById(int id, RemovalReason reason) {
         Entity entity = this.getEntities().get(id);
         if (entity != null) {
             entity.setRemoved(reason);
             entity.onClientRemoval();
         }
-        
     }
     
     public void clearTrackingChanges() {

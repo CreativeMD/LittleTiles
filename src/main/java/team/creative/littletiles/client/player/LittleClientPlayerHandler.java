@@ -70,6 +70,7 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.level.little.LittleLevel;
@@ -84,6 +85,12 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     
     public LittleClientLevel requiresClientLevel() {
         if (level instanceof LittleClientLevel s)
+            return s;
+        throw new RuntimeException("Cannot run this packet on this level " + level);
+    }
+    
+    public ClientLevelExtender requiresClientLevelExtender() {
+        if (level instanceof ClientLevelExtender s)
             return s;
         throw new RuntimeException("Cannot run this packet on this level " + level);
     }
@@ -337,8 +344,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleRemoveEntities(ClientboundRemoveEntitiesPacket packet) {
         ensureRunningOnSameThread(packet);
-        ClientLevel level = requiresClientLevel();
-        packet.getEntityIds().forEach((int id) -> level.removeEntity(id, Entity.RemovalReason.DISCARDED));
+        packet.getEntityIds().forEach((int id) -> ((LittleLevel) level).removeEntityById(id, Entity.RemovalReason.DISCARDED));
     }
     
     @Override

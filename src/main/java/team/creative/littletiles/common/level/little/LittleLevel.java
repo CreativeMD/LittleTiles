@@ -3,6 +3,7 @@ package team.creative.littletiles.common.level.little;
 import java.util.UUID;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -41,6 +42,8 @@ public interface LittleLevel extends IOrientatedLevel {
     public default boolean allowPlacement() {
         return true;
     }
+    
+    public void removeEntityById(int id, RemovalReason reason);
     
     @OnlyIn(Dist.CLIENT)
     public LittleEntityRenderManager getRenderManager();
