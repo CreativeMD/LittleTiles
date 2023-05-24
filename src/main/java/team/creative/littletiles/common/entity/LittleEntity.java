@@ -1,6 +1,11 @@
 package team.creative.littletiles.common.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -42,6 +47,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     protected IVecOrigin origin;
     protected boolean hasOriginChanged = false;
     public final T physic = createPhysic();
+    private List<Entity> entitiesToAdd;
     
     // ================Constructors================
     
@@ -171,7 +177,11 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     public void performTick() {
-        
+        if (entitiesToAdd != null) {
+            for (Entity entity : entitiesToAdd)
+                subLevel.addFreshEntity(entity);
+            entitiesToAdd = null;
+        }
         if (level instanceof ISubLevel) {
             if (!level.isClientSide)
                 this.setSharedFlag(6, this.isCurrentlyGlowing());
@@ -209,6 +219,13 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         loadEntity(nbt);
         
         physic.updateBoundingBox();
+        if (nbt.contains("entities")) {
+            entitiesToAdd = new ArrayList<>();
+            ListTag list = nbt.getList("entities", Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++)
+                EntityType.create(list.getCompound(i), (Level) subLevel).ifPresent(entitiesToAdd::add);
+        } else
+            entitiesToAdd = null;
     }
     
     public abstract void loadEntity(CompoundTag nbt);
@@ -218,6 +235,15 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         nbt.put("physic", physic.save());
         
         saveEntity(nbt);
+        
+        ListTag list = new ListTag();
+        for (Entity entity : entities()) {
+            CompoundTag entityNBT = new CompoundTag();
+            entity.save(entityNBT);
+            list.add(entityNBT);
+        }
+        if (!list.isEmpty())
+            nbt.put("entities", list);
     }
     
     public abstract void saveEntity(CompoundTag nbt);
