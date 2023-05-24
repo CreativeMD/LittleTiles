@@ -1,9 +1,13 @@
 package team.creative.littletiles.common.block.little.tile.group;
 
+import java.util.Collections;
+import java.util.List;
+
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
+import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
@@ -69,6 +73,11 @@ public class LittleGroupHolder extends LittleGroup {
     @Override
     public LittleVolumes getVolumes() {
         return null;
+    }
+    
+    @Override
+    public List<LittlePlaceBox> getSpecialBoxes() {
+        return Collections.EMPTY_LIST;
     }
     
     @Override
