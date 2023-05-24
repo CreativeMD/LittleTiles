@@ -41,7 +41,8 @@ import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity implements OrientationAwareEntity, INoPushEntity {
     
-    private Iterable<OrientationAwareEntity> childrenItr = () -> new FilterIterator<OrientationAwareEntity>(entities(), OrientationAwareEntity.class);
+    private Iterable<OrientationAwareEntity> childrenItr = () -> new FilterIterator<OrientationAwareEntity>(entities(), x -> x instanceof OrientationAwareEntity e && e
+            .hasLoaded());
     
     protected LittleSubLevel subLevel;
     protected IVecOrigin origin;
@@ -324,6 +325,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         double distance = 0;
         for (Entity entity : entities()) {
             if (entity instanceof LittleEntity levelEntity) {
+                if (!levelEntity.hasLoaded())
+                    continue;
                 Vec3 newPos = levelEntity.origin.transformPointToFakeWorld(pos);
                 Vec3 newLook = levelEntity.origin.transformPointToFakeWorld(look);
                 
@@ -372,6 +375,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         return this.shouldRenderAtSqrDistance(d0 * d0 + d1 * d1 + d2 * d2);
     }
     
+    @Override
     public boolean hasLoaded() {
         return subLevel != null;
     }

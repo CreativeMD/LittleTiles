@@ -7,6 +7,8 @@ public interface OrientationAwareEntity {
     
     public IVecOrigin getOrigin();
     
+    public boolean hasLoaded();
+    
     public void parentVecOriginChange(IVecOrigin origin);
     
     public void markOriginChange();
