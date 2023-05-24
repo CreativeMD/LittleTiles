@@ -14,7 +14,7 @@ import team.creative.littletiles.common.level.little.LittleSubLevel;
 public class LevelHandlers<T extends LevelHandler> {
     
     public static boolean isInvalidLevel(LevelAccessor level) {
-        return !(level instanceof LittleSubLevel);
+        return level instanceof LittleSubLevel;
     }
     
     protected final Function<Level, T> factory;
