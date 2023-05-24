@@ -17,6 +17,8 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     
     private final HashSet<LittleStructure> updateStructures = new HashSet<>();
     private final HashSet<LittleStructure> tickingStructures = new HashSet<>();
+    private boolean ticking = false;
+    private final List<LittleStructure> queuedTickingStructures = new ArrayList<>();
     private List<ISignalSchedulable> signalChanged = new ArrayList<>();
     
     public int tick = Integer.MIN_VALUE;
@@ -38,79 +40,105 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
         return result;
     }
     
-    public synchronized void markUpdate(LittleStructure structure) {
+    public void markUpdate(LittleStructure structure) {
         if (structure.isClient())
             return;
-        updateStructures.add(structure);
+        synchronized (updateStructures) {
+            updateStructures.add(structure);
+        }
     }
     
-    public synchronized void queueNexTick(LittleStructure structure) {
-        tickingStructures.add(structure);
+    public void queueNextTick(LittleStructure structure) {
+        synchronized (tickingStructures) {
+            if (ticking)
+                queuedTickingStructures.add(structure);
+            else
+                tickingStructures.add(structure);
+        }
     }
     
-    public synchronized void markSignalChanged(ISignalSchedulable schedulable) {
-        signalChanged.add(schedulable);
+    public void markSignalChanged(ISignalSchedulable schedulable) {
+        synchronized (signalChanged) {
+            signalChanged.add(schedulable);
+        }
     }
     
     public void schedule(int delay, Runnable run) {
-        if (delay < 0)
-            run.run();
-        LittleTickTicket result = pollUnused();
-        result.setup(delay + tick, run);
-        if (latest < result.tickTime) {
-            if (last != null)
-                last.next = result;
-            last = result;
-            latest = result.tickTime;
-            return;
+        synchronized (this) {
+            if (delay < 0)
+                run.run();
+            LittleTickTicket result = pollUnused();
+            result.setup(delay + tick, run);
+            if (latest < result.tickTime) {
+                if (last != null)
+                    last.next = result;
+                last = result;
+                latest = result.tickTime;
+                return;
+            }
+            
+            if (next.tickTime >= result.tickTime) {
+                result.next = next;
+                next = null;
+                return;
+            }
+            
+            LittleTickTicket current = next;
+            while (current.next.tickTime <= result.tickTime)
+                current = current.next;
+            result.next = current.next;
+            current.next = result;
         }
-        
-        if (next.tickTime >= result.tickTime) {
-            result.next = next;
-            next = null;
-            return;
-        }
-        
-        LittleTickTicket current = next;
-        while (current.next.tickTime <= result.tickTime)
-            current = current.next;
-        result.next = current.next;
-        current.next = result;
     }
     
     public void tick() {
-        while (next != null && next.tickTime <= tick) {
-            next.run();
-            if (next == last)
-                last = null;
-            LittleTickTicket temp = next;
-            next = temp.next;
-            if (unused != null)
-                temp.next = unused;
-            unused = temp;
-        }
-        tick++;
-        
-        if (!tickingStructures.isEmpty()) {
-            for (Iterator<LittleStructure> iterator = tickingStructures.iterator(); iterator.hasNext();) {
-                LittleStructure structure = iterator.next();
-                if (!structure.queuedTick())
-                    iterator.remove();
+        synchronized (this) {
+            while (next != null && next.tickTime <= tick) {
+                next.run();
+                if (next == last)
+                    last = null;
+                LittleTickTicket temp = next;
+                next = temp.next;
+                if (unused != null)
+                    temp.next = unused;
+                unused = temp;
             }
+            tick++;
+        }
+        
+        synchronized (tickingStructures) {
+            if (!queuedTickingStructures.isEmpty()) {
+                for (LittleStructure structure : queuedTickingStructures)
+                    tickingStructures.add(structure);
+                queuedTickingStructures.clear();
+            }
+            ticking = true;
+            if (!tickingStructures.isEmpty()) {
+                for (Iterator<LittleStructure> iterator = tickingStructures.iterator(); iterator.hasNext();) {
+                    LittleStructure structure = iterator.next();
+                    if (!structure.queuedTick())
+                        iterator.remove();
+                }
+            }
+            ticking = false;
         }
         
         if (!updateStructures.isEmpty()) {
-            for (LittleStructure structure : updateStructures)
-                structure.sendUpdatePacket();
-            updateStructures.clear();
+            synchronized (updateStructures) {
+                for (LittleStructure structure : updateStructures)
+                    structure.sendUpdatePacket();
+                updateStructures.clear();
+            }
         }
         
         if (!signalChanged.isEmpty()) {
-            for (ISignalSchedulable signal : signalChanged)
-                try {
-                    signal.updateSignaling();
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            signalChanged.clear();
+            synchronized (signalChanged) {
+                for (ISignalSchedulable signal : signalChanged)
+                    try {
+                        signal.updateSignaling();
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                signalChanged.clear();
+            }
         }
     }
     

@@ -103,7 +103,7 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
     }
     
     public synchronized void queueNexTick(LittleStructure structure) {
-        get(structure.getLevel()).queueNexTick(structure);
+        get(structure.getLevel()).queueNextTick(structure);
     }
     
 }
