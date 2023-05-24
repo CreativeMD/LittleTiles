@@ -129,7 +129,9 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     }
     
     public void toggleState() {
-        startTransitionIfNecessary(currentIndex() == 0 ? 1 : 0);
+        InternalSignalOutput output = getOutput(0);
+        output.toggle();
+        startTransitionIfNecessary(output.getState().number());
     }
     
     public static class LittleDoorType extends LittleStateStructureType {
