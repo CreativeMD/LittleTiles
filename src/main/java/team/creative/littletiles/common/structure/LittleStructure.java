@@ -183,11 +183,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             }
     }
     
-    public void updateConnectionToParent() throws CorruptedConnectionException, NotYetConnectedException {
-        if (getParent() == null)
-            return;
-        int childId = getParent().childId;
-        LittleStructure parent = getParent().getStructure();
+    public void updateConnectionToParent(StructureChildConnection parentConnection) throws CorruptedConnectionException, NotYetConnectedException {
+        int childId = parentConnection.getChildId();
+        LittleStructure parent = parentConnection.getStructure();
         parent.children.connectToChild(childId, this);
         this.children.connectToParentAsChild(childId, parent);
     }
@@ -615,7 +613,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location), entity);
         removeStructureSameLevel(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
-        entity.getStructure().updateConnectionToParent();
+        if (getParent() != null)
+            entity.getStructure().updateConnectionToParent(getParent());
         
         collector.process();
         entity.clearTrackingChanges();
@@ -657,7 +656,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         PlacementResult result = placement.place();
         
         result.parentStructure.transferChildrenFromAnimation(level);
-        result.parentStructure.updateConnectionToParent();
+        if (getParent() != null)
+            result.parentStructure.updateConnectionToParent(getParent());
         
         collector.process();
         
