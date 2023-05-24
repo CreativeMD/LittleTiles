@@ -121,6 +121,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         if (isClient()) {
             if (done) {
                 timeline = null;
+                aimedState = -1;
                 physical = null;
             }
             return timeline != null;
