@@ -28,7 +28,7 @@ public class ChildDoorEvent extends AnimationEvent<IntTag> {
             return;
         
         LittleDoor door = getDoor(context);
-        if (door == null)
+        if (door == null || door.isChanging())
             return;
         
         door.toggleState();
