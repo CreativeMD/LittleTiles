@@ -188,6 +188,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleStructure parent = parentConnection.getStructure();
         parent.children.connectToChild(childId, this);
         this.children.connectToParentAsChild(childId, parent);
+        parent.updateStructure();
     }
     
     /** use it at your own risk getAttribute() must return the new attribute */
