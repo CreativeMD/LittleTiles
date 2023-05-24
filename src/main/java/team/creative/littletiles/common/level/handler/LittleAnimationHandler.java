@@ -103,6 +103,8 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         LittleHitResult newHit = null;
         double distance = reach;
         for (LittleEntity entity : find(box)) {
+            if (!entity.hasLoaded())
+                continue;
             LittleHitResult tempResult = entity.rayTrace(pos, look);
             if (tempResult == null || !(tempResult.hit instanceof BlockHitResult))
                 continue;
