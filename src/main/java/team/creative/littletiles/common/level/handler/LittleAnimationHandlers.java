@@ -53,8 +53,8 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     
     public void trackEntity(StartTracking event) {
         if (event.getTarget() instanceof LittleEntity levelEntity) {
-            levelEntity.startTracking((ServerPlayer) event.getEntity());
             LittleTiles.NETWORK.sendToClient(levelEntity.initClientPacket(), (ServerPlayer) event.getEntity());
+            levelEntity.startTracking((ServerPlayer) event.getEntity());
         }
     }
     
