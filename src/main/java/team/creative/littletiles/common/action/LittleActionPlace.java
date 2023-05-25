@@ -92,10 +92,10 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         LittleInventory inventory = new LittleInventory(player);
         if (canDrainIngredientsBeforePlacing(player, inventory)) {
             Placement placement = new Placement(player, preview);
-            PlacementResult placedTiles = placement.place();
+            result = placement.place();
             
-            if (placedTiles != null) {
-                drainIngredientsAfterPlacing(player, inventory, placedTiles, preview.previews);
+            if (result != null) {
+                drainIngredientsAfterPlacing(player, inventory, result, preview.previews);
                 
                 if (!player.level.isClientSide) {
                     checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
@@ -106,12 +106,12 @@ public class LittleActionPlace extends LittleAction<Boolean> {
                     destroyed = placement.removedTiles.copy();
                 
                 if (toVanilla)
-                    for (BETiles be : placedTiles.blocks)
+                    for (BETiles be : result.blocks)
                         be.convertBlockToVanilla();
                     
             }
             
-            return placedTiles != null;
+            return result != null;
         }
         return false;
     }
