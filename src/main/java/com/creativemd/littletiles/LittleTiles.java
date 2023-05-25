@@ -58,6 +58,7 @@ import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.command.ToVanillaCommand;
+import com.creativemd.littletiles.common.command.AllBlocksCommand;
 import com.creativemd.littletiles.common.container.SubContainerBlankOMatic;
 import com.creativemd.littletiles.common.container.SubContainerBuilder;
 import com.creativemd.littletiles.common.container.SubContainerDiagnose;
@@ -626,5 +627,6 @@ public class LittleTiles {
         event.registerServerCommand(new ImportCommand());
         event.registerServerCommand(new OpenCommand());
         event.registerServerCommand(new ToVanillaCommand());
+        event.registerServerCommand(new AllBlocksCommand());
     }
 }
