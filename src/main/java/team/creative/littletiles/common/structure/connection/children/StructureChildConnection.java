@@ -131,6 +131,10 @@ public class StructureChildConnection implements IStructureConnection {
             throw new NotYetConnectedException();
     }
     
+    public void clearCache() {
+        cachedBE = null;
+    }
+    
     @Override
     public int getIndex() {
         return structureIndex;

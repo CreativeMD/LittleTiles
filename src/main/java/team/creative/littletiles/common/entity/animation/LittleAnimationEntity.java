@@ -29,6 +29,7 @@ import team.creative.littletiles.common.packet.entity.animation.LittleBlockChang
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.connection.direct.StructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
@@ -167,12 +168,18 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         CompoundTag nbt = new CompoundTag();
         nbt.put("physic", physic.save());
         saveBlocks(nbt);
+        nbt.put("st", structure.write());
         return nbt;
     }
     
     @Override
     public void prepareChangeLevel(Level oldLevel, Level newLevel) {
         setParentLevel(newLevel);
+        try {
+            StructureChildConnection parent = getStructure().getParent();
+            if (parent != null)
+                parent.clearCache();
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -186,6 +193,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         ((LittleAnimationLevel) subLevel).renderManager = new LittleAnimationRenderManager(this);
         loadBlocks(extraData);
         physic.load(extraData.getCompound("physic"));
+        this.structure = new StructureConnection((Level) subLevel, extraData.getCompound("st"));
     }
     
     @Override
