@@ -42,6 +42,12 @@ public class LevelHandlers<T extends LevelHandler> {
         return handlers.values();
     }
     
+    public T getWithoutCreate(Level level) {
+        if (level instanceof ISubLevel sub)
+            level = sub.getRealLevel();
+        return handlers.get(level);
+    }
+    
     public T get(Level level) {
         if (level instanceof ISubLevel sub)
             level = sub.getRealLevel();
