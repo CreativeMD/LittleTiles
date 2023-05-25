@@ -7,6 +7,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.LittleTiles;
@@ -34,6 +36,7 @@ public class LittleEntityTransitionPacket extends CreativePacket {
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void executeClient(Player player) {
         LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(true, targetLevel);
         Level level;
