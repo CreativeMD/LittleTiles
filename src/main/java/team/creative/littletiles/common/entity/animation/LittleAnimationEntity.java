@@ -97,6 +97,8 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         this.level = subLevel;
         getSubLevel().setParent(subLevel);
         getSubLevel().setOrigin(center.rotationCenter);
+        if (origin != null)
+            getSubLevel().getOrigin().set(origin);
         this.origin = this.subLevel.getOrigin();
         hasOriginChanged = true;
     }
