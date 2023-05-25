@@ -90,6 +90,8 @@ public class LittleStructureGuiRegistry {
     }
     
     private static void controlledByTransition(GuiTreeItemStructure item, BitSet set, AnimationTimeline timeline) {
+        if (timeline == null)
+            return;
         for (AnimationEventEntry entry : timeline.allEvents())
             if (entry.getEvent() instanceof ChildDoorEvent event)
                 set.set(event.childId);
