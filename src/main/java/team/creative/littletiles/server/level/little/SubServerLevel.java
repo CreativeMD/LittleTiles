@@ -20,6 +20,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.ServerLevelData;
@@ -44,13 +45,23 @@ public class SubServerLevel extends LittleServerLevel implements LittleSubLevel 
         return new SubClientLevel(level);
     }
     
-    public final Level parentLevel;
+    private Level parentLevel;
     
     protected SubServerLevel(ServerLevel parent) {
         super(parent.getServer(), (ServerLevelData) parent.getLevelData(), parent.dimension(), false, parent.getSeed(), parent.registryAccess());
         this.parentLevel = parent;
         this.gatherCapabilities();
         MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));
+    }
+    
+    @Override
+    public LevelEntityGetter<Entity> getEntityGetter() {
+        return getEntities();
+    }
+    
+    @Override
+    public void setParent(Level level) {
+        this.parentLevel = level;
     }
     
     @Override

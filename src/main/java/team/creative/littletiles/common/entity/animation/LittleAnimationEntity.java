@@ -170,8 +170,17 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         return nbt;
     }
     
+    @Override
+    public void prepareChangeLevel(Level oldLevel, Level newLevel) {
+        setParentLevel(newLevel);
+    }
+    
     @OnlyIn(Dist.CLIENT)
     public void initSubLevelClient(StructureAbsolute absolute, CompoundTag extraData) {
+        if (changedLevel) {
+            changedLevel = false;
+            return;
+        }
         setSubLevel(new LittleAnimationLevel(level), absolute.rotationCenter);
         setCenter(absolute);
         ((LittleAnimationLevel) subLevel).renderManager = new LittleAnimationRenderManager(this);

@@ -94,6 +94,10 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
     @OnlyIn(Dist.CLIENT)
     public void initSubLevelClient(CompoundTag extraData) {
+        if (changedLevel) {
+            changedLevel = false;
+            return;
+        }
         setSubLevel(createLevel(), new Vec3d(extraData.getInt("cX"), extraData.getInt("cY"), extraData.getInt("cZ")));
         ((LittleClientLevel) subLevel).renderManager = new LittleLevelRenderManager(this);
         physic.load(extraData.getCompound("physic"));
@@ -130,5 +134,19 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
     @Override
     public void stopTracking(ServerPlayer player) {}
+    
+    public void setParentLevel(Level subLevel) {
+        this.level = subLevel;
+        getSubLevel().setParent(subLevel);
+        if (origin != null)
+            getSubLevel().getOrigin().set(origin);
+        this.origin = this.subLevel.getOrigin();
+        hasOriginChanged = true;
+    }
+    
+    @Override
+    public void prepareChangeLevel(Level oldLevel, Level newLevel) {
+        setParentLevel(newLevel);
+    }
     
 }

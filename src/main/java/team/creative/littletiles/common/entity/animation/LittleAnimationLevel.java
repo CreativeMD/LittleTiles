@@ -56,6 +56,7 @@ import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.BlockStatePredictionHandlerExtender;
 import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.level.little.LittleAnimationLevelClientCallback;
@@ -96,6 +97,11 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
             this.entityCallback = new LittleAnimationLevelServerCallback(this);
         }
         this.entities = new LittleAnimationLevelEntities(entityCallback);
+    }
+    
+    @Override
+    public LevelEntityGetter<Entity> getEntityGetter() {
+        return entities;
     }
     
     @Override
@@ -165,6 +171,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         return parentLevel;
     }
     
+    @Override
     public void setParent(Level level) {
         parentLevel = level;
     }
@@ -481,6 +488,8 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         Entity entity = this.getEntities().get(id);
         if (entity != null) {
             entity.setRemoved(reason);
+            if (LittleTilesClient.ANIMATION_HANDLER.checkInTransition(entity))
+                return;
             entity.onClientRemoval();
         }
     }

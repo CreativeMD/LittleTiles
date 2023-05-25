@@ -1,9 +1,11 @@
 package team.creative.littletiles.client.level;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -33,6 +35,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.entity.Entity;
@@ -50,24 +53,30 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.client.entity.LevelTransitionListener;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.mixin.client.render.GameRendererAccessor;
+import team.creative.littletiles.mixin.common.entity.EntityAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleAnimationHandlerClient extends LittleAnimationHandler implements Iterable<LittleEntity> {
     
     private static Minecraft mc = Minecraft.getInstance();
+    private static final int LONG_TICK_INTERVAL = 40;
+    private static final int MAX_INTERVALS_WAITING = 2;
     
+    private final HashMap<UUID, EntityTransitionHolder> transitions = new HashMap<>();
     private final PriorityBlockingQueue<LittleRenderChunk.ChunkCompileTask> toBatchHighPriority = Queues.newPriorityBlockingQueue();
     private final Queue<LittleRenderChunk.ChunkCompileTask> toBatchLowPriority = Queues.newLinkedBlockingDeque();
     private int highPriorityQuota = 2;
@@ -78,6 +87,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public final ChunkBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
+    private int longTickCounter = LONG_TICK_INTERVAL;
+    private int longTickIndex = Integer.MIN_VALUE;
     
     public LittleAnimationHandlerClient(Level level) {
         super(level);
@@ -102,6 +113,35 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         this.executor = Util.backgroundExecutor();
         this.mailbox = ProcessorMailbox.create(executor, "Chunk Renderer");
         this.mailbox.tell(this::runTask);
+    }
+    
+    public boolean checkInTransition(Entity entity) {
+        if (transitions.containsKey(entity.getUUID())) {
+            ((EntityAccessor) entity).callUnsetRemoved();
+            return true;
+        }
+        return false;
+    }
+    
+    public Entity pollEntityInTransition(ClientboundAddEntityPacket packet) {
+        EntityTransitionHolder holder = transitions.get(packet.getUUID());
+        if (holder == null)
+            return null;
+        
+        Entity entity = holder.entity;
+        Level oldLevel = entity.level;
+        if (entity instanceof LevelTransitionListener listener)
+            listener.prepareChangeLevel(oldLevel, holder.newLevel);
+        
+        entity.level = holder.newLevel;
+        transitions.remove(packet.getUUID());
+        if (entity instanceof LevelTransitionListener listener)
+            listener.changedLevel(oldLevel, holder.newLevel);
+        return entity;
+    }
+    
+    public void queueEntityForTransition(Entity entity, Level newLevel) {
+        transitions.put(entity.getUUID(), new EntityTransitionHolder(entity, newLevel, longTickIndex + MAX_INTERVALS_WAITING));
     }
     
     private void runTask() {
@@ -249,6 +289,30 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         mc.getProfiler().pop();
     }
     
+    protected void longTick() {
+        if (!transitions.isEmpty())
+            for (Iterator<EntityTransitionHolder> iterator = transitions.values().iterator(); iterator.hasNext();) {
+                EntityTransitionHolder holder = iterator.next();
+                if (longTickIndex >= holder.index)
+                    iterator.remove();
+            }
+    }
+    
+    @Override
+    public void tick(LevelTickEvent event) {
+        super.tick(event);
+        
+        if (event.phase == Phase.END) {
+            longTickCounter--;
+            if (longTickCounter <= 0) {
+                longTickCounter = LONG_TICK_INTERVAL;
+                longTick();
+                longTickIndex++;
+            }
+        }
+        
+    }
+    
     public void compileChunks(Camera camera) {
         mc.getProfiler().push("compile_animation_chunks");
         
@@ -309,6 +373,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public void unload() {
         super.unload();
         LittleTilesClient.ANIMATION_HANDLER = null;
+        transitions.clear();
     }
     
     @Override
@@ -391,4 +456,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         pose.popPose();
     }
+    
+    public static record EntityTransitionHolder(Entity entity, Level newLevel, int index) {}
 }

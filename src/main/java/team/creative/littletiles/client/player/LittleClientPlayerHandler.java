@@ -38,7 +38,6 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -216,8 +215,10 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     public void handleAddEntity(ClientboundAddEntityPacket packet) {
         ensureRunningOnSameThread(packet);
         
-        EntityType<?> entitytype = packet.getType();
-        Entity entity = entitytype.create(this.level);
+        Entity entity = LittleTilesClient.ANIMATION_HANDLER.pollEntityInTransition(packet);
+        if (entity == null)
+            entity = packet.getType().create(this.level);
+        
         if (entity != null) {
             entity.recreateFromPacket(packet);
             int i = packet.getId();
@@ -227,7 +228,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
                 requiresClientLevel().putNonPlayerEntity(i, entity);
             vanillaAccessor().callPostAddEntitySoundInstance(entity);
         } else
-            LOGGER.warn("Skipping Entity with id {}", entitytype);
+            LOGGER.warn("Skipping Entity with id {}", packet.getType());
     }
     
     @Override
@@ -344,7 +345,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleRemoveEntities(ClientboundRemoveEntitiesPacket packet) {
         ensureRunningOnSameThread(packet);
-        packet.getEntityIds().forEach((int id) -> ((LittleLevel) level).removeEntityById(id, Entity.RemovalReason.DISCARDED));
+        packet.getEntityIds().forEach(id -> ((LittleLevel) level).removeEntityById(id, Entity.RemovalReason.DISCARDED));
     }
     
     @Override

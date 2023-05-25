@@ -56,6 +56,7 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.LittleUpdateCollector;
+import team.creative.littletiles.common.level.little.LittleLevelTransitionManager;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.box.SurroundingBox;
 import team.creative.littletiles.common.math.location.StructureLocation;
@@ -87,7 +88,6 @@ import team.creative.littletiles.common.structure.signal.input.InternalSignalInp
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
-import team.creative.littletiles.mixin.common.entity.EntityAccessor;
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
     
@@ -628,13 +628,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             LittleStructure childStructure = child.getStructure();
             if (child.isLinkToAnotherWorld()) {
                 LittleAnimationEntity subAnimation = childStructure.getAnimationEntity();
-                
-                ((EntityAccessor) subAnimation).getLevelCallback().onRemove(Entity.RemovalReason.CHANGED_DIMENSION);
-                
-                subAnimation.setParentLevel(entity.getSubLevel());
-                entity.getSubLevel().addFreshEntity(subAnimation);
+                LittleLevelTransitionManager.moveTo(subAnimation, entity.getSubLevel());
                 subAnimation.initialTick();
-                
             } else
                 childStructure.transferChildrenToAnimation(entity);
         }
@@ -670,12 +665,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             LittleStructure childStructure = child.getStructure();
             if (child.isLinkToAnotherWorld()) {
                 LittleAnimationEntity subAnimation = childStructure.getAnimationEntity();
-                ((EntityAccessor) subAnimation).getLevelCallback().onRemove(Entity.RemovalReason.CHANGED_DIMENSION);
-                
-                subAnimation.setParentLevel(level);
-                level.addFreshEntity(subAnimation);
+                LittleLevelTransitionManager.moveTo(subAnimation, level);
                 subAnimation.initialTick();
-                
             } else
                 childStructure.transferChildrenFromAnimation(level);
         }

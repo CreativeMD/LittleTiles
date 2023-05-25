@@ -39,6 +39,8 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     }
     
     public LittleEntity find(boolean client, UUID uuid) {
+        if (uuid == null)
+            return null;
         for (LittleAnimationHandler handler : handlers(client)) {
             LittleEntity entity = handler.find(uuid);
             if (entity != null)

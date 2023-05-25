@@ -34,12 +34,13 @@ import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.client.entity.LevelTransitionListener;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
-public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity implements OrientationAwareEntity, INoPushEntity {
+public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity implements OrientationAwareEntity, INoPushEntity, LevelTransitionListener {
     
     private Iterable<OrientationAwareEntity> childrenItr = () -> new FilterIterator<OrientationAwareEntity>(entities(), x -> x instanceof OrientationAwareEntity e && e
             .hasLoaded());
@@ -49,6 +50,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     protected boolean hasOriginChanged = false;
     public final T physic = createPhysic();
     private List<Entity> entitiesToAdd;
+    protected boolean changedLevel;
     
     // ================Constructors================
     
@@ -141,6 +143,11 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     @Override
     public void transform(CollisionCoordinator coordinator) {
         physic.transform(coordinator);
+    }
+    
+    @Override
+    public void changedLevel(Level oldLevel, Level newLevel) {
+        changedLevel = true;
     }
     
     public AABB getRealBB() {

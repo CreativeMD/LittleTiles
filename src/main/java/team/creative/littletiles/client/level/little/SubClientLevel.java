@@ -18,6 +18,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
@@ -33,12 +34,22 @@ import team.creative.littletiles.common.level.little.LittleSubLevel;
 @OnlyIn(Dist.CLIENT)
 public class SubClientLevel extends LittleClientLevel implements LittleSubLevel {
     
-    public final Level parentLevel;
+    private Level parentLevel;
     
     public SubClientLevel(Level parent) {
         super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
         this.parentLevel = parent;
         this.gatherCapabilities();
+    }
+    
+    @Override
+    public LevelEntityGetter<Entity> getEntityGetter() {
+        return getEntities();
+    }
+    
+    @Override
+    public void setParent(Level level) {
+        this.parentLevel = level;
     }
     
     @Override
