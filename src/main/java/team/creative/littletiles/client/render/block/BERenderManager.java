@@ -1,20 +1,21 @@
 package team.creative.littletiles.client.render.block;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.face.RenderBoxFace;
 import team.creative.creativecore.client.render.face.RenderBoxFaceSpecial;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.list.IndexedCollector;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
@@ -24,6 +25,8 @@ import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.face.LittleFaceState;
@@ -32,9 +35,17 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
+import team.creative.littletiles.mixin.client.render.ViewAreaAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class BERenderManager {
+    
+    public static RenderChunkExtender getRenderChunk(Level level, BlockPos pos) {
+        if (level instanceof LittleLevel little)
+            return little.getRenderManager().getRenderChunk(pos);
+        return (RenderChunkExtender) ((ViewAreaAccessor) ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getViewArea()).getChunkAt(pos);
+    }
     
     private BETiles be;
     
@@ -52,7 +63,7 @@ public class BERenderManager {
     private boolean requireRenderingBoundingBoxUpdate = false;
     
     private final BlockBufferCache bufferCache = new BlockBufferCache();
-    public final HashMap<RenderType, List<LittleRenderBox>> boxCache = new HashMap<>();
+    public final ChunkLayerMap<IndexedCollector<LittleRenderBox>> boxCache = new ChunkLayerMap<>();
     
     public BERenderManager(BETiles be) {
         this.be = be;
@@ -190,7 +201,7 @@ public class BERenderManager {
         if (neighbourChanged) {
             neighbourChanged = false;
             
-            for (Entry<RenderType, List<LittleRenderBox>> entry : boxCache.entrySet()) {
+            for (Entry<RenderType, IndexedCollector<LittleRenderBox>> entry : boxCache.tuples()) {
                 if (entry.getValue() == null)
                     continue;
                 for (LittleRenderBox cube : entry.getValue())
@@ -228,47 +239,60 @@ public class BERenderManager {
             cube.setFace(facing, RenderBoxFace.RENDER);
     }
     
-    public List<LittleRenderBox> getRenderingBoxes(RenderingBlockContext context, RenderType layer) {
-        List<LittleRenderBox> cachedCubes = boxCache.get(layer);
+    public IndexedCollector<LittleRenderBox> getRenderingBoxes(RenderingBlockContext context, RenderType layer) {
+        IndexedCollector<LittleRenderBox> cachedCubes = boxCache.get(layer);
         if (cachedCubes != null)
             return cachedCubes;
         
-        List<LittleRenderBox> boxes = null;
+        IndexedCollector<LittleRenderBox> boxes = new IndexedCollector<>();
         LittleServerFace serverFace = new LittleServerFace(be);
         
-        for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
-            LittleTile tile = pair.value;
+        for (IParentCollection parent : be.groups()) {
+            if (parent instanceof IStructureParentCollection s)
+                boxes.startSection(s.getIndex());
+            else
+                boxes.startSection(-1);
             
-            if (!tile.canRenderInLayer(layer))
-                continue;
-            
-            for (LittleBox box : tile) {
-                box.hasOrCreateFaceState(pair.key, tile, serverFace);
-                
-                // Check for sides which does not need to be rendered
-                LittleRenderBox cube = pair.key.getRenderingBox(tile, box, layer);
-                if (cube == null)
+            for (LittleTile tile : parent) {
+                if (!tile.canRenderInLayer(layer))
                     continue;
                 
-                for (int k = 0; k < Facing.VALUES.length; k++)
-                    calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, cube);
+                for (LittleBox box : tile) {
+                    box.hasOrCreateFaceState(parent, tile, serverFace);
+                    
+                    // Check for sides which does not need to be rendered
+                    LittleRenderBox cube = parent.getRenderingBox(tile, box, layer);
+                    if (cube == null)
+                        continue;
+                    
+                    for (int k = 0; k < Facing.VALUES.length; k++)
+                        calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, cube);
+                    
+                    boxes.add(cube);
+                }
                 
-                if (boxes == null)
-                    boxes = new ArrayList<>();
-                boxes.add(cube);
             }
             
+            if (LittleStructureAttribute.extraRendering(parent.getAttribute())) {
+                try {
+                    LittleStructure structure = parent.getStructure();
+                    structure.checkConnections();
+                    structure.getRenderingBoxes(be.getBlockPos(), layer, boxes);
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                
+            }
+            
+            boxes.endSection();
         }
         
-        for (LittleStructure structure : be.loadedStructures(LittleStructureAttribute.EXTRA_RENDERING))
-            try {
-                if (boxes == null)
-                    boxes = new ArrayList<>();
-                structure.checkConnections();
-                structure.getRenderingBoxes(be.getBlockPos(), layer, boxes);
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        if (boxes.isEmpty())
+            boxes = null;
         
         boxCache.put(layer, boxes);
         return boxes;
+    }
+    
+    public RenderChunkExtender getRenderChunk() {
+        return getRenderChunk(be.getLevel(), be.getBlockPos());
     }
 }

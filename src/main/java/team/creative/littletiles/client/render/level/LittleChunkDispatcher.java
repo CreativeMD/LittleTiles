@@ -1,6 +1,5 @@
 package team.creative.littletiles.client.render.level;
 
-import java.util.HashMap;
 import java.util.Map.Entry;
 
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -8,12 +7,14 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
+import team.creative.littletiles.client.render.mc.VertexFormatUtils;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 public class LittleChunkDispatcher {
@@ -26,6 +27,7 @@ public class LittleChunkDispatcher {
             currentRenderState++;
         if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.allChanged();
+        VertexFormatUtils.update();
     }
     
     public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunkExtender chunk) {
@@ -57,9 +59,9 @@ public class LittleChunkDispatcher {
             }
         }
         
-        HashMap<RenderType, ChunkLayerCache> caches = task.getLayeredCache();
+        ChunkLayerMap<ChunkLayerCache> caches = task.getLayeredCache();
         if (caches != null)
-            for (Entry<RenderType, ChunkLayerCache> entry : caches.entrySet()) {
+            for (Entry<RenderType, ChunkLayerCache> entry : caches.tuples()) {
                 VertexBuffer vertexBuffer = chunk.getVertexBuffer(entry.getKey());
                 ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
                 manager.set(entry.getValue());

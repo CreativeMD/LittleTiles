@@ -39,6 +39,7 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.ILittleBlockEntity;
 import team.creative.littletiles.client.render.block.BERenderManager;
+import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -456,7 +457,9 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void handleUpdate(CompoundTag nbt, boolean chunkUpdate) {
+        RenderUploader.notifyReceiveClientUpdate(this);
         load(nbt);
         if (!chunkUpdate)
             updateTiles(false);

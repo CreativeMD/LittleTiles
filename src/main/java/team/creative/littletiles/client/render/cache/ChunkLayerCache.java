@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import team.creative.creativecore.mixin.BufferBuilderAccessor;
@@ -24,7 +25,7 @@ public class ChunkLayerCache {
             return null;
         builder.putBulkData(buffer);
         buffer.rewind();
-        UploadableBufferHolder holder = new UploadableBufferHolder(buffer, index, data.length(), data.vertexCount());
+        UploadableBufferHolder holder = new UploadableBufferHolder(buffer, index, data.length(), data.vertexCount(), data.indexes());
         holders.add(holder);
         totalSize = ((BufferBuilderAccessor) builder).getNextElementByte();
         return holder;
@@ -41,10 +42,15 @@ public class ChunkLayerCache {
     
     public void download(ByteBuffer buffer) {
         for (UploadableBufferHolder holder : holders)
-            if (buffer.capacity() >= holder.index + holder.length)
-                holder.downloaded(buffer.slice(holder.index, holder.length));
-            else
+            if (buffer.capacity() >= holder.index + holder.length()) {
+                ByteBuffer downloaded = MemoryTracker.create(holder.length());
+                downloaded.put(0, buffer, holder.index, holder.length());
+                downloaded.rewind();
+                holder.downloaded(downloaded);
+            } else
                 holder.invalidate();
+            
+        buffer.rewind();
     }
     
     public void uploaded(boolean doNotErase) {

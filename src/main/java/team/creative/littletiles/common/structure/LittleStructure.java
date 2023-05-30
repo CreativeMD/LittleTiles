@@ -38,6 +38,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
@@ -223,6 +224,19 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     // ================Tiles================
+    
+    public IStructureParentCollection getBlock(BlockPos pos) {
+        if (mainBlock.getPos().equals(pos))
+            return mainBlock;
+        for (StructureBlockConnector block : blocks)
+            if (block.is(pos))
+                try {
+                    return block.getList();
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                    return null;
+                }
+        return null;
+    }
     
     public void addBlock(StructureParentCollection block) {
         blocks.add(new StructureBlockConnector(this, block.getPos().subtract(getPos())));
@@ -611,7 +625,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(), placement);
         level.addFreshEntity(entity);
-        LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location), entity);
+        LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location, entity), entity);
+        
         removeStructureSameLevel(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
         if (getParent() != null)
@@ -639,22 +654,20 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (!isAnimated())
             return;
         
-        StructureLocation location = getStructureLocation();
         LittleAnimationEntity entity = getAnimationEntity();
         Level level = entity.getLevel();
         
         BlockPos pos = getPos();
         Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
-        LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(location), entity);
-        
         LittleUpdateCollector collector = new LittleUpdateCollector();
-        removeStructureSameLevel(collector);
         PlacementResult result = placement.place();
         
         result.parentStructure.transferChildrenFromAnimation(level);
         if (getParent() != null)
             result.parentStructure.updateConnectionToParent(getParent());
+        LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(entity), entity);
         
+        removeStructureSameLevel(collector);
         collector.process();
         
         entity.setRemoved(RemovalReason.KILLED);
@@ -1036,7 +1049,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> boxes) {}
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> boxes) {}
     
     public VoxelShape getExtraShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.empty();

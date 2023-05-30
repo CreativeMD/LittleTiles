@@ -63,6 +63,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.entity.LevelTransitionListener;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
+import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
@@ -74,7 +75,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     private static Minecraft mc = Minecraft.getInstance();
     private static final int LONG_TICK_INTERVAL = 40;
-    private static final int MAX_INTERVALS_WAITING = 2;
+    public static final int MAX_INTERVALS_WAITING = 2;
     
     private final HashMap<UUID, EntityTransitionHolder> transitions = new HashMap<>();
     private final PriorityBlockingQueue<LittleRenderChunk.ChunkCompileTask> toBatchHighPriority = Queues.newPriorityBlockingQueue();
@@ -88,7 +89,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
     private int longTickCounter = LONG_TICK_INTERVAL;
-    private int longTickIndex = Integer.MIN_VALUE;
+    public int longTickIndex = Integer.MIN_VALUE;
     
     public LittleAnimationHandlerClient(Level level) {
         super(level);
@@ -296,6 +297,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 if (longTickIndex >= holder.index)
                     iterator.remove();
             }
+        RenderUploader.longTick(longTickIndex);
     }
     
     @Override
@@ -374,6 +376,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         super.unload();
         LittleTilesClient.ANIMATION_HANDLER = null;
         transitions.clear();
+        RenderUploader.unload();
     }
     
     @Override

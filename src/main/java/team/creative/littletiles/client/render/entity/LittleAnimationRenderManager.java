@@ -1,7 +1,6 @@
 package team.creative.littletiles.client.render.entity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +11,7 @@ import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -28,10 +28,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
@@ -44,7 +46,7 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 @OnlyIn(Dist.CLIENT)
 public class LittleAnimationRenderManager extends LittleEntityRenderManager<LittleAnimationEntity> implements RenderChunkExtender {
     
-    private final Map<RenderType, VertexBuffer> buffers = new HashMap<>();
+    private final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap<>();
     private final Set<RenderType> hasBlocks = new ObjectArraySet<>(RenderType.chunkBufferLayers().size());
     private List<BlockEntity> renderableBlockEntities = new ArrayList<>();
     private BufferBuilder.SortState transparencyState;
@@ -129,6 +131,31 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
+    public Vec3i standardOffset() {
+        return Vec3i.ZERO;
+    }
+    
+    @Override
+    public SortState getTransparencyState() {
+        return transparencyState;
+    }
+    
+    @Override
+    public boolean isEmpty(RenderType layer) {
+        return !hasBlocks.contains(layer);
+    }
+    
+    @Override
+    public void setHasBlock(RenderType layer) {
+        hasBlocks.add(layer);
+    }
+    
+    @Override
+    public void setQuadSortOrigin(BufferBuilder builder, Vec3 camera) {
+        builder.setQuadSortOrigin((float) camera.x, (float) camera.y, (float) camera.z);
+    }
+    
+    @Override
     public void resortTransparency(RenderType layer, double x, double y, double z) {
         if (transparencyState != null && hasBlocks.contains(RenderType.translucent())) {
             BufferBuilder bufferbuilder = LittleTilesClient.ANIMATION_HANDLER.fixedBuffers.builder(RenderType.translucent());
@@ -152,7 +179,6 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             VertexBuffer vertexbuffer = buffers.get(layer);
             if (vertexbuffer == null)
                 return;
-            
             if (offset != null) {
                 offset.set((float) -x, (float) -y, (float) -z);
                 offset.upload();
@@ -174,7 +200,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     @Override
     public void unload() {
         super.unload();
-        this.buffers.values().forEach(VertexBuffer::close);
+        this.buffers.forEach(VertexBuffer::close);
     }
     
     static final class CompileResults {
@@ -192,7 +218,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     
     private class RebuildTask implements RebuildTaskExtender {
         
-        private HashMap<RenderType, ChunkLayerCache> caches;
+        private ChunkLayerMap<ChunkLayerCache> caches;
         private ChunkBufferBuilderPack pack;
         private Set<RenderType> renderTypes;
         
@@ -244,14 +270,14 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         }
         
         @Override
-        public HashMap<RenderType, ChunkLayerCache> getLayeredCache() {
+        public ChunkLayerMap<ChunkLayerCache> getLayeredCache() {
             return caches;
         }
         
         @Override
         public ChunkLayerCache getOrCreate(RenderType layer) {
             if (caches == null)
-                caches = new HashMap<>();
+                caches = new ChunkLayerMap<>();
             ChunkLayerCache cache = caches.get(layer);
             if (cache == null)
                 caches.put(layer, cache = new ChunkLayerCache());

@@ -19,7 +19,7 @@ public class StructureUpdate extends StructurePacket {
     @Override
     public void execute(Player player, LittleStructure structure) {
         requiresClient(player);
-        structure.mainBlock.getBE().updateTiles(x -> x.get(structure.mainBlock).setStructureNBT(structureNBT));
+        structure.mainBlock.getBE().updateTilesSecretly(x -> x.get(structure.mainBlock).setStructureNBT(structureNBT));
     }
     
 }

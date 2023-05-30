@@ -8,7 +8,7 @@ public interface VertexBufferExtender {
     
     public void setManager(ChunkLayerUploadManager manager);
     
-    public int getIndexCount();
+    public int getLastUploadedLength();
     
     public int getVertexBufferId();
     

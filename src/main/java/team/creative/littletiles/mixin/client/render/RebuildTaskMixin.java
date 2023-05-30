@@ -1,6 +1,5 @@
 package team.creative.littletiles.mixin.client.render;
 
-import java.util.HashMap;
 import java.util.Set;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,6 +19,7 @@ import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
@@ -36,7 +36,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     public ChunkBufferBuilderPack pack;
     
     @Unique
-    public HashMap<RenderType, ChunkLayerCache> caches;
+    public ChunkLayerMap<ChunkLayerCache> caches;
     
     @Shadow(aliases = { "this$0" })
     public RenderChunk this$1;
@@ -81,14 +81,14 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     }
     
     @Override
-    public HashMap<RenderType, ChunkLayerCache> getLayeredCache() {
+    public ChunkLayerMap<ChunkLayerCache> getLayeredCache() {
         return caches;
     }
     
     @Override
     public ChunkLayerCache getOrCreate(RenderType layer) {
         if (caches == null)
-            caches = new HashMap<>();
+            caches = new ChunkLayerMap<>();
         ChunkLayerCache cache = caches.get(layer);
         if (cache == null)
             caches.put(layer, cache = new ChunkLayerCache());

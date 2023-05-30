@@ -72,8 +72,8 @@ public class StructureLocation {
             level = entity.getSubLevel();
         }
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof BETiles) {
-            IStructureParentCollection structure = ((BETiles) be).getStructure(index);
+        if (be instanceof BETiles tiles) {
+            IStructureParentCollection structure = tiles.getStructure(index);
             if (structure != null)
                 return structure.getStructure();
             throw new LittleActionException.StructureNotFoundException();

@@ -69,6 +69,8 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         if (result == null)
             throw new LittleActionException("Could not be placed");
         this.structure = new StructureConnection(subLevel, new LocalStructureLocation(result.parentStructure));
+        physic.tick();
+        physic.updateBoundingBox();
     }
     
     protected void beforeInitalPlacement() {
@@ -194,6 +196,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         loadBlocks(extraData);
         physic.load(extraData.getCompound("physic"));
         this.structure = new StructureConnection((Level) subLevel, extraData.getCompound("st"));
+        physic.updateBoundingBox();
     }
     
     @Override

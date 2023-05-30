@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.structure.type;
 
-import java.util.List;
-
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +12,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxItem;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -81,7 +80,7 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> cubes) {
         if (layer == RenderType.cutout()) {
             AlignedBox box = frame.getBox().getBox(frame.getGrid());
             if (!stack.isEmpty())

@@ -22,6 +22,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -406,7 +407,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingBoxes(BlockPos pos, RenderType layer, List<LittleRenderBox> cubes) {
+    public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> cubes) {
         if (ColorUtils.isInvisible(color))
             return;
         
@@ -427,7 +428,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, List<LittleRenderBox> cubes) {
+    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, IndexedCollector<LittleRenderBox> cubes) {
         if (positive) {
             renderBox.setMin(axis, renderBox.getMax(axis));
             renderBox.setMax(axis, renderBox.getMax(axis) + distance);
@@ -458,7 +459,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
+    public void render(SurroundingBox box, LittleBox overallBox, IndexedCollector<LittleRenderBox> cubes) {
         
         for (int i = 0; i < faces.length; i++) {
             if (faces[i] == null)

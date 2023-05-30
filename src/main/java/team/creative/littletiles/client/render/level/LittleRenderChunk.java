@@ -3,7 +3,6 @@ package team.creative.littletiles.client.render.level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +10,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -19,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -43,6 +42,7 @@ import net.minecraft.client.renderer.chunk.VisibilitySet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -57,6 +57,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
@@ -79,7 +80,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     @Nullable
     private ResortTransparencyTask lastResortTransparencyTask;
     private final Set<BlockEntity> globalBlockEntities = Sets.newHashSet();
-    private final Map<RenderType, VertexBuffer> buffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap(x -> x, (x) -> new VertexBuffer()));
+    private final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap(x -> new VertexBuffer());
     private boolean dirty = true;
     private final SectionPos[] neighbors;
     private boolean playerChanged;
@@ -127,6 +128,11 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     @Override
+    public Vec3i standardOffset() {
+        return pos;
+    }
+    
+    @Override
     public VertexBuffer getVertexBuffer(RenderType layer) {
         return this.buffers.get(layer);
     }
@@ -158,7 +164,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     
     public void releaseBuffers() {
         this.reset();
-        this.buffers.values().forEach(VertexBuffer::close);
+        this.buffers.forEach(VertexBuffer::close);
     }
     
     public void setDirty(boolean playerChanged) {
@@ -242,6 +248,28 @@ public class LittleRenderChunk implements RenderChunkExtender {
         manager.updateGlobalBlockEntities(set1, set);
     }
     
+    @Override
+    public SortState getTransparencyState() {
+        return ((CompiledChunkAccessor) getCompiledChunk()).getTransparencyState();
+    }
+    
+    @Override
+    public void setHasBlock(RenderType layer) {
+        CompiledChunk compiled = getCompiledChunk();
+        if (compiled != CompiledChunk.UNCOMPILED)
+            ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
+    }
+    
+    @Override
+    public boolean isEmpty(RenderType layer) {
+        return getCompiledChunk().isEmpty(layer);
+    }
+    
+    @Override
+    public void setQuadSortOrigin(BufferBuilder builder, Vec3 cam) {
+        builder.setQuadSortOrigin((float) cam.x - pos.getX(), (float) cam.y - pos.getY(), (float) cam.z - pos.getZ());
+    }
+    
     public static enum ChunkTaskResult {
         SUCCESSFUL,
         CANCELLED;
@@ -280,7 +308,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         
         @Nullable
         protected Level level;
-        private HashMap<RenderType, ChunkLayerCache> caches;
+        private ChunkLayerMap<ChunkLayerCache> caches;
         private ChunkBufferBuilderPack pack;
         private Set<RenderType> renderTypes;
         
@@ -466,14 +494,14 @@ public class LittleRenderChunk implements RenderChunkExtender {
         }
         
         @Override
-        public HashMap<RenderType, ChunkLayerCache> getLayeredCache() {
+        public ChunkLayerMap<ChunkLayerCache> getLayeredCache() {
             return caches;
         }
         
         @Override
         public ChunkLayerCache getOrCreate(RenderType layer) {
             if (caches == null)
-                caches = new HashMap<>();
+                caches = new ChunkLayerMap<>();
             ChunkLayerCache cache = caches.get(layer);
             if (cache == null)
                 caches.put(layer, cache = new ChunkLayerCache());
