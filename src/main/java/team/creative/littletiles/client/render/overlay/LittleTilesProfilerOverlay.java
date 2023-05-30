@@ -5,15 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Strings;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -99,9 +100,10 @@ public class LittleTilesProfilerOverlay {
     }
     
     @SubscribeEvent
-    public static void onRender(RenderTickEvent event) {
-        if (event.phase == Phase.END && mc.isWindowActive() && !mc.options.hideGui && mc.level != null && RenderingThread.THREADS != null) {
+    public static void onRender(RenderGuiEvent.Post event) {
+        if (!mc.isPaused() && !mc.options.hideGui && mc.level != null && RenderingThread.THREADS != null) {
             
+            RenderSystem.defaultBlendFunc();
             PoseStack pose = new PoseStack();
             
             List<String> warnings = new ArrayList<>();
