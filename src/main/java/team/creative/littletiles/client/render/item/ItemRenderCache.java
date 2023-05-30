@@ -10,7 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -31,7 +33,8 @@ public class ItemRenderCache implements LevelAwareHandler {
         return null;
     }
     
-    private HashMap<ItemStack, ItemModelCache> caches = new HashMap<>();
+    private RenderedStack temp = new RenderedStack();
+    private HashMap<RenderedStack, ItemModelCache> caches = new HashMap<>();
     private int slowTicker = 0;
     private int timeToCheckSlowTick = 100;
     
@@ -45,7 +48,7 @@ public class ItemRenderCache implements LevelAwareHandler {
     
     public List<BakedQuad> requestCache(ItemStack stack, boolean translucent) {
         synchronized (caches) {
-            ItemModelCache cache = caches.get(stack);
+            ItemModelCache cache = caches.get(temp.set(stack));
             if (cache != null)
                 return cache.getQuads(translucent);
             CreativeItemBoxModel renderer = get(stack);
@@ -54,7 +57,7 @@ public class ItemRenderCache implements LevelAwareHandler {
                     cache = new ItemModelCacheLayered();
                 else
                     cache = new ItemModelCache();
-                caches.put(stack, cache);
+                caches.put(new RenderedStack().set(stack), cache);
                 THREAD.items.add(new Pair<>(stack, cache));
             }
             return null;
@@ -74,6 +77,30 @@ public class ItemRenderCache implements LevelAwareHandler {
                 if (iterator.next().expired())
                     iterator.remove();
             slowTicker = 0;
+        }
+    }
+    
+    public static class RenderedStack {
+        
+        private Item item;
+        private CompoundTag nbt;
+        
+        public RenderedStack set(ItemStack stack) {
+            item = stack.getItem();
+            nbt = stack.getTag();
+            return this;
+        }
+        
+        @Override
+        public int hashCode() {
+            return nbt.hashCode();
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof RenderedStack stack)
+                return stack.item == item && stack.nbt.equals(nbt);
+            return false;
         }
     }
     
