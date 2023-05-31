@@ -21,6 +21,7 @@ import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiDistanceControl;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeMove.GuiRecipeMoveItem;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -147,7 +148,7 @@ public class GuiRecipeMove extends GuiLayer {
         CHECKBOX(true) {
             @Override
             public Iterator<GuiRecipeMoveItem> iterator(GuiTree tree) {
-                return new FunctionIterator<>(tree.root().itemsChecked(), x -> (GuiRecipeMoveItem) x);
+                return new FunctionIterator<>(tree.itemsChecked(), x -> (GuiRecipeMoveItem) x);
             }
         };
         
