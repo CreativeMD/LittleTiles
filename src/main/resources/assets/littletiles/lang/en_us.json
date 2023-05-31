@@ -138,6 +138,10 @@
 	"gui.door.rotation.direction": "Direction",
 	"gui.door.rotation.angle": "Angle",
 	"gui.door.axis.even": "Even",
+	"gui.door.closing": "closing",
+    "gui.door.opening": "opening",
+	"gui.door.closed": "closed",
+	"gui.door.opened": "opened",
 	"gui.door.offx": "offX",
 	"gui.door.offy": "offY",
 	"gui.door.offz": "offZ",
@@ -148,8 +152,11 @@
 	"gui.door.direction.opening": "Open",
 	"gui.door.direction.closing": "Close",
 	"gui.door.sound": "Sound",
+	"gui.door.sound.add": "+ Sound",
 	"gui.door.child": "Children",
 	"gui.door.clean.channel": "Clean",
+	"gui.door.same_transition": "Same transition",
+	"gui.door.different_transition": "Different transition",
 	
 	"dialog.invalid_grid": "Invalid grid size \u00A72%s",
 	

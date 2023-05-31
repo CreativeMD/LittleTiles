@@ -1,5 +1,8 @@
 package team.creative.littletiles.common.structure.registry.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -11,15 +14,18 @@ import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.parent.GuiTabs;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineChannelDouble;
+import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineKey;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiGridConfig;
+import team.creative.littletiles.common.gui.controls.GuiPhysicalStateControl;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationTimelinePanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationPanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
@@ -30,6 +36,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
+import team.creative.littletiles.common.structure.animation.AnimationTimeline.AnimationEventEntry;
 import team.creative.littletiles.common.structure.animation.PhysicalPart;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.animation.curve.ValueCurveInterpolation;
@@ -81,7 +88,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
             if (opening == null)
                 opening = new AnimationTimeline(duration);
             closing = door.getTransition("closing");
-            if (sameTransition || closing != null) {
+            if (sameTransition || closing == null) {
                 closing = opening.copy();
                 closing.reverse(item);
             }
@@ -159,11 +166,11 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         
         add(tabs.setExpandableX());
         
-        GuiParent single = tabs.createTab(Component.translatable("gui.door.same_transition"));
-        single.add((GuiControl) (same = new GuiTimelineConfigSame(item.recipe.animation, closed, opened, duration, opening)));
+        tabs.createTab(Component.translatable("gui.door.same_transition"))
+                .add((GuiControl) (same = new GuiTimelineConfigSame(item, item.recipe.animation, closed, opened, duration, opening)));
         
-        GuiParent different = tabs.createTab(Component.translatable("gui.door.different_transition"));
-        tabs.getTabButton(1).setEnabled(false);
+        tabs.createTab(Component.translatable("gui.door.different_transition"))
+                .add((GuiControl) (this.different = new GuiTimelineConfigDifferent(item, item.recipe.animation, closed, opened, duration, opening, closing)));
         
         tabs.select(sameTransition ? 0 : 1);
         
@@ -171,13 +178,16 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         raiseEvent(new GuiAnimationAxisChangedEvent(viewer));
         
         tabs.registerEventChanged(x -> {
-            if (x.control instanceof GuiTimeline)
+            if (x.control instanceof GuiTimeline || x.control instanceof GuiTabs || x.control instanceof GuiPhysicalStateControl)
                 updateTimeline();
         });
         
         settings.registerEventChanged(x -> {
-            if (x.control instanceof GuiTextfield text && text.is("duration"))
-                same.durationChanged(text.parseInteger());
+            if (x.control instanceof GuiTextfield text && text.is("duration")) {
+                int newDuration = text.parseInteger();
+                same.durationChanged(newDuration);
+                different.durationChanged(newDuration);
+            }
         });
         
         updateTimeline();
@@ -213,16 +223,13 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         door.rightClick = get("rightClick", GuiCheckBox.class).value;
         door.noClip = get("noClip", GuiCheckBox.class).value;
         door.playPlaceSounds = get("playPlaceSounds", GuiCheckBox.class).value;
-        
+        door.duration = get("duration", GuiTextfield.class).parseInteger();
         GuiTimelineConfig config = door.differentTransition ? different : same;
-        
-        GuiTextfield durationT = get("duration");
-        int duration = durationT.parseInteger();
         
         door.putState(new AnimationState("closed", config.closedState(), !door.stayAnimated));
         door.putState(new AnimationState("opened", config.openedState(), !door.stayAnimated));
-        door.putTransition("closed", "opened", "opening", config.generateTimeline(duration, door.interpolation, true));
-        door.putTransition("opened", "closed", "closing", config.generateTimeline(duration, door.interpolation, false));
+        door.putTransition("closed", "opened", "opening", config.generateTimeline(door.duration, door.interpolation, true));
+        door.putTransition("opened", "closed", "closing", config.generateTimeline(door.duration, door.interpolation, false));
         
         return structure;
     }
@@ -243,7 +250,10 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
     public static class GuiTimelineConfigSame extends GuiAnimationTimelinePanel implements GuiTimelineConfig {
         
         public static AnimationTimeline setup(PhysicalState closed, PhysicalState opened, int duration, AnimationTimeline original) {
-            AnimationTimeline timeline = new AnimationTimeline(original.duration);
+            List<AnimationEventEntry> events = new ArrayList<>();
+            for (AnimationEventEntry entry : original.allEvents())
+                events.add(entry.copy());
+            AnimationTimeline timeline = new AnimationTimeline(original.duration, events);
             for (PhysicalPart part : PhysicalPart.values()) {
                 ValueCurveInterpolation<Vec1d> curve = original.get(part)
                         .isEmpty() ? new ValueCurveInterpolation.LinearCurve<>() : (ValueCurveInterpolation<Vec1d>) original.get(part).copy();
@@ -259,8 +269,8 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
             return timeline;
         }
         
-        public GuiTimelineConfigSame(GuiRecipeAnimationHandler handler, PhysicalState closed, PhysicalState opened, int duration, AnimationTimeline timeline) {
-            super(handler, duration, setup(closed, opened, duration, timeline));
+        public GuiTimelineConfigSame(GuiTreeItemStructure item, GuiRecipeAnimationHandler handler, PhysicalState closed, PhysicalState opened, int duration, AnimationTimeline timeline) {
+            super(item, handler, duration, setup(closed, opened, duration, timeline), false);
         }
         
         @Override
@@ -299,13 +309,81 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         }
     }
     
+    public static class GuiTimelineConfigDifferent extends GuiParent implements GuiTimelineConfig {
+        
+        public GuiPhysicalStateControl closed;
+        public GuiPhysicalStateControl opened;
+        
+        public GuiAnimationTimelinePanel opening;
+        public GuiAnimationTimelinePanel closing;
+        
+        public GuiTimelineConfigDifferent(GuiTreeItemStructure item, GuiRecipeAnimationHandler handler, PhysicalState closedState, PhysicalState openedState, int duration, AnimationTimeline opening, AnimationTimeline closing) {
+            flow = GuiFlow.STACK_Y;
+            
+            GuiParent stateConfig = new GuiParent();
+            add(stateConfig);
+            GuiParent closedParent = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.CENTER);
+            stateConfig.add(closedParent);
+            closedParent.add(new GuiLabel("closedLabel").setTranslate("gui.door.closed"));
+            closedParent.add(closed = new GuiPhysicalStateControl("closed", closedState));
+            
+            GuiParent openedParent = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.CENTER);
+            stateConfig.add(openedParent);
+            openedParent.add(new GuiLabel("openedLabel").setTranslate("gui.door.opened"));
+            openedParent.add(opened = new GuiPhysicalStateControl("opened", openedState));
+            
+            GuiTabs tabs = new GuiTabs("timelineTabs");
+            add(tabs);
+            
+            tabs.createTab(translatable("gui.door.opening")).add(this.opening = new GuiAnimationTimelinePanel(item, handler, duration, opening, true));
+            tabs.createTab(translatable("gui.door.closing")).add(this.closing = new GuiAnimationTimelinePanel(item, handler, duration, closing, true));
+            
+            tabs.select(0);
+        }
+        
+        @Override
+        public PhysicalState openedState() {
+            return opened.create();
+        }
+        
+        @Override
+        public PhysicalState closedState() {
+            return closed.create();
+        }
+        
+        @Override
+        public AnimationTimeline generateTimeline(int duration, ValueInterpolation interpolation, boolean opening) {
+            return opening ? this.opening.generateTimeline(duration, interpolation) : this.closing.generateTimeline(duration, interpolation);
+        }
+        
+        @Override
+        public boolean openingAnimation() {
+            return get("timelineTabs", GuiTabs.class).index() == 0;
+        }
+        
+        @Override
+        public void durationChanged(int duration) {
+            opening.durationChanged(duration);
+            closing.durationChanged(duration);
+        }
+    }
+    
     public static class GuiAdvancedTimelineChannel extends GuiTimelineChannelDouble {
         
         public final boolean distance;
+        public final boolean limited;
         
-        public GuiAdvancedTimelineChannel(GuiTimeline timeline, boolean distance) {
+        public GuiAdvancedTimelineChannel(GuiTimeline timeline, boolean distance, boolean limited) {
             super(timeline);
             this.distance = distance;
+            this.limited = limited;
+        }
+        
+        @Override
+        public boolean isSpaceFor(GuiTimelineKey<Double> key, int tick) {
+            if (limited && (tick == 0 || tick == timeline.getDuration()))
+                return false;
+            return super.isSpaceFor(key, tick);
         }
         
     }

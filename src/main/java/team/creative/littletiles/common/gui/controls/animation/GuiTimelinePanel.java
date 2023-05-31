@@ -2,10 +2,12 @@ package team.creative.littletiles.common.gui.controls.animation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
+import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineChannel;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
@@ -30,6 +32,16 @@ public class GuiTimelinePanel extends GuiParent {
         if (events == null)
             return Collections.EMPTY_LIST;
         return events;
+    }
+    
+    public static void clearUnusedChannel(List<? extends GuiTimelineChannel> channels) {
+        for (Iterator<? extends GuiTimelineChannel> iterator = channels.iterator(); iterator.hasNext();) {
+            GuiTimelineChannel channel = iterator.next();
+            if (channel.isChannelEmpty()) {
+                channel.removeChannel();
+                iterator.remove();
+            }
+        }
     }
     
     public final GuiTimeline time;

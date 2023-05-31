@@ -70,9 +70,9 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
         channelControl.add(soundDirection);
         channelControl.add(new GuiButton("add", x -> createChannel(soundDirection.getSelected())).setTranslate("gui.add"));
         channelControl.add(new GuiButton("removed_unused", x -> {
-            clearChannel(bothChannels);
-            clearChannel(openingChannels);
-            clearChannel(closingChannels);
+            clearUnusedChannel(bothChannels);
+            clearUnusedChannel(openingChannels);
+            clearUnusedChannel(closingChannels);
             reflow();
         }).setTranslate("gui.door.clean.channel"));
         
@@ -122,16 +122,6 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
     @Override
     protected void addBefore() {
         add(new GuiLabel("soundLabel").setTitle(translatable("gui.door.sound").append(":")));
-    }
-    
-    protected void clearChannel(List<GuiSoundTimelineChannel> channels) {
-        for (Iterator<GuiSoundTimelineChannel> iterator = channels.iterator(); iterator.hasNext();) {
-            GuiSoundTimelineChannel channel = iterator.next();
-            if (channel.isChannelEmpty()) {
-                channel.removeChannel();
-                iterator.remove();
-            }
-        }
     }
     
     public boolean isSoundEmpty() {

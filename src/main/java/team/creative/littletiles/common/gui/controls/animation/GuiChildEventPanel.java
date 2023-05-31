@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.gui.controls.animation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.network.chat.Component;
@@ -48,15 +47,7 @@ public class GuiChildEventPanel extends GuiTimelinePanel {
             updateAddBox();
         }).setTranslate("gui.add"));
         channelControl.add(new GuiButton("removed_unused", x -> {
-            for (Iterator<GuiChildTimelineChannel> iterator = children.iterator(); iterator.hasNext();) {
-                GuiChildTimelineChannel channel = iterator.next();
-                if (channel == null)
-                    continue;
-                if (channel.isChannelEmpty()) {
-                    channel.removeChannel();
-                    iterator.remove();
-                }
-            }
+            clearUnusedChannel(children);
             updateAddBox();
         }).setTranslate("gui.door.clean.channel"));
         
