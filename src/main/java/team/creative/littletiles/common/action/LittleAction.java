@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.GlassBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -423,7 +424,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     private static boolean isBlockValid(Block block) {
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
-        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock;
+        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
     }
     
     public static boolean isBlockValid(BlockState state) {
