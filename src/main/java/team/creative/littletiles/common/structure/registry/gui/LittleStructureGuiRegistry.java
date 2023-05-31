@@ -111,11 +111,11 @@ public class LittleStructureGuiRegistry {
         LittleStructureType axis = get("axis");
         LittleStructureType sliding = get("sliding");
         LittleStructureType advanced = get("door");
-        //LittleStructureType activator = get("activator");
+        LittleStructureType activator = get("activator");
         register("door.axis", axis, LittleDoorAxisGui::new);
         register("door.sliding", sliding, LittleDoorSlidingGui::new);
         register("door.advanced", advanced, LittleDoorAdvancedGui::new);
-        //register("door.activator", activator"), LittleDoorActivatorGui::new);
+        register("door.activator", activator, LittleDoorActivatorGui::new);
         
         registerFinalizer(x -> {
             LittleDoor door = (LittleDoor) x.structure;
@@ -125,7 +125,7 @@ public class LittleStructureGuiRegistry {
             for (int i = 0; i < x.itemsCount(); i++)
                 if (((GuiTreeItemStructure) x.getItem(i)).structure instanceof LittleDoor child)
                     child.activateParent = set.get(i);
-        }, axis, sliding, advanced);
+        }, axis, sliding, advanced, activator);
     }
     
 }
