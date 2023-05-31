@@ -17,4 +17,4 @@ license="GNU General Public License v3.0"
 	mandatory=true
 	ordering="NONE"
 	side="BOTH"
-	versionRange="[2.5.0,)"
+	versionRange="[2.10.20,)"
