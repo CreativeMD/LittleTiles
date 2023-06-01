@@ -79,6 +79,10 @@ public class TileEntityRenderManager {
         queue(true);
     }
     
+    public void markRenderBoundingBoxDirty() {
+        requireRenderingBoundingBoxUpdate = true;
+    }
+    
     public double getMaxRenderDistanceSquared() {
         if (cachedRenderDistance == 0) {
             double renderDistance = 5 * 5; // 512 blocks
