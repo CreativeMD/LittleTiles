@@ -86,5 +86,9 @@ public abstract class LittleStructurePremade extends LittleStructure {
             return true;
         }
         
+        public boolean canSnapToGrid() {
+            return true;
+        }
+        
     }
 }

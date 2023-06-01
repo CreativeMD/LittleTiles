@@ -381,5 +381,10 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             return cubes;
         }
         
+        @Override
+        public boolean canSnapToGrid() {
+            return false;
+        }
+        
     }
 }

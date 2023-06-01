@@ -125,14 +125,18 @@ public class PreviewRenderer implements LevelAwareHandler {
     }
     
     public boolean isCentered(ItemStack stack, ILittlePlacer iTile) {
+        if (!iTile.canSnapToGrid(stack))
+            return marked == null;
         if (iTile.snapToGridByDefault(stack))
             return LittleActionHandlerClient.isUsingSecondMode() && marked == null;
         return LittleTiles.CONFIG.building.invertStickToGrid == LittleActionHandlerClient.isUsingSecondMode() || marked != null;
     }
     
     public boolean isFixed(ItemStack stack, ILittlePlacer iTile) {
+        if (!iTile.canSnapToGrid(stack))
+            return marked != null;
         if (iTile.snapToGridByDefault(stack))
-            return !LittleActionHandlerClient.isUsingSecondMode() && marked == null;
+            return !LittleActionHandlerClient.isUsingSecondMode() && marked != null;
         return LittleTiles.CONFIG.building.invertStickToGrid != LittleActionHandlerClient.isUsingSecondMode() && marked == null;
     }
     

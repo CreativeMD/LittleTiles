@@ -705,6 +705,11 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         public LittleStructure getStructure() {
             return null;
         }
+        
+        @Override
+        public boolean canSnapToGrid() {
+            return false;
+        }
     }
     
 }

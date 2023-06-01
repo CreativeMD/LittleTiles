@@ -151,10 +151,18 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     }
     
     @Override
+    public boolean canSnapToGrid(ItemStack stack) {
+        LittleStructureType type = LittlePremadeRegistry.get(getPremadeId(stack));
+        if (type instanceof LittlePremadeType premade)
+            return premade.canSnapToGrid();
+        return false;
+    }
+    
+    @Override
     public boolean snapToGridByDefault(ItemStack stack) {
         LittleStructureType type = LittlePremadeRegistry.get(getPremadeId(stack));
-        if (type instanceof LittlePremadeType)
-            return ((LittlePremadeType) type).snapToGrid;
+        if (type instanceof LittlePremadeType premade)
+            return premade.snapToGrid;
         return false;
     }
     

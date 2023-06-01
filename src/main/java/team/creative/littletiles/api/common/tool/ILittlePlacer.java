@@ -80,6 +80,10 @@ public interface ILittlePlacer extends ILittleTool {
         return PlacementMode.getDefault();
     }
     
+    public default boolean canSnapToGrid(ItemStack stack) {
+        return true;
+    }
+    
     public default boolean snapToGridByDefault(ItemStack stack) {
         return false;
     }
