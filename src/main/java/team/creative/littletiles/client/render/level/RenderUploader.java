@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.codehaus.plexus.util.FastMap;
 import org.lwjgl.opengl.GL15;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -47,7 +46,7 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 public class RenderUploader {
     
     private static final Minecraft mc = Minecraft.getInstance();
-    private static final FastMap<Level, RenderDataLevel> CACHES = new FastMap<>();
+    private static final HashMap<Level, RenderDataLevel> CACHES = new HashMap<>();
     
     private static RenderDataLevel getOrCreate(Level level) {
         RenderDataLevel data = CACHES.get(level);
