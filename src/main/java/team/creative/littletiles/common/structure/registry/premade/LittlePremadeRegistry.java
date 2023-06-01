@@ -57,16 +57,18 @@ public class LittlePremadeRegistry {
                 CompoundTag structureNBT = new CompoundTag();
                 structureNBT.putString("id", type.id);
                 CompoundTag nbt = TagParser.parseTag(IOUtils
-                        .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
-                CompoundTag originalNBT = nbt.contains("structure") ? nbt.getCompound("structure") : null;
-                nbt.put("structure", structureNBT);
+                        .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("data/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
+                
+                CompoundTag originalNBT = nbt.contains(LittleGroup.STRUCTURE_KEY) ? nbt.getCompound(LittleGroup.STRUCTURE_KEY) : null;
+                nbt.put(LittleGroup.STRUCTURE_KEY, structureNBT);
                 if (originalNBT != null)
                     NBTUtils.mergeNotOverwrite(structureNBT, originalNBT);
                 stack.setTag(nbt);
+                
                 LittleGroup previews = LittleGroup.load(stack.getOrCreateTag());
                 
                 CompoundTag stackNBT = new CompoundTag();
-                stackNBT.put("structure", structureNBT);
+                stackNBT.put(LittleGroup.STRUCTURE_KEY, structureNBT);
                 stack.setTag(stackNBT);
                 
                 PREVIEWS.put(type.id, new LittlePremadePreview(previews, stack));
