@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.block.little.element;
 
-import java.util.stream.Collectors;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AirBlock;
@@ -10,7 +8,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
-import team.creative.littletiles.mixin.common.block.StateHolderAccessor;
 
 public class LittleElement {
     
@@ -85,17 +82,10 @@ public class LittleElement {
     }
     
     public String getBlockName() {
-        if (getState().getBlock() instanceof AirBlock)
+        String name = LittleBlockRegistry.saveState(getState());
+        if (name == null)
             return getBlock().blockName();
-        else {
-            StringBuilder name = new StringBuilder();
-            BlockState state = getState();
-            name.append(state.getBlock().builtInRegistryHolder().key().location());
-            if (!state.getValues().isEmpty())
-                name.append('[').append(state.getValues().entrySet().stream().map(StateHolderAccessor.getPROPERTY_ENTRY_TO_STRING_FUNCTION()).collect(Collectors.joining(",")))
-                        .append(']');
-            return name.toString();
-        }
+        return name;
     }
     
     public CompoundTag save(CompoundTag nbt) {

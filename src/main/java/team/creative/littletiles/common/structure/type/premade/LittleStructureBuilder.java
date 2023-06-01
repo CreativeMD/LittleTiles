@@ -89,7 +89,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
         nbt.putInt("sizeY", lastSizeY);
         nbt.putInt("thickness", lastThickness);
         InventoryUtils.save(inventory);
-        nbt.putString("state", lastBlockState.toString());
+        nbt.putString("state", LittleBlockRegistry.saveState(lastBlockState));
         nbt.putInt("grid", lastGrid);
         nbt.putString("type", lastStructureType);
     }

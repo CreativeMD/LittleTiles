@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
@@ -17,6 +19,7 @@ import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.api.common.block.LittleBlock;
+import team.creative.littletiles.mixin.common.block.StateHolderAccessor;
 
 public class LittleBlockRegistry {
     
@@ -54,6 +57,18 @@ public class LittleBlockRegistry {
         return create(null, block.getBlock());
     }
     
+    public static String saveState(BlockState state) {
+        if (state.getBlock() instanceof AirBlock)
+            return null;
+        
+        StringBuilder name = new StringBuilder();
+        name.append(state.getBlock().builtInRegistryHolder().key().location());
+        if (!state.getValues().isEmpty())
+            name.append('[').append(state.getValues().entrySet().stream().map(StateHolderAccessor.getPROPERTY_ENTRY_TO_STRING_FUNCTION()).collect(Collectors.joining(",")))
+                    .append(']');
+        return name.toString();
+    }
+    
     public static BlockState loadState(String name) {
         String[] parts;
         if (name.contains("["))
@@ -62,7 +77,12 @@ public class LittleBlockRegistry {
             parts = new String[] { name };
         if (parts.length == 0)
             return Blocks.AIR.defaultBlockState();
-        ResourceLocation location = new ResourceLocation(parts[0]);
+        ResourceLocation location;
+        try {
+            location = new ResourceLocation(parts[0]);
+        } catch (ResourceLocationException e) {
+            throw new RuntimeException(e);
+        }
         Block block = ForgeRegistries.BLOCKS.getValue(location);
         if (block == null || block instanceof AirBlock)
             return Blocks.AIR.defaultBlockState();
