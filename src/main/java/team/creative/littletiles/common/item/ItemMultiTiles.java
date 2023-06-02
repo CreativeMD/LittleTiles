@@ -20,6 +20,7 @@ import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiModeSelector;
@@ -141,8 +142,10 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
         for (ExampleStructures example : ExampleStructures.values()) {
             try {
                 example.stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
-                example.stack
-                        .setTag(TagParser.parseTag(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(example.getFileName()), Charsets.UTF_8)));
+                CompoundTag nbt = TagParser.parseTag(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(example.getFileName()), Charsets.UTF_8));
+                if (OldLittleTilesDataParser.isOld(nbt))
+                    nbt = OldLittleTilesDataParser.convert(nbt);
+                example.stack.setTag(nbt);
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("Could not load '" + example.name() + " example structure!");
@@ -162,7 +165,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
         public ItemStack stack;
         
         public String getFileName() {
-            return "assets/" + LittleTiles.MODID + "/example/" + name().toLowerCase() + ".struct";
+            return "data/" + LittleTiles.MODID + "/example/" + name().toLowerCase() + ".struct";
         }
         
     }
