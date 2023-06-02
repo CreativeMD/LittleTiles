@@ -26,6 +26,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -40,7 +41,7 @@ public class AnimationPreview {
     public final LittleGrid grid;
     public final AABB box;
     
-    public AnimationPreview(LittleGroup previews) throws LittleActionException {
+    public AnimationPreview(LittleStructure structure, LittleGroup previews) throws LittleActionException {
         this.previews = previews;
         this.grid = previews.getGrid();
         BlockPos pos = new BlockPos(0, 0, 0);
@@ -59,11 +60,14 @@ public class AnimationPreview {
             group.addAll(grid, () -> new FunctionIterator<>(oldPreviews, x -> x.copy()));
             previews = group;
         }
-        
-        Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
         entireBox = previews.getSurroundingBox();
         box = entireBox.getBB(grid);
-        animation = new LittleAnimationEntity(fakeWorld, subLevel, new StructureAbsolute(pos, entireBox, previews.getGrid()), placement);
+        StructureAbsolute absolute = structure != null ? structure.createAnimationCenter(pos, grid) : null;
+        if (absolute == null)
+            absolute = new StructureAbsolute(pos, entireBox, previews.getGrid());
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
+        
+        animation = new LittleAnimationEntity(fakeWorld, subLevel, absolute, placement);
     }
     
     @OnlyIn(Dist.CLIENT)

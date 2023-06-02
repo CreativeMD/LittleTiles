@@ -135,7 +135,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
             final int request = requestedPreview;
             CompletableFuture.supplyAsync(() -> {
                 try {
-                    return new AnimationPreview(group);
+                    return new AnimationPreview(null, group);
                 } catch (LittleActionException e) {
                     throw new RuntimeException(e);
                 }

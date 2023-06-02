@@ -604,7 +604,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return null;
     }
     
-    public StructureAbsolute createAnimationCenter() {
+    public StructureAbsolute createAnimationCenter(BlockPos pos, LittleGrid grid) {
         return null;
     }
     
@@ -623,7 +623,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
-        LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(), placement);
+        LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(mainBlock.getPos(), mainBlock.getGrid()), placement);
         level.addFreshEntity(entity);
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location, entity), entity);
         

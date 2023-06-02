@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -22,6 +23,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.packet.structure.StructureStartAnimationPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -151,8 +153,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     }
     
     @Override
-    public StructureAbsolute createAnimationCenter() {
-        return new StructureAbsolute(new LittleVecAbsolute(mainBlock.getPos(), mainBlock.getGrid()), center);
+    public StructureAbsolute createAnimationCenter(BlockPos pos, LittleGrid grid) {
+        return new StructureAbsolute(new LittleVecAbsolute(pos, grid), center);
     }
     
     public boolean canRightClick() {

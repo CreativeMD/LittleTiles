@@ -313,7 +313,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     public void refreshAnimation() {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return new AnimationPreview(group);
+                return new AnimationPreview(structure, group);
             } catch (LittleActionException e) {
                 throw new RuntimeException(e);
             }
