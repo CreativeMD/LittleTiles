@@ -18,6 +18,7 @@ import team.creative.littletiles.common.structure.animation.AnimationTimeline.An
 import team.creative.littletiles.common.structure.animation.event.ChildDoorEvent;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.animation.LittleDoor;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleStructureGuiRegistry {
@@ -126,6 +127,15 @@ public class LittleStructureGuiRegistry {
                 if (((GuiTreeItemStructure) x.getItem(i)).structure instanceof LittleDoor child)
                     child.activateParent = set.get(i);
         }, axis, sliding, advanced, activator);
+        
+        register((x, y) -> {
+            if (x instanceof LittlePremadeType) {
+                LittleStructureGui gui = new LittleStructureGui(x.id, x, LittleStructurePremadeGui::new);
+                registerByType(gui);
+                return gui;
+            }
+            return null;
+        });
     }
     
 }

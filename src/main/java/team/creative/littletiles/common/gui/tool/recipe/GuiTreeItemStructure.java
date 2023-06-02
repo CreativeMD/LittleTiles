@@ -174,7 +174,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     protected void select() {
         super.select();
         updateTitle();
-        recipe.types.select(LittleStructureGuiRegistry.get(structure != null ? structure.type : null, group));
+        recipe.types.forceSelect(LittleStructureGuiRegistry.get(structure != null ? structure.type : null, group));
     }
     
     public void onNameChanged(GuiTextfield field) {
@@ -203,6 +203,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         recipe.config.add(scroll);
         recipe.control.create(structure);
         recipe.config.init();
+        recipe.types.setEnabled(recipe.control.canChangeType());
         
         GuiParent info = new GuiParent("infoStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         recipe.config.add(info);

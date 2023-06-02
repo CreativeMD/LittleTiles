@@ -28,4 +28,8 @@ public abstract class LittleStructureGuiControl extends GuiParent {
     
     public abstract LittleStructure save(LittleStructure structure);
     
+    public boolean canChangeType() {
+        return true;
+    }
+    
 }

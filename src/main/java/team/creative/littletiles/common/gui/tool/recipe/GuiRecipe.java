@@ -18,7 +18,6 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
@@ -43,6 +42,7 @@ import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.controls.GuiComboxMappedFlexible;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.recipe.test.GuiRecipeTest;
@@ -82,7 +82,7 @@ public class GuiRecipe extends GuiConfigure {
     public final GuiSyncLocalLayer<GuiRecipeMerge> OPEN_MERGE = getSyncHolder().layer("merge", tag -> new GuiRecipeMerge());
     
     public GuiTree tree;
-    public GuiComboBoxMapped<LittleStructureGui> types;
+    public GuiComboxMappedFlexible<LittleStructureGui> types;
     public GuiParent config;
     public LittleStructureGuiControl control;
     public GuiLabel testReport;
@@ -254,7 +254,8 @@ public class GuiRecipe extends GuiConfigure {
         top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(400)).setExpandableY());
         
         // Actual recipe configuration
-        types = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureGui>().addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()));
+        types = new GuiComboxMappedFlexible<>("type", new TextMapBuilder<LittleStructureGui>()
+                .addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()), x -> x.translatable());
         topCenter.add(types);
         config = new GuiParent("config", GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         topCenter.add(config.setExpandableY());
