@@ -154,7 +154,11 @@ public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
                 return;
             
             LittleDoor door = (LittleDoor) item.structure;
-            AnimationTimeline timeline = door.getTransition(last.opened ? "closing" : "opening").copy();
+            AnimationTimeline timeline = door.getTransition(last.opened ? "closing" : "opening");
+            if (timeline == null)
+                timeline = new AnimationTimeline(door.duration);
+            else
+                timeline = timeline.copy();
             if (last.opened)
                 timeline.start(opened, closed, door.interpolation::create1d);
             else

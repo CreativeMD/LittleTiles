@@ -21,6 +21,8 @@ import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
+import team.creative.littletiles.common.convertion.OldLittleTilesDataParser.LittleConvertException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 
@@ -36,11 +38,15 @@ public class GuiImport extends GuiLayer {
                 importSlot.setItem(0, stack = new ItemStack(LittleTilesRegistry.BLUEPRINT.get()));
             
             try {
+                if (OldLittleTilesDataParser.isOld(nbt))
+                    nbt = OldLittleTilesDataParser.convert(nbt);
                 LittleGrid.get(nbt);
                 CompoundTag stackTag = stack.getOrCreateTag();
                 stackTag.put(ItemLittleBlueprint.CONTENT_KEY, nbt);
                 get("import", GuiInventoryGrid.class).setChanged();
-            } catch (RuntimeException e) {}
+            } catch (RuntimeException | LittleConvertException e) {
+                e.printStackTrace();
+            }
         }
     });
     

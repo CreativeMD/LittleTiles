@@ -5,17 +5,19 @@ import team.creative.creativecore.common.gui.GuiControl;
 
 public enum PhysicalPart {
     
-    ROTX(false),
-    ROTY(false),
-    ROTZ(false),
-    OFFX(true),
-    OFFY(true),
-    OFFZ(true);
+    ROTX(false, "rotX"),
+    ROTY(false, "rotY"),
+    ROTZ(false, "rotZ"),
+    OFFX(true, "offX"),
+    OFFY(true, "offY"),
+    OFFZ(true, "offZ");
     
     public final boolean offset;
+    public final String oldKey;
     
-    private PhysicalPart(boolean offset) {
+    private PhysicalPart(boolean offset, String oldKey) {
         this.offset = offset;
+        this.oldKey = oldKey;
     }
     
     public MutableComponent title() {

@@ -18,7 +18,7 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 public class LittleLight extends LittleStructure {
     
     public int level;
-    public boolean disableRightClick = false;
+    public boolean allowRightClick = true;
     
     public LittleLight(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
@@ -27,13 +27,13 @@ public class LittleLight extends LittleStructure {
     @Override
     protected void loadExtra(CompoundTag nbt) {
         level = nbt.getInt("level");
-        disableRightClick = nbt.getBoolean("disableRightClick");
+        allowRightClick = nbt.getBoolean("right");
     }
     
     @Override
     protected void saveExtra(CompoundTag nbt) {
         nbt.putInt("level", level);
-        nbt.putBoolean("disableRightClick", disableRightClick);
+        nbt.putBoolean("right", allowRightClick);
     }
     
     @Override
@@ -43,12 +43,12 @@ public class LittleLight extends LittleStructure {
     
     @Override
     public boolean canInteract() {
-        return !disableRightClick;
+        return !allowRightClick;
     }
     
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
-        if (!level.isClientSide && !disableRightClick)
+        if (!level.isClientSide && !allowRightClick)
             getOutput(0).toggle();
         return InteractionResult.SUCCESS;
     }

@@ -147,7 +147,7 @@ public class GuiRecipeSelection extends GuiConfigure {
             
             try {
                 if (rememberStructure && mode.getGroup(getPlayer().level, getPlayer(), stack
-                        .getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
+                        .getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB, includeLT, rememberStructure).isEmptyIncludeChildren()) {
                     GuiDialogHandler.openDialog(getIntegratedParent(), "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;
                 }

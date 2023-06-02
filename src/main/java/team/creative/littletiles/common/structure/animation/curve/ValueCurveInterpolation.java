@@ -152,6 +152,22 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
         return points.getLast().value;
     }
     
+    public void remove(int index) {
+        points.remove(index);
+    }
+    
+    public Pair<Integer, T> getFirstPair() {
+        return points.getFirst();
+    }
+    
+    public Pair<Integer, T> getLastPair() {
+        return points.getLast();
+    }
+    
+    public int size() {
+        return points.size();
+    }
+    
     @Override
     public void reverse(int duration) {
         PairList<Integer, T> newPoints = new PairList<>();
