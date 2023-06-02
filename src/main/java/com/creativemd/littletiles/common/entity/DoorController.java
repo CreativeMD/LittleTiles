@@ -166,7 +166,7 @@ public class DoorController extends EntityAnimationController {
             parent.structure.load();
             LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
             Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all))
-                .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
+                    .setPlaySounds(((LittleDoorBase) parent.structure).playPlaceSounds);
             
             LittleDoor newDoor;
             PlacementResult result;
@@ -181,6 +181,7 @@ public class DoorController extends EntityAnimationController {
                     LittleStructure parentStructure = parent.structure.getParent().getStructure();
                     newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure, dynamic);
                     parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor, dynamic);
+                    parentStructure.updateStructure();
                 }
                 
                 PacketHandler.sendPacketToTrackingPlayers(new LittleAnimationDestroyPacket(parent.getUniqueID(), true), parent, null);
