@@ -80,7 +80,6 @@ public class LittleDoorActivator extends LittleDoor {
                 continue;
             child.openDoor(player, uuid, tickOnce);
         }
-        updateStructure();
         return null;
     }
     
@@ -161,7 +160,7 @@ public class LittleDoorActivator extends LittleDoor {
         @Override
         public void createControls(LittlePreviews previews, LittleStructure structure) {
             parent.controls.add(new GuiCheckBox("rightclick", CoreControl
-                .translate("gui.door.rightclick"), 50, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
+                    .translate("gui.door.rightclick"), 50, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
             
             GuiScrollBox box = new GuiScrollBox("content", 0, 0, 100, 115);
             parent.controls.add(box);

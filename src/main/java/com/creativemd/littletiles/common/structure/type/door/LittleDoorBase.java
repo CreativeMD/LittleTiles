@@ -230,6 +230,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             boolean dynamic = getParent().dynamic;
             parentStructure.updateChildConnection(getParent().getChildId(), newDoor, dynamic);
             newDoor.updateParentConnection(getParent().getChildId(), parentStructure, dynamic);
+            parentStructure.updateStructure();
         }
         
         newDoor.notifyAfterPlaced();
@@ -326,13 +327,13 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
     
     public static void initDoors() {
         LittleStructureRegistry.registerStructureType(new LittleAxisDoorType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE)
-            .addOutput("state", 1, SignalMode.TOGGLE), LittleAxisDoorParser.class);
+                .addOutput("state", 1, SignalMode.TOGGLE), LittleAxisDoorParser.class);
         LittleStructureRegistry.registerStructureType(new LittleDoorType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE)
-            .addOutput("state", 1, SignalMode.TOGGLE), LittleSlidingDoorParser.class);
+                .addOutput("state", 1, SignalMode.TOGGLE), LittleSlidingDoorParser.class);
         LittleStructureRegistry.registerStructureType(new LittleAdvancedDoorType("advancedDoor", "door", LittleAdvancedDoor.class, LittleStructureAttribute.NONE)
-            .addOutput("state", 1, SignalMode.TOGGLE), LittleAdvancedDoorParser.class);
+                .addOutput("state", 1, SignalMode.TOGGLE), LittleAdvancedDoorParser.class);
         LittleStructureRegistry.registerStructureType(new LittleDoorActivatorType("doorActivator", "door", LittleDoorActivator.class, LittleStructureAttribute.NONE)
-            .addOutput("state", 1, SignalMode.TOGGLE), LittleDoorActivatorParser.class);
+                .addOutput("state", 1, SignalMode.TOGGLE), LittleDoorActivatorParser.class);
     }
     
     public static abstract class LittleDoorBaseType extends LittleStructureType {
@@ -388,7 +389,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
             parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 10, 1, 500));
             parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
             parent.controls
-                .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
+                    .add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
             
             updateTimeline();
         }
