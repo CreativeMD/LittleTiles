@@ -207,6 +207,8 @@ public class BERenderManager {
                 for (LittleRenderBox cube : entry.getValue())
                     for (int k = 0; k < Facing.VALUES.length; k++) {
                         Facing facing = Facing.VALUES[k];
+                        if (cube.box == null)
+                            continue;
                         LittleFaceState state = cube.box.getFaceState(facing);
                         
                         if (state.outside())
