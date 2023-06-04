@@ -24,8 +24,7 @@ public class LittleUpdateCollector extends NeighborUpdateCollector {
         BETiles be = BlockTile.loadBE(level, pos);
         if (be != null)
             be.updateTiles(false);
-        else
-            super.processPosition(level, pos, notifiedBlocks);
+        super.processPosition(level, pos, notifiedBlocks);
     }
     
 }
