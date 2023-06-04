@@ -80,7 +80,7 @@ dependencies {
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.INCLUDE
-  archiveFileName.set(project.modname + "_FORGE_v" + project.version + "_mc" + project.minecraft_version + ".jar")
+  archiveFileName.set(project.modname + "_ALPHA_v" + project.version + "_mc" + project.minecraft_version + ".jar")
 }
 
 mixin {
