@@ -458,6 +458,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 outputs[i].load(nbt.getCompound(outputs[i].component.identifier));
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public void loadUpdatePacket(CompoundTag nbt) {
+        load(nbt);
+    }
+    
     protected Object failedLoadingRelative(CompoundTag nbt, StructureDirectionalField field) {
         return field.getDefault();
     }
@@ -996,8 +1001,6 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void onEntityCollidedWithBlock(Level level, IStructureParentCollection parent, BlockPos pos, Entity entityIn) {}
-    
-    public void onUpdatePacketReceived() {}
     
     public int getLightValue(BlockPos pos) {
         return 0;

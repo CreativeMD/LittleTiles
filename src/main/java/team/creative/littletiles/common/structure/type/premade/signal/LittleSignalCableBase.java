@@ -113,6 +113,13 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
+    public void loadUpdatePacket(CompoundTag nbt) {
+        super.loadUpdatePacket(nbt);
+        mainBlock.getBE().render.tilesChanged();
+    }
+    
+    @Override
     protected void loadExtra(CompoundTag nbt) {
         int[] result = nbt.getIntArray("faces");
         if (result != null && result.length == getNumberOfConnections() * 3) {

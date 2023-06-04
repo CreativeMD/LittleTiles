@@ -108,7 +108,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     
     public LittleStructure setStructureNBT(CompoundTag nbt) {
         if (this.cache instanceof LittleStructure structure && structure.type.id.equals(nbt.getString("id")))
-            structure.load(nbt);
+            structure.loadUpdatePacket(nbt);
         else {
             if (this.cache instanceof LittleStructure structure)
                 structure.unload();
