@@ -284,7 +284,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     protected LittleConnectResult checkConnection(Level level, LittleBoxAbsolute box, Facing facing, BlockPos pos) throws ConnectionException, NotYetConnectedException {
         try {
-            if (level.hasChunkAt(pos))
+            if (!level.hasChunkAt(pos))
                 throw new NotYetConnectedException();
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof BETiles) {
