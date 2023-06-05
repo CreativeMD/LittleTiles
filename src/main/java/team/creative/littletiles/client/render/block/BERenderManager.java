@@ -99,6 +99,10 @@ public class BERenderManager {
         queue(true, null);
     }
     
+    public void markRenderBoundingBoxDirty() {
+        requireRenderingBoundingBoxUpdate = true;
+    }
+    
     public double getMaxRenderDistance() {
         if (cachedRenderDistance == 0) {
             double renderDistance = 64;
