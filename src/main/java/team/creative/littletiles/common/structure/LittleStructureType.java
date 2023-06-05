@@ -245,7 +245,6 @@ public class LittleStructureType {
         return null;
     }
     
-    @OnlyIn(Dist.CLIENT)
     public boolean hasTranslucentItemPreview(LittleGroup previews) {
         return false;
     }
