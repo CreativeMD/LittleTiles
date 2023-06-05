@@ -19,6 +19,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -51,15 +52,17 @@ public class OldLittleTilesDataParser {
     public static LittleTile createTile(CompoundTag nbt) {
         if (!LOADED_BLOCK_MAP) {
             try {
+                char splitter = 0x00A7;
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(LittleStructurePremade.class.getClassLoader()
                         .getResourceAsStream("1.12.2.txt"), Charsets.UTF_8))) {
                     String line;
                     while ((line = br.readLine()) != null) {
-                        String[] data = line.split("§");
+                        String[] data = line.split("" + splitter);
                         if (data.length == 2)
                             BLOCK_MAP.put(data[0], data[1]);
                     }
                 }
+                LittleTiles.LOGGER.info("Loaded {} entries of block conversions", BLOCK_MAP.size());
                 
             } catch (IOException e) {
                 e.printStackTrace();
