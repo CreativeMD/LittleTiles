@@ -3,8 +3,6 @@ package team.creative.littletiles.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,11 +21,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -184,14 +181,12 @@ public class LittleTilesClient {
         MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
         
         ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
-        reloadableResourceManager.registerReloadListener(new PreparableReloadListener() {
+        reloadableResourceManager.registerReloadListener(new ResourceManagerReloadListener() {
             
             @Override
-            public CompletableFuture<Void> reload(PreparationBarrier p_10638_, ResourceManager p_10639_, ProfilerFiller p_10640_, ProfilerFiller p_10641_, Executor p_10642_, Executor p_10643_) {
-                return CompletableFuture.runAsync(() -> {
-                    LittleChunkDispatcher.currentRenderState++;
-                    LittleBlockClientRegistry.clearCache();
-                }, p_10643_);
+            public void onResourceManagerReload(ResourceManager manager) {
+                LittleChunkDispatcher.currentRenderState++;
+                LittleBlockClientRegistry.clearCache();
             }
         });
         
