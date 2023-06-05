@@ -347,17 +347,77 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 animation.getRenderManager().renderGlobalEntities(pose, frustum, cam, frameTime, bufferSource);
     }
     
-    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix) {
-        Uniform offset = RenderSystem.getShader().CHUNK_OFFSET;
+    @SubscribeEvent
+    public void renderChunkLayer(RenderLevelStageEvent event) {
+        RenderType layer = null;
+        
+        if (event.getStage() == Stage.AFTER_SOLID_BLOCKS)
+            layer = RenderType.solid();
+        else if (event.getStage() == Stage.AFTER_CUTOUT_BLOCKS)
+            layer = RenderType.cutout();
+        else if (event.getStage() == Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS)
+            layer = RenderType.cutoutMipped();
+        else if (event.getStage() == Stage.AFTER_TRANSLUCENT_BLOCKS)
+            layer = RenderType.translucent();
+        else if (event.getStage() == Stage.AFTER_TRIPWIRE_BLOCKS)
+            layer = RenderType.tripwire();
+        
+        if (layer == null)
+            return;
+        
+        PoseStack pose = event.getPoseStack();
+        Matrix4f projectionMatrix = event.getProjectionMatrix();
+        
         ShaderInstance shaderinstance = RenderSystem.getShader();
+        
+        for (int i = 0; i < 12; ++i) {
+            int j1 = RenderSystem.getShaderTexture(i);
+            shaderinstance.setSampler("Sampler" + i, j1);
+        }
+        
+        if (shaderinstance.MODEL_VIEW_MATRIX != null)
+            shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
+        
+        if (shaderinstance.PROJECTION_MATRIX != null)
+            shaderinstance.PROJECTION_MATRIX.set(projectionMatrix);
+        
+        if (shaderinstance.COLOR_MODULATOR != null)
+            shaderinstance.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
+        
+        if (shaderinstance.GLINT_ALPHA != null)
+            shaderinstance.GLINT_ALPHA.set(RenderSystem.getShaderGlintAlpha());
+        
+        if (shaderinstance.FOG_START != null)
+            shaderinstance.FOG_START.set(RenderSystem.getShaderFogStart());
+        
+        if (shaderinstance.FOG_END != null)
+            shaderinstance.FOG_END.set(RenderSystem.getShaderFogEnd());
+        
+        if (shaderinstance.FOG_COLOR != null)
+            shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
+        
+        if (shaderinstance.FOG_SHAPE != null)
+            shaderinstance.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
+        
+        if (shaderinstance.TEXTURE_MATRIX != null)
+            shaderinstance.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
+        
+        if (shaderinstance.GAME_TIME != null)
+            shaderinstance.GAME_TIME.set(RenderSystem.getShaderGameTime());
+        
+        Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+        
+        RenderSystem.setupShaderLights(shaderinstance);
+        shaderinstance.apply();
+        Uniform offset = RenderSystem.getShader().CHUNK_OFFSET;
         float partialTicks = mc.getPartialTick();
         for (LittleEntity animation : this) {
             pose.pushPose();
-            animation.getOrigin().setupRendering(pose, x, y, z, partialTicks);
+            animation.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, partialTicks);
             if (shaderinstance.MODEL_VIEW_MATRIX != null)
                 shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
             shaderinstance.apply();
-            animation.getRenderManager().renderChunkLayer(layer, pose, x, y, z, projectionMatrix, offset);
+            animation.getRenderManager().renderChunkLayer(layer, pose, cam.x, cam.y, cam.z, projectionMatrix, offset);
             pose.popPose();
         }
         

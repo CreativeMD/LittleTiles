@@ -32,10 +32,8 @@ public class LevelRendererMixin {
     public void renderBlockEntities(PoseStack pose, float frameTime, long time, boolean outOfMemory, Camera cam, GameRenderer renderer, LightTexture lightTexture, Matrix4f matrix, CallbackInfo info) {
         Frustum frustum = ((LevelRendererAccessor) this).getCapturedFrustum() != null ? ((LevelRendererAccessor) this).getCapturedFrustum() : ((LevelRendererAccessor) this)
                 .getCullingFrustum();
-        if (LittleTilesClient.ANIMATION_HANDLER != null) {
+        if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.renderBlockEntitiesAndDestruction(pose, frustum, frameTime);
-            
-        }
     }
     
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD), method = "renderChunkLayer")
@@ -43,12 +41,6 @@ public class LevelRendererMixin {
         LittleClientEventHandler.transparencySortingIndex++;
         if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.resortTransparency(layer, x, y, z);
-    }
-    
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ShaderInstance;clear()V"), method = "renderChunkLayer")
-    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
-        if (LittleTilesClient.ANIMATION_HANDLER != null)
-            LittleTilesClient.ANIMATION_HANDLER.renderChunkLayer(layer, pose, x, y, z, projectionMatrix);
     }
     
     @Inject(at = @At("HEAD"), method = "needsUpdate()V")
