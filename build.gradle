@@ -5,6 +5,15 @@ plugins {
 	id 'org.spongepowered.mixin'
 }
 
+repositories {
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
 group= "team.creative" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -76,6 +85,8 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     
     implementation project(':CreativeCore')
+    
+    implementation fg.deobf("curse.maven:rubidium-574856:4448053")
 }
 
 jar {
