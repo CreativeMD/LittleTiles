@@ -36,7 +36,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineForge;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -65,14 +66,6 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     public LittleAnimationLevel getLevel() {
         return (LittleAnimationLevel) super.getLevel();
     }
-    
-    @Override
-    public boolean dynamicLightUpdate() {
-        return false;
-    }
-    
-    @Override
-    public void dynamicLightUpdate(boolean value) {}
     
     @Override
     public void begin(BufferBuilder builder) {
@@ -203,6 +196,11 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         this.buffers.forEach(VertexBuffer::close);
     }
     
+    @Override
+    public LittleRenderPipeline getPipeline() {
+        return LittleRenderPipelineForge.INSTANCE;
+    }
+    
     static final class CompileResults {
         
         public final List<BlockEntity> globalBlockEntities = new ArrayList<>();
@@ -226,7 +224,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             this.pack = pack;
             
             CompileResults results = new CompileResults();
-            LittleChunkDispatcher.startCompile(LittleAnimationRenderManager.this);
+            LittleRenderPipeline pipeline = getPipeline();
+            pipeline.startCompile(LittleAnimationRenderManager.this);
             
             renderTypes = new ReferenceArraySet<>(RenderType.chunkBufferLayers().size());
             
@@ -247,12 +246,12 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
                     results.renderedLayers.put(layer, rendered);
             }
             
-            LittleChunkDispatcher.endCompile(LittleAnimationRenderManager.this, this);
+            pipeline.endCompile(LittleAnimationRenderManager.this, this);
             return results;
         }
         
         private void handleBlockEntity(CompileResults results, BETiles entity) {
-            LittleChunkDispatcher.add(LittleAnimationRenderManager.this, entity, this);
+            getPipeline().add(LittleAnimationRenderManager.this, entity, this);
             BlockEntityRenderer blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))

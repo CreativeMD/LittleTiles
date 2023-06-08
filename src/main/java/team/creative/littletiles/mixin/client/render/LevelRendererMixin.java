@@ -10,21 +10,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
+import team.creative.littletiles.client.render.mc.VertexFormatUtils;
 
 @Mixin(value = LevelRenderer.class, priority = 1500)
 public class LevelRendererMixin {
     
     @Inject(at = @At("HEAD"), method = "allChanged()V")
     public void allChanged(CallbackInfo info) {
-        LittleChunkDispatcher.onReloadRenderers((LevelRenderer) (Object) this);
+        if (Minecraft.getInstance().levelRenderer == (LevelRenderer) (Object) this)
+            RenderingThread.CURRENT_RENDERING_INDEX++;
+        if (LittleTilesClient.ANIMATION_HANDLER != null)
+            LittleTilesClient.ANIMATION_HANDLER.allChanged();
+        VertexFormatUtils.update();
     }
     
     @Inject(at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=blockentities"),

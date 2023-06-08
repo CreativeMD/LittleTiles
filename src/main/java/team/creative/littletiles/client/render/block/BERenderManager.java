@@ -17,11 +17,13 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
-import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.client.rubidium.LittleRenderPipelineRubidium;
+import team.creative.littletiles.client.rubidium.RubidiumInteractor;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -44,6 +46,8 @@ public class BERenderManager {
     public static RenderChunkExtender getRenderChunk(Level level, BlockPos pos) {
         if (level instanceof LittleLevel little)
             return little.getRenderManager().getRenderChunk(pos);
+        if (RubidiumInteractor.isInstalled())
+            return LittleRenderPipelineRubidium.getChunk(pos);
         return (RenderChunkExtender) ((ViewAreaAccessor) ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getViewArea()).getChunkAt(pos);
     }
     
@@ -80,7 +84,7 @@ public class BERenderManager {
     public void chunkUpdate(RenderChunkExtender chunk) {
         synchronized (this) {
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
-            if (renderState != LittleChunkDispatcher.currentRenderState) {
+            if (renderState != RenderingThread.CURRENT_RENDERING_INDEX) {
                 eraseBoxCache = true;
                 doesNeedUpdate = true;
             }
@@ -172,14 +176,14 @@ public class BERenderManager {
         
     }
     
-    public boolean finishBuildingCache(int index, int renderState, boolean force) {
+    public boolean finishBuildingCache(int index, ChunkLayerMap<BufferHolder> buffers, int renderState, boolean force) {
         synchronized (this) {
             this.renderState = renderState;
             boolean done = force || (index == requestedIndex && this.renderState == renderState);
             if (done)
                 queued = false;
             this.hasLightChanged = false;
-            bufferCache.afterRendered();
+            bufferCache.setBuffers(buffers);
             return done;
         }
     }

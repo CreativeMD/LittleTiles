@@ -14,6 +14,8 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineForge;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderChunk.class)
@@ -22,19 +24,6 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     @Unique
     private RenderChunk as() {
         return (RenderChunk) (Object) this;
-    }
-    
-    @Unique
-    public boolean dynamicLightUpdate = false;
-    
-    @Override
-    public boolean dynamicLightUpdate() {
-        return dynamicLightUpdate;
-    }
-    
-    @Override
-    public void dynamicLightUpdate(boolean value) {
-        dynamicLightUpdate = value;
     }
     
     @Override
@@ -75,6 +64,11 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     public void setQuadSortOrigin(BufferBuilder builder, Vec3 camera) {
         BlockPos origin = as().getOrigin();
         builder.setQuadSortOrigin((float) camera.x - origin.getX(), (float) camera.y - origin.getY(), (float) camera.z - origin.getZ());
+    }
+    
+    @Override
+    public LittleRenderPipeline getPipeline() {
+        return LittleRenderPipelineForge.INSTANCE;
     }
     
 }

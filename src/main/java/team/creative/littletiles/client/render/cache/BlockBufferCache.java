@@ -132,18 +132,6 @@ public class BlockBufferCache {
         uploaded.put(layer, cache.add(builder, holder));
     }
     
-    public void set(RenderType layer, int[] indexes, BufferBuilder.RenderedBuffer buffer) {
-        synchronized (this) {
-            if (buffer == null && additional == null)
-                uploaded.remove(layer);
-            
-            if (buffer == null)
-                queue.remove(layer);
-            else
-                queue.put(layer, new ByteBufferHolder(buffer, indexes));
-        }
-    }
-    
     public synchronized void setEmpty() {
         queue.clear();
         uploaded.clear();
@@ -153,7 +141,18 @@ public class BlockBufferCache {
         return additional != null;
     }
     
-    public void afterRendered() {
+    public synchronized void setBuffers(ChunkLayerMap<BufferHolder> buffers) {
+        for (RenderType layer : RenderType.chunkBufferLayers()) {
+            BufferHolder buffer = buffers.get(layer);
+            if (buffer == null && additional == null)
+                uploaded.remove(layer);
+            
+            if (buffer == null)
+                queue.remove(layer);
+            else
+                queue.put(layer, buffer);
+        }
+        
         if (additional != null)
             additional = null;
     }

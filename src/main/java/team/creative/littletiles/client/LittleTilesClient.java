@@ -55,13 +55,13 @@ import team.creative.littletiles.client.level.LittleInteractionHandlerClient;
 import team.creative.littletiles.client.player.LittleClientPlayerConnection;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderer;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import team.creative.littletiles.client.render.item.ItemRenderCache;
 import team.creative.littletiles.client.render.item.LittleModelItemBackground;
 import team.creative.littletiles.client.render.item.LittleModelItemPreview;
 import team.creative.littletiles.client.render.item.LittleModelItemTilesBig;
-import team.creative.littletiles.client.render.level.LittleChunkDispatcher;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
@@ -185,7 +185,7 @@ public class LittleTilesClient {
             
             @Override
             public void onResourceManagerReload(ResourceManager manager) {
-                LittleChunkDispatcher.currentRenderState++;
+                RenderingThread.CURRENT_RENDERING_INDEX++;
                 LittleBlockClientRegistry.clearCache();
             }
         });

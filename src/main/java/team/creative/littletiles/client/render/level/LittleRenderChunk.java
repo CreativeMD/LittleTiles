@@ -59,6 +59,8 @@ import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineForge;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -84,7 +86,6 @@ public class LittleRenderChunk implements RenderChunkExtender {
     private boolean dirty = true;
     private final SectionPos[] neighbors;
     private boolean playerChanged;
-    private boolean dynamicLightUpdate = false;
     
     public LittleRenderChunk(LittleLevelRenderManager manager, SectionPos pos) {
         this.manager = manager;
@@ -96,16 +97,6 @@ public class LittleRenderChunk implements RenderChunkExtender {
             Direction direction = Direction.values()[i];
             neighbors[i] = SectionPos.of(section.getX() + direction.getStepX(), section.getY() + direction.getStepY(), section.getZ() + direction.getStepZ());
         }
-    }
-    
-    @Override
-    public boolean dynamicLightUpdate() {
-        return dynamicLightUpdate;
-    }
-    
-    @Override
-    public void dynamicLightUpdate(boolean value) {
-        dynamicLightUpdate = value;
     }
     
     public LittleSubLevel level() {
@@ -270,6 +261,11 @@ public class LittleRenderChunk implements RenderChunkExtender {
         builder.setQuadSortOrigin((float) cam.x - pos.getX(), (float) cam.y - pos.getY(), (float) cam.z - pos.getZ());
     }
     
+    @Override
+    public LittleRenderPipeline getPipeline() {
+        return LittleRenderPipelineForge.INSTANCE;
+    }
+    
     public static enum ChunkTaskResult {
         SUCCESSFUL,
         CANCELLED;
@@ -385,8 +381,8 @@ public class LittleRenderChunk implements RenderChunkExtender {
         
         private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
             this.pack = pack;
-            
-            LittleChunkDispatcher.startCompile(LittleRenderChunk.this);
+            LittleRenderPipeline pipeline = getPipeline();
+            pipeline.startCompile(LittleRenderChunk.this);
             CompileResults results = new CompileResults();
             BlockPos maxPos = pos.offset(15, 15, 15);
             VisGraph visgraph = new VisGraph();
@@ -456,13 +452,13 @@ public class LittleRenderChunk implements RenderChunkExtender {
             }
             
             results.visibilitySet = visgraph.resolve();
-            LittleChunkDispatcher.endCompile(LittleRenderChunk.this, this);
+            pipeline.endCompile(LittleRenderChunk.this, this);
             return results;
         }
         
         private <E extends BlockEntity> void handleBlockEntity(CompileResults results, E entity) {
             if (entity instanceof BETiles tiles)
-                LittleChunkDispatcher.add(LittleRenderChunk.this, tiles, this);
+                getPipeline().add(LittleRenderChunk.this, tiles, this);
             BlockEntityRenderer<E> blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))

@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 
 public interface RenderChunkExtender {
     
@@ -18,9 +19,7 @@ public interface RenderChunkExtender {
         return new Vec3(from.getX() - to.getX(), from.getY() - to.getY(), from.getZ() - to.getZ());
     }
     
-    public boolean dynamicLightUpdate();
-    
-    public void dynamicLightUpdate(boolean value);
+    public LittleRenderPipeline getPipeline();
     
     public void begin(BufferBuilder builder);
     
