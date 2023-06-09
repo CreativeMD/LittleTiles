@@ -2,7 +2,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.+'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.spongepowered.mixin'
 }
 
@@ -36,11 +36,13 @@ sourceSets.main.runtimeClasspath += sourceSets.api.output
 minecraft {
     mappings channel: 'official', version: "${project.property 'minecraft_version'}"
     
+    copyIdeResources = true
+    
     runs {
         client {
             taskName "littletiles_client"
             workingDirectory project.file('run')
-			
+            
 			property 'forge.logging.console.level', 'debug'
 			arg '--mixin.config'
 			arg 'creativecore.mixins.json'
@@ -80,13 +82,13 @@ minecraft {
 }
 
 dependencies {
+    implementation "curse.maven:rubidium-574856:4448053"
+    
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
     implementation project(':CreativeCore')
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    
-    implementation fg.deobf("curse.maven:rubidium-574856:4448053")
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
