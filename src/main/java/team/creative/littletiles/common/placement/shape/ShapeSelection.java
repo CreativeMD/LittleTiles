@@ -241,7 +241,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             return;
         int index = -1;
         double distance = Double.MAX_VALUE;
-        float partialTickTime = TickUtils.getFrameTime(player.level);
+        float partialTickTime = TickUtils.getFrameTime(player.level());
         Vec3 pos = player.getPosition(partialTickTime);
         double reach = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
@@ -356,7 +356,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         public ShapeSelectPos(Player player, PlacementPosition position, BlockHitResult result) {
             this.pos = position;
             this.ray = result;
-            this.result = LittleTileContext.selectFocused(player.level, result.getBlockPos(), player);
+            this.result = LittleTileContext.selectFocused(player.level(), result.getBlockPos(), player);
             if (inside && result.getDirection().getAxisDirection() == AxisDirection.POSITIVE && grid
                     .isAtEdge(VectorUtils.get(result.getDirection().getAxis(), result.getLocation())))
                 pos.getVec().sub(Facing.get(result.getDirection()));

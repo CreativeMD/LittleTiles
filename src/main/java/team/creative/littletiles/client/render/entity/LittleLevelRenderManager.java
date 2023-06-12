@@ -182,7 +182,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
         
         for (LittleRenderChunk chunk : this) {
             ChunkPos chunkpos = new ChunkPos(chunk.pos);
-            if (chunk.isDirty() && (!entity.isReal() || level.getChunk(chunkpos.x, chunkpos.z).isClientLightReady())) {
+            if (chunk.isDirty() && (!entity.isReal() || level.getChunk(chunkpos.x, chunkpos.z).isLightCorrect())) {
                 boolean immediate = false;
                 if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED)
                     immediate = chunk.isDirtyFromPlayer();

@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -105,9 +106,10 @@ public class GuiActionDisplay extends GuiControl {
     
     @Override
     @OnlyIn(value = Dist.CLIENT)
-    protected void renderContent(PoseStack matrix, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
+    protected void renderContent(GuiGraphics graphics, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
         int i = 0;
-        matrix.pushPose();
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
         while (i < messages.size()) {
             ActionMessage message = messages.get(i);
             
@@ -117,12 +119,12 @@ public class GuiActionDisplay extends GuiControl {
             else {
                 
                 float alpha = timer > displayTime ? (1 - Math.max(0F, timer - displayTime) / fadeTime) : 1;
-                message.render(matrix, Math.max(0.05F, alpha));
+                message.render(pose, Math.max(0.05F, alpha));
                 i++;
-                matrix.translate(0, message.getTotalHeight(), 0);
+                pose.translate(0, message.getTotalHeight(), 0);
             }
         }
-        matrix.popPose();
+        pose.popPose();
     }
     
     @Override

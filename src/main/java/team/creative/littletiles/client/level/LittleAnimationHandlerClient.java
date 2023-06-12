@@ -130,11 +130,11 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             return null;
         
         Entity entity = holder.entity;
-        Level oldLevel = entity.level;
+        Level oldLevel = entity.level();
         if (entity instanceof LevelTransitionListener listener)
             listener.prepareChangeLevel(oldLevel, holder.newLevel);
         
-        entity.level = holder.newLevel;
+        ((EntityAccessor) entity).callSetLevel(holder.newLevel);
         transitions.remove(packet.getUUID());
         if (entity instanceof LevelTransitionListener listener)
             listener.changedLevel(oldLevel, holder.newLevel);

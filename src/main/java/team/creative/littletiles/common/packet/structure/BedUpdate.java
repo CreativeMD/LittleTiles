@@ -28,7 +28,7 @@ public class BedUpdate extends StructurePacket {
     public void execute(Player player, LittleStructure structure) {
         requiresClient(player);
         
-        Entity entity = playerID == -1 ? player : player.level.getEntity(playerID);
+        Entity entity = playerID == -1 ? player : player.level().getEntity(playerID);
         if (entity instanceof Player) {
             if (structure instanceof LittleBed bed)
                 try {

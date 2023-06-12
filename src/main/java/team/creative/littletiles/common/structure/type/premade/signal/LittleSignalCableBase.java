@@ -9,6 +9,7 @@ import java.util.function.BiFunction;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -341,7 +342,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                                 } finally {
                                     parsedSearch.convertToSmallest();
                                 }
-                            } else if (!level.getBlockState(entry.getKey()).getMaterial().isReplaceable())
+                            } else if (!level.getBlockState(entry.getKey()).is(BlockTags.REPLACEABLE))
                                 throw new ConnectionException("Block in the way");
                         }
                         
@@ -375,7 +376,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                         } finally {
                             parsedSearch.convertToSmallest();
                         }
-                    } else if (!level.getBlockState(entry.getKey()).getMaterial().isReplaceable())
+                    } else if (!level.getBlockState(entry.getKey()).is(BlockTags.REPLACEABLE))
                         throw new ConnectionException("Block in the way");
                 }
                 

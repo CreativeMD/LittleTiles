@@ -80,7 +80,7 @@ public class PrimedSizedTnt extends PrimedTnt {
     
     @Override
     protected void explode() {
-        this.level.explode(this, this.getX(), this.getY(0.0625D), this.getZ(), (float) (4.0D * size.getPercentVolume(grid)), Level.ExplosionInteraction.TNT);
+        this.level().explode(this, this.getX(), this.getY(0.0625D), this.getZ(), (float) (4.0D * size.getPercentVolume(grid)), Level.ExplosionInteraction.TNT);
     }
     
 }

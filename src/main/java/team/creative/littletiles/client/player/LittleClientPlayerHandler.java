@@ -426,8 +426,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet) {
         ensureRunningOnSameThread(packet);
         ClientLevel level = requiresClientLevel();
-        int i = 19 | (packet.shouldSuppressLightUpdates() ? 128 : 0);
-        packet.runUpdates((p_205524_, p_205525_) -> level.setServerVerifiedBlockState(p_205524_, p_205525_, i));
+        packet.runUpdates((p_205524_, p_205525_) -> level.setServerVerifiedBlockState(p_205524_, p_205525_, 19));
     }
     
     @Override
@@ -476,21 +475,21 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         BitSet bitset = data.getSkyYMask();
         BitSet bitset1 = data.getEmptySkyYMask();
         Iterator<byte[]> iterator = data.getSkyUpdates().iterator();
-        this.readSectionList(level, x, z, levellightengine, LightLayer.SKY, bitset, bitset1, iterator, data.getTrustEdges());
+        this.readSectionList(level, x, z, levellightengine, LightLayer.SKY, bitset, bitset1, iterator);
         BitSet bitset2 = data.getBlockYMask();
         BitSet bitset3 = data.getEmptyBlockYMask();
         Iterator<byte[]> iterator1 = data.getBlockUpdates().iterator();
-        this.readSectionList(level, x, z, levellightengine, LightLayer.BLOCK, bitset2, bitset3, iterator1, data.getTrustEdges());
-        level.setLightReady(x, z);
+        this.readSectionList(level, x, z, levellightengine, LightLayer.BLOCK, bitset2, bitset3, iterator1);
+        levellightengine.setLightEnabled(new ChunkPos(x, z), true);
     }
     
-    private void readSectionList(ClientLevel level, int x, int z, LevelLightEngine light, LightLayer layer, BitSet minSet, BitSet maxSet, Iterator<byte[]> data, boolean trust) {
+    private void readSectionList(ClientLevel level, int x, int z, LevelLightEngine light, LightLayer layer, BitSet minSet, BitSet maxSet, Iterator<byte[]> data) {
         for (int i = 0; i < light.getLightSectionCount(); ++i) {
             int j = light.getMinLightSection() + i;
             boolean flag = minSet.get(i);
             boolean flag1 = maxSet.get(i);
             if (flag || flag1) {
-                light.queueSectionData(layer, SectionPos.of(x, j, z), flag ? new DataLayer(data.next().clone()) : new DataLayer(), trust);
+                light.queueSectionData(layer, SectionPos.of(x, j, z), flag ? new DataLayer(data.next().clone()) : new DataLayer());
                 level.setSectionDirtyWithNeighbors(x, j, z);
             }
         }
@@ -501,7 +500,6 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         LevelLightEngine levellightengine = this.level.getChunkSource().getLightEngine();
         LevelChunkSection[] alevelchunksection = chunk.getSections();
         ChunkPos chunkpos = chunk.getPos();
-        levellightengine.enableLightSources(chunkpos, true);
         
         for (int i = 0; i < alevelchunksection.length; ++i) {
             LevelChunkSection levelchunksection = alevelchunksection[i];
@@ -509,8 +507,6 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
             levellightengine.updateSectionStatus(SectionPos.of(chunkpos, j), levelchunksection.hasOnlyAir());
             level.setSectionDirtyWithNeighbors(x, j, z);
         }
-        
-        level.setLightReady(x, z);
     }
     
     @Override
@@ -522,18 +518,23 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         ChunkSource chunkSource = this.level.getChunkSource();
         if (chunkSource instanceof ClientChunkCache client)
             client.drop(i, j);
-        this.queueLightUpdate(level, packet);
+        this.queueLightRemoval(level, packet);
     }
     
-    private void queueLightUpdate(ClientLevel level, ClientboundForgetLevelChunkPacket packet) {
+    private void queueLightRemoval(ClientLevel level, ClientboundForgetLevelChunkPacket packet) {
+        ChunkPos chunkpos = new ChunkPos(packet.getX(), packet.getZ());
         level.queueLightUpdate(() -> {
             LevelLightEngine levellightengine = this.level.getLightEngine();
+            levellightengine.setLightEnabled(chunkpos, false);
             
-            for (int i = this.level.getMinSection(); i < this.level.getMaxSection(); ++i)
-                levellightengine.updateSectionStatus(SectionPos.of(packet.getX(), i, packet.getZ()), true);
+            for (int i = levellightengine.getMinLightSection(); i < levellightengine.getMaxLightSection(); ++i) {
+                SectionPos sectionpos = SectionPos.of(chunkpos, i);
+                levellightengine.queueSectionData(LightLayer.BLOCK, sectionpos, (DataLayer) null);
+                levellightengine.queueSectionData(LightLayer.SKY, sectionpos, (DataLayer) null);
+            }
             
-            levellightengine.enableLightSources(new ChunkPos(packet.getX(), packet.getZ()), false);
-            level.setLightReady(packet.getX(), packet.getZ());
+            for (int j = this.level.getMinSection(); j < this.level.getMaxSection(); ++j)
+                levellightengine.updateSectionStatus(SectionPos.of(chunkpos, j), true);
         });
     }
     
@@ -758,7 +759,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
             blockentity.setLevel(this.level);
         }
         
-        mc.player.openTextEdit((SignBlockEntity) blockentity);
+        mc.player.openTextEdit((SignBlockEntity) blockentity, packet.isFrontText());
     }
     
     @Override

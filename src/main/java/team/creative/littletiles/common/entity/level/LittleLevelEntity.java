@@ -41,7 +41,7 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
     @Override
     protected LittleSubLevel createLevel() {
-        return SubServerLevel.createSubLevel(level);
+        return SubServerLevel.createSubLevel(level());
     }
     
     @Override
@@ -112,13 +112,13 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     @Override
     public void performTick() {
         super.performTick();
-        if (!level.isClientSide && physic.getBlockUpdateLevelSystem().isEntirelyEmpty())
+        if (!level().isClientSide && physic.getBlockUpdateLevelSystem().isEntirelyEmpty())
             destroyAnimation();
     }
     
     @Override
     public void syncMovement() {
-        if (!level.isClientSide && (origin.offXLast() != origin.offX() || origin.offYLast() != origin.offY() || origin.offZLast() != origin.offZ() || origin.rotXLast() != origin
+        if (!level().isClientSide && (origin.offXLast() != origin.offX() || origin.offYLast() != origin.offY() || origin.offZLast() != origin.offZ() || origin.rotXLast() != origin
                 .rotX() || origin.rotYLast() != origin.rotY() || origin.rotZLast() != origin.rotZ()))
             LittleTiles.NETWORK.sendToClientTracking(new EntityOriginChanged(this), this);
     }
@@ -136,7 +136,7 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     public void stopTracking(ServerPlayer player) {}
     
     public void setParentLevel(Level subLevel) {
-        this.level = subLevel;
+        setLevel(subLevel);
         getSubLevel().setParent(subLevel);
         if (origin != null)
             getSubLevel().getOrigin().set(origin);

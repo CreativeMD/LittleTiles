@@ -75,13 +75,13 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
     @Override
     public T action(Player player) throws LittleActionException {
         
-        Level level = player.level;
+        Level level = player.level();
         
         transformedPos = this.pos;
         transformedLook = this.look;
         
         if (uuid != null) {
-            LittleEntity animation = LittleTiles.ANIMATION_HANDLERS.find(player.level.isClientSide, uuid);
+            LittleEntity animation = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide, uuid);
             if (animation == null)
                 onEntityNotFound();
             

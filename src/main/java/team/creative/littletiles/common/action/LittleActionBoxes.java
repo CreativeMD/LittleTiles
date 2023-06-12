@@ -11,6 +11,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -57,7 +58,7 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
         if (boxes.isEmpty())
             return true;
         
-        Level level = player.level;
+        Level level = player.level();
         if (levelUUID != null) {
             LittleEntity animation = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide, levelUUID);
             if (animation == null)
@@ -80,7 +81,7 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
                 if (be != null)
                     continue;
                 BlockState state = level.getBlockState(pos);
-                if (state.getMaterial().isReplaceable())
+                if (state.is(BlockTags.REPLACEABLE))
                     continue;
                 else if (LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, level, pos, state, affectedBlocks.incrementAndGet()))
                     continue;

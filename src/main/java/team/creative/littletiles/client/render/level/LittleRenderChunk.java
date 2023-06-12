@@ -22,6 +22,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
@@ -82,7 +83,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     @Nullable
     private ResortTransparencyTask lastResortTransparencyTask;
     private final Set<BlockEntity> globalBlockEntities = Sets.newHashSet();
-    private final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap(x -> new VertexBuffer());
+    private final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap(x -> new VertexBuffer(VertexBuffer.Usage.STATIC));
     private boolean dirty = true;
     private final SectionPos[] neighbors;
     private boolean playerChanged;
@@ -257,8 +258,8 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     @Override
-    public void setQuadSortOrigin(BufferBuilder builder, Vec3 cam) {
-        builder.setQuadSortOrigin((float) cam.x - pos.getX(), (float) cam.y - pos.getY(), (float) cam.z - pos.getZ());
+    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
+        builder.setQuadSorting(VertexSorting.byDistance((float) x - pos.getX(), (float) y - pos.getY(), (float) z - pos.getZ()));
     }
     
     @Override
@@ -437,7 +438,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
                 if (renderTypes.contains(RenderType.translucent())) {
                     BufferBuilder bufferbuilder1 = pack.builder(RenderType.translucent());
                     if (!bufferbuilder1.isCurrentBatchEmpty()) {
-                        bufferbuilder1.setQuadSortOrigin(x - pos.getX(), y - pos.getY(), z - pos.getZ());
+                        setQuadSorting(bufferbuilder1, x, y, z);
                         results.transparencyState = bufferbuilder1.getSortState();
                     }
                 }
@@ -559,7 +560,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
                 BufferBuilder bufferbuilder = p_112893_.builder(RenderType.translucent());
                 LittleRenderChunk.this.begin(bufferbuilder);
                 bufferbuilder.restoreSortState(sortstate);
-                bufferbuilder.setQuadSortOrigin((float) cam.x - pos.getX(), (float) cam.y - pos.getY(), (float) cam.z - pos.getZ());
+                setQuadSorting(bufferbuilder, cam.x, cam.y, cam.z);
                 ((CompiledChunkAccessor) this.compiledChunk).setTransparencyState(bufferbuilder.getSortState());
                 BufferBuilder.RenderedBuffer rendered = bufferbuilder.end();
                 if (this.isCancelled.get()) {

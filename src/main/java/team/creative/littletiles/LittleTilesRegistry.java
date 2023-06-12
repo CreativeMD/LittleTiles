@@ -10,15 +10,16 @@ import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -49,7 +50,10 @@ import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleScrewdriver;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
+import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
+import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 public class LittleTilesRegistry {
     
@@ -80,41 +84,38 @@ public class LittleTilesRegistry {
     
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, LittleTiles.MODID);
     
-    public static final RegistryObject<Block> BLOCK_TILES = BLOCKS.register("tiles", () -> new BlockTile(Material.STONE, false, false));
-    public static final RegistryObject<Block> BLOCK_TILES_TICKING = BLOCKS.register("tiles_ticking", () -> new BlockTile(Material.STONE, true, false));
-    public static final RegistryObject<Block> BLOCK_TILES_RENDERED = BLOCKS.register("tiles_rendered", () -> new BlockTile(Material.STONE, false, true));
-    public static final RegistryObject<Block> BLOCK_TILES_TICKING_RENDERED = BLOCKS.register("tiles_ticking_rendered", () -> new BlockTile(Material.STONE, true, true));
+    public static final RegistryObject<Block> BLOCK_TILES = BLOCKS.register("tiles", () -> new BlockTile(false, false));
+    public static final RegistryObject<Block> BLOCK_TILES_TICKING = BLOCKS.register("tiles_ticking", () -> new BlockTile(true, false));
+    public static final RegistryObject<Block> BLOCK_TILES_RENDERED = BLOCKS.register("tiles_rendered", () -> new BlockTile(false, true));
+    public static final RegistryObject<Block> BLOCK_TILES_TICKING_RENDERED = BLOCKS.register("tiles_ticking_rendered", () -> new BlockTile(true, true));
     
-    public static final RegistryObject<Block> CLEAN = register("colored_clean", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> FLOOR = register("colored_floor", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY_BIG = register("colored_grainy_big", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY = register("colored_grainy", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY_LOW = register("colored_grainy_low", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> BRICK = register("colored_brick", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> BRICK_BIG = register("colored_brick_big", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> BORDERED = register("colored_bordered", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> CHISELED = register("colored_chiseled", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> BROKEN_BRICK_BIG = register("colored_broken_brick_big", () -> new Block(BlockBehaviour.Properties
-            .of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> CLAY = register("colored_clay", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> STRIPS = register("colored_strips", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> GRAVEL = register("colored_gravel", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> SAND = register("colored_sand", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> STONE = register("colored_stone", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
-    public static final RegistryObject<Block> CORK = register("colored_cork", () -> new Block(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)));
+    public static final RegistryObject<Block> CLEAN = register("colored_clean", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> FLOOR = register("colored_floor", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAINY_BIG = register("colored_grainy_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAINY = register("colored_grainy", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAINY_LOW = register("colored_grainy_low", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> BRICK = register("colored_brick", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> BRICK_BIG = register("colored_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> BORDERED = register("colored_bordered", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> CHISELED = register("colored_chiseled", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> BROKEN_BRICK_BIG = register("colored_broken_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> CLAY = register("colored_clay", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> STRIPS = register("colored_strips", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAVEL = register("colored_gravel", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> SAND = register("colored_sand", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> STONE = register("colored_stone", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> CORK = register("colored_cork", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
     
-    public static final RegistryObject<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED)
+    public static final RegistryObject<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission()));
+    public static final RegistryObject<Block> WHITE_WATER = register("colored_white_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED)
             .noCollission()));
-    public static final RegistryObject<Block> WHITE_WATER = register("colored_white_water", () -> new BlockWater(BlockBehaviour.Properties
-            .of(Material.STONE, MaterialColor.COLOR_RED).noCollission()));
     
-    public static final RegistryObject<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_RED)
-            .noCollission()));
-    public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.SNOW)
-            .noCollission().lightLevel(x -> 15)));
+    public static final RegistryObject<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission()));
+    public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW).noCollission()
+            .lightLevel(x -> 15)));
     
-    public static final RegistryObject<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of(Material.WOOD).destroyTime(1.5F).strength(1.5F)
-            .sound(SoundType.WOOD)));
+    public static final RegistryObject<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of().sound(SoundType.WOOD).destroyTime(1.5F)
+            .strength(1.5F).sound(SoundType.WOOD)));
     
     public static final RegistryObject<Block> FLOWING_WATER = BLOCKS.register("colored_water_flowing", () -> new BlockFlowingWater(WATER.get()));
     public static final RegistryObject<Block> WHITE_FLOWING_WATER = BLOCKS.register("colored_white_water_flowing", () -> new BlockFlowingWater(WHITE_WATER.get()));
@@ -122,7 +123,7 @@ public class LittleTilesRegistry {
     public static final RegistryObject<Block> FLOWING_LAVA = BLOCKS.register("colored_lava_flowing", () -> new BlockFlowingLava(LAVA.get()));
     public static final RegistryObject<Block> WHITE_FLOWING_LAVA = BLOCKS.register("colored_white_lava_flowing", () -> new BlockFlowingLava(WHITE_LAVA.get()));
     
-    public static final RegistryObject<Block> SINGLE_CABLE = BLOCKS.register("cable_single", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.DECORATION)));
+    public static final RegistryObject<Block> SINGLE_CABLE = BLOCKS.register("cable_single", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD)));
     
     public static final RegistryObject<Block> INPUT_ARROW = BLOCKS.register("arrow_input", () -> new BlockArrow());
     public static final RegistryObject<Block> OUTPUT_ARROW = BLOCKS.register("arrow_output", () -> new BlockArrow());
@@ -168,4 +169,57 @@ public class LittleTilesRegistry {
     
     public static final ResourceKey FAKE_DIMENSION = ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(LittleTiles.MODID, "fake"));
     
+    // CREATIVE_TAB
+    
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LittleTiles.MODID);
+    
+    public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_TABS
+            .register("items", () -> CreativeModeTab.builder().icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.get())).displayItems((features, output) -> {
+                for (ExampleStructures example : ExampleStructures.values())
+                    if (example.stack != null)
+                        output.accept(example.stack);
+                    
+                for (LittlePremadeType entry : LittlePremadeRegistry.types())
+                    if (entry.showInCreativeTab && !entry.hasCustomTab())
+                        output.accept(entry.createItemStack());
+                    
+                output.accept(LittleTilesRegistry.HAMMER.get());
+                output.accept(LittleTilesRegistry.CHISEL.get());
+                output.accept(LittleTilesRegistry.BLUEPRINT.get());
+                
+                output.accept(LittleTilesRegistry.BAG.get());
+                output.accept(LittleTilesRegistry.GLOVE.get());
+                
+                output.accept(LittleTilesRegistry.PAINT_BRUSH.get());
+                output.accept(LittleTilesRegistry.SAW.get());
+                output.accept(LittleTilesRegistry.SCREWDRIVER.get());
+                output.accept(LittleTilesRegistry.WRENCH.get());
+                
+                output.accept(LittleTilesRegistry.SIGNAL_CONVERTER.get());
+                output.accept(LittleTilesRegistry.STORAGE_BLOCK.get());
+                
+                output.accept(LittleTilesRegistry.CLEAN.get());
+                output.accept(LittleTilesRegistry.FLOOR.get());
+                output.accept(LittleTilesRegistry.GRAINY_BIG.get());
+                output.accept(LittleTilesRegistry.GRAINY.get());
+                output.accept(LittleTilesRegistry.GRAINY_LOW.get());
+                output.accept(LittleTilesRegistry.BRICK.get());
+                output.accept(LittleTilesRegistry.BRICK_BIG.get());
+                output.accept(LittleTilesRegistry.BORDERED.get());
+                output.accept(LittleTilesRegistry.CHISELED.get());
+                output.accept(LittleTilesRegistry.BROKEN_BRICK_BIG.get());
+                output.accept(LittleTilesRegistry.CLAY.get());
+                output.accept(LittleTilesRegistry.STRIPS.get());
+                output.accept(LittleTilesRegistry.GRAVEL.get());
+                output.accept(LittleTilesRegistry.SAND.get());
+                output.accept(LittleTilesRegistry.STONE.get());
+                output.accept(LittleTilesRegistry.CORK.get());
+                
+                output.accept(LittleTilesRegistry.WATER.get());
+                output.accept(LittleTilesRegistry.WHITE_WATER.get());
+                
+                output.accept(LittleTilesRegistry.LAVA.get());
+                output.accept(LittleTilesRegistry.WHITE_LAVA.get());
+                
+            }).build());
 }

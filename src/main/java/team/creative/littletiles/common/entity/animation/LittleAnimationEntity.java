@@ -74,13 +74,13 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     protected void beforeInitalPlacement() {
-        if (level.isClientSide)
+        if (level().isClientSide)
             getSubLevel().renderManager = new LittleAnimationRenderManager(this);
     }
     
     @Override
     protected LittleSubLevel createLevel() {
-        return new LittleAnimationLevel(level);
+        return new LittleAnimationLevel(level());
     }
     
     @Override
@@ -97,7 +97,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     }
     
     public void setParentLevel(Level subLevel) {
-        this.level = subLevel;
+        setLevel(subLevel);
         getSubLevel().setParent(subLevel);
         getSubLevel().setOrigin(center.rotationCenter);
         if (origin != null)
@@ -190,7 +190,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
             changedLevel = false;
             return;
         }
-        setSubLevel(new LittleAnimationLevel(level), absolute.rotationCenter);
+        setSubLevel(new LittleAnimationLevel(level()), absolute.rotationCenter);
         setCenter(absolute);
         ((LittleAnimationLevel) subLevel).renderManager = new LittleAnimationRenderManager(this);
         loadBlocks(extraData);
@@ -202,7 +202,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     @Override
     public void performTick() {
         super.performTick();
-        if (!level.isClientSide && getSubLevel().isEmpty())
+        if (!level().isClientSide && getSubLevel().isEmpty())
             destroyAnimation();
     }
     

@@ -16,6 +16,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
@@ -76,7 +77,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     public VertexBuffer getVertexBuffer(RenderType layer) {
         VertexBuffer buffer = this.buffers.get(layer);
         if (buffer == null)
-            this.buffers.put(layer, buffer = new VertexBuffer());
+            this.buffers.put(layer, buffer = new VertexBuffer(VertexBuffer.Usage.STATIC));
         return buffer;
     }
     
@@ -144,8 +145,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
-    public void setQuadSortOrigin(BufferBuilder builder, Vec3 camera) {
-        builder.setQuadSortOrigin((float) camera.x, (float) camera.y, (float) camera.z);
+    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
+        builder.setQuadSorting(VertexSorting.byDistance((float) x, (float) y, (float) z));
     }
     
     @Override
@@ -154,7 +155,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             BufferBuilder bufferbuilder = LittleTilesClient.ANIMATION_HANDLER.fixedBuffers.builder(RenderType.translucent());
             begin(bufferbuilder);
             bufferbuilder.restoreSortState(transparencyState);
-            bufferbuilder.setQuadSortOrigin((float) x, (float) y, (float) z);
+            setQuadSorting(bufferbuilder, x, y, z);
             transparencyState = bufferbuilder.getSortState();
             BufferBuilder.RenderedBuffer rendered = bufferbuilder.end();
             VertexBuffer buffer = getVertexBuffer(layer);
@@ -235,7 +236,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             if (renderTypes.contains(RenderType.translucent())) {
                 BufferBuilder builder = pack.builder(RenderType.translucent());
                 if (!builder.isCurrentBatchEmpty()) {
-                    builder.setQuadSortOrigin(x, y, z);
+                    setQuadSorting(builder, x, y, z);
                     results.transparencyState = builder.getSortState();
                 }
             }

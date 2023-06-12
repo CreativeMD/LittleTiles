@@ -89,7 +89,7 @@ public class LittleChunkMap extends ChunkMap {
     }
     
     public ClientboundLevelChunkWithLightPacket createPacket(LevelChunk chunk) {
-        return new ClientboundLevelChunkWithLightPacket(chunk, this.lightEngine, (BitSet) null, (BitSet) null, true);
+        return new ClientboundLevelChunkWithLightPacket(chunk, this.lightEngine, (BitSet) null, (BitSet) null);
     }
     
     @Override
@@ -138,7 +138,7 @@ public class LittleChunkMap extends ChunkMap {
     
     @Override
     /** the holder class has no use in this scenario, so all methods related to it are empty */
-    public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkPos pos) {
+    public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkHolder holder) {
         return null;
     }
     

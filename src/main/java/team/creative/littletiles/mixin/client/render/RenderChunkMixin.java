@@ -7,13 +7,13 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineForge;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -61,9 +61,9 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     }
     
     @Override
-    public void setQuadSortOrigin(BufferBuilder builder, Vec3 camera) {
+    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
         BlockPos origin = as().getOrigin();
-        builder.setQuadSortOrigin((float) camera.x - origin.getX(), (float) camera.y - origin.getY(), (float) camera.z - origin.getZ());
+        builder.setQuadSorting(VertexSorting.byDistance((float) x - origin.getX(), (float) y - origin.getY(), (float) z - origin.getZ()));
     }
     
     @Override

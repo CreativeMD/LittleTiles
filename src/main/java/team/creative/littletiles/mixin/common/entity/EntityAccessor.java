@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
 
 @Mixin(Entity.class)
@@ -15,5 +16,8 @@ public interface EntityAccessor {
     
     @Invoker
     public void callUnsetRemoved();
+    
+    @Invoker
+    public void callSetLevel(Level level);
     
 }

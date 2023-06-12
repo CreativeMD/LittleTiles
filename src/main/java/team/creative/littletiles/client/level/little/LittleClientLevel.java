@@ -129,20 +129,13 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
         this.renderManager.setSectionDirty(x, y, z);
     }
     
-    @Override
-    public void setLightReady(int x, int z) {
-        LevelChunk levelchunk = this.getChunkSource().getChunk(x, z, false);
-        if (levelchunk != null)
-            levelchunk.setClientLightReady(true);
-    }
-    
     public TransientEntitySectionManager<Entity> getEStorage() {
         return ((ClientLevelExtender) this).getEntityStorage();
     }
     
     public void onChunkLoaded(LevelChunk chunk) {
         this.getEStorage().startTicking(chunk.getPos());
-        chunk.setClientLightReady(true);
+        chunk.setLightCorrect(true);
         LevelChunkSection[] section = chunk.getSections();
         for (int i = 0; i < section.length; i++)
             if (!section[i].hasOnlyAir())
@@ -207,7 +200,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     @Override
     public void unload(LevelChunk chunk) {
         chunk.clearAllBlockEntities();
-        this.getChunkSource().getLightEngine().enableLightSources(chunk.getPos(), false);
+        this.getChunkSource().getLightEngine().setLightEnabled(chunk.getPos(), false);
     }
     
     @Override

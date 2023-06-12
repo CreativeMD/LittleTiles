@@ -3,11 +3,11 @@ package team.creative.littletiles.common.recipe;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Material;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.filter.premade.BlockFilters;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
@@ -71,7 +71,7 @@ public class BlankOMaticRecipeRegistry {
                 .get(), LittleTilesRegistry.CHISELED.get(), LittleTilesRegistry.STRIPS.get()));
         registerBleachRecipe(new BleachRecipe(filter, 2, LittleTilesRegistry.BORDERED.get(), LittleTilesRegistry.FLOOR.get()));
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.material(Material.STONE), 4, LittleTilesRegistry.CLEAN.get()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.tag(BlockTags.BASE_STONE_OVERWORLD), 4, LittleTilesRegistry.CLEAN.get()));
     }
     
     public static class BleachVolume {

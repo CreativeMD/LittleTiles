@@ -54,7 +54,7 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
     public void tick() {
         super.tick();
         StructureChildConnection connection = StructureChildConnection.load(this, entityData.get(CONNECTION), false);
-        if (!level.isClientSide && !isVehicle()) {
+        if (!level().isClientSide && !isVehicle()) {
             try {
                 
                 LittleStructure structure = connection.getStructure();
@@ -106,7 +106,7 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
     
     @Override
     public Level getStructureLevel() {
-        return level;
+        return level();
     }
     
     @Override

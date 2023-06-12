@@ -26,7 +26,7 @@ public abstract class LittleEntityPacket<T extends LittleEntity> extends Creativ
     
     @Override
     public void execute(Player player) {
-        LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(player.level.isClientSide, uuid);
+        LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(player.level().isClientSide, uuid);
         if (entity == null)
             return;
         

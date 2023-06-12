@@ -39,7 +39,7 @@ public class LittleLevelTransitionManager {
     public static void moveTo(Entity entity, Level newlevel) {
         LittleTiles.NETWORK.sendToClientTracking(new LittleEntityTransitionPacket(entity, newlevel), entity);
         
-        Level oldLevel = entity.level;
+        Level oldLevel = entity.level();
         ((EntityAccessor) entity).getLevelCallback().onRemove(Entity.RemovalReason.CHANGED_DIMENSION);
         
         if (entity instanceof LevelTransitionListener listener)

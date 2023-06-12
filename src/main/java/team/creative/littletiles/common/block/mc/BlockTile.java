@@ -50,11 +50,10 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.storage.loot.LootContext.Builder;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -155,8 +154,8 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     public final boolean ticking;
     public final boolean rendered;
     
-    public BlockTile(Material material, boolean ticking, boolean rendered) {
-        super(BlockBehaviour.Properties.of(material).destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape().noOcclusion());
+    public BlockTile(boolean ticking, boolean rendered) {
+        super(BlockBehaviour.Properties.of().destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape().noOcclusion());
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
         this.ticking = ticking;
         this.rendered = rendered;
@@ -489,7 +488,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     }
     
     @Override
-    public MaterialColor getMapColor(BlockState state, BlockGetter level, BlockPos pos, MaterialColor defaultColor) {
+    public MapColor getMapColor(BlockState state, BlockGetter level, BlockPos pos, MapColor defaultColor) {
         BETiles be = loadBE(level, pos);
         if (be != null) {
             double biggest = 0;
@@ -580,7 +579,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
     }
     
     @Override
-    public List<ItemStack> getDrops(BlockState state, Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         return Collections.emptyList();
     }
     

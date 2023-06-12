@@ -219,7 +219,7 @@ public class PlacementPreview {
     }
     
     public Level getLevel(Entity entity) throws MissingAnimationException {
-        Level level = entity.level;
+        Level level = entity.level();
         if (levelUUID != null) {
             LittleEntity levelEntity = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide, levelUUID);
             if (levelEntity == null)

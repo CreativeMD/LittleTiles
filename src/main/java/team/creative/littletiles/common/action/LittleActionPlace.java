@@ -70,7 +70,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     
     @Override
     public Boolean action(Player player) throws LittleActionException {
-        Level level = player.level;
+        Level level = player.level();
         
         if (!isAllowedToInteract(level, player, preview.position.getPos(), true, preview.position.facing)) {
             sendBlockResetToClient(level, player, preview);
@@ -82,7 +82,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
             if (PlacementHelper.getLittleInterface(stack) != null) {
                 PlacementResult tiles = placeTile(player, stack, preview);
                 
-                if (!player.level.isClientSide)
+                if (!level.isClientSide)
                     player.inventoryMenu.broadcastChanges();
                 return tiles != null;
             }
@@ -97,7 +97,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
             if (result != null) {
                 drainIngredientsAfterPlacing(player, inventory, result, preview.previews);
                 
-                if (!player.level.isClientSide) {
+                if (!level.isClientSide) {
                     checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
                     checkAndGive(player, inventory, placement.overflow());
                 }

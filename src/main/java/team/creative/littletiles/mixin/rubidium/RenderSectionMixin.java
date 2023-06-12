@@ -11,7 +11,6 @@ import me.jellysquid.mods.sodium.client.render.chunk.ChunkUpdateType;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.rubidium.LittleRenderPipelineRubidium;
@@ -40,7 +39,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     @Override
-    public void setQuadSortOrigin(BufferBuilder builder, Vec3 camera) {
+    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
         // TODO Auto-generated method stub
         
     }

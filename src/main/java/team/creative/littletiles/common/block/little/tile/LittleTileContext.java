@@ -36,7 +36,7 @@ public class LittleTileContext {
     
     @OnlyIn(Dist.CLIENT)
     public static LittleTileContext selectFocused(BlockGetter level, BlockPos pos, Player player) {
-        return selectFocused(level, pos, player, TickUtils.getFrameTime(player.level));
+        return selectFocused(level, pos, player, TickUtils.getFrameTime(player.level()));
     }
     
     @OnlyIn(Dist.CLIENT)

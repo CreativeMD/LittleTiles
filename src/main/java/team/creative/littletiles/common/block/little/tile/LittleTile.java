@@ -12,6 +12,7 @@ import org.joml.Vector3d;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -449,8 +450,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.getFriction(parent, this, entity);
     }
     
-    public boolean isMaterial(Material material) {
-        return block.isMaterial(material);
+    public boolean isFluid(TagKey<Fluid> fluid) {
+        return block.isFluid(fluid);
     }
     
     public boolean isLiquid() {

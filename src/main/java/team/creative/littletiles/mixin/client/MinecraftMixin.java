@@ -103,8 +103,8 @@ public class MinecraftMixin {
                 if (!hit.level.getWorldBorder().isWithinBounds(entity.blockPosition()))
                     return;
                 
-                if (!player.canInteractWith(entityhitresult.getEntity(), 0))
-                    return; //Forge: Entity may be traced via attack range, but the player may not have sufficient reach.  No padding in client code.
+                //if (!player.canInteractWith(entityhitresult.getEntity(), 0)) Not there in 1.20 Forge 46.0.10
+                //    return; //Forge: Entity may be traced via attack range, but the player may not have sufficient reach.  No padding in client code.
                 InteractionResult interactionresult = LittleTilesClient.INTERACTION_HANDLER.interactAt(hit.level.asLevel(), player, entity, entityhitresult, interactionhand);
                 if (!interactionresult.consumesAction())
                     interactionresult = LittleTilesClient.INTERACTION_HANDLER.interact(hit.level.asLevel(), player, entity, interactionhand);

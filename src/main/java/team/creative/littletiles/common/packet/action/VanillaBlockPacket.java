@@ -59,7 +59,7 @@ public class VanillaBlockPacket extends CreativePacket {
     
     @Override
     public void executeServer(ServerPlayer player) {
-        action.action(player.level, player, pos, player.level.getBlockState(pos));
+        action.action(player.level(), player, pos, player.level().getBlockState(pos));
         player.inventoryMenu.broadcastChanges();
     }
     

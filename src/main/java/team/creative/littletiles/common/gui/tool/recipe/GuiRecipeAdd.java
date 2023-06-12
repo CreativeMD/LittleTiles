@@ -11,6 +11,7 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -200,7 +201,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
     }
     
     @Override
-    public void render(PoseStack pose, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
+    public void render(GuiGraphics graphics, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
         synchronized (scheduled) {
             GuiRecipeAddAnimationRequest request = scheduled.getAndSet(null);
             if (request != null && executedPreview < request.index) {
@@ -210,7 +211,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
                 executedPreview = request.index;
             }
         }
-        super.render(pose, control, controlRect, realRect, scale, mouseX, mouseY);
+        super.render(graphics, control, controlRect, realRect, scale, mouseX, mouseY);
     }
     
     protected LittleGroup reconstructBlueprint(GuiRecipeAddTreeItem item) {

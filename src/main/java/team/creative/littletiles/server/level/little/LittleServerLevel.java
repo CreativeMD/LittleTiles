@@ -59,7 +59,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     
     protected LittleServerLevel(MinecraftServer server, ServerLevelData worldInfo, ResourceKey<Level> dimension, boolean debug, long seed, RegistryAccess access) {
         super(server, Util.backgroundExecutor(), ((MinecraftServerAccessor) server)
-                .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false);
+                .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false, null);
         this.access = access;
     }
     
@@ -140,7 +140,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     @Override
     public void unload(LevelChunk chunk) {
         super.unload(chunk);
-        this.getChunkSource().getLightEngine().enableLightSources(chunk.getPos(), false);
+        this.getChunkSource().getLightEngine().setLightEnabled(chunk.getPos(), false);
     }
     
     @Override
@@ -188,7 +188,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
         if (this instanceof LittleSubLevel sub)
             toCompare = sub.getRealLevel();
         for (ServerPlayer serverplayer : this.getServer().getPlayerList().getPlayers()) {
-            if (serverplayer != null && serverplayer.level == toCompare && serverplayer.getId() != id) {
+            if (serverplayer != null && serverplayer.level() == toCompare && serverplayer.getId() != id) {
                 double d0 = pos.getX() - serverplayer.getX();
                 double d1 = pos.getY() - serverplayer.getY();
                 double d2 = pos.getZ() - serverplayer.getZ();

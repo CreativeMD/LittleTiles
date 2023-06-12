@@ -1,10 +1,12 @@
 package team.creative.littletiles.common.block.mc;
 
+import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -25,8 +27,8 @@ public class BlockLava extends Block implements ILittleMCBlock {
     }
     
     @Override
-    public boolean isMaterial(Material material) {
-        return material == Material.LAVA;
+    public boolean isFluid(TagKey<Fluid> fluid) {
+        return fluid.equals(FluidTags.LAVA);
     }
     
     @Override

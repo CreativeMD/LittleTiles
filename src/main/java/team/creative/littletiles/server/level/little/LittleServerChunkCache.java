@@ -27,7 +27,6 @@ import net.minecraft.util.VisibleForDebug;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -38,6 +37,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LightChunk;
 import net.minecraft.world.level.chunk.storage.ChunkScanAccess;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.RandomState;
@@ -105,7 +105,7 @@ public class LittleServerChunkCache extends ServerChunkCache implements Iterable
     }
     
     @Override
-    public BlockGetter getChunkForLighting(int x, int z) {
+    public LightChunk getChunkForLighting(int x, int z) {
         return getChunk(x, z, ChunkStatus.EMPTY, false);
     }
     

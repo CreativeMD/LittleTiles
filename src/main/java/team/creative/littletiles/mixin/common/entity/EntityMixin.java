@@ -28,7 +28,7 @@ public class EntityMixin {
         Entity entity = asEntity();
         HitResult result = info.getReturnValue();
         double reachDistance = result != null ? pos.distanceTo(result.getLocation()) : (entity instanceof Player p ? PlayerUtils.getReach(p) : 4);
-        LittleHitResult hit = LittleTiles.ANIMATION_HANDLERS.get(entity.level).getHit(pos, look, reachDistance);
+        LittleHitResult hit = LittleTiles.ANIMATION_HANDLERS.get(entity.level()).getHit(pos, look, reachDistance);
         if (hit != null)
             info.setReturnValue(hit);
     }

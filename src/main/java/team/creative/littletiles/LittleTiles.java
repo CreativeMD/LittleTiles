@@ -14,11 +14,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.server.level.ChunkHolder.FullChunkStatus;
+import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -27,7 +26,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
@@ -61,7 +59,6 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
-import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.LittleToolHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -100,10 +97,8 @@ import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.recipe.StructureIngredient.StructureIngredientSerializer;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
-import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
-import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 import team.creative.littletiles.mixin.server.level.ChunkMapAccessor;
 import team.creative.littletiles.server.LittleTilesServer;
 
@@ -130,61 +125,9 @@ public class LittleTiles {
         LittleTilesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::buildContents);
+        LittleTilesRegistry.CREATIVE_TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
         
         LittlePacketTypes.init();
-    }
-    
-    public void buildContents(CreativeModeTabEvent.Register event) {
-        event.registerCreativeModeTab(new ResourceLocation(MODID, "items"), x -> x.title(Component.translatable("itemGroup.littletiles"))
-                .icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.get())).displayItems((features, output) -> {
-                    for (ExampleStructures example : ExampleStructures.values())
-                        if (example.stack != null)
-                            output.accept(example.stack);
-                        
-                    for (LittlePremadeType entry : LittlePremadeRegistry.types())
-                        if (entry.showInCreativeTab && !entry.hasCustomTab())
-                            output.accept(entry.createItemStack());
-                        
-                    output.accept(LittleTilesRegistry.HAMMER.get());
-                    output.accept(LittleTilesRegistry.CHISEL.get());
-                    output.accept(LittleTilesRegistry.BLUEPRINT.get());
-                    
-                    output.accept(LittleTilesRegistry.BAG.get());
-                    output.accept(LittleTilesRegistry.GLOVE.get());
-                    
-                    output.accept(LittleTilesRegistry.PAINT_BRUSH.get());
-                    output.accept(LittleTilesRegistry.SAW.get());
-                    output.accept(LittleTilesRegistry.SCREWDRIVER.get());
-                    output.accept(LittleTilesRegistry.WRENCH.get());
-                    
-                    output.accept(LittleTilesRegistry.SIGNAL_CONVERTER.get());
-                    output.accept(LittleTilesRegistry.STORAGE_BLOCK.get());
-                    
-                    output.accept(LittleTilesRegistry.CLEAN.get());
-                    output.accept(LittleTilesRegistry.FLOOR.get());
-                    output.accept(LittleTilesRegistry.GRAINY_BIG.get());
-                    output.accept(LittleTilesRegistry.GRAINY.get());
-                    output.accept(LittleTilesRegistry.GRAINY_LOW.get());
-                    output.accept(LittleTilesRegistry.BRICK.get());
-                    output.accept(LittleTilesRegistry.BRICK_BIG.get());
-                    output.accept(LittleTilesRegistry.BORDERED.get());
-                    output.accept(LittleTilesRegistry.CHISELED.get());
-                    output.accept(LittleTilesRegistry.BROKEN_BRICK_BIG.get());
-                    output.accept(LittleTilesRegistry.CLAY.get());
-                    output.accept(LittleTilesRegistry.STRIPS.get());
-                    output.accept(LittleTilesRegistry.GRAVEL.get());
-                    output.accept(LittleTilesRegistry.SAND.get());
-                    output.accept(LittleTilesRegistry.STONE.get());
-                    output.accept(LittleTilesRegistry.CORK.get());
-                    
-                    output.accept(LittleTilesRegistry.WATER.get());
-                    output.accept(LittleTilesRegistry.WHITE_WATER.get());
-                    
-                    output.accept(LittleTilesRegistry.LAVA.get());
-                    output.accept(LittleTilesRegistry.WHITE_LAVA.get());
-                    
-                }));
     }
     
     private void init(final FMLCommonSetupEvent event) {
@@ -260,13 +203,13 @@ public class LittleTiles {
         ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
-            x.getSource().sendSuccess(Component
+            x.getSource().sendSuccess(() -> Component
                     .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server start <player> <path> [time|ms|s|m|h|d] [loops (-1 -> endless)] " + ChatFormatting.RED + "starts the animation"), false);
-            x.getSource().sendSuccess(Component
+            x.getSource().sendSuccess(() -> Component
                     .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server stop <player> " + ChatFormatting.RED + "stops the animation"), false);
-            x.getSource()
-                    .sendSuccess(Component.literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server list " + ChatFormatting.RED + "lists all saved paths"), false);
-            x.getSource().sendSuccess(Component
+            x.getSource().sendSuccess(() -> Component
+                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server list " + ChatFormatting.RED + "lists all saved paths"), false);
+            x.getSource().sendSuccess(() -> Component
                     .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server remove <name> " + ChatFormatting.RED + "removes the given path"), false);
             
             ServerLevel level = x.getSource().getLevel();
@@ -274,22 +217,25 @@ public class LittleTiles {
             
             level.getChunkSource().getLoadedChunksCount();
             for (ChunkHolder holder : ((ChunkMapAccessor) level.getChunkSource().chunkMap).callGetChunks())
-                if (holder.getFullStatus() == FullChunkStatus.TICKING)
+                if (holder.getFullStatus() == FullChunkStatus.BLOCK_TICKING)
                     for (BlockEntity be : holder.getTickingChunk().getBlockEntities().values())
                         if (be instanceof BETiles)
                             blocks.add((BETiles) be);
                         
-            x.getSource().sendSuccess(Component.literal("Attempting to convert " + blocks.size() + " blocks!"), false);
+            x.getSource().sendSuccess(() -> Component.literal("Attempting to convert " + blocks.size() + " blocks!"), false);
             int converted = 0;
             int i = 0;
             for (BETiles be : blocks) {
                 if (be.convertBlockToVanilla())
                     converted++;
                 i++;
+                final int index = i;
+                final int convertedValue = converted;
                 if (i % 50 == 0)
-                    x.getSource().sendSuccess(Component.literal("Processed " + i + "/" + blocks.size() + " and converted " + converted), false);
+                    x.getSource().sendSuccess(() -> Component.literal("Processed " + index + "/" + blocks.size() + " and converted " + convertedValue), false);
             }
-            x.getSource().sendSuccess(Component.literal("Converted " + converted + " blocks"), false);
+            final int convertedValue = converted;
+            x.getSource().sendSuccess(() -> Component.literal("Converted " + convertedValue + " blocks"), false);
             return 0;
         }));
         

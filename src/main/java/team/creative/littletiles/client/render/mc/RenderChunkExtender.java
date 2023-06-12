@@ -27,7 +27,11 @@ public interface RenderChunkExtender {
     
     public void markReadyForUpdate(boolean playerChanged);
     
-    public void setQuadSortOrigin(BufferBuilder builder, Vec3 camera);
+    public default void setQuadSorting(BufferBuilder builder, Vec3 vec) {
+        setQuadSorting(builder, vec.x, vec.y, vec.z);
+    }
+    
+    public void setQuadSorting(BufferBuilder builder, double x, double y, double z);
     
     public default void prepareBlockTranslation(PoseStack posestack, BlockPos pos) {
         posestack.translate(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);

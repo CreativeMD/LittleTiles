@@ -57,7 +57,7 @@ public class RenderUploader {
     
     public static void queue(Level targetLevel, LittleAnimationEntity entity) {
         synchronized (CACHES) {
-            getOrCreate(entity.level).queue(targetLevel, entity);
+            getOrCreate(entity.level()).queue(targetLevel, entity);
         }
     }
     
@@ -131,7 +131,7 @@ public class RenderUploader {
                     cache.add(builder, data.get(layer));
                 
                 if (layer == RenderType.translucent())
-                    chunk.setQuadSortOrigin(builder, dispatcher.getCameraPosition());
+                    chunk.setQuadSorting(builder, dispatcher.getCameraPosition());
                 
                 uploadBuffer.bind();
                 uploadBuffer.upload(builder.end());

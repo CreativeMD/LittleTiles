@@ -16,9 +16,9 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
@@ -49,19 +49,19 @@ public class LittleClientEventHandler {
         if (event.getOverlayType() == OverlayType.WATER) {
             PoseStack pose = new PoseStack();
             Player player = event.getPlayer();
-            BlockPos blockpos = BlockPos.containing(player.getEyePosition(TickUtils.getFrameTime(player.level)));
-            BlockEntity blockEntity = player.level.getBlockEntity(blockpos);
+            BlockPos blockpos = BlockPos.containing(player.getEyePosition(TickUtils.getFrameTime(player.level())));
+            BlockEntity blockEntity = player.level().getBlockEntity(blockpos);
             if (blockEntity instanceof BETiles be) {
                 AABB bb = player.getBoundingBox();
                 for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                     LittleTile tile = pair.value;
-                    if (tile.isMaterial(Material.WATER) && tile.intersectsWith(bb, pair.key)) {
+                    if (tile.isFluid(FluidTags.WATER) && tile.intersectsWith(bb, pair.key)) {
                         
                         RenderSystem.setShader(GameRenderer::getPositionTexShader);
                         RenderSystem.setShaderTexture(0, RES_UNDERWATER_OVERLAY);
                         
                         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-                        float f = LightTexture.getBrightness(player.level.dimensionType(), player.level.getMaxLocalRawBrightness(blockpos));
+                        float f = LightTexture.getBrightness(player.level().dimensionType(), player.level().getMaxLocalRawBrightness(blockpos));
                         RenderSystem.enableBlend();
                         RenderSystem.defaultBlendFunc();
                         RenderSystem.setShaderColor(f, f, f, 0.1F);

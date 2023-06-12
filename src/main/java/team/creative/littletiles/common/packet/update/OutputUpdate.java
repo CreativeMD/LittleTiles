@@ -26,7 +26,7 @@ public class OutputUpdate extends CreativePacket {
     @Override
     public void executeClient(Player player) {
         try {
-            LittleStructure structure = location.find(player.level);
+            LittleStructure structure = location.find(player.level());
             InternalSignalOutput output = structure.getOutput(index);
             output.overwriteState(state);
             structure.receiveInternalOutputChange(output);

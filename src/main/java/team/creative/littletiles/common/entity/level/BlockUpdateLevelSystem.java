@@ -190,7 +190,7 @@ public class BlockUpdateLevelSystem {
         
         if (needsUpdate) {
             levelBoundListeners.forEach(x -> x.afterChangesApplied(this));
-            if (!entity.level.isClientSide)
+            if (!entity.level().isClientSide)
                 LittleTiles.NETWORK.sendToClientTracking(new LittleEntityPhysicPacket(entity), entity);
         }
     }
@@ -355,8 +355,9 @@ public class BlockUpdateLevelSystem {
                     if (sections[i].hasOnlyAir())
                         continue;
                     LevelChunkSection section = sections[i];
-                    int offsetOne = one.get(sectionOffsetX, section.bottomBlockY(), sectionOffsetZ);
-                    int offsetTwo = two.get(sectionOffsetX, section.bottomBlockY(), sectionOffsetZ);
+                    int bottom = chunk.getMinBuildHeight() + LevelChunkSection.SECTION_HEIGHT * i;
+                    int offsetOne = one.get(sectionOffsetX, bottom, sectionOffsetZ);
+                    int offsetTwo = two.get(sectionOffsetX, bottom, sectionOffsetZ);
                     
                     for (int valueOne = 0; valueOne < LevelChunkSection.SECTION_WIDTH; valueOne++) {
                         for (int valueTwo = 0; valueTwo < LevelChunkSection.SECTION_WIDTH; valueTwo++) {

@@ -14,7 +14,7 @@ public class LittleTileGuiCreator extends GuiCreator {
     public LittleTileGuiCreator(TriFunction<CompoundTag, Player, LittleTileContext, GuiLayer> function) {
         super((nbt, player) -> {
             try {
-                return function.apply(nbt, player, new TileLocation(nbt.getCompound("location")).find(player.level));
+                return function.apply(nbt, player, new TileLocation(nbt.getCompound("location")).find(player.level()));
             } catch (LittleActionException e) {
                 e.printStackTrace();
                 return null;

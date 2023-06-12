@@ -8,10 +8,12 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -162,7 +164,7 @@ public class GuiAnimationViewer extends GuiControl {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
+    protected void renderContent(GuiGraphics graphics, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
         if (!storage.isReady())
             return;
         
@@ -198,7 +200,7 @@ public class GuiAnimationViewer extends GuiControl {
         if (down)
             projection.up(-amount, this);
         
-        pose = RenderSystem.getModelViewStack();
+        PoseStack pose = RenderSystem.getModelViewStack();
         pose.pushPose();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -210,7 +212,7 @@ public class GuiAnimationViewer extends GuiControl {
         RenderSystem.viewport((int) (rect.minX * scale), (int) (window.getHeight() - rect.minY * scale - height), (int) (rect.getWidth() * scale), height);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         PoseStack projection = getProjectionMatrix(mc, 70, (float) rect.getWidth(), (float) rect.getHeight());
-        RenderSystem.setProjectionMatrix(projection.last().pose());
+        RenderSystem.setProjectionMatrix(projection.last().pose(), VertexSorting.DISTANCE_TO_ORIGIN);
         
         pose.setIdentity();
         
@@ -228,11 +230,10 @@ public class GuiAnimationViewer extends GuiControl {
         
         RenderSystem.setProjectionMatrix(new Matrix4f()
                 .setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, ForgeHooksClient
-                        .getGuiFarPlane()));
+                        .getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
-        
     }
     
     @Override

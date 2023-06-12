@@ -17,6 +17,7 @@ import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -121,7 +122,7 @@ public class GuiSignalController extends GuiParent {
     @Override
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    protected void renderContent(PoseStack pose, GuiChildControl control, Rect contentRect, Rect realContentRect, double scale, int mouseX, int mouseY) {
+    protected void renderContent(GuiGraphics graphics, GuiChildControl control, Rect contentRect, Rect realContentRect, double scale, int mouseX, int mouseY) {
         if (realContentRect == null)
             return;
         
@@ -136,36 +137,37 @@ public class GuiSignalController extends GuiParent {
         double xOffset = getOffsetX();
         double yOffset = getOffsetY();
         
+        PoseStack pose = graphics.pose();
         pose.pushPose();
         pose.scale(controlScale, controlScale, 1);
         controllerRect = realContentRect;
-        renderControls(pose, contentRect, realContentRect, mouseX, mouseY, FilterListIterator
+        renderControls(graphics, contentRect, realContentRect, mouseX, mouseY, FilterListIterator
                 .skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
         controllerRect = null;
         pose.popPose();
         
-        super.renderContent(pose, control, contentRect, realContentRect, scale, mouseX, mouseY);
+        super.renderContent(graphics, control, contentRect, realContentRect, scale, mouseX, mouseY);
     }
     
     @Override
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    protected void renderControl(PoseStack pose, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
+    protected void renderControl(GuiGraphics graphics, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
         if (control instanceof GuiSignalNode com) {
             controllerRect.scissor();
             RenderSystem.disableDepthTest();
             if (com.hasUnderline()) {
                 Font font = GuiRenderHelper.getFont();
                 String underline = com.getUnderline();
-                font.drawShadow(pose, underline, child.getWidth() / 2 - font.width(underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
+                graphics.drawString(font, underline, child.getWidth() / 2 - font.width(underline) / 2, child.getHeight() + 4, ColorUtils.WHITE);
             }
             
-            renderConnections(pose.last().pose(), child, com, scale, realRect.inside(mouseX, mouseY), mouseX, mouseY);
+            renderConnections(graphics.pose().last().pose(), child, com, scale, realRect.inside(mouseX, mouseY), mouseX, mouseY);
             RenderSystem.enableDepthTest();
             realRect.scissor();
         }
         
-        super.renderControl(pose, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
+        super.renderControl(graphics, child, control, controlRect, realRect, scale, mouseX, mouseY, hover);
     }
     
     @Environment(EnvType.CLIENT)

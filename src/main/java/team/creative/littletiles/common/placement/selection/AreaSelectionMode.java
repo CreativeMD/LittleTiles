@@ -65,14 +65,14 @@ public class AreaSelectionMode extends SelectionMode {
     @Override
     public void leftClick(Player player, CompoundTag nbt, BlockPos pos) {
         nbt.putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-        if (!player.level.isClientSide)
+        if (!player.level().isClientSide)
             player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
     }
     
     @Override
     public void rightClick(Player player, CompoundTag nbt, BlockPos pos) {
         nbt.putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-        if (!player.level.isClientSide)
+        if (!player.level().isClientSide)
             player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
     }
     

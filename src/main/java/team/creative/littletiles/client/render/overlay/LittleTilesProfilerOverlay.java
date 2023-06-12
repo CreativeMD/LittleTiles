@@ -6,12 +6,10 @@ import java.util.List;
 
 import com.google.common.base.Strings;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -104,8 +102,8 @@ public class LittleTilesProfilerOverlay {
         if (!mc.isPaused() && !mc.options.hideGui && mc.level != null && RenderingThread.THREADS != null) {
             
             RenderSystem.defaultBlendFunc();
-            PoseStack pose = new PoseStack();
             
+            GuiGraphics graphics = event.getGuiGraphics();
             List<String> warnings = new ArrayList<>();
             if (OptifineHelper.installed() && OptifineHelper.isRenderRegions())
                 warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Render Regions");
@@ -120,8 +118,8 @@ public class LittleTilesProfilerOverlay {
                     String warning = warnings.get(i);
                     int k = mc.font.width(warning);
                     int i1 = 2 + mc.font.lineHeight * i;
-                    Gui.fill(pose, 1, i1 - 1, 2 + k + 1, i1 + mc.font.lineHeight - 1, -1873784752);
-                    mc.font.draw(pose, warning, 2, i1, 14737632);
+                    graphics.fill(1, i1 - 1, 2 + k + 1, i1 + mc.font.lineHeight - 1, -1873784752);
+                    graphics.drawString(mc.font, warning, 2, i1, 14737632);
                 }
             }
             
@@ -154,8 +152,8 @@ public class LittleTilesProfilerOverlay {
                         int j = mc.font.lineHeight;
                         int k = mc.font.width(s);
                         int i1 = 2 + j * i;
-                        GuiComponent.fill(pose, 1, i1 - 1, 2 + k + 1, i1 + j - 1, -1873784752);
-                        mc.font.draw(pose, s, 2, i1, 14737632);
+                        graphics.fill(1, i1 - 1, 2 + k + 1, i1 + j - 1, -1873784752);
+                        graphics.drawString(mc.font, s, 2, i1, 14737632);
                     }
                 }
             }

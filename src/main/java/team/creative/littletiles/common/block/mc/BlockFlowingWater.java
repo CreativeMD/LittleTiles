@@ -3,6 +3,8 @@ package team.creative.littletiles.common.block.mc;
 import org.joml.Vector3d;
 
 import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -44,7 +46,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     public final Block still;
     
     public BlockFlowingWater(Block still) {
-        super(BlockBehaviour.Properties.of(Material.WATER));
+        super(BlockBehaviour.Properties.of().liquid());
         this.still = still;
     }
     
@@ -74,8 +76,8 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     }
     
     @Override
-    public boolean isMaterial(Material material) {
-        return material == Material.WATER;
+    public boolean isFluid(TagKey<Fluid> fluid) {
+        return fluid.equals(FluidTags.WATER);
     }
     
     @Override

@@ -9,14 +9,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
 
 public class BlockArrow extends Block {
     
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     
     public BlockArrow() {
-        super(BlockBehaviour.Properties.of(Material.DECORATION));
+        super(BlockBehaviour.Properties.of());
         this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.EAST));
     }
     

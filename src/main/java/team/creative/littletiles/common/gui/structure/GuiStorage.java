@@ -29,7 +29,7 @@ public class GuiStorage extends GuiLayer {
         super("little_storage", 250, 250);
         this.size = StorageSize.getSizeFromInventory(storage.inventory);
         this.storage = storage;
-        if (!player.level.isClientSide)
+        if (!player.level().isClientSide)
             this.storage.openContainer(this);
     }
     

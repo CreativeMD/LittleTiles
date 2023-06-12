@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -126,7 +126,7 @@ public class LittleMissingBlock implements LittleBlock {
     }
     
     @Override
-    public boolean isMaterial(Material material) {
+    public boolean isFluid(TagKey<Fluid> fluid) {
         return false;
     }
     

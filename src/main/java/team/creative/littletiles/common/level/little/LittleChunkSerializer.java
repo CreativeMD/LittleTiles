@@ -77,7 +77,7 @@ public class LittleChunkSerializer {
                 else
                     states = new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES);
                 
-                LevelChunkSection levelchunksection = new LevelChunkSection(y, states, new PalettedContainer<>(registry.asHolderIdMap(), registry
+                LevelChunkSection levelchunksection = new LevelChunkSection(states, new PalettedContainer<>(registry.asHolderIdMap(), registry
                         .getHolderOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES));
                 alevelchunksection[l] = levelchunksection;
                 //poiManager.checkConsistencyWithBlocks(pos, levelchunksection);
@@ -92,10 +92,10 @@ public class LittleChunkSerializer {
                 }
                 
                 if (hasBlockLight)
-                    levellightengine.queueSectionData(LightLayer.BLOCK, SectionPos.of(chunkpos, y), new DataLayer(compoundtag.getByteArray("BlockLight")), true);
+                    levellightengine.queueSectionData(LightLayer.BLOCK, SectionPos.of(chunkpos, y), new DataLayer(compoundtag.getByteArray("BlockLight")));
                 
                 if (hasSkyLight)
-                    levellightengine.queueSectionData(LightLayer.SKY, SectionPos.of(chunkpos, y), new DataLayer(compoundtag.getByteArray("SkyLight")), true);
+                    levellightengine.queueSectionData(LightLayer.SKY, SectionPos.of(chunkpos, y), new DataLayer(compoundtag.getByteArray("SkyLight")));
             }
         }
         

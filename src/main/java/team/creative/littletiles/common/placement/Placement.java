@@ -15,6 +15,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -437,11 +438,10 @@ public class Placement {
                 throw new LittleTilesConfig.TooDenseException();
             
             BlockState state = level.getBlockState(pos);
-            if (state.getMaterial().isReplaceable())
+            if (state.is(BlockTags.REPLACEABLE))
                 return true;
             else if (preview.mode.checkAll() || !(LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, level, pos, state, affectedBlocks.incrementAndGet())))
                 return false;
-            
             return true;
         }
         
@@ -479,7 +479,7 @@ public class Placement {
             if (hascollideBlock) {
                 boolean requiresCollisionTest = true;
                 if (cached == null) {
-                    if (!(level.getBlockState(pos).getBlock() instanceof BlockTile) && level.getBlockState(pos).getMaterial().isReplaceable()) {
+                    if (!(level.getBlockState(pos).getBlock() instanceof BlockTile) && level.getBlockState(pos).is(BlockTags.REPLACEABLE)) {
                         requiresCollisionTest = false;
                         level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 0);
                     }

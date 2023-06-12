@@ -43,8 +43,8 @@ public class LittleBedEventHandler {
     
     @SubscribeEvent
     public void onPlayerSleep(PlayerSleepInBedEvent event) {
-        if (event.getEntity().level.getBlockState(event.getPos()).getBlock() instanceof BlockTile) {
-            BETiles be = BlockTile.loadBE(event.getEntity().level, event.getPos());
+        if (event.getEntity().level().getBlockState(event.getPos()).getBlock() instanceof BlockTile) {
+            BETiles be = BlockTile.loadBE(event.getEntity().level(), event.getPos());
             if (be != null) {
                 for (LittleStructure structure : be.loadedStructures()) {
                     if (structure instanceof LittleBed && ((LittleBed) structure).hasBeenActivated) {

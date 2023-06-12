@@ -11,9 +11,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -144,13 +145,15 @@ public class LittleMCBlock implements LittleBlock {
     }
     
     @Override
-    public boolean isMaterial(Material material) {
-        return getState().getMaterial() == material;
+    public boolean isFluid(TagKey<Fluid> fluid) {
+        if (block instanceof LiquidBlock b)
+            return b.getFluid().is(fluid);
+        return false;
     }
     
     @Override
     public boolean isLiquid() {
-        return getState().getMaterial().isLiquid();
+        return getState().liquid();
     }
     
     @Override

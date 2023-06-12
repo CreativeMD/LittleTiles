@@ -40,7 +40,7 @@ public class LittleAnimationLevelEntities implements LevelEntityGetter<Entity> {
     }
     
     private boolean addEntity(Entity entity, boolean loadedFromDisk) {
-        if (MinecraftForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, entity.level, loadedFromDisk)))
+        if (MinecraftForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, entity.level(), loadedFromDisk)))
             return false;
         return addEntityWithoutEvent(entity, loadedFromDisk);
     }

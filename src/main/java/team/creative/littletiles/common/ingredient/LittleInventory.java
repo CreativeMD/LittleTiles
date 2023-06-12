@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.creativecore.common.util.mc.LevelUtils;
@@ -33,7 +33,7 @@ public class LittleInventory implements Iterable<ItemStack> {
     public boolean allowDrop = true;
     
     public LittleInventory(Player player) {
-        this(player, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null));
+        this(player, player.getCapability(ForgeCapabilities.ITEM_HANDLER, null).orElse(null));
     }
     
     public LittleInventory(IItemHandler inventory) {
@@ -64,7 +64,7 @@ public class LittleInventory implements Iterable<ItemStack> {
                     inventoriesId.add(i);
                 }
             } else if (!onlyIngredientInventories) {
-                LazyOptional<IItemHandler> optional = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+                LazyOptional<IItemHandler> optional = stack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
                 if (optional.isPresent())
                     subInventories.add(new LittleInventory(player, optional.orElse(null)));
             }
@@ -149,7 +149,7 @@ public class LittleInventory implements Iterable<ItemStack> {
             if (player == null || !allowDrop)
                 throw new NotEnoughSpaceException(new StackIngredient(toDrop));
             
-            if (!simulate && !player.level.isClientSide)
+            if (!simulate && !player.level().isClientSide)
                 LevelUtils.dropItem(player, toDrop);
         }
     }

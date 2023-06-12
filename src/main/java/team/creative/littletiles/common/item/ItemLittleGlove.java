@@ -122,7 +122,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     @Override
     @OnlyIn(Dist.CLIENT)
     public void onClickAir(Player player, ItemStack stack) {
-        getMode(stack).leftClickAir(player.level, player, stack);
+        getMode(stack).leftClickAir(player.level(), player, stack);
     }
     
     @Override

@@ -38,7 +38,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         ItemStack stack = tool.get();
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
         try {
-            LittleGroup previews = mode.getGroup(getPlayer().level, getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), nbt
+            LittleGroup previews = mode.getGroup(getPlayer().level(), getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), nbt
                     .getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
             if (nbt.contains("grid")) {
                 LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
@@ -96,7 +96,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         box.select(mode);
         add(box.setExpandableX());
         
-        result = mode.generateResult(getPlayer().level, stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY));
+        result = mode.generateResult(getPlayer().level(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY));
         
         GuiCheckBox vanilla = new GuiCheckBox("includeVanilla", false).setTranslate("selection.include.vanilla");
         if (result != null && result.blocks > 0)
@@ -146,7 +146,7 @@ public class GuiRecipeSelection extends GuiConfigure {
             boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
             
             try {
-                if (rememberStructure && mode.getGroup(getPlayer().level, getPlayer(), stack
+                if (rememberStructure && mode.getGroup(getPlayer().level(), getPlayer(), stack
                         .getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB, includeLT, rememberStructure).isEmptyIncludeChildren()) {
                     GuiDialogHandler.openDialog(getIntegratedParent(), "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;

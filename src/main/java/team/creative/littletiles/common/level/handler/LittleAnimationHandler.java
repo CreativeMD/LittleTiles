@@ -41,7 +41,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
     }
     
     protected void tickEntity(LittleEntity entity) {
-        if (entity.level != level || entity.level instanceof IOrientatedLevel)
+        if (entity.level() != level || entity.level() instanceof IOrientatedLevel)
             return;
         entity.performTick();
     }

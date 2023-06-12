@@ -11,9 +11,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -32,7 +33,7 @@ public interface ILittleMCBlock extends LittleBlock {
     static final RandomSource RANDOM = RandomSource.create();
     
     public static boolean isTranslucent(Block block) {
-        return !block.defaultBlockState().getMaterial().isSolid() || !block.defaultBlockState().getMaterial().isSolidBlocking() || !block.defaultBlockState().canOcclude(); // Also depends on block model which is not considered at the moment
+        return !block.defaultBlockState().isSolid() || !block.defaultBlockState().canOcclude(); // Also depends on block model which is not considered at the moment
     }
     
     public Block asBlock();
@@ -142,13 +143,15 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public default boolean isMaterial(Material material) {
-        return getState().getMaterial() == material;
+    public default boolean isFluid(TagKey<Fluid> fluid) {
+        if (asBlock() instanceof LiquidBlock b)
+            return b.getFluid().is(fluid);
+        return false;
     }
     
     @Override
     public default boolean isLiquid() {
-        return getState().getMaterial().isLiquid();
+        return getState().liquid();
     }
     
     @Override

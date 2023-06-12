@@ -62,7 +62,7 @@ public class LittleClientChunkCache extends ClientChunkCache {
         LevelChunk chunk = getChunk(x, z, ChunkStatus.FULL, true);
         chunk.replaceWithPacketData(buffer, tag, consumer);
         getLevel().onChunkLoaded(chunk);
-        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk));
+        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk, false));
         return chunk;
     }
     

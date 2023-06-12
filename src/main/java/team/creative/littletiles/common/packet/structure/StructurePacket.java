@@ -26,7 +26,7 @@ public abstract class StructurePacket extends CreativePacket {
     @Override
     public void execute(Player player) {
         try {
-            execute(player, location.find(player.level));
+            execute(player, location.find(player.level()));
         } catch (LittleActionException e) {
             e.printStackTrace();
         }

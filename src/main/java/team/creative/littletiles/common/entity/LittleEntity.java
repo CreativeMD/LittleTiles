@@ -111,13 +111,13 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     }
     
     public Level getRealLevel() {
-        if (level instanceof ISubLevel sub)
+        if (level() instanceof ISubLevel sub)
             return sub.getRealLevel();
-        return level;
+        return level();
     }
     
     public LittleEntity getTopLevelEntity() {
-        if (level instanceof ISubLevel sub)
+        if (level() instanceof ISubLevel sub)
             return ((LittleEntity) sub.getHolder()).getTopLevelEntity();
         return this;
     }
@@ -152,13 +152,13 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     }
     
     public AABB getRealBB() {
-        if (level instanceof ISubLevel or)
+        if (level() instanceof ISubLevel or)
             return or.getOrigin().getAABB(getBoundingBox());
         return getBoundingBox();
     }
     
     public Vec3 getRealCenter() {
-        if (level instanceof ISubLevel or)
+        if (level() instanceof ISubLevel or)
             return or.getOrigin().transformPointToWorld(position());
         return position();
     }
@@ -191,8 +191,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
                 subLevel.addFreshEntity(entity);
             entitiesToAdd = null;
         }
-        if (level instanceof ISubLevel) {
-            if (!level.isClientSide)
+        if (level() instanceof ISubLevel) {
+            if (!level().isClientSide)
                 this.setSharedFlag(6, this.isCurrentlyGlowing());
             super.baseTick();
         } else
@@ -265,13 +265,13 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-        LittleTiles.ANIMATION_HANDLERS.get(level).add(this);
+        LittleTiles.ANIMATION_HANDLERS.get(level()).add(this);
     }
     
     @Override
     public void onRemovedFromWorld() {
         super.onRemovedFromWorld();
-        LittleTiles.ANIMATION_HANDLERS.get(level).remove(this);
+        LittleTiles.ANIMATION_HANDLERS.get(level()).remove(this);
     }
     
     // ================MC Hooks================

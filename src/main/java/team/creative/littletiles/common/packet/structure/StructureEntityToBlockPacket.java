@@ -19,7 +19,7 @@ public class StructureEntityToBlockPacket extends LittleEntityPacket<LittleAnima
     @OnlyIn(Dist.CLIENT)
     public void execute(Player player, LittleAnimationEntity entity) {
         requiresClient(player);
-        RenderUploader.queue(entity.level, entity);
+        RenderUploader.queue(entity.level(), entity);
     }
     
 }

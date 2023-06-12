@@ -63,7 +63,7 @@ public class BlocksUpdate extends CreativePacket {
     
     @Override
     public void executeClient(Player player) {
-        LevelAccessor level = player.level;
+        LevelAccessor level = player.level();
         
         if (uuid != null) {
             LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(true, uuid);

@@ -64,7 +64,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
                 LittleStructure structure = context.parent.getStructure();
                 structure.checkConnections();
                 structurePreview = new StructurePreview(structure);
-                if (needIngredients(player) && !player.level.isClientSide)
+                if (needIngredients(player) && !player.level().isClientSide)
                     LevelUtils.dropItem(level, structure.getStructureDrop(), pos);
                 structure.tileDestroyed();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {

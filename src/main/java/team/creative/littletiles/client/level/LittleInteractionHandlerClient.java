@@ -250,7 +250,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     }
     
     public float getPickRange() {
-        return (float) getPlayer().getReachDistance();
+        return (float) getPlayer().getBlockReach();
     }
     
     private boolean sameDestroyTarget(Level level, BlockPos pos) {
@@ -293,8 +293,8 @@ public class LittleInteractionHandlerClient extends LevelHandler {
                 return result;
         }
         
-        boolean flag = !player.getMainHandItem().doesSneakBypassUse(player.getLevel(), blockpos, player) || !player.getOffhandItem()
-                .doesSneakBypassUse(player.getLevel(), blockpos, player);
+        boolean flag = !player.getMainHandItem().doesSneakBypassUse(player.level(), blockpos, player) || !player.getOffhandItem()
+                .doesSneakBypassUse(player.level(), blockpos, player);
         boolean flag1 = player.isSecondaryUseActive() && flag;
         BlockState blockstate = level.getBlockState(blockpos);
         if (!getVanillaConnection().isFeatureEnabled(blockstate.getBlock().requiredFeatures()))
@@ -326,7 +326,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         if (this.getGameMode() == GameType.SPECTATOR)
             return InteractionResult.PASS;
         this.ensureHasSentCarriedItem();
-        getVanillaConnection().send(new ServerboundMovePlayerPacket.PosRot(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.isOnGround()));
+        getVanillaConnection().send(new ServerboundMovePlayerPacket.PosRot(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.onGround()));
         MutableObject<InteractionResult> mutableobject = new MutableObject<>();
         this.startPrediction(level, (sequence) -> {
             ServerboundUseItemPacket serverbounduseitempacket = new ServerboundUseItemPacket(hand, sequence);

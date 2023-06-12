@@ -471,7 +471,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         Vec3 view = player.getViewVector(TickUtils.getFrameTime(level));
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
-        if (level != player.level && level instanceof IOrientatedLevel or) {
+        if (level != player.level() && level instanceof IOrientatedLevel or) {
             pos = or.getOrigin().transformPointToFakeWorld(pos);
             look = or.getOrigin().transformPointToFakeWorld(look);
         }
@@ -505,7 +505,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
-        if (level != player.level && level instanceof IOrientatedLevel or) {
+        if (level != player.level() && level instanceof IOrientatedLevel or) {
             pos = or.getOrigin().transformPointToFakeWorld(pos);
             look = or.getOrigin().transformPointToFakeWorld(look);
         }

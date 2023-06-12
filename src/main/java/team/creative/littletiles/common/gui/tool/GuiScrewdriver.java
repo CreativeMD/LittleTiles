@@ -122,7 +122,7 @@ public class GuiScrewdriver extends GuiConfigure {
         
         filter = TileFilters.and(TileFilters.noStructure(), filter);
         
-        Level level = getPlayer().level;
+        Level level = getPlayer().level();
         LittleBoxes boxes = LittleLevelScanner.scan(level, pos, pos2, filter);
         
         if (boxes.isEmpty())

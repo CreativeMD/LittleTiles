@@ -31,7 +31,6 @@ public class LittleChunkHolder {
     private final BitSet blockChangedLightSectionFilter = new BitSet();
     private final BitSet skyChangedLightSectionFilter = new BitSet();
     private final LevelLightEngine lightEngine;
-    private boolean resendLight;
     
     public LittleChunkHolder(ServerLevel level, ChunkPos pos, LevelLightEngine lightEngine) {
         this(new LevelChunk(level, pos), lightEngine);
@@ -68,44 +67,39 @@ public class LittleChunkHolder {
     public void broadcastChanges() {
         if (this.hasChangedSections || !this.skyChangedLightSectionFilter.isEmpty() || !this.blockChangedLightSectionFilter.isEmpty()) {
             Level level = chunk.getLevel();
-            int i = 0;
             
-            for (int j = 0; j < this.changedBlocksPerSection.length; ++j) {
-                i += this.changedBlocksPerSection[j] != null ? this.changedBlocksPerSection[j].size() : 0;
-            }
-            
-            this.resendLight |= i >= 64;
             if (!this.skyChangedLightSectionFilter.isEmpty() || !this.blockChangedLightSectionFilter.isEmpty()) {
-                this.broadcast(new ClientboundLightUpdatePacket(chunk
-                        .getPos(), this.lightEngine, this.skyChangedLightSectionFilter, this.blockChangedLightSectionFilter, true), !this.resendLight);
+                ClientboundLightUpdatePacket clientboundlightupdatepacket = new ClientboundLightUpdatePacket(chunk
+                        .getPos(), this.lightEngine, this.skyChangedLightSectionFilter, this.blockChangedLightSectionFilter);
+                this.broadcast(clientboundlightupdatepacket);
+                
                 this.skyChangedLightSectionFilter.clear();
                 this.blockChangedLightSectionFilter.clear();
             }
             
-            for (int l = 0; l < this.changedBlocksPerSection.length; ++l) {
-                ShortSet shortset = this.changedBlocksPerSection[l];
-                if (shortset != null) {
-                    int k = level.getSectionYFromSectionIndex(l);
-                    SectionPos sectionpos = SectionPos.of(chunk.getPos(), k);
-                    if (shortset.size() == 1) {
-                        BlockPos blockpos = sectionpos.relativeToBlockPos(shortset.iterator().nextShort());
-                        BlockState blockstate = level.getBlockState(blockpos);
-                        this.broadcast(new ClientboundBlockUpdatePacket(blockpos, blockstate), false);
-                        this.broadcastBlockEntityIfNeeded(level, blockpos, blockstate);
-                    } else {
-                        LevelChunkSection levelchunksection = chunk.getSection(l);
-                        ClientboundSectionBlocksUpdatePacket clientboundsectionblocksupdatepacket = new ClientboundSectionBlocksUpdatePacket(sectionpos, shortset, levelchunksection, this.resendLight);
-                        this.broadcast(clientboundsectionblocksupdatepacket, false);
-                        clientboundsectionblocksupdatepacket.runUpdates((p_140078_, p_140079_) -> {
-                            this.broadcastBlockEntityIfNeeded(level, p_140078_, p_140079_);
-                        });
+            if (this.hasChangedSections) {
+                for (int j = 0; j < this.changedBlocksPerSection.length; ++j) {
+                    ShortSet shortset = this.changedBlocksPerSection[j];
+                    if (shortset != null) {
+                        this.changedBlocksPerSection[j] = null;
+                        int i = level.getSectionYFromSectionIndex(j);
+                        SectionPos sectionpos = SectionPos.of(chunk.getPos(), i);
+                        if (shortset.size() == 1) {
+                            BlockPos blockpos = sectionpos.relativeToBlockPos(shortset.iterator().nextShort());
+                            BlockState blockstate = level.getBlockState(blockpos);
+                            this.broadcast(new ClientboundBlockUpdatePacket(blockpos, blockstate));
+                            this.broadcastBlockEntityIfNeeded(level, blockpos, blockstate);
+                        } else {
+                            LevelChunkSection levelchunksection = chunk.getSection(j);
+                            ClientboundSectionBlocksUpdatePacket clientboundsectionblocksupdatepacket = new ClientboundSectionBlocksUpdatePacket(sectionpos, shortset, levelchunksection);
+                            this.broadcast(clientboundsectionblocksupdatepacket);
+                            clientboundsectionblocksupdatepacket.runUpdates((pos, state) -> this.broadcastBlockEntityIfNeeded(level, pos, state));
+                        }
                     }
-                    
-                    this.changedBlocksPerSection[l] = null;
                 }
+                
+                this.hasChangedSections = false;
             }
-            
-            this.hasChangedSections = false;
         }
     }
     
@@ -119,11 +113,11 @@ public class LittleChunkHolder {
         if (blockentity != null) {
             Packet<?> packet = blockentity.getUpdatePacket();
             if (packet != null)
-                this.broadcast(packet, false);
+                this.broadcast(packet);
         }
     }
     
-    private void broadcast(Packet<?> packet, boolean all) {
+    private void broadcast(Packet<?> packet) {
         LittleTiles.NETWORK.sendToClientTracking(new LittleVanillaPacket(((LittleLevel) chunk.getLevel()), packet), ((LittleLevel) chunk.getLevel()).getHolder());
     }
     

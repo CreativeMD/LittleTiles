@@ -257,7 +257,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void processMarkKey(Player player, ILittleTool iTile, ItemStack stack, PlacementPreview preview) {
         while (LittleTilesClient.mark.consumeClick()) {
             if (marked == null) {
-                marked = iTile.onMark(player, stack, getPosition(player.level, stack, (BlockHitResult) mc.hitResult), (BlockHitResult) mc.hitResult, preview);
+                marked = iTile.onMark(player, stack, getPosition(player.level(), stack, (BlockHitResult) mc.hitResult), (BlockHitResult) mc.hitResult, preview);
                 if (Screen.hasControlDown())
                     GuiCreator.openClientSide(marked.getConfigurationGui());
             } else {
@@ -334,7 +334,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     @SubscribeEvent
     public void drawHighlight(RenderHighlightEvent.Block event) {
         Player player = mc.player;
-        Level level = player.level;
+        Level level = player.level();
         ItemStack stack = player.getMainHandItem();
         
         if (!LittleAction.canPlace(player))

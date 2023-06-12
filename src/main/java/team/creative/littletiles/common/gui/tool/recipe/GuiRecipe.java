@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.network.chat.Component;
@@ -303,9 +302,9 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     @Override
-    public void render(PoseStack pose, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
+    public void render(GuiGraphics graphics, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
         storage.renderTick();
-        super.render(pose, control, controlRect, realRect, scale, mouseX, mouseY);
+        super.render(graphics, control, controlRect, realRect, scale, mouseX, mouseY);
     }
     
     public void removeItem(GuiTreeItemStructure item) {

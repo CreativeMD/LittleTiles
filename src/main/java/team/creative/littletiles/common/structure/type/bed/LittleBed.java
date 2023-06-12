@@ -91,18 +91,18 @@ public class LittleBed extends LittleStructure {
             return ret;
         
         if (!player.isSleeping() && player.isAlive()) {
-            if (!player.level.dimensionType().natural())
+            if (!player.level().dimensionType().natural())
                 return Player.BedSleepingProblem.NOT_POSSIBLE_HERE;
             
             if (player instanceof ServerPlayer sPlayer)
-                sPlayer.setRespawnPosition(player.level.dimension(), player.blockPosition(), player.getYRot(), false, true);
+                sPlayer.setRespawnPosition(player.level().dimension(), player.blockPosition(), player.getYRot(), false, true);
             
             if (!ForgeEventFactory.fireSleepingTimeCheck(player, Optional.empty()))
                 return Player.BedSleepingProblem.NOT_POSSIBLE_NOW;
             
             if (!player.isCreative()) {
                 Vec3 vec3 = highest.toVanilla();
-                List<Monster> list = player.level.getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0D, vec3.y() - 5.0D, vec3.z() - 8.0D, vec3.x() + 8.0D, vec3
+                List<Monster> list = player.level().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0D, vec3.y() - 5.0D, vec3.z() - 8.0D, vec3.x() + 8.0D, vec3
                         .y() + 5.0D, vec3.z() + 8.0D), (p_9062_) -> {
                             return p_9062_.isPreventingPlayerRest(player);
                         });
@@ -129,10 +129,10 @@ public class LittleBed extends LittleStructure {
                 player.awardStat(Stats.SLEEP_IN_BED);
                 CriteriaTriggers.SLEPT_IN_BED.trigger(sPlayer);
                 
-                if (!sPlayer.getLevel().canSleepThroughNights())
+                if (!sPlayer.serverLevel().canSleepThroughNights())
                     player.displayClientMessage(Component.translatable("sleep.not_possible"), true);
                 
-                sPlayer.getLevel().updateSleepingPlayerList();
+                sPlayer.serverLevel().updateSleepingPlayerList();
             }
             return null;
         }

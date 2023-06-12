@@ -660,7 +660,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             return;
         
         LittleAnimationEntity entity = getAnimationEntity();
-        Level level = entity.getLevel();
+        Level level = entity.level();
         
         BlockPos pos = getStructurePos();
         Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));

@@ -14,7 +14,7 @@ public class LittleStructureGuiCreator extends GuiCreator {
     public LittleStructureGuiCreator(TriFunction<CompoundTag, Player, LittleStructure, GuiLayer> function) {
         super((nbt, player) -> {
             try {
-                return function.apply(nbt, player, new StructureLocation(nbt.getCompound("location")).find(player.level));
+                return function.apply(nbt, player, new StructureLocation(nbt.getCompound("location")).find(player.level()));
             } catch (LittleActionException e) {
                 e.printStackTrace();
                 return null;

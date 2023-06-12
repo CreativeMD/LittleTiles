@@ -12,9 +12,11 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.sounds.SoundEvents;
@@ -224,7 +226,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    protected void renderContent(PoseStack pose, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
+    protected void renderContent(GuiGraphics graphics, GuiChildControl control, Rect rect, int mouseX, int mouseY) {
         GuiRecipeAnimationStorage storage = item.recipe.storage;
         
         if (!storage.isReady() || !storage.isReady(item))
@@ -245,7 +247,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
         Minecraft mc = Minecraft.getInstance();
         Window window = mc.getWindow();
         
-        pose = RenderSystem.getModelViewStack();
+        PoseStack pose = RenderSystem.getModelViewStack();
         pose.pushPose();
         
         RenderSystem.applyModelViewMatrix();
@@ -263,7 +265,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
         PoseStack projection = new PoseStack();
         projection.setIdentity();
         projection.mulPoseMatrix(new Matrix4f().setOrtho(0.0F, (float) rect.getWidth(), 0, (float) rect.getHeight(), 1000.0F, ForgeHooksClient.getGuiFarPlane()));
-        RenderSystem.setProjectionMatrix(projection.last().pose());
+        RenderSystem.setProjectionMatrix(projection.last().pose(), VertexSorting.DISTANCE_TO_ORIGIN);
         Matrix3f matrix3f = new Matrix3f(projection.last().normal()).invert();
         RenderSystem.setInverseViewRotationMatrix(matrix3f);
         
@@ -312,7 +314,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
         RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
         RenderSystem.setProjectionMatrix(new Matrix4f()
                 .setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, ForgeHooksClient
-                        .getGuiFarPlane()));
+                        .getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
         Lighting.setupFor3DItems();
@@ -325,7 +327,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
             int axisWidth = 20;
             int axisHeight = 16;
             pose.translate(rect.getWidth() / 2 - axisWidth / 2, rect.getHeight() - axisHeight - 2, 0);
-            Minecraft.getInstance().font.drawShadow(pose, view.xAxis.axis.name(), 0, 0, ColorUtils.WHITE);
+            graphics.drawString(Minecraft.getInstance().font, view.xAxis.axis.name(), 0, 0, ColorUtils.WHITE);
             GuiIcon icon = view.xAxis.positive ? GuiIcon.ARROW_RIGHT : GuiIcon.ARROW_LEFT;
             RenderSystem.setShaderTexture(0, icon.location());
             RenderSystem.setShaderColor(0, 0, 0, 1);

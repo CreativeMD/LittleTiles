@@ -445,6 +445,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     public void handleUseItemOn(ServerboundUseItemOnPacket packet) {
         ensureRunningOnSameThread(packet);
         ackBlockChangesUpTo(level, packet.getSequence());
+        this.player.connection.ackBlockChangesUpTo(packet.getSequence());
         InteractionHand interactionhand = packet.getHand();
         ItemStack itemstack = this.player.getItemInHand(interactionhand);
         if (itemstack.isItemEnabled(level.enabledFeatures())) {
@@ -452,7 +453,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
             Vec3 vec3 = blockhitresult.getLocation();
             BlockPos blockpos = blockhitresult.getBlockPos();
             Vec3 vec31 = Vec3.atCenterOf(blockpos);
-            if (this.player.canInteractWith(blockpos, 3)) {
+            if (this.player.canReach(blockpos, 1.5)) { // Vanilla uses eye-to-center distance < 6, which implies a padding of 1.5
                 Vec3 vec32 = vec3.subtract(vec31);
                 if (Math.abs(vec32.x()) < 1.0000001D && Math.abs(vec32.y()) < 1.0000001D && Math.abs(vec32.z()) < 1.0000001D) {
                     Direction direction = blockhitresult.getDirection();
@@ -460,22 +461,24 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                     int i = level.getMaxBuildHeight();
                     if (blockpos.getY() < i) {
                         if (((ServerGamePacketListenerImplAccessor) getVanilla()).getAwaitingPositionFromClient() == null && level.mayInteract(this.player, blockpos)) {
-                            InteractionResult interactionresult = useItemOn(level, itemstack, interactionhand, blockhitresult);
+                            InteractionResult interactionresult = this.player.gameMode.useItemOn(this.player, level, itemstack, interactionhand, blockhitresult);
                             if (direction == Direction.UP && !interactionresult.consumesAction() && blockpos.getY() >= i - 1 && wasBlockPlacementAttempt(this.player, itemstack)) {
                                 Component component = Component.translatable("build.tooHigh", i - 1).withStyle(ChatFormatting.RED);
                                 this.player.sendSystemMessage(component, true);
-                            } else if (interactionresult.shouldSwing())
+                            } else if (interactionresult.shouldSwing()) {
                                 this.player.swing(interactionhand, true);
+                            }
                         }
                     } else {
                         Component component1 = Component.translatable("build.tooHigh", i - 1).withStyle(ChatFormatting.RED);
                         this.player.sendSystemMessage(component1, true);
                     }
                     
-                    send(new ClientboundBlockUpdatePacket(level, blockpos));
-                    send(new ClientboundBlockUpdatePacket(level, blockpos.relative(direction)));
-                } else
+                    this.player.connection.send(new ClientboundBlockUpdatePacket(level, blockpos));
+                    this.player.connection.send(new ClientboundBlockUpdatePacket(level, blockpos.relative(direction)));
+                } else {
                     LOGGER.warn("Rejecting UseItemOnPacket from {}: Location {} too far away from hit block {}.", this.player.getGameProfile().getName(), vec3, blockpos);
+                }
             }
         }
     }
@@ -620,28 +623,12 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         this.player.resetLastActionTime();
         BlockPos blockpos = packet.getPos();
         if (level.hasChunkAt(blockpos)) {
-            BlockState blockstate = level.getBlockState(blockpos);
             BlockEntity blockentity = level.getBlockEntity(blockpos);
-            if (!(blockentity instanceof SignBlockEntity)) {
+            if (!(blockentity instanceof SignBlockEntity))
                 return;
-            }
             
             SignBlockEntity signblockentity = (SignBlockEntity) blockentity;
-            if (!signblockentity.isEditable() || !this.player.getUUID().equals(signblockentity.getPlayerWhoMayEdit())) {
-                LOGGER.warn("Player {} just tried to change non-editable sign", this.player.getName().getString());
-                return;
-            }
-            
-            for (int i = 0; i < lines.size(); ++i) {
-                FilteredText filteredtext = lines.get(i);
-                if (this.player.isTextFilteringEnabled())
-                    signblockentity.setMessage(i, Component.literal(filteredtext.filteredOrEmpty()));
-                else
-                    signblockentity.setMessage(i, Component.literal(filteredtext.raw()), Component.literal(filteredtext.filteredOrEmpty()));
-            }
-            
-            signblockentity.setChanged();
-            level.sendBlockUpdated(blockpos, blockstate, blockstate, 3);
+            signblockentity.updateSignText(this.player, packet.isFrontText(), lines);
         }
         
     }
@@ -742,7 +729,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         if (event.isCanceled() || (!this.isCreative() && event.getResult() == Event.Result.DENY))
             return;
         
-        if (!this.player.canInteractWith(pos, 1))
+        if (!this.player.canReach(pos, 1.5))
             this.debugLogging(pos, false, sequence, "too far");
         else if (pos.getY() >= buildHeight) {
             send(new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));

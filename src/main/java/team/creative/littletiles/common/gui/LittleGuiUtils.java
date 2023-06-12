@@ -9,8 +9,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackCollector;
@@ -51,7 +51,7 @@ public class LittleGuiUtils {
                     if (ingredientsInventory != null && ingredientsInventory.contains(BlockIngredient.class))
                         ingredients.add(ingredientsInventory.get(BlockIngredient.class));
                 } else {
-                    LazyOptional<IItemHandler> optional = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                    LazyOptional<IItemHandler> optional = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
                     if (optional.isPresent())
                         collect(optional.orElseThrow(RuntimeException::new), ingredients);
                 }
@@ -74,7 +74,7 @@ public class LittleGuiUtils {
                     if (inventory != null && inventory.contains(BlockIngredient.class))
                         ingredients.add(inventory.get(BlockIngredient.class));
                 } else {
-                    LazyOptional<IItemHandler> optional = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+                    LazyOptional<IItemHandler> optional = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
                     if (optional.isPresent())
                         collect(optional.orElseThrow(RuntimeException::new), ingredients);
                 }

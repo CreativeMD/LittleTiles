@@ -37,11 +37,11 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
             stack.setTag(new CompoundTag());
         if (rightClick) {
             stack.getOrCreateTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-            if (!player.level.isClientSide)
+            if (!player.level().isClientSide)
                 player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
         } else {
             stack.getOrCreateTag().putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-            if (!player.level.isClientSide)
+            if (!player.level().isClientSide)
                 player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
         }
     }

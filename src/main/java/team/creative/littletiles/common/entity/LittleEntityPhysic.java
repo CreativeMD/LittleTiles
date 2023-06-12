@@ -197,7 +197,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                 
                 boolean collidedHorizontally = entity.horizontalCollision;
                 boolean collidedVertically = entity.verticalCollision;
-                boolean onGround = entity.isOnGround();
+                boolean onGround = entity.onGround();
                 
                 double moveX = newCenter.x - center.x;
                 double moveY = newCenter.y - center.y;

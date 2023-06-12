@@ -31,7 +31,7 @@ public class NeighborUpdate extends CreativePacket {
     
     @Override
     public void executeClient(Player player) {
-        Level level = player.level;
+        Level level = player.level();
         
         if (uuid != null) {
             LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(true, uuid);

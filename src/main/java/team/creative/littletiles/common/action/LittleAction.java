@@ -13,6 +13,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -154,7 +155,7 @@ public abstract class LittleAction<T> extends CreativePacket {
                     tiles = new LittleGroup();
                     LittleBox box = new LittleBox(0, 0, 0, tiles.getGrid().count, tiles.getGrid().count, tiles.getGrid().count);
                     tiles.add(tiles.getGrid(), new LittleElement(state, ColorUtils.WHITE), box);
-                } else if (state.getMaterial().isReplaceable()) {
+                } else if (state.is(BlockTags.REPLACEABLE)) {
                     if (!level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3))
                         return null;
                     blockEntity = level.getBlockEntity(pos);
@@ -251,7 +252,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     }
     
     public static boolean isAllowedToInteract(LevelAccessor level, Player player, BlockPos pos, boolean rightClick, Facing facing) {
-        if (player == null || player.level.isClientSide)
+        if (player == null || player.level().isClientSide)
             return true;
         
         if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.mayBuild())))
@@ -282,7 +283,7 @@ public abstract class LittleAction<T> extends CreativePacket {
                 return false;
         }
         
-        return !player.getServer().isUnderSpawnProtection((ServerLevel) player.level, pos, player);
+        return !player.getServer().isUnderSpawnProtection((ServerLevel) player.level(), pos, player);
     }
     
     public static boolean isAllowedToPlacePreview(Player player, LittleTile tile) throws LittleActionException {

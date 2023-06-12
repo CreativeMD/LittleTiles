@@ -36,7 +36,7 @@ public class LittleTilesServer {
      * @return whether something has been activated or not */
     public static boolean playerRightClickServer(ServerPlayer player, Vec3 pos, Vec3 look) {
         AABB box = new AABB(pos, look);
-        Level level = player.level;
+        Level level = player.level();
         
         LittleEntity pointedEntity = null;
         
