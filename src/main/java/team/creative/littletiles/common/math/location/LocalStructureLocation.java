@@ -22,7 +22,7 @@ public class LocalStructureLocation {
     }
     
     public LocalStructureLocation(LittleStructure structure) {
-        this(structure.getPos(), structure.getIndex());
+        this(structure.getStructurePos(), structure.getIndex());
     }
     
     public LocalStructureLocation(CompoundTag nbt) {

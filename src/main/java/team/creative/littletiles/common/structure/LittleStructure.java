@@ -116,7 +116,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ================Basics================
     
     @Override
-    public Level getLevel() {
+    public Level getStructureLevel() {
         if (mainBlock == null || mainBlock.isRemoved())
             return null;
         return mainBlock.getLevel();
@@ -124,7 +124,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     @Override
     public Level getComponentLevel() {
-        return getLevel();
+        return getStructureLevel();
     }
     
     public boolean hasLevel() {
@@ -136,7 +136,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @Override
-    public BlockPos getPos() {
+    public BlockPos getStructurePos() {
         return mainBlock.getPos();
     }
     
@@ -239,7 +239,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void addBlock(StructureParentCollection block) {
-        blocks.add(new StructureBlockConnector(this, block.getPos().subtract(getPos())));
+        blocks.add(new StructureBlockConnector(this, block.getPos().subtract(getStructurePos())));
     }
     
     public Iterable<BlockPos> positions() {
@@ -470,7 +470,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     protected abstract void loadExtra(CompoundTag nbt);
     
     public CompoundTag savePreview(CompoundTag nbt, BlockPos newCenter) {
-        LittleVecGrid vec = new LittleVecGrid(new LittleVec(mainBlock.getGrid(), getPos().subtract(newCenter)), mainBlock.getGrid());
+        LittleVecGrid vec = new LittleVecGrid(new LittleVec(mainBlock.getGrid(), getStructurePos().subtract(newCenter)), mainBlock.getGrid());
         
         LittleVecGrid inverted = vec.copy();
         inverted.invert();
@@ -600,11 +600,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ================Animation================
     
     public boolean isAnimated() {
-        return getLevel() instanceof LittleSubLevel sub && sub.getHolder() instanceof LittleAnimationEntity entity && entity.is(this);
+        return getStructureLevel() instanceof LittleSubLevel sub && sub.getHolder() instanceof LittleAnimationEntity entity && entity.is(this);
     }
     
     public LittleAnimationEntity getAnimationEntity() {
-        if (getLevel() instanceof LittleSubLevel sub && sub.getHolder() instanceof LittleAnimationEntity entity)
+        if (getStructureLevel() instanceof LittleSubLevel sub && sub.getHolder() instanceof LittleAnimationEntity entity)
             return entity;
         return null;
     }
@@ -621,10 +621,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         checkConnections();
         
         StructureLocation location = getStructureLocation();
-        Level level = getLevel();
+        Level level = getStructureLevel();
         LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
         
-        BlockPos pos = getPos();
+        BlockPos pos = getStructurePos();
         Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
@@ -662,7 +662,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleAnimationEntity entity = getAnimationEntity();
         Level level = entity.getLevel();
         
-        BlockPos pos = getPos();
+        BlockPos pos = getStructurePos();
         Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.all, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
@@ -929,7 +929,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Helpers====================
     
     public SurroundingBox getSurroundingBox() throws CorruptedConnectionException, NotYetConnectedException {
-        SurroundingBox box = new SurroundingBox(true, getLevel());
+        SurroundingBox box = new SurroundingBox(true, getStructureLevel());
         box.add(mainBlock);
         for (StructureBlockConnector block : blocks)
             box.add(block.getList());
@@ -951,7 +951,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Packets====================
     
     public void updateStructure() {
-        if (getLevel() == null || isClient())
+        if (getStructureLevel() == null || isClient())
             return;
         LittleTiles.TICKERS.markUpdate(this);
     }
@@ -961,7 +961,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             return;
         CompoundTag nbt = new CompoundTag();
         save(nbt);
-        LittleTiles.NETWORK.sendToClient(new StructureUpdate(getStructureLocation(), nbt), getLevel(), getPos());
+        LittleTiles.NETWORK.sendToClient(new StructureUpdate(getStructureLocation(), nbt), getStructureLevel(), getStructurePos());
     }
     
     // ====================Extra====================
@@ -971,7 +971,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             return findTopStructure().getStructureDrop();
         
         checkConnections();
-        BlockPos pos = getMinPos(getPos().mutable());
+        BlockPos pos = getMinPos(getStructurePos().mutable());
         
         ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
         stack.setTag(LittleGroup.save(getPreviews(pos)));

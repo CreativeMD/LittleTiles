@@ -34,7 +34,7 @@ public class StructureConnection implements IStructureConnection {
     }
     
     public StructureConnection(LittleStructure structure) {
-        this(structure.getLevel(), structure.getPos(), structure.getIndex(), structure.getAttribute());
+        this(structure.getStructureLevel(), structure.getStructurePos(), structure.getIndex(), structure.getAttribute());
     }
     
     public StructureConnection(Level level, LocalStructureLocation location) {
@@ -94,7 +94,7 @@ public class StructureConnection implements IStructureConnection {
     }
     
     public boolean is(LittleStructure structure) {
-        if (getStructurePosition().equals(structure.getPos()) && index == structure.getIndex()) {
+        if (getStructurePosition().equals(structure.getStructurePos()) && index == structure.getIndex()) {
             if (attribute == LittleStructureAttribute.INVALID)
                 attribute = structure.getAttribute();
             return true;

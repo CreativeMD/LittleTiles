@@ -66,9 +66,9 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
         } else {
             try {
                 LittleStructure structure = connection.getStructure();
-                if (structure.getLevel() instanceof IOrientatedLevel) {
+                if (structure.getStructureLevel() instanceof IOrientatedLevel) {
                     Vector3d vec = new Vector3d(entityData.get(CHAIRX), entityData.get(CHAIRY), entityData.get(CHAIRZ));
-                    ((IOrientatedLevel) structure.getLevel()).getOrigin().transformPointToWorld(vec);
+                    ((IOrientatedLevel) structure.getStructureLevel()).getOrigin().transformPointToWorld(vec);
                     setPos(vec.x, vec.y, vec.z);
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
@@ -105,12 +105,12 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
     }
     
     @Override
-    public Level getLevel() {
+    public Level getStructureLevel() {
         return level;
     }
     
     @Override
-    public BlockPos getPos() {
+    public BlockPos getStructurePos() {
         return BlockPos.ZERO;
     }
     

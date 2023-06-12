@@ -146,14 +146,14 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         public StructurePreview(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
             structure = structure.findTopStructure();
             structure.checkConnections();
-            previews = structure.getAbsolutePreviews(structure.getPos());
+            previews = structure.getAbsolutePreviews(structure.getStructurePos());
             requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
             this.structure = structure;
         }
         
         public LittleAction getPlaceAction() {
             return new LittleActionPlace(requiresItemStack ? PlaceAction.PREMADE : PlaceAction.ABSOLUTE, PlacementPreview
-                    .absolute(structure.getLevel(), PlacementMode.all, previews, Facing.EAST));
+                    .absolute(structure.getStructureLevel(), PlacementMode.all, previews, Facing.EAST));
         }
         
         @Override

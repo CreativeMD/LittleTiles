@@ -90,7 +90,7 @@ public class StructureChildConnection implements IStructureConnection {
     
     @Override
     public BlockPos getStructurePosition() {
-        return relativePos.offset(parent.getPos());
+        return relativePos.offset(parent.getStructurePos());
     }
     
     @Override
@@ -105,7 +105,7 @@ public class StructureChildConnection implements IStructureConnection {
     }
     
     protected Level getLevel() throws CorruptedConnectionException, NotYetConnectedException {
-        return parent.getLevel();
+        return parent.getStructureLevel();
     }
     
     protected BETiles getBlockEntity() throws CorruptedConnectionException, NotYetConnectedException {

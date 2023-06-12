@@ -23,12 +23,12 @@ public class StructureBlockConnector {
     }
     
     public boolean is(BlockPos pos) {
-        BlockPos structurePos = structure.getPos();
+        BlockPos structurePos = structure.getStructurePos();
         return structurePos.getX() + this.pos.getX() == pos.getX() && structurePos.getY() + this.pos.getY() == pos.getY() && structurePos.getZ() + this.pos.getZ() == pos.getZ();
     }
     
     public BlockPos getAbsolutePos() {
-        return structure.getPos().offset(pos);
+        return structure.getStructurePos().offset(pos);
     }
     
     public BETiles getBlockEntity() throws CorruptedConnectionException, NotYetConnectedException {
@@ -38,7 +38,7 @@ public class StructureBlockConnector {
             else
                 return cachedBE;
             
-        Level level = structure.getLevel();
+        Level level = structure.getStructureLevel();
         
         BlockPos absoluteCoord = getAbsolutePos();
         if (level.hasChunkAt(absoluteCoord)) {

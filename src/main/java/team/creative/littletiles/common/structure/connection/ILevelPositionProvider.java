@@ -5,9 +5,9 @@ import net.minecraft.world.level.Level;
 
 public interface ILevelPositionProvider {
     
-    public Level getLevel();
+    public Level getStructureLevel();
     
-    public BlockPos getPos();
+    public BlockPos getStructurePos();
     
     public void structureDestroyed();
     

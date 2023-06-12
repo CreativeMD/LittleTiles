@@ -109,7 +109,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     @Override
     public Level getStructureLevel() {
-        return getLevel();
+        return getStructureLevel();
     }
     
     @Override
@@ -397,7 +397,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
         if (facing.positive)
             pos = VectorUtils.set(pos, box.getMaxPos(facing.axis), facing.axis);
         
-        Level level = getLevel();
+        Level level = getStructureLevel();
         
         try {
             if (facing.positive ? box.getMaxGridFrom(facing.axis, pos) < box.getGrid().count : box.getMinGridFrom(facing.axis, pos) > 0) {

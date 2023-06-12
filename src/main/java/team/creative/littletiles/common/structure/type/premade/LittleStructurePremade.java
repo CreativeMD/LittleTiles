@@ -25,7 +25,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         ItemStack stack = LittlePremadeRegistry.createStack(type.id);
         
         checkConnections();
-        BlockPos pos = getMinPos(getPos().mutable());
+        BlockPos pos = getMinPos(getStructurePos().mutable());
         
         CompoundTag structureNBT = new CompoundTag();
         this.savePreview(structureNBT, pos);

@@ -132,7 +132,7 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     public Level getStructureLevel() {
         if (structure == null)
             return null;
-        return structure.getLevel();
+        return structure.getStructureLevel();
     }
     
     @Override

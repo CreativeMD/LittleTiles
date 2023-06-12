@@ -53,11 +53,11 @@ public class LittleStructureMessage extends LittleStructure {
     @Override
     public void performInternalOutputChange(InternalSignalOutput output) {
         if (output.component.is("message")) {
-            Level level = getLevel();
+            Level level = getStructureLevel();
             if (level.isClientSide)
                 return;
             
-            final LevelChunk chunk = level.getChunkAt(getPos());
+            final LevelChunk chunk = level.getChunkAt(getStructurePos());
             if (chunk != null)
                 ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(x -> x.sendSystemMessage(Component.literal(text)));
         }

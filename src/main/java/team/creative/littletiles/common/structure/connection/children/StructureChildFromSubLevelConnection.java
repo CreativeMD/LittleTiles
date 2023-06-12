@@ -29,12 +29,12 @@ public class StructureChildFromSubLevelConnection extends StructureChildConnecti
     
     @Override
     protected Level getLevel() throws CorruptedConnectionException, NotYetConnectedException {
-        return ((ISubLevel) parent.getLevel()).getParent();
+        return ((ISubLevel) parent.getStructureLevel()).getParent();
     }
     
     @Override
     public LittleEntity getAnimation() {
-        IOrientatedLevel fakeWorld = (IOrientatedLevel) parent.getLevel();
+        IOrientatedLevel fakeWorld = (IOrientatedLevel) parent.getStructureLevel();
         return (LittleEntity) fakeWorld.getHolder();
     }
     

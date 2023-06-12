@@ -62,7 +62,7 @@ public class LittleChair extends LittleStructure {
     protected void afterPlaced() {
         super.afterPlaced();
         if (sitUUID != null) {
-            LevelAccessor level = getLevel();
+            LevelAccessor level = getStructureLevel();
             if (level instanceof IOrientatedLevel) {
                 if (!(level instanceof ISubLevel))
                     return;

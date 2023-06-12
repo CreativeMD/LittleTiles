@@ -35,7 +35,7 @@ public class LittlePlaceBoxRelative extends LittlePlaceBox {
     @Override
     public void place(Placement placement, LittleGrid grid, BlockPos pos, LittleStructure structure) throws LittleActionException {
         relative.setBox(BlockPos.ZERO, box.copy(), grid);
-        relative.add(pos.subtract(structure.getPos()));
+        relative.add(pos.subtract(structure.getStructurePos()));
         relativeType.set(structure, relative);
     }
     

@@ -39,7 +39,7 @@ public class StructureLocation {
     }
     
     public StructureLocation(LittleStructure structure) {
-        this(structure.getLevel(), structure.getPos(), structure.getIndex());
+        this(structure.getStructureLevel(), structure.getStructurePos(), structure.getIndex());
     }
     
     public StructureLocation(CompoundTag nbt) {

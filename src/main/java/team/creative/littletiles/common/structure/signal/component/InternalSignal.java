@@ -52,7 +52,7 @@ public abstract class InternalSignal<T extends InternalComponent> implements ISi
     @Override
     public Level getStructureLevel() {
         if (parent.mainBlock != null)
-            return parent.getLevel();
+            return parent.getStructureLevel();
         return null;
     }
     

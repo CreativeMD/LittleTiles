@@ -100,7 +100,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             structure.timeline.start(states.get(start), states.get(end), this::createEmptyCurve);
             structure.physical = new PhysicalState();
             
-            LittleTiles.NETWORK.sendToClient(new StructureStartAnimationPacket(structure.getStructureLocation(), structure.timeline), structure.getLevel(), structure.getPos());
+            LittleTiles.NETWORK.sendToClient(new StructureStartAnimationPacket(structure.getStructureLocation(), structure.timeline), structure.getStructureLevel(), structure
+                    .getStructurePos());
             
             structure.queueForNextTick();
             return true;

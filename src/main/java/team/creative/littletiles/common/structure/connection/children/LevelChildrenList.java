@@ -87,14 +87,14 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
     }
     
     public void connectToChild(int i, LittleStructure child) {
-        Level level = owner.getLevel();
-        Level childLevel = child.getLevel();
+        Level level = owner.getStructureLevel();
+        Level childLevel = child.getStructureLevel();
         
         StructureChildConnection connector;
         if (childLevel == level)
-            connector = new StructureChildConnection(owner, false, false, i, child.getPos().subtract(owner.getPos()), child.getIndex(), child.getAttribute());
+            connector = new StructureChildConnection(owner, false, false, i, child.getStructurePos().subtract(owner.getStructurePos()), child.getIndex(), child.getAttribute());
         else if (childLevel instanceof ISubLevel)
-            connector = new StructureChildToSubLevelConnection(owner, false, i, child.getPos().subtract(owner.getPos()), child.getIndex(), child
+            connector = new StructureChildToSubLevelConnection(owner, false, i, child.getStructurePos().subtract(owner.getStructurePos()), child.getIndex(), child
                     .getAttribute(), ((ISubLevel) childLevel).getHolder().getUUID());
         else
             throw new RuntimeException("Invalid connection between to structures!");
@@ -103,14 +103,14 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
     }
     
     public void connectToExtension(String extension, LittleStructure child) {
-        Level level = owner.getLevel();
-        Level childLevel = child.getLevel();
+        Level level = owner.getStructureLevel();
+        Level childLevel = child.getStructureLevel();
         
         StructureChildConnection connector;
         if (childLevel == level)
-            connector = new StructureChildConnection(owner, false, false, -1, child.getPos().subtract(owner.getPos()), child.getIndex(), child.getAttribute());
+            connector = new StructureChildConnection(owner, false, false, -1, child.getStructurePos().subtract(owner.getStructurePos()), child.getIndex(), child.getAttribute());
         else if (childLevel instanceof ISubLevel)
-            connector = new StructureChildToSubLevelConnection(owner, false, -1, child.getPos().subtract(owner.getPos()), child.getIndex(), child
+            connector = new StructureChildToSubLevelConnection(owner, false, -1, child.getStructurePos().subtract(owner.getStructurePos()), child.getIndex(), child
                     .getAttribute(), ((ISubLevel) childLevel).getHolder().getUUID());
         else
             throw new RuntimeException("Invalid connection between to structures!");
@@ -119,14 +119,15 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
     }
     
     public void connectToParentAsChild(int i, LittleStructure parent) {
-        Level level = owner.getLevel();
-        Level parentLevel = parent.getLevel();
+        Level level = owner.getStructureLevel();
+        Level parentLevel = parent.getStructureLevel();
         
         StructureChildConnection connector;
         if (parentLevel == level)
-            connector = new StructureChildConnection(owner, true, false, i, parent.getPos().subtract(owner.getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildConnection(owner, true, false, i, parent.getStructurePos().subtract(owner.getStructurePos()), parent.getIndex(), parent.getAttribute());
         else if (level instanceof ISubLevel)
-            connector = new StructureChildFromSubLevelConnection(owner, false, i, parent.getPos().subtract(owner.getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildFromSubLevelConnection(owner, false, i, parent.getStructurePos().subtract(owner.getStructurePos()), parent.getIndex(), parent
+                    .getAttribute());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         
@@ -134,14 +135,15 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
     }
     
     public void connectToParentAsExtension(LittleStructure parent) {
-        Level level = owner.getLevel();
-        Level parentLevel = parent.getLevel();
+        Level level = owner.getStructureLevel();
+        Level parentLevel = parent.getStructureLevel();
         
         StructureChildConnection connector;
         if (parentLevel == level)
-            connector = new StructureChildConnection(owner, true, true, -1, parent.getPos().subtract(owner.getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildConnection(owner, true, true, -1, parent.getStructurePos().subtract(owner.getStructurePos()), parent.getIndex(), parent.getAttribute());
         else if (level instanceof ISubLevel)
-            connector = new StructureChildFromSubLevelConnection(owner, true, -1, parent.getPos().subtract(owner.getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildFromSubLevelConnection(owner, true, -1, parent.getStructurePos().subtract(owner.getStructurePos()), parent.getIndex(), parent
+                    .getAttribute());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         
@@ -149,14 +151,14 @@ public class LevelChildrenList extends ChildrenList<StructureChildConnection> {
     }
     
     public StructureChildConnection generateConnection(ILevelPositionProvider parent) {
-        Level level = owner.getLevel();
-        Level parentLevel = parent.getLevel();
+        Level level = owner.getStructureLevel();
+        Level parentLevel = parent.getStructureLevel();
         
         StructureChildConnection connector;
         if (parentLevel == level)
-            connector = new StructureChildConnection(parent, true, false, 0, owner.getPos().subtract(parent.getPos()), owner.getIndex(), owner.getAttribute());
+            connector = new StructureChildConnection(parent, true, false, 0, owner.getStructurePos().subtract(parent.getStructurePos()), owner.getIndex(), owner.getAttribute());
         else if (level instanceof ISubLevel)
-            connector = new StructureChildToSubLevelConnection(parent, false, 0, owner.getPos().subtract(parent.getPos()), owner.getIndex(), owner
+            connector = new StructureChildToSubLevelConnection(parent, false, 0, owner.getStructurePos().subtract(parent.getStructurePos()), owner.getIndex(), owner
                     .getAttribute(), ((ISubLevel) level).getHolder().getUUID());
         else
             throw new RuntimeException("Invalid connection between to structures!");

@@ -33,7 +33,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
         parent.performInternalOutputChange(this);
         parent.schedule();
         if (syncToClient)
-            LittleTiles.NETWORK.sendToClient(new OutputUpdate(parent.getStructureLocation(), component.index, getState()), getStructureLevel(), parent.getPos());
+            LittleTiles.NETWORK.sendToClient(new OutputUpdate(parent.getStructureLocation(), component.index, getState()), getStructureLevel(), parent.getStructurePos());
     }
     
     @Override

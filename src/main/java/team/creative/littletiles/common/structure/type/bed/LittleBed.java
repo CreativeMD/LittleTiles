@@ -121,7 +121,7 @@ public class LittleBed extends LittleStructure {
             player.setPose(Pose.SLEEPING);
             
             player.setPos(highest.x - 0.5, highest.y, highest.z - 0.5F);
-            player.setSleepingPos(getPos());
+            player.setSleepingPos(getStructurePos());
             player.setDeltaMovement(Vec3.ZERO);
             player.hasImpulse = true;
             
