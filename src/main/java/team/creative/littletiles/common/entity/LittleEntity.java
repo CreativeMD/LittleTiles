@@ -79,7 +79,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     protected abstract T createPhysic();
     
     public boolean isReal() {
-        if (level instanceof ISubLevel sub)
+        Level level = level();
+        if (level() instanceof ISubLevel sub)
             level = sub.getRealLevel();
         return !(level instanceof IOrientatedLevel);
     }
