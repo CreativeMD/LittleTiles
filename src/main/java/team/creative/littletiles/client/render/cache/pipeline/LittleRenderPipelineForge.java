@@ -25,6 +25,7 @@ import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
+import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
@@ -33,6 +34,7 @@ import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -116,8 +118,9 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         data.chunk.prepareBlockTranslation(pose, pos);
         
         // Render vertex buffer
-        for (IndexedCollector<LittleRenderBox> cubes : data.be.render.boxCache) {
+        for (Tuple<RenderType, IndexedCollector<LittleRenderBox>> entry : data.be.render.boxCache.tuples()) {
             
+            IndexedCollector<LittleRenderBox> cubes = entry.value;
             if (cubes == null || cubes.isEmpty())
                 continue;
             
@@ -169,6 +172,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             if (OptifineHelper.isShaders())
                 OptifineHelper.calcNormalChunkLayer(builder);
             
+            buffers.put(entry.key, new ByteBufferHolder(builder.end(), indexes.toIntArray()));
         }
         
         ((CreativeQuadLighter) lighter).setCustomTint(-1);
