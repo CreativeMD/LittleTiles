@@ -8,9 +8,9 @@ plugins {
 
 repositories {
     maven {
-        url "https://cursemaven.com"
+        url "https://api.modrinth.com/maven"
         content {
-            includeGroup "curse.maven"
+            includeGroup "maven.modrinth"
         }
     }
 }
@@ -82,7 +82,7 @@ minecraft {
 }
 
 dependencies {
-    implementation "curse.maven:rubidium-574856:4448053"
+    implementation fg.deobf("maven.modrinth:rubidium:0.6.5")
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
