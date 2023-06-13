@@ -1045,6 +1045,14 @@ public class LittleTransformableBox extends LittleBox {
     
     @Override
     @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderingBox(LittleGrid grid, LittleVec vec) {
+        LittleTransformableBox box = copy();
+        box.add(vec);
+        return new LittleRenderBoxTransformable(grid, box);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBox(LittleGrid grid, BlockState state) {
         return new LittleRenderBoxTransformable(grid, this, state);
     }

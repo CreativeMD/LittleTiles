@@ -402,7 +402,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     public void addPlaceBoxes(LittleGrid grid, List<RenderBox> boxes, LittleVec offset) {
         for (LittleBox box : this.boxes)
-            boxes.add(new RenderBox(box.getBox(grid, offset)));
+            boxes.add(box.getRenderingBox(grid, offset));
     }
     
     public void addRenderingBoxes(LittleGrid grid, List<RenderBox> boxes) {
