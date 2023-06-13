@@ -54,7 +54,7 @@ public class LittleBox {
     public int maxY;
     public int maxZ;
     
-    private int faceCache;
+    protected int faceCache;
     
     // ================Constructors================
     
@@ -1330,7 +1330,7 @@ public class LittleBox {
         
         int identifier = array[offset + 6];
         if (identifier < 0)
-            return new LittleTransformableBox(array);
+            return new LittleTransformableBox(offset, array);
         
         throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
     }

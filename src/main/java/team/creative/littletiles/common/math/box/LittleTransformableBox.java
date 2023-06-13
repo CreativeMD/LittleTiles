@@ -32,6 +32,8 @@ import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxTransformable;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.ILittleFace;
@@ -115,9 +117,9 @@ public class LittleTransformableBox extends LittleBox {
     private int[] data;
     private SoftReference<VectorFanCache> cache;
     
-    public LittleTransformableBox(int data[]) {
-        super(data[0], data[1], data[2], data[3], data[4], data[5]);
-        this.data = Arrays.copyOfRange(data, 6, data.length);
+    public LittleTransformableBox(int offset, int data[]) {
+        super(data[offset + 0], data[offset + 1], data[offset + 2], data[offset + 3], data[offset + 4], data[offset + 5]);
+        this.data = Arrays.copyOfRange(data, offset + 6, data.length);
     }
     
     public LittleTransformableBox(LittleBox box, int[] data) {
@@ -411,6 +413,22 @@ public class LittleTransformableBox extends LittleBox {
         array[5] = maxZ;
         for (int i = 0; i < data.length; i++)
             array[i + 6] = data[i];
+        return array;
+    }
+    
+    @Override
+    public int[] getArrayExtended(IParentCollection parent, LittleTile tile, LittleServerFace face) {
+        hasOrCreateFaceState(parent, tile, face);
+        int[] array = new int[7 + data.length];
+        array[0] = faceCache;
+        array[1] = minX;
+        array[2] = minY;
+        array[3] = minZ;
+        array[4] = maxX;
+        array[5] = maxY;
+        array[6] = maxZ;
+        for (int i = 0; i < data.length; i++)
+            array[i + 7] = data[i];
         return array;
     }
     
