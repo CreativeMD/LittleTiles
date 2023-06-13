@@ -136,7 +136,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (!iTile.canSnapToGrid(stack))
             return marked != null;
         if (iTile.snapToGridByDefault(stack))
-            return !LittleActionHandlerClient.isUsingSecondMode() && marked != null;
+            return !LittleActionHandlerClient.isUsingSecondMode() && marked == null;
         return LittleTiles.CONFIG.building.invertStickToGrid != LittleActionHandlerClient.isUsingSecondMode() && marked == null;
     }
     
