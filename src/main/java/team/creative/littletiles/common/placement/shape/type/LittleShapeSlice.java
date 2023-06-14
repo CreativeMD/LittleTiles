@@ -14,11 +14,11 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.CornerCache;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
@@ -34,18 +34,25 @@ public class LittleShapeSlice extends LittleShape {
         CornerCache cache = box.new CornerCache(false);
         
         Vec3i vec = getVec(selection.getNBT());
-        Facing facing = getFacing(selection.getNBT());
-        Axis axis = facing.axis;
-        if ((facing.positive) != (VectorUtils.get(axis, vec) > 0))
-            facing = Facing.get(axis, VectorUtils.get(axis, vec) > 0);
-        Facing x = vec.getX() > 0 ? Facing.EAST : Facing.WEST;
-        Facing y = vec.getY() > 0 ? Facing.UP : Facing.DOWN;
-        Facing z = vec.getZ() > 0 ? Facing.SOUTH : Facing.NORTH;
+        Axis axis = vec.getX() == 0 ? Axis.X : vec.getY() == 0 ? Axis.Y : Axis.Z;
         
-        BoxCorner corner = BoxCorner.getCorner(x, y, z);
+        LittleVec size = box.getSize();
+        Facing facingOne = axis.one().facing(vec.get(axis.one().toVanilla()) > 0);
+        Facing facingTwo = axis.two().facing(vec.get(axis.two().toVanilla()) > 0);
+        Facing prefered;
+        int sizeOne = size.get(axis.one());
+        int sizeTwo = size.get(axis.two());
+        if (sizeOne > sizeTwo)
+            prefered = facingTwo;
+        else if (sizeOne < sizeTwo)
+            prefered = facingOne;
+        else
+            prefered = axis.one() == Axis.Y ? facingOne : facingTwo;
         
-        cache.setAbsolute(corner, axis, box.get(facing.opposite()));
-        cache.setAbsolute(corner.mirror(facing.axis), axis, box.get(facing.opposite()));
+        BoxCorner corner = BoxCorner.getCornerUnsorted(axis.facing(false), facingOne, facingTwo);
+        
+        cache.setAbsolute(corner, prefered.axis, box.get(prefered.opposite()));
+        cache.setAbsolute(corner.mirror(axis), prefered.axis, box.get(prefered.opposite()));
         
         box.setData(cache.getData());
         boxes.add(box);
@@ -57,17 +64,7 @@ public class LittleShapeSlice extends LittleShape {
             if (array.length == 3)
                 return new Vec3i(array[0], array[1], array[2]);
         }
-        return new Vec3i(1, 1, 1);
-    }
-    
-    public Facing getFacing(CompoundTag nbt) {
-        if (nbt.contains("direction"))
-            return Facing.values()[nbt.getInt("direction")];
-        return Facing.UP;
-    }
-    
-    public void setFacing(CompoundTag nbt, Facing facing) {
-        nbt.putInt("direction", facing.ordinal());
+        return new Vec3i(0, 1, 1);
     }
     
     public void setVec(CompoundTag nbt, Vec3i vec) {
@@ -90,13 +87,11 @@ public class LittleShapeSlice extends LittleShape {
     @Override
     public void rotate(CompoundTag nbt, Rotation rotation) {
         setVec(nbt, rotation.transform(getVec(nbt)));
-        setFacing(nbt, rotation.rotate(getFacing(nbt)));
     }
     
     @Override
     public void mirror(CompoundTag nbt, Axis axis) {
         setVec(nbt, axis.mirror(getVec(nbt)));
-        setFacing(nbt, axis.mirror(getFacing(nbt)));
     }
     
 }
