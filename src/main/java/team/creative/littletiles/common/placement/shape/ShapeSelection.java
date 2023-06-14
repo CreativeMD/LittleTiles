@@ -340,10 +340,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         
         public LittleBoxes get(boolean allowLowResolution) {
             if (allowLowResolution)
-                return cachedBoxesLowRes;
+                return cachedBoxesLowRes.copy();
             if (cachedBoxes == null)
                 cachedBoxes = shape.getBoxes(ShapeSelection.this, false);
-            return cachedBoxes;
+            return cachedBoxes.copy();
         }
     }
     
