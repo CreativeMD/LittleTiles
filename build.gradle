@@ -7,16 +7,10 @@ plugins {
 }
 
 repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
-        }
-        forRepositories(fg.repository)
-        filter {
-            includeGroup "maven.modrinth"
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
         }
     }
 }
@@ -88,7 +82,7 @@ minecraft {
 }
 
 dependencies {
-    //implementation "maven.modrinth:rubidium:0.6.5"
+    implementation fg.deobf("curse.maven:rubidium-574856:4573226")
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
