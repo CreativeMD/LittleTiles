@@ -131,7 +131,8 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     @Override
     public LittleBoxes copy() {
         LittleBoxesSimple boxes = new LittleBoxesSimple(pos, grid);
-        boxes.boxes.addAll(this.boxes);
+        for (LittleBox box : this.boxes)
+            boxes.add(box.copy());
         return boxes;
     }
     
