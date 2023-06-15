@@ -10,10 +10,9 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkUpdateType;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.Vec3i;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
+import net.minecraft.core.BlockPos;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.client.rubidium.LittleRenderPipelineRubidium;
 
 @Mixin(RenderSection.class)
 public abstract class RenderSectionMixin implements RenderChunkExtender {
@@ -63,13 +62,13 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     @Override
-    public Vec3i standardOffset() {
+    public BlockPos standardOffset() {
         // TODO Auto-generated method stub
         return null;
     }
     
     @Override
-    public LittleRenderPipeline getPipeline() {
-        return LittleRenderPipelineRubidium.INSTANCE;
+    public LittleRenderPipelineType getPipeline() {
+        return LittleRenderPipelineType.RUBIDIUM;
     }
 }

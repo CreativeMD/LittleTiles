@@ -2,11 +2,9 @@ package team.creative.littletiles.client.render.cache.pipeline;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -31,73 +29,17 @@ import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
-import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
-import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
-import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
-import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleRenderPipelineForge extends LittleRenderPipeline {
     
     public static final LittleRenderPipelineForge INSTANCE = new LittleRenderPipelineForge();
-    private static final ThreadLocal<BufferBuilder> BUILDER_SUPPLIER = ThreadLocal.withInitial(() -> new BufferBuilder(131072));
-    
-    @Override
-    public void startCompile(RenderChunkExtender chunk) {
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
-            VertexBuffer vertexBuffer = chunk.getVertexBuffer(layer);
-            ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
-            if (manager != null) {
-                synchronized (manager) {
-                    manager.queued++;
-                }
-                manager.backToRAM();
-            } else
-                ((VertexBufferExtender) vertexBuffer).setManager(manager = new ChunkLayerUploadManager(chunk, layer));
-        }
-    }
-    
-    @Override
-    public void endCompile(RenderChunkExtender chunk, RebuildTaskExtender task) {
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
-            VertexBuffer vertexBuffer = chunk.getVertexBuffer(layer);
-            ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
-            synchronized (manager) {
-                manager.queued--;
-            }
-        }
-        
-        ChunkLayerMap<ChunkLayerCache> caches = task.getLayeredCache();
-        if (caches != null)
-            for (Entry<RenderType, ChunkLayerCache> entry : caches.tuples()) {
-                VertexBuffer vertexBuffer = chunk.getVertexBuffer(entry.getKey());
-                ChunkLayerUploadManager manager = ((VertexBufferExtender) vertexBuffer).getManager();
-                manager.set(entry.getValue());
-            }
-        
-        task.clear();
-    }
-    
-    @Override
-    public void add(RenderChunkExtender chunk, BETiles be, RebuildTaskExtender rebuildTask) {
-        be.updateQuadCache(chunk);
-        
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
-            synchronized (be.render.getBufferCache()) {
-                if (!be.render.getBufferCache().has(layer))
-                    continue;
-                
-                be.render.getBufferCache().add(layer, rebuildTask.builder(layer), rebuildTask.getOrCreate(layer));
-            }
-        }
-    }
+    private final BufferBuilder builder = new BufferBuilder(131072);
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferHolder> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
@@ -123,8 +65,6 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             IndexedCollector<LittleRenderBox> cubes = entry.value;
             if (cubes == null || cubes.isEmpty())
                 continue;
-            
-            BufferBuilder builder = BUILDER_SUPPLIER.get();
             
             builder.begin(VertexFormat.Mode.QUADS, format);
             
@@ -178,5 +118,11 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         ((CreativeQuadLighter) lighter).setCustomTint(-1);
         lighter.reset();
     }
+    
+    @Override
+    public void reload() {}
+    
+    @Override
+    public void release() {}
     
 }

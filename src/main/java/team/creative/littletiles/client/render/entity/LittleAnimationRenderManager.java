@@ -29,7 +29,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,8 +36,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineForge;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -125,8 +123,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
-    public Vec3i standardOffset() {
-        return Vec3i.ZERO;
+    public BlockPos standardOffset() {
+        return BlockPos.ZERO;
     }
     
     @Override
@@ -198,8 +196,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
-    public LittleRenderPipeline getPipeline() {
-        return LittleRenderPipelineForge.INSTANCE;
+    public LittleRenderPipelineType getPipeline() {
+        return LittleRenderPipelineType.FORGE;
     }
     
     static final class CompileResults {
@@ -225,7 +223,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             this.pack = pack;
             
             CompileResults results = new CompileResults();
-            LittleRenderPipeline pipeline = getPipeline();
+            LittleRenderPipelineType pipeline = getPipeline();
             pipeline.startCompile(LittleAnimationRenderManager.this);
             
             renderTypes = new ReferenceArraySet<>(RenderType.chunkBufferLayers().size());

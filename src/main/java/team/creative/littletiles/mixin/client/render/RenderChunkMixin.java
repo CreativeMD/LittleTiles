@@ -13,9 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineForge;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderChunk.class)
@@ -44,7 +42,7 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     }
     
     @Override
-    public Vec3i standardOffset() {
+    public BlockPos standardOffset() {
         return as().getOrigin();
     }
     
@@ -67,8 +65,8 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     }
     
     @Override
-    public LittleRenderPipeline getPipeline() {
-        return LittleRenderPipelineForge.INSTANCE;
+    public LittleRenderPipelineType getPipeline() {
+        return LittleRenderPipelineType.FORGE;
     }
     
 }

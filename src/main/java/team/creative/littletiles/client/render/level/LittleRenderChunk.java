@@ -43,7 +43,6 @@ import net.minecraft.client.renderer.chunk.VisibilitySet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -60,8 +59,7 @@ import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineForge;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -120,7 +118,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     @Override
-    public Vec3i standardOffset() {
+    public BlockPos standardOffset() {
         return pos;
     }
     
@@ -263,8 +261,8 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     @Override
-    public LittleRenderPipeline getPipeline() {
-        return LittleRenderPipelineForge.INSTANCE;
+    public LittleRenderPipelineType getPipeline() {
+        return LittleRenderPipelineType.FORGE;
     }
     
     public static enum ChunkTaskResult {
@@ -382,7 +380,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         
         private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
             this.pack = pack;
-            LittleRenderPipeline pipeline = getPipeline();
+            LittleRenderPipelineType pipeline = getPipeline();
             pipeline.startCompile(LittleRenderChunk.this);
             CompileResults results = new CompileResults();
             BlockPos maxPos = pos.offset(15, 15, 15);

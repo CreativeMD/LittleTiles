@@ -32,6 +32,8 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -112,6 +114,12 @@ public class RenderingThread extends Thread {
         return QUEUE.size();
     }
     
+    public static synchronized void reload() {
+        for (RenderingThread thread : THREADS)
+            if (thread != null)
+                thread.requiresReload = true;
+    }
+    
     static {
         initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
     }
@@ -124,11 +132,29 @@ public class RenderingThread extends Thread {
     private final LevelAccesorFake fakeAccess = new LevelAccesorFake();
     private final ChunkLayerMap<BufferHolder> buffers = new ChunkLayerMap<>();
     public boolean active = true;
+    private volatile boolean requiresReload = false;
+    private LittleRenderPipeline[] pipelines = new LittleRenderPipeline[LittleRenderPipelineType.values().length];
+    
+    public LittleRenderPipeline get(LittleRenderPipelineType type) {
+        LittleRenderPipeline pipeline = pipelines[type.ordinal()];
+        if (pipeline == null) {
+            pipelines[type.ordinal()] = pipeline = type.supplier.get();
+            pipeline.reload();
+        }
+        return pipeline;
+    }
     
     @Override
     public void run() {
         try {
             while (active) {
+                if (requiresReload) {
+                    requiresReload = false;
+                    for (int i = 0; i < pipelines.length; i++)
+                        if (pipelines[i] != null)
+                            pipelines[i].reload();
+                }
+                
                 LevelAccessor level = MC.level;
                 long duration = 0;
                 RandomSource rand = RandomSource.create();
@@ -193,7 +219,7 @@ public class RenderingThread extends Thread {
                         VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
                             posestack.setIdentity();
-                            data.chunk.getPipeline().buildCache(posestack, buffers, data, format, bakedQuadWrapper);
+                            get(data.chunk.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
                                 data.be.render.boxCache.clear();
@@ -227,9 +253,11 @@ public class RenderingThread extends Thread {
                 if (Thread.currentThread().isInterrupted())
                     throw new InterruptedException();
             }
-        } catch (
-        
-        InterruptedException e) {}
+        } catch (InterruptedException e) {} finally {
+            for (int i = 0; i < pipelines.length; i++)
+                if (pipelines[i] != null)
+                    pipelines[i].release();
+        }
     }
     
     public static boolean finish(RenderingBlockContext data, ChunkLayerMap<BufferHolder> buffers, int renderState, boolean force) {

@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
 
 public interface RenderChunkExtender {
     
@@ -19,7 +19,7 @@ public interface RenderChunkExtender {
         return new Vec3(from.getX() - to.getX(), from.getY() - to.getY(), from.getZ() - to.getZ());
     }
     
-    public LittleRenderPipeline getPipeline();
+    public LittleRenderPipelineType getPipeline();
     
     public void begin(BufferBuilder builder);
     
@@ -43,7 +43,7 @@ public interface RenderChunkExtender {
     
     public void setHasBlock(RenderType layer);
     
-    public Vec3i standardOffset();
+    public BlockPos standardOffset();
     
     public default Vec3 offsetCorrection(RenderChunkExtender chunk) {
         return offsetCorrection(standardOffset(), chunk.standardOffset());

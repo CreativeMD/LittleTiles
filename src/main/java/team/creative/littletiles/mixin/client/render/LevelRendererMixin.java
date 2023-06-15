@@ -30,6 +30,7 @@ public class LevelRendererMixin {
             RenderingThread.CURRENT_RENDERING_INDEX++;
         if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.allChanged();
+        RenderingThread.reload();
         VertexFormatUtils.update();
     }
     
