@@ -1257,6 +1257,7 @@ public class LittleTransformableBox extends LittleBox {
     public class CornerCache {
         
         public final boolean relative;
+        public LittleVec[] corners = new LittleVec[BoxCorner.values().length];
         
         public CornerCache(boolean relative) {
             this.relative = relative;
@@ -1265,8 +1266,6 @@ public class LittleTransformableBox extends LittleBox {
         public LittleTransformableBox getBox() {
             return LittleTransformableBox.this;
         }
-        
-        public LittleVec[] corners = new LittleVec[BoxCorner.values().length];
         
         public LittleVec getOrCreate(BoxCorner corner) {
             LittleVec vec = corners[corner.ordinal()];
