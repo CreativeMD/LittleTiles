@@ -18,6 +18,9 @@ import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     @Shadow(remap = false)
+    private int chunkId;
+    
+    @Shadow(remap = false)
     public abstract void markForUpdate(ChunkUpdateType type);
     
     @Override
@@ -70,5 +73,10 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     @Override
     public LittleRenderPipelineType getPipeline() {
         return LittleRenderPipelineType.RUBIDIUM;
+    }
+    
+    @Override
+    public int chunkId() {
+        return chunkId;
     }
 }

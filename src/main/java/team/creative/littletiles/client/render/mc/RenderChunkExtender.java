@@ -49,4 +49,8 @@ public interface RenderChunkExtender {
         return offsetCorrection(standardOffset(), chunk.standardOffset());
     }
     
+    public default int chunkId() {
+        return -1;
+    }
+    
 }
