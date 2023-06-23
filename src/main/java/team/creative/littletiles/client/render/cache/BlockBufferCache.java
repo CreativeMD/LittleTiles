@@ -3,8 +3,6 @@ package team.creative.littletiles.client.render.cache;
 import java.nio.ByteBuffer;
 import java.util.Map.Entry;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
@@ -123,13 +121,9 @@ public class BlockBufferCache {
         return size;
     }
     
-    public void add(RenderType layer, BufferBuilder builder, ChunkLayerCache cache) {
-        BufferHolder holder = get(layer);
-        if (holder == null)
-            return;
-        
+    public void setUploaded(RenderType layer, UploadableBufferHolder uploadable) {
         queue.remove(layer);
-        uploaded.put(layer, cache.add(builder, holder));
+        uploaded.put(layer, uploadable);
     }
     
     public synchronized void setEmpty() {

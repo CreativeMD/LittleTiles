@@ -2,7 +2,24 @@ package team.creative.littletiles.client.render.cache.buffer;
 
 import java.nio.ByteBuffer;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
+
+import team.creative.creativecore.mixin.BufferBuilderAccessor;
+import team.creative.littletiles.client.render.cache.ChunkLayerCache;
+
 public class UploadableBufferHolder implements BufferHolder {
+    
+    public static UploadableBufferHolder addToBuild(BufferBuilder builder, BufferHolder data, ChunkLayerCache cache) {
+        int index = ((BufferBuilderAccessor) builder).getNextElementByte();
+        ByteBuffer buffer = data.byteBuffer();
+        if (buffer == null)
+            return null;
+        builder.putBulkData(buffer);
+        buffer.rewind();
+        UploadableBufferHolder holder = new UploadableBufferHolder(buffer, index, data.length(), data.vertexCount(), data.indexes());
+        cache.add(holder);
+        return holder;
+    }
     
     public int index;
     private int length;
@@ -23,7 +40,11 @@ public class UploadableBufferHolder implements BufferHolder {
     
     public void uploaded(boolean doNotErase) {
         if (!doNotErase)
-            byteBuffer = null;
+            erase();
+    }
+    
+    protected void erase() {
+        byteBuffer = null;
     }
     
     public void downloaded(ByteBuffer buffer) {
@@ -73,6 +94,7 @@ public class UploadableBufferHolder implements BufferHolder {
     
     public void invalidate() {
         invalid = true;
+        erase();
     }
     
 }

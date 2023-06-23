@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -38,8 +39,8 @@ import team.creative.littletiles.common.level.little.LittleSubLevel;
 @OnlyIn(Dist.CLIENT)
 public class LittleRenderPipelineForge extends LittleRenderPipeline {
     
-    public static final LittleRenderPipelineForge INSTANCE = new LittleRenderPipelineForge();
     private final BufferBuilder builder = new BufferBuilder(131072);
+    private final MutableBlockPos modelOffset = new MutableBlockPos();
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferHolder> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
@@ -57,7 +58,8 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         
         int overlay = OverlayTexture.NO_OVERLAY;
         
-        data.chunk.prepareBlockTranslation(pose, pos);
+        data.chunk.prepareModelOffset(modelOffset, pos);
+        pose.translate(modelOffset.getX(), modelOffset.getY(), modelOffset.getZ());
         
         // Render vertex buffer
         for (Tuple<RenderType, IndexedCollector<LittleRenderBox>> entry : data.be.render.boxCache.tuples()) {

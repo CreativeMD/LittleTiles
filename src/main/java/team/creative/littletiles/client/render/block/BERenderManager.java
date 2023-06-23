@@ -22,8 +22,8 @@ import team.creative.littletiles.client.render.cache.build.RenderingBlockContext
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
-import team.creative.littletiles.client.rubidium.LittleRenderPipelineRubidium;
 import team.creative.littletiles.client.rubidium.RubidiumInteractor;
+import team.creative.littletiles.client.rubidium.pipeline.LittleRenderPipelineRubidium;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;

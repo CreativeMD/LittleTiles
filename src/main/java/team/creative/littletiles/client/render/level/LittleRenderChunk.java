@@ -59,7 +59,7 @@ import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -380,8 +380,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         
         private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
             this.pack = pack;
-            LittleRenderPipelineType pipeline = getPipeline();
-            pipeline.startCompile(LittleRenderChunk.this);
+            LittleRenderPipelineType.startCompile(LittleRenderChunk.this, this);
             CompileResults results = new CompileResults();
             BlockPos maxPos = pos.offset(15, 15, 15);
             VisGraph visgraph = new VisGraph();
@@ -451,13 +450,13 @@ public class LittleRenderChunk implements RenderChunkExtender {
             }
             
             results.visibilitySet = visgraph.resolve();
-            pipeline.endCompile(LittleRenderChunk.this, this);
+            LittleRenderPipelineType.endCompile(LittleRenderChunk.this, this);
             return results;
         }
         
         private <E extends BlockEntity> void handleBlockEntity(CompileResults results, E entity) {
             if (entity instanceof BETiles tiles)
-                getPipeline().add(LittleRenderChunk.this, tiles, this);
+                LittleRenderPipelineType.compile(LittleRenderChunk.this, tiles, this);
             BlockEntityRenderer<E> blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))

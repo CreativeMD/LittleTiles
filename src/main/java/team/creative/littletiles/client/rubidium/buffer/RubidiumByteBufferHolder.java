@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium;
+package team.creative.littletiles.client.rubidium.buffer;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -18,6 +18,11 @@ public class RubidiumByteBufferHolder extends ByteBufferHolder implements Rubidi
     public RubidiumByteBufferHolder(ChunkVertexBufferBuilder builder, ByteBuffer buffer, int[] indexes, IntArrayList[] facingBuffers, List<TextureAtlasSprite> textures) {
         super(buffer, buffer.limit(), ((ChunkVertexBufferBuilderAccessor) builder).getCount(), indexes);
         this.facingBuffers = facingBuffers;
+    }
+    
+    @Override
+    public IntArrayList[] facingIndexLists() {
+        return facingBuffers;
     }
     
     @Override

@@ -4,15 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-import org.lwjgl.opengl.GL15;
-
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import team.creative.littletiles.client.render.level.RenderUploader;
-import team.creative.littletiles.client.render.level.RenderUploader.NotSupportedException;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
@@ -42,8 +37,8 @@ public class ChunkLayerUploadManager {
     
     public void uploaded() {
         synchronized (this) {
-            if (this.uploaded != null)
-                backToRAM();
+            //if (this.uploaded != null) TODO Maybe this causes issues this has to be tested
+            //    backToRAM();
             uploaded = cache;
             cache = null;
             if (uploaded != null)
@@ -51,7 +46,7 @@ public class ChunkLayerUploadManager {
         }
     }
     
-    public void backToRAM() {
+    public void backToRAM(RenderChunkExtender chunk) {
         if (uploaded == null)
             return;
         Supplier<Boolean> run = () -> {
@@ -62,18 +57,12 @@ public class ChunkLayerUploadManager {
                     uploaded = null;
                     return false;
                 }
-                GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, ((VertexBufferExtender) buffer).getVertexBufferId());
-                try {
-                    ByteBuffer uploadedData = RenderUploader.glMapBufferRange(uploaded.totalSize());
-                    if (uploadedData != null)
-                        uploaded.download(uploadedData);
-                    else
-                        uploaded.discard();
-                    uploaded = null;
-                } catch (NotSupportedException e) {
-                    e.printStackTrace();
-                }
-                VertexBuffer.unbind();
+                ByteBuffer uploadedData = chunk.downloadUploadedData((VertexBufferExtender) buffer, 0, uploaded.totalSize());
+                if (uploadedData != null)
+                    uploaded.download(uploadedData);
+                else
+                    uploaded.discard();
+                uploaded = null;
                 return true;
             }
         };

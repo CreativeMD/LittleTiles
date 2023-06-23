@@ -11,11 +11,9 @@ import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
-import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
@@ -44,14 +42,8 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             
             BETiles target = (BETiles) block;
             RenderChunkExtender toRam = be.render.getRenderChunk();
-            if (backToRAM.add(toRam)) {
-                for (RenderType layer : RenderType.chunkBufferLayers()) {
-                    VertexBufferExtender buffer = (VertexBufferExtender) toRam.getVertexBuffer(layer);
-                    ChunkLayerUploadManager manager = buffer.getManager();
-                    if (manager != null)
-                        manager.backToRAM();
-                }
-            }
+            if (backToRAM.add(toRam))
+                toRam.backToRAM();
             
             RenderChunkExtender chunk = target.render.getRenderChunk();
             

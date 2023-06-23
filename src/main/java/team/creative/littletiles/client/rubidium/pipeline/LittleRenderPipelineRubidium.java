@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium;
+package team.creative.littletiles.client.rubidium.pipeline;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -27,6 +27,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
+import me.jellysquid.mods.sodium.client.render.texture.SpriteExtended;
 import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexBufferBuilder;
 import me.jellysquid.mods.sodium.client.util.color.ColorARGB;
 import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
@@ -35,6 +36,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
@@ -53,6 +55,7 @@ import team.creative.littletiles.client.render.cache.build.RenderingBlockContext
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.client.rubidium.buffer.RubidiumByteBufferHolder;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.rubidium.BlockRenderCacheAccessor;
 import team.creative.littletiles.mixin.rubidium.BlockRenderContextAccessor;
@@ -68,6 +71,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 .callGetRenderSection(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()));
     }
     
+    private static final int WINDING_LENGTH = 6;
     private ChunkBuildBuffers buildBuffers;
     private BlockRenderer renderer;
     private LittleLightDataAccess lightAccess;
@@ -75,6 +79,9 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     private QuadLightData cachedQuadLightData = new QuadLightData();
     public BlockRenderContext context = new BlockRenderContext(null);
     private Set<TextureAtlasSprite> sprites = new ObjectOpenHashSet<>();
+    private MutableBlockPos modelOffset = new MutableBlockPos();
+    private IntArrayList indexes = new IntArrayList();
+    private int[] faceCounters = new int[ModelQuadFacing.COUNT];
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferHolder> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
@@ -92,6 +99,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 .getUseAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT);
         
         BlockColorsExtended blockColors = ((BlockRendererAccessor) renderer).getBlockColors();
+        data.chunk.prepareModelOffset(modelOffset, pos);
         
         // Render vertex buffer
         for (Tuple<RenderType, IndexedCollector<LittleRenderBox>> entry : data.be.render.boxCache.tuples()) {
@@ -109,15 +117,19 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             for (int i = 0; i < ModelQuadFacing.VALUES.length; i++)
                 builder.getIndexBuffer(ModelQuadFacing.VALUES[i]).start();
             
-            IntArrayList indexes = new IntArrayList();
+            Arrays.fill(faceCounters, 0);
+            
             for (Iterator<LittleRenderBox> iterator = cubes.sectionIterator(x -> {
                 indexes.add(x);
                 indexes.add(((BufferBuilderAccessor) builder).getVertices() * format.getVertexSize());
+                for (int i = 0; i < faceCounters.length; i++)
+                    indexes.add(faceCounters[i]);
+                Arrays.fill(faceCounters, 0);
             });iterator.hasNext();) {
                 LittleRenderBox cube = iterator.next();
                 BlockState state = cube.state;
                 
-                context.update(pos, data.chunk.standardOffset(), state, null, 0, ModelData.EMPTY, entry.key);
+                context.update(pos, modelOffset, state, null, 0, ModelData.EMPTY, entry.key);
                 
                 ColorSampler<BlockState> colorizer = null;
                 
@@ -139,7 +151,8 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                     }
                     if (quads != null && !quads.isEmpty()) {
                         Direction direction = facing.toVanilla();
-                        IndexBufferBuilder indexBuffer = builder.getIndexBuffer(ModelQuadFacing.fromDirection(direction));
+                        ModelQuadFacing modelFacing = ModelQuadFacing.fromDirection(direction);
+                        IndexBufferBuilder indexBuffer = builder.getIndexBuffer(modelFacing);
                         
                         for (BakedQuad quad : quads) {
                             
@@ -159,8 +172,10 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                             ((BlockRendererAccessor) renderer)
                                     .callWriteGeometry(context, vertexBuffer, indexBuffer, Vec3.ZERO, (ModelQuadView) quad, colors, cachedQuadLightData.br, cachedQuadLightData.lm);
                             TextureAtlasSprite sprite = quad.getSprite();
-                            if (sprite != null)
+                            if (sprite != null && ((SpriteExtended) sprite.contents()).hasAnimation())
                                 builder.addSprite(sprite);
+                            
+                            faceCounters[modelFacing.ordinal()] += WINDING_LENGTH;
                         }
                     }
                 }
@@ -185,6 +200,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 for (int i = 0; i < list.length; i++)
                     list[i] = new IntArrayList(builder.getIndexBuffer(ModelQuadFacing.VALUES[i]).pop());
                 buffers.put(entry.key, new RubidiumByteBufferHolder(vertexBuffer, buffer, indexes.toIntArray(), list, new ArrayList<>(sprites)));
+                indexes.clear();
             }
         }
         

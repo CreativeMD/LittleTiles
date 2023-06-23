@@ -33,7 +33,7 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -133,12 +133,12 @@ public class RenderingThread extends Thread {
     private final ChunkLayerMap<BufferHolder> buffers = new ChunkLayerMap<>();
     public boolean active = true;
     private volatile boolean requiresReload = false;
-    private LittleRenderPipeline[] pipelines = new LittleRenderPipeline[LittleRenderPipelineType.values().length];
+    private LittleRenderPipeline[] pipelines = new LittleRenderPipeline[LittleRenderPipelineType.typeCount()];
     
     public LittleRenderPipeline get(LittleRenderPipelineType type) {
-        LittleRenderPipeline pipeline = pipelines[type.ordinal()];
+        LittleRenderPipeline pipeline = pipelines[type.id];
         if (pipeline == null) {
-            pipelines[type.ordinal()] = pipeline = type.supplier.get();
+            pipelines[type.id] = pipeline = type.factory.get();
             pipeline.reload();
         }
         return pipeline;

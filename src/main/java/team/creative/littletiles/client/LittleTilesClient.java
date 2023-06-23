@@ -66,6 +66,7 @@ import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.render.overlay.TooltipOverlay;
+import team.creative.littletiles.client.rubidium.RubidiumInteractor;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -205,6 +206,8 @@ public class LittleTilesClient {
         ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.get(), filled, function);
         ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.get(), filled, function);
         ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
+        
+        RubidiumInteractor.init();
     }
     
     public static void modelLoader(RegisterAdditional event) {

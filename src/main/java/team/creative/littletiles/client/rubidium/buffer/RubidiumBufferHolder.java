@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium;
+package team.creative.littletiles.client.rubidium.buffer;
 
 import java.util.List;
 
@@ -8,6 +8,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 
 public interface RubidiumBufferHolder extends BufferHolder {
+    
+    public IntArrayList[] facingIndexLists();
     
     public IntArrayList facingIndexList(ModelQuadFacing facing);
     

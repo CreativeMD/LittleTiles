@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,7 +37,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline.LittleRenderPipelineType;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -118,8 +119,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
-    public void prepareBlockTranslation(PoseStack posestack, BlockPos pos) {
-        posestack.translate(pos.getX(), pos.getY(), pos.getZ());
+    public void prepareModelOffset(MutableBlockPos modelOffset, BlockPos pos) {
+        modelOffset.set(pos.getX(), pos.getY(), pos.getZ());
     }
     
     @Override
@@ -223,8 +224,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             this.pack = pack;
             
             CompileResults results = new CompileResults();
-            LittleRenderPipelineType pipeline = getPipeline();
-            pipeline.startCompile(LittleAnimationRenderManager.this);
+            LittleRenderPipelineType.startCompile(LittleAnimationRenderManager.this, this);
             
             renderTypes = new ReferenceArraySet<>(RenderType.chunkBufferLayers().size());
             
@@ -245,12 +245,12 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
                     results.renderedLayers.put(layer, rendered);
             }
             
-            pipeline.endCompile(LittleAnimationRenderManager.this, this);
+            LittleRenderPipelineType.endCompile(LittleAnimationRenderManager.this, this);
             return results;
         }
         
         private void handleBlockEntity(CompileResults results, BETiles entity) {
-            getPipeline().add(LittleAnimationRenderManager.this, entity, this);
+            LittleRenderPipelineType.compile(LittleAnimationRenderManager.this, entity, this);
             BlockEntityRenderer blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))

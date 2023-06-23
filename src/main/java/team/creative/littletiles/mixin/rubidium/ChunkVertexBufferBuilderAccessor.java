@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexBufferBuilder;
 
@@ -18,5 +19,14 @@ public interface ChunkVertexBufferBuilderAccessor {
     
     @Accessor(remap = false)
     public int getCount();
+    
+    @Accessor(remap = false)
+    public void setCount(int count);
+    
+    @Accessor(remap = false)
+    public int getCapacity();
+    
+    @Invoker(remap = false)
+    public void callGrow(int len);
     
 }

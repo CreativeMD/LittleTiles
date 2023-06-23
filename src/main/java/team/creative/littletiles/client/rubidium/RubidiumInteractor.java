@@ -11,4 +11,9 @@ public class RubidiumInteractor {
         return installed;
     }
     
+    public static void init() {
+        if (isInstalled())
+            RubidiumManager.init();
+    }
+    
 }

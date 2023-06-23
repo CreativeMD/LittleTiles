@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium;
+package team.creative.littletiles.client.rubidium.pipeline;
 
 import me.jellysquid.mods.sodium.client.model.light.data.LightDataAccess;
 import net.minecraft.world.level.BlockAndTintGetter;

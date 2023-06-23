@@ -7,10 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.lwjgl.opengl.GL15;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -34,9 +30,9 @@ import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.cache.ChunkLayerUploadManager;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -97,72 +93,43 @@ public class RenderUploader {
             if (size == 0)
                 continue;
             
-            try {
-                VertexBuffer uploadBuffer = chunk.getVertexBuffer(layer);
-                
-                if (uploadBuffer == null)
-                    return;
-                
-                VertexFormat format = uploadBuffer.getFormat();
-                if (format == null)
-                    format = DefaultVertexFormat.BLOCK;
-                ChunkRenderDispatcher dispatcher = mc.levelRenderer.getChunkRenderDispatcher();
-                
-                ByteBuffer vanillaBuffer = null;
-                if (!chunk.isEmpty(layer)) {
-                    GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, ((VertexBufferExtender) uploadBuffer).getVertexBufferId());
-                    vanillaBuffer = glMapBufferRange(((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
-                    VertexBuffer.unbind();
+            VertexBuffer uploadBuffer = chunk.getVertexBuffer(layer);
+            
+            if (uploadBuffer == null)
+                return;
+            
+            VertexFormat format = uploadBuffer.getFormat();
+            if (format == null)
+                format = DefaultVertexFormat.BLOCK;
+            ChunkRenderDispatcher dispatcher = mc.levelRenderer.getChunkRenderDispatcher();
+            
+            ByteBuffer vanillaBuffer = null;
+            if (!chunk.isEmpty(layer))
+                vanillaBuffer = chunk.downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
+            
+            BufferBuilder builder = new BufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risking and could potentially cause issues
+            chunk.begin(builder);
+            if (vanillaBuffer != null) {
+                if (layer == RenderType.translucent()) {
+                    SortState state = chunk.getTransparencyState();
+                    if (state != null)
+                        builder.restoreSortState(state);
                 }
                 
-                BufferBuilder builder = new BufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risking and could potentially cause issues
-                chunk.begin(builder);
-                if (vanillaBuffer != null) {
-                    if (layer == RenderType.translucent()) {
-                        SortState state = chunk.getTransparencyState();
-                        if (state != null)
-                            builder.restoreSortState(state);
-                    }
-                    
-                    builder.putBulkData(vanillaBuffer);
-                }
-                
-                for (LayeredBufferCache data : blocks)
-                    cache.add(builder, data.get(layer));
-                
-                if (layer == RenderType.translucent())
-                    chunk.setQuadSorting(builder, dispatcher.getCameraPosition());
-                
-                uploadBuffer.bind();
-                uploadBuffer.upload(builder.end());
-                VertexBuffer.unbind();
-                chunk.setHasBlock(layer);
-            } catch (IllegalArgumentException | NotSupportedException e) {
-                e.printStackTrace();
+                builder.putBulkData(vanillaBuffer);
             }
+            
+            for (LayeredBufferCache data : blocks)
+                UploadableBufferHolder.addToBuild(builder, data.get(layer), cache);
+            
+            if (layer == RenderType.translucent())
+                chunk.setQuadSorting(builder, dispatcher.getCameraPosition());
+            
+            uploadBuffer.bind();
+            uploadBuffer.upload(builder.end());
+            VertexBuffer.unbind();
+            chunk.setHasBlock(layer);
         }
-    }
-    
-    public static ByteBuffer glMapBufferRange(long length) throws NotSupportedException {
-        try {
-            ByteBuffer result = MemoryTracker.create((int) length);
-            GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0, result);
-            return result;
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            if (e instanceof IllegalStateException)
-                throw new NotSupportedException(e);
-            else
-                e.printStackTrace();
-        }
-        return null;
-    }
-    
-    public static class NotSupportedException extends Exception {
-        
-        public NotSupportedException(Exception e) {
-            super(e);
-        }
-        
     }
     
     public static class RenderDataLevel {
@@ -186,14 +153,8 @@ public class RenderUploader {
             HashSet<RenderChunkExtender> chunks = new HashSet<>();
             for (BETiles be : entity.getSubLevel()) {
                 RenderChunkExtender chunk = be.render.getRenderChunk();
-                if (chunks.add(chunk)) {
-                    for (RenderType layer : RenderType.chunkBufferLayers()) {
-                        VertexBufferExtender buffer = (VertexBufferExtender) chunk.getVertexBuffer(layer);
-                        ChunkLayerUploadManager manager = buffer.getManager();
-                        if (manager != null)
-                            manager.backToRAM();
-                    }
-                }
+                if (chunks.add(chunk))
+                    chunk.backToRAM();
                 
                 RenderDataToAdd block = getOrCreate(BERenderManager.getRenderChunk(targetLevel, be.getBlockPos()), be.getBlockPos());
                 block.queueNew(be);
