@@ -15,7 +15,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import me.jellysquid.mods.sodium.client.gl.compile.ChunkBuildContext;
-import me.jellysquid.mods.sodium.client.model.IndexBufferBuilder;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildResult;
@@ -62,8 +61,8 @@ public class ChunkRenderRebuildTaskMixin implements RebuildTaskExtender {
     
     @Redirect(
             method = "performBuild(Lme/jellysquid/mods/sodium/client/gl/compile/ChunkBuildContext;Lme/jellysquid/mods/sodium/client/util/task/CancellationSource;)Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildResult;",
-            remap = false, at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;getRenderer()Lnet/minecraft/world/level/block/entity/BlockEntity;"))
+            remap = false, require = 1, at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;getRenderer(Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderer;"))
     public BlockEntityRenderer<BlockEntity> getRendererRedirect(BlockEntityRenderDispatcher dispatcher, BlockEntity entity) {
         if (entity instanceof BETiles be)
             LittleRenderPipelineType.compile((RenderChunkExtender) render, be, this);
@@ -124,9 +123,11 @@ public class ChunkRenderRebuildTaskMixin implements RebuildTaskExtender {
         if (vertexStart + vertexCount >= vertex.getCapacity())
             vertex.callGrow(vertex.getStride() * vertexCount);
         ByteBuffer data = vertex.getBuffer();
-        data.position(vertex.getCount() * vertex.getStride());
+        int index = vertex.getCount() * vertex.getStride();
+        data.position(index);
         data.put(buffer.byteBuffer());
         buffer.byteBuffer().rewind();
+        data.rewind();
         vertex.setCount(vertex.getCount() + vertexCount);
         
         // Add to index buffers
@@ -139,16 +140,17 @@ public class ChunkRenderRebuildTaskMixin implements RebuildTaskExtender {
                 continue;
             }
             
-            IndexBufferBuilder chunkIndexData = builder.getIndexBuffer(facing);
-            facingIndex[i] = chunkIndexData.getCount();
-            ((IndexBufferBuilderAccessor) chunkIndexData).getIndices().addAll(indexData);
+            IntArrayList chunkIndexData = ((IndexBufferBuilderAccessor) builder.getIndexBuffer(facing)).getIndices();
+            facingIndex[i] = chunkIndexData.size();
+            for (int j = 0; j < indexData.size(); j++)
+                chunkIndexData.add(indexData.getInt(j) + vertexStart);
         }
         
         // Add textures
         for (TextureAtlasSprite texture : buffer.getUsedTextures())
             builder.addSprite(texture);
         
-        RubidiumUploadableBufferHolder holder = new RubidiumUploadableBufferHolder(data, vertexStart, facingIndex, buffer.length(), buffer.vertexCount(), buffer.indexes(), buffer
+        RubidiumUploadableBufferHolder holder = new RubidiumUploadableBufferHolder(data, index, facingIndex, buffer.length(), buffer.vertexCount(), buffer.indexes(), buffer
                 .facingIndexLists(), buffer.getUsedTextures());
         getOrCreate(layer).add(holder);
         return holder;

@@ -31,4 +31,8 @@ public class LittleRenderPipelineTypeRubidium extends LittleRenderPipelineType {
         
     }
     
+    @Override
+    public boolean canBeUploadedDirectly() {
+        return false;
+    }
 }

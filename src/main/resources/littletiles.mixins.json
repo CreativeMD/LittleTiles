@@ -41,7 +41,19 @@
         "client.render.ViewAreaAccessor",
         "client.render.ParticleEngineAccessor",
         "client.render.LightTextureAccessor",
-        "client.render.GameRendererAccessor"
+        "client.render.GameRendererAccessor",
+        "rubidium.BlockRenderCacheAccessor",
+        "rubidium.BlockRenderContextAccessor",
+        "rubidium.BlockRendererAccessor",
+        "rubidium.ChunkBuilderAccessor",
+        "rubidium.ChunkRenderDataMixin",
+        "rubidium.ChunkRenderRebuildTaskMixin",
+        "rubidium.ChunkVertexBufferBuilderAccessor",
+        "rubidium.GlBufferMixin",
+        "rubidium.GlBufferSegmentAccessor",
+        "rubidium.IndexBufferBuilderAccessor",
+        "rubidium.RenderSectionManagerAccessor",
+        "rubidium.RenderSectionMixin"
     ],
     "minVersion": "0.8"
 }

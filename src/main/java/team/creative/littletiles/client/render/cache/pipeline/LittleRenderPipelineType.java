@@ -61,6 +61,8 @@ public abstract class LittleRenderPipelineType {
     
     public abstract void unbindBuffer();
     
+    public abstract boolean canBeUploadedDirectly();
+    
     protected LittleRenderPipelineType(Supplier<LittleRenderPipeline> factory) {
         this.factory = factory;
         id = TYPES.size();
@@ -86,6 +88,11 @@ public abstract class LittleRenderPipelineType {
         @Override
         public void unbindBuffer() {
             
+        }
+        
+        @Override
+        public boolean canBeUploadedDirectly() {
+            return true;
         }
         
     }

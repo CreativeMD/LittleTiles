@@ -1,6 +1,7 @@
 package team.creative.littletiles.mixin.rubidium;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,6 +24,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.ChunkUpdateType;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
@@ -139,44 +141,53 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         if (caches == null || caches.isEmpty())
             return;
         
-        for (Tuple<RenderType, ChunkLayerCache> tuple : caches.tuples()) {
-            ChunkGraphicsState state = getGraphicsState(RubidiumManager.getPass(tuple.key));
-            if (state == null)
-                continue;
-            
-            ByteBuffer vertexData = downloadSegment(state.getVertexSegment());
-            ByteBuffer indexData = downloadSegment(state.getIndexSegment());
-            if (vertexData == null || indexData == null) {
-                tuple.value.discard();
-                continue;
-            }
-            tuple.value.download(vertexData);
-            
-            for (UploadableBufferHolder buffer : tuple.value) {
-                RubidiumUploadableBufferHolder holder = (RubidiumUploadableBufferHolder) buffer;
-                holder.prepareFacingBufferDownload();
-                
-                for (int i = 0; i < ModelQuadFacing.COUNT; i++) {
-                    ModelQuadFacing facing = ModelQuadFacing.VALUES[i];
-                    ElementRange range = state.getModelPart(facing);
-                    int size = holder.facingIndexCount(facing);
-                    int index = holder.facingIndexOffset(facing);
-                    if (indexData.capacity() >= range.elementPointer() + (index + size) * Integer.BYTES) {
-                        indexData.position(range.elementPointer() + index * Integer.BYTES);
-                        IntArrayList list = new IntArrayList(size);
-                        for (int j = 0; j < size; j++)
-                            list.add(indexData.getInt());
-                        holder.downloadFacingBuffer(list, facing);
-                    } else {
-                        holder.invalidate();
-                        break;
+        Runnable run = () -> {
+            synchronized (this) {
+                for (Tuple<RenderType, ChunkLayerCache> tuple : caches.tuples()) {
+                    ChunkGraphicsState state = getGraphicsState(RubidiumManager.getPass(tuple.key));
+                    if (state == null)
+                        continue;
+                    
+                    ByteBuffer vertexData = downloadSegment(state.getVertexSegment());
+                    ByteBuffer indexData = downloadSegment(state.getIndexSegment());
+                    if (vertexData == null || indexData == null) {
+                        tuple.value.discard();
+                        continue;
                     }
+                    tuple.value.download(vertexData);
+                    
+                    for (UploadableBufferHolder buffer : tuple.value) {
+                        RubidiumUploadableBufferHolder holder = (RubidiumUploadableBufferHolder) buffer;
+                        holder.prepareFacingBufferDownload();
+                        
+                        for (int i = 0; i < ModelQuadFacing.COUNT; i++) {
+                            ModelQuadFacing facing = ModelQuadFacing.VALUES[i];
+                            ElementRange range = state.getModelPart(facing);
+                            int size = holder.facingIndexCount(facing);
+                            int index = holder.facingIndexOffset(facing);
+                            if (indexData.capacity() >= range.elementPointer() + (index + size) * Integer.BYTES) {
+                                indexData.position(range.elementPointer() + index * Integer.BYTES);
+                                IntArrayList list = new IntArrayList(size);
+                                for (int j = 0; j < size; j++)
+                                    list.add(indexData.getInt());
+                                holder.downloadFacingBuffer(list, facing);
+                            } else {
+                                holder.invalidate();
+                                break;
+                            }
+                        }
+                    }
+                    
                 }
+                
+                caches.clear();
             }
-            
+        };
+        try {
+            CompletableFuture.runAsync(run, Minecraft.getInstance());
+        } catch (Exception e1) {
+            e1.printStackTrace();
         }
-        
-        caches.clear();
     }
     
     @Override

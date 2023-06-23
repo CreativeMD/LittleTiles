@@ -83,6 +83,11 @@ public class RenderUploader {
         if (OptifineHelper.isRenderRegions() || !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
             return;
         
+        if (!chunk.getPipeline().canBeUploadedDirectly()) {
+            chunk.markReadyForUpdate(false);
+            return;
+        }
+        
         for (RenderType layer : RenderType.chunkBufferLayers()) {
             ChunkLayerCache cache = new ChunkLayerCache();
             

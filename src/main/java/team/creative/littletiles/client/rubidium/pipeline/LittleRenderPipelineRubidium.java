@@ -3,6 +3,7 @@ package team.creative.littletiles.client.rubidium.pipeline;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +49,6 @@ import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -82,6 +82,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     private MutableBlockPos modelOffset = new MutableBlockPos();
     private IntArrayList indexes = new IntArrayList();
     private int[] faceCounters = new int[ModelQuadFacing.COUNT];
+    private int[] colors = new int[4];
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferHolder> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
@@ -117,11 +118,10 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             for (int i = 0; i < ModelQuadFacing.VALUES.length; i++)
                 builder.getIndexBuffer(ModelQuadFacing.VALUES[i]).start();
             
-            Arrays.fill(faceCounters, 0);
-            
             for (Iterator<LittleRenderBox> iterator = cubes.sectionIterator(x -> {
                 indexes.add(x);
-                indexes.add(((BufferBuilderAccessor) builder).getVertices() * format.getVertexSize());
+                ChunkVertexBufferBuilderAccessor a = (ChunkVertexBufferBuilderAccessor) builder.getVertexBuffer();
+                indexes.add(a.getCount() * a.getStride());
                 for (int i = 0; i < faceCounters.length; i++)
                     indexes.add(faceCounters[i]);
                 Arrays.fill(faceCounters, 0);
@@ -158,8 +158,6 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                             
                             lighter.calculate((ModelQuadView) quad, pos, cachedQuadLightData, direction, quad.getDirection(), quad.isShade());
                             
-                            int[] colors = null;
-                            
                             if (cube.color != -1)
                                 Arrays.fill(colors, ColorARGB.toABGR(cube.color));
                             else if (quad.isTinted()) {
@@ -167,7 +165,8 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                                     colorizer = blockColors.getColorProvider(state);
                                 
                                 colors = ((BlockRendererAccessor) renderer).getColorBlender().getColors(renderLevel, pos, (ModelQuadView) quad, colorizer, state);
-                            }
+                            } else
+                                Arrays.fill(colors, -1);
                             
                             ((BlockRendererAccessor) renderer)
                                     .callWriteGeometry(context, vertexBuffer, indexBuffer, Vec3.ZERO, (ModelQuadView) quad, colors, cachedQuadLightData.br, cachedQuadLightData.lm);
@@ -193,13 +192,17 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             //    OptifineHelper.calcNormalChunkLayer(builder);
             
             if (((ChunkVertexBufferBuilderAccessor) vertexBuffer).getCount() > 0) {
-                ByteBuffer buffer = MemoryUtil.memRealloc((ByteBuffer) null, ((ChunkVertexBufferBuilderAccessor) vertexBuffer)
-                        .getStride() * ((ChunkVertexBufferBuilderAccessor) vertexBuffer).getCount());
-                MemoryUtil.memCopy(((ChunkVertexBufferBuilderAccessor) vertexBuffer).getBuffer(), buffer);
+                ChunkVertexBufferBuilderAccessor v = (ChunkVertexBufferBuilderAccessor) vertexBuffer;
+                ByteBuffer buffer = MemoryUtil.memRealloc((ByteBuffer) null, v.getStride() * v.getCount());
+                ByteBuffer threadBuffer = v.getBuffer();
+                threadBuffer.limit(buffer.capacity());
+                MemoryUtil.memCopy(v.getBuffer(), buffer);
+                threadBuffer.limit(threadBuffer.capacity());
                 IntArrayList[] list = new IntArrayList[ModelQuadFacing.COUNT];
                 for (int i = 0; i < list.length; i++)
                     list[i] = new IntArrayList(builder.getIndexBuffer(ModelQuadFacing.VALUES[i]).pop());
-                buffers.put(entry.key, new RubidiumByteBufferHolder(vertexBuffer, buffer, indexes.toIntArray(), list, new ArrayList<>(sprites)));
+                buffers.put(entry.key, new RubidiumByteBufferHolder(vertexBuffer, buffer, indexes
+                        .toIntArray(), list, sprites.isEmpty() ? Collections.EMPTY_LIST : new ArrayList<>(sprites)));
                 indexes.clear();
             }
         }

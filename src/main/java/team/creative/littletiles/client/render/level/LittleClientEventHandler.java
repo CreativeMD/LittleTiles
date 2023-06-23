@@ -5,7 +5,6 @@ import org.joml.Vector3d;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -60,7 +59,8 @@ public class LittleClientEventHandler {
                         RenderSystem.setShader(GameRenderer::getPositionTexShader);
                         RenderSystem.setShaderTexture(0, RES_UNDERWATER_OVERLAY);
                         
-                        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+                        Tesselator tesselator = Tesselator.getInstance();
+                        BufferBuilder bufferbuilder = tesselator.getBuilder();
                         float f = LightTexture.getBrightness(player.level().dimensionType(), player.level().getMaxLocalRawBrightness(blockpos));
                         RenderSystem.enableBlend();
                         RenderSystem.defaultBlendFunc();
@@ -75,7 +75,7 @@ public class LittleClientEventHandler {
                         bufferbuilder.vertex(matrix4f, 1.0F, -1.0F, -0.5F).uv(0.0F + f7, 4.0F + f8).endVertex();
                         bufferbuilder.vertex(matrix4f, 1.0F, 1.0F, -0.5F).uv(0.0F + f7, 0.0F + f8).endVertex();
                         bufferbuilder.vertex(matrix4f, -1.0F, 1.0F, -0.5F).uv(4.0F + f7, 0.0F + f8).endVertex();
-                        BufferUploader.drawWithShader(bufferbuilder.end());
+                        tesselator.end();
                         RenderSystem.disableBlend();
                         
                         event.setCanceled(true);

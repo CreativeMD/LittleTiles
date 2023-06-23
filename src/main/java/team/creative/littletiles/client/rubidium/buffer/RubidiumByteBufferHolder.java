@@ -18,6 +18,7 @@ public class RubidiumByteBufferHolder extends ByteBufferHolder implements Rubidi
     public RubidiumByteBufferHolder(ChunkVertexBufferBuilder builder, ByteBuffer buffer, int[] indexes, IntArrayList[] facingBuffers, List<TextureAtlasSprite> textures) {
         super(buffer, buffer.limit(), ((ChunkVertexBufferBuilderAccessor) builder).getCount(), indexes);
         this.facingBuffers = facingBuffers;
+        this.textures = textures;
     }
     
     @Override
