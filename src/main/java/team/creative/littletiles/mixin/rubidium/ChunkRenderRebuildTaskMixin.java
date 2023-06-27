@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
@@ -112,7 +113,10 @@ public class ChunkRenderRebuildTaskMixin implements RebuildTaskExtender {
     
     @Override
     public UploadableBufferHolder upload(RenderType layer, BlockBufferCache cache) {
-        RubidiumBufferHolder buffer = (RubidiumBufferHolder) cache.get(layer);
+        BufferHolder temp = cache.get(layer);
+        if (!(temp instanceof RubidiumBufferHolder) || (temp instanceof RubidiumUploadableBufferHolder t && (!t.isAvailable() || t.isInvalid())))
+            return null;
+        RubidiumBufferHolder buffer = (RubidiumBufferHolder) temp;
         ChunkModelBuilder builder = buildContext.buffers.get(layer);
         
         ChunkVertexBufferBuilderAccessor vertex = (ChunkVertexBufferBuilderAccessor) builder.getVertexBuffer();
@@ -150,9 +154,10 @@ public class ChunkRenderRebuildTaskMixin implements RebuildTaskExtender {
         for (TextureAtlasSprite texture : buffer.getUsedTextures())
             builder.addSprite(texture);
         
-        RubidiumUploadableBufferHolder holder = new RubidiumUploadableBufferHolder(data, index, facingIndex, buffer.length(), buffer.vertexCount(), buffer.indexes(), buffer
-                .facingIndexLists(), buffer.getUsedTextures());
+        RubidiumUploadableBufferHolder holder = new RubidiumUploadableBufferHolder(buffer.byteBuffer(), index, facingIndex, buffer.length(), buffer.vertexCount(), buffer
+                .indexes(), buffer.facingIndexLists(), buffer.getUsedTextures());
         getOrCreate(layer).add(holder);
         return holder;
     }
+    
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
 
 public class RubidiumUploadableBufferHolder extends UploadableBufferHolder implements RubidiumBufferHolder {
@@ -63,13 +62,6 @@ public class RubidiumUploadableBufferHolder extends UploadableBufferHolder imple
     @Override
     public List<TextureAtlasSprite> getUsedTextures() {
         return textures;
-    }
-    
-    @Override
-    public BufferHolder extract(int index) {
-        
-        // TODO Auto-generated method stub
-        return super.extract(index);
     }
     
 }

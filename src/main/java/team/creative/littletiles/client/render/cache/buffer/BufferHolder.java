@@ -23,12 +23,16 @@ public interface BufferHolder {
     public int vertexCount();
     
     public default BufferHolder extract(int index) {
-        int[] indexes = indexes();
+        int[] indexes = indexes(); // format of one entry: [index of structure, start index of vertex data]
         if (indexes == null)
             return null;
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return null;
+        
+        if (indexes.length == 2 && indexes[0] == index)
+            return new ByteBufferHolder(buffer, length(), vertexCount(), null);
+        
         int start = -1;
         int length = -1;
         int entryIndex = -1;
@@ -50,14 +54,14 @@ public interface BufferHolder {
         
         int div = length() / vertexCount();
         int vertexCount = length / div;
-        ByteBuffer newBuffer = MemoryTracker.create(length);
+        ByteBuffer newBuffer = MemoryTracker.create(length); // Create new vertex buffer
         newBuffer.put(0, buffer, start, length);
         newBuffer.rewind();
-        removeEntry(length, vertexCount);
+        removeEntry(length, vertexCount); // Notify buffer holder of changed length and vertexCount
         
-        if (entryIndex < indexes.length - 2) {
+        if (entryIndex < indexes.length - 2) { // Remove extracted data from buffer holder
             buffer.put(start, buffer, start + length, buffer.limit() - (start + length));
-            for (int i = start + 2; i < indexes.length; i += 2)
+            for (int i = entryIndex + 2; i < indexes.length; i += 2)
                 indexes[i + 1] -= length;
         }
         buffer.limit(buffer.limit() - length);

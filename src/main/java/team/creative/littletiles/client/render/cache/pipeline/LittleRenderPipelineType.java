@@ -42,7 +42,7 @@ public abstract class LittleRenderPipelineType {
             synchronized (cache) {
                 if (!cache.has(layer))
                     continue;
-                rebuildTask.upload(layer, cache);
+                cache.setUploaded(layer, rebuildTask.upload(layer, cache));
             }
         }
     }

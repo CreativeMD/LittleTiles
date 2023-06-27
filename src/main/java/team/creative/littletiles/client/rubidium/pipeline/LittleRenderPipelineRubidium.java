@@ -112,11 +112,12 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             if (cubes == null || cubes.isEmpty())
                 continue;
             
-            sprites.clear();
             vertexBuffer.start(data.chunk.chunkId());
             
             for (int i = 0; i < ModelQuadFacing.VALUES.length; i++)
                 builder.getIndexBuffer(ModelQuadFacing.VALUES[i]).start();
+            
+            Arrays.fill(faceCounters, 0);
             
             for (Iterator<LittleRenderBox> iterator = cubes.sectionIterator(x -> {
                 indexes.add(x);
@@ -124,7 +125,6 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 indexes.add(a.getCount() * a.getStride());
                 for (int i = 0; i < faceCounters.length; i++)
                     indexes.add(faceCounters[i]);
-                Arrays.fill(faceCounters, 0);
             });iterator.hasNext();) {
                 LittleRenderBox cube = iterator.next();
                 BlockState state = cube.state;
@@ -201,10 +201,11 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 IntArrayList[] list = new IntArrayList[ModelQuadFacing.COUNT];
                 for (int i = 0; i < list.length; i++)
                     list[i] = new IntArrayList(builder.getIndexBuffer(ModelQuadFacing.VALUES[i]).pop());
-                buffers.put(entry.key, new RubidiumByteBufferHolder(vertexBuffer, buffer, indexes
+                buffers.put(entry.key, new RubidiumByteBufferHolder(buffer, v.getStride() * v.getCount(), v.getCount(), indexes
                         .toIntArray(), list, sprites.isEmpty() ? Collections.EMPTY_LIST : new ArrayList<>(sprites)));
                 indexes.clear();
             }
+            sprites.clear();
         }
         
     }

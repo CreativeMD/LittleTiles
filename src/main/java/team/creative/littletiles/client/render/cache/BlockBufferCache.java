@@ -8,6 +8,7 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
+import team.creative.littletiles.client.rubidium.RubidiumInteractor;
 
 public class BlockBufferCache {
     
@@ -18,6 +19,9 @@ public class BlockBufferCache {
             return second;
         if (second == null)
             return first;
+        
+        if (RubidiumInteractor.isRubidiumBuffer(first, second))
+            return RubidiumInteractor.combineBuffers(first, second);
         
         int vertexCount = 0;
         int length = 0;
@@ -123,7 +127,10 @@ public class BlockBufferCache {
     
     public void setUploaded(RenderType layer, UploadableBufferHolder uploadable) {
         queue.remove(layer);
-        uploaded.put(layer, uploadable);
+        if (uploadable == null)
+            uploaded.remove(layer);
+        else
+            uploaded.put(layer, uploadable);
     }
     
     public synchronized void setEmpty() {
