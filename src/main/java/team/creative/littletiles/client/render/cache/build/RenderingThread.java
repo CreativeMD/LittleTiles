@@ -67,10 +67,11 @@ public class RenderingThread extends Thread {
     }
     
     public static synchronized void unload() {
-        for (RenderingThread thread : THREADS)
-            if (thread != null)
-                thread.interrupt();
-            
+        if (THREADS != null)
+            for (RenderingThread thread : THREADS)
+                if (thread != null)
+                    thread.interrupt();
+                
         THREADS = null;
         
         QUEUE.clear();

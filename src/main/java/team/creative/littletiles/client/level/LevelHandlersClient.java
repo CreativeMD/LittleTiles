@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
 import team.creative.littletiles.common.level.handler.LevelHandler;
@@ -38,10 +39,7 @@ public class LevelHandlersClient {
         awareHandlers.forEach(x -> x.unload());
     }
     
-    public void unload(LevelEvent.Unload event) {
-        if (!event.getLevel().isClientSide())
-            return;
-        
+    public void unload(ClientPlayerNetworkEvent.LoggingOut event) {
         for (int i = 0; i < handlers.size(); i++)
             handlers.get(i).unload();
     }
