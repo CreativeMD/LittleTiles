@@ -62,8 +62,10 @@ public class ChunkRenderRebuildTaskMixin implements RebuildTaskExtender {
     
     @Redirect(
             method = "performBuild(Lme/jellysquid/mods/sodium/client/gl/compile/ChunkBuildContext;Lme/jellysquid/mods/sodium/client/util/task/CancellationSource;)Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildResult;",
-            remap = false, require = 1, at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;getRenderer(Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderer;"))
+            remap = false, require = 1,
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;getRenderer(Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderer;",
+                    remap = true))
     public BlockEntityRenderer<BlockEntity> getRendererRedirect(BlockEntityRenderDispatcher dispatcher, BlockEntity entity) {
         if (entity instanceof BETiles be)
             LittleRenderPipelineType.compile((RenderChunkExtender) render, be, this);
