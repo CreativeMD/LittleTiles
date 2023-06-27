@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL15C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.MemoryTracker;
 
 import net.minecraft.client.renderer.RenderType;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
@@ -55,13 +56,9 @@ public abstract class LittleRenderPipelineType {
     public final Supplier<LittleRenderPipeline> factory;
     public final int id;
     
-    public abstract void bindBuffer(VertexBufferExtender extender);
-    
-    public abstract void getBufferSubData(long offset, ByteBuffer buffer);
-    
-    public abstract void unbindBuffer();
-    
     public abstract boolean canBeUploadedDirectly();
+    
+    public abstract ByteBuffer downloadUploadedData(VertexBufferExtender buffer, long offset, int size);
     
     protected LittleRenderPipelineType(Supplier<LittleRenderPipeline> factory) {
         this.factory = factory;
@@ -76,23 +73,24 @@ public abstract class LittleRenderPipelineType {
         }
         
         @Override
-        public void bindBuffer(VertexBufferExtender extender) {
-            GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, extender.getVertexBufferId());
-        }
-        
-        @Override
-        public void getBufferSubData(long offset, ByteBuffer buffer) {
-            GL15C.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, offset, buffer);
-        }
-        
-        @Override
-        public void unbindBuffer() {
-            
-        }
-        
-        @Override
         public boolean canBeUploadedDirectly() {
             return true;
+        }
+        
+        @Override
+        public ByteBuffer downloadUploadedData(VertexBufferExtender buffer, long offset, int size) {
+            GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, buffer.getVertexBufferId());
+            try {
+                ByteBuffer result = MemoryTracker.create(size);
+                GL15C.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, offset, result);
+                return result;
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                if (!(e instanceof IllegalStateException))
+                    e.printStackTrace();
+                return null;
+            } finally {
+                
+            }
         }
         
     }

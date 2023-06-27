@@ -110,7 +110,7 @@ public class RenderUploader {
             
             ByteBuffer vanillaBuffer = null;
             if (!chunk.isEmpty(layer))
-                vanillaBuffer = chunk.downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
+                vanillaBuffer = chunk.getPipeline().downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
             
             BufferBuilder builder = new BufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risking and could potentially cause issues
             chunk.begin(builder);

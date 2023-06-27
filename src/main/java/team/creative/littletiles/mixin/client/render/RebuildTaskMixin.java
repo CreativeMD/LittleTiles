@@ -41,7 +41,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     @Shadow(aliases = { "this$0" })
     public RenderChunk this$1;
     
-    @Inject(at = @At("HEAD"),
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;enableCaching()V"),
             method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
             require = 1)
     private void compileStart(float f1, float f2, float f3, ChunkBufferBuilderPack pack, CallbackInfoReturnable info) {
@@ -49,7 +49,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
         LittleRenderPipelineType.startCompile((RenderChunkExtender) this$1, this);
     }
     
-    @Inject(at = @At("TAIL"),
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;clearCache()V"),
             method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
             require = 1)
     private void compile(CallbackInfoReturnable info) {

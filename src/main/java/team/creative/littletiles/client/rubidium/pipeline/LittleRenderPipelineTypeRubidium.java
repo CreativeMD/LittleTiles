@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL15C;
 
+import com.mojang.blaze3d.platform.MemoryTracker;
+
 import me.jellysquid.mods.sodium.client.gl.buffer.GlBuffer;
 import me.jellysquid.mods.sodium.client.gl.buffer.GlBufferTarget;
 import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
@@ -17,18 +19,19 @@ public class LittleRenderPipelineTypeRubidium extends LittleRenderPipelineType {
     }
     
     @Override
-    public void bindBuffer(VertexBufferExtender extender) {
-        RenderDevice.INSTANCE.createCommandList().bindBuffer(GlBufferTarget.ARRAY_BUFFER, (GlBuffer) extender);
-    }
-    
-    @Override
-    public void getBufferSubData(long offset, ByteBuffer buffer) {
-        GL15C.glGetBufferSubData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, buffer);
-    }
-    
-    @Override
-    public void unbindBuffer() {
-        
+    public ByteBuffer downloadUploadedData(VertexBufferExtender buffer, long offset, int size) {
+        RenderDevice.INSTANCE.createCommandList().bindBuffer(GlBufferTarget.ARRAY_BUFFER, (GlBuffer) buffer);
+        try {
+            ByteBuffer result = MemoryTracker.create(size);
+            GL15C.glGetBufferSubData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, result);
+            return result;
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            if (!(e instanceof IllegalStateException))
+                e.printStackTrace();
+            return null;
+        } finally {
+            
+        }
     }
     
     @Override

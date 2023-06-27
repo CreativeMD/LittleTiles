@@ -17,7 +17,7 @@ public class UploadableBufferHolder implements BufferHolder {
         builder.putBulkData(buffer);
         buffer.rewind();
         UploadableBufferHolder holder = new UploadableBufferHolder(buffer, index, data.length(), data.vertexCount(), data.indexes());
-        cache.add(holder);
+        cache.add(((BufferBuilderAccessor) builder).getNextElementByte(), holder);
         return holder;
     }
     

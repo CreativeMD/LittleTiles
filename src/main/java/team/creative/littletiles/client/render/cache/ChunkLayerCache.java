@@ -16,8 +16,8 @@ public class ChunkLayerCache implements Iterable<UploadableBufferHolder> {
     
     public ChunkLayerCache() {}
     
-    public void add(UploadableBufferHolder buffer) {
-        totalSize += buffer.length();
+    public void add(int totalSize, UploadableBufferHolder buffer) {
+        this.totalSize = totalSize;
         holders.add(buffer);
     }
     

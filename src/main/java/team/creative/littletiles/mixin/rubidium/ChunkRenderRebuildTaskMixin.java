@@ -156,7 +156,7 @@ public class ChunkRenderRebuildTaskMixin implements RebuildTaskExtender {
         
         RubidiumUploadableBufferHolder holder = new RubidiumUploadableBufferHolder(buffer.byteBuffer(), index, facingIndex, buffer.length(), buffer.vertexCount(), buffer
                 .indexes(), buffer.facingIndexLists(), buffer.getUsedTextures());
-        getOrCreate(layer).add(holder);
+        getOrCreate(layer).add(vertex.getCount() * vertex.getStride(), holder);
         return holder;
     }
     

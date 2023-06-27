@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
@@ -37,7 +38,7 @@ public class ChunkLayerUploadManager {
     
     public void uploaded() {
         synchronized (this) {
-            //if (this.uploaded != null) TODO Maybe this causes issues this has to be tested
+            //if (this.uploaded != null) seems like not necessary anymore. I leave the comment if there is ever an issue
             //    backToRAM();
             uploaded = cache;
             cache = null;
@@ -46,7 +47,7 @@ public class ChunkLayerUploadManager {
         }
     }
     
-    public void backToRAM(RenderChunkExtender chunk) {
+    public void backToRAM() {
         if (uploaded == null)
             return;
         Supplier<Boolean> run = () -> {
@@ -57,7 +58,7 @@ public class ChunkLayerUploadManager {
                     uploaded = null;
                     return false;
                 }
-                ByteBuffer uploadedData = chunk.downloadUploadedData((VertexBufferExtender) buffer, 0, uploaded.totalSize());
+                ByteBuffer uploadedData = LittleRenderPipelineType.FORGE.downloadUploadedData((VertexBufferExtender) buffer, 0, uploaded.totalSize());
                 if (uploadedData != null)
                     uploaded.download(uploadedData);
                 else

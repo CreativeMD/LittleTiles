@@ -132,7 +132,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     public ByteBuffer downloadSegment(GlBufferSegment segment) {
         GlBuffer buffer = ((GlBufferSegmentAccessor) segment).getArena().getBufferObject();
-        return downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset(), segment.getLength());
+        return RubidiumManager.PIPELINE.downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset(), segment.getLength());
     }
     
     @Override

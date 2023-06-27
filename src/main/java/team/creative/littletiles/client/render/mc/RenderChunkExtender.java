@@ -1,8 +1,5 @@
 package team.creative.littletiles.client.render.mc;
 
-import java.nio.ByteBuffer;
-
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -59,28 +56,12 @@ public interface RenderChunkExtender {
         return -1;
     }
     
-    public default ByteBuffer downloadUploadedData(VertexBufferExtender buffer, long offset, int size) {
-        LittleRenderPipelineType type = getPipeline();
-        type.bindBuffer(buffer);
-        try {
-            ByteBuffer result = MemoryTracker.create(size);
-            type.getBufferSubData(offset, result);
-            return result;
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            if (!(e instanceof IllegalStateException))
-                e.printStackTrace();
-            return null;
-        } finally {
-            type.unbindBuffer();
-        }
-    }
-    
     public default void backToRAM() {
         for (RenderType layer : RenderType.chunkBufferLayers()) {
             VertexBufferExtender buffer = (VertexBufferExtender) getVertexBuffer(layer);
             ChunkLayerUploadManager manager = buffer.getManager();
             if (manager != null)
-                manager.backToRAM(this);
+                manager.backToRAM();
         }
     }
     
@@ -92,7 +73,7 @@ public interface RenderChunkExtender {
                 synchronized (manager) {
                     manager.queued++;
                 }
-                manager.backToRAM(this);
+                manager.backToRAM();
             } else
                 ((VertexBufferExtender) vertexBuffer).setManager(manager = new ChunkLayerUploadManager(this, layer));
         }
