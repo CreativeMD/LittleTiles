@@ -109,11 +109,6 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    public Level getStructureLevel() {
-        return getStructureLevel();
-    }
-    
-    @Override
     @OnlyIn(Dist.CLIENT)
     public void loadUpdatePacket(CompoundTag nbt) {
         super.loadUpdatePacket(nbt);
