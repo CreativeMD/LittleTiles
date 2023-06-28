@@ -6,16 +6,19 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.api.common.block.ILittleMCBlock;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
 
-public class BlockLava extends Block implements ILittleMCBlock {
+public class BlockLava extends Block implements ILittleMCBlock, IFakeRenderingBlock {
     
     public BlockLava(Properties properties) {
         super(properties);
@@ -52,6 +55,11 @@ public class BlockLava extends Block implements ILittleMCBlock {
             return InteractionResult.SUCCESS;
         }
         return ILittleMCBlock.super.use(parent, tile, box, player, result);
+    }
+    
+    @Override
+    public BlockState getFakeState(BlockState state) {
+        return Blocks.LAVA.defaultBlockState();
     }
     
 }
