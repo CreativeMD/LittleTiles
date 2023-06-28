@@ -180,7 +180,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                                     .callWriteGeometry(context, vertexBuffer, indexBuffer, Vec3.ZERO, (ModelQuadView) quad, colors, cachedQuadLightData.br, cachedQuadLightData.lm);
                             TextureAtlasSprite sprite = quad.getSprite();
                             if (sprite != null && ((SpriteExtended) sprite.contents()).hasAnimation())
-                                builder.addSprite(sprite);
+                                sprites.add(sprite);
                             
                             faceCounters[modelFacing.ordinal()] += WINDING_LENGTH;
                         }
