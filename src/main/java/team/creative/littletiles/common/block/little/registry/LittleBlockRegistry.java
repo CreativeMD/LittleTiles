@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.AirBlock;
@@ -23,35 +25,36 @@ import team.creative.littletiles.mixin.common.block.StateHolderAccessor;
 
 public class LittleBlockRegistry {
     
-    private static final HashMap<Block, LittleBlock> blockMap = new HashMap<>();
-    private static final HashMap<String, LittleBlock> nameMap = new HashMap<>();
-    private static final PairList<Filter<Block>, Function<Block, LittleBlock>> blockHandlers = new PairList<>();
-    private static final Function<Block, LittleBlock> fallBack = x -> new LittleMCBlock(x);
-    private static final List<Function<String, LittleBlock>> specialHandlers = new ArrayList<>();
+    private static final HashMap<Block, LittleBlock> BLOCK_MAP = new HashMap<>();
+    private static final HashMap<String, LittleBlock> NAME_MAP = new HashMap<>();
+    private static final PairList<Filter<Block>, Function<Block, LittleBlock>> BLOCK_HANDLERS = new PairList<>();
+    private static final Function<Block, LittleBlock> FALLBACK = x -> new LittleMCBlock(x);
+    private static final List<Function<String, LittleBlock>> SPECIAL_HANDLERS = new ArrayList<>();
+    private static final Object2BooleanMap<Block> HAS_HANDLER_CACHE = new Object2BooleanOpenHashMap<>();
     
     public static LittleBlock getMissing(String name) {
-        LittleBlock little = nameMap.get(name);
+        LittleBlock little = NAME_MAP.get(name);
         if (little != null)
             return little;
         return create(name, null);
     }
     
     public static LittleBlock get(String name) {
-        LittleBlock little = nameMap.get(name);
+        LittleBlock little = NAME_MAP.get(name);
         if (little != null)
             return little;
         return create(name, ForgeRegistries.BLOCKS.getValue(new ResourceLocation(name)));
     }
     
     public static LittleBlock get(Block block) {
-        LittleBlock little = blockMap.get(block);
+        LittleBlock little = BLOCK_MAP.get(block);
         if (little != null)
             return little;
         return create(null, block);
     }
     
     public static LittleBlock get(BlockState block) {
-        LittleBlock little = blockMap.get(block.getBlock());
+        LittleBlock little = BLOCK_MAP.get(block.getBlock());
         if (little != null)
             return little;
         return create(null, block.getBlock());
@@ -111,37 +114,48 @@ public class LittleBlockRegistry {
         return state.setValue((Property<T>) prop, (V) value);
     }
     
+    public static boolean hasHandler(Block block) {
+        return HAS_HANDLER_CACHE.computeIfAbsent(block, x -> {
+            if (block instanceof LittleBlock)
+                return true;
+            for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
+                if (pair.key.is(block))
+                    return true;
+            return false;
+        });
+    }
+    
     private static LittleBlock create(String name, Block block) {
         if (block instanceof LittleBlock) {
-            nameMap.put(name, (LittleBlock) block);
+            NAME_MAP.put(name, (LittleBlock) block);
             return (LittleBlock) block;
         }
         if (block == null) {
-            for (Function<String, LittleBlock> special : specialHandlers) {
+            for (Function<String, LittleBlock> special : SPECIAL_HANDLERS) {
                 LittleBlock little = special.apply(name);
                 if (little != null) {
-                    nameMap.put(name, little);
+                    NAME_MAP.put(name, little);
                     return little;
                 }
             }
             LittleBlock little = new LittleMissingBlock(name);
-            nameMap.put(name, little);
+            NAME_MAP.put(name, little);
             return little;
         }
         
-        for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : blockHandlers)
+        for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
             if (pair.key.is(block)) {
                 LittleBlock little = pair.value.apply(block);
-                blockMap.put(block, little);
+                BLOCK_MAP.put(block, little);
                 return little;
             }
-        LittleBlock little = fallBack.apply(block);
-        blockMap.put(block, little);
+        LittleBlock little = FALLBACK.apply(block);
+        BLOCK_MAP.put(block, little);
         return little;
     }
     
     public static void register(Filter<Block> filter, Function<Block, LittleBlock> function) {
-        blockHandlers.add(filter, function);
+        BLOCK_HANDLERS.add(filter, function);
     }
     
 }

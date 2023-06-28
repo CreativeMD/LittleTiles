@@ -49,6 +49,7 @@ import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
@@ -425,11 +426,15 @@ public abstract class LittleAction<T> extends CreativePacket {
     private static boolean isBlockValid(Block block) {
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
+        if (LittleBlockRegistry.hasHandler(block))
+            return true;
         return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
     }
     
     public static boolean isBlockValid(BlockState state) {
         if (isBlockValid(state.getBlock()))
+            return true;
+        if (state.isSolid())
             return true;
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
             return true;
