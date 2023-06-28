@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium.buffer;
+package team.creative.littletiles.client.mod.rubidium.buffer;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;

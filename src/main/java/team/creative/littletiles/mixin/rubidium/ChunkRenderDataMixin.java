@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Unique;
 
 import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.rubidium.data.ChunkRenderDataExtender;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.rubidium.data.ChunkRenderDataExtender;
 
 @Mixin(ChunkRenderData.class)
 public class ChunkRenderDataMixin implements ChunkRenderDataExtender {

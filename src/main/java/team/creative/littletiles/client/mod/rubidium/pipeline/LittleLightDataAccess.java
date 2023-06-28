@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium.pipeline;
+package team.creative.littletiles.client.mod.rubidium.pipeline;
 
 import me.jellysquid.mods.sodium.client.model.light.cache.HashLightDataCache;
 import net.minecraft.world.level.BlockAndTintGetter;

@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexBufferBuilder;
+import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexEncoder;
 
 @Mixin(ChunkVertexBufferBuilder.class)
 public interface ChunkVertexBufferBuilderAccessor {
@@ -28,5 +29,8 @@ public interface ChunkVertexBufferBuilderAccessor {
     
     @Invoker(remap = false)
     public void callGrow(int len);
+    
+    @Accessor(remap = false)
+    public ChunkVertexEncoder getEncoder();
     
 }

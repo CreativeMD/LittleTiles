@@ -16,14 +16,14 @@ import team.creative.creativecore.client.render.face.RenderBoxFaceSpecial;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
+import team.creative.littletiles.client.mod.rubidium.pipeline.LittleRenderPipelineRubidium;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
-import team.creative.littletiles.client.rubidium.RubidiumInteractor;
-import team.creative.littletiles.client.rubidium.pipeline.LittleRenderPipelineRubidium;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -46,7 +46,7 @@ public class BERenderManager {
     public static RenderChunkExtender getRenderChunk(Level level, BlockPos pos) {
         if (level instanceof LittleLevel little)
             return little.getRenderManager().getRenderChunk(pos);
-        if (RubidiumInteractor.isInstalled())
+        if (RubidiumManager.installed())
             return LittleRenderPipelineRubidium.getChunk(pos);
         return (RenderChunkExtender) ((ViewAreaAccessor) ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getViewArea()).getChunkAt(pos);
     }

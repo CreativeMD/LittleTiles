@@ -53,7 +53,8 @@
         "rubidium.GlBufferSegmentAccessor",
         "rubidium.IndexBufferBuilderAccessor",
         "rubidium.RenderSectionManagerAccessor",
-        "rubidium.RenderSectionMixin"
+        "rubidium.RenderSectionMixin",
+        "oculus.XHFPTerrainVertexMixin"
     ],
     "minVersion": "0.8"
 }

@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium;
+package team.creative.littletiles.client.mod.rubidium;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -12,12 +12,12 @@ import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumBufferHolder;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumByteBufferHolder;
+import team.creative.littletiles.client.mod.rubidium.pipeline.LittleRenderPipelineTypeRubidium;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
-import team.creative.littletiles.client.rubidium.buffer.RubidiumBufferHolder;
-import team.creative.littletiles.client.rubidium.buffer.RubidiumByteBufferHolder;
-import team.creative.littletiles.client.rubidium.pipeline.LittleRenderPipelineTypeRubidium;
 
-public class RubidiumManager {
+public class RubidiumInteractor {
     
     public static final LittleRenderPipelineTypeRubidium PIPELINE = new LittleRenderPipelineTypeRubidium();
     

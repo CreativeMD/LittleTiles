@@ -52,6 +52,8 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.level.LittleInteractionHandlerClient;
+import team.creative.littletiles.client.mod.oculus.OculusManager;
+import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.player.LittleClientPlayerConnection;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
@@ -66,7 +68,6 @@ import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.render.overlay.TooltipOverlay;
-import team.creative.littletiles.client.rubidium.RubidiumInteractor;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -207,7 +208,8 @@ public class LittleTilesClient {
         ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.get(), filled, function);
         ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
         
-        RubidiumInteractor.init();
+        RubidiumManager.init();
+        OculusManager.init();
     }
     
     public static void modelLoader(RegisterAdditional event) {

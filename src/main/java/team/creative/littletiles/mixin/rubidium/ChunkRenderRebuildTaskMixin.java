@@ -28,6 +28,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumBufferHolder;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumUploadableBufferHolder;
+import team.creative.littletiles.client.mod.rubidium.data.ChunkRenderDataExtender;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
@@ -35,9 +38,6 @@ import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHold
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.client.rubidium.buffer.RubidiumBufferHolder;
-import team.creative.littletiles.client.rubidium.buffer.RubidiumUploadableBufferHolder;
-import team.creative.littletiles.client.rubidium.data.ChunkRenderDataExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 @Mixin(ChunkRenderRebuildTask.class)

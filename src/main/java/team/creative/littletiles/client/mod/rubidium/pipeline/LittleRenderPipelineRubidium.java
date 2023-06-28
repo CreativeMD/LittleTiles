@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.rubidium.pipeline;
+package team.creative.littletiles.client.mod.rubidium.pipeline;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -45,17 +45,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.client.IFakeRenderingBlock;
+import team.creative.littletiles.client.mod.oculus.OculusManager;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumByteBufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
-import team.creative.littletiles.client.rubidium.buffer.RubidiumByteBufferHolder;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.rubidium.BlockRenderCacheAccessor;
 import team.creative.littletiles.mixin.rubidium.BlockRenderContextAccessor;
@@ -83,6 +86,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     private IntArrayList indexes = new IntArrayList();
     private int[] faceCounters = new int[ModelQuadFacing.COUNT];
     private int[] colors = new int[4];
+    private Vec3d cubeCenter = new Vec3d();
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferHolder> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
@@ -118,6 +122,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 builder.getIndexBuffer(ModelQuadFacing.VALUES[i]).start();
             
             Arrays.fill(faceCounters, 0);
+            ChunkVertexBufferBuilderAccessor v = (ChunkVertexBufferBuilderAccessor) vertexBuffer;
             
             for (Iterator<LittleRenderBox> iterator = cubes.sectionIterator(x -> {
                 indexes.add(x);
@@ -130,14 +135,17 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 BlockState state = cube.state;
                 
                 context.update(pos, modelOffset, state, null, 0, ModelData.EMPTY, entry.key);
+                OculusManager.setLocalPos(buildBuffers, pos);
+                cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
+                OculusManager.setMid(vertexBuffer, cubeCenter);
                 
                 ColorSampler<BlockState> colorizer = null;
                 
-                /*if (OptifineHelper.isShaders()) {
-                    if (state.getBlock() instanceof IFakeRenderingBlock)
-                        state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
-                    OptifineHelper.pushBuffer(state, pos, data.be.getLevel(), builder);
-                }*/
+                if (OculusManager.isShaders()) {
+                    if (state.getBlock() instanceof IFakeRenderingBlock fake)
+                        state = fake.getFakeState(state);
+                    OculusManager.setMaterialId(buildBuffers, state);
+                }
                 
                 for (int h = 0; h < Facing.VALUES.length; h++) {
                     Facing facing = Facing.VALUES[h];
@@ -181,18 +189,13 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 
                 bakedQuadWrapper.setElement(null);
                 
-                //if (OptifineHelper.isShaders())
-                //    OptifineHelper.popBuffer(builder);
+                OculusManager.resetBlockContext(buildBuffers);
                 
                 if (!LittleTiles.CONFIG.rendering.useQuadCache)
                     cube.deleteQuadCache();
             }
             
-            //if (OptifineHelper.isShaders())
-            //    OptifineHelper.calcNormalChunkLayer(builder);
-            
-            if (((ChunkVertexBufferBuilderAccessor) vertexBuffer).getCount() > 0) {
-                ChunkVertexBufferBuilderAccessor v = (ChunkVertexBufferBuilderAccessor) vertexBuffer;
+            if (v.getCount() > 0) {
                 ByteBuffer buffer = MemoryUtil.memRealloc((ByteBuffer) null, v.getStride() * v.getCount());
                 ByteBuffer threadBuffer = v.getBuffer();
                 threadBuffer.limit(buffer.capacity());
@@ -213,10 +216,8 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     @Override
     public void reload() {
         ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) SodiumWorldRenderer.instance().getRenderSectionManager().getBuilder();
-        if (buildBuffers == null) {
-            buildBuffers = new ChunkBuildBuffers(chunkBuilder.getVertexType(), chunkBuilder.getRenderPassManager());
-            buildBuffers.init(null, 0);
-        }
+        buildBuffers = new ChunkBuildBuffers(chunkBuilder.getVertexType(), chunkBuilder.getRenderPassManager());
+        buildBuffers.init(null, 0);
         renderer = new BlockRenderer(Minecraft.getInstance(), lighters = new LightPipelineProvider(lightAccess = new LittleLightDataAccess()), BlockRenderCacheAccessor
                 .callCreateBiomeColorBlender());
     }

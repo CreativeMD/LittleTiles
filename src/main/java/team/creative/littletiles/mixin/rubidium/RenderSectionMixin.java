@@ -29,15 +29,15 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.rubidium.RubidiumInteractor;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumUploadableBufferHolder;
+import team.creative.littletiles.client.mod.rubidium.data.ChunkRenderDataExtender;
 import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
-import team.creative.littletiles.client.rubidium.RubidiumManager;
-import team.creative.littletiles.client.rubidium.buffer.RubidiumUploadableBufferHolder;
-import team.creative.littletiles.client.rubidium.data.ChunkRenderDataExtender;
 
 @Mixin(RenderSection.class)
 public abstract class RenderSectionMixin implements RenderChunkExtender {
@@ -91,7 +91,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     @Override
     public boolean isEmpty(RenderType layer) {
-        return getGraphicsState(RubidiumManager.getPass(layer)) == null;
+        return getGraphicsState(RubidiumInteractor.getPass(layer)) == null;
     }
     
     @Override
@@ -113,7 +113,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     @Override
     public LittleRenderPipelineType getPipeline() {
-        return RubidiumManager.PIPELINE;
+        return RubidiumInteractor.PIPELINE;
     }
     
     @Override
@@ -132,7 +132,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     public ByteBuffer downloadSegment(GlBufferSegment segment) {
         GlBuffer buffer = ((GlBufferSegmentAccessor) segment).getArena().getBufferObject();
-        return RubidiumManager.PIPELINE.downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset(), segment.getLength());
+        return RubidiumInteractor.PIPELINE.downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset(), segment.getLength());
     }
     
     @Override
@@ -144,7 +144,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         Runnable run = () -> {
             synchronized (this) {
                 for (Tuple<RenderType, ChunkLayerCache> tuple : caches.tuples()) {
-                    ChunkGraphicsState state = getGraphicsState(RubidiumManager.getPass(tuple.key));
+                    ChunkGraphicsState state = getGraphicsState(RubidiumInteractor.getPass(tuple.key));
                     if (state == null)
                         continue;
                     

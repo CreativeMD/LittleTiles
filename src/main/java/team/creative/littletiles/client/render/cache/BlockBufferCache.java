@@ -5,10 +5,10 @@ import java.util.Map.Entry;
 
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
-import team.creative.littletiles.client.rubidium.RubidiumInteractor;
 
 public class BlockBufferCache {
     
@@ -20,8 +20,8 @@ public class BlockBufferCache {
         if (second == null)
             return first;
         
-        if (RubidiumInteractor.isRubidiumBuffer(first, second))
-            return RubidiumInteractor.combineBuffers(first, second);
+        if (RubidiumManager.isRubidiumBuffer(first, second))
+            return RubidiumManager.combineBuffers(first, second);
         
         int vertexCount = 0;
         int length = 0;
