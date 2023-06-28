@@ -292,18 +292,9 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         BETiles be = loadBE(level, pos);
         VoxelShape shape = Shapes.empty();
         
-        if (be != null) {
-            for (IParentCollection list : be.groups()) {
-                if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
-                    try {
-                        shape = Shapes.joinUnoptimized(shape, list.getStructure().getExtraShape(state, level, pos, context), BooleanOp.OR);
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-                
-                for (LittleTile tile : list)
-                    if (!tile.getBlock().noCollision())
-                        shape = Shapes.joinUnoptimized(shape, tile.getShapes(list), BooleanOp.OR);
-            }
-        }
+        if (be != null)
+            for (Pair<IParentCollection, LittleTile> tile : be.allTiles())
+                shape = Shapes.joinUnoptimized(shape, tile.value.getShapes(tile.key), BooleanOp.OR);
         return shape;
     }
     
