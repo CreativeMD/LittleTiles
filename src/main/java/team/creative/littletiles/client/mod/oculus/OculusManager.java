@@ -26,22 +26,22 @@ public class OculusManager {
     }
     
     public static void setLocalPos(Object buffers, BlockPos pos) {
-        if (OculusInteractor.isShaders())
+        if (isShaders())
             OculusInteractor.setLocalPos((ChunkBuildBuffers) buffers, pos);
     }
     
     public static void setMaterialId(Object buffers, BlockState state) {
-        if (OculusInteractor.isShaders())
+        if (isShaders())
             OculusInteractor.setMaterialId((ChunkBuildBuffers) buffers, state);
     }
     
     public static void resetBlockContext(Object buffers) {
-        if (OculusInteractor.isShaders())
+        if (isShaders())
             OculusInteractor.resetBlockContext((ChunkBuildBuffers) buffers);
     }
     
     public static void setMid(Object vertexBuffer, Vec3d center) {
-        if (OculusInteractor.isShaders())
+        if (isShaders())
             OculusInteractor.setMid((ChunkVertexBufferBuilderAccessor) vertexBuffer, center);
         
     }
