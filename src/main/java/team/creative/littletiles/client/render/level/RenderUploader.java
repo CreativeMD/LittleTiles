@@ -21,7 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
@@ -80,7 +79,7 @@ public class RenderUploader {
     }
     
     public static void uploadRenderData(RenderChunkExtender chunk, Iterable<? extends LayeredBufferCache> blocks) {
-        if (OptifineHelper.isRenderRegions() || !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
+        if (!LittleTiles.CONFIG.rendering.uploadToVBODirectly)
             return;
         
         if (!chunk.getPipeline().canBeUploadedDirectly()) {

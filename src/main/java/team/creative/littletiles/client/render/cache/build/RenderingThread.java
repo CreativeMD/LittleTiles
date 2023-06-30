@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.LevelAccesorFake;
-import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
@@ -198,7 +197,7 @@ public class RenderingThread extends Thread {
                                     
                                     BlockState modelState = cube.state;
                                     rand.setSeed(modelState.getSeed(pos));
-                                    BakedModel blockModel = OptifineHelper.getRenderModel(MC.getBlockRenderer().getBlockModel(modelState), level, modelState, pos);
+                                    BakedModel blockModel = MC.getBlockRenderer().getBlockModel(modelState);
                                     BlockPos offset = cube.getOffset();
                                     for (int h = 0; h < Facing.VALUES.length; h++) {
                                         Facing facing = Facing.VALUES[h];

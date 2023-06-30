@@ -20,7 +20,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.lighting.QuadLighter;
 import team.creative.creativecore.client.render.model.CreativeQuadLighter;
-import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
@@ -29,7 +28,6 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -81,12 +79,6 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 ((CreativeQuadLighter) lighter).setState(state);
                 ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
                 
-                if (OptifineHelper.isShaders()) {
-                    if (state.getBlock() instanceof IFakeRenderingBlock)
-                        state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
-                    OptifineHelper.pushBuffer(state, pos, data.be.getLevel(), builder);
-                }
-                
                 for (int h = 0; h < Facing.VALUES.length; h++) {
                     Facing facing = Facing.VALUES[h];
                     Object quadObject = cube.getQuad(facing);
@@ -104,15 +96,9 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 
                 bakedQuadWrapper.setElement(null);
                 
-                if (OptifineHelper.isShaders())
-                    OptifineHelper.popBuffer(builder);
-                
                 if (!LittleTiles.CONFIG.rendering.useQuadCache)
                     cube.deleteQuadCache();
             }
-            
-            if (OptifineHelper.isShaders())
-                OptifineHelper.calcNormalChunkLayer(builder);
             
             buffers.put(entry.key, new ByteBufferHolder(builder.end(), indexes.toIntArray()));
         }

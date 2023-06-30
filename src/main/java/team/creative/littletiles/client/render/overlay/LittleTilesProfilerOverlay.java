@@ -14,10 +14,8 @@ import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import team.creative.creativecore.common.mod.OptifineHelper;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 
@@ -105,14 +103,6 @@ public class LittleTilesProfilerOverlay {
             
             GuiGraphics graphics = event.getGuiGraphics();
             List<String> warnings = new ArrayList<>();
-            if (OptifineHelper.installed() && OptifineHelper.isRenderRegions())
-                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Render Regions");
-            if (OptifineHelper.installed() && OptifineHelper.isAnisotropicFiltering())
-                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Anisotropic Filtering");
-            if (OptifineHelper.installed() && OptifineHelper.isAntialiasing())
-                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Disable Antialiasing");
-            if (!LittleTiles.CONFIG.rendering.hideMipmapWarning && OptifineHelper.installed() && mc.options.mipmapLevels().get() == 0)
-                warnings.add(ChatFormatting.RED + "(LittleTiles) Optifine detected - Enable mipmap levels (needs to be > 0)");
             if (!warnings.isEmpty()) {
                 for (int i = 0; i < warnings.size(); i++) {
                     String warning = warnings.get(i);
