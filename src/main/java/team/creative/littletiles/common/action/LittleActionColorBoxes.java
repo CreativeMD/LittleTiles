@@ -162,7 +162,11 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                                 gained.add(ColorIngredient.getColors(element, volume));
                             } else {
                                 addRevert(element.color, be.getBlockPos(), grid, Arrays.asList(box));
-                                element.color = color;
+                                
+                                LittleElement coloredElement = element.copy();
+                                coloredElement.color = color;
+                                toAdd.add(coloredElement, box);
+                                toRemove.add(element, box);
                             }
                         }
                     }
