@@ -145,7 +145,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                             if (returnedVolume.has())
                                 ingredients.add(getIngredients(element, returnedVolume.getPercentVolume(grid)));
                         } else {
-                            ingredients.add(getIngredients(parent, element));
+                            ingredients.add(getIngredients(parent, element, box));
                             
                             if (!simulate) {
                                 toRemove.add(element, intersecting);
