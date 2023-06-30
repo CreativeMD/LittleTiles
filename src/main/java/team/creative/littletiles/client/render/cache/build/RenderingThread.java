@@ -117,9 +117,7 @@ public class RenderingThread extends Thread {
     public static synchronized void reload() {
         if (THREADS == null)
             return;
-        for (RenderingThread thread : THREADS)
-            if (thread != null)
-                thread.requiresReload = true;
+        unload();
     }
     
     static {

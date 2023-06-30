@@ -24,6 +24,7 @@ import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
 import me.jellysquid.mods.sodium.client.model.quad.blender.ColorSampler;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
+import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
@@ -90,6 +91,9 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferHolder> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
+        if (buildBuffers == null)
+            reload();
+        
         Level renderLevel = data.be.getLevel();
         while (renderLevel instanceof LittleSubLevel sub && !sub.shouldUseLightingForRenderig())
             renderLevel = sub.getParent();
@@ -215,7 +219,13 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     
     @Override
     public void reload() {
-        ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) SodiumWorldRenderer.instance().getRenderSectionManager().getBuilder();
+        RenderSectionManager manager = SodiumWorldRenderer.instance().getRenderSectionManager();
+        if (manager == null) {
+            buildBuffers = null;
+            renderer = null;
+            return;
+        }
+        ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
         buildBuffers = new ChunkBuildBuffers(chunkBuilder.getVertexType(), chunkBuilder.getRenderPassManager());
         buildBuffers.init(null, 0);
         renderer = new BlockRenderer(Minecraft.getInstance(), lighters = new LightPipelineProvider(lightAccess = new LittleLightDataAccess()), BlockRenderCacheAccessor
