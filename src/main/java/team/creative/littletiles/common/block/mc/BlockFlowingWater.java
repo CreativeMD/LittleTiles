@@ -21,15 +21,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
@@ -81,27 +79,8 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     }
     
     @Override
-    public boolean isLiquid() {
-        return true;
-    }
-    
-    @Override
     public boolean checkEntityCollision() {
         return true;
-    }
-    
-    @Override
-    public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
-        AABB box = entity.getBoundingBox();
-        LittleVec center = new LittleVec(parent.getGrid(), new Vec3((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2)
-                .subtract(Vec3.atLowerCornerOf(parent.getPos())));
-        LittleBox testBox = new LittleBox(center, 1, 1, 1);
-        if (tile.intersectsWith(testBox)) {
-            double scale = 0.01;
-            Vec3 vec = new Vec3(tile.getState().getValue(BlockStateProperties.FACING).step()).normalize().scale(scale);
-            entity.setDeltaMovement(entity.getDeltaMovement().add(vec));
-        }
-        return new Vec3d(tile.getState().getValue(BlockStateProperties.FACING).step());
     }
     
     @Override
@@ -122,13 +101,18 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
         if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
+            BlockState newState;
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;
             if (index >= Direction.values().length)
-                tile.setState(LittleTilesRegistry.WATER.get().defaultBlockState());
+                newState = LittleTilesRegistry.WATER.get().defaultBlockState();
             else
-                tile.setState(tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]));
-            parent.getBE().updateTiles();
+                newState = tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]);
+            parent.getBE().updateTiles(x -> {
+                LittleTile newFlowing = new LittleTile(newState, ColorUtils.WHITE, box.copy());
+                x.noneStructureTiles().remove(tile, box);
+                x.noneStructureTiles().add(newFlowing);
+            });
             return InteractionResult.SUCCESS;
         }
         return ILittleMCBlock.super.use(parent, tile, box, player, result);
@@ -147,11 +131,10 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     @Override
     public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         float f12 = 0.0F;
-        if (entity instanceof LivingEntity) {
-            LivingEntity ent = (LivingEntity) entity;
-            f12 = EnchantmentHelper.getRespiration(ent) * 0.2F;
+        if (entity instanceof LivingEntity living) {
+            f12 = EnchantmentHelper.getRespiration(living) * 0.2F;
             
-            if (ent.hasEffect(MobEffects.WATER_BREATHING))
+            if (living.hasEffect(MobEffects.WATER_BREATHING))
                 f12 = f12 * 0.3F + 0.6F;
         }
         return new Vector3d(0.02F + f12, 0.02F + f12, 0.2F + f12);

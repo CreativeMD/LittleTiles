@@ -26,6 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
@@ -77,11 +78,6 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
-    public boolean isLiquid() {
-        return true;
-    }
-    
-    @Override
     public boolean checkEntityCollision() {
         return true;
     }
@@ -117,13 +113,21 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
         if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingLava) {
+            BlockState newState;
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;
             if (index >= Direction.values().length)
-                tile.setState(LittleTilesRegistry.LAVA.get().defaultBlockState());
+                if (this == LittleTilesRegistry.FLOWING_LAVA.get())
+                    newState = LittleTilesRegistry.LAVA.get().defaultBlockState();
+                else
+                    newState = LittleTilesRegistry.WHITE_LAVA.get().defaultBlockState();
             else
-                tile.setState(tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]));
-            parent.getBE().updateTiles();
+                newState = tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]);
+            parent.getBE().updateTiles(x -> {
+                LittleTile newFlowing = new LittleTile(newState, ColorUtils.WHITE, box.copy());
+                x.noneStructureTiles().remove(tile, box);
+                x.noneStructureTiles().add(newFlowing);
+            });
             return InteractionResult.SUCCESS;
         }
         return ILittleMCBlock.super.use(parent, tile, box, player, result);

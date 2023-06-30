@@ -32,7 +32,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.CopyArrayCollection;
 import team.creative.creativecore.common.util.type.map.HashMapList;
@@ -454,16 +453,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.isFluid(fluid);
     }
     
-    public boolean isLiquid() {
-        return block.isLiquid();
-    }
-    
     public Vector3d getFogColor(IParentCollection parent, Entity entity, Vector3d originalColor, float partialTicks) {
         return block.getFogColor(parent, this, entity, originalColor, partialTicks);
-    }
-    
-    public Vec3d modifyAcceleration(IParentCollection parent, Entity entity, Vec3d motion) {
-        return block.modifyAcceleration(parent, this, entity, motion);
     }
     
     public boolean canBeConvertedToVanilla() {

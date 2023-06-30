@@ -1,7 +1,7 @@
 {
     "variants": {
         "": {
-            "model": "littletiles:block/colored_white_flowing_lava"
+            "model": "littletiles:block/colored_white_lava"
         }
     }
 }

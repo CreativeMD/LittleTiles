@@ -12,6 +12,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
@@ -25,6 +26,7 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -128,7 +130,8 @@ public class LittleTilesClient {
     public static void load(IEventBus bus) {
         bus.addListener(LittleTilesClient::setup);
         MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands);
-        bus.addListener(LittleTilesClient::initColors);
+        bus.addListener(LittleTilesClient::initItemColors);
+        bus.addListener(LittleTilesClient::initBlockColors);
         bus.addListener(LittleTilesClient::registerKeys);
         bus.addListener(LittleTilesClient::modelEvent);
         bus.addListener(LittleTilesClient::modelLoader);
@@ -322,9 +325,19 @@ public class LittleTilesClient {
                 });
     }
     
-    public static void initColors(RegisterColorHandlersEvent.Item event) {
+    public static void initItemColors(RegisterColorHandlersEvent.Item event) {
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.PREMADE.get());
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.ITEM_TILES.get());
+        event.register((stack, tint) -> {
+            if (stack.getItem() instanceof BlockItem block)
+                return event.getBlockColors().getColor(block.getBlock().defaultBlockState(), (BlockAndTintGetter) null, (BlockPos) null, tint);
+            return ColorUtils.WHITE;
+        }, LittleTilesRegistry.WATER.get(), LittleTilesRegistry.FLOWING_WATER.get());
+    }
+    
+    public static void initBlockColors(RegisterColorHandlersEvent.Block event) {
+        event.register((state, level, pos, tint) -> level != null && pos != null ? BiomeColors.getAverageWaterColor(level, pos) : 4159204, LittleTilesRegistry.WATER
+                .get(), LittleTilesRegistry.FLOWING_WATER.get());
     }
     
     public static void commands(RegisterClientCommandsEvent event) {

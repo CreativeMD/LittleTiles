@@ -18,7 +18,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -150,11 +149,6 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public default boolean isLiquid() {
-        return getState().liquid();
-    }
-    
-    @Override
     public default LittleRenderBox getRenderBox(LittleGrid grid, RenderType layer, LittleBox box, LittleElement element) {
         return new LittleRenderBox(grid, box, element);
     }
@@ -170,11 +164,6 @@ public interface ILittleMCBlock extends LittleBlock {
     @Override
     public default Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         return originalColor;
-    }
-    
-    @Override
-    public default Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
-        return motion;
     }
     
     @Override

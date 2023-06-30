@@ -106,9 +106,7 @@ public class LittleTilesRegistry {
     public static final RegistryObject<Block> STONE = register("colored_stone", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
     public static final RegistryObject<Block> CORK = register("colored_cork", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
     
-    public static final RegistryObject<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission()));
-    public static final RegistryObject<Block> WHITE_WATER = register("colored_white_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED)
-            .noCollission()));
+    public static final RegistryObject<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).noCollission()));
     
     public static final RegistryObject<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission()));
     public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW).noCollission()
@@ -118,7 +116,6 @@ public class LittleTilesRegistry {
             .strength(1.5F).sound(SoundType.WOOD)));
     
     public static final RegistryObject<Block> FLOWING_WATER = BLOCKS.register("colored_water_flowing", () -> new BlockFlowingWater(WATER.get()));
-    public static final RegistryObject<Block> WHITE_FLOWING_WATER = BLOCKS.register("colored_white_water_flowing", () -> new BlockFlowingWater(WHITE_WATER.get()));
     
     public static final RegistryObject<Block> FLOWING_LAVA = BLOCKS.register("colored_lava_flowing", () -> new BlockFlowingLava(LAVA.get()));
     public static final RegistryObject<Block> WHITE_FLOWING_LAVA = BLOCKS.register("colored_white_lava_flowing", () -> new BlockFlowingLava(WHITE_LAVA.get()));
@@ -216,7 +213,6 @@ public class LittleTilesRegistry {
                 output.accept(LittleTilesRegistry.CORK.get());
                 
                 output.accept(LittleTilesRegistry.WATER.get());
-                output.accept(LittleTilesRegistry.WHITE_WATER.get());
                 
                 output.accept(LittleTilesRegistry.LAVA.get());
                 output.accept(LittleTilesRegistry.WHITE_LAVA.get());

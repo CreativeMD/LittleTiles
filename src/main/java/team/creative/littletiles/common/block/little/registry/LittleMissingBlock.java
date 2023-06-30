@@ -19,7 +19,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -131,18 +130,8 @@ public class LittleMissingBlock implements LittleBlock {
     }
     
     @Override
-    public boolean isLiquid() {
-        return false;
-    }
-    
-    @Override
     public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         return IClientBlockExtensions.of(tile.getState()).getFogColor(getState(), parent.getLevel(), parent.getPos(), entity, originalColor, partialTicks);
-    }
-    
-    @Override
-    public Vec3d modifyAcceleration(IParentCollection parent, LittleTile tile, Entity entity, Vec3d motion) {
-        return motion;
     }
     
     @Override

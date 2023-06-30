@@ -1,15 +1,23 @@
 package team.creative.littletiles.common.block.mc;
 
+import org.joml.Vector3d;
+
+import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
@@ -35,23 +43,20 @@ public class BlockWater extends Block implements ILittleMCBlock, IFakeRenderingB
     }
     
     @Override
-    public boolean isLiquid() {
-        return true;
-    }
-    
-    @Override
     public boolean canBeConvertedToVanilla() {
         return false;
     }
     
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
-        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
-            if (this == LittleTilesRegistry.WATER.get())
-                tile.setState(LittleTilesRegistry.FLOWING_WATER.get().defaultBlockState());
-            else
-                tile.setState(LittleTilesRegistry.WHITE_FLOWING_WATER.get().defaultBlockState());
-            parent.getBE().updateTiles();
+        if (player.getMainHandItem().getItem() instanceof BucketItem && !parent.isStructure() && LittleTiles.CONFIG.general.allowFlowingWater) {
+            BlockState newState = LittleTilesRegistry.FLOWING_WATER.get().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]);
+            parent.getBE().updateTiles(x -> {
+                LittleTile newFlowing = new LittleTile(newState, ColorUtils.WHITE, box.copy());
+                x.noneStructureTiles().remove(tile, box);
+                x.noneStructureTiles().add(newFlowing);
+            });
+            
             return InteractionResult.SUCCESS;
         }
         return ILittleMCBlock.super.use(parent, tile, box, player, result);
@@ -60,6 +65,18 @@ public class BlockWater extends Block implements ILittleMCBlock, IFakeRenderingB
     @Override
     public BlockState getFakeState(BlockState state) {
         return Blocks.WATER.defaultBlockState();
+    }
+    
+    @Override
+    public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
+        float f12 = 0.0F;
+        if (entity instanceof LivingEntity living) {
+            f12 = EnchantmentHelper.getRespiration(living) * 0.2F;
+            
+            if (living.hasEffect(MobEffects.WATER_BREATHING))
+                f12 = f12 * 0.3F + 0.6F;
+        }
+        return new Vector3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
     }
     
 }
