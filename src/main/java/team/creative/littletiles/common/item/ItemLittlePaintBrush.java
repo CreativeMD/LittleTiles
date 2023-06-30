@@ -188,7 +188,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         BlockEntity blockEntity = level.getBlockEntity(result.getBlockPos());
         if (blockEntity instanceof BETiles)
-            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new CompoundTag()));
+            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.PAINT_BRUSH, new CompoundTag()));
         return true;
     }
     

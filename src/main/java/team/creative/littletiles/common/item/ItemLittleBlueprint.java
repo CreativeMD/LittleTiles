@@ -102,7 +102,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
         if (state.getBlock() instanceof BlockTile) {
             CompoundTag nbt = new CompoundTag();
             nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
-            LittleTiles.NETWORK.sendToServer(new BlockPacket(world, result.getBlockPos(), player, BlockPacketAction.RECIPE, nbt));
+            LittleTiles.NETWORK.sendToServer(new BlockPacket(world, result.getBlockPos(), player, BlockPacketAction.BLUEPRINT, nbt));
             return true;
         }
         return true;

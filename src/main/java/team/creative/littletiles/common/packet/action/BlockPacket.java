@@ -41,7 +41,7 @@ public class BlockPacket extends CreativePacket {
     
     public static enum BlockPacketAction {
         
-        COLOR_TUBE(true) {
+        PAINT_BRUSH(true) {
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
                 if (context.parent.isStructure()) {
@@ -97,7 +97,7 @@ public class BlockPacket extends CreativePacket {
             }
             
         },
-        RECIPE(false) {
+        BLUEPRINT(false) {
             
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
@@ -155,7 +155,7 @@ public class BlockPacket extends CreativePacket {
         this.blockPos = blockPos;
         this.action = action;
         float partialTickTime = TickUtils.getFrameTime(level);
-        this.pos = player.getPosition(partialTickTime);
+        this.pos = player.getEyePosition(partialTickTime);
         double distance = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
         this.look = pos.add(view.x * distance, view.y * distance, view.z * distance);
@@ -185,8 +185,7 @@ public class BlockPacket extends CreativePacket {
         }
         
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
-        if (blockEntity instanceof BETiles) {
-            BETiles be = (BETiles) blockEntity;
+        if (blockEntity instanceof BETiles be) {
             LittleTileContext context = be.getFocusedTile(pos, look);
             
             if (!LittleAction.isAllowedToInteract(level, player, blockPos, action.rightClick, Facing.EAST)) {
