@@ -87,6 +87,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
         }
         
         public LittleBoxes start(LittleBoxes boxes) {
+            addBox(boxes, origin, box, facing);
             origin.performSearchIn(boxes, this, true, origin.parent.getGrid(), box, facing);
             return boxes;
         }
@@ -94,14 +95,14 @@ public class LittleShapeConnected extends LittleShapeSelectable {
         public ConnectedBlock get(BlockPos pos, Facing facing) {
             this.pos.set(pos);
             this.pos.move(facing.toVanilla());
-            ConnectedBlock block = blocks.get(pos);
+            ConnectedBlock block = blocks.get(this.pos);
             if (block == null) {
-                BlockEntity be = origin.parent.getLevel().getBlockEntity(pos);
-                if (be instanceof BETiles)
-                    block = new ConnectedBlock((BETiles) be, this);
+                BlockEntity be = origin.parent.getLevel().getBlockEntity(this.pos);
+                if (be instanceof BETiles t)
+                    block = new ConnectedBlock(t, this);
                 else
                     block = EMPTY;
-                blocks.put(pos, block);
+                blocks.put(this.pos.immutable(), block);
             }
             return block;
         }
