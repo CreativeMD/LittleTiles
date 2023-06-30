@@ -13,6 +13,7 @@
         "common.level.BlockBehaviourAccessor",
         "common.level.LevelAccessor",
         "common.item.BlockPlaceContextMixin",
+        "common.network.FriendlyByteBufMixin",
         "server.level.ChunkSerializerAccessor",
         "server.level.MinecraftServerAccessor",
         "server.level.ServerChunkCacheMixin",
@@ -22,7 +23,8 @@
         "server.level.ServerEntityAccessor",
         "server.level.ChunkMapAccessor",
         "server.network.ServerGamePacketListenerImplAccessor",
-        "server.network.ServerGamePacketListenerImplMixin"
+        "server.network.ServerGamePacketListenerImplMixin",
+        "server.network.ServerboundCustomPayloadPacketMixin"
     ],
     "client": [
         "client.MinecraftMixin",
