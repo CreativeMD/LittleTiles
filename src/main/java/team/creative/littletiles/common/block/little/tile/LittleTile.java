@@ -209,6 +209,10 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.isTranslucent() || ColorUtils.isTransparent(color);
     }
     
+    public boolean cullOverEdge() {
+        return block.cullOverEdge();
+    }
+    
     // ================Grid================
     
     public int getSmallest(LittleGrid grid) {
@@ -257,6 +261,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     public void fillFace(IParentCollection parent, ILittleFace face, LittleGrid grid) {
         for (LittleBox box : boxes) {
+            if (box == face.box())
+                continue;
             if (face.getGrid() != parent.getGrid()) {
                 box = box.copy();
                 box.convertTo(parent.getGrid(), face.getGrid());

@@ -75,6 +75,11 @@ public non-sealed class LittleServerFace implements ILittleFace {
     }
     
     @Override
+    public LittleBox box() {
+        return box;
+    }
+    
+    @Override
     public void ensureGrid(LittleGrid context) {
         if (context == this.grid || this.grid.count > grid.count)
             return;
@@ -186,7 +191,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
         for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
             if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
                 continue;
-            if (pair.value != rendered && (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered)))
+            if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
                 pair.value.fillFace(pair.key, face, be.getGrid());
         }
         
@@ -211,6 +216,9 @@ public non-sealed class LittleServerFace implements ILittleFace {
         
         if (isFaceInsideBlock())
             return calculate(be, facing, this, tile, false);
+        
+        if (!tile.cullOverEdge())
+            return LittleFaceState.OUTSIDE_UNCOVERED;
         
         Boolean neighbourBlock = neighbours.get(facing);
         if (neighbourBlock == null) {

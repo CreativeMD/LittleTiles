@@ -31,6 +31,10 @@ public interface LittleBlock {
     
     public boolean isTranslucent();
     
+    public default boolean cullOverEdge() {
+        return true;
+    }
+    
     public boolean is(ItemStack stack);
     
     public boolean is(Block block);

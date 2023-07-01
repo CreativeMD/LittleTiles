@@ -373,7 +373,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
             if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
                 continue;
-            if (pair.value != rendered && (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered)))
+            if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
                 pair.value.fillFace(pair.key, face, grid);
         }
         

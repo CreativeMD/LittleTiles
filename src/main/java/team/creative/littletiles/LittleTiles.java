@@ -49,6 +49,7 @@ import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.registry.LittleBlocks;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.config.LittleTilesConfig;
@@ -197,6 +198,7 @@ public class LittleTiles {
         CraftingHelper.register(new ResourceLocation(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
         
         LittleTilesGuiRegistry.init();
+        LittleBlocks.init();
     }
     
     private void serverStarting(final ServerStartingEvent event) {

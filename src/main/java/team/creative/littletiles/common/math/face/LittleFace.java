@@ -56,6 +56,11 @@ public non-sealed class LittleFace implements ILittleFace {
     }
     
     @Override
+    public LittleBox box() {
+        return box;
+    }
+    
+    @Override
     public void ensureGrid(LittleGrid context) {
         if (context == this.grid || this.grid.count > grid.count)
             return;

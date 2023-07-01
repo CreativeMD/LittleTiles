@@ -220,13 +220,13 @@ public class BERenderManager {
                         LittleFaceState state = cube.box.getFaceState(facing);
                         
                         if (state.outside())
-                            calculateFaces(facing, state, context, (LittleTile) cube.customData, cube);
+                            calculateFaces(facing, state, context, (LittleTile) cube.customData, cube.box, cube);
                     }
             }
         }
     }
     
-    private void calculateFaces(Facing facing, LittleFaceState state, RenderingBlockContext context, @Nullable LittleTile tile, LittleRenderBox cube) {
+    private void calculateFaces(Facing facing, LittleFaceState state, RenderingBlockContext context, @Nullable LittleTile tile, LittleBox box, LittleRenderBox cube) {
         if (state.coveredFully()) {
             cube.setFace(facing, RenderBoxFace.NOT_RENDER);
             return;
@@ -276,7 +276,7 @@ public class BERenderManager {
                         continue;
                     
                     for (int k = 0; k < Facing.VALUES.length; k++)
-                        calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, cube);
+                        calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, box, cube);
                     
                     boxes.add(cube);
                 }

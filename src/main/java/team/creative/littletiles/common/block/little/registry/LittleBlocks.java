@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.TntBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -37,7 +38,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleBlocks {
     
-    static {
+    public static void init() {
         LittleBlockRegistry.register(BlockFilters.block(Blocks.BARRIER), x -> new LittleMCBlock(x) {
             
             @Override
@@ -131,6 +132,15 @@ public class LittleBlocks {
             public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
                 return state.setValue(BlockStateProperties.FACING, rotation.rotate(Facing.get(state.getValue(BlockStateProperties.FACING))).toVanilla());
             }
+        });
+        
+        LittleBlockRegistry.register(BlockFilters.instance(LeavesBlock.class), x -> new LittleMCBlock(x) {
+            
+            @Override
+            public boolean cullOverEdge() {
+                return false;
+            }
+            
         });
     }
     
