@@ -31,7 +31,6 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRende
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import me.jellysquid.mods.sodium.client.render.texture.SpriteExtended;
 import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexBufferBuilder;
-import me.jellysquid.mods.sodium.client.util.color.ColorARGB;
 import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -171,7 +170,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                             lighter.calculate((ModelQuadView) quad, pos, cachedQuadLightData, direction, quad.getDirection(), quad.isShade());
                             
                             if (cube.color != -1)
-                                Arrays.fill(colors, ColorARGB.toABGR(cube.color));
+                                Arrays.fill(colors, /*Integer.reverseBytes(cube.color)*/cube.color);
                             else if (quad.isTinted()) {
                                 if (colorizer == null)
                                     colorizer = blockColors.getColorProvider(state);

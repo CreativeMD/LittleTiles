@@ -47,6 +47,7 @@
         "rubidium.BlockRenderCacheAccessor",
         "rubidium.BlockRenderContextAccessor",
         "rubidium.BlockRendererAccessor",
+        "rubidium.BlockRendererMixin",
         "rubidium.ChunkBuilderAccessor",
         "rubidium.ChunkRenderDataMixin",
         "rubidium.ChunkRenderRebuildTaskMixin",
