@@ -145,10 +145,10 @@ public class PreviewRenderer implements LevelAwareHandler {
         marked = null;
     }
     
-    private void handleUndoAndRedo() {
+    private void handleUndoAndRedo(boolean execute) {
         while (LittleTilesClient.undo.consumeClick()) {
             try {
-                if (LittleActionHandlerClient.canUseUndoOrRedo())
+                if (execute && LittleActionHandlerClient.canUseUndoOrRedo())
                     LittleTilesClient.ACTION_HANDLER.undo();
             } catch (LittleActionException e) {
                 LittleActionHandlerClient.handleException(e);
@@ -157,7 +157,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         
         while (LittleTilesClient.redo.consumeClick()) {
             try {
-                if (LittleActionHandlerClient.canUseUndoOrRedo())
+                if (execute && LittleActionHandlerClient.canUseUndoOrRedo())
                     LittleTilesClient.ACTION_HANDLER.redo();
             } catch (LittleActionException e) {
                 LittleActionHandlerClient.handleException(e);
@@ -169,16 +169,21 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void tick(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_WEATHER)
             return;
-        if (mc.player != null && mc.isWindowActive() && !mc.options.hideGui) {
+        if (mc.player != null && mc.isWindowActive()) {
             Level level = mc.level;
             Player player = mc.player;
             ItemStack stack = mc.player.getMainHandItem();
             PoseStack pose = new PoseStack();
             
-            if (!LittleAction.canPlace(player))
+            if (!LittleAction.canPlace(player)) {
+                handleUndoAndRedo(false);
                 return;
+            }
             
-            handleUndoAndRedo();
+            handleUndoAndRedo(true);
+            
+            if (mc.options.hideGui)
+                return;
             
             if (stack.getItem() instanceof ILittleTool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
                 BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult ? (BlockHitResult) mc.hitResult : null;
