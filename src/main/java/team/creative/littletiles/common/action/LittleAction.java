@@ -157,14 +157,14 @@ public abstract class LittleAction<T> extends CreativePacket {
                     LittleBox box = new LittleBox(0, 0, 0, tiles.getGrid().count, tiles.getGrid().count, tiles.getGrid().count);
                     tiles.add(tiles.getGrid(), new LittleElement(state, ColorUtils.WHITE), box);
                 } else if (state.is(BlockTags.REPLACEABLE)) {
-                    if (!level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3))
+                    if (!level.setBlock(pos, BlockTile.getStateByAttribute(level, pos, attribute), 3))
                         return null;
                     blockEntity = level.getBlockEntity(pos);
                 }
             }
             
             if (tiles != null && !tiles.isEmpty()) {
-                level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 3);
+                level.setBlock(pos, BlockTile.getStateByAttribute(level, pos, attribute), 3);
                 BETiles te = (BETiles) level.getBlockEntity(pos);
                 te.convertTo(tiles.getGrid());
                 final LittleGroup toAdd = tiles;

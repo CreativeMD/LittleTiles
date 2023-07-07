@@ -264,8 +264,13 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (isClient())
             render.tilesChanged();
         
-        if (!level.isClientSide && tiles.isCompletelyEmpty())
-            level.setBlockAndUpdate(getBlockPos(), Blocks.AIR.defaultBlockState());
+        if (!level.isClientSide && tiles.isCompletelyEmpty()) {
+            BlockState state = getBlockState();
+            if (state.getValue(BlockTile.WATERLOGGED))
+                level.setBlockAndUpdate(getBlockPos(), level.getFluidState(worldPosition).createLegacyBlock());
+            else
+                level.setBlockAndUpdate(getBlockPos(), Blocks.AIR.defaultBlockState());
+        }
         
         customTilesUpdate();
     }

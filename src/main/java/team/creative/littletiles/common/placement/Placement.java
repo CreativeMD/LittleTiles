@@ -481,7 +481,7 @@ public class Placement {
                 if (cached == null) {
                     if (!(level.getBlockState(pos).getBlock() instanceof BlockTile) && level.getBlockState(pos).is(BlockTags.REPLACEABLE)) {
                         requiresCollisionTest = false;
-                        level.setBlock(pos, BlockTile.getStateByAttribute(attribute), 0);
+                        level.setBlock(pos, BlockTile.getStateByAttribute(level, pos, attribute), 0);
                     }
                     
                     cached = LittleAction.loadBE(player, level, pos, affectedBlocks, Placement.this.preview.mode.shouldConvertBlock(), attribute);

@@ -38,6 +38,7 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -48,6 +49,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
@@ -100,7 +102,7 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 import team.creative.littletiles.common.structure.type.bed.ILittleBedPlayerExtension;
 import team.creative.littletiles.server.LittleTilesServer;
 
-public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
+public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, SimpleWaterloggedBlock {
     
     public static final SoundType SILENT = new ForgeSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -123,8 +125,10 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         return secondMode && !(player.getMainHandItem().getItem() instanceof ItemLittleSaw) && !(player.getMainHandItem().getItem() instanceof ItemLittlePaintBrush);
     }
     
-    public static BlockState getStateByAttribute(int attribute) {
-        return getState(LittleStructureAttribute.ticking(attribute), LittleStructureAttribute.tickRendering(attribute));
+    public static BlockState getStateByAttribute(Level level, BlockPos pos, int attribute) {
+        BlockState state = getState(LittleStructureAttribute.ticking(attribute), LittleStructureAttribute.tickRendering(attribute));
+        state = state.setValue(BlockTile.WATERLOGGED, Boolean.valueOf(level.getFluidState(pos).getType() == Fluids.WATER));
+        return state;
     }
     
     public static BlockState getState(boolean ticking, boolean rendered) {
@@ -159,6 +163,23 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock {
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
         this.ticking = ticking;
         this.rendered = rendered;
+    }
+    
+    @Override
+    public boolean canBeReplaced(BlockState p_60535_, Fluid p_60536_) {
+        return p_60535_.canBeReplaced() || !p_60535_.isSolid();
+    }
+    
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER));
+    }
+    
+    @Override
+    public BlockState updateShape(BlockState state, Direction direction, BlockState oldState, LevelAccessor level, BlockPos pos, BlockPos neighbor) {
+        if (state.getValue(WATERLOGGED))
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        return state;
     }
     
     @Override
