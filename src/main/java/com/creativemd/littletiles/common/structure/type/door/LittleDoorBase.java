@@ -205,7 +205,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
         ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
         
         fakeWorld.preventNeighborUpdate = true;
-        
+        placement.setAfterNotifyPlace(false);
         PlacementResult result = placement.tryPlace();
         
         if (result == null)

@@ -74,6 +74,7 @@ public class Placement {
     protected boolean ignoreWorldBoundaries = true;
     protected BiPredicate<IParentTileList, LittleTile> predicate;
     protected boolean playSounds = true;
+    protected boolean notifyAfterPlace = true;
     
     public Placement(EntityPlayer player, PlacementPreview preview) {
         this.player = player;
@@ -96,6 +97,11 @@ public class Placement {
     
     public Placement setPlaySounds(boolean sounds) {
         this.playSounds = sounds;
+        return this;
+    }
+    
+    public Placement setAfterNotifyPlace(boolean afterPlace) {
+        this.notifyAfterPlace = afterPlace;
         return this;
     }
     
@@ -235,7 +241,7 @@ public class Placement {
         
         constructStructureRelations();
         
-        if (origin.isStructure())
+        if (this.notifyAfterPlace && origin.isStructure())
             origin.getStructure().notifyAfterPlaced();
         
         neighbor.process();
@@ -243,7 +249,7 @@ public class Placement {
         if (playSounds)
             for (int i = 0; i < soundsToBePlayed.size(); i++)
                 world.playSound((EntityPlayer) null, pos, soundsToBePlayed.get(i)
-                    .getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
+                        .getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
             
         removedTiles.convertToSmallest();
         unplaceableTiles.convertToSmallest();
