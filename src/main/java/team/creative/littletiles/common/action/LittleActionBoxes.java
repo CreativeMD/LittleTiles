@@ -102,10 +102,10 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
                 continue;
             }
             
-            actionDone(level, player);
-            
             action(level, player, pos, state, entry.getValue(), boxes.grid);
         }
+        
+        actionDone(level, player);
         
         level.playSound(null, player, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
         return true;
