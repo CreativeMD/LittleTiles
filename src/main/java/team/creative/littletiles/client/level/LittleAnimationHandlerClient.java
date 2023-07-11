@@ -489,8 +489,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         LittleHitResult result = (LittleHitResult) mc.hitResult;
         
-        event.setCanceled(true);
-        
         PoseStack pose = event.getPoseStack();
         pose.pushPose();
         RenderSystem.applyModelViewMatrix();
