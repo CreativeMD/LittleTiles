@@ -479,8 +479,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     public VoxelShape getShapes(IParentCollection parent) {
         VoxelShape shape = Shapes.empty();
         for (LittleBox box : boxes)
-            if (box.isSolid())
-                shape = Shapes.joinUnoptimized(shape, box.getShape(parent.getGrid()), BooleanOp.OR);
+            shape = Shapes.joinUnoptimized(shape, box.getShape(parent.getGrid()), BooleanOp.OR);
         return shape;
     }
     
