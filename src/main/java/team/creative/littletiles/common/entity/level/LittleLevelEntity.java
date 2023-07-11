@@ -82,7 +82,6 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
         return new LittleLevelInitPacket(this);
     }
     
-    @OnlyIn(Dist.CLIENT)
     public CompoundTag saveExtraClientData() {
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("cX", center.getX());
