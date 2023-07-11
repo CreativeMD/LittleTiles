@@ -18,6 +18,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -152,7 +153,6 @@ public abstract class LittleAction<T> extends CreativePacket {
             else if (blockEntity == null && shouldConvert) {
                 BlockState state = level.getBlockState(pos);
                 if (isBlockValid(state) && canConvertBlock(player, level, pos, state, affected == null ? 0 : affected.incrementAndGet())) {
-                    
                     tiles = new LittleGroup();
                     LittleBox box = new LittleBox(0, 0, 0, tiles.getGrid().count, tiles.getGrid().count, tiles.getGrid().count);
                     tiles.add(tiles.getGrid(), new LittleElement(state, ColorUtils.WHITE), box);
@@ -439,7 +439,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
             return true;
         try {
-            return state.isSolidRender(null, null);
+            return state.isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
         } catch (Exception e) {
             return false;
         }
