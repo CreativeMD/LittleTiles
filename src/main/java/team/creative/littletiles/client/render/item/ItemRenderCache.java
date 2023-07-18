@@ -48,6 +48,8 @@ public class ItemRenderCache implements LevelAwareHandler {
     
     public List<BakedQuad> requestCache(ItemStack stack, boolean translucent) {
         synchronized (caches) {
+            if (!stack.hasTag())
+                return null;
             ItemModelCache cache = caches.get(temp.set(stack));
             if (cache != null)
                 return cache.getQuads(translucent);
