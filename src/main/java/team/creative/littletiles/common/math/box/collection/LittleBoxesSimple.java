@@ -43,26 +43,6 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     }
     
     @Override
-    public LittleBox addBox(LittleGrid grid, BlockPos pos, LittleBox box) {
-        if (this.grid != grid) {
-            if (this.grid.count > grid.count) {
-                box.convertTo(grid, this.grid);
-                grid = this.grid;
-            } else
-                convertTo(grid);
-        }
-        
-        box.add(new LittleVec(grid, pos.subtract(this.pos)));
-        add(box);
-        return box;
-    }
-    
-    @Override
-    public LittleGrid getGrid() {
-        return grid;
-    }
-    
-    @Override
     public void convertTo(LittleGrid to) {
         for (LittleBox box : boxes)
             box.convertTo(this.grid, to);
@@ -131,8 +111,7 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     @Override
     public LittleBoxes copy() {
         LittleBoxesSimple boxes = new LittleBoxesSimple(pos, grid);
-        for (LittleBox box : this.boxes)
-            boxes.add(box.copy());
+        boxes.addBoxes(grid, pos, this);
         return boxes;
     }
     

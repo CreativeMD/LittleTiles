@@ -33,7 +33,7 @@ public class PlacementResult {
             lastPos = parent.getPos();
             blocks.add(parent.getBE());
         }
-        placedPreviews.add(parent.getGrid(), tile, tile);
+        placedPreviews.add(parent.getGrid(), tile, tile.copy());
         placedBoxes.addBoxes(parent, tile);
     }
     
