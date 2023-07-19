@@ -10,6 +10,7 @@ import team.creative.creativecore.common.util.math.geo.Ray3f;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.unsafe.CreativeHackery;
+import team.creative.creativecore.mixin.VoxelShapeAccessor;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanFaceCache;
@@ -24,6 +25,7 @@ public class TransformableVoxelShape extends AABBVoxelShape {
         shape.bb = bb;
         shape.box = box;
         shape.grid = grid;
+        ((VoxelShapeAccessor) shape).setShape(DISCRETE_SHAPE);
         return shape;
     }
     
@@ -65,8 +67,8 @@ public class TransformableVoxelShape extends AABBVoxelShape {
         otherAxis -= Math.floor(getMin(axis));
         otherAxis *= grid.count;
         
-        NormalPlane[] cuttingPlanes = new NormalPlane[] { new NormalPlane(one, minOne, Facing.get(one, false)), new NormalPlane(two, minTwo, Facing
-                .get(two, false)), new NormalPlane(one, maxOne, Facing.get(one, true)), new NormalPlane(two, maxTwo, Facing.get(two, true)) };
+        NormalPlane[] cuttingPlanes = new NormalPlane[] { new NormalPlane(one, minOne, Facing.get(one, false)), new NormalPlane(two, minTwo, Facing.get(two,
+            false)), new NormalPlane(one, maxOne, Facing.get(one, true)), new NormalPlane(two, maxTwo, Facing.get(two, true)) };
         
         VectorFan tempFan = new VectorFan(null);
         VectorFanFaceCache front = getFaceCache(direction.opposite());
