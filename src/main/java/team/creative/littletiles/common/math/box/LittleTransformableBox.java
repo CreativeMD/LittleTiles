@@ -3,6 +3,7 @@ package team.creative.littletiles.common.math.box;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -352,9 +353,10 @@ public class LittleTransformableBox extends LittleBox {
                     faceCache.tiltedStrip2 = faceCache.tiltedStrip2.cut(planes[j]);
             }
             
+            faceCache.sortTiltedStrips(cache);
         }
         
-        // Axis strips against transformed box
+        // Axis strips against transformed box;
         for (int i = 0; i < Facing.values().length; i++) {
             Facing facing = Facing.values()[i];
             BoxFace face = BoxFace.get(facing);
@@ -1505,6 +1507,8 @@ public class LittleTransformableBox extends LittleBox {
         
         public List<VectorFan> axisStrips = new ArrayList<>();
         
+        protected Object stripsSorted;
+        
         public boolean isInvalid() {
             return tiltedStrip1 == null && tiltedStrip2 == null && axisStrips.isEmpty();
         }
@@ -1519,6 +1523,37 @@ public class LittleTransformableBox extends LittleBox {
         
         public boolean hasAxisStrip() {
             return !axisStrips.isEmpty();
+        }
+        
+        public boolean hasTiltedStripsRendering() {
+            return stripsSorted != null;
+        }
+        
+        public boolean hasSingleTiltedStripRendering() {
+            return stripsSorted instanceof VectorFan;
+        }
+        
+        public VectorFan getSingleTiltedStripRendering() {
+            return (VectorFan) stripsSorted;
+        }
+        
+        public void addTiltedStripRendering(VectorFan fan) {
+            if (stripsSorted == null) {
+                stripsSorted = fan;
+                return;
+            }
+            if (stripsSorted instanceof VectorFan other) {
+                stripsSorted = new ArrayList<VectorFan>();
+                ((ArrayList<VectorFan>) stripsSorted).add(other);
+            }
+            ((ArrayList<VectorFan>) stripsSorted).add(fan);
+        }
+        
+        public void collectAllTiltedStripsRendering(List<VectorFan> fans) {
+            if (hasSingleTiltedStripRendering())
+                fans.add((VectorFan) stripsSorted);
+            else
+                fans.addAll((Collection<? extends VectorFan>) stripsSorted);
         }
         
         public void cutAxisStrip(Facing facing, NormalPlane plane, NormalPlane plane2) {
@@ -1570,6 +1605,17 @@ public class LittleTransformableBox extends LittleBox {
                     completedFilled = before.equals(axisStrips.get(0));
                 else
                     completedFilled = false;
+        }
+        
+        public void sortTiltedStrips(VectorFanCache cache) {
+            if (tiltedStrip1 != null)
+                sortTiltedStrip(tiltedStrip1, cache);
+            if (tiltedStrip2 != null)
+                sortTiltedStrip(tiltedStrip2, cache);
+        }
+        
+        private void sortTiltedStrip(VectorFan fan, VectorFanCache cache) {
+            cache.faces[Facing.nearest(fan.createNormal()).ordinal()].addTiltedStripRendering(fan);
         }
         
         public boolean equalAxisStrip(VectorFanFaceCache cache, Axis toIgnore) {
