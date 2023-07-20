@@ -68,8 +68,8 @@ public class LittleTransformableBox extends LittleBox {
                 Facing rotatedFacing = rotation.rotate(facing);
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
-                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
-                        .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(
+                    true, false)), 0.0001F))
                     flipped[j] = false;
                 else
                     flipped[j] = true;
@@ -98,8 +98,8 @@ public class LittleTransformableBox extends LittleBox {
                 Facing rotatedFacing = axis.mirror(facing);
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
-                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
-                        .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(
+                    true, false)), 0.0001F))
                     flipped[j] = false;
                 else
                     flipped[j] = true;
@@ -268,6 +268,8 @@ public class LittleTransformableBox extends LittleBox {
                 return temp;
         }
         
+        VectorFanCache cache = new VectorFanCache();
+        
         // Cache axis aligned faces
         NormalPlane[] planes = new NormalPlane[Facing.values().length];
         for (int i = 0; i < planes.length; i++) {
@@ -282,9 +284,9 @@ public class LittleTransformableBox extends LittleBox {
             plane.normal.set(axis, facing.offset());
             
             planes[i] = plane;
+            
+            cache.faces[i] = new VectorFanFaceCache();
         }
-        
-        VectorFanCache cache = new VectorFanCache();
         
         NormalPlane[] tiltedPlanes = new NormalPlane[Facing.values().length * 2]; // Stores all tilted planes to use them for cutting later
         
@@ -297,8 +299,7 @@ public class LittleTransformableBox extends LittleBox {
             BoxFace face = BoxFace.get(facing);
             boolean inverted = getFlipped(facing);
             
-            VectorFanFaceCache faceCache = new VectorFanFaceCache();
-            cache.faces[i] = faceCache;
+            VectorFanFaceCache faceCache = cache.faces[i];
             
             BoxCorner[] first = face.getTriangleFirst(inverted);
             Vec3f firstNormal = BoxFace.getTraingleNormal(first, corners);
@@ -1120,8 +1121,8 @@ public class LittleTransformableBox extends LittleBox {
             return null;
         Axis one = facing.one();
         Axis two = facing.two();
-        return new LittleFace(this, faceCache.axisStrips, faceCache
-                .tilted(), grid, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(facing.axis) : getMin(facing.axis));
+        return new LittleFace(this, faceCache.axisStrips, faceCache.tilted(), grid, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(
+            facing.axis) : getMin(facing.axis));
     }
     
     @Override
