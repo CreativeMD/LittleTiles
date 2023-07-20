@@ -18,7 +18,7 @@ public class ServerGamePacketListenerImplMixin {
             method = "isPlayerCollidingWithAnythingNew", require = 1)
     private boolean joinIsNotEmptyCanBeIgnored(VoxelShape toAdd, VoxelShape shape, BooleanOp op) {
         if (toAdd instanceof AABBVoxelShape)
-            return false;
+            return true;
         return Shapes.joinIsNotEmpty(toAdd, shape, op);
     }
     
