@@ -30,7 +30,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.mc.BlockTile;
 
 @Mixin(BlockCollisions.class)
-public class BlockCollisionsMixin {
+public class BlockCollisionsMixin<T> {
     
     @Shadow
     @Final
@@ -51,11 +51,15 @@ public class BlockCollisionsMixin {
     @Unique
     private Iterator<VoxelShape> extraShapes;
     
+    @Shadow
+    @Final
+    private BiFunction<BlockPos.MutableBlockPos, VoxelShape, T> resultProvider;
+    
     @Inject(method = "computeNext", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Cursor3D;advance()Z"), cancellable = true, require = 1)
-    private void computeStart(CallbackInfoReturnable<VoxelShape> info) {
+    private void computeStart(CallbackInfoReturnable<T> info) {
         if (extraShapes != null)
             if (extraShapes.hasNext())
-                info.setReturnValue(extraShapes.next());
+                info.setReturnValue(resultProvider.apply(this.pos, extraShapes.next()));
             else
                 extraShapes = null;
     }
