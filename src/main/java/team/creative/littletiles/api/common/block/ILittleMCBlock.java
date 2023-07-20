@@ -35,26 +35,26 @@ public interface ILittleMCBlock extends LittleBlock {
         return !block.defaultBlockState().isSolid() || !block.defaultBlockState().canOcclude(); // Also depends on block model which is not considered at the moment
     }
     
-    public Block asBlock();
+    public Block asVanillaBlock();
     
     @Override
     public default boolean isTranslucent() {
-        return isTranslucent(asBlock());
+        return isTranslucent(asVanillaBlock());
     }
     
     @Override
     public default boolean is(ItemStack stack) {
-        return Block.byItem(stack.getItem()) == asBlock();
+        return Block.byItem(stack.getItem()) == asVanillaBlock();
     }
     
     @Override
     public default boolean is(TagKey<Block> tag) {
-        return asBlock().builtInRegistryHolder().is(tag);
+        return asVanillaBlock().builtInRegistryHolder().is(tag);
     }
     
     @Override
     public default ItemStack getStack() {
-        return new ItemStack(asBlock());
+        return new ItemStack(asVanillaBlock());
     }
     
     @Override
@@ -64,12 +64,12 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default boolean noCollision() {
-        return !((BlockBehaviourAccessor) asBlock()).getHasCollision();
+        return !((BlockBehaviourAccessor) asVanillaBlock()).getHasCollision();
     }
     
     @Override
     public default boolean is(Block block) {
-        return this.asBlock() == block;
+        return this.asVanillaBlock() == block;
     }
     
     @Override
@@ -89,12 +89,12 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default SoundType getSoundType() {
-        return asBlock().getSoundType(getState());
+        return asVanillaBlock().getSoundType(getState());
     }
     
     @Override
     public default float getExplosionResistance(LittleTile tile) {
-        return asBlock().getExplosionResistance();
+        return asVanillaBlock().getExplosionResistance();
     }
     
     @Override
@@ -110,12 +110,12 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default BlockState getState() {
-        return asBlock().defaultBlockState();
+        return asVanillaBlock().defaultBlockState();
     }
     
     @Override
     public default String blockName() {
-        return asBlock().builtInRegistryHolder().key().location().toString();
+        return asVanillaBlock().builtInRegistryHolder().key().location().toString();
     }
     
     @Override
@@ -130,7 +130,7 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default float getEnchantPowerBonus(IParentCollection parent, LittleTile tile) {
-        float bonus = asBlock().getEnchantPowerBonus(getState(), parent.getLevel(), parent.getPos());
+        float bonus = asVanillaBlock().getEnchantPowerBonus(getState(), parent.getLevel(), parent.getPos());
         if (bonus > 0)
             return (float) (bonus * tile.getPercentVolume(parent.getGrid()));
         return 0;
@@ -138,12 +138,12 @@ public interface ILittleMCBlock extends LittleBlock {
     
     @Override
     public default float getFriction(IParentCollection parent, LittleTile tile, Entity entity) {
-        return asBlock().getFriction(getState(), parent.getLevel(), parent.getPos(), entity);
+        return asVanillaBlock().getFriction(getState(), parent.getLevel(), parent.getPos(), entity);
     }
     
     @Override
     public default boolean isFluid(TagKey<Fluid> fluid) {
-        if (asBlock() instanceof LiquidBlock b)
+        if (asVanillaBlock() instanceof LiquidBlock b)
             return b.getFluid().is(fluid);
         return false;
     }

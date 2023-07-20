@@ -33,7 +33,7 @@ public class BlockWater extends Block implements ILittleMCBlock, IFakeRenderingB
     }
     
     @Override
-    public Block asBlock() {
+    public Block asVanillaBlock() {
         return this;
     }
     

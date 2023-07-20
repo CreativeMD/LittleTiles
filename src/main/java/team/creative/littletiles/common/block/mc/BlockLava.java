@@ -30,7 +30,7 @@ public class BlockLava extends Block implements ILittleMCBlock, IFakeRenderingBl
     }
     
     @Override
-    public Block asBlock() {
+    public Block asVanillaBlock() {
         return this;
     }
     

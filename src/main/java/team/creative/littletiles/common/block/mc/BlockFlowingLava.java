@@ -48,7 +48,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
-    public Block asBlock() {
+    public Block asVanillaBlock() {
         return this;
     }
     
@@ -85,8 +85,8 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     @Override
     public void entityCollided(IParentCollection parent, LittleTile tile, Entity entity) {
         AABB box = entity.getBoundingBox();
-        LittleVec center = new LittleVec(parent.getGrid(), new Vec3((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2)
-                .subtract(Vec3.atLowerCornerOf(parent.getPos())));
+        LittleVec center = new LittleVec(parent.getGrid(), new Vec3((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(Vec3.atLowerCornerOf(
+            parent.getPos())));
         LittleBox testBox = new LittleBox(center, 1, 1, 1);
         if (tile.intersectsWith(testBox)) {
             double scale = 0.05;

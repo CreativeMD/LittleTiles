@@ -49,7 +49,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     }
     
     @Override
-    public Block asBlock() {
+    public Block asVanillaBlock() {
         return this;
     }
     
