@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.common.util.math.Maths;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -150,6 +151,11 @@ public class TransformableVoxelShape extends AABBVoxelShape {
     @Override
     public @Nullable BlockHitResult clip(Vec3 pos, Vec3 look, BlockPos block) {
         return box.rayTrace(grid, block, pos, look);
+    }
+    
+    @Override
+    public VoxelShape move(double x, double y, double z) {
+        return create(box, grid, bb.move(x, y, z));
     }
     
 }
