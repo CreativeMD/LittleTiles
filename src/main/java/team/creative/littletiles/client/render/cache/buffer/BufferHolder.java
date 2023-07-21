@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 import com.mojang.blaze3d.platform.MemoryTracker;
 
 import net.minecraft.world.phys.Vec3;
-import team.creative.littletiles.client.render.mc.VertexFormatUtils;
+import team.creative.creativecore.client.render.VertexFormatUtils;
 
 public interface BufferHolder {
     

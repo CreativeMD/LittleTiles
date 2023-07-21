@@ -16,10 +16,10 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
+import team.creative.creativecore.client.render.VertexFormatUtils;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
-import team.creative.littletiles.client.render.mc.VertexFormatUtils;
 
 @Mixin(value = LevelRenderer.class, priority = 1500)
 public class LevelRendererMixin {
