@@ -23,6 +23,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.client.render.box.QuadGeneratorContext;
 import team.creative.creativecore.common.level.LevelAccesorFake;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -134,6 +135,7 @@ public class RenderingThread extends Thread {
     public boolean active = true;
     private volatile boolean requiresReload = false;
     private LittleRenderPipeline[] pipelines = new LittleRenderPipeline[LittleRenderPipelineType.typeCount()];
+    private QuadGeneratorContext quadContext;
     
     public LittleRenderPipeline get(LittleRenderPipelineType type) {
         LittleRenderPipeline pipeline = pipelines[type.id];
@@ -147,6 +149,8 @@ public class RenderingThread extends Thread {
     @Override
     public void run() {
         try {
+            
+            quadContext = new QuadGeneratorContext();
             while (active) {
                 if (requiresReload) {
                     requiresReload = false;
@@ -201,7 +205,8 @@ public class RenderingThread extends Thread {
                                         Facing facing = Facing.VALUES[h];
                                         if (cube.shouldRenderFace(facing)) {
                                             if (cube.getQuad(facing) == null)
-                                                cube.setQuad(facing, cube.getBakedQuad(level, pos, offset, modelState, blockModel, facing, layer, rand, true, ColorUtils.WHITE));
+                                                cube.setQuad(facing, cube.getBakedQuad(quadContext, level, pos, offset, modelState, blockModel, facing, layer, rand, true,
+                                                    ColorUtils.WHITE));
                                         } else
                                             cube.setQuad(facing, null);
                                     }
@@ -210,6 +215,7 @@ public class RenderingThread extends Thread {
                             }
                         }
                         
+                        quadContext.clear();
                         data.clearQuadBuilding();
                         fakeAccess.set(null, null, null);
                         data.checkRemoved();

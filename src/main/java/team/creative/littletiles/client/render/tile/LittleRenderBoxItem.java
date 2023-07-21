@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
@@ -16,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.client.render.box.QuadGeneratorContext;
 import team.creative.creativecore.client.render.model.CreativeBakedQuad;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -41,7 +44,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     }
     
     @Override
-    public List<BakedQuad> getBakedQuad(LevelAccessor level, BlockPos pos, BlockPos offset, BlockState state, BakedModel blockModel, Facing facing, RenderType layer, RandomSource rand, boolean overrideTint, int defaultColor) {
+    public List<BakedQuad> getBakedQuad(@Nullable QuadGeneratorContext holder, LevelAccessor level, BlockPos pos, BlockPos offset, BlockState state, BakedModel blockModel, Facing facing, RenderType layer, RandomSource rand, boolean overrideTint, int defaultColor) {
         if (facing != structure.facing)
             return Collections.EMPTY_LIST;
         BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(structure.stack, null, null, 0);
@@ -168,7 +171,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
     }
     
     @Override
-    public boolean intersectsWithFace(Facing facing, RenderInformationHolder holder, BlockPos offset) {
+    public boolean intersectsWithFace(Facing facing, QuadGeneratorContext holder, BlockPos offset) {
         return true;
     }
     
