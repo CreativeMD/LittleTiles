@@ -43,7 +43,6 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
     public void scale(float scale) {
         super.scale(scale);
         cache.scale(scale);
-        //this.scale /= scale;
     }
     
     public VectorFanFaceCache getFaceCache(EnumFacing facing) {
@@ -57,9 +56,9 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
         VectorFanFaceCache cache = getFaceCache(facing);
         if (cache == null)
             return false;
-        if (super.renderSide(facing))
+        if (cache.hasAxisStrip() && super.renderSide(facing))
             return true;
-        return cache.hasTiltedStrip();
+        return cache.hasTiltedStripsRendering();
     }
     
     @Override
@@ -68,27 +67,19 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
             return getType(facing).getCachedFans();
         VectorFanFaceCache cache = getFaceCache(facing);
         
-        if (cache.hasTiltedStrip()) {
+        if (cache.hasTiltedStripsRendering()) {
             if (super.renderSide(facing) && cache.hasAxisStrip()) {
                 List<VectorFan> strips = new ArrayList<>(cache.axisStrips);
-                if (cache.tiltedStrip1 != null)
-                    strips.add(cache.tiltedStrip1);
-                if (cache.tiltedStrip2 != null)
-                    strips.add(cache.tiltedStrip2);
+                cache.collectAllTiltedStripsRendering(strips);
                 return strips;
             }
             
-            if (cache.tiltedStrip1 != null ^ cache.tiltedStrip2 != null) {
-                if (cache.tiltedStrip1 != null)
-                    return cache.tiltedStrip1;
-                return cache.tiltedStrip2;
-            }
+            if (cache.hasSingleTiltedStripRendering())
+                return cache.getSingleTiltedStripRendering();
             
             List<VectorFan> strips = new ArrayList<>();
-            if (cache.tiltedStrip1 != null)
-                strips.add(cache.tiltedStrip1);
-            if (cache.tiltedStrip2 != null)
-                strips.add(cache.tiltedStrip2);
+            
+            cache.collectAllTiltedStripsRendering(strips);
             return strips;
         }
         if (super.renderSide(facing))
