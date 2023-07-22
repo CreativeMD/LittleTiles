@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.tile.math.box;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -43,8 +44,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTransformableBox extends LittleBox {
     
-    private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true },
-            { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
+    private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true }, { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
     private static boolean[][] flipMirrorMatrix = new boolean[][] { { true, true, true, true, true, true }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
     
     private static boolean[][] buildFlipRotationCache() {
@@ -68,7 +68,7 @@ public class LittleTransformableBox extends LittleBox {
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
                 if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
-                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                        .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
                     flipped[j] = false;
                 else
                     flipped[j] = true;
@@ -98,7 +98,7 @@ public class LittleTransformableBox extends LittleBox {
                 BoxFace rotatedFace = BoxFace.get(rotatedFacing);
                 
                 if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec
-                    .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
+                        .epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(true, false)), 0.0001F))
                     flipped[j] = false;
                 else
                     flipped[j] = true;
@@ -261,14 +261,14 @@ public class LittleTransformableBox extends LittleBox {
     @Override
     public TransformableAxisBox getBox(LittleGridContext context, BlockPos offset) {
         return new TransformableAxisBox(this, context, context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context
-            .toVanillaGrid(minZ) + offset
-                .getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
+                .toVanillaGrid(minZ) + offset
+                        .getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
     }
     
     @Override
     public TransformableAxisBox getBox(LittleGridContext context) {
         return new TransformableAxisBox(this, context, context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context
-            .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+                .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
     }
     
     public int getIndicator() {
@@ -406,6 +406,8 @@ public class LittleTransformableBox extends LittleBox {
                 return temp;
         }
         
+        VectorFanCache cache = new VectorFanCache();
+        
         // Cache axis aligned faces
         NormalPlane[] planes = new NormalPlane[EnumFacing.VALUES.length];
         for (int i = 0; i < planes.length; i++) {
@@ -420,9 +422,9 @@ public class LittleTransformableBox extends LittleBox {
             VectorUtils.set(plane.normal, facing.getAxisDirection().getOffset(), axis);
             
             planes[i] = plane;
+            
+            cache.faces[i] = new VectorFanFaceCache();
         }
-        
-        VectorFanCache cache = new VectorFanCache();
         
         NormalPlane[] tiltedPlanes = new NormalPlane[EnumFacing.VALUES.length * 2]; // Stores all tilted planes to use them for cutting later
         
@@ -435,8 +437,7 @@ public class LittleTransformableBox extends LittleBox {
             BoxFace face = BoxFace.get(facing);
             boolean inverted = getFlipped(facing);
             
-            VectorFanFaceCache faceCache = new VectorFanFaceCache();
-            cache.faces[i] = faceCache;
+            VectorFanFaceCache faceCache = cache.faces[i];
             
             BoxCorner[] first = face.getTriangleFirst(inverted);
             Vector3f firstNormal = BoxFace.getTraingleNormal(first, corners);
@@ -491,6 +492,7 @@ public class LittleTransformableBox extends LittleBox {
                     faceCache.tiltedStrip2 = faceCache.tiltedStrip2.cut(planes[j]);
             }
             
+            faceCache.sortTiltedStrips(cache);
         }
         
         // Axis strips against transformed box
@@ -770,7 +772,7 @@ public class LittleTransformableBox extends LittleBox {
                 for (VectorFan fan : face.axisStrips)
                     for (VectorFan fan2 : otherFace.axisStrips)
                         if (VectorUtils.get(axis, fan.get(0)) == VectorUtils.get(axis, fan2.get(0)) && fan
-                            .intersect2d(fan2, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE))
+                                .intersect2d(fan2, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE))
                             return true;
             }
         }
@@ -1227,7 +1229,7 @@ public class LittleTransformableBox extends LittleBox {
         Axis one = RotationUtils.getOne(facing.getAxis());
         Axis two = RotationUtils.getTwo(facing.getAxis());
         return new LittleBoxFace(this, faceCache.axisStrips, faceCache.tilted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
-            .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+                .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
     }
     
     class TransformableVec {
@@ -1604,10 +1606,81 @@ public class LittleTransformableBox extends LittleBox {
         public VectorFan tiltedStrip2;
         public boolean completedFilled = true;
         
+        protected Object stripsSorted;
         public List<VectorFan> axisStrips = new ArrayList<>();
         
         public boolean isInvalid() {
             return tiltedStrip1 == null && tiltedStrip2 == null && axisStrips.isEmpty();
+        }
+        
+        public boolean hasTiltedStripsRendering() {
+            return stripsSorted != null;
+        }
+        
+        public boolean hasSingleTiltedStripRendering() {
+            return stripsSorted instanceof VectorFan;
+        }
+        
+        public VectorFan getSingleTiltedStripRendering() {
+            return (VectorFan) stripsSorted;
+        }
+        
+        public void addTiltedStripRendering(VectorFan fan) {
+            if (stripsSorted == null) {
+                stripsSorted = fan;
+                return;
+            }
+            if (stripsSorted instanceof VectorFan) {
+                VectorFan other = (VectorFan) stripsSorted;
+                stripsSorted = new ArrayList<VectorFan>();
+                ((ArrayList<VectorFan>) stripsSorted).add(other);
+            }
+            ((ArrayList<VectorFan>) stripsSorted).add(fan);
+        }
+        
+        public void collectAllTiltedStripsRendering(List<VectorFan> fans) {
+            if (hasSingleTiltedStripRendering())
+                fans.add((VectorFan) stripsSorted);
+            else
+                fans.addAll((Collection<? extends VectorFan>) stripsSorted);
+        }
+        
+        public void sortTiltedStrips(VectorFanCache cache) {
+            if (tiltedStrip1 != null)
+                sortTiltedStrip(tiltedStrip1, cache);
+            if (tiltedStrip2 != null)
+                sortTiltedStrip(tiltedStrip2, cache);
+        }
+        
+        private void sortTiltedStrip(VectorFan fan, VectorFanCache cache) {
+            EnumFacing facing = nearest(fan.createNormal());
+            if (facing != null)
+                cache.faces[facing.ordinal()].addTiltedStripRendering(fan);
+            else
+                this.addTiltedStripRendering(fan);
+        }
+        
+        public static EnumFacing nearest(Vector3f vec) {
+            return nearest(vec.x, vec.y, vec.z);
+        }
+        
+        public static EnumFacing nearest(float x, float y, float z) {
+            if (x == 0 && y == 0 && z == 0)
+                return null;
+            
+            EnumFacing facing = null;
+            float distance = Float.MIN_VALUE;
+            
+            for (int i = 0; i < EnumFacing.VALUES.length; i++) {
+                EnumFacing f = EnumFacing.VALUES[i];
+                float newDistance = x * f.getDirectionVec().getX() + y * f.getDirectionVec().getY() + z * f.getDirectionVec().getZ();
+                if (newDistance > distance) {
+                    distance = newDistance;
+                    facing = f;
+                }
+            }
+            
+            return facing;
         }
         
         public boolean isCompletelyFilled() {
