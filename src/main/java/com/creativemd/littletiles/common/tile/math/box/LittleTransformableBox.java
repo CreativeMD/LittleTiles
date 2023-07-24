@@ -1661,15 +1661,11 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         public static Vector3f createNormal(VectorFan fan) {
-            Vector3f[] coords = new Vector3f[fan.count()];
-            for (int i = 0; i < fan.count(); i++)
-                coords[i] = fan.get(i);
+            Vector3f a = new Vector3f(fan.get(1));
+            a.sub(fan.get(0));
             
-            Vector3f a = new Vector3f(coords[1]);
-            a.sub(coords[0]);
-            
-            Vector3f b = new Vector3f(coords[2]);
-            b.sub(coords[0]);
+            Vector3f b = new Vector3f(fan.get(2));
+            b.sub(fan.get(0));
             
             Vector3f normal = new Vector3f();
             normal.cross(a, b);
