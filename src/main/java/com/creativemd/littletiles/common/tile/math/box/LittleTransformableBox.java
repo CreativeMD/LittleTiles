@@ -1653,11 +1653,23 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         private void sortTiltedStrip(VectorFan fan, VectorFanCache cache) {
-            EnumFacing facing = nearest(fan.createNormal());
+            EnumFacing facing = nearest(createNormal(fan));
             if (facing != null)
                 cache.faces[facing.ordinal()].addTiltedStripRendering(fan);
             else
                 this.addTiltedStripRendering(fan);
+        }
+        
+        public static Vector3f createNormal(VectorFan fan) {
+            Vector3f a = new Vector3f(fan.get(1));
+            a.sub(fan.get(0));
+            
+            Vector3f b = new Vector3f(fan.get(2));
+            b.sub(fan.get(0));
+            
+            Vector3f normal = new Vector3f();
+            normal.cross(a, b);
+            return normal;
         }
         
         public static EnumFacing nearest(Vector3f vec) {
