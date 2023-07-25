@@ -239,25 +239,20 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     private static VectorFan createStrip(BoxCorner[] corners, Vec3f[] vec) {
-        Vec3f[] coords = BoxFace.getVecArray(corners, vec);
-        boolean invalid = false;
-        for (int i = 0; i < coords.length - 1; i++) {
-            if (coords[i].epsilonEquals(coords[i + 1], VectorFan.EPSILON)) {
-                invalid = true;
-                break;
-            }
+        Vec3f[] coords = new Vec3f[corners.length];
+        int index = 0;
+        outer: for (int i = 0; i < coords.length; i++) {
+            for (int j = 0; j < index; j++)
+                if (vec[corners[i].ordinal()].epsilonEquals(coords[j], VectorFan.EPSILON))
+                    continue outer;
+            coords[index] = vec[corners[i].ordinal()];
+            index++;
         }
-        if (invalid) {
-            if (coords.length == 3)
+        if (index < coords.length)
+            if (index < 3)
                 return null;
-            List<Vec3f> newCoords = new ArrayList<>();
-            for (int i = 0; i < coords.length - 1; i++)
-                if (!coords[i].epsilonEquals(coords[i + 1], VectorFan.EPSILON))
-                    newCoords.add(coords[i]);
-            if (newCoords.size() < 3)
-                return null;
-            coords = newCoords.toArray(new Vec3f[newCoords.size()]);
-        }
+            else
+                return new VectorFan(Arrays.copyOf(coords, index));
         return new VectorFan(coords);
     }
     
@@ -354,7 +349,7 @@ public class LittleTransformableBox extends LittleBox {
                     faceCache.tiltedStrip2 = faceCache.tiltedStrip2.cut(planes[j]);
             }
             
-            faceCache.sortTiltedStrips(cache);
+            faceCache.sortTiltedStrips(cache, tiltedPlanes[i * 2], tiltedPlanes[i * 2 + 1]);
         }
         
         // Axis strips against transformed box;
@@ -1608,15 +1603,15 @@ public class LittleTransformableBox extends LittleBox {
                     completedFilled = false;
         }
         
-        public void sortTiltedStrips(VectorFanCache cache) {
+        public void sortTiltedStrips(VectorFanCache cache, NormalPlane plane1, NormalPlane plane2) {
             if (tiltedStrip1 != null)
-                sortTiltedStrip(tiltedStrip1, cache);
+                sortTiltedStrip(tiltedStrip1, cache, plane1);
             if (tiltedStrip2 != null)
-                sortTiltedStrip(tiltedStrip2, cache);
+                sortTiltedStrip(tiltedStrip2, cache, plane2);
         }
         
-        private void sortTiltedStrip(VectorFan fan, VectorFanCache cache) {
-            cache.faces[Facing.nearest(fan.createNormal()).ordinal()].addTiltedStripRendering(fan);
+        private void sortTiltedStrip(VectorFan fan, VectorFanCache cache, NormalPlane plane) {
+            cache.faces[Facing.nearest(plane.normal).ordinal()].addTiltedStripRendering(fan);
         }
         
         public boolean equalAxisStrip(VectorFanFaceCache cache, Axis toIgnore) {
