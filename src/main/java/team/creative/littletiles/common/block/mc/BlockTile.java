@@ -319,25 +319,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         return shape;
     }
     
-    public List<VoxelShape> getOddShapes(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, AABB bb) {
-        BETiles be = loadBE(level, pos);
-        List<VoxelShape> shapes = null;
-        
-        if (be != null) {
-            for (IParentCollection list : be.groups()) {
-                if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
-                    try {
-                        shapes = list.getStructure().collectOddShapes(state, level, pos, context, shapes, bb);
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-                
-                for (LittleTile tile : list)
-                    if (!tile.getBlock().noCollision())
-                        shapes = tile.collectOddShapes(list, shapes, bb);
-            }
-        }
-        return shapes;
-    }
-    
     @Override
     public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
         return super.isPathfindable(state, level, pos, type);
@@ -635,8 +616,8 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
             }
             
             if (heighestTile != null)
-                level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState()).setPos(pos), entity.getX(), entity.getY(), entity
-                        .getZ(), numberOfParticles, 0.0D, 0.0D, 0.0D, (double) 0.15F);
+                level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState()).setPos(pos), entity.getX(), entity.getY(), entity.getZ(),
+                    numberOfParticles, 0.0D, 0.0D, 0.0D, (double) 0.15F);
         }
         return true;
     }
@@ -662,9 +643,9 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
             Random random = new Random();
             if (heighestTile != null) {
                 Vec3 vec3 = entity.getDeltaMovement();
-                level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState())
-                        .setPos(pos), entity.getX() + (random.nextDouble() - 0.5D) * entity.getDimensions(entity.getPose()).width, entity
-                                .getY() + 0.1D, entity.getZ() + (random.nextDouble() - 0.5D) * entity.getDimensions(entity.getPose()).width, vec3.x * -4.0D, 1.5D, vec3.z * -4.0D);
+                level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState()).setPos(pos), entity.getX() + (random.nextDouble() - 0.5D) * entity
+                        .getDimensions(entity.getPose()).width, entity.getY() + 0.1D, entity.getZ() + (random.nextDouble() - 0.5D) * entity.getDimensions(entity.getPose()).width,
+                    vec3.x * -4.0D, 1.5D, vec3.z * -4.0D);
             }
             return true;
         }
