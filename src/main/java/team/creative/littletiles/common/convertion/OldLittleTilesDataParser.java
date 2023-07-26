@@ -53,8 +53,8 @@ public class OldLittleTilesDataParser {
         if (!LOADED_BLOCK_MAP) {
             try {
                 char splitter = 0x00A7;
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(LittleStructurePremade.class.getClassLoader()
-                        .getResourceAsStream("1.12.2.txt"), Charsets.UTF_8))) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(LittleStructurePremade.class.getClassLoader().getResourceAsStream(
+                    "1.12.2.txt"), Charsets.UTF_8))) {
                     String line;
                     while ((line = br.readLine()) != null) {
                         String[] data = line.split("" + splitter);
@@ -86,12 +86,16 @@ public class OldLittleTilesDataParser {
         } catch (RuntimeException e) {
             throw new LittleConvertException("Invalid grid size " + nbt.getInt("grid"));
         }
+        return loadGroup(nbt, grid);
+    }
+    
+    public static LittleGroup loadGroup(CompoundTag nbt, LittleGrid grid) throws LittleConvertException {
         List<LittleGroup> children = Collections.EMPTY_LIST;
         if (nbt.contains("children")) {
             ListTag list = nbt.getList("children", Tag.TAG_COMPOUND);
             children = new ArrayList<>();
             for (int i = 0; i < list.size(); i++)
-                children.add(load(list.getCompound(i)));
+                children.add(loadGroup(list.getCompound(i), grid));
         }
         LittleGroup group = new LittleGroup(convertStructureData(nbt.contains("structure") ? nbt.getCompound("structure") : null), children);
         ListTag tiles = nbt.getList("tiles", Tag.TAG_COMPOUND);
