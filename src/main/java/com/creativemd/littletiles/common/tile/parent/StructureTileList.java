@@ -130,7 +130,7 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
             throw new NotYetConnectedException();
         IStructureTileList structure = te.getStructure(structureIndex);
         if (structure != null)
-            if (structure == this)
+            if (structure == this || !structure.isMain())
                 throw new CorruptedLinkException();
             else
                 return structure.getStructure();
