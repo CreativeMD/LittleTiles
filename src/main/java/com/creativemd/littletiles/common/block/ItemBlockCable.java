@@ -8,7 +8,7 @@ public class ItemBlockCable extends ItemBlock {
     
     public ItemBlockCable(Block block, ResourceLocation location) {
         super(block);
-        setTranslationKey(location.getPath());
+        setUnlocalizedName(location.getResourcePath());
         setHasSubtypes(true);
     }
     

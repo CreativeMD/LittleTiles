@@ -8,7 +8,7 @@ public class ItemBlockArrow extends ItemBlock {
     
     public ItemBlockArrow(Block block, ResourceLocation location) {
         super(block);
-        setTranslationKey(location.getPath());
+        setUnlocalizedName(location.getResourcePath());
         setHasSubtypes(true);
     }
     

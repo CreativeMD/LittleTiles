@@ -1,5 +1,9 @@
 package com.creativemd.littletiles.common.util.shape;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.VectorUtils;
@@ -15,6 +19,7 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.IMarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection.ShapeSelectPos;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -30,10 +35,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMarkMode {
     
@@ -243,7 +244,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         Vec3d pos = player.getPositionEyes(partialTickTime);
         double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
         Vec3d look = player.getLook(partialTickTime);
-        Vec3d vec32 = pos.add(look.x * d0, look.y * d0, look.z * d0);
+        Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
         for (int i = 0; i < positions.size(); i++) {
             RayTraceResult result = positions.get(i).getBox().calculateIntercept(pos, vec32);
             if (result != null) {

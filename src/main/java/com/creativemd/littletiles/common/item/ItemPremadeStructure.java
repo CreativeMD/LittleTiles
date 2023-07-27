@@ -1,5 +1,10 @@
 package com.creativemd.littletiles.common.item;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.math.Rotation;
@@ -18,6 +23,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.creativetab.CreativeTabs;
@@ -32,11 +38,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
 public class ItemPremadeStructure extends Item implements ICreativeRendered, ILittlePlacer {
     
     public ItemPremadeStructure() {
@@ -45,8 +46,8 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
     }
     
     @Override
-    public String getTranslationKey(ItemStack stack) {
-        return super.getTranslationKey(stack) + "." + getPremadeId(stack);
+    public String getUnlocalizedName(ItemStack stack) {
+        return super.getUnlocalizedName(stack) + "." + getPremadeId(stack);
     }
     
     @Override

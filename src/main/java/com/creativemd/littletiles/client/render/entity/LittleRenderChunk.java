@@ -1,5 +1,10 @@
 package com.creativemd.littletiles.client.render.entity;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
@@ -7,16 +12,12 @@ import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUploader.NotSupportedException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 
 public class LittleRenderChunk {
     
@@ -102,12 +103,12 @@ public class LittleRenderChunk {
         for (int i = 0; i < cachedBuffers.length; i++) {
             if (cachedBuffers[i].expanded() > (builders[i] != null ? BufferBuilderUtils.getBufferSizeByte(builders[i]) : 0)) {
                 if (builders[i] == null) {
-                    BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getSize() + cachedBuffers[i].expanded());
+                    BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() + cachedBuffers[i].expanded());
                     tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
                     tempBuffer.setTranslation(pos.getX(), pos.getY(), pos.getZ());
                     builders[i] = tempBuffer;
                 } else
-                    BufferBuilderUtils.ensureTotalSize(builders[i], builders[i].getVertexFormat().getSize() + cachedBuffers[i].expanded());
+                    BufferBuilderUtils.ensureTotalSize(builders[i], builders[i].getVertexFormat().getNextOffset() + cachedBuffers[i].expanded());
                 cachedBuffers[i].fillBuilder(builders[i]);
                 bufferChanged[i] = true;
             }

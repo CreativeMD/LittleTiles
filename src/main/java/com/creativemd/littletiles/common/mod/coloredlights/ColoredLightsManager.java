@@ -1,15 +1,16 @@
 package com.creativemd.littletiles.common.mod.coloredlights;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class ColoredLightsManager {
     
@@ -26,8 +27,8 @@ public class ColoredLightsManager {
     public static boolean isBlockFromColoredBlocks(Block block) {
         if (block.getRegistryName() == null)
             return false;
-        return coloredlightsId.equals(block.getRegistryName().getNamespace()) && ("coloredLamp"
-            .equalsIgnoreCase(block.getRegistryName().getPath()) || "coloredLampInverted".equalsIgnoreCase(block.getRegistryName().getPath()));
+        return coloredlightsId.equals(block.getRegistryName().getResourceDomain()) && ("coloredLamp"
+            .equalsIgnoreCase(block.getRegistryName().getResourcePath()) || "coloredLampInverted".equalsIgnoreCase(block.getRegistryName().getResourcePath()));
     }
     
     public static Block getInvertedColorsBlock() {

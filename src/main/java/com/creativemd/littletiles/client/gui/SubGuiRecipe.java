@@ -1,8 +1,16 @@
 package com.creativemd.littletiles.client.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.*;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxCategory;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemComboBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.type.Pair;
@@ -20,11 +28,9 @@ import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
     
@@ -319,7 +325,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
     
     @Override
     public void receiveContainerPacket(NBTTagCompound nbt) {
-        if (nbt.isEmpty())
+        if (nbt.hasNoTags())
             stack.setTagCompound(null);
         else
             stack.setTagCompound(nbt);

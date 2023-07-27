@@ -122,7 +122,7 @@ public class BlockSignalConverter extends BlockContainer {
     /** Convert the given metadata into a BlockState for this Block */
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        EnumFacing enumfacing = EnumFacing.byIndex(meta);
+        EnumFacing enumfacing = EnumFacing.getFront(meta);
         
         if (enumfacing.getAxis() == EnumFacing.Axis.Y) {
             enumfacing = EnumFacing.NORTH;

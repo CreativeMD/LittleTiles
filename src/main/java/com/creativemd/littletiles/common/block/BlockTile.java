@@ -1,5 +1,13 @@
 package com.creativemd.littletiles.common.block;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.face.CachedFaceRenderType;
 import com.creativemd.creativecore.client.rendering.face.FaceRenderType;
@@ -37,6 +45,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendere
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.server.LittleTilesServer;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
@@ -53,7 +62,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -68,10 +82,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.chisel.ctm.api.IFacade;
 
-import javax.annotation.Nullable;
-import java.util.*;
-
-@Interface(iface = "api.ctm.chisel.team.IFacade", modid = "ctm")
+@Interface(iface = "team.chisel.ctm.api.IFacade", modid = "ctm")
 public class BlockTile extends BlockContainer implements ICreativeRendered, IFacade {// ICustomCachedCreativeRendered {
     
     public static class TEResult {
@@ -283,8 +294,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
         int k = pos.getZ();
         
         for (int l = 0; l <= 1; ++l) {
-            int i1 = i - enumfacing.getXOffset() * l - 1;
-            int j1 = k - enumfacing.getZOffset() * l - 1;
+            int i1 = i - enumfacing.getFrontOffsetX() * l - 1;
+            int j1 = k - enumfacing.getFrontOffsetZ() * l - 1;
             int k1 = i1 + 2;
             int l1 = j1 + 2;
             
@@ -808,7 +819,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     }
     
     @Override
-    public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
         TileEntityLittleTiles te = loadTe(worldIn, pos);
         if (te != null && te.shouldCheckForCollision()) {
             for (IStructureTileList list : te.structures())

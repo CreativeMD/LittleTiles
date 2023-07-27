@@ -1,5 +1,10 @@
 package com.creativemd.littletiles.common.structure.type.premade.signal;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
@@ -29,6 +34,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -43,11 +49,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
 
 public abstract class LittleSignalCableBase extends LittleStructurePremade implements ISignalStructureBase {
     
@@ -286,7 +287,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     protected LittleConnectResult checkConnection(World world, LittleAbsoluteBox box, EnumFacing facing, BlockPos pos) throws ConnectionException, NotYetConnectedException {
         try {
-            Chunk chunk = world.getChunk(pos);
+            Chunk chunk = world.getChunkFromBlockCoords(pos);
             if (chunk == null)
                 throw new NotYetConnectedException();
             TileEntity tileEntity = world.getTileEntity(pos);

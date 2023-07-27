@@ -1,5 +1,12 @@
 package com.creativemd.littletiles.common.tile;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleActionException;
@@ -17,6 +24,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tile.registry.LittleTileType;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.SoundType;
@@ -45,12 +53,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
 
 public class LittleTile implements ICombinable {
     
@@ -473,7 +475,7 @@ public class LittleTile implements ICombinable {
             return block.canRenderInLayer(getBlockState(), layer);
         } catch (Exception e) {
             try {
-                return block.getRenderLayer() == layer;
+                return block.getBlockLayer() == layer;
             } catch (Exception e2) {
                 return layer == BlockRenderLayer.SOLID;
             }

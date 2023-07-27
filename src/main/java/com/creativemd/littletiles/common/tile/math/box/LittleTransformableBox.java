@@ -852,7 +852,7 @@ public class LittleTransformableBox extends LittleBox {
             cachedFlipped[i] = getFlipped(i);
         
         for (int i = 0; i < EnumFacing.VALUES.length; i++) {
-            EnumFacing facing = RotationUtils.rotate(EnumFacing.byIndex(i), rotation);
+            EnumFacing facing = RotationUtils.rotate(EnumFacing.getFront(i), rotation);
             if (flipRotationMatrix[rotation.ordinal()][i])
                 setFlipped(facing.ordinal(), !cachedFlipped[i]);
             else
@@ -898,7 +898,7 @@ public class LittleTransformableBox extends LittleBox {
             cachedFlipped[i] = getFlipped(i);
         
         for (int i = 0; i < EnumFacing.VALUES.length; i++) {
-            EnumFacing facing = RotationUtils.flip(EnumFacing.byIndex(i), axis);
+            EnumFacing facing = RotationUtils.flip(EnumFacing.getFront(i), axis);
             if (flipMirrorMatrix[axis.ordinal()][i])
                 setFlipped(facing.ordinal(), !cachedFlipped[i]);
             else
@@ -1203,7 +1203,7 @@ public class LittleTransformableBox extends LittleBox {
         if (collision == null)
             return null;
         
-        return new RayTraceResult(collision.add(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
+        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
     }
     
     @Override

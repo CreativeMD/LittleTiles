@@ -1,5 +1,11 @@
 package com.creativemd.littletiles.common.util.shape.type;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
@@ -10,6 +16,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection.ShapeSelectPos;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -17,8 +24,6 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.util.*;
 
 public class LittleShapeConnected extends LittleShapeSelectable {
     
@@ -113,7 +118,7 @@ public class LittleShapeConnected extends LittleShapeSelectable {
             
             for (LittleBox box : added) {
                 for (int i = 0; i < neighborCache.length; i++) {
-                    EnumFacing facing = EnumFacing.byIndex(i);
+                    EnumFacing facing = EnumFacing.getFront(i);
                     if (box.isFaceAtEdge(context, facing)) {
                         if (neighborCache[i] == null) {
                             BlockPos pos = parent.getPos().offset(facing);
@@ -134,8 +139,8 @@ public class LittleShapeConnected extends LittleShapeSelectable {
                             continue;
                         
                         LittleBox copyBox = box.copy();
-                        copyBox.sub(context.size * facing.getXOffset(), context.size * facing.getYOffset(), context.size * facing
-                            .getZOffset());
+                        copyBox.sub(context.size * facing.getFrontOffsetX(), context.size * facing.getFrontOffsetY(), context.size * facing
+                            .getFrontOffsetZ());
                         
                         LittleGridContext used = context;
                         if (block.getContext().size > context.size) {

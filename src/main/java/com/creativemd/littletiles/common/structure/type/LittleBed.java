@@ -1,5 +1,10 @@
 package com.creativemd.littletiles.common.structure.type;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
@@ -27,6 +32,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -50,11 +56,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
 
 public class LittleBed extends LittleStructure {
     
@@ -84,7 +85,7 @@ public class LittleBed extends LittleStructure {
     @Override
     protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
         if (field.key.equals("facing"))
-            return EnumFacing.byHorizontalIndex(nbt.getInteger("direction"));
+            return EnumFacing.getHorizontal(nbt.getInteger("direction"));
         return super.failedLoadingRelative(nbt, field);
     }
     
@@ -194,11 +195,11 @@ public class LittleBed extends LittleStructure {
             e.printStackTrace();
         }
         
-        float f1 = 0.5F + direction.getXOffset() * 0.8F;
-        float f = 0.5F + direction.getZOffset() * 0.8F;
+        float f1 = 0.5F + direction.getFrontOffsetX() * 0.8F;
+        float f = 0.5F + direction.getFrontOffsetZ() * 0.8F;
         
-        player.renderOffsetX = -1.8F * direction.getXOffset();
-        player.renderOffsetZ = -1.8F * direction.getZOffset();
+        player.renderOffsetX = -1.8F * direction.getFrontOffsetX();
+        player.renderOffsetZ = -1.8F * direction.getFrontOffsetZ();
         player.setPosition((float) highest.x - 0.5F + f1, ((float) highest.y), (float) highest.z - 0.5F + f);
         
         try {
@@ -311,7 +312,7 @@ public class LittleBed extends LittleStructure {
             GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
             GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
             
-            EnumFacing direction = EnumFacing.byHorizontalIndex(((GuiStateButton) parent.get("direction")).getState());
+            EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
             
             LittleSlidingDoorParser.updateDirection(viewer, direction.getOpposite(), relativeDirection);
         }
@@ -335,13 +336,13 @@ public class LittleBed extends LittleStructure {
             
             GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 0, EnumFacing.UP);
             parent.addControl(relativeDirection);
-            LittleSlidingDoorParser.updateDirection(tile, EnumFacing.byHorizontalIndex(index).getOpposite(), relativeDirection);
+            LittleSlidingDoorParser.updateDirection(tile, EnumFacing.getHorizontal(index).getOpposite(), relativeDirection);
         }
         
         @Override
         @SideOnly(Side.CLIENT)
         public LittleBed parseStructure(LittlePreviews previews) {
-            EnumFacing direction = EnumFacing.byHorizontalIndex(((GuiStateButton) parent.get("direction")).getState());
+            EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
             LittleBed bed = createStructure(LittleBed.class, null);
             bed.direction = direction;
             return bed;

@@ -1,5 +1,8 @@
 package com.creativemd.littletiles.common.item;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
@@ -15,6 +18,7 @@ import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
@@ -29,14 +33,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ItemBlockTiles extends ItemBlock implements ILittlePlacer, ICreativeRendered {
     
     public ItemBlockTiles(Block block, ResourceLocation location) {
         super(block);
-        setTranslationKey(location.getPath());
+        setUnlocalizedName(location.getResourcePath());
         hasSubtypes = true;
     }
     
@@ -48,13 +49,13 @@ public class ItemBlockTiles extends ItemBlock implements ILittlePlacer, ICreativ
     
     @Override
     @SideOnly(Side.CLIENT)
-    public String getTranslationKey(ItemStack stack) {
+    public String getUnlocalizedName(ItemStack stack) {
         if (stack.hasTagCompound()) {
             LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
             if (preview.getBlock() != null)
-                return new ItemStack(preview.getBlock(), 1, preview.getMeta()).getTranslationKey();
+                return new ItemStack(preview.getBlock(), 1, preview.getMeta()).getUnlocalizedName();
         }
-        return super.getTranslationKey(stack);
+        return super.getUnlocalizedName(stack);
     }
     
     @Override

@@ -10,16 +10,16 @@ public class ItemBlockFlowingLava extends ItemBlock {
     
     public ItemBlockFlowingLava(Block block, ResourceLocation location) {
         super(block);
-        setTranslationKey(location.getPath());
+        setUnlocalizedName(location.getResourcePath());
         setHasSubtypes(true);
     }
     
     @Override
-    public String getTranslationKey(ItemStack stack) {
+    public String getUnlocalizedName(ItemStack stack) {
         String name = "default";
         if (stack.getMetadata() < BlockLTFlowingLava.DIRECTION.getAllowedValues().size())
-            name = EnumFacing.byIndex(stack.getMetadata()).getName();
-        return getTranslationKey() + "." + name;
+            name = EnumFacing.getFront(stack.getMetadata()).getName();
+        return getUnlocalizedName() + "." + name;
     }
     
     @Override

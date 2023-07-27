@@ -61,7 +61,7 @@ public class BlockLittleDyeableTransparent extends Block implements ISpecialBloc
     
     @Override
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getRenderLayer() {
+    public BlockRenderLayer getBlockLayer() {
         return BlockRenderLayer.TRANSLUCENT;
     }
     

@@ -1,5 +1,14 @@
 package com.creativemd.littletiles.client.render.cache;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
@@ -18,6 +27,7 @@ import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -39,14 +49,6 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.optifine.shaders.SVertexBuilder;
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @SideOnly(Side.CLIENT)
 public class RenderingThread extends Thread {
@@ -182,7 +184,7 @@ public class RenderingThread extends Thread {
                             for (int j = 0; j < cubes.size(); j++) {
                                 RenderBox cube = cubes.get(j);
                                 if (cube.doesNeedQuadUpdate) {
-                                    if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getNamespace())) {
+                                    if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
                                         fakeAccess.set(data.te.getWorld(), pos, cube.getBlockState());
                                         world = fakeAccess;
                                     } else

@@ -1,15 +1,16 @@
 package com.creativemd.littletiles.client.render.cache;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.nio.ByteBuffer;
-import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class LayeredRenderBufferCache {
@@ -127,7 +128,7 @@ public class LayeredRenderBufferCache {
         int size = 1;
         for (RenderBox cube : cubes)
             size += cube.countQuads();
-        return new BufferBuilder(format.getSize() * size);
+        return new BufferBuilder(format.getNextOffset() * size);
     }
     
     public static class ByteBufferWrapper implements IRenderDataCache {

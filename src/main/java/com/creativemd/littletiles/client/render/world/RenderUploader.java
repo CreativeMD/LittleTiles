@@ -1,10 +1,21 @@
 package com.creativemd.littletiles.client.render.world;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.util.List;
+
+import org.lwjgl.opengl.ARBBufferObject;
+import org.lwjgl.opengl.ARBVertexBufferObject;
+import org.lwjgl.opengl.GL15;
+
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -19,15 +30,6 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.ARBBufferObject;
-import org.lwjgl.opengl.ARBVertexBufferObject;
-import org.lwjgl.opengl.GL15;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class RenderUploader {
@@ -72,7 +74,7 @@ public class RenderUploader {
                         if (layer == BlockRenderLayer.TRANSLUCENT) {
                             boolean empty = compiled.getState() == null || compiled.isLayerEmpty(BlockRenderLayer.TRANSLUCENT);
                             BufferBuilder builder = new BufferBuilder((empty ? 0 : compiled.getState().getRawBuffer().length * 4) + cache.expanded() + DefaultVertexFormats.BLOCK
-                                .getSize());
+                                .getNextOffset());
                             
                             builder.begin(7, DefaultVertexFormats.BLOCK);
                             builder.setTranslation(-chunk.getPosition().getX(), -chunk.getPosition().getY(), -chunk.getPosition().getZ());
@@ -99,7 +101,7 @@ public class RenderUploader {
                             // Retrieve vanilla buffered data
                             uploadBuffer.bindBuffer();
                             boolean empty = compiled.isLayerEmpty(layer);
-                            ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(uploadedVertexCount * format.getSize());
+                            ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(uploadedVertexCount * format.getNextOffset());
                             uploadBuffer.unbindBuffer();
                             
                             toUpload = ByteBuffer
