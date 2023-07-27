@@ -74,7 +74,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
     
     @Override
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.SOLID;
     }
     
@@ -94,7 +94,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
     
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState().withProperty(DIRECTION, EnumFacing.getFront(meta));
+        return this.getDefaultState().withProperty(DIRECTION, EnumFacing.byIndex(meta));
     }
     
     @Override
@@ -183,12 +183,12 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
     
     @Override
     public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
-        preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(preview.getMeta()), rotation).ordinal());
+        preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.byIndex(preview.getMeta()), rotation).ordinal());
     }
     
     @Override
     public void flipPreview(Axis axis, LittlePreview preview, LittleVec doubledCenter) {
-        EnumFacing facing = EnumFacing.getFront(preview.getMeta());
+        EnumFacing facing = EnumFacing.byIndex(preview.getMeta());
         if (facing.getAxis() == axis)
             facing = facing.getOpposite();
         preview.getTileData().setInteger("meta", facing.ordinal());

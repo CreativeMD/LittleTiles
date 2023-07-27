@@ -1,18 +1,5 @@
 package com.creativemd.littletiles.common.tileentity;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.BiPredicate;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
@@ -34,17 +21,12 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxReturnedVolume;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
-import com.creativemd.littletiles.common.tile.parent.ParentTileList;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
-import com.creativemd.littletiles.common.tile.parent.TileList;
+import com.creativemd.littletiles.common.tile.parent.*;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -59,6 +41,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, IGridBased {
     
@@ -585,7 +575,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
         double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
         Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-        Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        Vec3d vec32 = pos.add(look.x * d0, look.y * d0, look.z * d0);
         return rayTrace(pos, vec32);
     }
     
@@ -608,7 +598,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         Vec3d pos = player.getPositionEyes(partialTickTime);
         double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
         Vec3d look = player.getLook(partialTickTime);
-        Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        Vec3d vec32 = pos.add(look.x * d0, look.y * d0, look.z * d0);
         
         if (world != player.world && world instanceof CreativeWorld) {
             pos = ((CreativeWorld) world).getOrigin().transformPointToFakeWorld(pos);

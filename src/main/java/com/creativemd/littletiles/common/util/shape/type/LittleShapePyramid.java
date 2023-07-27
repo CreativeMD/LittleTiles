@@ -1,8 +1,5 @@
 package com.creativemd.littletiles.common.util.shape.type;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
@@ -13,13 +10,15 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.shape.LittleShape;
 import com.creativemd.littletiles.common.util.shape.ShapeSelection;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LittleShapePyramid extends LittleShape {
     
@@ -29,7 +28,7 @@ public class LittleShapePyramid extends LittleShape {
     
     public EnumFacing getFacing(NBTTagCompound nbt) {
         if (nbt.hasKey("facing"))
-            return EnumFacing.getFront(nbt.getInteger("facing"));
+            return EnumFacing.byIndex(nbt.getInteger("facing"));
         return EnumFacing.UP;
     }
     
@@ -85,7 +84,7 @@ public class LittleShapePyramid extends LittleShape {
         List<GuiControl> controls = new ArrayList<>();
         String[] states = new String[6];
         for (int i = 0; i < states.length; i++)
-            states[i] = "facing: " + EnumFacing.getFront(i).name().toLowerCase();
+            states[i] = "facing: " + EnumFacing.byIndex(i).name().toLowerCase();
         controls.add(new GuiStateButton("direction", nbt.hasKey("facing") ? nbt.getInteger("facing") : EnumFacing.UP.ordinal(), 5, 27, states));
         return controls;
     }

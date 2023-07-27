@@ -26,7 +26,7 @@ public class TooltipOverlay {
             EntityPlayer player = mc.player;
             if (player != null && player.getHeldItemMainhand().getItem() instanceof IItemTooltip) {
                 ItemStack stack = player.getHeldItemMainhand();
-                String tooltipKey = stack.getItem().getRegistryName().getResourceDomain() + "." + stack.getItem().getRegistryName().getResourcePath() + ".tooltip";
+                String tooltipKey = stack.getItem().getRegistryName().getNamespace() + "." + stack.getItem().getRegistryName().getPath() + ".tooltip";
                 if (I18n.canTranslate(tooltipKey)) {
                     String[] lines = I18n.translateToLocalFormatted(tooltipKey, ((IItemTooltip) stack.getItem()).tooltipData(stack)).split("\\\\n");
                     GlStateManager.pushMatrix();

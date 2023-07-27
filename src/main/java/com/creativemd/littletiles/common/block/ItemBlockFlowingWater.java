@@ -10,16 +10,16 @@ public class ItemBlockFlowingWater extends ItemBlock {
     
     public ItemBlockFlowingWater(Block block, ResourceLocation location) {
         super(block);
-        setUnlocalizedName(location.getResourcePath());
+        setTranslationKey(location.getPath());
         setHasSubtypes(true);
     }
     
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
+    public String getTranslationKey(ItemStack stack) {
         String name = "default";
         if (stack.getMetadata() < BlockLTFlowingWater.DIRECTION.getAllowedValues().size())
-            name = EnumFacing.getFront(stack.getMetadata()).getName();
-        return getUnlocalizedName() + "." + name;
+            name = EnumFacing.byIndex(stack.getMetadata()).getName();
+        return getTranslationKey() + "." + name;
     }
     
     @Override

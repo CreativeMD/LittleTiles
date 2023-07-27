@@ -1,0 +1,128 @@
+import org.jetbrains.gradle.ext.Gradle
+
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.7'
+    id 'com.gtnewhorizons.retrofuturagradle' version '1.+'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+}
+
+// Add version to the jar name
+version project.version
+
+// Set the toolchain version to decouple the Java we run Gradle with from the Java used to compile and run the mod
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+        vendor.set(JvmVendorSpec.AZUL)
+    }
+    // Generate sources jar when building and publishing
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.fork = true
+    options.forkOptions.jvmArgs += '-Xmx4G'
+}
+
+minecraft {
+    mcVersion = '1.12.2'
+
+    extraRunJvmArguments.addAll('-Xmx4G', '-Dforge.logging.console.level=debug', '-Dfml.coreMods.load=com.creativemd.littletiles.LittlePatchingLoader')
+
+    injectedTags.put('ID', project.id)
+    injectedTags.put('VERSION', project.version)
+}
+
+// Generate a my.project.Tags class with the version number as a field
+tasks.injectTags.configure {
+    outputClassName.set('com.creativemd.littletiles.Tags')
+}
+
+repositories {
+    maven {
+        name 'Curse Maven'
+        url 'https://cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
+}
+
+dependencies {
+    implementation rfg.deobf('curse.maven:creativecore-257814:3626833')
+
+    implementation rfg.deobf('curse.maven:ctm-267602:2915363')
+    implementation rfg.deobf('curse.maven:coloredlux-347912:4055506')
+    implementation rfg.deobf('curse.maven:chiselandbits-231095:2720655')
+    implementation rfg.deobf('curse.maven:flatcoloredblocks-238590:2715827')
+    implementation rfg.deobf('curse.maven:hammerlib-247401:3611193')
+    implementation rfg.deobf('curse.maven:warpdrive-233565:3762066')
+    implementation rfg.deobf('curse.maven:albedo-275300:2714505')
+    implementation rfg.deobf('curse.maven:theoneprobe-245211:2667280')
+    implementation rfg.deobf('curse.maven:hwyla-253449:2568751')
+}
+
+// Replace version and id in `mcmod.info`
+processResources {
+    inputs.property 'id', project.id
+    inputs.property 'version', project.version
+    filesMatching(['mcmod.info', 'pack.mcmeta']) { fcd ->
+        include 'mcmod.info'
+        fcd.expand (
+                'id': project.id,
+                'version': project.version
+        )
+    }
+}
+
+jar {
+    manifest.attributes([
+            'ModSide': 'BOTH',
+            'FMLCorePlugin': "com.creativemd.littletiles.LittlePatchingLoader",
+            'FMLCorePluginContainsFMLMod': true,
+            'ForceLoadAsMod': true
+    ])
+}
+
+idea {
+    module { inheritOutputDirs = true }
+
+    module { excludeDirs = [file('.github'), file('.gradle'), file('.idea'), file('build'), file('gradle'), file('run')] }
+
+    project { settings {
+        runConfigurations {
+            'Client'(Gradle) {
+                taskNames = ['runClient']
+            }
+            'Server'(Gradle) {
+                taskNames = ['runServer']
+            }
+            'Obfuscated Client'(Gradle) {
+                taskNames = ['runObfClient']
+            }
+            'Obfuscated Server'(Gradle) {
+                taskNames = ['runObfServer']
+            }
+            'Vanilla Client'(Gradle) {
+                taskNames = ['runVanillaClient']
+            }
+            'Vanilla Server'(Gradle) {
+                taskNames = ['runVanillaServer']
+            }
+        }
+
+        compiler.javac {
+            afterEvaluate {
+                javacAdditionalOptions = '-encoding utf8'
+                moduleJavacAdditionalOptions = [ (project.id + '.main'): tasks.compileJava.options.compilerArgs.collect { ''' + it + ''' }.join(' ') ]
+            }
+        }
+    }}
+}
+
+tasks.named('processIdeaSettings').configure {
+    dependsOn('injectTags')
+}

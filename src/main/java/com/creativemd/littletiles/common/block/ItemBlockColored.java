@@ -9,16 +9,16 @@ public class ItemBlockColored extends ItemBlock {
     
     public ItemBlockColored(Block block, ResourceLocation location) {
         super(block);
-        setUnlocalizedName(location.getResourcePath());
+        setTranslationKey(location.getPath());
         setHasSubtypes(true);
     }
     
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
+    public String getTranslationKey(ItemStack stack) {
         String name = "default";
         if (stack.getMetadata() < BlockLittleDyeable.LittleDyeableType.values().length)
             name = BlockLittleDyeable.LittleDyeableType.values()[stack.getMetadata()].getName();
-        return getUnlocalizedName() + "." + name;
+        return getTranslationKey() + "." + name;
     }
     
     @Override

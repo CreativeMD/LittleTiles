@@ -1,15 +1,25 @@
 [
-{
-  "modid": "littletiles",
-  "name": "LittleTiles",
-  "description": "#BuildItYourself",
-  "mcversion": "${mcversion}",
-  "url": "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2408680",
-  "updateUrl": "",
-  "authorList": ["CreativeMD", "Shana"],
-  "credits": "",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": ["creativecore"]
-}
+  {
+    "modid": "${id}",
+    "name": "LittleTiles",
+    "description": "This mod allows you to build anything you want. It adds a way to add more detail to everything. \n\nYou can hammer blocks into tiles which can be 4096 (or even more) times smaller than an ordinary minecraft block. \n\nYou can combine your tiles together to create doors, chairs, ladders, no-clip, storage and any kind of furniture structure.",
+    "version": "${version}",
+    "url": "https://www.curseforge.com/minecraft/mc-mods/littletiles",
+    "authorList": [
+      "CreativeMD",
+      "Shana"
+    ],
+    "credits": "_Doc, blakedj012, KevM480, RMSCA, Desoroxxx, skmedix, Edgewalker_Blue, kencinder, Smollet777, TomyLobo, vinz243, QBFreak, N247S",
+    "logoFile": "assets/littletiles/Logo.png",
+    "screenshots": [
+      "assets/littletiles/screenshots/Showcase0",
+      "assets/littletiles/screenshots/Showcase1",
+      "assets/littletiles/screenshots/Showcase2",
+      "assets/littletiles/screenshots/Showcase3",
+      "assets/littletiles/screenshots/Showcase4"
+    ],
+    "dependencies": [
+      "creativecore"
+    ]
+  }
 ]

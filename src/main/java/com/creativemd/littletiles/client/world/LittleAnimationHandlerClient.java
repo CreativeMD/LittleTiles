@@ -1,11 +1,5 @@
 package com.creativemd.littletiles.client.world;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.LittleTilesClient;
@@ -18,7 +12,6 @@ import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.LittleAnimationHandler;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockStructure;
@@ -28,11 +21,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -41,11 +30,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -56,16 +41,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.*;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 @SideOnly(Side.CLIENT)
 public class LittleAnimationHandlerClient extends LittleAnimationHandler {
@@ -139,7 +125,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
             Vec3d pos = player.getPositionEyes(partialTicks);
             double d0 = target != null ? pos.distanceTo(target.hitVec) : (player.capabilities.isCreativeMode ? 5.0 : 4.5);
             Vec3d look = player.getLook(partialTicks);
-            look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+            look = pos.add(look.x * d0, look.y * d0, look.z * d0);
             
             AxisAlignedBB box = new AxisAlignedBB(pos, target != null ? target.hitVec : look);
             World world = player.world;
@@ -483,7 +469,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         boolean destroyed = block.removedByPlayer(iblockstate, world, pos, player, false);
         
         if (destroyed) {
-            block.onBlockDestroyedByPlayer(world, pos, iblockstate);
+            block.onPlayerDestroy(world, pos, iblockstate);
             
             try {
                 blockHitDelayField.setInt(mc.playerController, 5);
@@ -525,7 +511,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
         Vec3d pos = player.getPositionEyes(partialTicks);
         double d0 = target != null ? pos.distanceTo(target.hitVec) : (player.capabilities.isCreativeMode ? 5.0 : 4.5);
         Vec3d look = player.getLook(partialTicks);
-        look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        look = pos.add(look.x * d0, look.y * d0, look.z * d0);
         
         AxisAlignedBB box = new AxisAlignedBB(pos, target != null ? target.hitVec : look);
         World world = player.world;

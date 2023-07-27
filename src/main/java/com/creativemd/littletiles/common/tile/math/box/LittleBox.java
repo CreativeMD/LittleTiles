@@ -1,13 +1,5 @@
 package com.creativemd.littletiles.common.tile.math.box;
 
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Nullable;
-import javax.vecmath.Vector3f;
-
 import com.creativemd.creativecore.common.utils.math.RangedBitSet;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
@@ -22,13 +14,8 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SplitRangeBoxes;
 import com.creativemd.littletiles.common.util.vec.SplitRangeBoxes.SplitRangeBox;
-
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTTagByte;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.*;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
@@ -38,6 +25,13 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import javax.vecmath.Vector3f;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class LittleBox {
     
@@ -903,7 +897,7 @@ public class LittleBox {
         if (collision == null)
             return null;
         
-        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
+        return new RayTraceResult(collision.add(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
     }
     
     public Vector3f[] getVecArray(BoxCorner[] corners) {

@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.packet;
 
-import java.util.UUID;
-
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
@@ -24,7 +22,6 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -42,6 +39,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.UUID;
 
 public class LittleBlockPacket extends CreativeCorePacket {
     
@@ -166,7 +165,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
         this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
         double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
         Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-        this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        this.look = pos.add(look.x * d0, look.y * d0, look.z * d0);
         this.nbt = nbt;
         if (world instanceof CreativeWorld)
             uuid = ((CreativeWorld) world).parent.getUniqueID();

@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.action;
 
-import java.util.UUID;
-
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
@@ -10,7 +8,6 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -21,6 +18,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import java.util.UUID;
 
 public abstract class LittleActionInteract extends LittleAction {
     
@@ -42,7 +41,7 @@ public abstract class LittleActionInteract extends LittleAction {
         this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
         double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
         Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-        this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+        this.look = pos.add(look.x * d0, look.y * d0, look.z * d0);
         this.secondMode = isUsingSecondMode(player);
         if (world instanceof CreativeWorld)
             uuid = ((CreativeWorld) world).parent.getUniqueID();

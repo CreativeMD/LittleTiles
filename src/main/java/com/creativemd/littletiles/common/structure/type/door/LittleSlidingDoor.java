@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.structure.type.door;
 
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
@@ -15,11 +13,7 @@ import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.structure.animation.AnimationKey;
-import com.creativemd.littletiles.common.structure.animation.AnimationState;
-import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
-import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
+import com.creativemd.littletiles.common.structure.animation.*;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -32,11 +26,12 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
 
 public class LittleSlidingDoor extends LittleDoorBase {
     
@@ -91,7 +86,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
         public void buttonClicked(GuiControlClickEvent event) {
             if (event.source.is("direction")) {
                 GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
-                EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source).getState());
+                EnumFacing direction = EnumFacing.byIndex(((GuiStateButton) event.source).getState());
                 GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
                 updateButtonDirection(viewer, direction, relativeDirection);
             }
@@ -146,7 +141,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
             int index = EnumFacing.UP.ordinal();
             if (door != null)
                 index = door.direction.ordinal();
-            EnumFacing direction = EnumFacing.getFront(index);
+            EnumFacing direction = EnumFacing.byIndex(index);
             
             LittleGridContext context = previews.getContext();
             
@@ -212,7 +207,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
         @Override
         @SideOnly(Side.CLIENT)
         public LittleSlidingDoor parseStructure() {
-            EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
+            EnumFacing direction = EnumFacing.byIndex(((GuiStateButton) parent.get("direction")).getState());
             GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
             
             LittleSlidingDoor door = createStructure(LittleSlidingDoor.class, null);
@@ -231,14 +226,14 @@ public class LittleSlidingDoor extends LittleDoorBase {
             GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
             GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
             
-            EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
+            EnumFacing direction = EnumFacing.byIndex(((GuiStateButton) parent.get("direction")).getState());
             
             updateButtonDirection(viewer, direction, relativeDirection);
         }
         
         @Override
         public void populateTimeline(AnimationTimeline timeline, int interpolation) {
-            EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
+            EnumFacing direction = EnumFacing.byIndex(((GuiStateButton) parent.get("direction")).getState());
             GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
             
             timeline.values.add(AnimationKey.getOffset(direction.getAxis()), ValueTimeline.create(interpolation).addPoint(0, 0D)

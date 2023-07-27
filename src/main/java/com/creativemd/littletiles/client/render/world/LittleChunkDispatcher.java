@@ -1,18 +1,11 @@
 package com.creativemd.littletiles.client.render.world;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.FloatBuffer;
-import java.util.List;
-
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerCache;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -26,6 +19,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.FloatBuffer;
+import java.util.List;
 
 public class LittleChunkDispatcher {
     
@@ -140,7 +139,7 @@ public class LittleChunkDispatcher {
                             setLayerUseMethod.invoke(chunk.getCompiledChunk(), layer);
                     }
                     
-                    BufferBuilderUtils.growBufferSmall(buffer, cache.expanded() + buffer.getVertexFormat().getNextOffset());
+                    BufferBuilderUtils.growBufferSmall(buffer, cache.expanded() + buffer.getVertexFormat().getSize());
                     cache.fillBuilder(buffer);
                     
                     if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null && mc.getRenderViewEntity() != null) {
@@ -157,7 +156,7 @@ public class LittleChunkDispatcher {
                     }
                     
                     buffer.getByteBuffer().position(0);
-                    buffer.getByteBuffer().limit(buffer.getVertexFormat().getNextOffset() * buffer.getVertexCount());
+                    buffer.getByteBuffer().limit(buffer.getVertexFormat().getSize() * buffer.getVertexCount());
                     added.setBoolean(buffer, true);
                     
                     VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());

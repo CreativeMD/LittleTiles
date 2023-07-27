@@ -1,15 +1,9 @@
 package com.creativemd.littletiles.common.structure;
 
-import java.text.ParseException;
-import java.util.*;
-
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.Pair;
@@ -22,19 +16,9 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.connection.ChildrenList;
-import com.creativemd.littletiles.common.structure.connection.IWorldPositionProvider;
-import com.creativemd.littletiles.common.structure.connection.StructureChildConnection;
-import com.creativemd.littletiles.common.structure.connection.StructureChildFromSubWorldConnection;
-import com.creativemd.littletiles.common.structure.connection.StructureChildToSubWorldConnection;
+import com.creativemd.littletiles.common.structure.connection.*;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.MissingBlockException;
-import com.creativemd.littletiles.common.structure.exception.MissingChildException;
-import com.creativemd.littletiles.common.structure.exception.MissingParentException;
-import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.exception.RemovedStructureException;
+import com.creativemd.littletiles.common.structure.exception.*;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
@@ -62,7 +46,6 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -82,6 +65,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.text.ParseException;
+import java.util.*;
 
 public abstract class LittleStructure implements ISignalSchedulable, IWorldPositionProvider {
     
@@ -947,7 +934,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                 int i2 = subAnimation.chunkCoordZ;
                 World world = getWorld();
                 if (subAnimation.addedToChunk) {
-                    Chunk chunk = world.getChunkFromChunkCoords(l1, i2);
+                    Chunk chunk = world.getChunk(l1, i2);
                     if (chunk != null)
                         chunk.removeEntity(subAnimation);
                     subAnimation.addedToChunk = false;
@@ -974,7 +961,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                 int l1 = subAnimation.chunkCoordX;
                 int i2 = subAnimation.chunkCoordZ;
                 if (subAnimation.addedToChunk) {
-                    Chunk chunk = animation.fakeWorld.getChunkFromChunkCoords(l1, i2);
+                    Chunk chunk = animation.fakeWorld.getChunk(l1, i2);
                     if (chunk != null)
                         chunk.removeEntity(subAnimation);
                     subAnimation.addedToChunk = false;
@@ -1199,7 +1186,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             World world = getWorld();
             
             BlockPos absoluteCoord = getAbsolutePos();
-            Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
+            Chunk chunk = world.getChunk(absoluteCoord);
             if (WorldUtils.checkIfChunkExists(chunk)) {
                 TileEntity te = world.getTileEntity(absoluteCoord);
                 if (te instanceof TileEntityLittleTiles)

@@ -9,16 +9,16 @@ public class ItemBlockTransparentColored extends ItemBlock {
     
     public ItemBlockTransparentColored(Block block, ResourceLocation location) {
         super(block);
-        setUnlocalizedName(location.getResourcePath());
+        setTranslationKey(location.getPath());
         setHasSubtypes(true);
     }
     
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
+    public String getTranslationKey(ItemStack stack) {
         String name = "default";
         if (stack.getMetadata() < BlockLittleDyeableTransparent.LittleDyeableTransparent.values().length)
             name = BlockLittleDyeableTransparent.LittleDyeableTransparent.values()[stack.getMetadata()].getName();
-        return getUnlocalizedName() + "." + name;
+        return getTranslationKey() + "." + name;
     }
     
     @Override

@@ -1,26 +1,20 @@
 package com.creativemd.littletiles.common.structure.connection;
 
-import java.security.InvalidParameterException;
-
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
-import com.creativemd.littletiles.common.structure.exception.MissingBlockException;
-import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
-import com.creativemd.littletiles.common.structure.exception.MissingWorldException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+import com.creativemd.littletiles.common.structure.exception.*;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.connection.StructureLink;
 import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+
+import java.security.InvalidParameterException;
 
 public class StructureChildConnection implements IStructureConnection {
     
@@ -118,7 +112,7 @@ public class StructureChildConnection implements IStructureConnection {
             throw new MissingWorldException();
         
         BlockPos absoluteCoord = getStructurePosition();
-        Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
+        Chunk chunk = world.getChunk(absoluteCoord);
         if (WorldUtils.checkIfChunkExists(chunk)) {
             TileEntity te = world.getTileEntity(absoluteCoord);
             if (te instanceof TileEntityLittleTiles)

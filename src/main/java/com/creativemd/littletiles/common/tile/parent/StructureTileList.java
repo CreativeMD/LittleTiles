@@ -1,29 +1,24 @@
 package com.creativemd.littletiles.common.tile.parent;
 
-import java.security.InvalidParameterException;
-
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureConnection;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
-import com.creativemd.littletiles.common.structure.exception.MissingBlockException;
-import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+import com.creativemd.littletiles.common.structure.exception.*;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+
+import java.security.InvalidParameterException;
 
 public class StructureTileList extends ParentTileList implements IStructureTileList, IStructureConnection {
     
@@ -149,7 +144,7 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
         World world = getTe().getWorld();
         
         BlockPos absoluteCoord = getStructurePosition();
-        Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
+        Chunk chunk = world.getChunk(absoluteCoord);
         if (WorldUtils.checkIfChunkExists(chunk)) {
             TileEntity te = world.getTileEntity(absoluteCoord);
             if (te instanceof TileEntityLittleTiles)

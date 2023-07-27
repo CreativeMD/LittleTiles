@@ -1,10 +1,5 @@
 package com.creativemd.littletiles.common.util.place;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
@@ -20,7 +15,6 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -35,6 +29,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /** This class does all calculate on where to place a block. Used for rendering
  * preview and placing **/
@@ -159,7 +157,7 @@ public class PlacementHelper {
             Vec3d position = player.getPositionEyes(TickUtils.getPartialTickTime());
             double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
             Vec3d temp = player.getLook(TickUtils.getPartialTickTime());
-            Vec3d look = position.addVector(temp.x * d0, temp.y * d0, temp.z * d0);
+            Vec3d look = position.add(temp.x * d0, temp.y * d0, temp.z * d0);
             position = position.subtract(pos.getX(), pos.getY(), pos.getZ());
             look = look.subtract(pos.getX(), pos.getY(), pos.getZ());
             List<LittleRenderBox> cubes = ((ILittlePlacer) tile).getPositingCubes(world, pos, stack);
