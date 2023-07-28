@@ -1,8 +1,5 @@
 package com.creativemd.littletiles;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.config.holder.CreativeConfigRegistry;
 import com.creativemd.creativecore.common.gui.container.SubContainer;
@@ -10,109 +7,33 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.client.gui.SubGuiBlankOMatic;
-import com.creativemd.littletiles.client.gui.SubGuiBuilder;
-import com.creativemd.littletiles.client.gui.SubGuiDiagnose;
-import com.creativemd.littletiles.client.gui.SubGuiExport;
-import com.creativemd.littletiles.client.gui.SubGuiImport;
-import com.creativemd.littletiles.client.gui.SubGuiParticle;
-import com.creativemd.littletiles.client.gui.SubGuiRecipe;
-import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
-import com.creativemd.littletiles.client.gui.SubGuiStorage;
-import com.creativemd.littletiles.client.gui.SubGuiStructureOverview;
-import com.creativemd.littletiles.client.gui.SubGuiWorkbench;
+import com.creativemd.littletiles.client.gui.*;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
-import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
+import com.creativemd.littletiles.common.action.block.*;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
-import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
-import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.ILittlePlacer;
 import com.creativemd.littletiles.common.api.ILittleTool;
-import com.creativemd.littletiles.common.block.BlockArrow;
-import com.creativemd.littletiles.common.block.BlockCable;
-import com.creativemd.littletiles.common.block.BlockLTFlowingLava;
-import com.creativemd.littletiles.common.block.BlockLTFlowingWater;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable;
-import com.creativemd.littletiles.common.block.BlockLittleDyeable2;
-import com.creativemd.littletiles.common.block.BlockLittleDyeableTransparent;
-import com.creativemd.littletiles.common.block.BlockSignalConverter;
-import com.creativemd.littletiles.common.block.BlockStorageTile;
-import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.block.ItemBlockColored;
-import com.creativemd.littletiles.common.block.ItemBlockColored2;
-import com.creativemd.littletiles.common.block.ItemBlockFlowingLava;
-import com.creativemd.littletiles.common.block.ItemBlockFlowingWater;
-import com.creativemd.littletiles.common.block.ItemBlockTransparentColored;
-import com.creativemd.littletiles.common.command.ExportCommand;
-import com.creativemd.littletiles.common.command.ImportCommand;
-import com.creativemd.littletiles.common.command.OpenCommand;
-import com.creativemd.littletiles.common.command.ToVanillaCommand;
-import com.creativemd.littletiles.common.command.AllBlocksCommand;
-import com.creativemd.littletiles.common.container.SubContainerBlankOMatic;
-import com.creativemd.littletiles.common.container.SubContainerBuilder;
-import com.creativemd.littletiles.common.container.SubContainerDiagnose;
-import com.creativemd.littletiles.common.container.SubContainerExport;
-import com.creativemd.littletiles.common.container.SubContainerImport;
-import com.creativemd.littletiles.common.container.SubContainerParticle;
-import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
-import com.creativemd.littletiles.common.container.SubContainerStorage;
-import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
-import com.creativemd.littletiles.common.container.SubContainerWorkbench;
+import com.creativemd.littletiles.common.block.*;
+import com.creativemd.littletiles.common.command.*;
+import com.creativemd.littletiles.common.container.*;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySit;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
-import com.creativemd.littletiles.common.item.ItemBlockIngredient;
-import com.creativemd.littletiles.common.item.ItemBlockTiles;
-import com.creativemd.littletiles.common.item.ItemColorIngredient;
+import com.creativemd.littletiles.common.item.*;
 import com.creativemd.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
-import com.creativemd.littletiles.common.item.ItemLittleBag;
-import com.creativemd.littletiles.common.item.ItemLittleChisel;
-import com.creativemd.littletiles.common.item.ItemLittleGrabber;
-import com.creativemd.littletiles.common.item.ItemLittleHammer;
-import com.creativemd.littletiles.common.item.ItemLittlePaintBrush;
-import com.creativemd.littletiles.common.item.ItemLittleRecipe;
-import com.creativemd.littletiles.common.item.ItemLittleRecipeAdvanced;
-import com.creativemd.littletiles.common.item.ItemLittleRubberMallet;
-import com.creativemd.littletiles.common.item.ItemLittleSaw;
-import com.creativemd.littletiles.common.item.ItemLittleScrewdriver;
-import com.creativemd.littletiles.common.item.ItemLittleUtilityKnife;
-import com.creativemd.littletiles.common.item.ItemLittleWrench;
-import com.creativemd.littletiles.common.item.ItemMultiTiles;
-import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.mod.albedo.AlbedoExtension;
 import com.creativemd.littletiles.common.mod.lux.LuxExtension;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mod.warpdrive.TileEntityLittleTilesTransformer;
-import com.creativemd.littletiles.common.packet.LittleActionMessagePacket;
-import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
-import com.creativemd.littletiles.common.packet.LittleAnimationControllerPacket;
-import com.creativemd.littletiles.common.packet.LittleAnimationDataPacket;
-import com.creativemd.littletiles.common.packet.LittleAnimationDestroyPacket;
-import com.creativemd.littletiles.common.packet.LittleBedPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleFlipPacket;
-import com.creativemd.littletiles.common.packet.LittleInteractionPacket;
-import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleRotatePacket;
-import com.creativemd.littletiles.common.packet.LittleScrewdriverSelectionPacket;
-import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
-import com.creativemd.littletiles.common.packet.LittleUpdateOutputPacket;
-import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
-import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
+import com.creativemd.littletiles.common.packet.*;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
@@ -123,18 +44,13 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.tileentity.TESignalConverter;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
+import com.creativemd.littletiles.common.tileentity.*;
 import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.creativemd.littletiles.server.NeighborUpdateOrganizer;
 import com.creativemd.littletiles.server.interact.LittleInteractionHandlerServer;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
@@ -162,7 +78,10 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles", acceptedMinecraftVersions = "",
+import java.util.List;
+import java.util.UUID;
+
+@Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles",
     guiFactory = "com.creativemd.littletiles.client.LittleTilesSettings", dependencies = "required-after:creativecore")
 @Mod.EventBusSubscriber
 public class LittleTiles {
@@ -170,13 +89,13 @@ public class LittleTiles {
     @SidedProxy(clientSide = "com.creativemd.littletiles.client.LittleTilesClient", serverSide = "com.creativemd.littletiles.server.LittleTilesServer")
     public static LittleTilesServer proxy;
     
-    public static final String modid = "littletiles";
-    public static final String version = "1.5.0";
+    public static final String modid = Tags.ID;
+    public static final String version = Tags.VERSION;
     
     public static LittleTilesConfig CONFIG;
     
     public static CreativeTabs littleTab = new CreativeTabs("littletiles") {
-        
+
         @Override
         public ItemStack getTabIconItem() {
             return new ItemStack(hammer);
