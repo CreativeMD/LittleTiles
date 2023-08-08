@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -21,14 +22,13 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.controls.tree.GuiTree;
 import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.util.math.box.ABB;
+import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -167,10 +167,10 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             }
             
             LittleGrid grid = selected.group.getGrid();
-            VoxelShape shape = Shapes.empty();
+            List<ABB> boxes = new ArrayList<>();
             for (LittleBox box : selected.group.allBoxes())
-                shape = Shapes.joinUnoptimized(box.getShape(grid), shape, BooleanOp.OR);
-            
+                boxes.add(box.getABB(grid));;
+                
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.getBuilder();
             
@@ -178,7 +178,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             
             bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             RenderSystem.lineWidth(1.0F);
-            PreviewRenderer.renderShape(empty, bufferbuilder, shape, x, y, z, 1, 1, 1, 1);
+            PreviewRenderer.renderShape(empty, bufferbuilder, BoxesVoxelShape.create(boxes), x, y, z, 1, 1, 1, 1);
             tesselator.end();
         }
         

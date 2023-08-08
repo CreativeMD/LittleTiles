@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.block.mc;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +61,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -71,6 +71,8 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeSoundType;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.ABB;
+import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -206,7 +208,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         BETiles be = loadBE(level, pos);
-        VoxelShape shape = Shapes.empty();
+        List<ABB> boxes = new ArrayList<>();
         
         if (be != null) {
             for (IParentCollection list : be.groups()) {
@@ -214,15 +216,15 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
                     continue;
                 if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
                     try {
-                        shape = Shapes.joinUnoptimized(shape, list.getStructure().getExtraShape(state, level, pos, context), BooleanOp.OR);
+                        list.getStructure().collectExtraBoxes(state, level, pos, context, boxes);
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
                 for (LittleTile tile : list)
                     if (!tile.getBlock().noCollision())
-                        shape = Shapes.joinUnoptimized(shape, tile.getShapes(list), BooleanOp.OR);
+                        tile.collectBoxes(list, boxes);
             }
         }
-        return shape;
+        return BoxesVoxelShape.create(boxes);
     }
     
     @Override
@@ -272,7 +274,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         // its cached state wise ... which is a big problem, maybe try to keep the cache empty????
         // DISABLED at the moment due to noOcclusion in the constructor
-        VoxelShape shape = Shapes.empty();
+        List<ABB> boxes = new ArrayList<>();
         BETiles be = loadBE(level, pos);
         if (be != null) {
             for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
@@ -280,11 +282,11 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
                     continue;
                 if (pair.value.getBlock().isTranslucent())
                     continue;
-                shape = Shapes.joinUnoptimized(shape, pair.value.getShapes(pair.key), BooleanOp.OR);
+                pair.value.collectBoxes(pair.key, boxes);
             }
         }
         
-        return shape;
+        return BoxesVoxelShape.create(boxes);
     }
     
     @Override
@@ -311,12 +313,12 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         BETiles be = loadBE(level, pos);
-        VoxelShape shape = Shapes.empty();
+        List<ABB> boxes = new ArrayList<>();
         
         if (be != null)
             for (Pair<IParentCollection, LittleTile> tile : be.allTiles())
-                shape = Shapes.joinUnoptimized(shape, tile.value.getShapes(tile.key), BooleanOp.OR);
-        return shape;
+                tile.value.collectBoxes(tile.key, boxes);
+        return BoxesVoxelShape.create(boxes);
     }
     
     @Override

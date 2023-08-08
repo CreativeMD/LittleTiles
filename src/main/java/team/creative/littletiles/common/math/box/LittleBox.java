@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
@@ -103,9 +104,8 @@ public class LittleBox {
     
     // ================Conversions================
     
-    public VoxelShape getShape(LittleGrid grid) {
-        return Shapes
-                .box(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
+    public ABB getABB(LittleGrid grid) {
+        return new ABB(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
     public AABB getSelectionBB(LittleGrid grid, BlockPos pos) {
@@ -113,8 +113,13 @@ public class LittleBox {
     }
     
     public AABB getBB(LittleGrid grid, BlockPos offset) {
-        return new AABB(grid.toVanillaGrid(minX) + offset.getX(), grid.toVanillaGrid(minY) + offset.getY(), grid.toVanillaGrid(minZ) + offset.getZ(), grid
-                .toVanillaGrid(maxX) + offset.getX(), grid.toVanillaGrid(maxY) + offset.getY(), grid.toVanillaGrid(maxZ) + offset.getZ());
+        return new AABB(grid.toVanillaGrid(minX) + offset.getX(), grid.toVanillaGrid(minY) + offset.getY(), grid.toVanillaGrid(minZ) + offset.getZ(), grid.toVanillaGrid(
+            maxX) + offset.getX(), grid.toVanillaGrid(maxY) + offset.getY(), grid.toVanillaGrid(maxZ) + offset.getZ());
+    }
+    
+    public VoxelShape getShape(LittleGrid grid) {
+        return Shapes.box(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(
+            maxZ));
     }
     
     public AABB getBB(LittleGrid grid) {
@@ -723,8 +728,8 @@ public class LittleBox {
     }
     
     public boolean intersectsWith(AABB bb, LittleGrid grid) {
-        return bb.maxX > grid.toVanillaGrid(this.minX) && bb.minX < grid.toVanillaGrid(this.maxX) && bb.maxY > grid.toVanillaGrid(this.minY) && bb.minY < grid
-                .toVanillaGrid(this.maxY) && bb.maxZ > grid.toVanillaGrid(this.minZ) && bb.minZ < grid.toVanillaGrid(this.maxZ);
+        return bb.maxX > grid.toVanillaGrid(this.minX) && bb.minX < grid.toVanillaGrid(this.maxX) && bb.maxY > grid.toVanillaGrid(this.minY) && bb.minY < grid.toVanillaGrid(
+            this.maxY) && bb.maxZ > grid.toVanillaGrid(this.minZ) && bb.minZ < grid.toVanillaGrid(this.maxZ);
     }
     
     public boolean containsBox(LittleBox box) {
@@ -937,18 +942,18 @@ public class LittleBox {
     }
     
     public boolean intersectsWithYZ(LittleGrid context, Vec3 vec) {
-        return vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
-                .toVanillaGrid(this.maxZ);
+        return vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context.toVanillaGrid(
+            this.maxZ);
     }
     
     public boolean intersectsWithXZ(LittleGrid context, Vec3 vec) {
-        return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
-                .toVanillaGrid(this.maxZ);
+        return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context.toVanillaGrid(
+            this.maxZ);
     }
     
     public boolean intersectsWithXY(LittleGrid context, Vec3 vec) {
-        return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.y >= context.toVanillaGrid(this.minY) && vec.y < context
-                .toVanillaGrid(this.maxY);
+        return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(
+            this.maxY);
     }
     
     public boolean isVecInside(Vec3f vec) {
@@ -1071,12 +1076,10 @@ public class LittleBox {
         long tempMaxX = maxX * 2 - doubledCenter.x;
         long tempMaxY = maxY * 2 - doubledCenter.y;
         long tempMaxZ = maxZ * 2 - doubledCenter.z;
-        resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix()
-                .getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
-                        .getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix()
-                                .getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix()
-                                        .getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
-                                                .getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
+        resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY,
+            tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix().getX(tempMaxX,
+                tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
+                        .getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
         changed();
     }
     
@@ -1242,8 +1245,8 @@ public class LittleBox {
     }
     
     public boolean intersectsWith(ILittleFace face) {
-        return (face.facing().positive ? getMin(face.facing().axis) : getMax(face.facing().axis)) == face.origin() && face.maxOne() > getMin(face.one()) && face
-                .minOne() < getMax(face.one()) && face.maxTwo() > getMin(face.two()) && face.minTwo() < getMax(face.two());
+        return (face.facing().positive ? getMin(face.facing().axis) : getMax(face.facing().axis)) == face.origin() && face.maxOne() > getMin(face.one()) && face.minOne() < getMax(
+            face.one()) && face.maxTwo() > getMin(face.two()) && face.minTwo() < getMax(face.two());
     }
     
     public LittleBox intersection(LittleBox other) {

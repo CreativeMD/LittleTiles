@@ -62,7 +62,7 @@ public class BlockCollisionsMixin<T> {
     @Inject(method = "<init>(Lnet/minecraft/world/level/CollisionGetter;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;ZLjava/util/function/BiFunction;)V",
             at = @At("RETURN"), require = 1)
     private void constructorEnd(CollisionGetter level, @Nullable Entity entity, AABB bb, boolean onlySuffocatingBlocks, BiFunction<BlockPos.MutableBlockPos, VoxelShape, ?> resultProvider, CallbackInfo info) {
-        if (!(collisionGetter instanceof Level))
+        if (!(collisionGetter instanceof Level) || onlySuffocatingBlocks)
             return;
         Iterable<VoxelShape> shapes = LittleTiles.ANIMATION_HANDLERS.get((Level) collisionGetter).collisionExcept(entity, box, (Level) collisionGetter);
         if (shapes != null)

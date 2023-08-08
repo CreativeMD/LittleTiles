@@ -3,6 +3,7 @@ package team.creative.littletiles.common.entity.animation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.LittleEntityPhysic;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -45,7 +46,7 @@ public class LittleAnimationEntityPhysic extends LittleEntityPhysic<LittleAnimat
                 maxY = Math.max(maxY, bb.maxY);
                 maxZ = Math.max(maxZ, bb.maxZ);
             }
-            setBB(new AABB(minX, minY, minZ, maxX, maxY, maxZ));
+            setBB(new ABB(minX, minY, minZ, maxX, maxY, maxZ));
             blocksChanged = false;
         }
     }

@@ -9,8 +9,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -31,14 +31,14 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
     protected double maxZ;
     protected boolean preventPush = false;
     protected boolean noCollision;
-    private AABB bb;
+    private ABB bb;
     private Vec3 center;
     private boolean bbChanged = false;
     public final T parent;
     
     public LittleEntityPhysic(T parent) {
         this.parent = parent;
-        this.bb = parent.getBoundingBox();
+        this.bb = new ABB(parent.getBoundingBox());
     }
     
     public double get(Facing facing) {
@@ -84,7 +84,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
     
     public abstract void tick();
     
-    public void setBB(AABB bb) {
+    public void setBB(ABB bb) {
         if (bb.maxX >= Double.MAX_VALUE)
             return;
         this.bb = bb;
@@ -99,7 +99,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         if (bbChanged || originChanged) {
             if (originChanged)
                 parent.markOriginChange();
-            parent.setBoundingBox(parent.getOrigin().getAABB(bb));
+            parent.setBoundingBox(parent.getOrigin().getAABB(bb).toVanilla());
             if (originChanged)
                 parent.resetOriginChange();
             center = parent.getBoundingBox().getCenter();
@@ -107,7 +107,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         }
     }
     
-    public AABB getOBB() {
+    public ABB getOBB() {
         return bb;
     }
     
@@ -126,7 +126,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         maxX = nbt.getDouble("x2");
         maxY = nbt.getDouble("y2");
         maxZ = nbt.getDouble("z2");
-        setBB(new AABB(minX, minY, minZ, maxX, maxY, maxZ));
+        setBB(new ABB(minX, minY, minZ, maxX, maxY, maxZ));
         loadExtra(nbt);
     }
     
@@ -179,17 +179,18 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         
         noCollision = true;
         
-        List<Entity> entities = parent.getRealLevel().getEntities(parent, coordinator.computeSurroundingBox(bb), NO_ANIMATION);
+        List<Entity> entities = parent.getRealLevel().getEntities(parent, coordinator.computeSurroundingBox(bb).toVanilla(), NO_ANIMATION);
         if (!entities.isEmpty()) {
             for (int j = 0; j < entities.size(); j++) {
                 Entity entity = entities.get(j);
-                AABB surroundingBB = coordinator.computeInverseSurroundingBox(entity.getBoundingBox()); // Calculate all area the entity could collide with box is orientated to the sub level
-                
                 double t = -1;
+                /*ABB surroundingBB = coordinator.computeInverseSurroundingBox(new ABB(entity.getBoundingBox())); // Calculate all area the entity could collide with box is orientated to the sub level
+                
+                
                 for (VoxelShape shape : parent.getSubLevel().getCollisions(entity, surroundingBB)) {
                     // Calculate when or if they collide
                     
-                }
+                }*/
                 
                 AABB originalBox = entity.getBoundingBox();
                 Vec3d newCenter = new Vec3d(originalBox.getCenter());

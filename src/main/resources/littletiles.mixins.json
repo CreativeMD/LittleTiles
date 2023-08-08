@@ -6,6 +6,7 @@
     "mixins": [
         "common.block.StateHolderAccessor",
         "common.collision.BlockCollisionsMixin",
+        "common.collision.ShapesMixin",
         "common.entity.EntityAccessor",
         "common.entity.EntityMixin",
         "common.entity.PlayerBedMixin",

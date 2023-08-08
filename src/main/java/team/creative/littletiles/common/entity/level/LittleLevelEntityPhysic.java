@@ -6,8 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.littletiles.api.common.block.LittlePhysicBlock;
 import team.creative.littletiles.common.entity.INoPushEntity;
 import team.creative.littletiles.common.entity.LittleEntityPhysic;
@@ -70,7 +70,7 @@ public class LittleLevelEntityPhysic extends LittleEntityPhysic<LittleLevelEntit
     
     @Override
     public void afterChangesApplied(BlockUpdateLevelSystem system) {
-        setBB(new AABB(minX, minY, minZ, maxX, maxY, maxZ));
+        setBB(new ABB(minX, minY, minZ, maxX, maxY, maxZ));
     }
     
 }

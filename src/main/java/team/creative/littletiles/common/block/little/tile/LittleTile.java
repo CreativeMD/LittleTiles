@@ -24,13 +24,11 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.CopyArrayCollection;
@@ -476,21 +474,9 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         block.entityCollided(parent, this, entity);
     }
     
-    public VoxelShape getShapes(IParentCollection parent) {
-        VoxelShape shape = Shapes.empty();
-        for (LittleBox box : boxes)
-            shape = Shapes.joinUnoptimized(shape, box.getShape(parent.getGrid()), BooleanOp.OR);
-        return shape;
-    }
-    
-    public List<VoxelShape> collectOddShapes(IParentCollection parent, List<VoxelShape> shapes, AABB bb) {
-        for (LittleBox box : boxes)
-            if (!box.isSolid() && box.intersectsWith(bb, parent.getGrid())) {
-                if (shapes == null)
-                    shapes = new ArrayList<>();
-                shapes.add(box.getShape(parent.getGrid()));
-            }
-        return shapes;
+    public void collectBoxes(IParentCollection parent, List<ABB> boxes) {
+        for (LittleBox box : this.boxes)
+            boxes.add(box.getABB(parent.getGrid()));
     }
     
     // ================Ingredient================

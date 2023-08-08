@@ -39,30 +39,28 @@ public class BlockTileRenderProperties implements IClientBlockExtensions {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
         if (context.isComplete()) {
             BlockState particleState = context.tile.getState();
-            context.box.getShape(context.parent.getGrid()).forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
-                double d1 = Math.min(1.0D, maxX - minX);
-                double d2 = Math.min(1.0D, maxY - minY);
-                double d3 = Math.min(1.0D, maxZ - minZ);
-                int i = Math.max(2, Mth.ceil(d1 / 0.25D));
-                int j = Math.max(2, Mth.ceil(d2 / 0.25D));
-                int k = Math.max(2, Mth.ceil(d3 / 0.25D));
-                
-                for (int l = 0; l < i; ++l) {
-                    for (int i1 = 0; i1 < j; ++i1) {
-                        for (int j1 = 0; j1 < k; ++j1) {
-                            double d4 = (l + 0.5D) / i;
-                            double d5 = (i1 + 0.5D) / j;
-                            double d6 = (j1 + 0.5D) / k;
-                            double d7 = d4 * d1 + minX;
-                            double d8 = d5 * d2 + minY;
-                            double d9 = d6 * d3 + minZ;
-                            manager.add(new TerrainParticle((ClientLevel) level, pos.getX() + d7, pos.getY() + d8, pos
-                                    .getZ() + d9, d4 - 0.5D, d5 - 0.5D, d6 - 0.5D, particleState, pos).updateSprite(particleState, pos));
-                        }
+            AABB bb = context.box.getBB(context.parent.getGrid());
+            double d1 = Math.min(1.0D, bb.maxX - bb.minX);
+            double d2 = Math.min(1.0D, bb.maxY - bb.minY);
+            double d3 = Math.min(1.0D, bb.maxZ - bb.minZ);
+            int i = Math.max(2, Mth.ceil(d1 / 0.25D));
+            int j = Math.max(2, Mth.ceil(d2 / 0.25D));
+            int k = Math.max(2, Mth.ceil(d3 / 0.25D));
+            
+            for (int l = 0; l < i; ++l) {
+                for (int i1 = 0; i1 < j; ++i1) {
+                    for (int j1 = 0; j1 < k; ++j1) {
+                        double d4 = (l + 0.5D) / i;
+                        double d5 = (i1 + 0.5D) / j;
+                        double d6 = (j1 + 0.5D) / k;
+                        double d7 = d4 * d1 + bb.minX;
+                        double d8 = d5 * d2 + bb.minY;
+                        double d9 = d6 * d3 + bb.minZ;
+                        manager.add(new TerrainParticle((ClientLevel) level, pos.getX() + d7, pos.getY() + d8, pos.getZ() + d9, d4 - 0.5D, d5 - 0.5D, d6 - 0.5D, particleState, pos)
+                                .updateSprite(particleState, pos));
                     }
                 }
-                
-            });
+            }
         }
         return true;
     }

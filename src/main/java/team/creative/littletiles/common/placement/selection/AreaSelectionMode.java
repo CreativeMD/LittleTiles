@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
@@ -148,7 +149,7 @@ public class AreaSelectionMode extends SelectionMode {
             this.structures = rememberStructure ? new ArrayList<>() : null;
         }
         
-        public void scanLevel(Level level, AABB bb) throws LittleActionException {
+        public void scanLevel(Level level, ABB bb) throws LittleActionException {
             scanLevel(level, Mth.floor(bb.minX), Mth.floor(bb.minY), Mth.floor(bb.minZ), Mth.ceil(bb.maxX), Mth.ceil(bb.maxY), Mth.ceil(bb.maxZ));
         }
         
@@ -181,8 +182,8 @@ public class AreaSelectionMode extends SelectionMode {
                                         } else
                                             for (LittleTile tile : parent) {
                                                 tile = tile.copy();
-                                                tile.move(new LittleVec(parent.getGrid().toGrid(posX - minX), parent.getGrid().toGrid(posY - minY), parent.getGrid()
-                                                        .toGrid(posZ - minZ)));
+                                                tile.move(new LittleVec(parent.getGrid().toGrid(posX - minX), parent.getGrid().toGrid(posY - minY), parent.getGrid().toGrid(
+                                                    posZ - minZ)));
                                                 previews.add(parent.getGrid(), tile, tile);
                                             }
                                     }

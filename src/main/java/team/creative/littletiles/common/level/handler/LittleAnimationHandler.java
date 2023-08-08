@@ -20,7 +20,9 @@ import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.creativecore.common.util.math.box.OBBVoxelShape;
+import team.creative.creativecore.common.util.math.box.ABB;
+import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
+import team.creative.creativecore.common.util.math.box.OBB;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
@@ -86,13 +88,21 @@ public abstract class LittleAnimationHandler extends LevelHandler {
             if (!entity.physic.shouldPush())
                 continue;
             
-            for (VoxelShape shape : entity.getSubLevel().getBlockCollisions(colliding, entity.getOrigin().getOBB(box)))
+            List<ABB> boxes = null;
+            ABB transformedBox = entity.getOrigin().getOBB(box);
+            for (VoxelShape shape : entity.getSubLevel().getBlockCollisions(colliding, transformedBox.toVanilla()))
                 for (AABB bb : shape.toAabbs())
-                    if (bb.intersects(box)) {
-                        if (shapes == null)
-                            shapes = new ArrayList<>();
-                        shapes.add(OBBVoxelShape.create(bb, entity.getOrigin()));
+                    if (transformedBox.intersects(bb)) {
+                        if (boxes == null)
+                            boxes = new ArrayList<>();
+                        boxes.add(new OBB(bb, entity.getOrigin()));
                     }
+                
+            if (boxes != null) {
+                if (shapes == null)
+                    shapes = new ArrayList<>();
+                shapes.add(BoxesVoxelShape.create(boxes));
+            }
         }
         return shapes;
     }

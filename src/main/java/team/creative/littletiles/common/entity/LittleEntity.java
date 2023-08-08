@@ -153,7 +153,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     public AABB getRealBB() {
         if (level() instanceof ISubLevel or)
-            return or.getOrigin().getAABB(getBoundingBox());
+            return or.getOrigin().getAABB(getBoundingBox()).toVanilla();
         return getBoundingBox();
     }
     
@@ -283,7 +283,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     protected AABB makeBoundingBox() {
-        return origin.getAABB(physic.getOBB());
+        return origin.getAABB(physic.getOBB()).toVanilla();
     }
     
     @Override

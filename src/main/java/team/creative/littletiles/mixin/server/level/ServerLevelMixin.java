@@ -34,7 +34,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import team.creative.creativecore.common.util.math.box.AABBVoxelShape;
+import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
 import team.creative.littletiles.server.level.little.LittleServerChunkCache;
 import team.creative.littletiles.server.level.little.LittleServerLevel;
 
@@ -67,7 +67,7 @@ public abstract class ServerLevelMixin extends Level {
     @Override
     public boolean noCollision(@Nullable Entity entity, AABB bb) {
         for (VoxelShape voxelshape : this.getBlockCollisions(entity, bb))
-            if (!(voxelshape instanceof AABBVoxelShape) && !voxelshape.isEmpty())
+            if (!(voxelshape instanceof BoxesVoxelShape) && !voxelshape.isEmpty())
                 return false;
             
         if (!this.getEntityCollisions(entity, bb).isEmpty())

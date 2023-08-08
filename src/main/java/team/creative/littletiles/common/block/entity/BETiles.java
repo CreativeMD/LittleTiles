@@ -637,7 +637,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (!preventUnload)
+        if (!preventUnload && tiles != null)
             tiles.unload();
     }
     

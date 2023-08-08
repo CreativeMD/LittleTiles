@@ -30,12 +30,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
@@ -1054,13 +1053,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     @OnlyIn(Dist.CLIENT)
     public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> boxes) {}
     
-    public VoxelShape getExtraShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.empty();
-    }
-    
-    public List<VoxelShape> collectOddShapes(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, List<VoxelShape> shapes, AABB bb) {
-        return shapes;
-    }
+    public void collectExtraBoxes(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, List<ABB> boxes) {}
     
     public void neighbourChanged() {}
     
