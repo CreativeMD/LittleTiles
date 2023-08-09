@@ -8,7 +8,6 @@ import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
-import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanCache;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox.VectorFanFaceCache;
@@ -135,7 +134,7 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
     @Override
     public AxisAlignedBB offset(BlockPos pos) {
         return new TransformableAxisBox(box, context, this.minX + pos.getX(), this.minY + pos.getY(), this.minZ + pos.getZ(), this.maxX + pos.getX(), this.maxY + pos
-            .getY(), this.maxZ + pos.getZ());
+                .getY(), this.maxZ + pos.getZ());
     }
     
     @Override
@@ -162,36 +161,34 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
     public double calculateOffset(AxisAlignedBB other, Axis axis, double offset) {
         if (offset == 0)
             return offset;
-        
+        if (Math.abs(offset) < 1.0E-7D)
+            return offset;
         boolean positive = offset > 0;
         EnumFacing direction = EnumFacing.getFacingFromAxis(positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
         
         Axis one = RotationUtils.getOne(axis);
         Axis two = RotationUtils.getTwo(axis);
-        float minOne = (float) getMin(other, one);
+        double minOne = getMin(other, one);
         minOne -= Math.floor(getMin(one));
         minOne *= context.size;
-        float minTwo = (float) getMin(other, two);
+        double minTwo = getMin(other, two);
         minTwo -= Math.floor(getMin(two));
         minTwo *= context.size;
-        float maxOne = (float) getMax(other, one);
+        double maxOne = getMax(other, one);
         maxOne -= Math.floor(getMin(one));
         maxOne *= context.size;
-        float maxTwo = (float) getMax(other, two);
+        double maxTwo = getMax(other, two);
         maxTwo -= Math.floor(getMin(two));
         maxTwo *= context.size;
         
-        float otherAxis = (float) (offset > 0 ? getMax(other, axis) : getMin(other, axis));
+        double otherAxis = (offset > 0 ? getMax(other, axis) : getMin(other, axis));
         otherAxis -= Math.floor(getMin(axis));
         otherAxis *= context.size;
         
-        NormalPlane[] cuttingPlanes = new NormalPlane[] { new NormalPlane(one, minOne, EnumFacing
-            .getFacingFromAxis(AxisDirection.NEGATIVE, one)),
-                new NormalPlane(two, minTwo, EnumFacing
-                    .getFacingFromAxis(AxisDirection.NEGATIVE, two)),
-                new NormalPlane(one, maxOne, EnumFacing
-                    .getFacingFromAxis(AxisDirection.POSITIVE, one)),
-                new NormalPlane(two, maxTwo, EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE, two)) };
+        NormalPlane[] cuttingPlanes = new NormalPlane[] { new NormalPlane(one, (float) minOne, EnumFacing
+                .getFacingFromAxis(AxisDirection.NEGATIVE, one)), new NormalPlane(two, (float) minTwo, EnumFacing
+                        .getFacingFromAxis(AxisDirection.NEGATIVE, two)), new NormalPlane(one, (float) maxOne, EnumFacing
+                                .getFacingFromAxis(AxisDirection.POSITIVE, one)), new NormalPlane(two, (float) maxTwo, EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE, two)) };
         
         VectorFan tempFan = new VectorFan(null);
         VectorFanFaceCache front = getFaceCache(direction.getOpposite());
@@ -216,9 +213,7 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
             }
         }
         
-        Ray3f ray = new Ray3f(new Vector3f(), direction);
-        VectorUtils.set(ray.origin, otherAxis, axis);
-        float distance = Float.POSITIVE_INFINITY;
+        double distance = Double.POSITIVE_INFINITY;
         
         for (int i = 0; i < EnumFacing.VALUES.length; i++) {
             EnumFacing facing = EnumFacing.VALUES[i];
@@ -237,7 +232,7 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
                 
                 for (int j = 0; j < tempFan.count(); j++) {
                     Vector3f vec = tempFan.get(j);
-                    float tempDistance = positive ? VectorUtils.get(axis, vec) - otherAxis : otherAxis - VectorUtils.get(axis, vec);
+                    double tempDistance = positive ? VectorUtils.get(axis, vec) - otherAxis : otherAxis - VectorUtils.get(axis, vec);
                     
                     if (tempDistance < 0 && !OrientatedBoundingBox.equals(tempDistance, 0))
                         return offset;
@@ -293,7 +288,7 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
     @Nullable
     protected Vec3d collideWithPlane(Axis axis, double value, Vec3d vecA, Vec3d vecB) {
         Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
-            .getIntermediateWithXValue(vecB, value);
+                .getIntermediateWithXValue(vecB, value);
         return vec3d != null && intersectsWithAxis(axis, vec3d) ? vec3d : null;
     }
     
