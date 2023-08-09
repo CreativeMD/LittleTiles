@@ -9,8 +9,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.box.BoxUtils;
-import team.creative.creativecore.common.util.math.geo.NormalPlane;
-import team.creative.creativecore.common.util.math.geo.Ray3f;
+import team.creative.creativecore.common.util.math.geo.NormalPlaneD;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -45,24 +44,26 @@ public class TransformableABB extends ABB {
     public double calculateAxisOffset(Axis axis, Axis one, Axis two, AABB other, double offset) {
         if (offset == 0)
             return offset;
+        if (Math.abs(offset) < 1.0E-7D)
+            return offset;
         
         boolean positive = offset > 0;
         Facing direction = Facing.get(axis, positive);
         
-        float minOne = (float) BoxUtils.min(other, one);
+        double minOne = BoxUtils.min(other, one);
         minOne -= Math.floor(min(one));
         minOne *= grid.count;
-        float minTwo = (float) BoxUtils.min(other, two);
+        double minTwo = BoxUtils.min(other, two);
         minTwo -= Math.floor(min(two));
         minTwo *= grid.count;
-        float maxOne = (float) BoxUtils.max(other, one);
+        double maxOne = BoxUtils.max(other, one);
         maxOne -= Math.floor(min(one));
         maxOne *= grid.count;
-        float maxTwo = (float) BoxUtils.max(other, two);
+        double maxTwo = BoxUtils.max(other, two);
         maxTwo -= Math.floor(min(two));
         maxTwo *= grid.count;
         
-        float otherAxis = (float) (offset > 0 ? BoxUtils.max(other, axis) : BoxUtils.min(other, axis));
+        double otherAxis = offset > 0 ? BoxUtils.max(other, axis) : BoxUtils.min(other, axis);
         otherAxis -= Math.floor(min(axis));
         otherAxis *= grid.count;
         
@@ -92,9 +93,7 @@ public class TransformableABB extends ABB {
             }
         }
         
-        Ray3f ray = new Ray3f(new Vec3f(), direction);
-        ray.origin.set(axis, otherAxis);
-        float distance = Float.POSITIVE_INFINITY;
+        double distance = Double.POSITIVE_INFINITY;
         
         for (int i = 0; i < Facing.values().length; i++) {
             Facing facing = Facing.values()[i];
@@ -113,7 +112,7 @@ public class TransformableABB extends ABB {
                 
                 for (int j = 0; j < tempFan.count(); j++) {
                     Vec3f vec = tempFan.get(j);
-                    float tempDistance = positive ? vec.get(axis) - otherAxis : otherAxis - vec.get(axis);
+                    double tempDistance = positive ? vec.get(axis) - otherAxis : otherAxis - vec.get(axis);
                     
                     if (tempDistance < 0 && !Maths.equals(tempDistance, 0))
                         return offset;
