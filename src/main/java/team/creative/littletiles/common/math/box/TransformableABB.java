@@ -66,8 +66,8 @@ public class TransformableABB extends ABB {
         otherAxis -= Math.floor(min(axis));
         otherAxis *= grid.count;
         
-        NormalPlane[] cuttingPlanes = new NormalPlane[] { new NormalPlane(one, minOne, Facing.get(one, false)), new NormalPlane(two, minTwo, Facing.get(two,
-            false)), new NormalPlane(one, maxOne, Facing.get(one, true)), new NormalPlane(two, maxTwo, Facing.get(two, true)) };
+        NormalPlaneD[] cuttingPlanes = new NormalPlaneD[] { new NormalPlaneD(one, minOne, Facing.get(one, false)), new NormalPlaneD(two, minTwo, Facing.get(two,
+            false)), new NormalPlaneD(one, maxOne, Facing.get(one, true)), new NormalPlaneD(two, maxTwo, Facing.get(two, true)) };
         
         VectorFan tempFan = new VectorFan(null);
         VectorFanFaceCache front = getFaceCache(direction.opposite());

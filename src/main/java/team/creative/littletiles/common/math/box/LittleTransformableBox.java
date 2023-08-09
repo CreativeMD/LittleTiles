@@ -22,7 +22,7 @@ import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxFace;
-import team.creative.creativecore.common.util.math.geo.NormalPlane;
+import team.creative.creativecore.common.util.math.geo.NormalPlaneF;
 import team.creative.creativecore.common.util.math.geo.Ray3f;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -267,12 +267,12 @@ public class LittleTransformableBox extends LittleBox {
         VectorFanCache cache = new VectorFanCache();
         
         // Cache axis aligned faces
-        NormalPlane[] planes = new NormalPlane[Facing.values().length];
+        NormalPlaneF[] planes = new NormalPlaneF[Facing.values().length];
         for (int i = 0; i < planes.length; i++) {
             Facing facing = Facing.values()[i];
             Axis axis = facing.axis;
             
-            NormalPlane plane = new NormalPlane(new Vec3f(), new Vec3f());
+            NormalPlaneF plane = new NormalPlaneF(new Vec3f(), new Vec3f());
             plane.origin.set(0, 0, 0);
             plane.origin.set(axis, get(facing));
             
@@ -284,7 +284,7 @@ public class LittleTransformableBox extends LittleBox {
             cache.faces[i] = new VectorFanFaceCache();
         }
         
-        NormalPlane[] tiltedPlanes = new NormalPlane[Facing.values().length * 2]; // Stores all tilted planes to use them for cutting later
+        NormalPlaneF[] tiltedPlanes = new NormalPlaneF[Facing.values().length * 2]; // Stores all tilted planes to use them for cutting later
         
         // Tilted strips against axis box
         Vec3f[] corners = getTiltedCorners();
@@ -317,19 +317,19 @@ public class LittleTransformableBox extends LittleBox {
                 if (!firstSame && !firstNormal.epsilonEquals(ZERO, VectorFan.EPSILON)) {
                     faceCache.tiltedStrip1 = createStrip(face.corners, corners);
                     if (faceCache.tiltedStrip1 != null)
-                        tiltedPlanes[i * 2] = new NormalPlane(corners[first[0].ordinal()], firstNormal);
+                        tiltedPlanes[i * 2] = new NormalPlaneF(corners[first[0].ordinal()], firstNormal);
                 }
             } else {
                 if (!firstSame && !firstNormal.epsilonEquals(ZERO, VectorFan.EPSILON)) {
                     faceCache.tiltedStrip1 = createStrip(first, corners);
                     if (faceCache.tiltedStrip1 != null)
-                        tiltedPlanes[i * 2] = new NormalPlane(corners[first[0].ordinal()], firstNormal);
+                        tiltedPlanes[i * 2] = new NormalPlaneF(corners[first[0].ordinal()], firstNormal);
                 }
                 
                 if (!secondSame && !secondNormal.epsilonEquals(ZERO, VectorFan.EPSILON)) {
                     faceCache.tiltedStrip2 = createStrip(second, corners);
                     if (faceCache.tiltedStrip2 != null)
-                        tiltedPlanes[i * 2 + 1] = new NormalPlane(corners[second[0].ordinal()], secondNormal);
+                        tiltedPlanes[i * 2 + 1] = new NormalPlaneF(corners[second[0].ordinal()], secondNormal);
                 }
             }
             
@@ -364,8 +364,8 @@ public class LittleTransformableBox extends LittleBox {
             for (int j = 0; j < Facing.values().length; j++) {
                 VectorFanFaceCache faceCache = cache.faces[j];
                 if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null) {
-                    NormalPlane cutPlane1 = tiltedPlanes[j * 2];
-                    NormalPlane cutPlane2 = tiltedPlanes[j * 2 + 1];
+                    NormalPlaneF cutPlane1 = tiltedPlanes[j * 2];
+                    NormalPlaneF cutPlane2 = tiltedPlanes[j * 2 + 1];
                     if (faceCache.convex) {
                         if (cutPlane1 != null)
                             axisFaceCache.cutAxisStrip(cutPlane1);
@@ -374,8 +374,8 @@ public class LittleTransformableBox extends LittleBox {
                     } else
                         axisFaceCache.cutAxisStrip(facing, cutPlane1, cutPlane2);
                 } else {
-                    NormalPlane cutPlane1 = null;
-                    NormalPlane cutPlane2 = null;
+                    NormalPlaneF cutPlane1 = null;
+                    NormalPlaneF cutPlane2 = null;
                     if (!faceCache.convex || (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null)) {
                         cutPlane1 = tiltedPlanes[j * 2];
                         cutPlane2 = tiltedPlanes[j * 2 + 1];
@@ -648,7 +648,7 @@ public class LittleTransformableBox extends LittleBox {
             }
         }
         
-        List<List<NormalPlane>> shapes = new ArrayList<>();
+        List<List<NormalPlaneF>> shapes = new ArrayList<>();
         shapes.add(new ArrayList<>());
         
         // Build all possible shapes
@@ -656,8 +656,8 @@ public class LittleTransformableBox extends LittleBox {
             VectorFanFaceCache face = ownCache.faces[i];
             
             if (face.hasTiltedStrip()) {
-                NormalPlane plane1 = face.tiltedStrip1 != null ? face.tiltedStrip1.createPlane() : null;
-                NormalPlane plane2 = face.tiltedStrip2 != null ? face.tiltedStrip2.createPlane() : null;
+                NormalPlaneF plane1 = face.tiltedStrip1 != null ? face.tiltedStrip1.createPlane() : null;
+                NormalPlaneF plane2 = face.tiltedStrip2 != null ? face.tiltedStrip2.createPlane() : null;
                 
                 if (face.convex) {
                     for (int j = 0; j < shapes.size(); j++) {
@@ -670,7 +670,7 @@ public class LittleTransformableBox extends LittleBox {
                     int sizeBefore = shapes.size();
                     for (int j = 0; j < sizeBefore; j++) {
                         if (plane1 != null && plane2 != null) {
-                            List<NormalPlane> newList = new ArrayList<>(shapes.get(j));
+                            List<NormalPlaneF> newList = new ArrayList<>(shapes.get(j));
                             shapes.get(j).add(plane1);
                             newList.add(plane2);
                             shapes.add(newList);
@@ -685,7 +685,7 @@ public class LittleTransformableBox extends LittleBox {
             if (face.hasAxisStrip()) {
                 for (int j = 0; j < shapes.size(); j++) {
                     Facing facing = Facing.values()[i];
-                    NormalPlane plane = new NormalPlane(new Vec3f(), new Vec3f());
+                    NormalPlaneF plane = new NormalPlaneF(new Vec3f(), new Vec3f());
                     plane.origin.set(0, 0, 0);
                     plane.origin.set(facing.axis, get(facing));
                     
@@ -1435,14 +1435,14 @@ public class LittleTransformableBox extends LittleBox {
                 faces[i].divide(ratio);
         }
         
-        protected boolean intersects(NormalPlane plane1, NormalPlane plane2) {
+        protected boolean intersects(NormalPlaneF plane1, NormalPlaneF plane2) {
             for (int i = 0; i < faces.length; i++)
                 if (faces[i].intersects(plane1, plane2))
                     return true;
             return false;
         }
         
-        public boolean isInside(List<List<NormalPlane>> shapes) {
+        public boolean isInside(List<List<NormalPlaneF>> shapes) {
             List<CenterPoint> centers = new ArrayList<>();
             centers.add(new CenterPoint());
             
@@ -1459,7 +1459,7 @@ public class LittleTransformableBox extends LittleBox {
             return false;
         }
         
-        public boolean isInside(List<NormalPlane> shape, Vec3f vec) {
+        public boolean isInside(List<NormalPlaneF> shape, Vec3f vec) {
             for (int i = 0; i < shape.size(); i++)
                 if (!BooleanUtils.isFalse(shape.get(i).isInFront(vec)))
                     return false;
@@ -1553,7 +1553,7 @@ public class LittleTransformableBox extends LittleBox {
                 fans.addAll((Collection<? extends VectorFan>) stripsSorted);
         }
         
-        public void cutAxisStrip(Facing facing, NormalPlane plane, NormalPlane plane2) {
+        public void cutAxisStrip(Facing facing, NormalPlaneF plane, NormalPlaneF plane2) {
             Axis one = facing.one();
             Axis two = facing.two();
             boolean inverse = facing.positive;
@@ -1583,7 +1583,7 @@ public class LittleTransformableBox extends LittleBox {
             this.axisStrips = newAxisStrips;
         }
         
-        public void cutAxisStrip(NormalPlane plane) {
+        public void cutAxisStrip(NormalPlaneF plane) {
             int i = 0;
             VectorFan before = null;
             if (completedFilled && axisStrips.size() == 1)
@@ -1604,14 +1604,14 @@ public class LittleTransformableBox extends LittleBox {
                     completedFilled = false;
         }
         
-        public void sortTiltedStrips(VectorFanCache cache, NormalPlane plane1, NormalPlane plane2) {
+        public void sortTiltedStrips(VectorFanCache cache, NormalPlaneF plane1, NormalPlaneF plane2) {
             if (tiltedStrip1 != null)
                 sortTiltedStrip(tiltedStrip1, cache, plane1);
             if (tiltedStrip2 != null)
                 sortTiltedStrip(tiltedStrip2, cache, plane2);
         }
         
-        private void sortTiltedStrip(VectorFan fan, VectorFanCache cache, NormalPlane plane) {
+        private void sortTiltedStrip(VectorFan fan, VectorFanCache cache, NormalPlaneF plane) {
             cache.faces[Facing.nearest(plane.normal).ordinal()].addTiltedStripRendering(fan);
         }
         
@@ -1657,14 +1657,14 @@ public class LittleTransformableBox extends LittleBox {
                 axisStrips.get(i).divide(ratio);
         }
         
-        public boolean intersects(NormalPlane plane1, NormalPlane plane2) {
+        public boolean intersects(NormalPlaneF plane1, NormalPlaneF plane2) {
             for (VectorFan fan : this)
                 if (fan.intersects(plane1, plane2))
                     return true;
             return false;
         }
         
-        public boolean isInside(List<List<NormalPlane>> shapes, List<CenterPoint> centers) {
+        public boolean isInside(List<List<NormalPlaneF>> shapes, List<CenterPoint> centers) {
             if (!convex) {
                 int sizeBefore = centers.size();
                 for (int i = 0; i < sizeBefore; i++) {
