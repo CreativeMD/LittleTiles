@@ -40,6 +40,7 @@ public class LittleStructureType {
     public final List<InternalComponent> inputs = new ArrayList<>();
     public final List<InternalComponentOutput> outputs = new ArrayList<>();
     protected List<IStructureIngredientRule> ingredientRules = null;
+    private boolean allowImport = true;
     
     public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
         this.id = id;
@@ -98,6 +99,18 @@ public class LittleStructureType {
             ingredientRules = new ArrayList<>();
         ingredientRules.add(rule);
         return this;
+    }
+    
+    /** Add this method to Structure Type's register to prevent players in survival mode from importing this type of structure.
+     * 
+     * @return */
+    public LittleStructureType preventImportInSurvival() {
+        this.allowImport = false;
+        return this;
+    }
+    
+    public boolean canImport() {
+        return this.allowImport;
     }
     
     public LittleStructure createStructure(StructureTileList mainBlock) {
