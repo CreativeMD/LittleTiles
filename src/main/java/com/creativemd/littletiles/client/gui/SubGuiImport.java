@@ -77,13 +77,9 @@ public class SubGuiImport extends SubGui {
         if (!type.canImport())
             return type.id;
         String typeName = "";
-        for (LittlePreviews child : previews.getChildren()) {
-            LittleStructureType typeChild = child.getStructureType();
-            if (!typeChild.canImport()) {
-                typeName = typeChild.id;
-                break;
-            }
-        }
+        for (LittlePreviews child : previews.getChildren())
+            typeName = canImport(child);
+        
         return typeName;
     }
 }
