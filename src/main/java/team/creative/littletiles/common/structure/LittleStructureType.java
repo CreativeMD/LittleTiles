@@ -7,6 +7,8 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -248,6 +250,8 @@ public class LittleStructureType {
     public boolean hasTranslucentItemPreview(LittleGroup previews) {
         return false;
     }
+    
+    public void checkImport(List<Component> errors, LittleGroup group, Player player) {}
     
     public static class InternalComponent {
         

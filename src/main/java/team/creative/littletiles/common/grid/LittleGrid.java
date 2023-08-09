@@ -86,7 +86,7 @@ public class LittleGrid {
         for (int i = 0; i < grids.length; i++)
             if (grids[i].count == grid)
                 return grids[i];
-        throw new RuntimeException("Invalid gridsize = '" + grid + "'!");
+        throw new LittleGridException(grid);
     }
     
     public static LittleGrid defaultGrid() {

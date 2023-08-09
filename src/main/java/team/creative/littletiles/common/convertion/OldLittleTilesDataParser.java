@@ -14,6 +14,7 @@ import com.google.common.base.Charsets;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -355,6 +356,10 @@ public class OldLittleTilesDataParser {
         
         public LittleConvertException(String name) {
             super(name);
+        }
+        
+        public Component translatable() {
+            return Component.translatable("gui.error.convert.structure", getMessage());
         }
         
     }

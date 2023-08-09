@@ -158,7 +158,9 @@
 	"gui.door.same_transition": "Same transition",
 	"gui.door.different_transition": "Different transition",
 	
-	"dialog.invalid_grid": "Invalid grid size \u00A72%s",
+	"gui.error.invalid_grid": "Invalid grid size \u00A72%s ...",
+	"gui.error.convert.structure": "Could not convert %s ...",
+	"gui.error.unknown": "Unknown error: %s ...",
 	
 	"dialog.screwdriver.no_task": "No task selected",
 	"dialog.screwdriver.invalid_replacement": "Invalid replacement block",
