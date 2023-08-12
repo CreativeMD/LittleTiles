@@ -180,7 +180,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     
     public static IBlockState getState(boolean ticking, boolean rendered) {
         return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.getDefaultState() : LittleTiles.blockTileNoTickingRendered
-            .getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
+                .getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
     }
     
     public static IBlockState getState(TileEntityLittleTiles te) {
@@ -319,7 +319,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     
     protected static boolean hasRoomForPlayer(IBlockAccess worldIn, BlockPos pos) {
         return worldIn.getBlockState(pos.down())
-            .isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
+                .isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
     }
     
     @Override
@@ -628,7 +628,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
             
             if (heighestTile != null)
                 world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block
-                    .getStateId(heighestTile.getBlockState()) });
+                        .getStateId(heighestTile.getBlockState()) });
         }
         return true;
     }
@@ -655,8 +655,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
             Random random = new Random();
             if (heighestTile != null)
                 world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity
-                    .getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block
-                        .getStateId(heighestTile.getBlockState()));
+                        .getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block
+                                .getStateId(heighestTile.getBlockState()));
             return true;
         }
         return false;
@@ -697,7 +697,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                 d0 = i + axisalignedbb.maxX + 0.10000000149011612D;
             
             ((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos)
-                .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
+                    .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
         }
         return true;
     }
@@ -717,7 +717,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
                         double d1 = pos.getY() + (k + 0.5D) / 4.0D;
                         double d2 = pos.getZ() + (l + 0.5D) / 4.0D;
                         manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK
-                            .getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
+                                .getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
                     }
                 }
             }
@@ -859,8 +859,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     private static boolean checkforNeighbor(World world, EnumFacing facing, BlockPos pos, Block block, int meta, int color) {
         BlockPos newPos = pos.offset(facing);
         IBlockState state = world.getBlockState(newPos);
-        return !(state
-            .doesSideBlockRendering(world, newPos, facing.getOpposite()) || (ColorUtils.WHITE == color && block == state.getBlock() && state.getBlock().getMetaFromState(state) == meta));
+        return !(state.doesSideBlockRendering(world, newPos, facing
+                .getOpposite()) || (ColorUtils.WHITE == color && block == state.getBlock() && state.getBlock().getMetaFromState(state) == meta));
     }
     
     @SideOnly(Side.CLIENT)
@@ -1047,9 +1047,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
         TileEntityLittleTiles te = loadTe(world, pos);
         if (te != null)
             for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
-                if (pair.value.getBox().getBox(te.getContext(), pos).intersects(entity.getEntityBoundingBox()))
+                if (pair.value.isLiquid() && pair.value.getBox().getBox(te.getContext(), pos).intersects(entity.getEntityBoundingBox()))
                     return pair.value.getFogColor(pair.key, entity, originalColor, partialTicks);
-                
         return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
     }
     
