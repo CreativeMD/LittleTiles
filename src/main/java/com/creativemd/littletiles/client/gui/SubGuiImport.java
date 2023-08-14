@@ -52,7 +52,7 @@ public class SubGuiImport extends SubGui {
                     try {
                         LittleGridContext.get(nbt);
                         String name = canImport(LittlePreviews.getPreview(StructureStringUtils.importStructure(nbt), false));
-                        if (name.isEmpty())
+                        if (name.isEmpty() || mc.player.isCreative())
                             sendPacketToServer(nbt);
                         else
                             openButtonDialogDialog("Structure Type: " + name + " must be imported in creative mode.", "Ok");
