@@ -537,6 +537,26 @@ public class LittleTilesTransformer extends CreativeTransformer {
                         mInsn.itf = false;
                     }
                 }
+
+                m = findMethod(node, "processVehicleMove", "(Lnet/minecraft/network/play/client/CPacketVehicleMove;)V");
+
+                for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+                    AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+
+                    if (insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEINTERFACE && ((MethodInsnNode) insn).name
+                            .equals("isEmpty") && ((MethodInsnNode) insn).owner.equals("java/util/List")) {
+                        m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+                        m.instructions
+                                .insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, patchClassName("net/minecraft/network/NetHandlerPlayServer"), patchFieldName("player"), patchDESC("Lnet/minecraft/entity/player/EntityPlayerMP;")));
+
+                        MethodInsnNode mInsn = (MethodInsnNode) insn;
+                        mInsn.setOpcode(Opcodes.INVOKESTATIC);
+                        mInsn.owner = "com/creativemd/littletiles/common/world/WorldAnimationHandler";
+                        mInsn.name = "checkIfEmpty";
+                        mInsn.desc = patchDESC("(Ljava/util/List;Lnet/minecraft/entity/player/EntityPlayerMP;)Z");
+                        mInsn.itf = false;
+                    }
+                }
             }
         });
         addTransformer(new Transformer("net.minecraft.client.renderer.BlockModelRenderer") {
