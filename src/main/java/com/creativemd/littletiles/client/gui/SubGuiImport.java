@@ -49,16 +49,18 @@ public class SubGuiImport extends SubGui {
             public void onClicked(int x, int y, int button) {
                 try {
                     NBTTagCompound nbt = JsonToNBT.getTagFromJson(textfield.text);
+                    
+                    String name = canImport(LittlePreviews.getPreview(StructureStringUtils.importStructure(nbt), false));
+                    if (name.isEmpty() || mc.player.isCreative())
+                        sendPacketToServer(nbt);
+                    else
+                        openButtonDialogDialog("Structure Type: " + name + " must be imported in creative mode.", "Ok");
                     try {
                         LittleGridContext.get(nbt);
-                        String name = canImport(LittlePreviews.getPreview(StructureStringUtils.importStructure(nbt), false));
-                        if (name.isEmpty() || mc.player.isCreative())
-                            sendPacketToServer(nbt);
-                        else
-                            openButtonDialogDialog("Structure Type: " + name + " must be imported in creative mode.", "Ok");
                     } catch (RuntimeException e) {
                         openButtonDialogDialog("Invalid grid size " + nbt.getInteger("grid"), "Ok");
                     }
+                    
                 } catch (NBTException e) {
                     
                 }
@@ -73,13 +75,16 @@ public class SubGuiImport extends SubGui {
      * @return
      *         The name of the structure that is preventing the player from importing */
     private String canImport(LittlePreviews previews) {
-        LittleStructureType type = previews.getStructureType();
-        if (!type.canImport())
-            return type.id;
-        String typeName = "";
-        for (LittlePreviews child : previews.getChildren())
-            typeName = canImport(child);
+        if (previews.getStructureType() != null) {
+            LittleStructureType type = previews.getStructureType();
+            if (!type.canImport())
+                return type.id;
+            String typeName = "";
+            for (LittlePreviews child : previews.getChildren())
+                typeName = canImport(child);
+            return typeName;
+        }
         
-        return typeName;
+        return "";
     }
 }
