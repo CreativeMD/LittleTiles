@@ -49,17 +49,17 @@ public class SubGuiImport extends SubGui {
             public void onClicked(int x, int y, int button) {
                 try {
                     NBTTagCompound nbt = JsonToNBT.getTagFromJson(textfield.text);
-                    
+                    try {
+                        LittleGridContext.get(nbt);
+                    } catch (RuntimeException e) {
+                        openButtonDialogDialog("Invalid grid size " + nbt.getInteger("grid"), "Ok");
+                        return;
+                    }
                     String name = canImport(LittlePreviews.getPreview(StructureStringUtils.importStructure(nbt), false));
                     if (name.isEmpty() || mc.player.isCreative())
                         sendPacketToServer(nbt);
                     else
                         openButtonDialogDialog("Structure Type: " + name + " must be imported in creative mode.", "Ok");
-                    try {
-                        LittleGridContext.get(nbt);
-                    } catch (RuntimeException e) {
-                        openButtonDialogDialog("Invalid grid size " + nbt.getInteger("grid"), "Ok");
-                    }
                     
                 } catch (NBTException e) {
                     
