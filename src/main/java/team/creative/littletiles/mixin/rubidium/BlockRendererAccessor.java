@@ -4,13 +4,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import me.jellysquid.mods.sodium.client.model.IndexBufferBuilder;
-import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
-import me.jellysquid.mods.sodium.client.model.quad.blender.ColorBlender;
+import me.jellysquid.mods.sodium.client.model.color.ColorProviderRegistry;
+import me.jellysquid.mods.sodium.client.model.light.data.QuadLightData;
+import me.jellysquid.mods.sodium.client.model.quad.BakedQuadView;
+import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
-import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexBufferBuilder;
-import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
+import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(BlockRenderer.class)
@@ -20,11 +20,9 @@ public interface BlockRendererAccessor {
     public boolean getUseAmbientOcclusion();
     
     @Accessor(remap = false)
-    public ColorBlender getColorBlender();
-    
-    @Accessor(remap = false)
-    public BlockColorsExtended getBlockColors();
+    public ColorProviderRegistry getColorProviderRegistry();
     
     @Invoker(remap = false)
-    public void callWriteGeometry(BlockRenderContext ctx, ChunkVertexBufferBuilder vertexBuffer, IndexBufferBuilder indexBuffer, Vec3 offset, ModelQuadView quad, int[] colors, float[] brightness, int[] lightmap);
+    public void callWriteGeometry(BlockRenderContext ctx, ChunkModelBuilder builder, Vec3 offset, Material material, BakedQuadView quad, int[] colors, QuadLightData light);
+    
 }

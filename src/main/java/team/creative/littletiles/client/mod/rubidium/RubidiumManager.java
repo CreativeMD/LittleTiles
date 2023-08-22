@@ -1,7 +1,6 @@
 package team.creative.littletiles.client.mod.rubidium;
 
 import net.minecraftforge.fml.ModList;
-import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 
 public class RubidiumManager {
     
@@ -15,14 +14,6 @@ public class RubidiumManager {
     public static void init() {
         if (installed())
             RubidiumInteractor.init();
-    }
-    
-    public static boolean isRubidiumBuffer(BufferHolder first, BufferHolder second) {
-        return INSTALLED && (RubidiumInteractor.isRubidiumBuffer(first) || RubidiumInteractor.isRubidiumBuffer(second));
-    }
-    
-    public static BufferHolder combineBuffers(BufferHolder first, BufferHolder second) {
-        return RubidiumInteractor.combineBuffers(first, second);
     }
     
 }

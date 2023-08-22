@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModList;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.mixin.rubidium.ChunkVertexBufferBuilderAccessor;
+import team.creative.littletiles.mixin.rubidium.ChunkMeshBufferBuilderAccessor;
 
 public class OculusManager {
     
@@ -42,7 +42,7 @@ public class OculusManager {
     
     public static void setMid(Object vertexBuffer, Vec3d center) {
         if (isShaders())
-            OculusInteractor.setMid((ChunkVertexBufferBuilderAccessor) vertexBuffer, center);
+            OculusInteractor.setMid((ChunkMeshBufferBuilderAccessor) vertexBuffer, center);
         
     }
     

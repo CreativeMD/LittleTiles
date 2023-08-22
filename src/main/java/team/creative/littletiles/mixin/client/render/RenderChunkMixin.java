@@ -13,15 +13,41 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
 import net.minecraft.core.BlockPos;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderChunk.class)
 public abstract class RenderChunkMixin implements RenderChunkExtender {
     
+    public ChunkLayerMap<BufferCollection> lastUploaded;
+    
+    private volatile int queued;
+    
+    @Override
+    public ChunkLayerMap<BufferCollection> getLastUploaded() {
+        return lastUploaded;
+    }
+    
+    @Override
+    public void setLastUploaded(ChunkLayerMap<BufferCollection> uploaded) {
+        this.lastUploaded = uploaded;
+    }
+    
     @Unique
     private RenderChunk as() {
         return (RenderChunk) (Object) this;
+    }
+    
+    @Override
+    public int getQueued() {
+        return queued;
+    }
+    
+    @Override
+    public void setQueued(int queued) {
+        this.queued = queued;
     }
     
     @Override

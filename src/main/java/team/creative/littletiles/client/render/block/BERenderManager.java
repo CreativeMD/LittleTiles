@@ -19,7 +19,7 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.mod.rubidium.pipeline.LittleRenderPipelineRubidium;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
-import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -176,7 +176,7 @@ public class BERenderManager {
         
     }
     
-    public boolean finishBuildingCache(int index, ChunkLayerMap<BufferHolder> buffers, int renderState, boolean force) {
+    public boolean finishBuildingCache(int index, ChunkLayerMap<BufferCache> buffers, int renderState, boolean force) {
         synchronized (this) {
             this.renderState = renderState;
             boolean done = force || (index == requestedIndex && this.renderState == renderState);

@@ -12,7 +12,7 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
-import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -76,24 +76,16 @@ public class StructureBlockToEntityPacket extends StructurePacket {
     
     private static class RenderCacheHolder implements LayeredBufferCache {
         
-        private final ChunkLayerMap<BufferHolder> holders = new ChunkLayerMap<>();
+        private final ChunkLayerMap<BufferCache> holders = new ChunkLayerMap<>();
         
         @Override
-        public int length(RenderType type) {
-            BufferHolder holder = holders.get(type);
-            if (holder != null)
-                return holder.length();
-            return 0;
-        }
-        
-        @Override
-        public BufferHolder get(RenderType layer) {
+        public BufferCache get(RenderType layer) {
             return holders.get(layer);
         }
         
         public void add(BETiles target, BlockBufferCache cache, int index, Vec3 offset) {
             for (RenderType layer : RenderType.chunkBufferLayers()) {
-                BufferHolder holder = cache.extract(layer, index);
+                BufferCache holder = cache.extract(layer, index);
                 if (holder == null)
                     continue;
                 

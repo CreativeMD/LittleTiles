@@ -3,6 +3,7 @@ package team.creative.littletiles.client.render.entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -11,6 +12,7 @@ import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -35,8 +37,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.render.cache.ChunkLayerCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
+import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -53,6 +58,9 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     private BufferBuilder.SortState transparencyState;
     private boolean needsUpdate = false;
     
+    public ChunkLayerMap<BufferCollection> lastUploaded;
+    private volatile int queued;
+    
     public LittleAnimationRenderManager(LittleAnimationEntity entity) {
         super(entity);
     }
@@ -60,6 +68,26 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     @Override
     public RenderChunkExtender getRenderChunk(BlockPos pos) {
         return this;
+    }
+    
+    @Override
+    public ChunkLayerMap<BufferCollection> getLastUploaded() {
+        return lastUploaded;
+    }
+    
+    @Override
+    public void setLastUploaded(ChunkLayerMap<BufferCollection> uploaded) {
+        this.lastUploaded = uploaded;
+    }
+    
+    @Override
+    public int getQueued() {
+        return queued;
+    }
+    
+    @Override
+    public void setQueued(int queued) {
+        this.queued = queued;
     }
     
     @Override
@@ -98,16 +126,21 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             globalBlockEntities.addAll(results.globalBlockEntities);
             renderableBlockEntities = results.blockEntities;
             transparencyState = results.transparencyState;
-            results.renderedLayers.forEach((layer, rendered) -> {
-                VertexBuffer buffer = getVertexBuffer(layer);
+            prepareUpload();
+            for (Entry<RenderType, RenderedBuffer> entry : results.renderedLayers.entrySet()) {
+                VertexBuffer buffer = getVertexBuffer(entry.getKey());
                 if (!buffer.isInvalid()) {
                     buffer.bind();
-                    buffer.upload(rendered);
+                    buffer.upload(entry.getValue());
                     VertexBuffer.unbind();
-                }
-                hasBlocks.add(layer);
-            });
-            hasBlocks.addAll(results.renderedLayers.keySet());
+                    
+                    BufferCollection buffers = rebuild.getBuffers(entry.getKey());
+                    if (buffers != null)
+                        uploaded(entry.getKey(), buffers);
+                    hasBlocks.add(entry.getKey());
+                } else
+                    LittleTiles.LOGGER.error("Could not upload chunk render data due to invalid buffer");
+            }
         }
     }
     
@@ -216,7 +249,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     
     private class RebuildTask implements RebuildTaskExtender {
         
-        private ChunkLayerMap<ChunkLayerCache> caches;
+        private ChunkLayerMap<BufferCollection> caches;
         private ChunkBufferBuilderPack pack;
         private Set<RenderType> renderTypes;
         
@@ -246,6 +279,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             }
             
             LittleRenderPipelineType.endCompile(LittleAnimationRenderManager.this, this);
+            this.pack = null;
+            this.renderTypes = null;
             return results;
         }
         
@@ -259,7 +294,6 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
                     results.blockEntities.add(entity); //FORGE: Fix MC-112730
         }
         
-        @Override
         public BufferBuilder builder(RenderType layer) {
             BufferBuilder builder = pack.builder(layer);
             if (renderTypes.add(layer))
@@ -267,25 +301,28 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             return builder;
         }
         
-        @Override
-        public ChunkLayerMap<ChunkLayerCache> getLayeredCache() {
-            return caches;
+        public BufferCollection getBuffers(RenderType layer) {
+            if (caches == null)
+                return null;
+            return caches.get(layer);
         }
         
-        @Override
-        public ChunkLayerCache getOrCreate(RenderType layer) {
+        public BufferCollection getOrCreateBuffers(RenderType layer) {
             if (caches == null)
                 caches = new ChunkLayerMap<>();
-            ChunkLayerCache cache = caches.get(layer);
+            BufferCollection cache = caches.get(layer);
             if (cache == null)
-                caches.put(layer, cache = new ChunkLayerCache());
+                caches.put(layer, cache = new BufferCollection());
             return cache;
         }
         
         @Override
-        public void clear() {
-            this.pack = null;
-            this.renderTypes = null;
+        public BufferCache upload(RenderType layer, BufferCache cache) {
+            if (cache.upload((ChunkBufferUploader) builder(layer))) {
+                getOrCreateBuffers(layer).queueForUpload(cache);
+                return cache;
+            }
+            return null;
         }
         
     }

@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.mixin.rubidium.ChunkVertexBufferBuilderAccessor;
+import team.creative.littletiles.mixin.rubidium.ChunkMeshBufferBuilderAccessor;
 
 public class OculusInteractor {
     
@@ -35,7 +35,7 @@ public class OculusInteractor {
             ext.iris$resetBlockContext();
     }
     
-    public static void setMid(ChunkVertexBufferBuilderAccessor vertexBuffer, Vec3d center) {
+    public static void setMid(ChunkMeshBufferBuilderAccessor vertexBuffer, Vec3d center) {
         if (vertexBuffer.getEncoder() instanceof XHFPTerrainVertexExtender ex)
             ex.setCenter(center);
     }

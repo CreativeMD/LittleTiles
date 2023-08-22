@@ -5,13 +5,13 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
-import net.minecraft.world.level.BlockAndTintGetter;
+import me.jellysquid.mods.sodium.client.world.WorldSlice;
 
 @Mixin(BlockRenderContext.class)
 public interface BlockRenderContextAccessor {
     
     @Accessor(remap = false)
     @Mutable
-    public void setWorld(BlockAndTintGetter world);
+    public void setWorld(WorldSlice world);
     
 }

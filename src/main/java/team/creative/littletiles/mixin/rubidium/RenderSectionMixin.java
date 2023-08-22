@@ -2,45 +2,55 @@ package team.creative.littletiles.mixin.rubidium;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
+import org.lwjgl.opengl.GL15C;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import me.jellysquid.mods.sodium.client.gl.arena.GlBufferArena;
 import me.jellysquid.mods.sodium.client.gl.arena.GlBufferSegment;
+import me.jellysquid.mods.sodium.client.gl.arena.PendingUpload;
+import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexFormat;
 import me.jellysquid.mods.sodium.client.gl.buffer.GlBuffer;
-import me.jellysquid.mods.sodium.client.gl.util.ElementRange;
+import me.jellysquid.mods.sodium.client.gl.buffer.GlBufferTarget;
+import me.jellysquid.mods.sodium.client.gl.device.CommandList;
+import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import me.jellysquid.mods.sodium.client.render.chunk.ChunkGraphicsState;
-import me.jellysquid.mods.sodium.client.render.chunk.ChunkUpdateType;
+import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
-import me.jellysquid.mods.sodium.client.render.chunk.data.ChunkRenderData;
-import me.jellysquid.mods.sodium.client.render.chunk.passes.BlockRenderPass;
+import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
+import me.jellysquid.mods.sodium.client.render.chunk.data.SectionRenderDataStorage;
+import me.jellysquid.mods.sodium.client.render.chunk.region.RenderRegion;
+import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkMeshAttribute;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.mod.rubidium.RubidiumInteractor;
-import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumUploadableBufferHolder;
-import team.creative.littletiles.client.mod.rubidium.data.ChunkRenderDataExtender;
-import team.creative.littletiles.client.render.cache.ChunkLayerCache;
-import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumChunkBufferDownloader;
+import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumChunkBufferUploader;
+import team.creative.littletiles.client.render.cache.LayeredBufferCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
-import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
 @Mixin(RenderSection.class)
 public abstract class RenderSectionMixin implements RenderChunkExtender {
+    
+    @Shadow(remap = false)
+    private int sectionIndex;
     
     @Shadow(remap = false)
     private int chunkX;
@@ -52,10 +62,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     private int chunkZ;
     
     @Shadow(remap = false)
-    private int chunkId;
-    
-    @Shadow(remap = false)
-    private ChunkRenderData data;
+    private TextureAtlasSprite[] animatedSprites;
     
     @Unique
     private BlockPos origin;
@@ -63,11 +70,28 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     @Unique
     private volatile int queued;
     
-    @Shadow(remap = false)
-    public abstract void markForUpdate(ChunkUpdateType type);
+    @Unique
+    public ChunkLayerMap<BufferCollection> lastUploaded;
     
-    @Shadow(remap = false)
-    public abstract ChunkGraphicsState getGraphicsState(BlockRenderPass pass);
+    @Override
+    public int getQueued() {
+        return queued;
+    }
+    
+    @Override
+    public void setQueued(int queued) {
+        this.queued = queued;
+    }
+    
+    @Override
+    public ChunkLayerMap<BufferCollection> getLastUploaded() {
+        return lastUploaded;
+    }
+    
+    @Override
+    public void setLastUploaded(ChunkLayerMap<BufferCollection> uploaded) {
+        this.lastUploaded = uploaded;
+    }
     
     @Override
     public void begin(BufferBuilder builder) {
@@ -81,7 +105,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     @Override
     public void markReadyForUpdate(boolean playerChanged) {
-        markForUpdate(playerChanged ? ChunkUpdateType.IMPORTANT_REBUILD : ChunkUpdateType.REBUILD);
+        ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager().scheduleRebuild(chunkX, chunkY, chunkZ, playerChanged);
     }
     
     @Override
@@ -91,7 +115,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     @Override
     public boolean isEmpty(RenderType layer) {
-        return getGraphicsState(RubidiumInteractor.getPass(layer)) == null;
+        return getUploadedBuffer(getStorage(getRenderRegion(), layer)) == null;
     }
     
     @Override
@@ -116,72 +140,78 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         return RubidiumInteractor.PIPELINE;
     }
     
-    @Override
-    public int chunkId() {
-        return chunkId;
+    public GlBufferSegment getUploadedBuffer(SectionRenderDataStorage storage) {
+        SectionRenderDataStorageAccessor s = (SectionRenderDataStorageAccessor) storage;
+        if (s == null)
+            return null;
+        return s.getAllocations()[sectionIndex];
     }
     
-    @Inject(at = @At("HEAD"), method = "setData(Lme/jellysquid/mods/sodium/client/render/chunk/data/ChunkRenderData;)V", remap = false, require = 1)
-    public void setData(ChunkRenderData data, CallbackInfo info) {
-        ChunkLayerMap<ChunkLayerCache> map = ((ChunkRenderDataExtender) data).getCaches();
-        if (map == null)
-            return;
-        for (ChunkLayerCache cache : map)
-            cache.uploaded(queued == 0);
+    public SectionRenderDataStorage getStorage(RenderRegion region, RenderType layer) {
+        return region.getStorage(DefaultMaterials.forRenderLayer(layer).pass);
+    }
+    
+    public RenderRegion getRenderRegion() {
+        return ((RenderSectionManagerAccessor) ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager()).getRegions().createForChunk(chunkX, chunkY,
+            chunkZ);
+    }
+    
+    @Override
+    public int sectionIndex() {
+        return sectionIndex;
+    }
+    
+    @Override
+    public ByteBuffer downloadUploadedData(VertexBufferExtender buffer, long offset, int size) {
+        RenderDevice.INSTANCE.createCommandList().bindBuffer(GlBufferTarget.ARRAY_BUFFER, (GlBuffer) buffer);
+        try {
+            ByteBuffer result = MemoryTracker.create(size);
+            GL15C.glGetBufferSubData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, result);
+            return result;
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            if (!(e instanceof IllegalStateException))
+                e.printStackTrace();
+            return null;
+        } finally {}
     }
     
     public ByteBuffer downloadSegment(GlBufferSegment segment) {
         GlBuffer buffer = ((GlBufferSegmentAccessor) segment).getArena().getBufferObject();
-        return RubidiumInteractor.PIPELINE.downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset(), segment.getLength());
+        return downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset(), segment.getLength());
     }
     
     @Override
     public void backToRAM() {
-        ChunkLayerMap<ChunkLayerCache> caches = ((ChunkRenderDataExtender) data).getCaches();
-        if (caches == null || caches.isEmpty())
+        RenderRegion region = getRenderRegion();
+        ChunkLayerMap<BufferCollection> caches = getLastUploaded();
+        if (caches == null)
             return;
         
         Runnable run = () -> {
-            synchronized (this) {
-                for (Tuple<RenderType, ChunkLayerCache> tuple : caches.tuples()) {
-                    ChunkGraphicsState state = getGraphicsState(RubidiumInteractor.getPass(tuple.key));
-                    if (state == null)
-                        continue;
-                    
-                    ByteBuffer vertexData = downloadSegment(state.getVertexSegment());
-                    ByteBuffer indexData = downloadSegment(state.getIndexSegment());
-                    if (vertexData == null || indexData == null) {
-                        tuple.value.discard();
-                        continue;
-                    }
-                    tuple.value.download(vertexData);
-                    
-                    for (UploadableBufferHolder buffer : tuple.value) {
-                        RubidiumUploadableBufferHolder holder = (RubidiumUploadableBufferHolder) buffer;
-                        holder.prepareFacingBufferDownload();
-                        
-                        for (int i = 0; i < ModelQuadFacing.COUNT; i++) {
-                            ModelQuadFacing facing = ModelQuadFacing.VALUES[i];
-                            ElementRange range = state.getModelPart(facing);
-                            int size = holder.facingIndexCount(facing);
-                            int index = holder.facingIndexOffset(facing);
-                            if (indexData.capacity() >= range.elementPointer() + (index + size) * Integer.BYTES) {
-                                indexData.position(range.elementPointer() + index * Integer.BYTES);
-                                IntArrayList list = new IntArrayList(size);
-                                for (int j = 0; j < size; j++)
-                                    list.add(indexData.getInt());
-                                holder.downloadFacingBuffer(list, facing);
-                            } else {
-                                holder.invalidate();
-                                break;
-                            }
-                        }
-                    }
-                    
+            RubidiumChunkBufferDownloader downloader = new RubidiumChunkBufferDownloader();
+            RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+            ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
+            GlVertexFormat<ChunkMeshAttribute> format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();
+            for (Tuple<RenderType, BufferCollection> tuple : caches.tuples()) {
+                SectionRenderDataStorage storage = region.getStorage(DefaultMaterials.forRenderLayer(tuple.key).pass);
+                if (storage == null)
+                    continue;
+                
+                GlBufferSegment segment = getUploadedBuffer(storage);
+                if (segment == null)
+                    continue;
+                ByteBuffer vertexData = downloadSegment(segment);
+                
+                if (vertexData == null) {
+                    tuple.value.discard();
+                    continue;
                 }
                 
-                caches.clear();
+                downloader.set(storage.getDataPointer(sectionIndex), format, downloadSegment(getUploadedBuffer(storage)));
+                tuple.value.download(downloader);
+                downloader.clear();
             }
+            setLastUploaded(null);
         };
         try {
             CompletableFuture.runAsync(run, Minecraft.getInstance());
@@ -191,15 +221,63 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     @Override
-    public void startBuilding(RebuildTaskExtender task) {
-        if (data == null)
-            return;
-        queued++;
-        backToRAM();
+    public boolean appendRenderData(Iterable<? extends LayeredBufferCache> blocks) {
+        RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+        RenderRegion region = getRenderRegion();
+        ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
+        GlVertexFormat<ChunkMeshAttribute> format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();
+        RubidiumChunkBufferUploader uploader = new RubidiumChunkBufferUploader();
+        
+        for (RenderType layer : RenderType.chunkBufferLayers()) {
+            
+            int size = 0;
+            for (LayeredBufferCache data : blocks)
+                size += data.length(layer);
+            
+            if (size == 0)
+                continue;
+            
+            SectionRenderDataStorage storage = region.createStorage(DefaultMaterials.forRenderLayer(layer).pass);
+            
+            GlBufferSegment segment = getUploadedBuffer(storage);
+            ByteBuffer vanillaBuffer = null;
+            if (segment != null) {
+                vanillaBuffer = downloadSegment(getUploadedBuffer(storage));
+                storage.removeMeshes(sectionIndex);
+            }
+            
+            int[] extraLengthFacing = new int[ModelQuadFacing.COUNT];
+            for (LayeredBufferCache layeredCache : blocks)
+                for (int i = 0; i < extraLengthFacing.length; i++)
+                    extraLengthFacing[i] += layeredCache.length(layer, i);
+                
+            uploader.set(storage.getDataPointer(sectionIndex), format, vanillaBuffer, size, extraLengthFacing, animatedSprites);
+            
+            for (LayeredBufferCache layeredCache : blocks) {
+                BufferCache cache = layeredCache.get(layer);
+                if (cache != null && cache.isAvailable())
+                    cache.upload(uploader);
+            }
+            
+            // Maybe sort uploaded buffer????
+            //if (layer == RenderType.translucent())
+            
+            CommandList commandList = RenderDevice.INSTANCE.createCommandList();
+            RenderRegion.DeviceResources resources = region.createResources(commandList);
+            GlBufferArena arena = resources.getGeometryArena();
+            PendingUpload upload = new PendingUpload(uploader.buffer());
+            boolean bufferChanged = arena.upload(commandList, Stream.of(upload));
+            if (bufferChanged)
+                region.refresh(commandList);
+            
+            storage.setMeshes(sectionIndex, upload.getResult(), uploader.ranges());
+            
+            animatedSprites = uploader.sprites();
+            
+            uploader.clear();
+            
+        }
+        return true;
     }
     
-    @Override
-    public void endBuilding(RebuildTaskExtender task) {
-        queued--;
-    }
 }

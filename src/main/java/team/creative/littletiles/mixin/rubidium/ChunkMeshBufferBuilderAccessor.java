@@ -6,11 +6,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexBufferBuilder;
-import me.jellysquid.mods.sodium.client.render.vertex.type.ChunkVertexEncoder;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 
-@Mixin(ChunkVertexBufferBuilder.class)
-public interface ChunkVertexBufferBuilderAccessor {
+@Mixin(ChunkMeshBufferBuilder.class)
+public interface ChunkMeshBufferBuilderAccessor {
     
     @Accessor(remap = false)
     public int getStride();

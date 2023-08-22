@@ -4,25 +4,199 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import com.mojang.blaze3d.platform.MemoryTracker;
+import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.VertexFormatUtils;
 
-public interface BufferHolder {
+public class BufferHolder implements BufferCache {
     
-    public ByteBuffer byteBuffer();
+    public static BufferHolder combine(BufferHolder first, BufferHolder second) {
+        if (first == null && second == null)
+            return null;
+        if (first == null)
+            return second;
+        if (second == null)
+            return first;
+        
+        return (BufferHolder) first.combine(second);
+    }
     
-    public int[] indexes();
+    private ByteBuffer buffer;
+    private int length;
+    private int vertexCount;
+    private final int[] indexes;
+    private int groupCount;
     
-    public int indexCount();
+    private boolean invalid;
+    private int uploadIndex;
     
-    public void removeEntry(int length, int vertexCount);
+    public BufferHolder(ByteBuffer buffer, int length, int vertexCount, int[] indexes) {
+        this.buffer = buffer;
+        this.length = length;
+        this.vertexCount = vertexCount;
+        this.indexes = indexes;
+        this.groupCount = indexes != null ? indexes.length / 2 : 0;
+    }
     
-    public int length();
+    public BufferHolder(RenderedBuffer buffer, int[] indexes) {
+        this.length = buffer.drawState().vertexBufferSize();
+        this.buffer = MemoryTracker.create(length);
+        this.buffer.put(buffer.vertexBuffer());
+        this.buffer.rewind();
+        this.vertexCount = buffer.drawState().vertexCount();
+        buffer.release();
+        this.indexes = indexes;
+        this.groupCount = indexes != null ? indexes.length / 2 : 0;
+    }
     
-    public int vertexCount();
+    @Override
+    public void eraseBuffer() {
+        buffer = null;
+    }
     
-    public default BufferHolder extract(int index) {
+    @Override
+    public boolean upload(ChunkBufferUploader uploader) {
+        ByteBuffer buffer = byteBuffer();
+        if (buffer == null)
+            return false;
+        uploadIndex = uploader.uploadIndex();
+        uploader.upload(buffer);
+        buffer.rewind();
+        return true;
+    }
+    
+    public boolean upload(int facing, ChunkBufferUploader uploader) {
+        ByteBuffer buffer = byteBuffer();
+        if (buffer == null)
+            return false;
+        uploadIndex = uploader.uploadIndex(facing);
+        uploader.upload(facing, buffer);
+        buffer.rewind();
+        return true;
+    }
+    
+    public int[] indexes() {
+        return indexes;
+    }
+    
+    @Override
+    public int groupCount() {
+        return groupCount;
+    }
+    
+    protected void removeEntry(int length, int vertexCount) {
+        this.length -= length;
+        this.vertexCount -= vertexCount;
+        this.groupCount--;
+    }
+    
+    public ByteBuffer byteBuffer() {
+        return buffer;
+    }
+    
+    public int length() {
+        return length;
+    }
+    
+    @Override
+    public int lengthToUpload() {
+        if (isAvailable())
+            return length;
+        return 0;
+    }
+    
+    @Override
+    public int lengthToUpload(int facing) {
+        if (isAvailable())
+            return length;
+        return 0;
+    }
+    
+    public int vertexCount() {
+        return vertexCount;
+    }
+    
+    @Override
+    public boolean isInvalid() {
+        return invalid;
+    }
+    
+    @Override
+    public void invalidate() {
+        invalid = true;
+        eraseBuffer();
+    }
+    
+    @Override
+    public boolean isAvailable() {
+        return buffer != null;
+    }
+    
+    @Override
+    public boolean download(ChunkBufferDownloader downloader) {
+        return download(downloader.downloaded());
+    }
+    
+    public boolean download(ByteBuffer buffer) {
+        if (buffer.capacity() >= uploadIndex + length()) {
+            ByteBuffer downloaded = MemoryTracker.create(length());
+            downloaded.put(0, buffer, uploadIndex, length());
+            downloaded.rewind();
+            this.buffer = downloaded;
+            uploadIndex = -1;
+            return true;
+        }
+        
+        invalidate();
+        return false;
+    }
+    
+    @Override
+    public BufferCache combine(BufferCache cache) {
+        if (!(cache instanceof BufferHolder))
+            return cache.combine(this);
+        
+        BufferHolder holder = (BufferHolder) cache;
+        
+        int vertexCount = 0;
+        int length = 0;
+        ByteBuffer firstBuffer = byteBuffer();
+        if (firstBuffer != null) {
+            vertexCount += vertexCount();
+            length += length();
+        }
+        
+        ByteBuffer secondBuffer = holder.byteBuffer();
+        if (secondBuffer != null) {
+            vertexCount += holder.vertexCount();
+            length += holder.length();
+        }
+        
+        if (vertexCount == 0)
+            return null;
+        
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(length);
+        
+        if (firstBuffer != null) {
+            firstBuffer.position(0);
+            firstBuffer.limit(length());
+            byteBuffer.put(firstBuffer);
+            firstBuffer.rewind();
+        }
+        
+        if (secondBuffer != null) {
+            secondBuffer.position(0);
+            secondBuffer.limit(holder.length());
+            byteBuffer.put(secondBuffer);
+            secondBuffer.rewind();
+        }
+        byteBuffer.rewind();
+        return new BufferHolder(byteBuffer, length, vertexCount, null);
+    }
+    
+    @Override
+    public BufferHolder extract(int index) {
         int[] indexes = indexes(); // format of one entry: [index of structure, start index of vertex data]
         if (indexes == null)
             return null;
@@ -31,7 +205,7 @@ public interface BufferHolder {
             return null;
         
         if (indexes.length == 2 && indexes[0] == index)
-            return new ByteBufferHolder(buffer, length(), vertexCount(), null);
+            return new BufferHolder(buffer, length(), vertexCount(), null);
         
         int start = -1;
         int length = -1;
@@ -65,10 +239,11 @@ public interface BufferHolder {
                 indexes[i + 1] -= length;
         }
         buffer.limit(buffer.limit() - length);
-        return new ByteBufferHolder(newBuffer, length, vertexCount, null);
+        return new BufferHolder(newBuffer, length, vertexCount, null);
     }
     
-    public default void applyOffset(Vec3 vec) {
+    @Override
+    public void applyOffset(Vec3 vec) {
         // Move render data by offset, easy but a bit hacky method to do it
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
@@ -87,5 +262,4 @@ public interface BufferHolder {
             i += formatSize;
         }
     }
-    
 }

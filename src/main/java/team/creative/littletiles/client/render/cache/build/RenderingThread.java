@@ -31,7 +31,7 @@ import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -44,7 +44,7 @@ public class RenderingThread extends Thread {
     
     public static volatile int CURRENT_RENDERING_INDEX = Integer.MIN_VALUE;
     private static final String[] fakeLeveldMods = new String[] { "chisel" };
-    private static final ChunkLayerMap<BufferHolder> EMPTY_HOLDERS = new ChunkLayerMap<>();
+    private static final ChunkLayerMap<BufferCache> EMPTY_HOLDERS = new ChunkLayerMap<>();
     public static List<RenderingThread> THREADS;
     public static final HashMap<RenderChunkExtender, Integer> CHUNKS = new HashMap<>();
     public static final Minecraft MC = Minecraft.getInstance();
@@ -131,7 +131,7 @@ public class RenderingThread extends Thread {
     
     private final SingletonList<BakedQuad> bakedQuadWrapper = new SingletonList<BakedQuad>(null);
     private final LevelAccesorFake fakeAccess = new LevelAccesorFake();
-    private final ChunkLayerMap<BufferHolder> buffers = new ChunkLayerMap<>();
+    private final ChunkLayerMap<BufferCache> buffers = new ChunkLayerMap<>();
     public boolean active = true;
     private volatile boolean requiresReload = false;
     private LittleRenderPipeline[] pipelines = new LittleRenderPipeline[LittleRenderPipelineType.typeCount()];
@@ -266,7 +266,7 @@ public class RenderingThread extends Thread {
         }
     }
     
-    public static boolean finish(RenderingBlockContext data, ChunkLayerMap<BufferHolder> buffers, int renderState, boolean force) {
+    public static boolean finish(RenderingBlockContext data, ChunkLayerMap<BufferCache> buffers, int renderState, boolean force) {
         if (!data.be.render.finishBuildingCache(data.index, buffers, renderState, force))
             return false;
         

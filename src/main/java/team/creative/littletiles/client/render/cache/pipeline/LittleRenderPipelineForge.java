@@ -28,8 +28,8 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
-import team.creative.littletiles.client.render.cache.buffer.ByteBufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -41,7 +41,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
     private final MutableBlockPos modelOffset = new MutableBlockPos();
     
     @Override
-    public void buildCache(PoseStack pose, ChunkLayerMap<BufferHolder> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
+    public void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
         Level renderLevel = data.be.getLevel();
         while (renderLevel instanceof LittleSubLevel sub && !sub.shouldUseLightingForRenderig())
             renderLevel = sub.getParent();
@@ -100,7 +100,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                     cube.deleteQuadCache();
             }
             
-            buffers.put(entry.key, new ByteBufferHolder(builder.end(), indexes.toIntArray()));
+            buffers.put(entry.key, new BufferHolder(builder.end(), indexes.toIntArray()));
         }
         
         ((CreativeQuadLighter) lighter).setCustomTint(-1);

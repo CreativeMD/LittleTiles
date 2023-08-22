@@ -1,21 +1,12 @@
 package team.creative.littletiles.client.render.level;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -28,19 +19,15 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
-import team.creative.littletiles.client.render.cache.ChunkLayerCache;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
-import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
-import team.creative.littletiles.client.render.cache.buffer.UploadableBufferHolder;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderUploader {
     
-    private static final Minecraft mc = Minecraft.getInstance();
     private static final HashMap<Level, RenderDataLevel> CACHES = new HashMap<>();
     
     private static RenderDataLevel getOrCreate(Level level) {
@@ -79,61 +66,7 @@ public class RenderUploader {
     }
     
     public static void uploadRenderData(RenderChunkExtender chunk, Iterable<? extends LayeredBufferCache> blocks) {
-        if (!LittleTiles.CONFIG.rendering.uploadToVBODirectly)
-            return;
         
-        if (!chunk.getPipeline().canBeUploadedDirectly()) {
-            chunk.markReadyForUpdate(false);
-            return;
-        }
-        
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
-            ChunkLayerCache cache = new ChunkLayerCache();
-            
-            int size = 0;
-            for (LayeredBufferCache data : blocks)
-                size += data.length(layer);
-            
-            if (size == 0)
-                continue;
-            
-            VertexBuffer uploadBuffer = chunk.getVertexBuffer(layer);
-            
-            if (uploadBuffer == null)
-                return;
-            
-            VertexFormat format = uploadBuffer.getFormat();
-            if (format == null)
-                format = DefaultVertexFormat.BLOCK;
-            ChunkRenderDispatcher dispatcher = mc.levelRenderer.getChunkRenderDispatcher();
-            
-            ByteBuffer vanillaBuffer = null;
-            if (!chunk.isEmpty(layer))
-                vanillaBuffer = chunk.getPipeline().downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
-            
-            BufferBuilder builder = new BufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risking and could potentially cause issues
-            chunk.begin(builder);
-            if (vanillaBuffer != null) {
-                if (layer == RenderType.translucent()) {
-                    SortState state = chunk.getTransparencyState();
-                    if (state != null)
-                        builder.restoreSortState(state);
-                }
-                
-                builder.putBulkData(vanillaBuffer);
-            }
-            
-            for (LayeredBufferCache data : blocks)
-                UploadableBufferHolder.addToBuild(builder, data.get(layer), cache);
-            
-            if (layer == RenderType.translucent())
-                chunk.setQuadSorting(builder, dispatcher.getCameraPosition());
-            
-            uploadBuffer.bind();
-            uploadBuffer.upload(builder.end());
-            VertexBuffer.unbind();
-            chunk.setHasBlock(layer);
-        }
     }
     
     public static class RenderDataLevel {
@@ -169,8 +102,13 @@ public class RenderUploader {
             for (RenderDataToAdd block : caches.values())
                 chunksList.add(block.targetChunk, block);
             
-            for (Entry<RenderChunkExtender, ArrayList<RenderDataToAdd>> entry : chunksList.entrySet())
-                uploadRenderData(entry.getKey(), entry.getValue());
+            if (LittleTiles.CONFIG.rendering.uploadToVBODirectly) {
+                for (Entry<RenderChunkExtender, ArrayList<RenderDataToAdd>> entry : chunksList.entrySet())
+                    if (!entry.getKey().appendRenderData(entry.getValue()))
+                        entry.getKey().markReadyForUpdate(false);
+            } else
+                for (RenderChunkExtender chunk : chunksList.keySet())
+                    chunk.markReadyForUpdate(false);
         }
         
         public boolean notifyReceiveClientUpdate(BETiles be) {
@@ -188,7 +126,7 @@ public class RenderUploader {
     
     private static class RenderDataToAdd implements LayeredBufferCache {
         
-        private final ChunkLayerMap<BufferHolder> holders = new ChunkLayerMap<>();
+        private final ChunkLayerMap<BufferCache> holders = new ChunkLayerMap<>();
         private final RenderChunkExtender targetChunk;
         
         public RenderDataToAdd(RenderChunkExtender chunk) {
@@ -196,15 +134,7 @@ public class RenderUploader {
         }
         
         @Override
-        public int length(RenderType type) {
-            BufferHolder holder = holders.get(type);
-            if (holder != null)
-                return holder.length();
-            return 0;
-        }
-        
-        @Override
-        public BufferHolder get(RenderType layer) {
+        public BufferCache get(RenderType layer) {
             return holders.get(layer);
         }
         
@@ -213,7 +143,7 @@ public class RenderUploader {
             Vec3 vec = targetChunk.offsetCorrection(be.render.getRenderChunk());
             
             for (RenderType layer : RenderType.chunkBufferLayers()) {
-                BufferHolder holder = cache.get(layer);
+                BufferCache holder = cache.get(layer);
                 if (holder == null)
                     continue;
                 if (vec != null)
