@@ -49,7 +49,7 @@
         "rubidium.BlockRenderContextAccessor",
         "rubidium.BlockRendererAccessor",
         "rubidium.BlockRendererMixin",
-        "rubidium.BuiltSectionMeshParts",
+        "rubidium.BuiltSectionMeshPartsMixin",
         "rubidium.ChunkBuildBuffersAccessor",
         "rubidium.ChunkBuilderAccessor",
         "rubidium.ChunkBuilderMeshingTaskMixin",

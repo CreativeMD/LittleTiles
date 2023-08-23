@@ -74,10 +74,11 @@ public class ChunkBuilderMeshingTaskMixin implements RebuildTaskExtender {
     @Redirect(
             method = "execute(Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lme/jellysquid/mods/sodium/client/util/task/CancellationToken;)Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
             remap = false, at = @At(value = "INVOKE",
-                    target = "Lme/jellysquid/mods/sodium/client/render/chunk/data/BuiltSectionInfo$Builder;build()Lme/jellysquid/mods/sodium/client/render/chunk/data/BuiltSectionInfo;"))
+                    target = "Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;createMesh(Lme/jellysquid/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;)Lme/jellysquid/mods/sodium/client/render/chunk/data/BuiltSectionMeshParts;"))
     public BuiltSectionMeshParts createMesh(ChunkBuildBuffers buffers, TerrainRenderPass pass) {
         BuiltSectionMeshParts parts = buffers.createMesh(pass);
-        ((BuiltSectionMeshPartsExtender) parts).setBuffers(caches.get(((TerrainRenderPassAccessor) pass).getLayer()));
+        if (parts != null && caches != null)
+            ((BuiltSectionMeshPartsExtender) parts).setBuffers(caches.get(((TerrainRenderPassAccessor) pass).getLayer()));
         return parts;
     }
     

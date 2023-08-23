@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
@@ -38,7 +37,8 @@ public class RubidiumBufferCache implements BufferCache {
     public BufferCache extract(int index) {
         BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
         for (int i = 0; i < buffers.length; i++)
-            buffers[i] = this.buffers[i].extract(index);
+            if (this.buffers[i] != null)
+                buffers[i] = this.buffers[i].extract(index);
         groupCount--;
         return new RubidiumBufferCache(buffers, textures, 1);
     }
@@ -125,7 +125,7 @@ public class RubidiumBufferCache implements BufferCache {
     @Override
     public boolean upload(ChunkBufferUploader uploader) {
         for (TextureAtlasSprite texture : textures)
-            ((ChunkModelBuilder) this).addSprite(texture);
+            uploader.addSprite(texture);
         
         if (uploader.hasFacingSupport()) {
             for (int i = 0; i < buffers.length; i++)
