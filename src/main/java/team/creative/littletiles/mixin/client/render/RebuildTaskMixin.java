@@ -84,8 +84,9 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
         cir.setReturnValue(cir.getReturnValue().whenComplete((result, exception) -> {
             if (((Enum) result).ordinal() == 0) { // Successful
                 ((RenderChunkExtender) this$1).prepareUpload();
-                for (Tuple<RenderType, BufferCollection> tuple : caches.tuples())
-                    ((RenderChunkExtender) this$1).uploaded(tuple.key, tuple.value);
+                if (caches != null)
+                    for (Tuple<RenderType, BufferCollection> tuple : caches.tuples())
+                        ((RenderChunkExtender) this$1).uploaded(tuple.key, tuple.value);
             }
             this.caches = null;
         }));
