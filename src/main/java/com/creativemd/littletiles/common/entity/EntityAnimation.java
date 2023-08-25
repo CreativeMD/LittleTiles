@@ -311,7 +311,9 @@ public class EntityAnimation extends Entity implements INoPushEntity {
     public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
         if (x == 0 && y == 0 && z == 0 && rotX == 0 && rotY == 0 && rotZ == 0)
             return;
-        
+
+        if(worldBoundingBox == null)
+            return;
         CollisionCoordinator coordinator = new CollisionCoordinator(x, y, z, rotX, rotY, rotZ, origin, origin);
         List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, coordinator.computeSurroundingBox(worldBoundingBox), EntityAnimation.noAnimation);
         if (LittleTiles.CONFIG.general.enableAnimationCollision)
@@ -324,6 +326,9 @@ public class EntityAnimation extends Entity implements INoPushEntity {
             return;
         
         noCollision = true;
+
+        if(worldBoundingBox == null)
+            return;
         
         World world = getRealWorld();
         List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, coordinator.computeSurroundingBox(worldBoundingBox), EntityAnimation.noAnimation);
