@@ -333,6 +333,16 @@ public class LittleTransformableBox extends LittleBox {
                 }
             }
             
+            // Remove invalid generated faces <- which are just a line
+            if (faceCache.tiltedStrip1 != null && tiltedPlanes[i * 2].isInvalid()) {
+                faceCache.tiltedStrip1 = null;
+                tiltedPlanes[i * 2] = null;
+            }
+            if (faceCache.tiltedStrip2 != null && tiltedPlanes[i * 2 + 1].isInvalid()) {
+                faceCache.tiltedStrip2 = null;
+                tiltedPlanes[i * 2 + 1] = null;
+            }
+            
             if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
                 for (int j = 0; j < faceCache.tiltedStrip2.count(); j++) {
                     Vec3f vec = faceCache.tiltedStrip2.get(j);
