@@ -82,8 +82,8 @@ minecraft {
 }
 
 dependencies {
-    implementation fg.deobf("curse.maven:rubidium-574856:4684247")
-    implementation fg.deobf("curse.maven:oculus-581495:4578741")
+    minecraftLibrary fg.deobf("curse.maven:rubidium-574856:4684247")
+    minecraftLibrary fg.deobf("curse.maven:oculus-581495:4578741")
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
