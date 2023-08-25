@@ -33,6 +33,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMat
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
 import me.jellysquid.mods.sodium.client.render.texture.SpriteUtil;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
+import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -47,6 +48,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
@@ -174,9 +176,10 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                         for (BakedQuad quad : quads) {
                             lighter.calculate((ModelQuadView) quad, pos, cachedQuadLightData, direction, ((BakedQuadView) quad).getLightFace(), quad.isShade());
                             
-                            if (cube.color != -1)
-                                Arrays.fill(colors, /*Integer.reverseBytes(cube.color)*/cube.color);
-                            else if (quad.isTinted()) {
+                            if (cube.color != -1) {
+                                int color = ColorABGR.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color), ColorUtils.alpha(cube.color));
+                                Arrays.fill(colors, color);
+                            } else if (quad.isTinted()) {
                                 if (colorizer == null)
                                     colorizer = colorProvider.getColorProvider(state.getBlock());
                                 
