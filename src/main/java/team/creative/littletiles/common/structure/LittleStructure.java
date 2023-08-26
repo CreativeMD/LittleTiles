@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -437,7 +438,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         }
         
         if (nbt.contains("ex")) {
-            ListTag list = nbt.getList("ex", 10);
+            ListTag list = nbt.getList("ex", Tag.TAG_COMPOUND);
             externalHandler = new HashMap<>();
             for (int i = 0; i < list.size(); i++) {
                 try {

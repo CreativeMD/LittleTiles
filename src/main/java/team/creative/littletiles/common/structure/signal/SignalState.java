@@ -181,8 +181,8 @@ public abstract class SignalState {
         
         @Override
         public SignalState load(Tag tag) {
-            if (tag instanceof NumericTag)
-                return ((NumericTag) tag).getAsByte() == 0 ? FALSE : TRUE;
+            if (tag instanceof NumericTag num)
+                return num.getAsByte() == 0 ? FALSE : TRUE;
             else
                 return FALSE;
         }
@@ -283,8 +283,8 @@ public abstract class SignalState {
         
         @Override
         public SignalState load(Tag tag) {
-            if (tag instanceof NumericTag)
-                value = ((NumericTag) tag).getAsInt();
+            if (tag instanceof NumericTag num)
+                value = num.getAsInt();
             else
                 value = 0;
             return this;
