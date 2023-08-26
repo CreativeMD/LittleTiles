@@ -116,6 +116,14 @@ public class OldLittleTilesDataParser {
     }
     
     private static void convertDoorBaseData(CompoundTag oldData, CompoundTag newData) {
+        if (oldData.contains("ex"))
+            newData.put("ex", oldData.get("ex"));
+        
+        if (oldData.contains("n"))
+            newData.putString("n", oldData.getString("n"));
+        
+        newData.put("state", oldData.get("state"));
+        
         newData.putBoolean("actP", oldData.getBoolean("activateParent"));
         newData.putBoolean("hand", !oldData.getBoolean("disableRightClick"));
         newData.putBoolean("stay", oldData.getBoolean("stayAnimated"));
@@ -221,6 +229,19 @@ public class OldLittleTilesDataParser {
     public static CompoundTag convertStructureData(CompoundTag nbt) throws LittleConvertException {
         if (nbt == null)
             return null;
+        
+        if (nbt.contains("signal")) {
+            Tag signal = nbt.get("signal");
+            nbt.remove("signal");
+            nbt.put("ex", signal);
+        }
+        
+        if (nbt.contains("name")) {
+            String name = nbt.getString("name");
+            nbt.remove("name");
+            nbt.putString("n", name);
+        }
+        
         return switch (nbt.getString("id")) {
             case "workbench", "importer", "exporter", "blankomatic", "particle_emitter", "signal_display", "structure_builder", "fixed", "ladder", "bed", "chair", "storage", "noclip", "message", "item_holder" -> nbt;
             case "single_cable1", "single_cable4", "single_cable16", "single_input1", "single_input4", "single_input16", "single_output1", "single_output4", "single_output16" -> nbt;
