@@ -17,7 +17,6 @@ import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
@@ -63,7 +62,7 @@ public class BlockPacket extends CreativePacket {
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
                 if (LittleAction.isBlockValid(context.tile.getState()))
-                    ItemLittleChisel.setElement(stack, new LittleElement(context.tile.getState(), ColorUtils.WHITE));
+                    ItemLittleChisel.setElement(stack, new LittleElement(context.tile.getState(), context.tile.color));
             }
         },
         GRABBER(false) {
