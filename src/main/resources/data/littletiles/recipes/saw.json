@@ -1,21 +1,19 @@
 {
-  "result": {
-    "item": "littletiles:saw",
-    "data": 0
-  },
-  "pattern": [
-    "LX",
-    "LX",
-    "L "
-  ],
-  "type": "minecraft:crafting_shaped",
-  "key": {
-    "X": {
-      "item": "minecraft:iron_ingot"
+    "result": {
+        "item": "littletiles:saw"
     },
-    "L": {
-      "item": "minecraft:dye",
-      "data": 4
+    "pattern": [
+        "LX",
+        "LX",
+        "L "
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "X": {
+            "item": "minecraft:iron_ingot"
+        },
+        "L": {
+            "item": "minecraft:lapis_lazuli"
+        }
     }
-  }
 }

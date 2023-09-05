@@ -1,21 +1,19 @@
 {
-  "result": {
-    "item": "littletiles:wrench",
-    "data": 0
-  },
-  "pattern": [
-    "X",
-    "L",
-    "L"
-  ],
-  "type": "minecraft:crafting_shaped",
-  "key": {
-    "X": {
-      "item": "minecraft:iron_ingot"
+    "result": {
+        "item": "littletiles:wrench"
     },
-    "L": {
-      "item": "minecraft:dye",
-      "data": 4
+    "pattern": [
+        "X",
+        "L",
+        "L"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "X": {
+            "item": "minecraft:iron_ingot"
+        },
+        "L": {
+            "item": "minecraft:lapis_lazuli"
+        }
     }
-  }
 }

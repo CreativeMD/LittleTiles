@@ -1,27 +1,24 @@
 {
-  "result": {
-    "item": "littletiles:premade",
-    "data": 0,
-    "structure": "single_input4",
-    "count": 32
-  },
-  "pattern": [
-    "CCC",
-    "YRY",
-    "CCC"
-  ],
-  "type": "littletiles:crafting_shaped_premade",
-  "key": {
-    "R": {
-      "item": "minecraft:redstone_block"
+    "result": {
+        "item": "littletiles:premade",
+        "structure": "single_input4",
+        "count": 32
     },
-    "C": {
-      "item": "minecraft:concrete",
-      "data": 15
-    },
-    "Y": {
-      "item": "minecraft:concrete",
-      "data": 3
+    "pattern": [
+        "CCC",
+        "YRY",
+        "CCC"
+    ],
+    "type": "littletiles:crafting_shaped_premade",
+    "key": {
+        "R": {
+            "item": "minecraft:redstone_block"
+        },
+        "C": {
+            "item": "minecraft:black_concrete"
+        },
+        "Y": {
+            "item": "minecraft:light_blue_concrete"
+        }
     }
-  }
 }

@@ -1,26 +1,23 @@
 {
-  "result": {
-    "item": "littletiles:premade",
-    "data": 0,
-    "structure": "structure_builder"
-  },
-  "pattern": [
-    "CCC",
-    "CRC",
-    "CXC"
-  ],
-  "type": "littletiles:crafting_shaped_premade",
-  "key": {
-    "X": {
-      "item": "minecraft:planks",
-      "data": 0
+    "result": {
+        "item": "littletiles:premade",
+        "structure": "structure_builder"
     },
-    "R": {
-      "item": "minecraft:redstone"
-    },
-    "C": {
-      "item": "minecraft:concrete",
-      "data": 15
+    "pattern": [
+        "CCC",
+        "CRC",
+        "CXC"
+    ],
+    "type": "littletiles:crafting_shaped_premade",
+    "key": {
+        "X": {
+            "tag": "minecraft:planks"
+        },
+        "R": {
+            "item": "minecraft:redstone_block"
+        },
+        "C": {
+            "item": "minecraft:black_concrete"
+        }
     }
-  }
 }

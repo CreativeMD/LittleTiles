@@ -1,7 +1,6 @@
 {
     "result": {
-        "item": "littletiles:signal_converter",
-        "data": 0
+        "item": "littletiles:signal_converter"
     },
     "pattern": [
         "R",
@@ -13,7 +12,7 @@
             "item": "minecraft:cobblestone"
         },
         "R": {
-            "item": "minecraft:redstone"
+            "item": "minecraft:redstone_block"
         }
     }
 }

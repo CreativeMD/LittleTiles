@@ -127,6 +127,7 @@ public class LittleTiles {
         LittleTilesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleTilesRegistry.CREATIVE_TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleTilesRegistry.RECIPE_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
         
         LittlePacketTypes.init();
     }
@@ -205,14 +206,15 @@ public class LittleTiles {
         ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
-            x.getSource().sendSuccess(() -> Component
-                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server start <player> <path> [time|ms|s|m|h|d] [loops (-1 -> endless)] " + ChatFormatting.RED + "starts the animation"), false);
-            x.getSource().sendSuccess(() -> Component
-                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server stop <player> " + ChatFormatting.RED + "stops the animation"), false);
-            x.getSource().sendSuccess(() -> Component
-                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server list " + ChatFormatting.RED + "lists all saved paths"), false);
-            x.getSource().sendSuccess(() -> Component
-                    .literal("" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server remove <name> " + ChatFormatting.RED + "removes the given path"), false);
+            x.getSource().sendSuccess(() -> Component.literal(
+                "" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server start <player> <path> [time|ms|s|m|h|d] [loops (-1 -> endless)] " + ChatFormatting.RED + "starts the animation"),
+                false);
+            x.getSource().sendSuccess(() -> Component.literal(
+                "" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server stop <player> " + ChatFormatting.RED + "stops the animation"), false);
+            x.getSource().sendSuccess(() -> Component.literal(
+                "" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server list " + ChatFormatting.RED + "lists all saved paths"), false);
+            x.getSource().sendSuccess(() -> Component.literal(
+                "" + ChatFormatting.BOLD + ChatFormatting.YELLOW + "/cam-server remove <name> " + ChatFormatting.RED + "removes the given path"), false);
             
             ServerLevel level = x.getSource().getLevel();
             List<BETiles> blocks = new ArrayList<>();

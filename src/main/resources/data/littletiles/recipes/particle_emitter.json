@@ -1,28 +1,26 @@
 {
-  "result": {
-    "item": "littletiles:premade",
-    "data": 0,
-    "structure": "particle_emitter"
-  },
-  "pattern": [
-    "CDC",
-    "GRG",
-    "CCC"
-  ],
-  "type": "littletiles:crafting_shaped_premade",
-  "key": {
-    "R": {
-      "item": "minecraft:redstone_block"
+    "result": {
+        "item": "littletiles:premade",
+        "structure": "particle_emitter"
     },
-    "C": {
-      "item": "minecraft:concrete",
-      "data": 15
-    },
-    "G": {
-      "item": "minecraft:firework_charge"
-    },
-    "D": {
-      "item": "minecraft:dispenser"
+    "pattern": [
+        "CDC",
+        "GRG",
+        "CCC"
+    ],
+    "type": "littletiles:crafting_shaped_premade",
+    "key": {
+        "R": {
+            "item": "minecraft:redstone_block"
+        },
+        "C": {
+            "item": "minecraft:black_concrete"
+        },
+        "G": {
+            "item": "minecraft:fire_charge"
+        },
+        "D": {
+            "item": "minecraft:dispenser"
+        }
     }
-  }
 }

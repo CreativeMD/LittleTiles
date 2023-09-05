@@ -166,6 +166,13 @@ public class LittleTilesRegistry {
     
     public static final ResourceKey FAKE_DIMENSION = ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(LittleTiles.MODID, "fake"));
     
+    // Recipe Serializer
+    
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, LittleTiles.MODID);
+    
+    public static final RegistryObject<RecipeSerializer<? extends CraftingRecipe>> PREMADE_RECIPES = RECIPE_SERIALIZERS.register("crafting_shaped_premade",
+        PremadeShapedRecipeSerializer::new);
+    
     // CREATIVE_TAB
     
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LittleTiles.MODID);

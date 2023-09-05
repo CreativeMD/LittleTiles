@@ -1,21 +1,19 @@
 {
-  "result": {
-    "item": "littletiles:hammer",
-    "data": 0
-  },
-  "pattern": [
-    "XXX",
-    " L ",
-    " L "
-  ],
-  "type": "minecraft:crafting_shaped",
-  "key": {
-    "X": {
-      "item": "minecraft:iron_ingot"
+    "result": {
+        "item": "littletiles:hammer"
     },
-    "L": {
-      "item": "minecraft:dye",
-      "data": 4
+    "pattern": [
+        "XXX",
+        " L ",
+        " L "
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "X": {
+            "item": "minecraft:iron_ingot"
+        },
+        "L": {
+            "item": "minecraft:lapis_lazuli"
+        }
     }
-  }
 }

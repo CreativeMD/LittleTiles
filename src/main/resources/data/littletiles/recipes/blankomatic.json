@@ -1,26 +1,23 @@
 {
-  "result": {
-    "item": "littletiles:premade",
-    "data": 0,
-    "structure": "blankomatic"
-  },
-  "pattern": [
-    "XWX",
-    "XLX",
-    "X X"
-  ],
-  "type": "littletiles:crafting_shaped_premade",
-  "key": {
-    "X": {
-      "item": "minecraft:planks",
-      "data": 0
+    "result": {
+        "item": "littletiles:premade",
+        "structure": "blankomatic"
     },
-    "W": {
-      "item": "minecraft:iron_ingot"
-    },
-    "L": {
-      "item": "littletiles:colortube",
-      "data": 0
+    "pattern": [
+        "XWX",
+        "XLX",
+        "X X"
+    ],
+    "type": "littletiles:crafting_shaped_premade",
+    "key": {
+        "X": {
+            "tag": "minecraft:planks"
+        },
+        "W": {
+            "item": "minecraft:iron_ingot"
+        },
+        "L": {
+            "item": "littletiles:paint_brush"
+        }
     }
-  }
 }

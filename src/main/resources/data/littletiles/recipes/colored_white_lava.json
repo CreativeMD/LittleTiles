@@ -1,0 +1,14 @@
+{
+    "result": {
+        "item": "littletiles:colored_white_lava"
+    },
+    "ingredients": [
+        {
+            "item": "minecraft:milk_bucket"
+        },
+        {
+            "item": "littletiles:colored_lava"
+        }
+    ],
+    "type": "minecraft:crafting_shapeless"
+}

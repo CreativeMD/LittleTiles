@@ -1,25 +1,23 @@
 {
-  "result": {
-    "item": "littletiles:recipeadvanced",
-    "data": 0,
-    "count": 4
-  },
-  "pattern": [
-    "XXX",
-    "XLX",
-    "XRX"
-  ],
-  "type": "minecraft:crafting_shaped",
-  "key": {
-    "X": {
-      "item": "minecraft:paper"
+    "result": {
+        "item": "littletiles:blueprint",
+        "count": 4
     },
-	"L": {
-      "item": "minecraft:dye",
-      "data": 4
-    },
-    "R": {
-      "item": "minecraft:redstone"
+    "pattern": [
+        "XXX",
+        "XLX",
+        "XRX"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "X": {
+            "item": "minecraft:paper"
+        },
+        "L": {
+            "item": "minecraft:lapis_lazuli"
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        }
     }
-  }
 }

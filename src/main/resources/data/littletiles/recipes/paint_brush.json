@@ -1,23 +1,20 @@
 {
     "result": {
-        "item": "littletiles:bag",
+        "item": "littletiles:paint_brush",
         "data": 0
     },
     "pattern": [
-        " S ",
-        "LIL",
+        "XXX",
+        " L ",
         " L "
     ],
     "type": "minecraft:crafting_shaped",
     "key": {
+        "X": {
+            "item": "minecraft:white_wool"
+        },
         "L": {
-            "item": "minecraft:leather"
-        },
-        "I": {
             "item": "minecraft:lapis_lazuli"
-        },
-        "S": {
-            "item": "minecraft:string"
         }
     }
 }

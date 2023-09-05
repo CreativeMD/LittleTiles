@@ -1,10 +1,9 @@
 {
     "result": {
-        "item": "littletiles:bag",
-        "data": 0
+        "item": "littletiles:glove"
     },
     "pattern": [
-        " S ",
+        " L ",
         "LIL",
         " L "
     ],
@@ -15,9 +14,6 @@
         },
         "I": {
             "item": "minecraft:lapis_lazuli"
-        },
-        "S": {
-            "item": "minecraft:string"
         }
     }
 }

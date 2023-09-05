@@ -1,7 +1,6 @@
 {
   "result": {
     "item": "littletiles:premade",
-    "data": 0,
     "structure": "importer"
   },
   "pattern": [
@@ -12,24 +11,19 @@
   "type": "littletiles:crafting_shaped_premade",
   "key": {
     "P": {
-      "item": "minecraft:planks",
-      "data": 0
+      "tag": "minecraft:planks"
     },
     "X": {
-      "item": "minecraft:glass",
-      "data": 0
+      "item": "minecraft:glass"
     },
     "I": {
-      "item": "minecraft:iron_ingot",
-      "data": 0
+      "item": "minecraft:iron_ingot"
     },
     "R": {
-      "item": "minecraft:redstone",
-      "data": 0
+      "item": "minecraft:redstone_block"
     },
     "L": {
-      "item": "littletiles:recipeadvanced",
-      "data": 0
+      "item": "littletiles:blueprint"
     }
   }
 }

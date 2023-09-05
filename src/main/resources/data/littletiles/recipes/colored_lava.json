@@ -1,0 +1,11 @@
+{
+    "result": {
+        "item": "littletiles:colored_lava"
+    },
+    "ingredients": [
+        {
+            "item": "minecraft:lava_bucket"
+        }
+    ],
+    "type": "minecraft:crafting_shapeless"
+}
