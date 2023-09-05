@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -32,7 +33,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         
         if (!stack.hasTag())
             stack.setTag(new CompoundTag());
-        stack.getTag().put("structure", structureNBT);
+        stack.getTag().put(LittleGroup.STRUCTURE_KEY, structureNBT);
         
         if (name != null) {
             CompoundTag display = new CompoundTag();
@@ -66,7 +67,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
             CompoundTag structureNBT = new CompoundTag();
             structureNBT.putString("id", id);
             CompoundTag stackNBT = new CompoundTag();
-            stackNBT.put("structure", structureNBT);
+            stackNBT.put(LittleGroup.STRUCTURE_KEY, structureNBT);
             stack.setTag(stackNBT);
             return stack;
         }

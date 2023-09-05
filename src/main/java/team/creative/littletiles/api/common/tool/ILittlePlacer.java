@@ -108,8 +108,8 @@ public interface ILittlePlacer extends ILittleTool {
     
     @OnlyIn(Dist.CLIENT)
     public default List<RenderBox> getPositingCubes(Level level, BlockPos pos, ItemStack stack) {
-        if (stack.hasTag() && stack.getTag().contains("structure")) {
-            LittleStructureType type = LittleStructureRegistry.REGISTRY.get(stack.getTag().getCompound("structure").getString("id"));
+        if (stack.hasTag() && stack.getTag().contains(LittleGroup.STRUCTURE_KEY)) {
+            LittleStructureType type = LittleStructureRegistry.REGISTRY.get(stack.getTag().getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
             if (type != null)
                 return type.getPositingCubes(level, pos, stack);
         }

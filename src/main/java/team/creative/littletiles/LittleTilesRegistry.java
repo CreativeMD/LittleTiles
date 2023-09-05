@@ -13,6 +13,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -52,6 +54,7 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.recipe.PremadeShapedRecipeSerializer;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
@@ -112,8 +115,8 @@ public class LittleTilesRegistry {
     public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW).noCollission()
             .lightLevel(x -> 15)));
     
-    public static final RegistryObject<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of().sound(SoundType.WOOD).destroyTime(1.5F)
-            .strength(1.5F).sound(SoundType.WOOD)));
+    public static final RegistryObject<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of().sound(SoundType.WOOD).destroyTime(1.5F).strength(
+        1.5F).sound(SoundType.WOOD)));
     
     public static final RegistryObject<Block> FLOWING_WATER = BLOCKS.register("colored_water_flowing", () -> new BlockFlowingWater(WATER.get()));
     
@@ -137,12 +140,12 @@ public class LittleTilesRegistry {
     
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, LittleTiles.MODID);
     
-    public static final RegistryObject<BlockEntityType<BETiles>> BE_TILES_TYPE = registerBlockEntity("tiles", () -> BlockEntityType.Builder
-            .of(BETiles::new, BLOCK_TILES.get(), BLOCK_TILES_TICKING.get()));
-    public static final RegistryObject<BlockEntityType<BETilesRendered>> BE_TILES_TYPE_RENDERED = registerBlockEntity("tiles_rendered", () -> BlockEntityType.Builder
-            .of(BETilesRendered::new, BLOCK_TILES_RENDERED.get(), BLOCK_TILES_TICKING_RENDERED.get()));
-    public static final RegistryObject<BlockEntityType<BESignalConverter>> BE_SIGNALCONVERTER_TYPE = registerBlockEntity("converter", () -> BlockEntityType.Builder
-            .of(BESignalConverter::new, SIGNAL_CONVERTER.get()));
+    public static final RegistryObject<BlockEntityType<BETiles>> BE_TILES_TYPE = registerBlockEntity("tiles", () -> BlockEntityType.Builder.of(BETiles::new, BLOCK_TILES.get(),
+        BLOCK_TILES_TICKING.get()));
+    public static final RegistryObject<BlockEntityType<BETilesRendered>> BE_TILES_TYPE_RENDERED = registerBlockEntity("tiles_rendered", () -> BlockEntityType.Builder.of(
+        BETilesRendered::new, BLOCK_TILES_RENDERED.get(), BLOCK_TILES_TICKING_RENDERED.get()));
+    public static final RegistryObject<BlockEntityType<BESignalConverter>> BE_SIGNALCONVERTER_TYPE = registerBlockEntity("converter", () -> BlockEntityType.Builder.of(
+        BESignalConverter::new, SIGNAL_CONVERTER.get()));
     
     public static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> registerBlockEntity(String name, Supplier<BlockEntityType.Builder<T>> sup) {
         return BLOCK_ENTITIES.register(name, () -> sup.get().build(Util.fetchChoiceType(References.BLOCK_ENTITY, name)));
@@ -152,15 +155,15 @@ public class LittleTilesRegistry {
     
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, LittleTiles.MODID);
     
-    public static final RegistryObject<EntityType<PrimedSizedTnt>> SIZED_TNT_TYPE = ENTITIES
-            .register("primed_size_tnt", () -> EntityType.Builder.<PrimedSizedTnt>of(PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt"));
-    public static final RegistryObject<EntityType<EntitySit>> SIT_TYPE = ENTITIES
-            .register("sit", () -> EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build("sit"));
+    public static final RegistryObject<EntityType<PrimedSizedTnt>> SIZED_TNT_TYPE = ENTITIES.register("primed_size_tnt", () -> EntityType.Builder.<PrimedSizedTnt>of(
+        PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt"));
+    public static final RegistryObject<EntityType<EntitySit>> SIT_TYPE = ENTITIES.register("sit", () -> EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build(
+        "sit"));
     
-    public static final RegistryObject<EntityType<LittleAnimationEntity>> ENTITY_ANIMATION = ENTITIES
-            .register("litte_animation", () -> EntityType.Builder.<LittleAnimationEntity>of(LittleAnimationEntity::new, MobCategory.MISC).build("litte_animation"));
-    public static final RegistryObject<EntityType<LittleLevelEntity>> ENTITY_LEVEL = ENTITIES
-            .register("little_level", () -> EntityType.Builder.<LittleLevelEntity>of(LittleLevelEntity::new, MobCategory.MISC).build("little_level"));
+    public static final RegistryObject<EntityType<LittleAnimationEntity>> ENTITY_ANIMATION = ENTITIES.register("litte_animation", () -> EntityType.Builder
+            .<LittleAnimationEntity>of(LittleAnimationEntity::new, MobCategory.MISC).build("litte_animation"));
+    public static final RegistryObject<EntityType<LittleLevelEntity>> ENTITY_LEVEL = ENTITIES.register("little_level", () -> EntityType.Builder.<LittleLevelEntity>of(
+        LittleLevelEntity::new, MobCategory.MISC).build("little_level"));
     
     // DIMENSION
     
@@ -177,8 +180,8 @@ public class LittleTilesRegistry {
     
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LittleTiles.MODID);
     
-    public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_TABS
-            .register("items", () -> CreativeModeTab.builder().icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.get())).displayItems((features, output) -> {
+    public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_TABS.register("items", () -> CreativeModeTab.builder().icon(() -> new ItemStack(LittleTilesRegistry.HAMMER
+            .get())).displayItems((features, output) -> {
                 for (ExampleStructures example : ExampleStructures.values())
                     if (example.stack != null)
                         output.accept(example.stack);
