@@ -4,6 +4,7 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -30,6 +31,7 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.utils.IntegerUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
+import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxTransformable;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -1127,7 +1129,7 @@ public class LittleTransformableBox extends LittleBox {
             return null;
         Axis one = facing.one();
         Axis two = facing.two();
-        return new LittleFace(this, faceCache.axisStrips, faceCache.tilted(), grid, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(
+        return new LittleFace(this, faceCache.axisStrips, faceCache.tiltedSorted(), grid, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.positive ? getMax(
             facing.axis) : getMin(facing.axis));
     }
     
@@ -1700,7 +1702,19 @@ public class LittleTransformableBox extends LittleBox {
             return false;
         }
         
+        public Iterable<VectorFan> tiltedSorted() {
+            if (stripsSorted == null)
+                return null;
+            
+            if (hasSingleTiltedStripRendering())
+                return new SingletonList<>((VectorFan) stripsSorted);
+            return (Iterable<VectorFan>) stripsSorted;
+        }
+        
         public Iterable<VectorFan> tilted() {
+            if (tiltedStrip1 == null && tiltedStrip2 == null)
+                return Collections.EMPTY_LIST;
+            
             return new Iterable<VectorFan>() {
                 
                 @Override
