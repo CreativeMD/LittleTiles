@@ -49,7 +49,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         if (structurePreview != null)
             return structurePreview.getPlaceAction();
         destroyedTiles.convertToSmallest();
-        return new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(uuid, PlacementMode.normal, destroyedTiles, Facing.EAST));
+        return new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(uuid, PlacementMode.NORMAL, destroyedTiles, Facing.EAST));
     }
     
     @Override
@@ -153,7 +153,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         
         public LittleAction getPlaceAction() {
             return new LittleActionPlace(requiresItemStack ? PlaceAction.PREMADE : PlaceAction.ABSOLUTE, PlacementPreview
-                    .absolute(structure.getStructureLevel(), PlacementMode.all, previews, Facing.EAST));
+                    .absolute(structure.getStructureLevel(), PlacementMode.ALL, previews, Facing.EAST));
         }
         
         @Override

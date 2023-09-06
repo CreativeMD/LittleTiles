@@ -53,7 +53,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         if (destroyed != null) {
             destroyed.convertToSmallest();
             return new LittleActions(new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes.copy()), new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(
-                preview.levelUUID, PlacementMode.normal, destroyed, preview.position.facing)));
+                preview.levelUUID, PlacementMode.NORMAL, destroyed, preview.position.facing)));
         }
         return new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes.copy());
     }

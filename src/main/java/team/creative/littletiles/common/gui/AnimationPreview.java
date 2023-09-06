@@ -65,7 +65,7 @@ public class AnimationPreview {
         StructureAbsolute absolute = structure != null ? structure.createAnimationCenter(pos, grid) : null;
         if (absolute == null)
             absolute = new StructureAbsolute(pos, entireBox, previews.getGrid());
-        Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.all, new LittleGroupAbsolute(pos, previews), Facing.EAST));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.ALL, new LittleGroupAbsolute(pos, previews), Facing.EAST));
         
         animation = new LittleAnimationEntity(fakeWorld, subLevel, absolute, placement);
     }

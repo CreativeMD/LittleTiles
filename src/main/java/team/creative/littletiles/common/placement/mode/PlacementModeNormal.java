@@ -21,7 +21,7 @@ public class PlacementModeNormal extends PlacementMode {
     @Override
     public PlacementMode place() {
         if (Screen.hasControlDown())
-            return PlacementMode.fill;
+            return PlacementMode.FILL;
         return super.place();
     }
     

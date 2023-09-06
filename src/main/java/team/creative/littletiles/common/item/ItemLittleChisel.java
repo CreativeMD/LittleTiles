@@ -242,7 +242,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
         return new GuiChisel(view);
     }
     
-    public static PlacementMode currentMode = PlacementMode.fill;
+    public static PlacementMode currentMode = PlacementMode.FILL;
     
     @Override
     public PlacementMode getPlacementMode(ItemStack stack) {

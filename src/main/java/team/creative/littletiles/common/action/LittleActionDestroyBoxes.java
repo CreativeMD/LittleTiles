@@ -213,7 +213,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
         if (additionalPreviews) {
             destroyed.convertToSmallest();
-            actions[0] = new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(levelUUID, PlacementMode.fill, destroyed, Facing.EAST));
+            actions[0] = new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(levelUUID, PlacementMode.FILL, destroyed, Facing.EAST));
         }
         for (int i = 0; i < destroyedStructures.size(); i++)
             actions[(additionalPreviews ? 1 : 0) + i] = destroyedStructures.get(i).getPlaceAction();

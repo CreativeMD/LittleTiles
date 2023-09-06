@@ -58,7 +58,7 @@ public class ReplaceMode extends ElementGloveMode {
     @Override
     public boolean rightClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
         if (PlacementHelper.canBlockBeUsed(level, result.getBlockPos()))
-            return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, PlacementMode.replace,
+            return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, PlacementMode.REPLACE,
                 new LittleGroupAbsolute(LittleLevelScanner.scan(level, result.getBlockPos(), null), getElement(stack)), Facing.get(result.getDirection()))));
         return false;
     }

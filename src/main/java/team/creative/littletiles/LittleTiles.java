@@ -267,7 +267,7 @@ public class LittleTiles {
                 LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
                 group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
                 subLevel.setBlock(pos.above(), Blocks.DIRT.defaultBlockState(), 3);
-                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
+                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.ALL, new LittleGroupAbsolute(pos, group), Facing.EAST);
                 
                 Placement placement = new Placement(null, (Level) subLevel, preview);
                 PlacementResult result = placement.place();
@@ -299,7 +299,7 @@ public class LittleTiles {
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
                 LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
                 group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
-                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.all, new LittleGroupAbsolute(pos, group), Facing.EAST);
+                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.ALL, new LittleGroupAbsolute(pos, group), Facing.EAST);
                 level.addFreshEntity(new LittleAnimationEntity(level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new Placement(null, subLevel, preview)));
                 x.getSource().sendSystemMessage(Component.literal("Spawned animation"));
             } catch (LittleActionException e) {

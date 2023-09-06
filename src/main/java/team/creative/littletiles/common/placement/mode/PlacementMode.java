@@ -22,33 +22,33 @@ public abstract class PlacementMode {
     
     private static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(null);
     
-    public static final PlacementMode normal = new PlacementModeNormal(PreviewMode.PREVIEWS, false);
+    public static final PlacementMode NORMAL = new PlacementModeNormal(PreviewMode.PREVIEWS, false);
     
     /** Tries to fill in the tiles where it is possible. **/
-    public static final PlacementMode fill = new PlacementModeFill(PreviewMode.PREVIEWS);
+    public static final PlacementMode FILL = new PlacementModeFill(PreviewMode.PREVIEWS);
     
     /** Used for placing structures, should fail if it cannot place all tiles. **/
-    public static final PlacementMode all = new PlacementModeAll(PreviewMode.PREVIEWS);
+    public static final PlacementMode ALL = new PlacementModeAll(PreviewMode.PREVIEWS);
     
     /** Places all tiles no matter what is in the way. **/
-    public static final PlacementMode overwrite = new PlacementModeOverwrite(PreviewMode.PREVIEWS);
+    public static final PlacementMode OVERWRITE = new PlacementModeOverwrite(PreviewMode.PREVIEWS);
     
     /** Places all tiles no matter what is in the way. **/
-    public static final PlacementMode overwrite_all = new PlacementModeOverwriteAll(PreviewMode.PREVIEWS);
+    public static final PlacementMode OVERWRITE_ALL = new PlacementModeOverwriteAll(PreviewMode.PREVIEWS);
     
     /** Similar to overwrite only that replace will not place any tiles in the air. **/
-    public static final PlacementMode replace = new PlacementModeReplace(PreviewMode.LINES);
+    public static final PlacementMode REPLACE = new PlacementModeReplace(PreviewMode.LINES);
     
     /** Will not place anything but just remove the shape, basically like replace without the placing part **/
-    public static final PlacementMode stencil = new PlacementModeStencil(PreviewMode.LINES);
+    public static final PlacementMode STENCIL = new PlacementModeStencil(PreviewMode.LINES);
     
     /** Will not place anything but just remove the shape, basically like replace without the placing part **/
-    public static final PlacementMode colorize = new PlacementModeColorize(PreviewMode.LINES);
+    public static final PlacementMode COLORIZE = new PlacementModeColorize(PreviewMode.LINES);
     
-    private static final TextMapBuilder<PlacementMode> map = new TextMapBuilder<>();
+    private static final TextMapBuilder<PlacementMode> MAP = new TextMapBuilder<>();
     
     public static PlacementMode getStructureDefault() {
-        return PlacementMode.all;
+        return PlacementMode.ALL;
     }
     
     public static PlacementMode getDefault() {
@@ -68,27 +68,27 @@ public abstract class PlacementMode {
     
     public static void register(String id, PlacementMode handler) {
         REGISTRY.register(id, handler);
-        map.addComponent(handler, Component.translatable("placement.mode." + id));
+        MAP.addComponent(handler, Component.translatable("placement.mode." + id));
     }
     
     private static void registerDefault(String id, PlacementMode handler) {
         REGISTRY.registerDefault(id, handler);
-        map.addComponent(handler, Component.translatable("placement.mode." + id));
+        MAP.addComponent(handler, Component.translatable("placement.mode." + id));
     }
     
     public static TextMapBuilder<PlacementMode> map() {
-        return map;
+        return MAP;
     }
     
     static {
-        register("normal", normal);
-        registerDefault("fill", fill);
-        register("all", all);
-        register("overwrite", overwrite);
-        register("overwrite_all", overwrite_all);
-        register("replace", replace);
-        register("stencil", stencil);
-        register("colorize", colorize);
+        register("normal", NORMAL);
+        registerDefault("fill", FILL);
+        register("all", ALL);
+        register("overwrite", OVERWRITE);
+        register("overwrite_all", OVERWRITE_ALL);
+        register("replace", REPLACE);
+        register("stencil", STENCIL);
+        register("colorize", COLORIZE);
     }
     
     public final boolean placeInside;
