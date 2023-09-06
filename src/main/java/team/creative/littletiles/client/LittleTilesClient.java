@@ -78,9 +78,9 @@ import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
-import team.creative.littletiles.common.item.ItemLittleGlove.GloveMode;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.item.glove.GloveMode;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 @OnlyIn(Dist.CLIENT)
@@ -267,13 +267,17 @@ public class LittleTilesClient {
                 @Override
                 protected ItemStack getFakeStack(ItemStack current) {
                     GloveMode mode = ItemLittleGlove.getMode(current);
-                    if (mode.renderBlockSeparately(current)) {
-                        if (stack == null)
-                            stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
-                        stack.setTag(current.getTag());
-                        return stack;
-                    }
-                    return new ItemStack(mode.getSeparateRenderingPreview(current).getState().getBlock());
+                    if (mode.hasPreviewElement(current))
+                        return new ItemStack(mode.getPreviewElement(current).getState().getBlock());
+                    
+                    if (!mode.hasTiles(current))
+                        return ItemStack.EMPTY;
+                    
+                    if (stack == null)
+                        stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+                    stack.setTag(LittleGroup.save(mode.getTiles(current)));
+                    return stack;
+                    
                 }
             });
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "chisel"),
