@@ -1233,7 +1233,7 @@ public class LittleTransformableBox extends LittleBox {
             return null;
         Axis one = RotationUtils.getOne(facing.getAxis());
         Axis two = RotationUtils.getTwo(facing.getAxis());
-        return new LittleBoxFace(this, faceCache.axisStrips, faceCache.tilted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
+        return new LittleBoxFace(this, faceCache.axisStrips, faceCache.tiltedSorted(), context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
                 .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
     }
     
@@ -1835,7 +1835,18 @@ public class LittleTransformableBox extends LittleBox {
             return false;
         }
         
+        public Iterable<VectorFan> tiltedSorted() {
+            if (stripsSorted == null)
+                return null;
+            
+            if (hasSingleTiltedStripRendering())
+                return new SingletonList<>((VectorFan) stripsSorted);
+            return (Iterable<VectorFan>) stripsSorted;
+        }
+        
         public Iterable<VectorFan> tilted() {
+            if (tiltedStrip1 == null && tiltedStrip2 == null)
+                return Collections.EMPTY_LIST;
             return new Iterable<VectorFan>() {
                 
                 @Override
