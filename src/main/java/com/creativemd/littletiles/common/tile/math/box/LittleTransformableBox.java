@@ -734,6 +734,11 @@ public class LittleTransformableBox extends LittleBox {
     public boolean isFaceSolid(EnumFacing facing) {
         return requestCache().get(facing).isCompletelyFilled();
     }
+
+    @Override
+    public boolean isFacePartiallyFilled(Facing facing) {
+        return requestCache().get(facing).hasAxisStrip();
+    }
     
     @Override
     protected boolean intersectsWith(LittleBox box) {
