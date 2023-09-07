@@ -290,7 +290,7 @@ public class LittleTile implements ICombinable {
     }
     
     public boolean doesProvideSolidFace(EnumFacing facing) {
-        return !invisible && box.isFaceSolid(facing) && !isTranslucent() && block != Blocks.BARRIER;
+        return !invisible && box.isFacePartiallyFilledx(facing) && !isTranslucent() && block != Blocks.BARRIER;
     }
     
     @SideOnly(Side.CLIENT)
