@@ -1130,6 +1130,10 @@ public class LittleBox {
     public boolean isFaceSolid(EnumFacing facing) {
         return true;
     }
+
+    public boolean isFacePartiallyFilled(Facing facing) {
+        return true;
+    }
     
     public boolean canFaceBeCombined(LittleBox other) {
         return true;
