@@ -55,12 +55,9 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     public boolean hasChanged = false;
     public boolean preventNeighborUpdate = false;
     
-    private RegistryAccess access;
-    
     protected LittleServerLevel(MinecraftServer server, ServerLevelData worldInfo, ResourceKey<Level> dimension, boolean debug, long seed, RegistryAccess access) {
-        super(server, Util.backgroundExecutor(), ((MinecraftServerAccessor) server)
-                .getStorageSource(), worldInfo, dimension, overworldStem(server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false, null);
-        this.access = access;
+        super(server, Util.backgroundExecutor(), ((MinecraftServerAccessor) server).getStorageSource(), worldInfo, dimension, overworldStem(
+            server), LittleChunkProgressListener.INSTANCE, debug, seed, Collections.EMPTY_LIST, false, null);
     }
     
     @Override
@@ -164,13 +161,6 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     public void tick() {
         while (getChunkSource().pollTask()) {}
         tick(((MinecraftServerAccessor) getServer())::callHaveTime);
-    }
-    
-    @Override
-    public RegistryAccess registryAccess() {
-        if (access == null)
-            return getServer().registryAccess();
-        return access;
     }
     
     public void load(ChunkPos pos, CompoundTag nbt) {

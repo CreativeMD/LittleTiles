@@ -62,14 +62,12 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     
     public boolean preventNeighborUpdate = false;
     
-    private RegistryAccess access;
     public LittleLevelRenderManager renderManager;
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     
     protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
-        super(FakeClientPacketListener.get(access), data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE)
-                .getHolderOrThrow(LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
-        this.access = access;
+        super(FakeClientPacketListener.get(access), data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(
+            LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
     }
     
     @Override
@@ -235,11 +233,6 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     @Override
     public Iterable<Entity> entities() {
         return getEntities().getAll();
-    }
-    
-    @Override
-    public RegistryAccess registryAccess() {
-        return access;
     }
     
     @Override
