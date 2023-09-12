@@ -14,7 +14,7 @@ public class LittleBuildingConfig {
     public LittleBuildingConfig() {
         limitAffectedBlocks = true;
         editUnbreakable = false;
-        minimumTransparency = 0;
+        minimumTransparency = 255;
         limitEditBlocks = true;
         limitPlaceBlocks = true;
         harvestLevelBlock = HarvestLevel.WOOD;
