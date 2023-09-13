@@ -4,6 +4,7 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,6 +25,7 @@ import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
 import com.creativemd.creativecore.common.utils.math.geo.Ray2d;
 import com.creativemd.creativecore.common.utils.math.geo.Ray3f;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
+import com.creativemd.creativecore.common.utils.type.SingletonList;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
@@ -358,18 +360,18 @@ public class LittleTransformableBox extends LittleBox {
             BoxCorner corner = toCheck[j];
             
             switch (axis) {
-            case X:
-                if (corners[corner.ordinal()].x != otherCorners[corner.ordinal()].x)
-                    return false;
-                break;
-            case Y:
-                if (corners[corner.ordinal()].y != otherCorners[corner.ordinal()].y)
-                    return false;
-                break;
-            case Z:
-                if (corners[corner.ordinal()].z != otherCorners[corner.ordinal()].z)
-                    return false;
-                break;
+                case X:
+                    if (corners[corner.ordinal()].x != otherCorners[corner.ordinal()].x)
+                        return false;
+                    break;
+                case Y:
+                    if (corners[corner.ordinal()].y != otherCorners[corner.ordinal()].y)
+                        return false;
+                    break;
+                case Z:
+                    if (corners[corner.ordinal()].z != otherCorners[corner.ordinal()].z)
+                        return false;
+                    break;
             }
         }
         
@@ -734,9 +736,9 @@ public class LittleTransformableBox extends LittleBox {
     public boolean isFaceSolid(EnumFacing facing) {
         return requestCache().get(facing).isCompletelyFilled();
     }
-
+    
     @Override
-    public boolean isFacePartiallyFilled(Facing facing) {
+    public boolean isFacePartiallyFilled(EnumFacing facing) {
         return requestCache().get(facing).hasAxisStrip();
     }
     
@@ -887,15 +889,15 @@ public class LittleTransformableBox extends LittleBox {
             long tempZ = (vec.getAbsoluteZ()) * 2 - doubledCenter.z;
             LittleVec flippedVec = new LittleVec(0, 0, 0);
             switch (axis) {
-            case X:
-                tempX = -tempX;
-                break;
-            case Y:
-                tempY = -tempY;
-                break;
-            case Z:
-                tempZ = -tempZ;
-                break;
+                case X:
+                    tempX = -tempX;
+                    break;
+                case Y:
+                    tempY = -tempY;
+                    break;
+                case Z:
+                    tempZ = -tempZ;
+                    break;
             }
             
             flippedVec.x = (int) ((tempX + doubledCenter.x) / 2);
@@ -1258,12 +1260,12 @@ public class LittleTransformableBox extends LittleBox {
         
         public int getAbsolute(Axis axis) {
             switch (axis) {
-            case X:
-                return getAbsoluteX();
-            case Y:
-                return getAbsoluteY();
-            case Z:
-                return getAbsoluteZ();
+                case X:
+                    return getAbsoluteX();
+                case Y:
+                    return getAbsoluteY();
+                case Z:
+                    return getAbsoluteZ();
             }
             return 0;
         }
@@ -1282,12 +1284,12 @@ public class LittleTransformableBox extends LittleBox {
         
         public int getRelative(Axis axis) {
             switch (axis) {
-            case X:
-                return getRelativeX();
-            case Y:
-                return getRelativeY();
-            case Z:
-                return getRelativeZ();
+                case X:
+                    return getRelativeX();
+                case Y:
+                    return getRelativeY();
+                case Z:
+                    return getRelativeZ();
             }
             return 0;
         }

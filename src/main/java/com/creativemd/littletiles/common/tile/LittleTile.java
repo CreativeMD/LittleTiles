@@ -290,7 +290,7 @@ public class LittleTile implements ICombinable {
     }
     
     public boolean doesProvideSolidFace(EnumFacing facing) {
-        return !invisible && box.isFacePartiallyFilledx(facing) && !isTranslucent() && block != Blocks.BARRIER;
+        return !invisible && box.isFacePartiallyFilled(facing) && !isTranslucent() && block != Blocks.BARRIER;
     }
     
     @SideOnly(Side.CLIENT)
@@ -362,7 +362,7 @@ public class LittleTile implements ICombinable {
         if (glowing)
             nbt.setBoolean("glowing", glowing);
         nbt.setString("block", handler instanceof MissingBlockHandler ? ((MissingBlockHandler) handler).blockname : Block.REGISTRY.getNameForObject(block)
-            .toString() + (meta != 0 ? ":" + meta : ""));
+                .toString() + (meta != 0 ? ":" + meta : ""));
     }
     
     public void saveTileCore(NBTTagCompound nbt) {

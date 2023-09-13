@@ -110,17 +110,17 @@ public class LittleBox {
     
     public AxisAlignedBB getBox(LittleGridContext context, BlockPos offset) {
         return new AxisAlignedBB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context
-            .toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
+                .toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
     }
     
     public AxisAlignedBB getBox(LittleGridContext context) {
         return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context
-            .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+                .toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
     }
     
     public AlignedBox getCube(LittleGridContext context) {
         return new AlignedBox((float) context.toVanillaGrid(minX), (float) context.toVanillaGrid(minY), (float) context.toVanillaGrid(minZ), (float) context
-            .toVanillaGrid(maxX), (float) context.toVanillaGrid(maxY), (float) context.toVanillaGrid(maxZ));
+                .toVanillaGrid(maxX), (float) context.toVanillaGrid(maxY), (float) context.toVanillaGrid(maxZ));
     }
     
     // ================Save================
@@ -201,19 +201,19 @@ public class LittleBox {
     
     public int get(EnumFacing facing) {
         switch (facing) {
-        case EAST:
-            return maxX;
-        case WEST:
-            return minX;
-        case UP:
-            return maxY;
-        case DOWN:
-            return minY;
-        case SOUTH:
-            return maxZ;
-        case NORTH:
-            return minZ;
-        
+            case EAST:
+                return maxX;
+            case WEST:
+                return minX;
+            case UP:
+                return maxY;
+            case DOWN:
+                return minY;
+            case SOUTH:
+                return maxZ;
+            case NORTH:
+                return minZ;
+            
         }
         return 0;
     }
@@ -240,66 +240,66 @@ public class LittleBox {
     
     public int getSize(Axis axis) {
         switch (axis) {
-        case X:
-            return maxX - minX;
-        case Y:
-            return maxY - minY;
-        case Z:
-            return maxZ - minZ;
+            case X:
+                return maxX - minX;
+            case Y:
+                return maxY - minY;
+            case Z:
+                return maxZ - minZ;
         }
         return 0;
     }
     
     public void setMin(Axis axis, int value) {
         switch (axis) {
-        case X:
-            minX = value;
-            break;
-        case Y:
-            minY = value;
-            break;
-        case Z:
-            minZ = value;
-            break;
+            case X:
+                minX = value;
+                break;
+            case Y:
+                minY = value;
+                break;
+            case Z:
+                minZ = value;
+                break;
         }
         changed();
     }
     
     public int getMin(Axis axis) {
         switch (axis) {
-        case X:
-            return minX;
-        case Y:
-            return minY;
-        case Z:
-            return minZ;
+            case X:
+                return minX;
+            case Y:
+                return minY;
+            case Z:
+                return minZ;
         }
         return 0;
     }
     
     public void setMax(Axis axis, int value) {
         switch (axis) {
-        case X:
-            maxX = value;
-            break;
-        case Y:
-            maxY = value;
-            break;
-        case Z:
-            maxZ = value;
-            break;
+            case X:
+                maxX = value;
+                break;
+            case Y:
+                maxY = value;
+                break;
+            case Z:
+                maxZ = value;
+                break;
         }
         changed();
     }
     
     public int getMax(Axis axis) {
         switch (axis) {
-        case X:
-            return maxX;
-        case Y:
-            return maxY;
-        case Z:
-            return maxZ;
+            case X:
+                return maxX;
+            case Y:
+                return maxY;
+            case Z:
+                return maxZ;
         }
         return 0;
     }
@@ -378,30 +378,30 @@ public class LittleBox {
     public LittleBox createOutsideBlockBox(LittleGridContext context, EnumFacing facing) {
         LittleBox box = this.copy();
         switch (facing) {
-        case EAST:
-            box.minX = 0;
-            box.maxX -= context.size;
-            break;
-        case WEST:
-            box.minX += context.size;
-            box.maxX = context.size;
-            break;
-        case UP:
-            box.minY = 0;
-            box.maxY -= context.size;
-            break;
-        case DOWN:
-            box.minY += context.size;
-            box.maxY = context.size;
-            break;
-        case SOUTH:
-            box.minZ = 0;
-            box.maxZ -= context.size;
-            break;
-        case NORTH:
-            box.minZ += context.size;
-            box.maxZ = context.size;
-            break;
+            case EAST:
+                box.minX = 0;
+                box.maxX -= context.size;
+                break;
+            case WEST:
+                box.minX += context.size;
+                box.maxX = context.size;
+                break;
+            case UP:
+                box.minY = 0;
+                box.maxY -= context.size;
+                break;
+            case DOWN:
+                box.minY += context.size;
+                box.maxY = context.size;
+                break;
+            case SOUTH:
+                box.minZ = 0;
+                box.maxZ -= context.size;
+                break;
+            case NORTH:
+                box.minZ += context.size;
+                box.maxZ = context.size;
+                break;
         }
         return box;
     }
@@ -844,29 +844,29 @@ public class LittleBox {
     
     public boolean intersectsWithAxis(LittleGridContext context, Axis axis, Vec3d vec) {
         switch (axis) {
-        case X:
-            return intersectsWithYZ(context, vec);
-        case Y:
-            return intersectsWithXZ(context, vec);
-        case Z:
-            return intersectsWithXY(context, vec);
+            case X:
+                return intersectsWithYZ(context, vec);
+            case Y:
+                return intersectsWithXZ(context, vec);
+            case Z:
+                return intersectsWithXY(context, vec);
         }
         return false;
     }
     
     public boolean intersectsWithYZ(LittleGridContext context, Vec3d vec) {
         return vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
-            .toVanillaGrid(this.maxZ);
+                .toVanillaGrid(this.maxZ);
     }
     
     public boolean intersectsWithXZ(LittleGridContext context, Vec3d vec) {
         return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context
-            .toVanillaGrid(this.maxZ);
+                .toVanillaGrid(this.maxZ);
     }
     
     public boolean intersectsWithXY(LittleGridContext context, Vec3d vec) {
         return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.y >= context.toVanillaGrid(this.minY) && vec.y < context
-            .toVanillaGrid(this.maxY);
+                .toVanillaGrid(this.maxY);
     }
     
     public boolean isVecInside(Vector3f vec) {
@@ -880,7 +880,7 @@ public class LittleBox {
     @Nullable
     protected Vec3d collideWithPlane(LittleGridContext context, Axis axis, double value, Vec3d vecA, Vec3d vecB) {
         Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA
-            .getIntermediateWithXValue(vecB, value);
+                .getIntermediateWithXValue(vecB, value);
         return vec3d != null && intersectsWithAxis(context, axis, vec3d) ? vec3d : null;
     }
     
@@ -975,11 +975,11 @@ public class LittleBox {
         long tempMaxY = maxY * 2 - doubledCenter.y;
         long tempMaxZ = maxZ * 2 - doubledCenter.z;
         resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix()
-            .getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
-                .getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix()
-                    .getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix()
-                        .getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
-                            .getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
+                .getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
+                        .getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix()
+                                .getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix()
+                                        .getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
+                                                .getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
         changed();
     }
     
@@ -1009,7 +1009,7 @@ public class LittleBox {
     public boolean equals(Object object) {
         if (object instanceof LittleBox)
             return object.getClass() == this
-                .getClass() && minX == ((LittleBox) object).minX && minY == ((LittleBox) object).minY && minZ == ((LittleBox) object).minZ && maxX == ((LittleBox) object).maxX && maxY == ((LittleBox) object).maxY && maxZ == ((LittleBox) object).maxZ;
+                    .getClass() && minX == ((LittleBox) object).minX && minY == ((LittleBox) object).minY && minZ == ((LittleBox) object).minZ && maxX == ((LittleBox) object).maxX && maxY == ((LittleBox) object).maxY && maxZ == ((LittleBox) object).maxZ;
         return super.equals(object);
     }
     
@@ -1119,19 +1119,19 @@ public class LittleBox {
         Axis two = RotationUtils.getTwo(facing.getAxis());
         
         return new LittleBoxFace(this, null, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing
-            .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+                .getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
     }
     
     public boolean intersectsWith(LittleBoxFace face) {
         return (face.facing.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.facing.getAxis()) : getMax(face.facing
-            .getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
+                .getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
     }
     
     public boolean isFaceSolid(EnumFacing facing) {
         return true;
     }
-
-    public boolean isFacePartiallyFilled(Facing facing) {
+    
+    public boolean isFacePartiallyFilled(EnumFacing facing) {
         return true;
     }
     
@@ -1164,7 +1164,7 @@ public class LittleBox {
         if (nbt.getTag(name + "minX") instanceof NBTTagByte) // very old pre 1.0.0
         {
             LittleBox box = new LittleBox(nbt.getByte(name + "minX"), nbt.getByte(name + "minY"), nbt.getByte(name + "minZ"), nbt.getByte(name + "maxX"), nbt
-                .getByte(name + "maxY"), nbt.getByte(name + "maxZ"));
+                    .getByte(name + "maxY"), nbt.getByte(name + "maxZ"));
             nbt.removeTag(name + "minX");
             nbt.removeTag(name + "minY");
             nbt.removeTag(name + "minZ");
@@ -1176,7 +1176,7 @@ public class LittleBox {
         } else if (nbt.getTag(name + "minX") instanceof NBTTagInt) // old pre 1.3.0
         {
             LittleBox box = new LittleBox(nbt.getInteger(name + "minX"), nbt.getInteger(name + "minY"), nbt.getInteger(name + "minZ"), nbt.getInteger(name + "maxX"), nbt
-                .getInteger(name + "maxY"), nbt.getInteger(name + "maxZ"));
+                    .getInteger(name + "maxY"), nbt.getInteger(name + "maxZ"));
             nbt.removeTag(name + "minX");
             nbt.removeTag(name + "minY");
             nbt.removeTag(name + "minZ");
@@ -1191,7 +1191,7 @@ public class LittleBox {
             String[] coords = nbt.getString(name).split("\\.");
             try {
                 return new LittleBox(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer
-                    .parseInt(coords[4]), Integer.parseInt(coords[5]));
+                        .parseInt(coords[4]), Integer.parseInt(coords[5]));
             } catch (Exception e) {
                 
             }
@@ -1215,7 +1215,7 @@ public class LittleBox {
             return new LittleTransformableBox(array[0], array[1], array[2], array[3], array[4], array[5], slice);
         if (array.length == 11)
             return new LittleTransformableBox(array[0], array[1], array[2], array[3], array[4], array[5], LittleSlice.getSliceByID(array[6]), Float.intBitsToFloat(array[7]), Float
-                .intBitsToFloat(array[8]), Float.intBitsToFloat(array[9]), Float.intBitsToFloat(array[10]));
+                    .intBitsToFloat(array[8]), Float.intBitsToFloat(array[9]), Float.intBitsToFloat(array[10]));
         
         throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
     }
