@@ -8,8 +8,7 @@ public class EntitySizeHandler {
     
     @SubscribeEvent
     public static void entitySize(EntityEvent.Size event) {
-        if (event.getEntity() instanceof PrimedSizedTnt) {
-            PrimedSizedTnt tnt = (PrimedSizedTnt) event.getEntity();
+        if (event.getEntity() instanceof PrimedSizedTnt tnt && tnt.grid != null) {
             event.setNewSize(new EntityDimensions((float) tnt.size.getPosX(tnt.grid), (float) tnt.size.getPosY(tnt.grid), false));
         }
     }
