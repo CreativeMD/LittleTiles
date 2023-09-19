@@ -75,7 +75,7 @@ public class BlueprintMode extends GloveMode {
                 previews.add(pair.key.getGrid(), pair.value, pair.value);
         } else
             previews.add(context.parent.getGrid(), context.tile, context.box);
-        stack.getOrCreateTag().put("tiles", LittleGroup.save(previews));
+        setTiles(previews, stack);
     }
     
     @Override
