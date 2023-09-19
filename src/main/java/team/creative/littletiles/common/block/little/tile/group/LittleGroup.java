@@ -56,8 +56,8 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     public static Component printTooltip(CompoundTag tag) {
         StringBuilder text = new StringBuilder();
         if (tag.contains(TILES_COUNT_KEY) && tag.contains(BOXES_COUNT_KEY))
-            text.append(tag.getInt(TILES_COUNT_KEY) + " " + LanguageUtils.translate("gui.tile.count") + " " + tag.getInt(BOXES_COUNT_KEY) + " " + LanguageUtils
-                    .translate("gui.box.count"));
+            text.append(tag.getInt(TILES_COUNT_KEY) + " " + LanguageUtils.translate("gui.tile.count") + " " + tag.getInt(BOXES_COUNT_KEY) + " " + LanguageUtils.translate(
+                "gui.box.count"));
         return Component.literal(text.toString());
     }
     
@@ -177,16 +177,13 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         float sizeZ = maxZ - minZ;
         if (sizeZ > 1)
             scale = Math.min(scale, 1 / sizeZ);
-        float offsetX = -minX;
-        float offsetY = -minY;
-        float offsetZ = -minZ;
-        float offsetX2 = (1 - sizeX * scale) * 0.5F;
-        float offsetY2 = (1 - sizeY * scale) * 0.5F;
-        float offsetZ2 = (1 - sizeZ * scale) * 0.5F;
+        float offsetX = (minX + maxX) * -0.5F;
+        float offsetY = (minY + maxY) * -0.5F;
+        float offsetZ = (minZ + maxZ) * -0.5F;
         for (RenderBox box : cubes) {
             box.add(offsetX, offsetY, offsetZ);
             box.scale(scale);
-            box.add(offsetX2, offsetY2, offsetZ2);
+            box.add(0.5F, 0.5F, 0.5F);
         }
     }
     

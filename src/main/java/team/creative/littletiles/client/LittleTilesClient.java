@@ -77,6 +77,7 @@ import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
+import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
@@ -275,8 +276,7 @@ public class LittleTilesClient {
                     if (!mode.hasTiles(current))
                         return ItemStack.EMPTY;
                     
-                    if (stack == null)
-                        stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+                    ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
                     stack.setTag(LittleGroup.save(mode.getTiles(current)));
                     return stack;
                     
@@ -285,8 +285,11 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "chisel"),
             new LittleModelItemPreview(new ModelResourceLocation(LittleTiles.MODID, "chisel_background", "inventory"), stack -> ItemLittleChisel.getElement(stack)));
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "blueprint"),
-            new LittleModelItemBackground(new ModelResourceLocation(LittleTiles.MODID, "blueprint_background", "inventory"), () -> new ItemStack(LittleTilesRegistry.ITEM_TILES
-                    .get())));
+            new LittleModelItemBackground(new ModelResourceLocation(LittleTiles.MODID, "blueprint_background", "inventory"), x -> {
+                ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+                stack.setTag(x.getOrCreateTag().getCompound(ItemLittleBlueprint.CONTENT_KEY));
+                return stack;
+            }));
         
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "blockingredient"),
             new CreativeItemBoxModel(new ModelResourceLocation("miencraft", "stone", "inventory")) {
