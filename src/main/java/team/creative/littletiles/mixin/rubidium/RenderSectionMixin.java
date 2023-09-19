@@ -25,9 +25,11 @@ import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
+import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionFlags;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import me.jellysquid.mods.sodium.client.render.chunk.data.SectionRenderDataStorage;
 import me.jellysquid.mods.sodium.client.render.chunk.region.RenderRegion;
+import me.jellysquid.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkMeshAttribute;
 import net.minecraft.client.Minecraft;
@@ -64,6 +66,11 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     @Shadow(remap = false)
     private TextureAtlasSprite[] animatedSprites;
     
+    @Shadow(remap = false)
+    private boolean built;
+    @Shadow(remap = false)
+    private int flags;
+    
     @Unique
     private BlockPos origin;
     
@@ -71,7 +78,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     private volatile int queued;
     
     @Unique
-    public ChunkLayerMap<BufferCollection> lastUploaded;
+    public volatile ChunkLayerMap<BufferCollection> lastUploaded;
     
     @Override
     public int getQueued() {
@@ -162,9 +169,19 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     @Override
+    public synchronized void prepareUpload() {
+        backToRAM();
+        RenderChunkExtender.super.prepareUpload();
+    }
+    
+    @Override
     public ByteBuffer downloadUploadedData(VertexBufferExtender buffer, long offset, int size) {
-        RenderDevice.INSTANCE.createCommandList().bindBuffer(GlBufferTarget.ARRAY_BUFFER, (GlBuffer) buffer);
+        boolean active = ((GLRenderDeviceAccessor) RenderDevice.INSTANCE).getIsActive();
+        if (!active)
+            RenderDevice.enterManagedCode();
+        
         try {
+            RenderDevice.INSTANCE.createCommandList().bindBuffer(GlBufferTarget.ARRAY_BUFFER, (GlBuffer) buffer);
             ByteBuffer result = MemoryTracker.create(size);
             GL15C.glGetBufferSubData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, result);
             return result;
@@ -172,12 +189,15 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             if (!(e instanceof IllegalStateException))
                 e.printStackTrace();
             return null;
-        } finally {}
+        } finally {
+            if (!active)
+                RenderDevice.exitManagedCode();
+        }
     }
     
-    public ByteBuffer downloadSegment(GlBufferSegment segment) {
+    public ByteBuffer downloadSegment(GlBufferSegment segment, GlVertexFormat format) {
         GlBuffer buffer = ((GlBufferSegmentAccessor) segment).getArena().getBufferObject();
-        return downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset(), segment.getLength());
+        return downloadUploadedData((VertexBufferExtender) buffer, segment.getOffset() * format.getStride(), segment.getLength() * format.getStride());
     }
     
     @Override
@@ -200,21 +220,26 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                 GlBufferSegment segment = getUploadedBuffer(storage);
                 if (segment == null)
                     continue;
-                ByteBuffer vertexData = downloadSegment(segment);
                 
+                ByteBuffer vertexData = downloadSegment(segment, format);
                 if (vertexData == null) {
                     tuple.value.discard();
                     continue;
                 }
                 
-                downloader.set(storage.getDataPointer(sectionIndex), format, downloadSegment(getUploadedBuffer(storage)));
+                downloader.set(storage.getDataPointer(sectionIndex), format, segment.getOffset(), vertexData);
                 tuple.value.download(downloader);
                 downloader.clear();
             }
             setLastUploaded(null);
         };
         try {
-            CompletableFuture.runAsync(run, Minecraft.getInstance());
+            synchronized (this) {
+                if (Minecraft.getInstance().isSameThread())
+                    run.run();
+                else
+                    CompletableFuture.runAsync(run, Minecraft.getInstance()).join();
+            }
         } catch (Exception e1) {
             e1.printStackTrace();
         }
@@ -237,21 +262,23 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             if (size == 0)
                 continue;
             
-            SectionRenderDataStorage storage = region.createStorage(DefaultMaterials.forRenderLayer(layer).pass);
+            TerrainRenderPass pass = DefaultMaterials.forRenderLayer(layer).pass;
+            SectionRenderDataStorage storage = region.createStorage(pass);
             
             GlBufferSegment segment = getUploadedBuffer(storage);
             ByteBuffer vanillaBuffer = null;
-            if (segment != null) {
-                vanillaBuffer = downloadSegment(getUploadedBuffer(storage));
-                storage.removeMeshes(sectionIndex);
-            }
+            if (segment != null)
+                vanillaBuffer = downloadSegment(segment, format);
             
             int[] extraLengthFacing = new int[ModelQuadFacing.COUNT];
             for (LayeredBufferCache layeredCache : blocks)
                 for (int i = 0; i < extraLengthFacing.length; i++)
                     extraLengthFacing[i] += layeredCache.length(layer, i);
                 
-            uploader.set(storage.getDataPointer(sectionIndex), format, vanillaBuffer, size, extraLengthFacing, animatedSprites);
+            uploader.set(storage.getDataPointer(sectionIndex), format, segment.getOffset(), vanillaBuffer, size, extraLengthFacing, null);
+            
+            if (segment != null) // Meshes needs to be removed after the uploader has collected the data
+                storage.removeMeshes(sectionIndex);
             
             for (LayeredBufferCache layeredCache : blocks) {
                 BufferCache cache = layeredCache.get(layer);
@@ -262,21 +289,35 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             // Maybe sort uploaded buffer????
             //if (layer == RenderType.translucent())
             
+            boolean active = ((GLRenderDeviceAccessor) RenderDevice.INSTANCE).getIsActive();
+            if (!active)
+                RenderDevice.enterManagedCode();
+            
+            PendingUpload upload = new PendingUpload(uploader.buffer());
+            
             CommandList commandList = RenderDevice.INSTANCE.createCommandList();
+            
             RenderRegion.DeviceResources resources = region.createResources(commandList);
             GlBufferArena arena = resources.getGeometryArena();
-            PendingUpload upload = new PendingUpload(uploader.buffer());
+            
             boolean bufferChanged = arena.upload(commandList, Stream.of(upload));
             if (bufferChanged)
                 region.refresh(commandList);
             
             storage.setMeshes(sectionIndex, upload.getResult(), uploader.ranges());
             
-            animatedSprites = uploader.sprites();
+            if (!active)
+                RenderDevice.exitManagedCode();
             
             uploader.clear();
             
         }
+        
+        animatedSprites = uploader.sprites();
+        
+        //manager.markGraphDirty();
+        built = true;
+        flags |= 1 << RenderSectionFlags.HAS_BLOCK_GEOMETRY;
         return true;
     }
     

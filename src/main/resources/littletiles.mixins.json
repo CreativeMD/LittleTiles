@@ -57,6 +57,7 @@
         "rubidium.ChunkModelBuilderMixin",
         "rubidium.GlBufferMixin",
         "rubidium.GlBufferSegmentAccessor",
+        "rubidium.GLRenderDeviceAccessor",
         "rubidium.PendingSectionUploadAccessor",
         "rubidium.RenderRegionManagerMixin",
         "rubidium.RenderSectionManagerAccessor",

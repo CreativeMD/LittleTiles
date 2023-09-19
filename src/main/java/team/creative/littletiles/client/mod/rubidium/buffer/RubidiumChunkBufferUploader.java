@@ -22,17 +22,23 @@ public class RubidiumChunkBufferUploader implements ChunkBufferUploader {
     
     public RubidiumChunkBufferUploader() {}
     
-    public void set(long data, GlVertexFormat format, ByteBuffer exisitingData, int extraLength, int[] extraLengthFacing, TextureAtlasSprite[] existing) {
+    public void set(long data, GlVertexFormat format, int offset, ByteBuffer exisitingData, int extraLength, int[] extraLengthFacing, TextureAtlasSprite[] existing) {
         buffer = new NativeBuffer((exisitingData != null ? exisitingData.limit() : 0) + extraLength);
         ByteBuffer buffer = this.buffer.getDirectBuffer();
         
         int currentOffset = 0;
         for (int i = 0; i < buffers.length; i++) {
-            int start = currentOffset + SectionRenderDataUnsafe.getVertexOffset(data, i) * format.getStride();
-            int length = SectionRenderDataUnsafe.getElementCount(data, i) / 6 * 4 * format.getStride() + extraLengthFacing[i];
-            buffers[i] = buffer.slice(start, length);
+            int start = (SectionRenderDataUnsafe.getVertexOffset(data, i) - offset) * format.getStride();
+            int length = SectionRenderDataUnsafe.getElementCount(data, i) / 6 * 4 * format.getStride();
+            
+            start += currentOffset;
+            buffers[i] = buffer.slice(start + currentOffset, length + extraLengthFacing[i]);
+            
+            buffers[i].put(0, exisitingData, start, length);
+            buffers[i].position(length);
+            
             currentOffset += extraLengthFacing[i];
-            ranges[i] = new VertexRange(start / format.getStride(), length / format.getStride());
+            ranges[i] = new VertexRange((start + currentOffset) / format.getStride(), (length + extraLengthFacing[i]) / format.getStride());
         }
         
         if (existing != null) {
@@ -44,6 +50,8 @@ public class RubidiumChunkBufferUploader implements ChunkBufferUploader {
     
     public void clear() {
         Arrays.fill(buffers, null);
+        buffer.free();
+        buffer = null;
     }
     
     @Override

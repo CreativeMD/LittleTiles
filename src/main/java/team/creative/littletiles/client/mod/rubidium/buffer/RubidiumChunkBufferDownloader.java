@@ -14,10 +14,10 @@ public class RubidiumChunkBufferDownloader implements ChunkBufferDownloader {
     
     public RubidiumChunkBufferDownloader() {}
     
-    public void set(long data, GlVertexFormat format, ByteBuffer buffer) {
+    public void set(long data, GlVertexFormat format, int offset, ByteBuffer buffer) {
         for (int i = 0; i < buffers.length; i++) {
-            buffers[i] = buffer.slice(SectionRenderDataUnsafe.getVertexOffset(data, i) * format.getStride(), SectionRenderDataUnsafe.getElementCount(data, i) / 6 * 4 * format
-                    .getStride());
+            int count = SectionRenderDataUnsafe.getElementCount(data, i);
+            buffers[i] = buffer.slice((SectionRenderDataUnsafe.getVertexOffset(data, i) - offset) * format.getStride(), count / 6 * 4 * format.getStride());
         }
     }
     

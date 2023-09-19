@@ -6,6 +6,7 @@ import java.nio.ByteOrder;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 
+import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.VertexFormatUtils;
 
@@ -108,7 +109,7 @@ public class BufferHolder implements BufferCache {
     
     @Override
     public int lengthToUpload(int facing) {
-        if (isAvailable())
+        if (isAvailable() && facing == ModelQuadFacing.UNASSIGNED.ordinal())
             return length;
         return 0;
     }
@@ -205,7 +206,7 @@ public class BufferHolder implements BufferCache {
             return null;
         
         if (indexes.length == 2 && indexes[0] == index)
-            return new BufferHolder(buffer, length(), vertexCount(), null);
+            return new BufferHolder(buffer, length(), vertexCount(), indexes.clone());
         
         int start = -1;
         int length = -1;

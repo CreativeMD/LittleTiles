@@ -32,4 +32,9 @@ public class BufferCollection {
         return buffers.isEmpty();
     }
     
+    @Override
+    public String toString() {
+        return buffers.toString();
+    }
+    
 }
