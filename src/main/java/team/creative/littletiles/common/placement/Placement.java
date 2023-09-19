@@ -42,6 +42,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.config.LittleBuildingConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceException;
 import team.creative.littletiles.common.grid.IGridBased;
@@ -165,10 +166,12 @@ public class Placement {
         
         if (player != null && !level.isClientSide) {
             if (player != null) {
-                if (LittleTiles.CONFIG.isPlaceLimited(player) && preview.previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.build.get(player).maxPlaceBlocks) {
+                LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+                
+                if (LittleTiles.CONFIG.isPlaceLimited(player) && preview.previews.getVolumeIncludingChildren() > config.placeBlockLimit.value) {
                     for (BlockPos pos : blocks.keySet())
                         LittleAction.sendBlockResetToClient(level, player, pos);
-                    throw new NotAllowedToPlaceException(player);
+                    throw new NotAllowedToPlaceException(player, config);
                 }
                 
                 if (LittleTiles.CONFIG.isTransparencyRestricted(player))
@@ -189,8 +192,8 @@ public class Placement {
             for (BlockPos snapPos : blocks.keySet())
                 snaps.add(BlockSnapshot.create(level.dimension(), level, snapPos));
             
-            EntityMultiPlaceEvent event = new BlockEvent.EntityMultiPlaceEvent(snaps, level
-                    .getBlockState(preview.position.facing == null ? preview.position.getPos() : preview.position.getPos().relative(preview.position.facing.toVanilla())), player);
+            EntityMultiPlaceEvent event = new BlockEvent.EntityMultiPlaceEvent(snaps, level.getBlockState(preview.position.facing == null ? preview.position
+                    .getPos() : preview.position.getPos().relative(preview.position.facing.toVanilla())), player);
             MinecraftForge.EVENT_BUS.post(event);
             if (event.isCanceled()) {
                 for (BlockPos snapPos : blocks.keySet())
@@ -252,8 +255,8 @@ public class Placement {
         
         if (playSounds)
             for (int i = 0; i < soundsToBePlayed.size(); i++)
-                level.playSound(null, preview.position.getPos(), soundsToBePlayed.get(i)
-                        .getPlaceSound(), SoundSource.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
+                level.playSound(null, preview.position.getPos(), soundsToBePlayed.get(i).getPlaceSound(), SoundSource.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F,
+                    soundsToBePlayed.get(i).getPitch() * 0.8F);
             
         removedTiles.convertToSmallest();
         unplaceableTiles.convertToSmallest();

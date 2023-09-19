@@ -4,6 +4,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.converation.ConfigTypeConveration;
+import team.creative.creativecore.common.config.premade.ToggleableConfig;
 
 public class LittleBuildingConfig {
     
@@ -11,58 +12,39 @@ public class LittleBuildingConfig {
         ConfigTypeConveration.registerTypeCreator(LittleBuildingConfig.class, () -> new LittleBuildingConfig());
     }
     
-    public LittleBuildingConfig() {
-        limitAffectedBlocks = true;
-        editUnbreakable = false;
-        minimumTransparency = 255;
-        limitEditBlocks = true;
-        limitPlaceBlocks = true;
-        harvestLevelBlock = HarvestLevel.WOOD;
-        maxAffectedBlocks = 0;
-        maxEditBlocks = 0;
-        maxPlaceBlocks = 0;
-    }
+    public LittleBuildingConfig() {}
     
     public LittleBuildingConfig(boolean survival) {
-        limitAffectedBlocks = survival;
+        affectedBlockLimit.setEnabled(survival);
+        editBlockLimit.setEnabled(survival);
+        placeBlockLimit.setEnabled(survival);
+        
         editUnbreakable = !survival;
         minimumTransparency = survival ? 255 : 0;
-        limitEditBlocks = survival;
-        limitPlaceBlocks = survival;
         harvestLevelBlock = survival ? HarvestLevel.STONE : HarvestLevel.DIAMOND;
     }
     
     @CreativeConfig
-    public boolean limitAffectedBlocks;
+    public HarvestLevel harvestLevelBlock = HarvestLevel.WOOD;
     
     @CreativeConfig
-    public int maxAffectedBlocks = 2;
-    
-    @CreativeConfig
-    public HarvestLevel harvestLevelBlock;
-    
-    @CreativeConfig
-    public boolean editUnbreakable;
+    public boolean editUnbreakable = false;
     
     @CreativeConfig
     @CreativeConfig.IntRange(min = 0, max = 255)
-    public int minimumTransparency;
+    public int minimumTransparency = 255;
     
     @CreativeConfig
-    public boolean limitEditBlocks;
-    @CreativeConfig
-    public int maxEditBlocks = 10;
+    public ToggleableConfig<Integer> affectedBlockLimit = new ToggleableConfig<Integer>(2, true);
     
     @CreativeConfig
-    public boolean limitPlaceBlocks;
-    @CreativeConfig
-    public int maxPlaceBlocks = 10;
+    public ToggleableConfig<Integer> editBlockLimit = new ToggleableConfig<Integer>(10, true);
     
     @CreativeConfig
-    public boolean limitRecipeSize = false;
+    public ToggleableConfig<Integer> placeBlockLimit = new ToggleableConfig<Integer>(10, true);
     
     @CreativeConfig
-    public int recipeBlocksLimit = 16;
+    public ToggleableConfig<Integer> blueprintSizeLimit = new ToggleableConfig<Integer>(16, false);
     
     public static enum HarvestLevel {
         

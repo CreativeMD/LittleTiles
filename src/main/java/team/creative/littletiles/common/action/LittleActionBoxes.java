@@ -22,6 +22,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.config.LittleBuildingConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -68,8 +69,9 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
         }
         
         if (LittleTiles.CONFIG.isEditLimited(player)) {
-            if (boxes.getSurroundingBox().getPercentVolume(boxes.grid) > LittleTiles.CONFIG.build.get(player).maxEditBlocks)
-                throw new NotAllowedToEditException(player);
+            LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+            if (boxes.getSurroundingBox().getPercentVolume(boxes.grid) > config.editBlockLimit.value)
+                throw new NotAllowedToEditException(player, config);
         }
         
         HashMapList<BlockPos, LittleBox> boxesMap = boxes.generateBlockWise();

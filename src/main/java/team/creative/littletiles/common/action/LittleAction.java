@@ -57,6 +57,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
+import team.creative.littletiles.common.config.LittleBuildingConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
@@ -111,10 +112,11 @@ public abstract class LittleAction<T> extends CreativePacket {
     public abstract LittleAction mirror(Axis axis, LittleBoxAbsolute box);
     
     public static boolean canConvertBlock(Player player, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
-        if (LittleTiles.CONFIG.build.get(player).limitAffectedBlocks && LittleTiles.CONFIG.build.get(player).maxAffectedBlocks < affected)
-            throw new NotAllowedToConvertBlockException(player);
-        if (!LittleTiles.CONFIG.build.get(player).editUnbreakable && state.getBlock().defaultDestroyTime() < 0)
-            throw new NotAllowedToConvertBlockException(player);
+        LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+        if (config.affectedBlockLimit.isEnabled() && config.affectedBlockLimit.value < affected)
+            throw new NotAllowedToConvertBlockException(player, config);
+        if (!config.editUnbreakable && state.getBlock().defaultDestroyTime() < 0)
+            throw new NotAllowedToConvertBlockException(player, config);
         return LittleTiles.CONFIG.canEditBlock(player, state, pos);
     }
     
@@ -271,8 +273,8 @@ public abstract class LittleAction<T> extends CreativePacket {
             return false;
         
         if (WorldEditEvent != null) {
-            PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, new BlockHitResult(Vec3
-                    .atBottomCenterOf(pos), facing.toVanilla(), pos, true)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing.toVanilla());
+            PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, new BlockHitResult(Vec3.atBottomCenterOf(
+                pos), facing.toVanilla(), pos, true)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing.toVanilla());
             try {
                 if (worldEditInstance == null)
                     loadWorldEditEvent();
@@ -292,7 +294,7 @@ public abstract class LittleAction<T> extends CreativePacket {
             return true;
         
         if (tile.hasColor() && ColorUtils.alpha(tile.color) < LittleTiles.CONFIG.getMinimumTransparency(player))
-            throw new NotAllowedToPlaceColorException(player);
+            throw new NotAllowedToPlaceColorException(player, LittleTiles.CONFIG.build.get(player));
         
         return true;
     }

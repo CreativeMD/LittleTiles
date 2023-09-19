@@ -29,18 +29,18 @@ public class LittleTilesConfig {
     public Building building = new Building();
     
     @CreativeConfig
-    public Permission<LittleBuildingConfig> build = new Permission<LittleBuildingConfig>(new LittleBuildingConfig()).add("survival", new LittleBuildingConfig(true))
-            .add("creative", new LittleBuildingConfig(false));
+    public Permission<LittleBuildingConfig> build = new Permission<LittleBuildingConfig>(new LittleBuildingConfig()).add("survival", new LittleBuildingConfig(true)).add("creative",
+        new LittleBuildingConfig(false));
     
     @CreativeConfig(type = ConfigSynchronization.CLIENT)
     public Rendering rendering = new Rendering();
     
     public boolean isEditLimited(Player player) {
-        return build.get(player).limitEditBlocks;
+        return build.get(player).editBlockLimit.isEnabled();
     }
     
     public boolean isPlaceLimited(Player player) {
-        return build.get(player).limitPlaceBlocks;
+        return build.get(player).placeBlockLimit.isEnabled();
     }
     
     public boolean canEditBlock(Player player, BlockState state, BlockPos pos) {
@@ -63,14 +63,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToConvertBlockException(Player player) {
+        public NotAllowedToConvertBlockException(Player player, LittleBuildingConfig config) {
             super("exception.permission.convert");
-            config = LittleTiles.CONFIG.build.get(player);
+            this.config = config;
         }
         
         @Override
         public String getLocalizedMessage() {
-            return LanguageUtils.translate(getMessage(), config.maxAffectedBlocks);
+            return LanguageUtils.translate(getMessage(), config.affectedBlockLimit.value);
         }
     }
     
@@ -78,14 +78,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToEditException(Player player) {
+        public NotAllowedToEditException(Player player, LittleBuildingConfig config) {
             super("exception.permission.edit");
-            config = LittleTiles.CONFIG.build.get(player);
+            this.config = config;
         }
         
         @Override
         public String getLocalizedMessage() {
-            return LanguageUtils.translate(getMessage(), config.maxEditBlocks);
+            return LanguageUtils.translate(getMessage(), config.editBlockLimit);
         }
         
     }
@@ -94,14 +94,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceException(Player player) {
+        public NotAllowedToPlaceException(Player player, LittleBuildingConfig config) {
             super("exception.permission.place");
-            config = LittleTiles.CONFIG.build.get(player);
+            this.config = config;
         }
         
         @Override
         public String getLocalizedMessage() {
-            return LanguageUtils.translate(getMessage(), config.maxPlaceBlocks);
+            return LanguageUtils.translate(getMessage(), config.placeBlockLimit);
         }
         
     }
@@ -123,9 +123,9 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public NotAllowedToPlaceColorException(Player player) {
+        public NotAllowedToPlaceColorException(Player player, LittleBuildingConfig config) {
             super("exception.permission.place.color");
-            config = LittleTiles.CONFIG.build.get(player);
+            this.config = config;
         }
         
         @Override
@@ -147,14 +147,14 @@ public class LittleTilesConfig {
         
         public LittleBuildingConfig config;
         
-        public AreaTooLarge(Player player) {
+        public AreaTooLarge(Player player, LittleBuildingConfig config) {
             super("exception.permission.recipe.size");
-            config = LittleTiles.CONFIG.build.get(player);
+            this.config = config;
         }
         
         @Override
         public String getLocalizedMessage() {
-            return LanguageUtils.translate(getMessage(), config.recipeBlocksLimit);
+            return LanguageUtils.translate(getMessage(), config.blueprintSizeLimit);
         }
         
     }
