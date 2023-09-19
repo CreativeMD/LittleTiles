@@ -739,22 +739,22 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     @OnlyIn(Dist.CLIENT)
     public List<RenderBox> getRenderingBoxes(boolean translucent) {
         List<RenderBox> boxes = new ArrayList<>();
-        addRenderingBoxes(boxes, translucent);
+        addRenderingBoxes(boxes, translucent, !hasChildren());
         return boxes;
     }
     
     @OnlyIn(Dist.CLIENT)
-    protected void addRenderingBoxes(List<RenderBox> boxes, boolean translucent) {
+    protected void addRenderingBoxes(List<RenderBox> boxes, boolean translucent, boolean itemPreview) {
         for (LittleTile tile : content)
             if (tile.isTranslucent() == translucent)
                 tile.addRenderingBoxes(grid, boxes);
-        if (hasStructure()) {
+        if (hasStructure() && itemPreview) {
             List<RenderBox> structureBoxes = getStructureType().getItemPreview(this, translucent);
             if (structureBoxes != null)
                 boxes.addAll(structureBoxes);
         }
         for (LittleGroup child : children.all())
-            child.addRenderingBoxes(boxes, translucent);
+            child.addRenderingBoxes(boxes, translucent, false);
     }
     
     public boolean isVolumeEqual(LittleGroup previews) {
