@@ -112,7 +112,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
                 ItemMultiTiles.currentGrid = grid;
                 ItemMultiTiles.currentMode = mode;
-                return nbt;
+                return null;
             }
             
         };
@@ -148,7 +148,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
                 example.stack.setTag(nbt);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Could not load '" + example.name() + " example structure!");
+                LittleTiles.LOGGER.error("Could not load '{}' example structure!", example.name());
             }
         }
     }
