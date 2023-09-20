@@ -18,6 +18,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
@@ -44,9 +45,6 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
         stack.setTag(LittleGroup.save(group));
         return stack;
     }
-    
-    public static PlacementMode currentMode = PlacementMode.getDefault();
-    public static LittleGrid currentGrid;
     
     public ItemMultiTiles() {
         super(new Item.Properties());
@@ -100,18 +98,12 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     }
     
     @Override
-    public PlacementMode getPlacementMode(ItemStack stack) {
-        return currentMode;
-    }
-    
-    @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemMultiTiles.currentMode) {
+        return new GuiModeSelector(view, LittleTilesClient.grid(), LittleTilesClient.placementMode()) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
-                ItemMultiTiles.currentGrid = grid;
-                ItemMultiTiles.currentMode = mode;
+                LittleTilesClient.setPlace(grid, mode);
                 return null;
             }
             
@@ -121,11 +113,6 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     @Override
     public boolean containsIngredients(ItemStack stack) {
         return true;
-    }
-    
-    @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return currentGrid;
     }
     
     @Override

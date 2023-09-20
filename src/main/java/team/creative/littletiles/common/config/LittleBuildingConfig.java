@@ -46,6 +46,9 @@ public class LittleBuildingConfig {
     @CreativeConfig
     public ToggleableConfig<Integer> blueprintSizeLimit = new ToggleableConfig<Integer>(16, false);
     
+    @CreativeConfig
+    public ToggleableConfig<Integer> gridLimit = new ToggleableConfig<Integer>(32, false);
+    
     public static enum HarvestLevel {
         
         DIAMOND {

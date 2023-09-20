@@ -19,11 +19,13 @@ import team.creative.littletiles.client.action.ActionEvent.ActionType;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.level.handler.LevelHandler;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleActionHandlerClient extends LevelHandler {
     
     private static final Minecraft mc = Minecraft.getInstance();
+    public PlacementPlayerSetting setting = new PlacementPlayerSetting();
     
     public static boolean canUseUndoOrRedo() {
         GameType type = PlayerUtils.getGameType(mc.player);

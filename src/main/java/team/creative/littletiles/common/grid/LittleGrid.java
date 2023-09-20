@@ -89,6 +89,13 @@ public class LittleGrid {
         throw new LittleGridException(grid);
     }
     
+    public static LittleGrid getOrDefault(int grid) {
+        for (int i = 0; i < grids.length; i++)
+            if (grids[i].count == grid)
+                return grids[i];
+        return defaultGrid();
+    }
+    
     public static LittleGrid defaultGrid() {
         if (defaultIndex != -1)
             return grids[defaultIndex];

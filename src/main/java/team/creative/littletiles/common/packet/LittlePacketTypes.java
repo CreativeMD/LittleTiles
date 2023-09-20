@@ -33,6 +33,7 @@ import team.creative.littletiles.common.packet.entity.animation.LittleBlockChang
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
@@ -429,8 +430,8 @@ public class LittlePacketTypes {
             
             @Override
             protected PlacementPreview readContent(FriendlyByteBuf buffer) {
-                return PlacementPreview.load(buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes.read(LittleGroup.class, buffer), NetworkFieldTypes
-                        .read(PlacementMode.class, buffer), NetworkFieldTypes.read(PlacementPosition.class, buffer), NetworkFieldTypes.read(LittleBoxAbsolute.class, buffer));
+                return PlacementPreview.load(buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes.read(LittleGroup.class, buffer), NetworkFieldTypes.read(
+                    PlacementMode.class, buffer), NetworkFieldTypes.read(PlacementPosition.class, buffer), NetworkFieldTypes.read(LittleBoxAbsolute.class, buffer));
             }
             
         }, PlacementPreview.class);
@@ -479,5 +480,18 @@ public class LittlePacketTypes {
                 return new AnimationTimeline(buffer.readAnySizeNbt());
             }
         }, AnimationTimeline.class);
+        
+        NetworkFieldTypes.register(new NetworkFieldTypeClass<PlacementPlayerSetting>() {
+            
+            @Override
+            protected void writeContent(PlacementPlayerSetting content, FriendlyByteBuf buffer) {
+                buffer.writeNbt(content.save());
+            }
+            
+            @Override
+            protected PlacementPlayerSetting readContent(FriendlyByteBuf buffer) {
+                return new PlacementPlayerSetting(buffer.readAnySizeNbt());
+            }
+        }, PlacementPlayerSetting.class);
     }
 }

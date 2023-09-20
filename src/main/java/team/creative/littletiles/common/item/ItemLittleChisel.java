@@ -31,7 +31,6 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiChisel;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
@@ -172,7 +171,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     public void tick(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (selection == null)
             selection = new ShapeSelection(stack, false);
-        selection.setLast(player, stack, getPosition(position, result, currentMode), result);
+        selection.setLast(player, stack, getPosition(position, result, LittleTilesClient.placementMode()), result);
     }
     
     @Override
@@ -219,7 +218,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
             selection = null;
             LittleTilesClient.PREVIEW_RENDERER.removeMarked();
         } else if (selection != null)
-            return selection.addAndCheckIfPlace(player, getPosition(position, result, currentMode), result);
+            return selection.addAndCheckIfPlace(player, getPosition(position, result, LittleTilesClient.placementMode()), result);
         return false;
     }
     
@@ -242,13 +241,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
         return new GuiChisel(view);
     }
     
-    public static PlacementMode currentMode = PlacementMode.FILL;
-    
-    @Override
-    public PlacementMode getPlacementMode(ItemStack stack) {
-        return currentMode;
-    }
-    
     @Override
     @OnlyIn(Dist.CLIENT)
     public IMarkMode onMark(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result, PlacementPreview previews) {
@@ -260,11 +252,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @Override
     public boolean containsIngredients(ItemStack stack) {
         return false;
-    }
-    
-    @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentGrid;
     }
     
     @Override

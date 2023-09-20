@@ -7,14 +7,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.NBTUtils;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
@@ -61,19 +60,12 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentGrid;
-    }
-    
-    @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, ItemMultiTiles.currentGrid, ItemLittleChisel.currentMode) {
+        return new GuiModeSelector(view, LittleTilesClient.grid(), LittleTilesClient.placementMode()) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
-                ItemLittleChisel.currentMode = mode;
-                ItemMultiTiles.currentGrid = grid;
+                LittleTilesClient.setPlace(grid, mode);
                 return nbt;
             }
         };
@@ -159,13 +151,6 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
     @Override
     public boolean containsIngredients(ItemStack stack) {
         return true;
-    }
-    
-    @Override
-    public PlacementMode getPlacementMode(ItemStack stack) {
-        if (!ItemMultiTiles.currentMode.canPlaceStructures())
-            return PlacementMode.getStructureDefault();
-        return ItemMultiTiles.currentMode;
     }
     
     @Override

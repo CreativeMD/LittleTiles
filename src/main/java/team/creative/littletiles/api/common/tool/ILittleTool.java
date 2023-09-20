@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -21,7 +22,10 @@ import team.creative.littletiles.common.placement.mark.MarkMode;
 
 public interface ILittleTool {
     
-    public LittleGrid getPositionGrid(ItemStack stack);
+    @OnlyIn(Dist.CLIENT)
+    public default LittleGrid getPositionGrid(ItemStack stack) {
+        return LittleTilesClient.grid();
+    }
     
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client);
     

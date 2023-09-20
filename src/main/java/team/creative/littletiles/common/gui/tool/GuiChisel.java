@@ -21,6 +21,7 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.element.LittleElement.NotBlockException;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
@@ -52,7 +53,7 @@ public class GuiChisel extends GuiConfigureTool {
                     builder.text("" + ChatFormatting.BOLD).translate("placement.mode.placestructure").text("" + ChatFormatting.WHITE).newLine();
                 builder.translate(modeBox.getSelected().translatableKey() + ".tooltip");
                 ((GuiLabel) get("text")).setTitle(builder.build());
-                ItemMultiTiles.currentMode = modeBox.getSelected();
+                LittleTilesClient.placementMode(modeBox.getSelected());
             }
         });
     }
@@ -72,8 +73,8 @@ public class GuiChisel extends GuiConfigureTool {
         GuiParent parent = new GuiParent(GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         left.add(parent);
         parent.add(new GuiShowItem("item").setDim(60, 60));
-        parent.add(new GuiGridConfig("grid", ItemMultiTiles.currentGrid, x -> {
-            ItemMultiTiles.currentGrid = x;
+        parent.add(new GuiGridConfig("grid", LittleTilesClient.grid(), x -> {
+            LittleTilesClient.grid(x);
             if (ItemLittleChisel.selection != null)
                 ItemLittleChisel.selection.convertTo(x);
         }));
@@ -81,8 +82,8 @@ public class GuiChisel extends GuiConfigureTool {
         GuiStackSelector selector = new GuiStackSelector("preview", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         selector.setSelectedForce(element.getBlock().getStack());
         left.add(selector);
-        GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>()
-                .addComponent(ShapeRegistry.placingShapes(), x -> Component.translatable(x.getTranslatableName())));
+        GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>().addComponent(ShapeRegistry.placingShapes(), x -> Component
+                .translatable(x.getTranslatableName())));
         box.select(ItemLittleChisel.getShape(tool.get()));
         left.add(box);
         left.add(new GuiScrollY("settings").setDim(20, 60).setExpandable());
@@ -91,7 +92,7 @@ public class GuiChisel extends GuiConfigureTool {
         add(right);
         
         GuiComboBoxMapped<PlacementMode> modeBox = new GuiComboBoxMapped<>("mode", PlacementMode.map());
-        modeBox.select(ItemMultiTiles.currentMode);
+        modeBox.select(LittleTilesClient.placementMode());
         right.add(modeBox);
         right.add(new GuiLabel("text"));
         raiseEvent(new GuiControlChangedEvent(modeBox));

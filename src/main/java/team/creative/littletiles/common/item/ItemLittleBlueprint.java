@@ -22,7 +22,6 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeSelection;
@@ -33,7 +32,6 @@ import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAct
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
-import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 
 public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemTooltip {
@@ -139,16 +137,6 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
-    public PlacementMode getPlacementMode(ItemStack stack) {
-        return ItemMultiTiles.currentMode;
-    }
-    
-    @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentGrid;
-    }
-    
-    @Override
     public LittleVec getCachedSize(ItemStack stack) {
         return LittleGroup.getSize(stack.getOrCreateTagElement(CONTENT_KEY));
     }
@@ -160,8 +148,8 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage(), Minecraft.getInstance().options.keyUse
-                .getTranslatedKeyMessage(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
+        return new Object[] { Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage(), Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(), Minecraft
+                .getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
     
     public static SelectionMode getSelectionMode(ItemStack stack) {

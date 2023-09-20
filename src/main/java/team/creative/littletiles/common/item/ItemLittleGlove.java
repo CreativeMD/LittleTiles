@@ -18,14 +18,12 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiGlove;
 import team.creative.littletiles.common.item.glove.GloveMode;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
-import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip {
     
@@ -115,18 +113,8 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public PlacementMode getPlacementMode(ItemStack stack) {
-        return ItemMultiTiles.currentMode;
-    }
-    
-    @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         return new GuiGlove(ItemLittleGlove.getMode(view.get()), view, 140, 140, ((ILittlePlacer) view.get().getItem()).getPositionGrid(view.get()));
-    }
-    
-    @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentGrid;
     }
     
     @Override

@@ -33,7 +33,6 @@ import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleAc
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiHammer;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
@@ -174,11 +173,6 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     public static LittleShape getShape(ItemStack stack) {
         return ShapeRegistry.REGISTRY.get(stack.getOrCreateTag().getString("shape"));
-    }
-    
-    @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentGrid;
     }
     
     @Override

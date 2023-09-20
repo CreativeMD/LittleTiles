@@ -33,7 +33,6 @@ import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiPaintBrush;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
@@ -136,8 +135,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (ItemLittleHammer.isFiltered())
-                    LittleTilesClient.ACTION_HANDLER
-                            .execute(new LittleActionColorBoxesFiltered(level, selection.getBoxes(false), getColor(stack), false, ItemLittleHammer.getFilter()));
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxesFiltered(level, selection.getBoxes(false), getColor(stack), false, ItemLittleHammer
+                            .getFilter()));
                 else
                     LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, selection.getBoxes(false), getColor(stack), false));
                 selection = null;
@@ -168,11 +167,6 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
             selection.mirror(player, stack, axis);
         else
             new ShapeSelection(stack, false).mirror(player, stack, axis);
-    }
-    
-    @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return ItemMultiTiles.currentGrid;
     }
     
     @Override

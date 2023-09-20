@@ -17,6 +17,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.filter.TileFilters;
@@ -26,7 +27,6 @@ import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.item.ItemLittleHammer;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
-import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 
@@ -64,15 +64,15 @@ public class GuiPaintBrush extends GuiConfigureTool {
         Color color = new Color(ItemLittlePaintBrush.getColor(tool.get()));
         add(new GuiColorPicker("picker", color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
         
-        GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>()
-                .addComponent(ShapeRegistry.REGISTRY.values(), x -> Component.translatable(x.getTranslatableName())));
+        GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>().addComponent(ShapeRegistry.REGISTRY.values(), x -> Component
+                .translatable(x.getTranslatableName())));
         box.select(ItemLittleHammer.getShape(tool.get()));
         GuiScrollY scroll = new GuiScrollY("settings").setExpandable();
         add(box);
         add(scroll);
         
-        add(new GuiGridConfig("grid", ItemMultiTiles.currentGrid, x -> {
-            ItemMultiTiles.currentGrid = x;
+        add(new GuiGridConfig("grid", LittleTilesClient.grid(), x -> {
+            LittleTilesClient.grid(x);
             if (ItemLittlePaintBrush.selection != null)
                 ItemLittlePaintBrush.selection.convertTo(x);
         }));

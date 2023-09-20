@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -74,10 +75,9 @@ public interface ILittlePlacer extends ILittleTool {
         return true;
     }
     
+    @OnlyIn(Dist.CLIENT)
     public default PlacementMode getPlacementMode(ItemStack stack) {
-        if (stack.hasTag())
-            return PlacementMode.getMode(stack.getTag().getString("mode"));
-        return PlacementMode.getDefault();
+        return LittleTilesClient.placementMode();
     }
     
     public default boolean canSnapToGrid(ItemStack stack) {

@@ -83,6 +83,7 @@ import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.item.glove.GloveMode;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 @OnlyIn(Dist.CLIENT)
@@ -123,6 +124,26 @@ public class LittleTilesClient {
     public static KeyMapping redo;
     
     public static BETilesRenderer blockEntityRenderer;
+    
+    public static LittleGrid grid() {
+        return ACTION_HANDLER.setting.grid();
+    }
+    
+    public static PlacementMode placementMode() {
+        return ACTION_HANDLER.setting.placementMode();
+    }
+    
+    public static void grid(LittleGrid grid) {
+        ACTION_HANDLER.setting.grid(grid);
+    }
+    
+    public static void placementMode(PlacementMode mode) {
+        ACTION_HANDLER.setting.placementMode(mode);
+    }
+    
+    public static void setPlace(LittleGrid grid, PlacementMode mode) {
+        ACTION_HANDLER.setting.set(grid, mode);
+    }
     
     public static void displayActionMessage(List<Component> message) {
         // TODO Readd action message overlay
