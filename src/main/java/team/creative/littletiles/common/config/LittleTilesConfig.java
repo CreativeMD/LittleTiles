@@ -3,6 +3,8 @@ package team.creative.littletiles.common.config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.Side;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.api.ICreativeConfig;
@@ -10,6 +12,7 @@ import team.creative.creativecore.common.config.premade.Permission;
 import team.creative.creativecore.common.config.sync.ConfigSynchronization;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -262,10 +265,16 @@ public class LittleTilesConfig {
         @Override
         public void configured(Side side) {
             LittleGrid.loadGrid(base, scale, exponent, LittleTiles.CONFIG.general.defaultSelectedGrid);
-            ItemMultiTiles.currentGrid = LittleGrid.defaultGrid();
+            if (side.isClient())
+                configuredClient();
             ItemLittleBag.maxStackSizeOfTiles = (int) (ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d);
             LittlePremadeRegistry.reload();
             ItemMultiTiles.reloadExampleStructures();
+        }
+        
+        @OnlyIn(Dist.CLIENT)
+        private void configuredClient() {
+            LittleTilesClient.ACTION_HANDLER.setting.refreshGrid();
         }
     }
     
