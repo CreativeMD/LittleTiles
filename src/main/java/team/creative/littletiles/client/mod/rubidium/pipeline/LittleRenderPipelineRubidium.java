@@ -32,7 +32,6 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRende
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
 import me.jellysquid.mods.sodium.client.render.texture.SpriteUtil;
-import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -57,7 +56,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.mod.oculus.OculusManager;
 import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumBufferCache;
-import team.creative.littletiles.client.mod.rubidium.level.WorldSliceExtender;
+import team.creative.littletiles.client.mod.rubidium.level.LittleWorldSlice;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -81,7 +80,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     }
     
     private ChunkBuildBuffers buildBuffers;
-    private WorldSlice slice = WorldSliceExtender.createEmptySlice();
+    private LittleWorldSlice slice = LittleWorldSlice.createEmptySlice();
     private BlockRenderer renderer;
     private LittleLightDataAccess lightAccess;
     private LightPipelineProvider lighters;
@@ -109,7 +108,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
         while (renderLevel instanceof LittleSubLevel sub && !sub.shouldUseLightingForRenderig())
             renderLevel = sub.getParent();
         
-        ((WorldSliceExtender) (Object) slice).setParent(renderLevel);
+        slice.parent = renderLevel;
         ((BlockRenderContextAccessor) context).setWorld(slice);
         
         BlockPos pos = data.be.getBlockPos();
@@ -222,6 +221,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             sprites.clear();
         }
         
+        slice.parent = null;
     }
     
     @Override

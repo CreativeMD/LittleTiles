@@ -65,7 +65,6 @@
         "rubidium.SectionRenderDataStorageAccessor",
         "rubidium.SodiumWorldRendererAccessor",
         "rubidium.TerrainRenderPassAccessor",
-        "rubidium.WorldSliceMixin",
         "oculus.XHFPTerrainVertexMixin"
     ],
     "minVersion": "0.8"
