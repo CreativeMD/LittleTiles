@@ -97,6 +97,8 @@ public class LittleGrid {
     }
     
     public static LittleGrid defaultGrid() {
+        if (grids == null)
+            return null;
         if (defaultIndex != -1)
             return grids[defaultIndex];
         return null;
