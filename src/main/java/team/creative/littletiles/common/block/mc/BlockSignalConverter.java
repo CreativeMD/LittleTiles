@@ -25,7 +25,7 @@ import team.creative.littletiles.common.block.entity.BESignalConverter;
 
 public class BlockSignalConverter extends BaseEntityBlock {
     
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
     
     public BlockSignalConverter() {
         super(BlockBehaviour.Properties.of().sound(SoundType.METAL));
@@ -33,27 +33,27 @@ public class BlockSignalConverter extends BaseEntityBlock {
     
     @Override
     public BlockState rotate(BlockState state, LevelAccessor world, BlockPos pos, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(HORIZONTAL_FACING, rotation.rotate(state.getValue(HORIZONTAL_FACING)));
     }
     
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(HORIZONTAL_FACING, rotation.rotate(state.getValue(HORIZONTAL_FACING)));
     }
     
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(HORIZONTAL_FACING, mirror.mirror(state.getValue(HORIZONTAL_FACING)));
     }
     
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(HORIZONTAL_FACING);
     }
     
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getClickedFace().getOpposite());
+        return this.defaultBlockState().setValue(HORIZONTAL_FACING, context.getHorizontalDirection());
     }
     
     @Override
@@ -73,7 +73,7 @@ public class BlockSignalConverter extends BaseEntityBlock {
         if (result.isEmpty())
             return;
         
-        Direction direction = level.getBlockState(pos).getValue(FACING);
+        Direction direction = level.getBlockState(pos).getValue(HORIZONTAL_FACING);
         
         if (!level.isClientSide())
             result.get().setPower(getPowerOnSide(level, pos.relative(direction.getOpposite()), direction));
@@ -86,7 +86,7 @@ public class BlockSignalConverter extends BaseEntityBlock {
     
     @Override
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
-        if (state.getValue(FACING) == side.getOpposite()) {
+        if (state.getValue(HORIZONTAL_FACING) == side.getOpposite()) {
             Optional<BESignalConverter> result = level.getBlockEntity(pos, LittleTilesRegistry.BE_SIGNALCONVERTER_TYPE.get());
             if (result.isPresent())
                 return result.get().getPower();
@@ -96,7 +96,7 @@ public class BlockSignalConverter extends BaseEntityBlock {
     
     @Override
     public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
-        return state.getValue(FACING) == direction;
+        return state.getValue(HORIZONTAL_FACING) == direction;
     }
     
     public static int getPowerOnSide(LevelReader level, BlockPos pos, Direction side) {
