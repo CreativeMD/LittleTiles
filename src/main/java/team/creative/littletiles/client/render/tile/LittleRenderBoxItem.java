@@ -6,9 +6,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -18,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.client.render.VertexFormatUtils;
 import team.creative.creativecore.client.render.box.QuadGeneratorContext;
 import team.creative.creativecore.client.render.model.CreativeBakedQuad;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -122,15 +120,13 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         
         boolean reverse = ((flipX ? 1 : 0) + (flipY ? 1 : 0) + (flipZ ? 1 : 0)) % 2 == 1;
         
-        VertexFormat format = DefaultVertexFormat.BLOCK;
-        
         List<BakedQuad> quads = new ArrayList<>();
         for (int i = 0; i < blockQuads.size(); i++) {
             int[] originalData = blockQuads.get(i).getVertices();
             CreativeBakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, defaultColor, overrideTint, null);
             
             for (int k = 0; k < 4; k++) {
-                int index = k * format.getIntegerSize();
+                int index = k * VertexFormatUtils.blockFormatIntSize();
                 Vec3f vec = new Vec3f(Float.intBitsToFloat(originalData[index]), Float.intBitsToFloat(originalData[index + 1]), Float.intBitsToFloat(originalData[index + 2]));
                 
                 vec.sub(center);
@@ -156,12 +152,12 @@ public class LittleRenderBoxItem extends LittleRenderBox {
                 
                 int newIndex = index;
                 if (reverse)
-                    newIndex = (3 - k) * format.getIntegerSize();
+                    newIndex = (3 - k) * VertexFormatUtils.blockFormatIntSize();
                 quad.getVertices()[newIndex] = Float.floatToIntBits(vec.x + offset.getX());
                 quad.getVertices()[newIndex + 1] = Float.floatToIntBits(vec.y + offset.getY());
                 quad.getVertices()[newIndex + 2] = Float.floatToIntBits(vec.z + offset.getZ());
                 if (reverse)
-                    for (int j = 3; j < format.getIntegerSize(); j++)
+                    for (int j = 3; j < VertexFormatUtils.blockFormatIntSize(); j++)
                         quad.getVertices()[newIndex + j] = originalData[index + j];
             }
             quads.add(quad);
