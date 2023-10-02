@@ -18,9 +18,9 @@ import me.jellysquid.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import me.jellysquid.mods.sodium.client.util.task.CancellationToken;
+import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.mod.rubidium.data.BuiltSectionMeshPartsExtender;
@@ -55,12 +55,13 @@ public class ChunkBuilderMeshingTaskMixin implements RebuildTaskExtender {
     @Redirect(
             method = "execute(Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lme/jellysquid/mods/sodium/client/util/task/CancellationToken;)Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
             remap = false, require = 1, at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;getRenderer(Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderer;",
+                    target = "Lme/jellysquid/mods/sodium/client/world/WorldSlice;getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;",
                     remap = true))
-    public BlockEntityRenderer<BlockEntity> getRendererRedirect(BlockEntityRenderDispatcher dispatcher, BlockEntity entity) {
+    public BlockEntity getBlockEntity(WorldSlice slice, BlockPos pos) {
+        BlockEntity entity = slice.getBlockEntity(pos);
         if (entity instanceof BETiles be)
             LittleRenderPipelineType.compile((RenderChunkExtender) render, be, this);
-        return dispatcher.getRenderer(entity);
+        return entity;
     }
     
     @Inject(at = @At("TAIL"), remap = false, require = 1,
