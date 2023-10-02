@@ -117,7 +117,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
             if (level instanceof ClientLevel client)
                 mc.getTutorial().onDestroyBlock(client, pos, blockstate, 1.0F);
             this.startPrediction(level, (sequence) -> {
-                if (!ForgeHooks.onLeftClickBlock(player, pos, direction).isCanceled())
+                if (!ForgeHooks.onLeftClickBlock(player, pos, direction, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK).isCanceled())
                     this.destroyBlock(level, pos);
                 return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, pos, direction, sequence);
             });
@@ -127,9 +127,9 @@ public class LittleInteractionHandlerClient extends LevelHandler {
         
         if (!this.isDestroying || !this.sameDestroyTarget(level, pos)) {
             if (this.isDestroying)
-                LittleTilesClient.PLAYER_CONNECTION
-                        .send(level, new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, direction));
-            PlayerInteractEvent.LeftClickBlock event = ForgeHooks.onLeftClickBlock(player, pos, direction);
+                LittleTilesClient.PLAYER_CONNECTION.send(level,
+                    new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, direction));
+            PlayerInteractEvent.LeftClickBlock event = ForgeHooks.onLeftClickBlock(player, pos, direction, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK);
             
             BlockState blockstate1 = level.getBlockState(pos);
             if (level instanceof ClientLevel client)
@@ -169,8 +169,8 @@ public class LittleInteractionHandlerClient extends LevelHandler {
             BlockState blockstate = destroyLevel.getBlockState(this.destroyBlockPos);
             if (destroyLevel instanceof ClientLevel client)
                 mc.getTutorial().onDestroyBlock(client, this.destroyBlockPos, blockstate, -1.0F);
-            LittleTilesClient.PLAYER_CONNECTION
-                    .send(destroyLevel, new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, Direction.DOWN));
+            LittleTilesClient.PLAYER_CONNECTION.send(destroyLevel,
+                new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, this.destroyBlockPos, Direction.DOWN));
             this.isDestroying = false;
             this.destroyLevel.destroyBlockProgress(player.getId(), this.destroyBlockPos, -1);
             this.destroyLevel = null;
@@ -195,7 +195,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
             if (level instanceof ClientLevel client)
                 mc.getTutorial().onDestroyBlock(client, pos, blockstate1, 1.0F);
             this.startPrediction(level, (sequence) -> {
-                if (!ForgeHooks.onLeftClickBlock(player, pos, direction).isCanceled())
+                if (!ForgeHooks.onLeftClickBlock(player, pos, direction, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK).isCanceled())
                     this.destroyBlock(level, pos);
                 return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, pos, direction, sequence);
             });
@@ -213,14 +213,14 @@ public class LittleInteractionHandlerClient extends LevelHandler {
             this.destroyProgress += blockstate.getDestroyProgress(player, level, pos);
             if (this.destroyTicks % 4.0F == 0.0F) {
                 SoundType soundtype = blockstate.getSoundType(level, pos, player);
-                mc.getSoundManager().play(new SimpleSoundInstance(soundtype
-                        .getHitSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, SoundInstance.createUnseededRandom(), pos));
+                mc.getSoundManager().play(new SimpleSoundInstance(soundtype.getHitSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype
+                        .getPitch() * 0.5F, SoundInstance.createUnseededRandom(), pos));
             }
             
             ++this.destroyTicks;
             if (level instanceof ClientLevel client)
                 mc.getTutorial().onDestroyBlock(client, pos, blockstate, Mth.clamp(this.destroyProgress, 0.0F, 1.0F));
-            if (ForgeHooks.onLeftClickBlock(player, pos, direction).getUseItem() == Event.Result.DENY)
+            if (ForgeHooks.onLeftClickBlock(player, pos, direction, ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK).getUseItem() == Event.Result.DENY)
                 return true;
             if (this.destroyProgress >= 1.0F) {
                 this.isDestroying = false;
@@ -293,8 +293,8 @@ public class LittleInteractionHandlerClient extends LevelHandler {
                 return result;
         }
         
-        boolean flag = !player.getMainHandItem().doesSneakBypassUse(player.level(), blockpos, player) || !player.getOffhandItem()
-                .doesSneakBypassUse(player.level(), blockpos, player);
+        boolean flag = !player.getMainHandItem().doesSneakBypassUse(player.level(), blockpos, player) || !player.getOffhandItem().doesSneakBypassUse(player.level(), blockpos,
+            player);
         boolean flag1 = player.isSecondaryUseActive() && flag;
         BlockState blockstate = level.getBlockState(blockpos);
         if (!getVanillaConnection().isFeatureEnabled(blockstate.getBlock().requiredFeatures()))

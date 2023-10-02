@@ -28,7 +28,14 @@ import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
+import net.minecraft.network.protocol.common.ClientboundKeepAlivePacket;
+import net.minecraft.network.protocol.common.ClientboundPingPacket;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPacket;
+import net.minecraft.network.protocol.common.ClientboundUpdateTagsPacket;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.status.ClientboundPongResponsePacket;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -38,6 +45,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -217,18 +225,33 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         
         Entity entity = LittleTilesClient.ANIMATION_HANDLER.pollEntityInTransition(packet);
         if (entity == null)
-            entity = packet.getType().create(this.level);
+            entity = this.createEntityFromPacket(packet);
         
         if (entity != null) {
             entity.recreateFromPacket(packet);
-            int i = packet.getId();
             if (level instanceof LittleAnimationLevel a)
                 a.addFreshEntityFromPacket(entity);
             else
-                requiresClientLevel().putNonPlayerEntity(i, entity);
+                requiresClientLevel().addEntity(entity);
             vanillaAccessor().callPostAddEntitySoundInstance(entity);
         } else
             LOGGER.warn("Skipping Entity with id {}", packet.getType());
+    }
+    
+    @Nullable
+    private Entity createEntityFromPacket(ClientboundAddEntityPacket packet) {
+        EntityType<?> entitytype = packet.getType();
+        if (entitytype == EntityType.PLAYER) {
+            PlayerInfo playerinfo = vanilla().getPlayerInfo(packet.getUUID());
+            if (playerinfo == null) {
+                LOGGER.warn("Server attempted to add player prior to sending player info (Player id {})", packet.getUUID());
+                return null;
+            } else {
+                return new RemotePlayer(requiresClientLevel(), playerinfo.getProfile());
+            }
+        } else {
+            return entitytype.create(this.level);
+        }
     }
     
     @Override
@@ -240,7 +263,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         entity.setYRot(0.0F);
         entity.setXRot(0.0F);
         entity.setId(packet.getId());
-        level.putNonPlayerEntity(packet.getId(), entity);
+        level.addEntity(entity);
     }
     
     @Override
@@ -260,30 +283,6 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     }
     
     @Override
-    public void handleAddPlayer(ClientboundAddPlayerPacket packet) {
-        ensureRunningOnSameThread(packet);
-        ClientLevel level = requiresClientLevel();
-        PlayerInfo playerinfo = vanilla().getPlayerInfo(packet.getPlayerId());
-        if (playerinfo == null) {
-            LOGGER.warn("Server attempted to add player prior to sending player info (Player id {})", packet.getPlayerId());
-            return;
-        }
-        
-        double d0 = packet.getX();
-        double d1 = packet.getY();
-        double d2 = packet.getZ();
-        float f = packet.getyRot() * 360 / 256.0F;
-        float f1 = packet.getxRot() * 360 / 256.0F;
-        int i = packet.getEntityId();
-        RemotePlayer remoteplayer = new RemotePlayer(mc.level, playerinfo.getProfile());
-        remoteplayer.setId(i);
-        remoteplayer.syncPacketPositionCodec(d0, d1, d2);
-        remoteplayer.absMoveTo(d0, d1, d2, f, f1);
-        remoteplayer.setOldPosAndRot();
-        level.addPlayer(i, remoteplayer);
-    }
-    
-    @Override
     public void handleTeleportEntity(ClientboundTeleportEntityPacket packet) {
         ensureRunningOnSameThread(packet);
         Entity entity = this.level.getEntity(packet.getId());
@@ -295,7 +294,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
             if (!entity.isControlledByLocalInstance()) {
                 float f = packet.getyRot() * 360 / 256.0F;
                 float f1 = packet.getxRot() * 360 / 256.0F;
-                entity.lerpTo(d0, d1, d2, f, f1, 3, true);
+                entity.lerpTo(d0, d1, d2, f, f1, 3);
                 entity.setOnGround(packet.isOnGround());
             }
             
@@ -319,11 +318,11 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
                     vecdeltacodec.setBase(vec3);
                     float f = packet.hasRotation() ? packet.getyRot() * 360 / 256.0F : entity.getYRot();
                     float f1 = packet.hasRotation() ? packet.getxRot() * 360 / 256.0F : entity.getXRot();
-                    entity.lerpTo(vec3.x(), vec3.y(), vec3.z(), f, f1, 3, false);
+                    entity.lerpTo(vec3.x(), vec3.y(), vec3.z(), f, f1, 3);
                 } else if (packet.hasRotation()) {
                     float f2 = packet.getyRot() * 360 / 256.0F;
                     float f3 = packet.getxRot() * 360 / 256.0F;
-                    entity.lerpTo(entity.getX(), entity.getY(), entity.getZ(), f2, f3, 3, false);
+                    entity.lerpTo(entity.lerpTargetX(), entity.lerpTargetY(), entity.lerpTargetZ(), f2, f3, 3);
                 }
                 
                 entity.setOnGround(packet.isOnGround());
@@ -442,8 +441,8 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         ensureRunningOnSameThread(packet);
         LittleClientLevel level = requiresClientLevel();
         for (ClientboundChunksBiomesPacket.ChunkBiomeData clientboundchunksbiomespacket$chunkbiomedata : packet.chunkBiomeData())
-            level.getChunkSource().replaceBiomes(clientboundchunksbiomespacket$chunkbiomedata.pos().x, clientboundchunksbiomespacket$chunkbiomedata
-                    .pos().z, clientboundchunksbiomespacket$chunkbiomedata.getReadBuffer());
+            level.getChunkSource().replaceBiomes(clientboundchunksbiomespacket$chunkbiomedata.pos().x, clientboundchunksbiomespacket$chunkbiomedata.pos().z,
+                clientboundchunksbiomespacket$chunkbiomedata.getReadBuffer());
         
         for (ClientboundChunksBiomesPacket.ChunkBiomeData clientboundchunksbiomespacket$chunkbiomedata1 : packet.chunkBiomeData())
             level.onChunkLoaded(new ChunkPos(clientboundchunksbiomespacket$chunkbiomedata1.pos().x, clientboundchunksbiomespacket$chunkbiomedata1.pos().z));
@@ -513,16 +512,14 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     public void handleForgetLevelChunk(ClientboundForgetLevelChunkPacket packet) {
         ensureRunningOnSameThread(packet);
         ClientLevel level = requiresClientLevel();
-        int i = packet.getX();
-        int j = packet.getZ();
         ChunkSource chunkSource = this.level.getChunkSource();
         if (chunkSource instanceof ClientChunkCache client)
-            client.drop(i, j);
+            client.drop(packet.pos());
         this.queueLightRemoval(level, packet);
     }
     
     private void queueLightRemoval(ClientLevel level, ClientboundForgetLevelChunkPacket packet) {
-        ChunkPos chunkpos = new ChunkPos(packet.getX(), packet.getZ());
+        ChunkPos chunkpos = packet.pos();
         level.queueLightUpdate(() -> {
             LevelLightEngine levellightengine = this.level.getLightEngine();
             levellightengine.setLightEnabled(chunkpos, false);
@@ -557,11 +554,11 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         if (entity != null) {
             RandomSource random = vanillaAccessor().getRandom();
             if (entity instanceof ExperienceOrb)
-                level.playLocalSound(entity.getX(), entity.getY(), entity
-                        .getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (random.nextFloat() - random.nextFloat()) * 0.35F + 0.9F, false);
+                level.playLocalSound(entity.getX(), entity.getY(), entity.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (random.nextFloat() - random
+                        .nextFloat()) * 0.35F + 0.9F, false);
             else
-                level.playLocalSound(entity.getX(), entity.getY(), entity
-                        .getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, (random.nextFloat() - random.nextFloat()) * 1.4F + 2.0F, false);
+                level.playLocalSound(entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, (random.nextFloat() - random
+                        .nextFloat()) * 1.4F + 2.0F, false);
             
             mc.particleEngine.add(new ItemPickupParticle(mc.getEntityRenderDispatcher(), mc.renderBuffers(), mc.level, entity, livingentity));
             if (entity instanceof ItemEntity itemEntity) {
@@ -861,11 +858,6 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     }
     
     @Override
-    public void handleEnabledFeatures(ClientboundUpdateEnabledFeaturesPacket packet) {
-        vanilla().handleEnabledFeatures(packet);
-    }
-    
-    @Override
     public void handlePlayerCombatEnd(ClientboundPlayerCombatEndPacket packet) {}
     
     @Override
@@ -1149,5 +1141,25 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public boolean isAcceptingMessages() {
         return vanilla().isAcceptingMessages();
+    }
+    
+    @Override
+    public void handlePongResponse(ClientboundPongResponsePacket packet) {
+        vanilla().handlePongResponse(packet);
+    }
+    
+    @Override
+    public void handleConfigurationStart(ClientboundStartConfigurationPacket packet) {
+        vanilla().handleConfigurationStart(packet);
+    }
+    
+    @Override
+    public void handleChunkBatchStart(ClientboundChunkBatchStartPacket packet) {
+        vanilla().handleChunkBatchStart(packet);
+    }
+    
+    @Override
+    public void handleChunkBatchFinished(ClientboundChunkBatchFinishedPacket packet) {
+        vanilla().handleChunkBatchFinished(packet);
     }
 }

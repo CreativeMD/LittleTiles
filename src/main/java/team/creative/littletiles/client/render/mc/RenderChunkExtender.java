@@ -189,7 +189,7 @@ public interface RenderChunkExtender {
                 data.get(layer).upload((ChunkBufferUploader) builder);
             
             if (layer == RenderType.translucent())
-                setQuadSorting(builder, Minecraft.getInstance().levelRenderer.getChunkRenderDispatcher().getCameraPosition());
+                setQuadSorting(builder, Minecraft.getInstance().levelRenderer.getSectionRenderDispatcher().getCameraPosition());
             
             uploadBuffer.bind();
             uploadBuffer.upload(builder.end());

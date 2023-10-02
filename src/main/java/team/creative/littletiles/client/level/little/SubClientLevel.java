@@ -37,7 +37,7 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     private Level parentLevel;
     
     public SubClientLevel(Level parent) {
-        super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
+        super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess().freeze());
         this.parentLevel = parent;
         this.gatherCapabilities();
     }

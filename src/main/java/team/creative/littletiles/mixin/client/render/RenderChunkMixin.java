@@ -10,15 +10,15 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.CompiledSection;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
-@Mixin(RenderChunk.class)
+@Mixin(RenderSection.class)
 public abstract class RenderChunkMixin implements RenderChunkExtender {
     
     public ChunkLayerMap<BufferCollection> lastUploaded;
@@ -36,8 +36,8 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     }
     
     @Unique
-    private RenderChunk as() {
-        return (RenderChunk) (Object) this;
+    private RenderSection as() {
+        return (RenderSection) (Object) this;
     }
     
     @Override
@@ -64,7 +64,7 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     
     @Override
     public SortState getTransparencyState() {
-        return ((CompiledChunkAccessor) as().getCompiledChunk()).getTransparencyState();
+        return ((CompiledChunkAccessor) as().getCompiled()).getTransparencyState();
     }
     
     @Override
@@ -74,14 +74,14 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     
     @Override
     public void setHasBlock(RenderType layer) {
-        CompiledChunk compiled = as().getCompiledChunk();
-        if (compiled != CompiledChunk.UNCOMPILED)
+        CompiledSection compiled = as().getCompiled();
+        if (compiled != CompiledSection.UNCOMPILED)
             ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
     }
     
     @Override
     public boolean isEmpty(RenderType layer) {
-        return as().getCompiledChunk().isEmpty(layer);
+        return as().getCompiled().isEmpty(layer);
     }
     
     @Override

@@ -43,7 +43,7 @@ public class LevelRendererMixin {
             LittleTilesClient.ANIMATION_HANDLER.renderBlockEntitiesAndDestruction(pose, frustum, frameTime);
     }
     
-    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD), method = "renderChunkLayer")
+    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD), method = "renderSectionLayer")
     public void resortTransparency(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
         LittleClientEventHandler.transparencySortingIndex++;
         if (LittleTilesClient.ANIMATION_HANDLER != null)
@@ -62,7 +62,7 @@ public class LevelRendererMixin {
             LittleTilesClient.ANIMATION_HANDLER.setupRender(camera, frustum, capturedFrustum, spectator);
     }
     
-    @Inject(at = @At("TAIL"), method = "compileChunks(Lnet/minecraft/client/Camera;)V")
+    @Inject(at = @At("TAIL"), method = "compileSections(Lnet/minecraft/client/Camera;)V")
     public void compileChunks(Camera camera, CallbackInfo info) {
         if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.compileChunks(camera);

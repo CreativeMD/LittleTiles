@@ -16,9 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
@@ -30,31 +30,31 @@ import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 
-@Mixin(targets = "net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask")
+@Mixin(targets = "net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$RebuildTask")
 public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     
     @Unique
     public Set<RenderType> renderTypes;
     
     @Unique
-    public ChunkBufferBuilderPack pack;
+    public SectionBufferBuilderPack pack;
     
     @Unique
     public ChunkLayerMap<BufferCollection> caches;
     
     @Shadow(aliases = { "this$0" })
-    public RenderChunk this$1;
+    public RenderSection this$1;
     
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;enableCaching()V"),
-            method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
+            method = "compile(FFFLnet/minecraft/client/renderer/SectionBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$RebuildTask$CompileResults;",
             require = 1)
-    private void compileStart(float f1, float f2, float f3, ChunkBufferBuilderPack pack, CallbackInfoReturnable info) {
+    private void compileStart(float f1, float f2, float f3, SectionBufferBuilderPack pack, CallbackInfoReturnable info) {
         this.pack = pack;
         LittleRenderPipelineType.startCompile((RenderChunkExtender) this$1, this);
     }
     
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;clearCache()V"),
-            method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
+            method = "compile(FFFLnet/minecraft/client/renderer/SectionBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$RebuildTask$CompileResults;",
             require = 1)
     private void compile(CallbackInfoReturnable info) {
         LittleRenderPipelineType.endCompile((RenderChunkExtender) this$1, this);
@@ -64,7 +64,7 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     }
     
     @Redirect(at = @At(value = "NEW", target = "(I)Lit/unimi/dsi/fastutil/objects/ReferenceArraySet;", remap = false),
-            method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
+            method = "compile(FFFLnet/minecraft/client/renderer/SectionBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$RebuildTask$CompileResults;",
             require = 1)
     private ReferenceArraySet afterSetCreated(int capacity) {
         renderTypes = new ReferenceArraySet(capacity);
@@ -72,14 +72,15 @@ public abstract class RebuildTaskMixin implements RebuildTaskExtender {
     }
     
     @Inject(at = @At("HEAD"),
-            method = "handleBlockEntity(Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;Lnet/minecraft/world/level/block/entity/BlockEntity;)V",
+            method = "handleBlockEntity(Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$RebuildTask$CompileResults;Lnet/minecraft/world/level/block/entity/BlockEntity;)V",
             require = 1)
     private void handleBlockEntity(@Coerce Object object, BlockEntity block, CallbackInfo info) {
         if (block instanceof BETiles tiles)
             LittleRenderPipelineType.compile((RenderChunkExtender) this$1, tiles, this);
     }
     
-    @Inject(method = "doTask(Lnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", at = @At("RETURN"), cancellable = true, require = 1)
+    @Inject(method = "doTask(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", at = @At("RETURN"), cancellable = true,
+            require = 1)
     private void injected(CallbackInfoReturnable<CompletableFuture> cir) {
         cir.setReturnValue(cir.getReturnValue().whenComplete((result, exception) -> {
             if (((Enum) result).ordinal() == 0) { // Successful

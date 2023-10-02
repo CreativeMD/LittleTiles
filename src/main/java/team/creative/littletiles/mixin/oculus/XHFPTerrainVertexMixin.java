@@ -16,7 +16,7 @@ public class XHFPTerrainVertexMixin {
     public Vec3d center;
     
     @Redirect(remap = false, at = @At(value = "INVOKE", target = "Lnet/coderbot/iris/vertices/ExtendedDataHelper;computeMidBlock(FFFIII)I"),
-            method = "write(JLme/jellysquid/mods/sodium/client/render/vertex/type/ChunkVertexEncoder$Vertex;I)J")
+            method = "write(JLme/jellysquid/mods/sodium/client/render/chunk/terrain/material/Material;Lme/jellysquid/mods/sodium/client/render/chunk/vertex/format/ChunkVertexEncoder$Vertex;I)J")
     public int computeMidBlock(float x, float y, float z, int localPosX, int localPosY, int localPosZ) {
         if (center != null)
             return ExtendedDataHelper.packMidBlock((float) (localPosX + center.x), (float) (localPosY + center.y), (float) (localPosZ + center.z));

@@ -20,7 +20,7 @@ public class ClientPacketListenerMixin {
         Entity entity = LittleTilesClient.ANIMATION_HANDLER.pollEntityInTransition(packet);
         if (entity != null) {
             Minecraft mc = Minecraft.getInstance();
-            mc.level.putNonPlayerEntity(entity.getId(), entity);
+            mc.level.addEntity(entity);
             ((ClientPacketListenerAccessor) mc.getConnection()).callPostAddEntitySoundInstance(entity);
             info.cancel();
         }

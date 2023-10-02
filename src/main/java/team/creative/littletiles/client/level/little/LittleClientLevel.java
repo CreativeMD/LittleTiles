@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.mojang.authlib.GameProfile;
-
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
+import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
@@ -65,7 +61,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public LittleLevelRenderManager renderManager;
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     
-    protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
+    protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess.Frozen access) {
         super(FakeClientPacketListener.get(access), data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(
             LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
     }
@@ -249,19 +245,19 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
         
         private static final FakeClientPacketListener INSTANCE = CreativeHackery.allocateInstance(FakeClientPacketListener.class);
         
-        public static FakeClientPacketListener get(RegistryAccess access) {
+        public static FakeClientPacketListener get(RegistryAccess.Frozen access) {
             INSTANCE.access = access;
             return INSTANCE;
         }
         
-        private RegistryAccess access;
+        private RegistryAccess.Frozen access;
         
-        public FakeClientPacketListener(Minecraft p_253924_, Screen p_254239_, Connection p_253614_, ServerData p_254072_, GameProfile p_254079_, WorldSessionTelemetryManager p_262115_) {
-            super(p_253924_, p_254239_, p_253614_, p_254072_, p_254079_, p_262115_);
+        public FakeClientPacketListener(Minecraft mc, Connection connection, CommonListenerCookie listener) {
+            super(mc, connection, listener);
         }
         
         @Override
-        public RegistryAccess registryAccess() {
+        public RegistryAccess.Frozen registryAccess() {
             return access;
         }
         

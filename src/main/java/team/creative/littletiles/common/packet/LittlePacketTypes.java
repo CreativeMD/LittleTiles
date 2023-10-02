@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.FriendlyByteBuf;
 import team.creative.creativecore.common.network.type.NetworkFieldTypeClass;
 import team.creative.creativecore.common.network.type.NetworkFieldTypes;
@@ -172,7 +174,7 @@ public class LittlePacketTypes {
                     children.add(NetworkFieldTypes.read(LittleGroup.class, buffer));
                 
                 LittleGrid grid = LittleGrid.get(buffer.readInt());
-                LittleGroup group = new LittleGroup(buffer.readBoolean() ? buffer.readAnySizeNbt() : null, children);
+                LittleGroup group = new LittleGroup(buffer.readBoolean() ? (CompoundTag) buffer.readNbt(NbtAccounter.unlimitedHeap()) : null, children);
                 group.addAll(grid, NetworkFieldTypes.readMany(LittleTile.class, buffer));
                 
                 int extensionCount = buffer.readInt();
@@ -464,7 +466,7 @@ public class LittlePacketTypes {
             
             @Override
             protected LittleBlockChange readContent(FriendlyByteBuf buffer) {
-                return new LittleBlockChange(buffer.readBlockPos(), buffer.readBoolean() ? buffer.readAnySizeNbt() : null);
+                return new LittleBlockChange(buffer.readBlockPos(), buffer.readBoolean() ? (CompoundTag) buffer.readNbt(NbtAccounter.unlimitedHeap()) : null);
             }
         }, LittleBlockChange.class);
         
@@ -477,7 +479,7 @@ public class LittlePacketTypes {
             
             @Override
             protected AnimationTimeline readContent(FriendlyByteBuf buffer) {
-                return new AnimationTimeline(buffer.readAnySizeNbt());
+                return new AnimationTimeline((CompoundTag) buffer.readNbt(NbtAccounter.unlimitedHeap()));
             }
         }, AnimationTimeline.class);
         
@@ -490,7 +492,7 @@ public class LittlePacketTypes {
             
             @Override
             protected PlacementPlayerSetting readContent(FriendlyByteBuf buffer) {
-                return new PlacementPlayerSetting(buffer.readAnySizeNbt());
+                return new PlacementPlayerSetting((CompoundTag) buffer.readNbt(NbtAccounter.unlimitedHeap()));
             }
         }, PlacementPlayerSetting.class);
     }
