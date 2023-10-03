@@ -82,7 +82,7 @@ public class SubGuiDialogSignalVirtualInput extends SubGui {
         public GuiPanel panel;
         
         public GuiVirtualInputIndexConfiguration(SignalInputCondition condition, int index) {
-            this.output = new GuiSignalComponent("" + index, "" + index, 1, SignalComponentType.OUTPUT, false, index);
+            this.output = new GuiSignalComponent("" + index, "" + index, 1, SignalComponentType.OUTPUT, false, index, null);
             this.index = index;
             this.condition = condition;
         }

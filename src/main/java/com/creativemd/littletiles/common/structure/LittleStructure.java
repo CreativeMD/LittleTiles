@@ -1,7 +1,11 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -9,7 +13,6 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.Pair;
@@ -240,10 +243,11 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         
         StructureChildConnection connector;
         if (childWorld == world)
-            connector = new StructureChildConnection(this, false, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child.getAttribute());
+            connector = new StructureChildConnection(this, false, dynamic, i, child.getPos().subtract(getPos()), child
+                    .getIndex(), child.getAttribute());
         else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
-            connector = new StructureChildToSubWorldConnection(this, dynamic, i, child.getPos().subtract(getPos()), child.getIndex(), child
-                    .getAttribute(), ((SubWorld) childWorld).parent.getUniqueID());
+            connector = new StructureChildToSubWorldConnection(this, dynamic, i, child.getPos().subtract(getPos()), child
+                    .getIndex(), child.getAttribute(), ((SubWorld) childWorld).parent.getUniqueID());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         
@@ -256,9 +260,11 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         
         StructureChildConnection connector;
         if (parentWorld == world)
-            connector = new StructureChildConnection(this, true, dynamic, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildConnection(this, true, dynamic, i, parent.getPos().subtract(getPos()), parent
+                    .getIndex(), parent.getAttribute());
         else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
-            connector = new StructureChildFromSubWorldConnection(this, dynamic, i, parent.getPos().subtract(getPos()), parent.getIndex(), parent.getAttribute());
+            connector = new StructureChildFromSubWorldConnection(this, dynamic, i, parent.getPos().subtract(getPos()), parent
+                    .getIndex(), parent.getAttribute());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         
@@ -271,10 +277,11 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         
         StructureChildConnection connector;
         if (parentWorld == world)
-            connector = new StructureChildConnection(parent, true, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this.getAttribute());
+            connector = new StructureChildConnection(parent, true, false, 0, this.getPos().subtract(parent.getPos()), this
+                    .getIndex(), this.getAttribute());
         else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
-            connector = new StructureChildToSubWorldConnection(parent, false, 0, this.getPos().subtract(parent.getPos()), this.getIndex(), this
-                    .getAttribute(), ((SubWorld) world).parent.getUniqueID());
+            connector = new StructureChildToSubWorldConnection(parent, false, 0, this.getPos().subtract(parent
+                    .getPos()), this.getIndex(), this.getAttribute(), ((SubWorld) world).parent.getUniqueID());
         else
             throw new RuntimeException("Invalid connection between to structures!");
         return connector;
@@ -461,8 +468,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     /** takes name of stack and connects the structure to its children (does so recursively)
      * 
-     * @param stack
-     */
+     * @param stack */
     public void placedStructure(@Nullable ItemStack stack) {
         NBTTagCompound nbt;
         if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
@@ -493,8 +499,9 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                 LittleIdentifierRelative coord = null;
                 if (nbt.hasKey("i" + i + "coX")) {
                     LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
-                    coord = new LittleIdentifierRelative(pos.coord.getX() - getPos().getX(), pos.coord.getY() - getPos().getY(), pos.coord.getZ() - getPos()
-                            .getZ(), LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
+                    coord = new LittleIdentifierRelative(pos.coord.getX() - getPos().getX(), pos.coord.getY() - getPos()
+                            .getY(), pos.coord.getZ() - getPos().getZ(), LittleGridContext
+                                    .get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
                 } else {
                     coord = LittleIdentifierRelative.loadIdentifierOld("i" + i, nbt);
                 }
@@ -581,7 +588,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
     
     public NBTTagCompound writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
-        LittleVecContext vec = new LittleVecContext(new LittleVec(mainBlock.getContext(), getPos().subtract(newCenter)), mainBlock.getContext());
+        LittleVecContext vec = new LittleVecContext(new LittleVec(mainBlock.getContext(), getPos().subtract(
+            newCenter)), mainBlock.getContext());
         
         LittleVec inverted = vec.getVec().copy();
         inverted.invert();
@@ -723,8 +731,9 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                             while (iterator.hasNext()) {
                                 StructureChildConnection connection = iterator.next();
                                 try {
-                                    if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
-                                            .getType() == SignalComponentType.INPUT) {
+                                    if (connection
+                                            .getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection
+                                                    .getStructure()).getType() == SignalComponentType.INPUT) {
                                         next = (ISignalStructureComponent) connection.getStructure();
                                         break;
                                     }
@@ -761,8 +770,9 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
                             while (iterator.hasNext()) {
                                 StructureChildConnection connection = iterator.next();
                                 try {
-                                    if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
-                                            .getType() == SignalComponentType.OUTPUT) {
+                                    if (connection
+                                            .getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection
+                                                    .getStructure()).getType() == SignalComponentType.OUTPUT) {
                                         next = (ISignalStructureComponent) connection.getStructure();
                                         break;
                                     }
@@ -850,6 +860,12 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         
     }
     
+    public SignalExternalOutputHandler getExternalOutputHandler(int id) {
+        if (this.externalHandler != null)
+            return this.externalHandler.get(id);
+        return null;
+    }
+    
     public void setExternalHandler(HashMap<Integer, SignalExternalOutputHandler> handlers) {
         this.externalHandler = handlers;
     }
@@ -928,7 +944,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     
     public MutableBlockPos getMinPos(MutableBlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
         for (BlockPos tePos : positions())
-            pos.setPos(Math.min(pos.getX(), tePos.getX()), Math.min(pos.getY(), tePos.getY()), Math.min(pos.getZ(), tePos.getZ()));
+            pos.setPos(Math.min(pos.getX(), tePos.getX()), Math.min(pos.getY(), tePos.getY()), Math.min(pos.getZ(), tePos
+                    .getZ()));
         
         for (StructureChildConnection child : children)
             child.getStructure().getMinPos(pos);
@@ -1023,7 +1040,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             return;
         NBTTagCompound nbt = new NBTTagCompound();
         writeToNBT(nbt);
-        PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(), getPos(), null);
+        PacketHandler.sendPacketToTrackingPlayers(new LittleUpdateStructurePacket(getStructureLocation(), nbt), getWorld(),
+            getPos(), null);
     }
     
     // ====================Extra====================
@@ -1067,14 +1085,15 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         for (Map.Entry<Entity, AxisAlignedBB> entry : entities.entrySet())
             if (entry.getValue().intersects(box))
                 collided.put(entry.getKey(), entry.getValue());
-        
+            
         if (!collided.isEmpty())
             onEntityCollidedWithBlockAnimation(animation, collided);
         
         for (StructureChildConnection child : children) {
             LittleStructure structure = child.getStructure();
             
-            if (child.isLinkToAnotherWorld() || !hasAttributeIncludeChildrenSameWorldOnly(LittleStructureAttribute.COLLISION_LISTENER))
+            if (child.isLinkToAnotherWorld() || !hasAttributeIncludeChildrenSameWorldOnly(
+                LittleStructureAttribute.COLLISION_LISTENER))
                 continue;
             
             structure.checkForAnimationCollision(animation, entities);

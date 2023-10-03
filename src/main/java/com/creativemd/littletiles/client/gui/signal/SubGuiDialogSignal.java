@@ -164,6 +164,7 @@ public class SubGuiDialogSignal extends SubGui {
     public static class GuiSignalComponent {
         
         public final String name;
+        public final String parentName;
         public final boolean input;
         public final boolean external;
         public final int index;
@@ -171,20 +172,22 @@ public class SubGuiDialogSignal extends SubGui {
         public final String totalName;
         public final SignalMode defaultMode;
         
-        public GuiSignalComponent(String name, String prefix, InternalComponent component, boolean input, boolean external, int index) {
+        public GuiSignalComponent(String name, String prefix, InternalComponent component, boolean input, boolean external, int index, String parentName) {
             this.name = name;
             this.bandwidth = component.bandwidth;
             this.totalName = prefix + component.identifier;
             this.input = input;
             this.external = external;
             this.index = index;
+            this.parentName = parentName;
             if (component instanceof InternalComponentOutput)
                 this.defaultMode = ((InternalComponentOutput) component).defaultMode;
             else
                 this.defaultMode = SignalMode.EQUAL;
         }
         
-        public GuiSignalComponent(String name, String totalName, ISignalComponent component, boolean external, int index) {
+        public GuiSignalComponent(String name, String totalName, ISignalComponent component, boolean external, int index, String parentName) {
+            this.parentName = parentName;
             this.name = name;
             try {
                 this.bandwidth = component.getBandwidth();
@@ -198,7 +201,8 @@ public class SubGuiDialogSignal extends SubGui {
             this.defaultMode = SignalMode.EQUAL;
         }
         
-        public GuiSignalComponent(String name, String totalName, int bandwidth, SignalComponentType type, boolean external, int index) {
+        public GuiSignalComponent(String name, String totalName, int bandwidth, SignalComponentType type, boolean external, int index, String parentName) {
+            this.parentName = parentName;
             this.name = name;
             this.bandwidth = bandwidth;
             this.totalName = totalName;
@@ -209,9 +213,14 @@ public class SubGuiDialogSignal extends SubGui {
         }
         
         public String display() {
-            if (name.equals(totalName))
+            String longName = totalName;
+            if (this.parentName != null) {
+                String[] totalNameSplit = totalName.split("\\.");
+                longName = parentName + "." + totalNameSplit[totalNameSplit.length - 1];
+            }
+            if (name.equals(longName))
                 return ChatFormatting.BOLD + name + " " + ChatFormatting.RESET + bandwidth + "-bit";
-            return ChatFormatting.BOLD + name + " " + totalName + " " + ChatFormatting.RESET + bandwidth + "-bit";
+            return ChatFormatting.BOLD + name + " " + longName + " " + ChatFormatting.RESET + bandwidth + "-bit";
         }
         
         public String info() {
