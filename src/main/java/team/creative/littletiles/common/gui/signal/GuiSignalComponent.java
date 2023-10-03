@@ -13,8 +13,8 @@ public record GuiSignalComponent(String name, boolean input, boolean external, i
     
     public GuiSignalComponent {}
     
-    public GuiSignalComponent(String name, String prefix, InternalComponent component, boolean input, boolean external, int index) {
-        this(name, input, external, index, component.bandwidth, prefix + component.identifier, component instanceof InternalComponentOutput output ? output.defaultMode : SignalMode.EQUAL);
+    public GuiSignalComponent(String name, String parentName, InternalComponent component, boolean input, boolean external, int index) {
+        this(name, input, external, index, component.bandwidth, parentName + "." + component.identifier, component instanceof InternalComponentOutput output ? output.defaultMode : SignalMode.EQUAL);
     }
     
     public GuiSignalComponent(String name, String totalName, ISignalComponent component, boolean external, int index) {
@@ -26,8 +26,6 @@ public record GuiSignalComponent(String name, boolean input, boolean external, i
     }
     
     public String display() {
-        if (name.equals(totalName))
-            return ChatFormatting.BOLD + name + " " + ChatFormatting.RESET + bandwidth + "-bit";
         return ChatFormatting.BOLD + name + " " + totalName + " " + ChatFormatting.RESET + bandwidth + "-bit";
     }
     

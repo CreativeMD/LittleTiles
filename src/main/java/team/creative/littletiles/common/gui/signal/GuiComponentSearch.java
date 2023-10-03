@@ -20,9 +20,9 @@ public class GuiComponentSearch {
     public List<GuiSignalComponent> search(boolean input, boolean output, boolean includeRelations) {
         List<GuiSignalComponent> list = new ArrayList<>();
         if (input)
-            gatherInputs(item, "", "", list, includeRelations, true);
+            gatherInputs(item, "", list, includeRelations, true);
         if (output)
-            gatherOutputs(item, "", "", list, includeRelations, true);
+            gatherOutputs(item, "", list, includeRelations, true);
         return list;
     }
     
@@ -31,7 +31,7 @@ public class GuiComponentSearch {
         if (type != null && type.outputs != null) {
             GuiSignalComponent[] components = new GuiSignalComponent[type.outputs.size()];
             for (int i = 0; i < type.outputs.size(); i++)
-                components[i] = new GuiSignalComponent("b" + i, "", type.outputs.get(i), false, false, i);
+                components[i] = new GuiSignalComponent("b" + i, item.getTitle(), type.outputs.get(i), false, false, i);
             return components;
         }
         return null;
@@ -39,15 +39,15 @@ public class GuiComponentSearch {
     
     public List<GuiSignalComponent> externalOutputs() {
         List<GuiSignalComponent> components = new ArrayList<>();
-        addExternalOutputs(item, "", "", components, false);
+        addExternalOutputs(item, "", components, false);
         return components;
     }
     
-    protected void addInput(GuiTreeItemStructure item, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
+    protected void addInput(GuiTreeItemStructure item, String prefix, List<GuiSignalComponent> list, boolean includeRelations) {
         LittleStructureType type = item.getStructureType();
         if (type != null && type.inputs != null)
             for (int i = 0; i < type.inputs.size(); i++)
-                list.add(new GuiSignalComponent(prefix + "a" + i, totalNamePrefix, type.inputs.get(i), true, false, i));
+                list.add(new GuiSignalComponent(prefix + "a" + i, item.getTitle(), type.inputs.get(i), true, false, i));
             
         int i = 0;
         for (GuiTreeItem child : item.items()) {
@@ -59,27 +59,27 @@ public class GuiComponentSearch {
             
             String name = childStructure.structure.name;
             if (childStructure.structure instanceof ISignalComponent com && com.getComponentType() == SignalComponentType.INPUT)
-                list.add(new GuiSignalComponent(prefix + "i" + i, totalNamePrefix + (name != null ? name : "i" + i), com, true, i));
+                list.add(new GuiSignalComponent(prefix + "i" + i, item.getTitle() + "." + (name != null ? name : "i" + i), com, true, i));
             else if (includeRelations)
-                gatherInputs(childStructure, prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+                gatherInputs(childStructure, prefix + "c" + i + ".", list, includeRelations, false);
             i++;
         }
     }
     
-    protected void gatherInputs(GuiTreeItemStructure item, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
+    protected void gatherInputs(GuiTreeItemStructure item, String prefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
         if (item == this.item)
-            addInput(item, "", "", list, includeRelations);
+            addInput(item, "", list, includeRelations);
         
         if (searchForParent && includeRelations && item.getParentItem() instanceof GuiTreeItemStructure parent) {
-            gatherInputs(parent, "p." + prefix, "p." + totalNamePrefix, list, includeRelations, true);
+            gatherInputs(parent, "p." + prefix, list, includeRelations, true);
             return;
         }
         
         if (item != this.item)
-            addInput(item, prefix, totalNamePrefix, list, includeRelations);
+            addInput(item, prefix, list, includeRelations);
     }
     
-    protected void addExternalOutputs(GuiTreeItemStructure item, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
+    protected void addExternalOutputs(GuiTreeItemStructure item, String prefix, List<GuiSignalComponent> list, boolean includeRelations) {
         int i = 0;
         for (GuiTreeItem child : item.items()) {
             if (child == this.item)
@@ -90,32 +90,32 @@ public class GuiComponentSearch {
             
             String name = childStructure.structure.name;;
             if (childStructure.structure instanceof ISignalComponent com && com.getComponentType() == SignalComponentType.OUTPUT)
-                list.add(new GuiSignalComponent(prefix + "o" + i, totalNamePrefix + (name != null ? name : "o" + i), com, true, i));
+                list.add(new GuiSignalComponent(prefix + "o" + i, item.getTitle() + "." + (name != null ? name : "o" + i), com, true, i));
             else if (includeRelations)
-                gatherOutputs(childStructure, prefix + "c" + i + ".", totalNamePrefix + (name != null ? name + "." : "c" + i + "."), list, includeRelations, false);
+                gatherOutputs(childStructure, prefix + "c" + i + ".", list, includeRelations, false);
         }
     }
     
-    protected void addOutput(GuiTreeItemStructure item, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations) {
+    protected void addOutput(GuiTreeItemStructure item, String prefix, List<GuiSignalComponent> list, boolean includeRelations) {
         LittleStructureType type = item.getStructureType();
         if (type != null && type.outputs != null)
             for (int i = 0; i < type.outputs.size(); i++)
-                list.add(new GuiSignalComponent(prefix + "b" + i, totalNamePrefix, type.outputs.get(i), false, false, i));
+                list.add(new GuiSignalComponent(prefix + "b" + i, item.getTitle(), type.outputs.get(i), false, false, i));
             
-        addExternalOutputs(item, prefix, totalNamePrefix, list, includeRelations);
+        addExternalOutputs(item, prefix, list, includeRelations);
     }
     
-    protected void gatherOutputs(GuiTreeItemStructure item, String prefix, String totalNamePrefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
+    protected void gatherOutputs(GuiTreeItemStructure item, String prefix, List<GuiSignalComponent> list, boolean includeRelations, boolean searchForParent) {
         if (item == this.item)
-            addOutput(item, "", "", list, includeRelations);
+            addOutput(item, "", list, includeRelations);
         
         if (searchForParent && includeRelations && item.getParentItem() instanceof GuiTreeItemStructure parent) {
-            gatherOutputs(parent, "p." + prefix, "p." + totalNamePrefix, list, includeRelations, searchForParent);
+            gatherOutputs(parent, "p." + prefix, list, includeRelations, searchForParent);
             return;
         }
         
         if (item != this.item)
-            addOutput(item, prefix, totalNamePrefix, list, includeRelations);
+            addOutput(item, prefix, list, includeRelations);
         
     }
 }
