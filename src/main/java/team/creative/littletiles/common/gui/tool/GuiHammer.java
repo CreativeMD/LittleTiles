@@ -64,7 +64,7 @@ public class GuiHammer extends GuiConfigureTool {
         add(box);
         add(scroll);
         
-        add(new GuiGridConfig("grid", LittleTilesClient.grid(), x -> {
+        add(new GuiGridConfig("grid", getPlayer(), LittleTilesClient.grid(), x -> {
             LittleTilesClient.grid(x);
             if (ItemLittleHammer.selection != null)
                 ItemLittleHammer.selection.convertTo(x);

@@ -119,9 +119,9 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         settings.spacing = 5;
         upper.add(settings);
         
-        settings.add(new GuiLabeledControl(Component.translatable("gui.interpolation")
-                .append(":"), new GuiStateButtonMapped<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>()
-                        .addComponent(ValueInterpolation.values(), x -> x.translate()))));
+        settings.add(new GuiLabeledControl(Component.translatable("gui.interpolation").append(
+            ":"), new GuiStateButtonMapped<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>().addComponent(ValueInterpolation.values(), x -> x
+                    .translate()))));
         
         settings.add(new GuiCheckBox("stayAnimated", stayAnimated).setTranslate("gui.stay_animated").setTooltip("gui.door.stay_animated.tooltip"));
         settings.add(new GuiCheckBox("rightClick", rightClick).setTranslate("gui.rightclick").setTooltip("gui.door.rightclick.tooltip"));
@@ -133,7 +133,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         GuiIsoAnimationViewer viewer = upper.get("viewer");
         settings.add(new GuiCheckBox("even", viewer.isEven()).setTranslate("gui.door.axis.even"));
         
-        settings.add(new GuiGridConfig("grid", viewer.getGrid(), x -> {
+        settings.add(new GuiGridConfig("grid", getPlayer(), viewer.getGrid(), x -> {
             LittleBox viewerBox = viewer.getBox();
             viewerBox.convertTo(viewer.getGrid(), x);
             
@@ -166,11 +166,11 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         
         add(tabs.setExpandableX());
         
-        tabs.createTab(Component.translatable("gui.door.same_transition"))
-                .add((GuiControl) (same = new GuiTimelineConfigSame(item, item.recipe.animation, closed, opened, duration, opening)));
+        tabs.createTab(Component.translatable("gui.door.same_transition")).add(
+            (GuiControl) (same = new GuiTimelineConfigSame(item, item.recipe.animation, closed, opened, duration, opening)));
         
-        tabs.createTab(Component.translatable("gui.door.different_transition"))
-                .add((GuiControl) (this.different = new GuiTimelineConfigDifferent(item, item.recipe.animation, closed, opened, duration, opening, closing)));
+        tabs.createTab(Component.translatable("gui.door.different_transition")).add(
+            (GuiControl) (this.different = new GuiTimelineConfigDifferent(item, item.recipe.animation, closed, opened, duration, opening, closing)));
         
         tabs.select(sameTransition ? 0 : 1);
         
@@ -255,8 +255,8 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
                 events.add(entry.copy());
             AnimationTimeline timeline = new AnimationTimeline(original.duration, events);
             for (PhysicalPart part : PhysicalPart.values()) {
-                ValueCurveInterpolation<Vec1d> curve = original.get(part)
-                        .isEmpty() ? new ValueCurveInterpolation.LinearCurve<>() : (ValueCurveInterpolation<Vec1d>) original.get(part).copy();
+                ValueCurveInterpolation<Vec1d> curve = original.get(part).isEmpty() ? new ValueCurveInterpolation.LinearCurve<>() : (ValueCurveInterpolation<Vec1d>) original.get(
+                    part).copy();
                 timeline.set(part, curve);
                 
                 if (opened.get(part) != 0 || closed.get(part) != 0 || !curve.isEmpty()) {

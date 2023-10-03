@@ -59,9 +59,11 @@ import team.creative.littletiles.common.block.little.tile.parent.ParentCollectio
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittleBuildingConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
+import team.creative.littletiles.common.config.LittleTilesConfig.GridTooHighException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
 import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
@@ -296,6 +298,13 @@ public abstract class LittleAction<T> extends CreativePacket {
         if (tile.hasColor() && ColorUtils.alpha(tile.color) < LittleTiles.CONFIG.getMinimumTransparency(player))
             throw new NotAllowedToPlaceColorException(player, LittleTiles.CONFIG.build.get(player));
         
+        return true;
+    }
+    
+    public static boolean isAllowedToUse(Player player, IGridBased grid) throws LittleActionException {
+        LittleBuildingConfig build = LittleTiles.CONFIG.build.get(player);
+        if (build.gridLimit.isEnabled() && build.gridLimit.value < grid.getSmallest())
+            throw new GridTooHighException(player, build, grid.getSmallest());
         return true;
     }
     

@@ -1,10 +1,13 @@
 package team.creative.littletiles.common.config;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.converation.ConfigTypeConveration;
 import team.creative.creativecore.common.config.premade.ToggleableConfig;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.common.grid.LittleGrid;
 
 public class LittleBuildingConfig {
     
@@ -48,6 +51,18 @@ public class LittleBuildingConfig {
     
     @CreativeConfig
     public ToggleableConfig<Integer> gridLimit = new ToggleableConfig<Integer>(32, false);
+    
+    public TextMapBuilder<LittleGrid> gridBuilder() {
+        if (!gridLimit.isEnabled() || gridLimit.value >= LittleGrid.getMax().count)
+            return LittleGrid.mapBuilder();
+        TextMapBuilder<LittleGrid> map = new TextMapBuilder<LittleGrid>();
+        for (LittleGrid grid : LittleGrid.getGrids()) {
+            if (grid.count > gridLimit.value)
+                break;
+            map.addComponent(grid, Component.literal("" + grid.count));
+        }
+        return map;
+    }
     
     public static enum HarvestLevel {
         

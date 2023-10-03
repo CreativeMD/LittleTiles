@@ -177,5 +177,7 @@
 	
 	"gui.noclip.slowness": "Slowness (codweb)",
 	
-	"itemGroup.littletiles": "LittleTiles"
+	"itemGroup.littletiles": "LittleTiles",
+	
+	"exception.permission.grid": "You are not allowed to use grid %s (maximum is %s)"
 }

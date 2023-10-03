@@ -74,6 +74,8 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
                 throw new NotAllowedToEditException(player, config);
         }
         
+        isAllowedToUse(player, boxes);
+        
         HashMapList<BlockPos, LittleBox> boxesMap = boxes.generateBlockWise();
         MutableInt affectedBlocks = new MutableInt();
         

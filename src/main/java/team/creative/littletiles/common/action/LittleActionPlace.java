@@ -126,6 +126,9 @@ public class LittleActionPlace extends LittleAction<Boolean> {
             if (!iTile.containsIngredients(stack))
                 canTake(player, inventory, preview.getBeforePlaceIngredients());
             
+        isAllowedToUse(player, preview.previews);
+        isAllowedToUse(player, preview.position);
+        
         Placement placement = new Placement(player, preview).setStack(toPlace);
         result = placement.place();
         

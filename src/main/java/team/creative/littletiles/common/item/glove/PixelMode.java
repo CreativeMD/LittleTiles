@@ -77,7 +77,7 @@ public class PixelMode extends ElementGloveMode {
         right.add(new GuiSteppedSlider("sizeX", size.x, 1, grid.count));
         right.add(new GuiSteppedSlider("sizeY", size.y, 1, grid.count));
         right.add(new GuiSteppedSlider("sizeZ", size.z, 1, grid.count));
-        right.add(new GuiGridConfig("grid", grid, x -> {
+        right.add(new GuiGridConfig("grid", gui.getPlayer(), grid, x -> {
             GuiSteppedSlider sizeX = gui.get("sizeX");
             sizeX.maxValue = x.count;
             sizeX.value = Mth.clamp(sizeX.value, sizeX.minValue, sizeX.maxValue);

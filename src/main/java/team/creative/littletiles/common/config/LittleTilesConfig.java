@@ -162,6 +162,24 @@ public class LittleTilesConfig {
         
     }
     
+    public static class GridTooHighException extends LittleActionException {
+        
+        public LittleBuildingConfig config;
+        public int attempted;
+        
+        public GridTooHighException(Player player, LittleBuildingConfig config, int attempted) {
+            super("exception.permission.grid");
+            this.config = config;
+            this.attempted = attempted;
+        }
+        
+        @Override
+        public String getLocalizedMessage() {
+            return LanguageUtils.translate(getMessage(), attempted, config.gridLimit.value);
+        }
+        
+    }
+    
     public static class Rendering implements ICreativeConfig {
         
         @CreativeConfig
