@@ -26,7 +26,7 @@ public class VanillaBlockPacket extends CreativePacket {
             }
             
         },
-        GRABBER {
+        GLOVE {
             
             @Override
             public void action(Level level, Player player, BlockPos pos, BlockState state) {

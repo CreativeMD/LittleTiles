@@ -57,12 +57,12 @@ public abstract class ElementGloveMode extends GloveMode {
     public boolean wheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
         BlockState state = level.getBlockState(result.getBlockPos());
         if (LittleAction.isBlockValid(state)) {
-            LittleTiles.NETWORK.sendToServer(new VanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
+            LittleTiles.NETWORK.sendToServer(new VanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GLOVE));
             return true;
         } else if (state.getBlock() instanceof BlockTile) {
             CompoundTag nbt = new CompoundTag();
             nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
-            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
+            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GLOVE, nbt));
             return true;
         }
         return false;

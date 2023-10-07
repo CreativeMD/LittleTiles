@@ -25,7 +25,7 @@ import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting
 public class LittleActionHandlerClient extends LevelHandler {
     
     private static final Minecraft mc = Minecraft.getInstance();
-    public PlacementPlayerSetting setting = new PlacementPlayerSetting();
+    public final PlacementPlayerSetting setting = new PlacementPlayerSetting();
     
     public static boolean canUseUndoOrRedo() {
         GameType type = PlayerUtils.getGameType(mc.player);

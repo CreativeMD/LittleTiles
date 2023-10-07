@@ -60,7 +60,7 @@ public interface ILittlePlacer extends ILittleTool {
     public default LittleGrid getTilesGrid(ItemStack stack) {
         if (stack.hasTag())
             return LittleGrid.get(stack.getTag());
-        return LittleGrid.defaultGrid();
+        return LittleGrid.overallDefault();
     }
     
     public boolean containsIngredients(ItemStack stack);

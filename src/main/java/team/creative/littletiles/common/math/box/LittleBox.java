@@ -162,7 +162,7 @@ public class LittleBox {
     // ================Size & Volume================
     
     public int getSmallest(LittleGrid grid) {
-        int size = LittleGrid.min().count;
+        int size = LittleGrid.MIN.count;
         size = Math.max(size, grid.getMinGrid(minX));
         size = Math.max(size, grid.getMinGrid(minY));
         size = Math.max(size, grid.getMinGrid(minZ));

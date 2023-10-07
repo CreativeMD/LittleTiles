@@ -55,7 +55,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     protected BlockPos pos;
     private ShapeSelectPos last;
-    protected LittleGrid grid = LittleGrid.min();
+    protected LittleGrid grid = LittleGrid.MIN;
     
     protected LittleBox overallBox;
     protected ShapeSelectCache cache;
@@ -308,7 +308,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     
     @Override
     public int getSmallest() {
-        int smallest = LittleGrid.min().count;
+        int smallest = LittleGrid.MIN.count;
         for (int i = 0; i < positions.size(); i++)
             smallest = Math.max(smallest, positions.get(i).getSmallest());
         return smallest;
@@ -357,8 +357,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.pos = position;
             this.ray = result;
             this.result = LittleTileContext.selectFocused(player.level(), result.getBlockPos(), player);
-            if (inside && result.getDirection().getAxisDirection() == AxisDirection.POSITIVE && grid
-                    .isAtEdge(VectorUtils.get(result.getDirection().getAxis(), result.getLocation())))
+            if (inside && result.getDirection().getAxisDirection() == AxisDirection.POSITIVE && grid.isAtEdge(VectorUtils.get(result.getDirection().getAxis(), result
+                    .getLocation())))
                 pos.getVec().sub(Facing.get(result.getDirection()));
         }
         

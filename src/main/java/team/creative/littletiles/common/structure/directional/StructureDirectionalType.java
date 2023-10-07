@@ -159,7 +159,7 @@ public abstract class StructureDirectionalType<T> {
             
             @Override
             public StructureRelative getDefault() {
-                return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGrid.defaultGrid());
+                return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGrid.MIN);
             }
             
         });

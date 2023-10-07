@@ -65,7 +65,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     private boolean hasLoaded = false;
     private boolean preventUnload = false;
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
-    private LittleGrid grid = LittleGrid.min();
+    private LittleGrid grid = LittleGrid.MIN;
     private BlockParentCollection tiles;
     private boolean unloaded = false;
     public final SideSolidCache sideCache = new SideSolidCache();
@@ -128,7 +128,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     
     @Override
     public int getSmallest() {
-        int size = LittleGrid.min().count;
+        int size = LittleGrid.MIN.count;
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             size = Math.max(size, pair.value.getSmallest(grid));
         return size;
@@ -438,7 +438,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         if (!tiles.isCompletelyEmpty())
             tiles.clearEverything();
-        grid = LittleGrid.get(nbt);
+        grid = LittleGrid.getOrThrow(nbt);
         
         tiles.load(nbt.getCompound("content"));
         sideCache.load(nbt);

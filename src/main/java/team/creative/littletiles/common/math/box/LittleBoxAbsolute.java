@@ -19,7 +19,7 @@ public class LittleBoxAbsolute implements IGridBased {
     
     public LittleBoxAbsolute(BlockPos pos) {
         this.pos = pos;
-        this.grid = LittleGrid.min();
+        this.grid = LittleGrid.MIN;
         this.box = new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
     }
     
@@ -170,9 +170,8 @@ public class LittleBoxAbsolute implements IGridBased {
         int diffTwo = grid.toGrid(VectorUtils.get(two, this.pos) - VectorUtils.get(two, pos));
         
         if (box.getMin(one) - diffOne == this.box.getMin(one) && box.getMin(two) - diffTwo == this.box.getMin(two))
-            return facing.positive ? box.getMin(facing.axis) - grid.toGrid(VectorUtils.get(facing.axis, this.pos) - VectorUtils.get(facing.axis, pos)) - this.box
-                    .getMax(facing.axis) : this.box
-                            .getMin(facing.axis) - (box.getMax(facing.axis) - grid.toGrid(VectorUtils.get(facing.axis, this.pos) - VectorUtils.get(facing.axis, pos)));
+            return facing.positive ? box.getMin(facing.axis) - grid.toGrid(VectorUtils.get(facing.axis, this.pos) - VectorUtils.get(facing.axis, pos)) - this.box.getMax(
+                facing.axis) : this.box.getMin(facing.axis) - (box.getMax(facing.axis) - grid.toGrid(VectorUtils.get(facing.axis, this.pos) - VectorUtils.get(facing.axis, pos)));
         return -1;
     }
     

@@ -27,8 +27,10 @@ import team.creative.littletiles.common.gui.tool.GuiGlove;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
+import team.creative.littletiles.common.packet.action.VanillaBlockPacket.VanillaBlockAction;
 
-public class BlueprintMode extends GloveMode {
+public class BlueprintGloveMode extends GloveMode {
     
     public static final String CONTENT = "c";
     
@@ -37,7 +39,7 @@ public class BlueprintMode extends GloveMode {
             return LittleGroup.load(stack.getOrCreateTagElement(CONTENT));
         
         LittleGroup group = new LittleGroup();
-        group.add(LittleGrid.defaultGrid(), new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, 0, 0, 1, 1, 1));
+        group.add(LittleGrid.MIN, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, 0, 0, 1, 1, 1));
         stack.getOrCreateTag().put(CONTENT, LittleGroup.save(group));
         return group;
     }
@@ -58,10 +60,14 @@ public class BlueprintMode extends GloveMode {
     @OnlyIn(Dist.CLIENT)
     public boolean wheelClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
         BlockState state = level.getBlockState(result.getBlockPos());
+        if (LittleAction.isBlockValid(state)) {
+            LittleTiles.NETWORK.sendToServer(new VanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GLOVE));
+            return true;
+        }
         if (state.getBlock() instanceof BlockTile) {
             CompoundTag nbt = new CompoundTag();
             nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
-            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
+            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.GLOVE, nbt));
             return true;
         }
         return false;
@@ -111,7 +117,7 @@ public class BlueprintMode extends GloveMode {
     public void vanillaBlockAction(Level level, ItemStack stack, BlockPos pos, BlockState state) {
         if (LittleAction.isBlockValid(state)) {
             LittleGroup group = new LittleGroup();
-            group.add(LittleGrid.defaultGrid(), new LittleElement(state, ColorUtils.WHITE), new LittleBox(0, 0, 0, 1, 1, 1));
+            group.add(LittleGrid.MIN, new LittleElement(state, ColorUtils.WHITE), new LittleBox(0, 0, 0, 1, 1, 1));
             setTiles(group, stack);
         }
     }

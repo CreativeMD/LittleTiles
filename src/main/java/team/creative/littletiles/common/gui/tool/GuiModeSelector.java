@@ -53,7 +53,7 @@ public abstract class GuiModeSelector extends GuiConfigure {
     public CompoundTag saveConfiguration(CompoundTag nbt) {
         mode = getMode();
         GuiComboBoxMapped<LittleGrid> gridBox = (GuiComboBoxMapped<LittleGrid>) get("grid");
-        grid = gridBox.getSelected(LittleGrid.defaultGrid());
+        grid = gridBox.getSelected(LittleGrid.overallDefault());
         return saveConfiguration(nbt, grid, mode);
     }
     

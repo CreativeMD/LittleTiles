@@ -89,7 +89,7 @@ public class LittleGuiUtils {
                 CompoundTag display = new CompoundTag();
                 ListTag list = new ListTag();
                 int blocks = (int) ingredient.value;
-                double pixel = (ingredient.value - blocks) * LittleGrid.defaultGrid().count3d;
+                double pixel = (ingredient.value - blocks) * LittleGrid.OVERALL_DEFAULT_COUNT3D;
                 list.add(StringTag.valueOf((blocks > 0 ? blocks + " blocks " : "") + (pixel > 0 ? (Math.round(pixel * 100) / 100) + " pixel" : "")));
                 display.put(ItemStack.TAG_LORE, list);
                 stack.addTagElement(ItemStack.TAG_DISPLAY, display);

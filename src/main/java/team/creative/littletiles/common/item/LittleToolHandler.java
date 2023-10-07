@@ -55,14 +55,13 @@ public class LittleToolHandler {
         Minecraft mc = Minecraft.getInstance();
         if (mc.hitResult.getType() == Type.BLOCK && mc.hitResult instanceof BlockHitResult hit) {
             ItemStack stack = mc.player.getMainHandItem();
-            if (stack.getItem() instanceof ILittleTool && ((ILittleTool) stack.getItem())
-                    .onMouseWheelClickBlock(mc.level, mc.player, stack, new PlacementPosition(hit, ((ILittleTool) stack.getItem()).getPositionGrid(stack)), hit))
+            if (stack.getItem() instanceof ILittleTool tool && tool.onMouseWheelClickBlock(mc.level, mc.player, stack, new PlacementPosition(hit, tool.getPositionGrid(stack)),
+                hit))
                 event.setCanceled(true);
         } else if (mc.hitResult instanceof LittleHitResult result && result.isBlock()) {
             ItemStack stack = mc.player.getMainHandItem();
-            if (stack.getItem() instanceof ILittleTool && ((ILittleTool) stack.getItem())
-                    .onMouseWheelClickBlock((Level) result.level, mc.player, stack, new PlacementPosition(result.asBlockHit(), ((ILittleTool) stack.getItem())
-                            .getPositionGrid(stack)), result.asBlockHit()))
+            if (stack.getItem() instanceof ILittleTool tool && tool.onMouseWheelClickBlock((Level) result.level, mc.player, stack, new PlacementPosition(result.asBlockHit(), tool
+                    .getPositionGrid(stack)), result.asBlockHit()))
                 event.setCanceled(true);
         }
     }

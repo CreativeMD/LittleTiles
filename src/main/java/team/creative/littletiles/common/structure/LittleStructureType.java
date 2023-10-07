@@ -171,7 +171,7 @@ public class LittleStructureType {
     }
     
     public LittleGrid getMinContext(LittleGroup group) {
-        LittleGrid context = LittleGrid.min();
+        LittleGrid context = LittleGrid.MIN;
         
         for (StructureDirectionalField field : directional) {
             Object value = field.create(group.getStructureTag());

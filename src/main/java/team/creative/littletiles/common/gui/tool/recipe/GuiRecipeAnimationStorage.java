@@ -90,7 +90,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     
     public void addOverlap(LittleBoxes boxes) {
         if (overlappingBoxes == null)
-            overlappingBoxes = new LittleBoxesNoOverlap(BlockPos.ZERO, LittleGrid.min());
+            overlappingBoxes = new LittleBoxesNoOverlap(BlockPos.ZERO, LittleGrid.MIN);
         if (boxes instanceof LittleBoxesNoOverlap no)
             for (Entry<BlockPos, ArrayList<LittleBox>> entry : no.generateBlockWise().entrySet())
                 overlappingBoxes.addBoxes(boxes.getGrid(), entry.getKey(), entry.getValue());

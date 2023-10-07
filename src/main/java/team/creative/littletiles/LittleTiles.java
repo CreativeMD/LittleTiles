@@ -260,7 +260,7 @@ public class LittleTiles {
                 LittleEntity entity = new LittleLevelEntity(level, pos);
                 
                 LittleSubLevel subLevel = entity.getSubLevel();
-                LittleGrid grid = LittleGrid.defaultGrid();
+                LittleGrid grid = LittleGrid.overallDefault();
                 CompoundTag nbt = new CompoundTag();
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
                 LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
@@ -293,7 +293,7 @@ public class LittleTiles {
                 BlockPos pos = BlockPos.containing(x.getSource().getPosition()).above();
                 
                 LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
-                LittleGrid grid = LittleGrid.defaultGrid();
+                LittleGrid grid = LittleGrid.overallDefault();
                 CompoundTag nbt = new CompoundTag();
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
                 LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);

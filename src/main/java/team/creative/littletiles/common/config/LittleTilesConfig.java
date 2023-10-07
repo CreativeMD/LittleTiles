@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.config;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
@@ -249,9 +250,6 @@ public class LittleTilesConfig {
         @CreativeConfig
         public int maxDoorDistance = 512;
         
-        @CreativeConfig
-        public int defaultSelectedGrid = 16;
-        
     }
     
     public static class Building {
@@ -272,17 +270,11 @@ public class LittleTilesConfig {
     public static class Core implements ICreativeConfig {
         
         @CreativeConfig
-        public int base = 1;
-        
-        @CreativeConfig
-        public int scale = 6;
-        
-        @CreativeConfig
-        public int exponent = 2;
+        public int highest = 32;
         
         @Override
         public void configured(Side side) {
-            LittleGrid.loadGrid(base, scale, exponent, LittleTiles.CONFIG.general.defaultSelectedGrid);
+            LittleGrid.configure(highest);
             if (side.isClient())
                 configuredClient();
             ItemLittleBag.maxStackSizeOfTiles = (int) (ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d);
@@ -292,7 +284,7 @@ public class LittleTilesConfig {
         
         @OnlyIn(Dist.CLIENT)
         private void configuredClient() {
-            LittleTilesClient.ACTION_HANDLER.setting.refreshGrid();
+            LittleTilesClient.ACTION_HANDLER.setting.refreshGrid(Minecraft.getInstance().player);
         }
     }
     

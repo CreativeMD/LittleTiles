@@ -42,7 +42,7 @@ import team.creative.littletiles.common.math.box.LittleBox;
 
 public class GuiIsoAnimationViewer extends GuiControl {
     
-    private static final float MAXIMUM_ZOOM = 1F / (float) LittleGrid.defaultGrid().pixelLength;
+    private static final float MAXIMUM_ZOOM = 1F / (float) LittleGrid.OVERALL_DEFAULT_PIXEL_LENGTH;
     
     protected SmoothValue rotX = new SmoothValue(200);
     protected SmoothValue rotY = new SmoothValue(200);
@@ -200,8 +200,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
     }
     
     public void nextAxis() {
-        setView(team.creative.creativecore.common.util.math.base.Axis
-                .values()[(view.zAxis.axis.ordinal() + 1) % team.creative.creativecore.common.util.math.base.Axis.values().length].facing(true));
+        setView(team.creative.creativecore.common.util.math.base.Axis.values()[(view.zAxis.axis.ordinal() + 1) % team.creative.creativecore.common.util.math.base.Axis
+                .values().length].facing(true));
     }
     
     public void mirrorView() {
@@ -312,9 +312,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
         pose.popPose();
         
         RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
-        RenderSystem.setProjectionMatrix(new Matrix4f()
-                .setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, ForgeHooksClient
-                        .getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()),
+            0.0F, 1000.0F, ForgeHooksClient.getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
         Lighting.setupFor3DItems();

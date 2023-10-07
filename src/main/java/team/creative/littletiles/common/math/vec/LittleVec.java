@@ -62,27 +62,27 @@ public class LittleVec {
     
     public LittleVec(Facing facing) {
         switch (facing) {
-        case EAST:
-            set(1, 0, 0);
-            break;
-        case WEST:
-            set(-1, 0, 0);
-            break;
-        case UP:
-            set(0, 1, 0);
-            break;
-        case DOWN:
-            set(0, -1, 0);
-            break;
-        case SOUTH:
-            set(0, 0, 1);
-            break;
-        case NORTH:
-            set(0, 0, -1);
-            break;
-        default:
-            set(0, 0, 0);
-            break;
+            case EAST:
+                set(1, 0, 0);
+                break;
+            case WEST:
+                set(-1, 0, 0);
+                break;
+            case UP:
+                set(0, 1, 0);
+                break;
+            case DOWN:
+                set(0, -1, 0);
+                break;
+            case SOUTH:
+                set(0, 0, 1);
+                break;
+            case NORTH:
+                set(0, 0, -1);
+                break;
+            default:
+                set(0, 0, 0);
+                break;
         }
     }
     
@@ -105,7 +105,7 @@ public class LittleVec {
     }
     
     public int getSmallest(LittleGrid grid) {
-        int size = LittleGrid.min().count;
+        int size = LittleGrid.MIN.count;
         size = Math.max(size, grid.getMinGrid(x));
         size = Math.max(size, grid.getMinGrid(y));
         size = Math.max(size, grid.getMinGrid(z));
@@ -255,27 +255,27 @@ public class LittleVec {
     
     public int get(Axis axis) {
         switch (axis) {
-        case X:
-            return x;
-        case Y:
-            return y;
-        case Z:
-            return z;
+            case X:
+                return x;
+            case Y:
+                return y;
+            case Z:
+                return z;
         }
         return 0;
     }
     
     public void set(Axis axis, int value) {
         switch (axis) {
-        case X:
-            x = value;
-            break;
-        case Y:
-            y = value;
-            break;
-        case Z:
-            z = value;
-            break;
+            case X:
+                x = value;
+                break;
+            case Y:
+                y = value;
+                break;
+            case Z:
+                z = value;
+                break;
         }
     }
     

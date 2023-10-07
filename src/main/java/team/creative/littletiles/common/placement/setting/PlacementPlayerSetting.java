@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.placement.setting;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.packet.action.PlacementPlayerSettingPacket;
@@ -12,22 +13,30 @@ public class PlacementPlayerSetting {
     
     protected PlacementMode mode;
     protected LittleGrid grid;
+    private int configuredGrid;
     
     public PlacementPlayerSetting() {
         mode = PlacementMode.getDefault();
-        grid = LittleGrid.defaultGrid();
+        configuredGrid = -1;
     }
     
     public PlacementPlayerSetting(CompoundTag nbt) {
-        grid = LittleGrid.get(nbt);
         mode = PlacementMode.getMode(nbt.getString("mode"));
+        configuredGrid = nbt.contains(LittleGrid.GRID_KEY) ? nbt.getInt(LittleGrid.GRID_KEY) : -1;
     }
     
     public CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
-        grid.set(nbt);
+        nbt.putInt(LittleGrid.GRID_KEY, configuredGrid);
         nbt.putString("mode", mode.getId());
         return nbt;
+    }
+    
+    public void receive(Player player, PlacementPlayerSetting settings) {
+        this.configuredGrid = settings.configuredGrid;
+        this.grid = settings.grid;
+        this.mode = settings.mode;
+        refreshGrid(player);
     }
     
     public LittleGrid grid() {
@@ -44,6 +53,7 @@ public class PlacementPlayerSetting {
     
     public void grid(LittleGrid grid) {
         this.grid = grid;
+        this.configuredGrid = grid.count;
         changed();
     }
     
@@ -54,15 +64,13 @@ public class PlacementPlayerSetting {
     
     public void set(LittleGrid grid, PlacementMode mode) {
         this.grid = grid;
+        this.configuredGrid = grid.count;
         this.mode = mode;
         changed();
     }
     
-    public void refreshGrid() {
-        if (grid != null)
-            grid = LittleGrid.getOrDefault(grid.count);
-        else
-            grid = LittleGrid.defaultGrid();
+    public void refreshGrid(Player player) {
+        grid = LittleTiles.CONFIG.build.get(player).getOrDefault(configuredGrid);
     }
     
 }

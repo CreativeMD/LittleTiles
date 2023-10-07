@@ -1,11 +1,14 @@
 package team.creative.littletiles.common.grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.math.IntMath;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
@@ -15,101 +18,85 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleGrid {
     
+    public static final int BASE = 2;
     public static final int OVERALL_DEFAULT = 16;
+    public static final int OVERALL_DEFAULT_COUNT2D = 256;
+    public static final int OVERALL_DEFAULT_COUNT3D = 4096;
+    public static final double OVERALL_DEFAULT_PIXEL_LENGTH = 1 / (double) OVERALL_DEFAULT;
     
-    private static List<String> names;
-    private static int[] grid_sizes;
-    private static LittleGrid[] grids;
-    private static int overallDefaultIndex;
-    private static int defaultIndex;
-    private static int base;
-    private static int scale;
-    private static int exponent;
-    private static TextMapBuilder<LittleGrid> map;
+    public static final String GRID_KEY = "grid";
+    public static final LittleGrid MIN = new LittleGrid(1, 0);
+    private static LittleGrid MAX = new LittleGrid(1, 0);
+    private static int MAX_INDEX = 0;
+    private static LittleGrid GRID_DEFAULT;
+    private static final List<LittleGrid> GRIDS = new ArrayList<>(Arrays.asList(MIN));
+    private static final List<String> NAMES = new ArrayList<>(Arrays.asList("1"));
+    private static final Int2ObjectMap<LittleGrid> GRID_MAP = new Int2ObjectArrayMap<>(new int[] { 1 }, new LittleGrid[] { MIN });
+    private static List<String> UNMODFIAABLE_NAMES = Collections.unmodifiableList(NAMES);
+    private static int HIGHEST = 1;
+    private static TextMapBuilder<LittleGrid> STANDARD_TEXTMAP;
     
-    public static void loadGrid(int base, int scale, int exponent, int defaultGrid) {
-        LittleGrid.overallDefaultIndex = -1;
-        LittleGrid.defaultIndex = -1;
-        
-        LittleGrid.base = base;
-        LittleGrid.scale = scale;
-        LittleGrid.exponent = exponent;
-        
-        LittleGrid.grids = new LittleGrid[scale];
-        LittleGrid.grid_sizes = new int[scale];
-        int size = base;
-        for (int i = 0; i < LittleGrid.grids.length; i++) {
-            LittleGrid.grid_sizes[i] = size;
-            LittleGrid.grids[i] = new LittleGrid(size, i);
-            if (LittleGrid.grids[i].isDefault)
-                LittleGrid.overallDefaultIndex = i;
-            if (size == defaultGrid)
-                LittleGrid.defaultIndex = i;
+    private static void ensure(int highest) {
+        int exponent = 2;
+        int size = GRIDS.get(GRIDS.size() - 1).count * exponent;
+        while (size <= highest) {
+            LittleGrid grid = new LittleGrid(size, GRIDS.size());
+            GRIDS.add(grid);
+            GRID_MAP.put(size, grid);
+            NAMES.add(size + "");
+            if (size == OVERALL_DEFAULT)
+                GRID_DEFAULT = grid;
             size *= exponent;
         }
-        
-        names = new ArrayList<>();
-        for (int i = 0; i < grids.length; i++)
-            names.add(grids[i].count + "");
-        names = Collections.unmodifiableList(names);
-        
-        map = new TextMapBuilder<LittleGrid>().addComponent(grids, x -> Component.literal("" + x.count));
     }
     
-    public static int getScale() {
-        return scale;
+    public static void configure(int highest) {
+        if (highest < 1)
+            highest = 1;
+        ensure(highest);
+        
+        HIGHEST = highest;
+        MAX_INDEX = 0;
+        while (MAX_INDEX + 1 < GRIDS.size() && GRIDS.get(MAX_INDEX + 1).count <= HIGHEST)
+            MAX_INDEX++;
+        MAX = GRIDS.get(MAX_INDEX);
+        UNMODFIAABLE_NAMES = Collections.unmodifiableList(NAMES);
+        
+        STANDARD_TEXTMAP = new TextMapBuilder<LittleGrid>().addComponent(GRIDS, x -> Component.literal("" + x.count));
     }
     
-    public static int getExponent() {
-        return exponent;
+    public static Iterable<LittleGrid> grids() {
+        return GRIDS;
+    }
+    
+    public static int gridCount() {
+        return MAX_INDEX + 1;
+    }
+    
+    public static LittleGrid gridByIndex(int index) {
+        return GRIDS.get(index);
     }
     
     public static List<String> names() {
-        return names;
-    }
-    
-    public static LittleGrid[] getGrids() {
-        return grids;
+        return UNMODFIAABLE_NAMES;
     }
     
     public static TextMapBuilder<LittleGrid> mapBuilder() {
-        return map;
+        return STANDARD_TEXTMAP;
     }
     
     public static LittleGrid overallDefault() {
-        if (overallDefaultIndex != -1)
-            return grids[overallDefaultIndex];
-        return null;
+        if (GRID_DEFAULT == null)
+            return MAX;
+        return GRID_DEFAULT;
     }
     
     public static LittleGrid get(int grid) {
-        for (int i = 0; i < grids.length; i++)
-            if (grids[i].count == grid)
-                return grids[i];
-        throw new LittleGridException(grid);
-    }
-    
-    public static LittleGrid getOrDefault(int grid) {
-        for (int i = 0; i < grids.length; i++)
-            if (grids[i].count == grid)
-                return grids[i];
-        return defaultGrid();
-    }
-    
-    public static LittleGrid defaultGrid() {
-        if (grids == null)
-            return null;
-        if (defaultIndex != -1)
-            return grids[defaultIndex];
-        return null;
-    }
-    
-    public static LittleGrid min() {
-        return grids[0];
+        return GRID_MAP.get(grid);
     }
     
     public static LittleGrid getMax() {
-        return grids[grids.length - 1];
+        return MAX;
     }
     
     public static LittleGrid max(LittleGrid context, LittleGrid context2) {
@@ -118,9 +105,22 @@ public class LittleGrid {
         return context2;
     }
     
+    public static LittleGrid getOrThrow(CompoundTag nbt) {
+        if (nbt != null && nbt.contains(GRID_KEY)) {
+            LittleGrid grid = LittleGrid.get(nbt.getInt(GRID_KEY));
+            if (grid != null)
+                return grid;
+            throw new RuntimeException("Grid " + nbt.getInt(GRID_KEY) + " is not available.");
+        }
+        return LittleGrid.overallDefault();
+    }
+    
     public static LittleGrid get(CompoundTag nbt) {
-        if (nbt != null && nbt.contains("grid"))
-            return LittleGrid.get(nbt.getInt("grid"));
+        if (nbt != null && nbt.contains(GRID_KEY)) {
+            LittleGrid grid = LittleGrid.get(nbt.getInt(GRID_KEY));
+            if (grid != null)
+                return grid;
+        }
         return LittleGrid.overallDefault();
     }
     
@@ -149,10 +149,10 @@ public class LittleGrid {
         this.isDefault = LittleGrid.OVERALL_DEFAULT == gridSize;
         
         this.minSizes = new int[this.count];
-        this.minSizes[0] = LittleGrid.base;
+        this.minSizes[0] = BASE;
         for (int i = 1; i < this.minSizes.length; i++) {
             this.minSizes[i] = this.count / IntMath.gcd(i, this.count);
-            if (this.minSizes[i] < LittleGrid.base || this.minSizes[i] % LittleGrid.base != 0)
+            if (this.minSizes[i] < BASE || this.minSizes[i] % BASE != 0)
                 this.minSizes[i] = this.count;
         }
         
@@ -235,9 +235,9 @@ public class LittleGrid {
     }
     
     public LittleGrid next() {
-        if (index >= grids.length)
+        if (index >= GRIDS.size())
             return null;
-        return grids[index + 1];
+        return GRIDS.get(index + 1);
     }
     
 }

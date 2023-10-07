@@ -65,7 +65,7 @@ public class BlockPacket extends CreativePacket {
                     ItemLittleChisel.setElement(stack, new LittleElement(context.tile.getState(), context.tile.color));
             }
         },
-        GRABBER(false) {
+        GLOVE(false) {
             
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {

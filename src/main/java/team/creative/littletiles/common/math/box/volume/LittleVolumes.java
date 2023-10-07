@@ -20,7 +20,7 @@ public class LittleVolumes implements IGridBased {
     }
     
     public LittleVolumes() {
-        this.grid = LittleGrid.min();
+        this.grid = LittleGrid.MIN;
     }
     
     @Override
@@ -35,7 +35,7 @@ public class LittleVolumes implements IGridBased {
     }
     
     public void clear() {
-        this.grid = LittleGrid.min();
+        this.grid = LittleGrid.MIN;
         volumes.clear();
     }
     
@@ -83,7 +83,7 @@ public class LittleVolumes implements IGridBased {
     
     @Override
     public int getSmallest() {
-        int smallest = LittleGrid.min().count;
+        int smallest = LittleGrid.MIN.count;
         for (Integer value : volumes.values()) {
             double root = Math.cbrt(value);
             if ((root == Math.floor(root)))

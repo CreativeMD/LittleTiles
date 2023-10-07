@@ -126,7 +126,7 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
             editKey.clear();
             if (x.control.channel instanceof GuiAdvancedTimelineChannel c)
                 if (c.distance) {
-                    GuiDistanceControl distance = new GuiDistanceControl("distance", LittleGrid.min(), 0);
+                    GuiDistanceControl distance = new GuiDistanceControl("distance", LittleGrid.MIN, 0);
                     distance.setVanillaDistance((double) x.control.value);
                     editKey.add(distance);
                 } else

@@ -57,7 +57,7 @@ public class GuiRecipe extends GuiConfigure {
     
     public final GuiSyncLocal<EndTag> CLEAR_CONTENT = getSyncHolder().register("clear_content", tag -> {
         CompoundTag content = new CompoundTag();
-        LittleGrid.min().set(content);
+        LittleGrid.MIN.set(content);
         tool.get().getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, content);
         tool.changed();
         LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
@@ -224,8 +224,8 @@ public class GuiRecipe extends GuiConfigure {
         sidebarButtons = new GuiParent(GuiFlow.FIT_X);
         sidebar.add(sidebarButtons.setAlign(Align.CENTER));
         
-        sidebarButtons.add(new GuiButton("add", x -> OPEN_ADD.open(new CompoundTag()).init(this)).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER)
-                .setDim(12, 12).setTooltip(new TextBuilder().translate("gui.recipe.add").build()));
+        sidebarButtons.add(new GuiButton("add", x -> OPEN_ADD.open(new CompoundTag()).init(this)).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(
+            12, 12).setTooltip(new TextBuilder().translate("gui.recipe.add").build()));
         sidebarButtons.add(new GuiIconButton("duplicate", GuiIcon.DUPLICATE, x -> {
             if (tree.selected() == null)
                 return;
@@ -235,8 +235,8 @@ public class GuiRecipe extends GuiConfigure {
         sidebarButtons.add(new GuiButton("del", x -> {
             if (tree.selected() == null)
                 return;
-            GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component
-                    .translatable("gui.recipe.dialog.delete", ((GuiTreeItemStructure) tree.selected()).getTitle()), (g, b) -> {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "delete_item", Component.translatable("gui.recipe.dialog.delete", ((GuiTreeItemStructure) tree.selected())
+                    .getTitle()), (g, b) -> {
                         if (b == DialogButton.YES)
                             removeItem((GuiTreeItemStructure) tree.selected());
                     }, DialogButton.NO, DialogButton.YES);
@@ -244,17 +244,17 @@ public class GuiRecipe extends GuiConfigure {
         sidebarButtons.add(new GuiIconButton("up", GuiIcon.ARROW_UP, x -> tree.moveUp()).setTooltip(new TextBuilder().translate("gui.recipe.moveup").build()));
         sidebarButtons.add(new GuiIconButton("down", GuiIcon.ARROW_DOWN, x -> tree.moveDown()).setTooltip(new TextBuilder().translate("gui.recipe.movedown").build()));
         
-        sidebarButtons
-                .add(new GuiIconButton("move", GuiIcon.MOVE, x -> OPEN_MOVE.open(new CompoundTag()).init(this)).setTooltip(new TextBuilder().translate("gui.recipe.move").build()));
-        sidebarButtons.add(new GuiIconButton("merge", GuiIcon.MERGE, x -> OPEN_MERGE.open(new CompoundTag()).init(this))
-                .setTooltip(new TextBuilder().translate("gui.recipe.merge").build()));
+        sidebarButtons.add(new GuiIconButton("move", GuiIcon.MOVE, x -> OPEN_MOVE.open(new CompoundTag()).init(this)).setTooltip(new TextBuilder().translate("gui.recipe.move")
+                .build()));
+        sidebarButtons.add(new GuiIconButton("merge", GuiIcon.MERGE, x -> OPEN_MERGE.open(new CompoundTag()).init(this)).setTooltip(new TextBuilder().translate("gui.recipe.merge")
+                .build()));
         
         GuiParent topCenter = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(400)).setExpandableY());
         
         // Actual recipe configuration
-        types = new GuiComboxMappedFlexible<>("type", new TextMapBuilder<LittleStructureGui>()
-                .addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()), x -> x.translatable());
+        types = new GuiComboxMappedFlexible<>("type", new TextMapBuilder<LittleStructureGui>().addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()), x -> x
+                .translatable());
         topCenter.add(types);
         config = new GuiParent("config", GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         topCenter.add(config.setExpandableY());

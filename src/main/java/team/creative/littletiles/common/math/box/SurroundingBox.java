@@ -22,7 +22,7 @@ public class SurroundingBox {
     
     protected Level level;
     protected int count = 0;
-    protected LittleGrid grid = LittleGrid.min();
+    protected LittleGrid grid = LittleGrid.MIN;
     protected long minX = Long.MAX_VALUE;
     protected long minY = Long.MAX_VALUE;
     protected long minZ = Long.MAX_VALUE;
@@ -43,7 +43,7 @@ public class SurroundingBox {
     
     public void clear() {
         count = 0;
-        grid = LittleGrid.min();
+        grid = LittleGrid.MIN;
         
         minX = Long.MAX_VALUE;
         minY = Long.MAX_VALUE;
@@ -130,8 +130,8 @@ public class SurroundingBox {
     
     public LittleBoxAbsolute getAbsoluteBox() {
         BlockPos pos = getMinPos();
-        return new LittleBoxAbsolute(pos, new LittleBox((int) (minX - grid.toGrid(pos.getX())), (int) (minY - grid.toGrid(pos.getY())), (int) (minZ - grid
-                .toGrid(pos.getZ())), (int) (maxX - grid.toGrid(pos.getX())), (int) (maxY - grid.toGrid(pos.getY())), (int) (maxZ - grid.toGrid(pos.getZ()))), grid);
+        return new LittleBoxAbsolute(pos, new LittleBox((int) (minX - grid.toGrid(pos.getX())), (int) (minY - grid.toGrid(pos.getY())), (int) (minZ - grid.toGrid(pos
+                .getZ())), (int) (maxX - grid.toGrid(pos.getX())), (int) (maxY - grid.toGrid(pos.getY())), (int) (maxZ - grid.toGrid(pos.getZ()))), grid);
     }
     
     public AABB getAABB() {
@@ -290,13 +290,13 @@ public class SurroundingBox {
     }
     
     public LittleVec getMinPosOffset() {
-        return new LittleVec((int) (minX - grid.toBlockOffset(minX) * grid.count), (int) (minY - grid.toBlockOffset(minY) * grid.count), (int) (minZ - grid
-                .toBlockOffset(minZ) * grid.count));
+        return new LittleVec((int) (minX - grid.toBlockOffset(minX) * grid.count), (int) (minY - grid.toBlockOffset(minY) * grid.count), (int) (minZ - grid.toBlockOffset(
+            minZ) * grid.count));
     }
     
     public LittleVec getMaxPosOffset() {
-        return new LittleVec((int) (maxX - grid.toBlockOffset(maxX) * grid.count), (int) (maxY - grid.toBlockOffset(maxY) * grid.count), (int) (maxZ - grid
-                .toBlockOffset(maxZ) * grid.count));
+        return new LittleVec((int) (maxX - grid.toBlockOffset(maxX) * grid.count), (int) (maxY - grid.toBlockOffset(maxY) * grid.count), (int) (maxZ - grid.toBlockOffset(
+            maxZ) * grid.count));
     }
     
     public LittleVec getSize() {

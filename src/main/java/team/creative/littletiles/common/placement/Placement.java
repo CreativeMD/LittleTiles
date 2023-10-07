@@ -377,7 +377,7 @@ public class Placement {
         
         @Override
         public int getSmallest() {
-            int size = LittleGrid.min().count;
+            int size = LittleGrid.MIN.count;
             
             for (int i = 0; i < tiles.length; i++)
                 if (tiles[i] != null)

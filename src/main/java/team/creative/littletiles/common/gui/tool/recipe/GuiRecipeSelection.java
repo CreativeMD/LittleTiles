@@ -38,8 +38,8 @@ public class GuiRecipeSelection extends GuiConfigure {
         ItemStack stack = tool.get();
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
         try {
-            LittleGroup previews = mode.getGroup(getPlayer().level(), getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), nbt
-                    .getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
+            LittleGroup previews = mode.getGroup(getPlayer().level(), getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), nbt.getBoolean("includeVanilla"),
+                nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
             if (nbt.contains("grid")) {
                 LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
                 previews.convertTo(grid);
@@ -91,8 +91,8 @@ public class GuiRecipeSelection extends GuiConfigure {
     public void create() {
         ItemStack stack = tool.get();
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
-        GuiComboBoxMapped<SelectionMode> box = new GuiComboBoxMapped<>("selection_mode", new TextMapBuilder<SelectionMode>()
-                .addEntrySet(SelectionMode.REGISTRY.entrySet(), x -> x.getValue().getTranslation()));
+        GuiComboBoxMapped<SelectionMode> box = new GuiComboBoxMapped<>("selection_mode", new TextMapBuilder<SelectionMode>().addEntrySet(SelectionMode.REGISTRY.entrySet(), x -> x
+                .getValue().getTranslation()));
         box.select(mode);
         add(box.setExpandableX());
         
@@ -107,16 +107,16 @@ public class GuiRecipeSelection extends GuiConfigure {
         
         GuiCheckBox cb = new GuiCheckBox("includeCB", true).setTranslate("selection.include.cb");
         if (result != null && result.cbBlocks > 0)
-            cb.setTooltip(new TextBuilder().text(result.cbBlocks + " ").translate("gui.blocks").text(", " + result.cbTiles + " ").translate("gui.tiles")
-                    .text(", " + result.minCBGrid.count + " ").translate("gui.grid").build());
+            cb.setTooltip(new TextBuilder().text(result.cbBlocks + " ").translate("gui.blocks").text(", " + result.cbTiles + " ").translate("gui.tiles").text(
+                ", " + result.minCBGrid.count + " ").translate("gui.grid").build());
         else
             cb.enabled = false;
         add(cb);
         
         GuiCheckBox lt = new GuiCheckBox("includeLT", true).setTranslate("selection.include.lt");
         if (result != null && result.ltBlocks > 0)
-            cb.setTooltip(new TextBuilder().text(result.ltBlocks + " ").translate("gui.blocks").text(", " + result.ltTiles + " ").translate("gui.tiles")
-                    .text(", " + result.minLtGrid.count + " ").translate("gui.grid").build());
+            cb.setTooltip(new TextBuilder().text(result.ltBlocks + " ").translate("gui.blocks").text(", " + result.ltTiles + " ").translate("gui.tiles").text(
+                ", " + result.minLtGrid.count + " ").translate("gui.grid").build());
         else
             lt.enabled = false;
         add(lt);
@@ -146,8 +146,8 @@ public class GuiRecipeSelection extends GuiConfigure {
             boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
             
             try {
-                if (rememberStructure && mode.getGroup(getPlayer().level(), getPlayer(), stack
-                        .getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB, includeLT, rememberStructure).isEmptyIncludeChildren()) {
+                if (rememberStructure && mode.getGroup(getPlayer().level(), getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB,
+                    includeLT, rememberStructure).isEmptyIncludeChildren()) {
                     GuiDialogHandler.openDialog(getIntegratedParent(), "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;
                 }
@@ -164,12 +164,12 @@ public class GuiRecipeSelection extends GuiConfigure {
             nbt.putBoolean("includeLT", includeLT);
             nbt.putBoolean("remember_structure", rememberStructure);
             
-            LittleGrid minRequired = LittleGrid.min();
+            LittleGrid minRequired = LittleGrid.MIN;
             if (nbt.getBoolean("includeCB") && result.minCBGrid != null)
                 minRequired = LittleGrid.max(minRequired, result.minCBGrid);
             if (nbt.getBoolean("includeLT") && result.minLtGrid != null)
                 minRequired = LittleGrid.max(minRequired, result.minLtGrid);
-            LittleGrid selected = LittleGrid.getGrids()[LittleGrid.getGrids().length - 1 - ((GuiArraySlider) get("scale")).getValue()];
+            LittleGrid selected = LittleGrid.gridByIndex(LittleGrid.gridCount() - 1 - ((GuiArraySlider) get("scale")).getValue());
             if (minRequired != selected) {
                 nbt.putInt("grid", minRequired.count);
                 nbt.putInt("aimedGrid", selected.count);
@@ -188,7 +188,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         if (result == null || (!includeVanilla && !includeCB && !includeLT))
             slider.setEnabled(false);
         else {
-            LittleGrid minRequired = LittleGrid.min();
+            LittleGrid minRequired = LittleGrid.MIN;
             if (includeCB && result.minCBGrid != null)
                 minRequired = LittleGrid.max(minRequired, result.minCBGrid);
             if (includeLT && result.minLtGrid != null)
@@ -196,8 +196,8 @@ public class GuiRecipeSelection extends GuiConfigure {
             
             String value = slider.get();
             
-            String[] values = new String[LittleGrid.getGrids().length];
-            for (LittleGrid context : LittleGrid.getGrids())
+            String[] values = new String[LittleGrid.gridCount()];
+            for (LittleGrid context : LittleGrid.grids())
                 values[values.length - 1 - context.getIndex()] = minRequired.count + ":" + context.count + " x" + (context.pixelLength / minRequired.pixelLength) + "";
             slider.setValues(values);
             if (ArrayUtils.contains(values, value))

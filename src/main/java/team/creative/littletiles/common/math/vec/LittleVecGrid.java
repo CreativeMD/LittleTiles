@@ -15,14 +15,14 @@ public class LittleVecGrid implements IGridBased {
     protected LittleGrid grid;
     
     public LittleVecGrid() {
-        this(new LittleVec(0, 0, 0), LittleGrid.min());
+        this(new LittleVec(0, 0, 0), LittleGrid.MIN);
     }
     
     public LittleVecGrid(String name, CompoundTag nbt) {
         int[] array = nbt.getIntArray(name);
         if (array.length == 3) {
             LittleVec vec = new LittleVec(name, nbt);
-            this.grid = LittleGrid.defaultGrid();
+            this.grid = LittleGrid.overallDefault();
             this.vec = new LittleVec(vec.x, vec.y, vec.z);
         } else if (array.length == 4) {
             this.vec = new LittleVec(array[0], array[1], array[2]);

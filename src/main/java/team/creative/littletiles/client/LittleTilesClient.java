@@ -323,7 +323,7 @@ public class LittleTilesClient {
                         return null;
                     
                     double volume = Math.min(1, ingredient.value);
-                    LittleGrid context = LittleGrid.defaultGrid();
+                    LittleGrid context = LittleGrid.overallDefault();
                     long pixels = (long) (volume * context.count3d);
                     if (pixels < context.count * context.count)
                         cubes.add(new RenderBox(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block.getState()));

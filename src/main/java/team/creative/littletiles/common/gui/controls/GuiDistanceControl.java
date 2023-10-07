@@ -39,7 +39,7 @@ public class GuiDistanceControl extends GuiParent {
         int lt;
         
         do {
-            grid = grid == null ? LittleGrid.min() : grid.next();
+            grid = grid == null ? LittleGrid.MIN : grid.next();
             lt = grid.toGrid(distance);
         } while (Math.abs(grid.toVanillaGrid(lt) - distance) > EPSILON && grid.next() != null);
         
@@ -80,7 +80,7 @@ public class GuiDistanceControl extends GuiParent {
     
     public LittleGrid getDistanceGrid() {
         GuiStateButtonMapped<LittleGrid> contextBox = (GuiStateButtonMapped<LittleGrid>) get("grid");
-        return contextBox.getSelected(LittleGrid.defaultGrid());
+        return contextBox.getSelected(LittleGrid.overallDefault());
     }
     
     public double getVanillaDistance() {

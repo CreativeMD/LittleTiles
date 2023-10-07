@@ -35,7 +35,7 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 public class ItemMultiTiles extends Item implements ILittlePlacer {
     
     public static ItemStack of(LittleElement element) {
-        return of(element, LittleGrid.min(), LittleGrid.min().box());
+        return of(element, LittleGrid.MIN, LittleGrid.MIN.box());
     }
     
     public static ItemStack of(LittleElement element, LittleGrid grid, LittleBox box) {

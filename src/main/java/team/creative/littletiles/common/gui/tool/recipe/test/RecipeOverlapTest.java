@@ -111,7 +111,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
     public class RecipeOverlayTestBlock implements IGridBased {
         
         public HashMap<GuiTreeItemStructure, List<LittleBox>> structureBoxes = new HashMap<>();
-        private LittleGrid grid = LittleGrid.min();
+        private LittleGrid grid = LittleGrid.MIN;
         
         public void add(GuiTreeItemStructure item, BlockPos pos, LittleGrid grid, LittleBox box) {
             if (grid.count > this.grid.count)

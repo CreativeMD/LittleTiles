@@ -51,7 +51,7 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     
     @Override
     public int getSmallest() {
-        int size = LittleGrid.min().count;
+        int size = LittleGrid.MIN.count;
         for (LittleBox box : boxes)
             size = Math.max(size, box.getSmallest(grid));
         return size;

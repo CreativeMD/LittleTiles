@@ -101,7 +101,7 @@ public class LittleStorage extends LittleStructure {
         String name = LittleTilesRegistry.STORAGE_BLOCK.get().builtInRegistryHolder().key().location().toString();
         for (LittleTile tile : previews)
             if (tile.getBlock().blockName().equals(name))
-                size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
+                size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.OVERALL_DEFAULT_COUNT3D * LittleTiles.CONFIG.general.storagePerPixel;
         return (int) size;
     }
     
@@ -170,7 +170,7 @@ public class LittleStorage extends LittleStructure {
                     if (tile.getBlock() == LittleTilesRegistry.STORAGE_BLOCK.get())
                         volume += tile.getPercentVolume(list.getGrid());
                     
-            volume *= LittleGrid.defaultGrid().count3d * LittleTiles.CONFIG.general.storagePerPixel;
+            volume *= LittleGrid.OVERALL_DEFAULT_COUNT3D * LittleTiles.CONFIG.general.storagePerPixel;
             
             inventorySize = (int) volume;
             stackSizeLimit = maxSlotStackSize;

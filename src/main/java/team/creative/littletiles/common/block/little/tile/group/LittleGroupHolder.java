@@ -37,7 +37,7 @@ public class LittleGroupHolder extends LittleGroup {
     
     @Override
     public int getSmallest() {
-        return LittleGrid.min().count;
+        return LittleGrid.MIN.count;
     }
     
     @Override

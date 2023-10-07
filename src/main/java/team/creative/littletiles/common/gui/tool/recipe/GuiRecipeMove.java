@@ -74,14 +74,14 @@ public class GuiRecipeMove extends GuiLayer {
             child.addChildren();
         }
         
-        GuiStateButtonMapped<GuiRecipeMoveMode> modes = new GuiStateButtonMapped<>("modes", new TextMapBuilder<GuiRecipeMoveMode>()
-                .addComponent(GuiRecipeMoveMode.values(), x -> x.title()));
+        GuiStateButtonMapped<GuiRecipeMoveMode> modes = new GuiStateButtonMapped<>("modes", new TextMapBuilder<GuiRecipeMoveMode>().addComponent(GuiRecipeMoveMode.values(), x -> x
+                .title()));
         sidebar.add(modes.setExpandableX());
         
         GuiParent config = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.CENTER);
         upper.add(config.setDim(new GuiSizeRatioRules().widthRatio(0.3F)));
         
-        config.add(new GuiDistanceControl("distance", LittleGrid.defaultGrid(), 1));
+        config.add(new GuiDistanceControl("distance", LittleGrid.overallDefault(), 1));
         
         GuiParent row1 = new GuiParent();
         config.add(row1);

@@ -198,16 +198,16 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
     public static Component printVolume(double volume, boolean extended) {
         String text = "";
         int fullBlocks = (int) volume;
-        int pixels = (int) Math.ceil(((volume - fullBlocks) * LittleGrid.defaultGrid().count3d));
+        int pixels = (int) Math.ceil(((volume - fullBlocks) * LittleGrid.overallDefault().count3d));
         
         if (fullBlocks > 0)
-            text += TooltipUtils.print(fullBlocks) + (extended ? " " + (fullBlocks == 1 ? LanguageUtils.translate("volume.unit.big.single") : LanguageUtils
-                    .translate("volume.unit.big.multiple")) : LanguageUtils.translate("volume.unit.big.short"));
+            text += TooltipUtils.print(fullBlocks) + (extended ? " " + (fullBlocks == 1 ? LanguageUtils.translate("volume.unit.big.single") : LanguageUtils.translate(
+                "volume.unit.big.multiple")) : LanguageUtils.translate("volume.unit.big.short"));
         if (pixels > 0) {
             if (fullBlocks > 0)
                 text += " ";
-            text += TooltipUtils.print(pixels) + (extended ? " " + (pixels == 1 ? LanguageUtils.translate("volume.unit.small.single") : LanguageUtils
-                    .translate("volume.unit.small.multiple")) : LanguageUtils.translate("volume.unit.small.short"));
+            text += TooltipUtils.print(pixels) + (extended ? " " + (pixels == 1 ? LanguageUtils.translate("volume.unit.small.single") : LanguageUtils.translate(
+                "volume.unit.small.multiple")) : LanguageUtils.translate("volume.unit.small.short"));
         }
         
         return Component.literal(text);

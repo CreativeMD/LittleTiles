@@ -19,7 +19,7 @@ public class PlacementPlayerSettingPacket extends CreativePacket {
     
     @Override
     public void executeClient(Player player) {
-        LittleTilesClient.ACTION_HANDLER.setting = setting;
+        LittleTilesClient.ACTION_HANDLER.setting.receive(player, setting);
     }
     
     @Override

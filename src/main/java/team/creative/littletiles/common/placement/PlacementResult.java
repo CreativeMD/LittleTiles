@@ -25,7 +25,7 @@ public class PlacementResult {
     public PlacementResult(BlockPos pos) {
         this.pos = pos;
         this.placedPreviews = new LittleGroup();
-        this.placedBoxes = new LittleBoxesSimple(pos, LittleGrid.min());
+        this.placedBoxes = new LittleBoxesSimple(pos, LittleGrid.MIN);
     }
     
     public void addPlacedTile(ParentCollection parent, LittleTile tile) {

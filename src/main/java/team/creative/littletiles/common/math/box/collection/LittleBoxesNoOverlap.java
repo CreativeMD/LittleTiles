@@ -67,7 +67,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
     
     @Override
     public int getSmallest() {
-        int size = LittleGrid.min().count;
+        int size = LittleGrid.MIN.count;
         for (LittleBox box : blockMap)
             size = Math.max(size, box.getSmallest(grid));
         return size;

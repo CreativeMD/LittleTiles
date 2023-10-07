@@ -52,16 +52,33 @@ public class LittleBuildingConfig {
     @CreativeConfig
     public ToggleableConfig<Integer> gridLimit = new ToggleableConfig<Integer>(32, false);
     
+    @CreativeConfig
+    public int defaultGrid = 16;
+    
     public TextMapBuilder<LittleGrid> gridBuilder() {
         if (!gridLimit.isEnabled() || gridLimit.value >= LittleGrid.getMax().count)
             return LittleGrid.mapBuilder();
         TextMapBuilder<LittleGrid> map = new TextMapBuilder<LittleGrid>();
-        for (LittleGrid grid : LittleGrid.getGrids()) {
+        for (LittleGrid grid : LittleGrid.grids()) {
             if (grid.count > gridLimit.value)
                 break;
             map.addComponent(grid, Component.literal("" + grid.count));
         }
         return map;
+    }
+    
+    public LittleGrid getOrDefault(int grid) {
+        LittleGrid littleGrid = LittleGrid.get(grid);
+        if (littleGrid != null)
+            return littleGrid;
+        return defaultGrid();
+    }
+    
+    public LittleGrid defaultGrid() {
+        LittleGrid grid = LittleGrid.get(defaultGrid);
+        if (grid != null)
+            return grid;
+        return LittleGrid.overallDefault();
     }
     
     public static enum HarvestLevel {

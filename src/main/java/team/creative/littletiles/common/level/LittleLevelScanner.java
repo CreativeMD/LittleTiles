@@ -18,7 +18,7 @@ import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 public class LittleLevelScanner {
     
     public static LittleBoxes scan(Level level, BlockPos pos, @Nullable BiFilter<IParentCollection, LittleTile> filter) {
-        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.min());
+        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.MIN);
         
         BETiles te = BlockTile.loadBE(level, pos);
         
@@ -33,7 +33,7 @@ public class LittleLevelScanner {
     }
     
     public static LittleBoxes scan(Level level, BlockPos pos, BlockPos pos2, @Nullable BiFilter<IParentCollection, LittleTile> filter) {
-        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.min());
+        LittleBoxes boxes = new LittleBoxesSimple(pos, LittleGrid.MIN);
         
         int minX = Math.min(pos.getX(), pos2.getX());
         int maxX = Math.max(pos.getX(), pos2.getX());

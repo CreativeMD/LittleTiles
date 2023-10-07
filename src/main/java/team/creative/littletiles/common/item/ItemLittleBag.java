@@ -109,7 +109,7 @@ public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredien
     
     @Override
     public LittleGrid getPositionGrid(ItemStack stack) {
-        return LittleGrid.defaultGrid();
+        return LittleGrid.overallDefault();
     }
     
     @Override

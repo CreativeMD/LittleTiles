@@ -25,7 +25,7 @@ public abstract class GloveMode {
     
     static {
         REGISTRY.registerDefault("pixel", new PixelMode());
-        REGISTRY.register("blueprint", new BlueprintMode());
+        REGISTRY.register("blueprint", new BlueprintGloveMode());
         REGISTRY.register("replace", new ReplaceMode());
     }
     

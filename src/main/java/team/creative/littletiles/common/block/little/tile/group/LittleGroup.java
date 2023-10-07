@@ -197,7 +197,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     }
     
     public LittleGroup(CompoundTag structure, List<LittleGroup> children) {
-        this.grid = LittleGrid.min();
+        this.grid = LittleGrid.MIN;
         this.structure = structure;
         this.children = new ItemChildrenList(this, children);
         convertToSmallest(); // should ensure same grid for all
@@ -337,7 +337,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     
     @Override
     public int getSmallest() {
-        int size = LittleGrid.min().count;
+        int size = LittleGrid.MIN.count;
         for (LittleTile tile : this)
             size = Math.max(size, tile.getSmallest(grid));
         
