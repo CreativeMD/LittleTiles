@@ -86,7 +86,7 @@ public class LittleActionHandlerClient extends LevelHandler {
             T result = action.action(player);
             if (action.wasSuccessful(result)) {
                 rememberAction(action);
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.normal, player));
+                MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
                 
                 LittleTiles.NETWORK.sendToServer(action);
                 
@@ -112,7 +112,7 @@ public class LittleActionHandlerClient extends LevelHandler {
                 throw new LittleActionException("action.revert.notavailable");
             
             if (reverted.wasSuccessful(reverted.action(player))) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.undo, player));
+                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.UNDO, player));
                 LittleTiles.NETWORK.sendToServer(reverted);
                 
                 lastActions.set(index, reverted);
@@ -138,7 +138,7 @@ public class LittleActionHandlerClient extends LevelHandler {
                 throw new LittleActionException("action.revert.notavailable");
             
             if (reverted.wasSuccessful(reverted.action(player))) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.redo, player));
+                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.REDO, player));
                 LittleTiles.NETWORK.sendToServer(reverted);
                 
                 lastActions.set(index, reverted);

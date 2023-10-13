@@ -33,7 +33,7 @@ public class LittleActionHandlerServer {
         try {
             T result = action.action(player);
             if (action.wasSuccessful(result)) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.normal, player));
+                MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
                 return result;
             }
         } catch (LittleActionException e) {

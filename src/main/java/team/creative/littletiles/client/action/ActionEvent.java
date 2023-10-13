@@ -19,8 +19,8 @@ public class ActionEvent extends Event {
     }
     
     public static enum ActionType {
-        normal,
-        undo,
-        redo;
+        NORMAL,
+        UNDO,
+        REDO;
     }
 }
