@@ -47,10 +47,9 @@ public class StructureParentCollection extends ParentCollection implements IStru
     
     @Override
     protected void loadExtra(CompoundTag nbt) {
-        if (nbt.contains("structure")) {
-            CompoundTag structureNBT = nbt.getCompound("structure");
-            cache = create(structureNBT, this);
-        } else {
+        if (nbt.contains("structure"))
+            cache = setStructureNBT(nbt.getCompound("structure"));
+        else {
             int[] array = nbt.getIntArray("coord");
             if (array.length == 3)
                 relativePos = new BlockPos(array[0], array[1], array[2]);

@@ -1,11 +1,13 @@
 package team.creative.littletiles.common.block.little.tile.parent;
 
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -31,20 +33,22 @@ public class BlockParentCollection extends ParentCollection {
         this.client = client;
     }
     
-    private void clearStructures() {
-        for (StructureParentCollection structure : structures.values())
-            structure.unload();
-        structures.clear();
-    }
-    
     @Override
     protected void loadExtra(CompoundTag nbt) {
-        clearStructures();
-        ListTag list = nbt.getList("children", 10);
+        ListTag list = nbt.getList("children", Tag.TAG_COMPOUND);
+        HashMap<Integer, StructureParentCollection> previous = new HashMap<>(structures);
+        structures.clear();
         for (int i = 0; i < list.size(); i++) {
-            StructureParentCollection child = new StructureParentCollection(this, list.getCompound(i));
+            CompoundTag childNBT = list.getCompound(i);
+            StructureParentCollection child = previous.remove(childNBT.getInt("index"));
+            if (child == null)
+                child = new StructureParentCollection(this, childNBT);
+            else
+                child.load(childNBT);
             structures.put(child.getIndex(), child);
         }
+        for (StructureParentCollection child : previous.values())
+            child.unload();
         reloadAttributes();
     }
     
@@ -54,11 +58,6 @@ public class BlockParentCollection extends ParentCollection {
         for (StructureParentCollection child : structures.values())
             list.add(child.save(face));
         nbt.put("children", list);
-    }
-    
-    public void clearEverything() {
-        super.clear();
-        clearStructures();
     }
     
     public int countStructures() {

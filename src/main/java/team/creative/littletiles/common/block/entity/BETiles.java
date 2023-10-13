@@ -436,8 +436,6 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (tiles == null)
             init();
         
-        if (!tiles.isCompletelyEmpty())
-            tiles.clearEverything();
         grid = LittleGrid.getOrThrow(nbt);
         
         tiles.load(nbt.getCompound("content"));
@@ -771,10 +769,6 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         public StructureParentCollection addStructure(int index, int attribute) {
             return tiles.addStructure(index, attribute);
-        }
-        
-        public void clearEverything() {
-            tiles.clearEverything();
         }
         
     }
