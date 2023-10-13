@@ -218,7 +218,7 @@ public class LittleBox {
     
     /** @return the volume in percent to a size of a normal block */
     public double getPercentVolume(LittleGrid context) {
-        return getVolume() / (context.count3d);
+        return getVolume() / (double) context.count3d;
     }
     
     public int get(Facing facing) {

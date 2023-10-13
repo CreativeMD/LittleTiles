@@ -69,8 +69,8 @@ import team.creative.littletiles.client.render.item.LittleModelItemPreview;
 import team.creative.littletiles.client.render.item.LittleModelItemTilesBig;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
+import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
-import team.creative.littletiles.client.render.overlay.TooltipOverlay;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -111,6 +111,7 @@ public class LittleTilesClient {
     public static PreviewRenderer PREVIEW_RENDERER;
     public static ItemRenderCache ITEM_RENDER_CACHE;
     public static LittleClientPlayerConnection PLAYER_CONNECTION;
+    public static OverlayRenderer OVERLAY_RENDERER;
     
     public static KeyMapping mirror;
     public static KeyMapping mark;
@@ -153,7 +154,7 @@ public class LittleTilesClient {
     }
     
     public static void displayActionMessage(List<Component> message) {
-        // TODO Readd action message overlay
+        OVERLAY_RENDERER.displayActionMessage(message);
     }
     
     public static void load(IEventBus bus) {
@@ -212,7 +213,7 @@ public class LittleTilesClient {
         
         // Init overlays
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
-        MinecraftForge.EVENT_BUS.register(TooltipOverlay.class);
+        LEVEL_HANDLERS.register(OVERLAY_RENDERER = new OverlayRenderer());
         
         ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
         reloadableResourceManager.registerReloadListener(new ResourceManagerReloadListener() {

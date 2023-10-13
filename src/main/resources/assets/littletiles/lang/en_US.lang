@@ -1,20 +1,5 @@
 
 
-color.unit.black=black
-color.unit.cyan=cyan
-color.unit.magenta=magenta
-color.unit.yellow=yellow
-color.unit.single=unit
-color.unit.multiple=units
-
-volume.unit.big.single=block
-volume.unit.big.multiple=blocks
-volume.unit.big.short=b
-volume.unit.small.single=pixel
-volume.unit.small.multiple=pixels
-volume.unit.small.short=p
-
-selector.ingredients=Ingredients
 
 markmode.gui.allowlowresolution=Low resolution
 markmode.gui.switchpos=Switch Position

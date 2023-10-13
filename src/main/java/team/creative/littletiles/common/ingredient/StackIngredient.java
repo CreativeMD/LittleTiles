@@ -200,7 +200,7 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
     public void print(TextBuilder text) {
         if (content.size() <= 4)
             for (StackIngredientEntry entry : content)
-                text.stack(entry.stack).text(" " + entry.count + " " + entry.stack.getDisplayName()).newLine();
+                text.stack(entry.stack).text(" " + entry.count + " ").add(entry.stack.getHoverName()).newLine();
         else
             for (StackIngredientEntry entry : content)
                 text.stack(entry.stack).text(" " + entry.count + " ");

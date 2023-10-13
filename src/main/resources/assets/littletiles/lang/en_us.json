@@ -270,6 +270,21 @@
     "action.entity.notfound": "Entity not found",
     "action.structure.notloaded": "Structure is not loaded",
     "action.revert.notavailable": "Action cannot be reverted",
+    
+    "color.unit.black": "black",
+    "color.unit.cyan": "cyan",
+    "color.unit.magenta": "magenta",
+    "color.unit.yellow": "yellow",
+    "color.unit.single": "unit",
+    "color.unit.multiple": "units",
+    
+    "volume.unit.big.single": "block",
+    "volume.unit.big.multiple": "blocks",
+    "volume.unit.big.short": "b",
+    "volume.unit.small.single": "pixel",
+    "volume.unit.small.multiple": "pixels",
+    "volume.unit.small.short": "p",
+    "selector.ingredients": "Ingredients",
 	
 	"exception.ingredient.missing": "Not enough ingredients",
     "exception.ingredient.space": "Not enough space for",

@@ -183,11 +183,11 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         if (content.size() <= 4)
             for (BlockIngredientEntry entry : content) {
                 ItemStack stack = entry.getBlockStack();
-                text.stack(stack).text(" " + printVolume(entry.value, false) + " " + stack.getDisplayName()).newLine();
+                text.stack(stack).text(" ").add(printVolume(entry.value, false)).text(" ").add(stack.getHoverName()).newLine();
             }
         else
             for (BlockIngredientEntry entry : content)
-                text.stack(entry.getBlockStack()).text(" " + printVolume(entry.value, false) + " ");
+                text.stack(entry.getBlockStack()).text(" ").add(printVolume(entry.value, false)).text(" ");
     }
     
     @Override

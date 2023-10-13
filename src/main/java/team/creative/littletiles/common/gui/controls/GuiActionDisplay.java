@@ -91,6 +91,11 @@ public class GuiActionDisplay extends GuiControl {
         return this;
     }
     
+    public void clearMessages() {
+        messages.clear();
+        reflow();
+    }
+    
     public void addMessage(List<Component> message) {
         messages.add(0, new ActionMessage(message));
         if (messages.size() > maxActions)

@@ -142,7 +142,8 @@ public class PreviewRenderer implements LevelAwareHandler {
     
     @Override
     public void unload() {
-        marked = null;
+        removeMarked();
+        removeCache();
     }
     
     private void handleUndoAndRedo(boolean execute) {

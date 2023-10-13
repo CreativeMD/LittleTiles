@@ -198,11 +198,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     // ================Properties================
     
-    @Override
-    public boolean hasColor() {
-        return ColorUtils.isDefault(color);
-    }
-    
     public boolean isTranslucent() {
         return block.isTranslucent() || ColorUtils.isTransparent(color);
     }
