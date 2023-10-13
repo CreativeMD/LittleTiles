@@ -16,25 +16,6 @@ volume.unit.small.short=p
 
 selector.ingredients=Ingredients
 
-placement.mode.default=Default Mode
-placement.mode.default.tooltip=Can only be placed if there is space for all tiles in the aimed block.
-placement.mode.placestructure=Can place structures.
-placement.mode.fill=Fill Mode
-placement.mode.fill.tooltip=Will try to fill in the tiles if they don't fit.
-placement.mode.all=All Mode
-placement.mode.all.tooltip=Can only be placed if there is space for all tiles.
-placement.mode.overwrite=Overwrite Mode
-placement.mode.overwrite.tooltip=Will place all tiles and remove the overlapping space.\nCannot remove structure tiles.
-placement.mode.overwriteall=Overwrite All Mode
-placement.mode.overwriteall.tooltip=Will place all tiles and remove the entire block.\nCannot remove structure tiles.
-placement.mode.replace=Replace Mode
-placement.mode.replace.tooltip=Will only place the tiles at the overlapping space.\nCannot removed structure tiles.
-placement.mode.stencil=Stencil Mode
-placement.mode.stencil.tooltip=Will remove all tiles at the overlapping space.\nDoes not place anything.
-placement.mode.colorize=Colorize Mode
-placement.mode.colorize.tooltip=Will color all tiles at the overlapping space.\nDoes not place anything.
-
-
 markmode.gui.allowlowresolution=Low resolution
 markmode.gui.switchpos=Switch Position
 
@@ -42,42 +23,8 @@ commands.open.usage=Opens all doors at the given coordinate
 commands.open.notloaded=Structure is not loaded
 commands.open.tovanilla=Convert all loaded tileentites to vanilla blocks if possible
 
-shape.tile=Tile
-shape.type=Tiles of Type
-shape.box=Box
-shape.connected=Connected Tiles
-shape.slice=Slope
-shape.inner_corner=Inner Slope Corner
-shape.outer_corner=Outer Slope Corner
-shape.polygon=Pixel Polygon
-shape.wall=Wall
-shape.pillar=Pillar
-shape.curve=Curve
-shape.curvewall=Curved Wall
-shape.cylinder=Cylinder
-shape.sphere=Sphere
-shape.pyramid=Pyramid
-
-structure.none.name=None
-structure.fixed.name=Fixed
-structure.chair.name=Chair
-structure.ladder.name=Ladder
-structure.bed.name=Bed
-structure.storage.name=Storage
-structure.noclip.name=No-clip
-structure.door.name=Axis Door
-structure.slidingDoor.name=Sliding Door
-structure.advancedDoor.name=Advanced Door
-structure.doorActivator.name=Door Activator
-structure.light.name=Light
-structure.message.name=Message
-structure.item_holder.name=Item Holder
-structure.little_frame.name=Little Frame
-
 structure.category.simple=Simple
 structure.category.door=Doors
-
-gui.save=Save
 
 gui.door.duration=Duration
 gui.door.stayAnimated=Stay Animated
