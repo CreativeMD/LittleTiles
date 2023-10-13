@@ -21,6 +21,7 @@ group= "team.creative" + project.mod_id
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 project.evaluationDependsOn(":CreativeCore")
+project.evaluationDependsOn(":SodiumForged")
 
 java.sourceSets.create("api") {
     
@@ -49,11 +50,16 @@ minecraft {
 			arg 'creativecore.mixins.json'
 			arg '--mixin.config'
 			arg 'creativecore.forge.mixins.json'
+			//arg '--mixin.config'
+            //arg 'sodium.mixins.json'
 
             mods {
 				creativecore {
                     source project(':CreativeCore').sourceSets.main
                 }
+                //sodiumforged {
+                //    source project(':SodiumForged').sourceSets.main
+                //}
                 "${mod_id}" {
                     source sourceSets.main
                 }
@@ -83,12 +89,13 @@ minecraft {
 }
 
 dependencies {
-    minecraftLibrary fg.deobf("curse.maven:rubidium-574856:4684247")
-    minecraftLibrary fg.deobf("curse.maven:oculus-581495:4578741")
+    //minecraftLibrary fg.deobf("curse.maven:rubidium-574856:4684247")
+    minecraftLibrary fg.deobf("curse.maven:oculus-581495:4767500")
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
     implementation project(':CreativeCore')
+    implementation project(':SodiumForged')
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
