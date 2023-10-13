@@ -51,10 +51,9 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
     
     @Override
     protected void readExtra(NBTTagCompound nbt) {
-        if (nbt.hasKey("structure")) {
-            NBTTagCompound structureNBT = nbt.getCompoundTag("structure");
-            cache = create(structureNBT, this);
-        } else {
+        if (nbt.hasKey("structure"))
+            cache = setStructureNBT(nbt.getCompoundTag("structure"));
+        else {
             int[] array = nbt.getIntArray("coord");
             if (array.length == 3)
                 relativePos = new BlockPos(array[0], array[1], array[2]);
