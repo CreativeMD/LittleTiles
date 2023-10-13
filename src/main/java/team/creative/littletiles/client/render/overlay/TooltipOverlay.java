@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.RenderGuiEvent;
@@ -21,12 +22,14 @@ public class TooltipOverlay {
         if (LittleTiles.CONFIG.rendering.showTooltip && mc.isWindowActive() && !mc.options.hideGui) {
             GuiGraphics graphics = event.getGuiGraphics();
             Player player = mc.player;
-            if (player != null && player.getMainHandItem().getItem() instanceof IItemTooltip) {
+            if (player != null && player.getMainHandItem().getItem() instanceof IItemTooltip item) {
                 ItemStack stack = player.getMainHandItem();
                 String tooltipKey = stack.getItem().builtInRegistryHolder().key().location().getNamespace() + "." + stack.getItem().builtInRegistryHolder().key().location()
                         .getPath() + ".tooltip";
+                tooltipKey = item.tooltipTranslateKey(stack, tooltipKey);
                 if (LanguageUtils.can(tooltipKey)) {
-                    String[] lines = LanguageUtils.translate(tooltipKey, ((IItemTooltip) stack.getItem()).tooltipData(stack)).split("\\\\n");
+                    String[] lines = Component.translatable(tooltipKey, item.tooltipData(stack)).getString().split("\\n");
+                    
                     int y = mc.getWindow().getGuiScaledHeight() - 2;
                     for (int i = lines.length - 1; i >= 0; i--) {
                         String s = lines[i];

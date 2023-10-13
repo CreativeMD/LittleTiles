@@ -95,6 +95,6 @@ public class TileLocation {
                     return new LittleTileContext(list, tile, box);
             throw new LittleActionException.TileNotFoundException();
         }
-        throw new LittleActionException.TileEntityNotFoundException();
+        throw new LittleActionException.BlockEntityNotFoundException();
     }
 }

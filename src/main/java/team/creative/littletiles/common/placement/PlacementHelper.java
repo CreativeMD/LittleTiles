@@ -94,30 +94,33 @@ public class PlacementHelper {
         boolean canBePlacedInsideBlock = true;
         if (!canBePlacedInside(level, moving.getBlockPos(), moving.getLocation(), Facing.get(moving.getDirection()))) {
             switch (moving.getDirection()) {
-            case EAST:
-                x++;
-                break;
-            case WEST:
-                x--;
-                break;
-            case UP:
-                y++;
-                break;
-            case DOWN:
-                y--;
-                break;
-            case SOUTH:
-                z++;
-                break;
-            case NORTH:
-                z--;
-                break;
-            default:
-                break;
+                case EAST:
+                    x++;
+                    break;
+                case WEST:
+                    x--;
+                    break;
+                case UP:
+                    y++;
+                    break;
+                case DOWN:
+                    y--;
+                    break;
+                case SOUTH:
+                    z++;
+                    break;
+                case NORTH:
+                    z--;
+                    break;
+                default:
+                    break;
             }
             
             canBePlacedInsideBlock = false;
         }
+        
+        if (context == null)
+            return null;
         
         return new PlacementPosition(new BlockPos(x, y, z), getHitVec(moving, context, canBePlacedInsideBlock).getVecGrid(), Facing.get(moving.getDirection()));
     }
@@ -133,26 +136,26 @@ public class PlacementHelper {
             
             // Make hit the center of the Box
             switch (facing) {
-            case EAST:
-                temp.x += center.x;
-                break;
-            case WEST:
-                temp.x -= centerInv.x;
-                break;
-            case UP:
-                temp.y += center.y;
-                break;
-            case DOWN:
-                temp.y -= centerInv.y;
-                break;
-            case SOUTH:
-                temp.z += center.z;
-                break;
-            case NORTH:
-                temp.z -= centerInv.z;
-                break;
-            default:
-                break;
+                case EAST:
+                    temp.x += center.x;
+                    break;
+                case WEST:
+                    temp.x -= centerInv.x;
+                    break;
+                case UP:
+                    temp.y += center.y;
+                    break;
+                case DOWN:
+                    temp.y -= centerInv.y;
+                    break;
+                case SOUTH:
+                    temp.z += center.z;
+                    break;
+                case NORTH:
+                    temp.z -= centerInv.z;
+                    break;
+                default:
+                    break;
             }
         }
         return new LittleBox(temp, size.x, size.y, size.z);
@@ -168,17 +171,17 @@ public class PlacementHelper {
     public static boolean canBePlacedInside(Level level, BlockPos pos, Vec3 hitVec, Facing side) {
         if (canBlockBeUsed(level, pos)) {
             switch (side) {
-            case EAST:
-            case WEST:
-                return (int) hitVec.x != hitVec.x;
-            case UP:
-            case DOWN:
-                return (int) hitVec.y != hitVec.y;
-            case SOUTH:
-            case NORTH:
-                return (int) hitVec.z != hitVec.z;
-            default:
-                return false;
+                case EAST:
+                case WEST:
+                    return (int) hitVec.x != hitVec.x;
+                case UP:
+                case DOWN:
+                    return (int) hitVec.y != hitVec.y;
+                case SOUTH:
+                case NORTH:
+                    return (int) hitVec.z != hitVec.z;
+                default:
+                    return false;
             }
         }
         return false;

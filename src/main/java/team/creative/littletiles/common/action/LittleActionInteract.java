@@ -116,7 +116,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             } else
                 onTileNotFound();
         } else
-            onTileEntityNotFound();
+            onBlockEntityNotFound();
         return ignored();
         
     }
@@ -133,8 +133,8 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
         throw new LittleActionException.TileNotFoundException();
     }
     
-    protected void onTileEntityNotFound() throws LittleActionException {
-        throw new LittleActionException.TileEntityNotFoundException();
+    protected void onBlockEntityNotFound() throws LittleActionException {
+        throw new LittleActionException.BlockEntityNotFoundException();
     }
     
 }

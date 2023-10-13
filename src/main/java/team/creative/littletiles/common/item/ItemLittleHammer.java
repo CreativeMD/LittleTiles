@@ -70,7 +70,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
-        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getKey())));
+        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getTranslatableName())));
         shape.addExtraInformation(stack.getTag(), tooltip);
     }
     
@@ -177,6 +177,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
+        return new Object[] { getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.configure
+                .getTranslatedKeyMessage() };
     }
 }

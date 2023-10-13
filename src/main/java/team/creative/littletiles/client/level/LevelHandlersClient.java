@@ -10,6 +10,7 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
 import team.creative.littletiles.common.level.handler.LevelHandler;
+import team.creative.littletiles.common.level.handler.LevelHandlers;
 
 public class LevelHandlersClient {
     
@@ -30,7 +31,7 @@ public class LevelHandlersClient {
     }
     
     public void load(LevelEvent.Load event) {
-        if (!event.getLevel().isClientSide())
+        if (!event.getLevel().isClientSide() || LevelHandlers.isInvalidLevel(event.getLevel()))
             return;
         
         for (int i = 0; i < handlers.size(); i++)

@@ -4,6 +4,10 @@ import net.minecraft.world.item.ItemStack;
 
 public interface IItemTooltip {
     
+    public default String tooltipTranslateKey(ItemStack stack, String defaultKey) {
+        return defaultKey;
+    }
+    
     public Object[] tooltipData(ItemStack stack);
     
 }

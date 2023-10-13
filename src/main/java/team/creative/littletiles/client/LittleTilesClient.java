@@ -112,7 +112,7 @@ public class LittleTilesClient {
     public static ItemRenderCache ITEM_RENDER_CACHE;
     public static LittleClientPlayerConnection PLAYER_CONNECTION;
     
-    public static KeyMapping flip;
+    public static KeyMapping mirror;
     public static KeyMapping mark;
     public static KeyMapping configure;
     public static KeyMapping up;
@@ -145,6 +145,13 @@ public class LittleTilesClient {
         ACTION_HANDLER.setting.set(grid, mode);
     }
     
+    public static Component arrowKeysTooltip() {
+        if (up.isDefault() && down.isDefault() && right.isDefault() && left.isDefault())
+            return Component.translatable("gui.tooltip.arrow_keys");
+        return Component.empty().append(up.getTranslatedKeyMessage()).append(", ").append(down.getTranslatedKeyMessage()).append(", ").append(right.getTranslatedKeyMessage())
+                .append(", ").append(left.getTranslatedKeyMessage());
+    }
+    
     public static void displayActionMessage(List<Component> message) {
         // TODO Readd action message overlay
     }
@@ -165,7 +172,7 @@ public class LittleTilesClient {
         right = new LittleKeyMapping("key.rotateright", LITTLE_KEY_CONTEXT, InputConstants.KEY_RIGHT, "key.categories.littletiles");
         left = new LittleKeyMapping("key.rotateleft", LITTLE_KEY_CONTEXT, InputConstants.KEY_LEFT, "key.categories.littletiles");
         
-        flip = new LittleKeyMapping("key.little.flip", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
+        mirror = new LittleKeyMapping("key.little.mirror", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
         mark = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles");
         configure = new LittleKeyMapping("key.little.config.item", LITTLE_KEY_CONTEXT, InputConstants.KEY_C, "key.categories.littletiles");
         
@@ -177,7 +184,7 @@ public class LittleTilesClient {
         event.register(right);
         event.register(left);
         
-        event.register(flip);
+        event.register(mirror);
         event.register(mark);
         event.register(configure);
         

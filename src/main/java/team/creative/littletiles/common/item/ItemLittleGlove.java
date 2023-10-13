@@ -16,7 +16,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
-import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiGlove;
@@ -114,12 +113,17 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     
     @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new GuiGlove(ItemLittleGlove.getMode(view.get()), view, 140, 140, ((ILittlePlacer) view.get().getItem()).getPositionGrid(view.get()));
+        return new GuiGlove(getMode(view.get()), view, 140, 140, ((ILittlePlacer) view.get().getItem()).getPositionGrid(view.get()));
+    }
+    
+    @Override
+    public String tooltipTranslateKey(ItemStack stack, String defaultKey) {
+        return getMode(stack).tooltipTranslateKey(stack, defaultKey);
     }
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getMode(stack).translatable(), LittleTilesClient.configure.getTranslatedKeyMessage() };
+        return getMode(stack).tooltipData(stack);
     }
     
 }

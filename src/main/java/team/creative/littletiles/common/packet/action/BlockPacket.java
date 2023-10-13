@@ -21,6 +21,7 @@ import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -100,6 +101,8 @@ public class BlockPacket extends CreativePacket {
             
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
+                if (((ILittlePlacer) stack.getItem()).hasTiles(stack))
+                    return;
                 LittleGroup previews;
                 if (context.parent.isStructure()) {
                     if (nbt.getBoolean("secondMode"))

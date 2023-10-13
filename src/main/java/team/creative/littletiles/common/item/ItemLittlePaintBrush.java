@@ -85,7 +85,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
-        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getKey())));
+        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getTranslatableName())));
         shape.addExtraInformation(stack.getTag(), tooltip);
         tooltip.add(Component.literal(TooltipUtils.printColor(getColor(stack))));
     }

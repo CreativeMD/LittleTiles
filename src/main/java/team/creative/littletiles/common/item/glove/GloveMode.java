@@ -13,6 +13,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -76,5 +77,13 @@ public abstract class GloveMode {
     public abstract void vanillaBlockAction(Level level, ItemStack stack, BlockPos pos, BlockState state);
     
     public abstract void littleBlockAction(Level level, BETiles be, LittleTileContext context, ItemStack stack, BlockPos pos, CompoundTag nbt);
+    
+    public String tooltipTranslateKey(ItemStack stack, String defaultKey) {
+        return defaultKey;
+    }
+    
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { translatable(), LittleTilesClient.configure.getTranslatedKeyMessage() };
+    }
     
 }

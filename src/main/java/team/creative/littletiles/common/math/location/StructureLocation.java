@@ -78,6 +78,6 @@ public class StructureLocation {
                 return structure.getStructure();
             throw new LittleActionException.StructureNotFoundException();
         } else
-            throw new LittleActionException.TileEntityNotFoundException();
+            throw new LittleActionException.BlockEntityNotFoundException();
     }
 }

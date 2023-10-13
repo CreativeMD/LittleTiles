@@ -60,10 +60,10 @@ public class LittleActionException extends Exception {
         
     }
     
-    public static class TileEntityNotFoundException extends LittleActionException {
+    public static class BlockEntityNotFoundException extends LittleActionException {
         
-        public TileEntityNotFoundException() {
-            super("action.tileentity.notfound");
+        public BlockEntityNotFoundException() {
+            super("action.blockentity.notfound");
         }
         
     }

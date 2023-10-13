@@ -185,15 +185,14 @@ public class PreviewRenderer implements LevelAwareHandler {
             if (mc.options.hideGui)
                 return;
             
-            if (stack.getItem() instanceof ILittleTool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
+            if (stack.getItem() instanceof ILittleTool tool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
                 BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult ? (BlockHitResult) mc.hitResult : null;
                 
-                PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper
-                        .getPosition(level, blockHit, ((ILittleTool) stack.getItem()).getPositionGrid(stack), (ILittleTool) stack.getItem(), stack);
+                PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, tool.getPositionGrid(stack), tool, stack);
                 
-                processKeys(stack, ((ILittleTool) stack.getItem()).getPositionGrid(stack));
+                processKeys(stack, tool.getPositionGrid(stack));
                 
-                ((ILittleTool) stack.getItem()).tick(player, stack, position, blockHit);
+                tool.tick(player, stack, position, blockHit);
                 
                 if (PlacementHelper.isLittleBlock(stack)) {
                     
@@ -203,8 +202,8 @@ public class PreviewRenderer implements LevelAwareHandler {
                     
                     if (mode.getPreviewMode() == PreviewMode.PREVIEWS) {
                         RenderSystem.enableBlend();
-                        RenderSystem
-                                .blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+                            GlStateManager.DestFactor.ZERO);
                         RenderSystem.setShaderColor(1, 1, 1, 1);
                         
                         RenderSystem.setShaderTexture(0, WHITE_TEXTURE);
@@ -251,9 +250,9 @@ public class PreviewRenderer implements LevelAwareHandler {
                 } else
                     processMarkKey(player, (ILittleTool) stack.getItem(), stack, null);
                 
-                ((ILittleTool) stack.getItem()).render(player, stack, pose);
+                tool.render(player, stack, pose);
                 if (marked != null)
-                    marked.render(((ILittleTool) stack.getItem()).getPositionGrid(stack), pose);
+                    marked.render(tool.getPositionGrid(stack), pose);
             } else
                 marked = null;
         }
@@ -287,7 +286,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     }
     
     public void processKeys(ItemStack stack, LittleGrid grid) {
-        while (LittleTilesClient.flip.consumeClick())
+        while (LittleTilesClient.mirror.consumeClick())
             processMirrorKey(mc.player, stack);
         
         // Rotate Block
@@ -435,8 +434,8 @@ public class PreviewRenderer implements LevelAwareHandler {
             }
         }
         
-        if (!event.isCanceled() && level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder()
-                .isWithinBounds(event.getTarget().getBlockPos())) {
+        if (!event.isCanceled() && level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget()
+                .getBlockPos())) {
             renderHitOutline(pose, level, event.getMultiBufferSource().getBuffer(RenderType.lines()), player, vec.x, vec.y, vec.z, event.getTarget().getBlockPos());
             event.setCanceled(true);
         }

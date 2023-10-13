@@ -1,95 +1,4 @@
-item.LTHammer.name=Little Hammer
-item.LTMultiTiles.name=Multi-Tile-Structure
-item.LTRecipe.name=Little Recipe
-item.LTSaw.name=Little Saw
-item.LTContainer.name=Little Bag
-item.LTWrench.name=Little Wrench
-item.LTChisel.name=Little Chisel
-item.LTScrewdriver.name=Little Screwdriver
-item.LTRubberMallet.name=Little Rubber Mallet
-item.LTColorTube.name=Little Paint Brush
-item.LTUtilityKnife.name=Little Utility Knife
-item.LTGrabber.name=Little Glove
-item.LTRecipeAdvanced.name=Little Blueprint
-item.LTColorBottleBlack.name=Black Bottle
-item.LTColorBottleCyan.name=Cyan Bottle
-item.LTColorBottleMagenta.name=Magenta Bottle
-item.LTColorBottleYellow.name=Yellow Bottle
 
-tile.LTParticleBlock.name=Little Particle Block
-tile.LTColoredBlock.clean.name=Dyeable Clean
-tile.LTColoredBlock.floor.name=Dyeable Floor
-tile.LTColoredBlock.grainy_big.name=Dyeable Grainy Big
-tile.LTColoredBlock.grainy.name=Dyeable Grainy
-tile.LTColoredBlock.grainy_low.name=Dyeable Grainy Low
-tile.LTColoredBlock.brick.name=Dyeable Brick
-tile.LTColoredBlock.bordered.name=Dyeable Bordered
-tile.LTColoredBlock.brick_big.name=Dyeable Brick Big
-tile.LTColoredBlock.chiseled.name=Dyeable Chiseled
-tile.LTColoredBlock.broken_brick_big.name=Dyeable Broken Brick Big
-tile.LTColoredBlock.clay.name=Dyeable Clay
-tile.LTColoredBlock.light_clean.name=Dyeable Lighting Clean
-tile.LTColoredBlock.strips.name=Dyeable Strips
-tile.LTColoredBlock.lava.name=Lava Block
-tile.LTColoredBlock.white_lava.name=White Lava Block
-tile.LTColoredBlock2.gravel.name=Dyeable Gravel
-tile.LTColoredBlock2.sand.name=Dyeable Sand
-tile.LTColoredBlock2.stone.name=Dyeable Stone
-tile.LTColoredBlock2.cork.name=Dyeable Cork
-tile.LTColoredBlock2.white_opaque_water.name=White Opaque Water
-
-tile.LTTransparentColoredBlock.clean.name=Dyeable Clean
-tile.LTTransparentColoredBlock.thick.name=Dyeable Thick
-tile.LTTransparentColoredBlock.thin.name=Dyeable Thin
-tile.LTTransparentColoredBlock.thinner.name=Dyeable Thinner
-tile.LTTransparentColoredBlock.thinnest.name=Dyeable Thinnest
-tile.LTTransparentColoredBlock.water.name=Water
-tile.LTTransparentColoredBlock.white_water.name=White Water
-
-tile.LTStorageBlockTile.name=Little Storage Block
-tile.signal_converter.name=Signal Converter
-
-key.categories.littletiles=LittleTiles Settings
-key.little.flip=Flip Preview
-key.little.mark=Mark Preview
-key.little.config.item=Configure Tool
-key.little.config=Configure Advanced
-key.rotatedown=Rotate down
-key.rotateleft=Rotate left
-key.rotateright=Rotate right
-key.rotateup=Rotate up
-key.little.redo=Redo
-key.little.undo=Undo
-
-itemGroup.littletiles=LittleTiles
-
-grabber.mode.pixel=Pixel Mode
-grabber.mode.place_preview=Recipe Mode
-grabber.mode.replace=Replace Mode
-
-action.tile.notthere=Tile is missing
-action.tile.notfound=Tile not found
-action.tileentity.notfound=TileEntity not found
-action.entity.notfound=Entity not found
-action.structure.notloaded=Structure is not loaded
-action.revert.notavailable=Action cannot be reverted
-
-exception.ingredient.missing=Not enough ingredients
-exception.ingredient.space=Not enough space for
-exception.permission.edit=You are not allowed to edit more than %s blocks
-exception.permission.place.color=You are not allowed to place something with alpha below %s
-exception.permission.place=You are not allowed to place more than %s blocks
-exception.permission.density=Only %s tiles are allowed in block
-exception.door.notloaded=Cannot interact with door (not all tiles are loaded)
-exception.door.brokenparent=Cannot interact with door (broken connection to parent)
-exception.door.brokenchild=Cannot interact with door (broken connection to child)
-exception.door.notenoughspace=Something is in the way
-exception.pattern.empty=empty
-exception.pattern.circular=circular reference
-exception.pattern.novalidchildren=broken children
-exception.permission.convert=Cannot edit more than %s blocks
-exception.permission.area-protected=area protected
-exception.permission.recipe.size=Recipe area is too large (maximum %s blocks allowed)
 
 color.unit.black=black
 color.unit.cyan=cyan
@@ -132,43 +41,6 @@ markmode.gui.switchpos=Switch Position
 commands.open.usage=Opens all doors at the given coordinate
 commands.open.notloaded=Structure is not loaded
 commands.open.tovanilla=Convert all loaded tileentites to vanilla blocks if possible
-
-item.LTPremade.workbench.name=Little Workbench
-item.LTPremade.importer.name=Little Importer
-item.LTPremade.exporter.name=Little Exporter
-item.LTPremade.blankomatic.name=Blank-o-matic
-
-item.LTPremade.single_cable1.name=Single Cable (1-bit)
-item.LTPremade.single_cable4.name=Single Cable (4-bit)
-item.LTPremade.single_cable16.name=Single Cable (16-bit)
-
-item.LTPremade.single_input1.name=Single Input (1-bit)
-item.LTPremade.single_input4.name=Single Input (4-bit)
-item.LTPremade.single_input16.name=Single Input (16-bit)
-
-item.LTPremade.single_output1.name=Single Output (1-bit)
-item.LTPremade.single_output4.name=Single Output (4-bit)
-item.LTPremade.single_output16.name=Single Output (16-bit)
-
-item.LTPremade.particle_emitter.name=Particle Emitter
-item.LTPremade.signal_display_16.name=Signal Display (16 bit)
-item.LTPremade.item_holder.name=Item Holder
-item.LTPremade.structure_builder.name=Structure Builder
-
-selection.clear=clear
-selection.dialog.clear=Do you really want to clear all content?
-selection.structure.name=structure name
-selection.structure.tiles=tiles
-selection.structure.tile=tile
-selection.include.vanilla=Regular Blocks
-selection.include.cb=C&B Blocks
-selection.include.lt=LittleTiles Blocks
-selection.include.structure=Remember Structures
-selection.mode.area.pos.first=First position selected [%s,%s,%s]
-selection.mode.area.pos.second=Second position selected [%s,%s,%s]
-selection.save=Save
-selection.scale=Scale
-mode.selection.area=Area
 
 shape.tile=Tile
 shape.type=Tiles of Type
@@ -324,10 +196,4 @@ config.littletiles.creative.maxPlaceBlocks.comment=Only affects the range if pla
 config.littletiles.creative.minimumTransparency.comment=Transparency will be enabled if the minimum is smaller than 255.
 config.littletiles.creative.dyeVolume.comment=How many blocks can painted with one dye\nassuming the tile has the exact same color
 
-littletiles.chisel.tooltip=%s\n'%s' to pick block\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size
-littletiles.grabber.tooltip=%s\n'%s' to configure tool\n'%s' to configure grid size
-littletiles.hammer.tooltip=%s\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size and filter
-littletiles.colortube.tooltip=%s\n'%s' to pick color\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to configure tool\n'%s' to configure grid size and filter
-littletiles.recipeadvanced.tooltip='%s' first position\n'%s' second position\n'%s' pick shape/ structure\n'%s' confirm/ configure selection
-littletiles.saw.tooltip='%s' extend tile\n'%s' shrink tile\nHold 'CTRL' to go further
-littletiles.screwdriver.tooltip='%s' first position\n'%s' second position\n'%s' modify selection
+

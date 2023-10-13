@@ -18,6 +18,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiModeSelector;
+import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -26,7 +27,7 @@ import team.creative.littletiles.common.structure.registry.premade.LittlePremade
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
-public class ItemPremadeStructure extends Item implements ILittlePlacer {
+public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTooltip {
     
     public static ItemStack of(String structure) {
         ItemStack stack = new ItemStack(LittleTilesRegistry.PREMADE.get());
@@ -172,6 +173,16 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer {
         if (type instanceof LittlePremadeType premade)
             return premade.snapToGrid;
         return false;
+    }
+    
+    @Override
+    public String tooltipTranslateKey(ItemStack stack, String defaultKey) {
+        return "littletiles.tiles.tooltip";
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.mirror.getTranslatedKeyMessage() };
     }
     
 }

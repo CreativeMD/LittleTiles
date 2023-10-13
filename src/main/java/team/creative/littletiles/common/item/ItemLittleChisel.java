@@ -68,7 +68,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
-        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getKey())));
+        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getTranslatableName())));
         shape.addExtraInformation(stack.getTag(), tooltip);
         tooltip.add(Component.literal(TooltipUtils.printColor(getElement(stack).color)));
     }
@@ -257,6 +257,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @Override
     public Object[] tooltipData(ItemStack stack) {
         return new Object[] { getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
-                .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
+                .getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
 }

@@ -13,6 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -120,6 +121,16 @@ public class BlueprintGloveMode extends GloveMode {
             group.add(LittleGrid.MIN, new LittleElement(state, ColorUtils.WHITE), new LittleBox(0, 0, 0, 1, 1, 1));
             setTiles(group, stack);
         }
+    }
+    
+    @Override
+    public String tooltipTranslateKey(ItemStack stack, String defaultKey) {
+        return "littletiles.tiles.tooltip";
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.mirror.getTranslatedKeyMessage() };
     }
     
 }

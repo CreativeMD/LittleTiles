@@ -25,6 +25,7 @@ import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiModeSelector;
+import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.PlacementPosition;
@@ -32,7 +33,7 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
-public class ItemMultiTiles extends Item implements ILittlePlacer {
+public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip {
     
     public static ItemStack of(LittleElement element) {
         return of(element, LittleGrid.MIN, LittleGrid.MIN.box());
@@ -123,6 +124,16 @@ public class ItemMultiTiles extends Item implements ILittlePlacer {
     @Override
     public LittleVec getCachedMin(ItemStack stack) {
         return LittleGroup.getMin(stack.getOrCreateTag());
+    }
+    
+    @Override
+    public String tooltipTranslateKey(ItemStack stack, String defaultKey) {
+        return "littletiles.tiles.tooltip";
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.mirror.getTranslatedKeyMessage() };
     }
     
     public static void reloadExampleStructures() {

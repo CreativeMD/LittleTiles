@@ -7,14 +7,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
+import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
-import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 public class LevelHandlers<T extends LevelHandler> {
     
     public static boolean isInvalidLevel(LevelAccessor level) {
-        return level instanceof LittleSubLevel;
+        return level instanceof IOrientatedLevel;
     }
     
     protected final Function<Level, T> factory;

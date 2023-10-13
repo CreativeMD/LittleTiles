@@ -268,18 +268,19 @@ public class GuiRecipe extends GuiConfigure {
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom.setVAlign(VAlign.CENTER).setExpandableX());
         bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
-        bottom.addLeft(new GuiButton("clear", x -> {
-            GuiDialogHandler.openDialog(getIntegratedParent(), "clear_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
-                if (b == DialogButton.YES)
-                    CLEAR_CONTENT.send(EndTag.INSTANCE);
-            }, DialogButton.NO, DialogButton.YES);
-        }).setTranslate("gui.recipe.clear"));
         bottom.addLeft(new GuiButton("selection", x -> {
             GuiDialogHandler.openDialog(getIntegratedParent(), "remove_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
                 if (b == DialogButton.YES)
                     REMOVE_CONTENT.send(EndTag.INSTANCE);
             }, DialogButton.NO, DialogButton.YES);
         }).setTranslate("gui.recipe.selection"));
+        bottom.addLeft(new GuiButton("clear", x -> {
+            GuiDialogHandler.openDialog(getIntegratedParent(), "clear_content", Component.translatable("gui.recipe.dialog.clear"), (g, b) -> {
+                if (b == DialogButton.YES)
+                    CLEAR_CONTENT.send(EndTag.INSTANCE);
+            }, DialogButton.NO, DialogButton.YES);
+        }).setTranslate("gui.recipe.clear"));
+        
         bottom.addRight(testReport = new GuiLabel("report").setTitle(Component.empty()));
         bottom.addRight(new GuiButton("check", x -> OPEN_TEST.open(new CompoundTag()).init(this)).setTranslate("gui.recipe.test"));
         bottom.addRight(new GuiButton("save", x -> {

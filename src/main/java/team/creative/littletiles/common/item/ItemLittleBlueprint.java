@@ -147,7 +147,16 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
+    public String tooltipTranslateKey(ItemStack stack, String defaultKey) {
+        if (hasTiles(stack))
+            return "littletiles.tiles.tooltip";
+        return "littletiles.blueprint.selection.tooltip";
+    }
+    
+    @Override
     public Object[] tooltipData(ItemStack stack) {
+        if (hasTiles(stack))
+            return new Object[] { LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.mirror.getTranslatedKeyMessage() };
         return new Object[] { Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage(), Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(), Minecraft
                 .getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
