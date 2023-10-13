@@ -254,9 +254,9 @@ public class PreviewRenderer implements LevelAwareHandler {
                 tool.render(player, stack, pose);
                 if (marked != null)
                     marked.render(tool.getPositionGrid(stack), pose);
-            } else
-                marked = null;
-        }
+            }
+        } else
+            marked = null;
     }
     
     public void processMarkKey(Player player, ILittleTool iTile, ItemStack stack, PlacementPreview preview) {
