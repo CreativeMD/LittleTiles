@@ -454,11 +454,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
         if (tiles == null)
             init();
         
-        if (!tiles.isCompletelyEmpty())
-            tiles.clearEverything();
         context = LittleGridContext.get(nbt);
         
         if (nbt.hasKey("tilesCount")) {
+            if (!tiles.isCompletelyEmpty())
+                tiles.clearEverything();
             int count = nbt.getInteger("tilesCount");
             HashMap<LittleIdentifierRelative, StructureTileList> structures = new HashMap<>();
             for (int i = 0; i < count; i++) {
@@ -469,6 +469,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
             for (StructureTileList child : structures.values())
                 tiles.addStructure(child.getIndex(), child);
         } else if (nbt.hasKey("tiles")) {
+            if (!tiles.isCompletelyEmpty())
+                tiles.clearEverything();
             NBTTagList list = nbt.getTagList("tiles", 10);
             HashMap<LittleIdentifierRelative, StructureTileList> structures = new HashMap<>();
             for (int i = 0; i < list.tagCount(); i++) {
