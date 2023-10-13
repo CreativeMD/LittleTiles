@@ -170,7 +170,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void tick(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_WEATHER)
             return;
-        if (mc.player != null && mc.isWindowActive()) {
+        if (mc.player != null) {
             Level level = mc.level;
             Player player = mc.player;
             ItemStack stack = mc.player.getMainHandItem();
