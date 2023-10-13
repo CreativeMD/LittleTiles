@@ -38,12 +38,20 @@ public class TileList extends ParentTileList {
     }
     @Override
     protected void readExtra(NBTTagCompound nbt) {
-        clearStructures();
         NBTTagList list = nbt.getTagList("children", 10);
+        HashMap<Integer, StructureTileList> previous = new HashMap<>(structures);
+        structures.clear();
         for (int i = 0; i < list.tagCount(); i++) {
-            StructureTileList child = new StructureTileList(this, list.getCompoundTagAt(i));
+            NBTTagCompound childNBT = list.getCompoundTagAt(i);
+            StructureTileList child = previous.remove(childNBT.getInteger("index"));
+            if(child == null)
+                child = new StructureTileList(this, childNBT);
+            else
+                child.read(childNBT);
             structures.put(child.getIndex(), child);
         }
+        for (StructureTileList child : previous.values())
+            child.unload();
         reloadAttributes();
     }
     
