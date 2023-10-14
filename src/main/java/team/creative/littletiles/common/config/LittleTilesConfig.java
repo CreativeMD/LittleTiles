@@ -201,6 +201,8 @@ public class LittleTilesConfig {
         @CreativeConfig
         public double previewLineThickness = 2;
         
+        public boolean darkerPreviewBoxShading = false;
+        
         @CreativeConfig
         public boolean enableRandomDisplayTick = false;
         

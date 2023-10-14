@@ -2,6 +2,8 @@ package team.creative.littletiles.client.render.overlay;
 
 import java.util.List;
 
+import org.lwjgl.opengl.GL14;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -203,8 +205,14 @@ public class PreviewRenderer implements LevelAwareHandler {
                     
                     if (mode.getPreviewMode() == PreviewMode.PREVIEWS) {
                         RenderSystem.enableBlend();
-                        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-                            GlStateManager.DestFactor.ZERO);
+                        
+                        if (LittleTiles.CONFIG.rendering.darkerPreviewBoxShading) {
+                            GL14.glBlendColor(0.25F, 0.25F, 0.25F, 0.25F);
+                            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.CONSTANT_COLOR, GlStateManager.DestFactor.ONE_MINUS_DST_COLOR,
+                                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                        } else
+                            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+                                GlStateManager.DestFactor.ZERO);
                         RenderSystem.setShaderColor(1, 1, 1, 1);
                         
                         RenderSystem.setShaderTexture(0, WHITE_TEXTURE);
@@ -246,6 +254,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                         
                         RenderSystem.depthMask(true);
                         RenderSystem.disableBlend();
+                        RenderSystem.defaultBlendFunc();
                     }
                     
                 } else
