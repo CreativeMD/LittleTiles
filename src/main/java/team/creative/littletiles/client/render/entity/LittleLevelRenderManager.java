@@ -23,9 +23,9 @@ import com.mojang.blaze3d.vertex.VertexBuffer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.PrioritizeChunkUpdates;
+import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -187,8 +187,8 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
                 if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED)
                     immediate = chunk.isDirtyFromPlayer();
                 else if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.NEARBY) {
-                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread.get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk
-                            .isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
+                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread
+                            .get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk.isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
                 }
                 
                 if (immediate) {
@@ -250,7 +250,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
             offset.set(0F, 0F, 0F);
     }
     
-    public SectionBufferBuilderPack fixedBuffers() {
+    public ChunkBufferBuilderPack fixedBuffers() {
         return LittleTilesClient.ANIMATION_HANDLER.fixedBuffers;
     }
     

@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.CompiledSection;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.VisibilitySet;
 
-@Mixin(CompiledSection.class)
+@Mixin(CompiledChunk.class)
 public interface CompiledChunkAccessor {
     
     @Accessor

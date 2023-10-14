@@ -27,9 +27,9 @@ import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
@@ -82,11 +82,11 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     private final PriorityBlockingQueue<LittleRenderChunk.ChunkCompileTask> toBatchHighPriority = Queues.newPriorityBlockingQueue();
     private final Queue<LittleRenderChunk.ChunkCompileTask> toBatchLowPriority = Queues.newLinkedBlockingDeque();
     private int highPriorityQuota = 2;
-    private final Queue<SectionBufferBuilderPack> freeBuffers;
+    private final Queue<ChunkBufferBuilderPack> freeBuffers;
     private final Queue<Runnable> toUpload = Queues.newConcurrentLinkedQueue();
     private volatile int toBatchCount;
     private volatile int freeBufferCount;
-    public final SectionBufferBuilderPack fixedBuffers;
+    public final ChunkBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
     private int longTickCounter = LONG_TICK_INTERVAL;
@@ -96,11 +96,11 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         super(level);
         int threadCount = LittleTiles.CONFIG.rendering.entityCacheBuildThreads;
         this.fixedBuffers = mc.renderBuffers().fixedBufferPack();
-        List<SectionBufferBuilderPack> list = Lists.newArrayListWithExpectedSize(threadCount);
+        List<ChunkBufferBuilderPack> list = Lists.newArrayListWithExpectedSize(threadCount);
         
         try {
             for (int i = 0; i < threadCount; i++)
-                list.add(new SectionBufferBuilderPack());
+                list.add(new ChunkBufferBuilderPack());
         } catch (OutOfMemoryError error) {
             LittleTiles.LOGGER.warn("Allocated only {}/{} buffers", list.size(), threadCount);
             int newSize = Math.min(list.size() * 2 / 3, list.size() - 1);
@@ -150,25 +150,25 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         if (!this.freeBuffers.isEmpty()) {
             LittleRenderChunk.ChunkCompileTask task = this.pollTask();
             if (task != null) {
-                SectionBufferBuilderPack pack = this.freeBuffers.poll();
+                ChunkBufferBuilderPack pack = this.freeBuffers.poll();
                 this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
                 this.freeBufferCount = this.freeBuffers.size();
-                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(x -> x).whenComplete(
-                    (result, throwable) -> {
-                        if (throwable != null)
-                            Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Batching chunks"));
-                        else
-                            this.mailbox.tell(() -> {
-                                if (result == LittleRenderChunk.ChunkTaskResult.SUCCESSFUL)
-                                    pack.clearAll();
-                                else
-                                    pack.discardAll();
-                                
-                                this.freeBuffers.add(pack);
-                                this.freeBufferCount = this.freeBuffers.size();
-                                this.runTask();
-                            });
-                    });
+                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(x -> x)
+                        .whenComplete((result, throwable) -> {
+                            if (throwable != null)
+                                Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Batching chunks"));
+                            else
+                                this.mailbox.tell(() -> {
+                                    if (result == LittleRenderChunk.ChunkTaskResult.SUCCESSFUL)
+                                        pack.clearAll();
+                                    else
+                                        pack.discardAll();
+                                    
+                                    this.freeBuffers.add(pack);
+                                    this.freeBufferCount = this.freeBuffers.size();
+                                    this.runTask();
+                                });
+                        });
             }
         }
     }
@@ -470,8 +470,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 else {
                     BlockInWorld blockinworld = new BlockInWorld(result.level, blockpos, false);
                     Registry<Block> registry = result.level.registryAccess().registryOrThrow(Registries.BLOCK);
-                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack.hasAdventureModePlaceTagForBlock(registry,
-                        blockinworld));
+                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack
+                            .hasAdventureModePlaceTagForBlock(registry, blockinworld));
                 }
             }
         }
@@ -514,10 +514,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 f /= f3;
                 f1 /= f3;
                 f2 /= f3;
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
-                    posestack$pose.normal(), f, f1, f2).endVertex();
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
-                    posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
+                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
+                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
             });
         }
         

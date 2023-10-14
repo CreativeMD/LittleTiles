@@ -46,7 +46,7 @@ public class LittleClientChunkCache extends ClientChunkCache {
     }
     
     @Override
-    public void drop(ChunkPos pos) {}
+    public void drop(int x, int z) {}
     
     @Override
     @Nullable

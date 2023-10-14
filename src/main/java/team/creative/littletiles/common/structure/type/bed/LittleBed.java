@@ -97,7 +97,7 @@ public class LittleBed extends LittleStructure {
             if (player instanceof ServerPlayer sPlayer)
                 sPlayer.setRespawnPosition(player.level().dimension(), player.blockPosition(), player.getYRot(), false, true);
             
-            if (!ForgeEventFactory.onSleepingTimeCheck(player, Optional.empty()))
+            if (!ForgeEventFactory.fireSleepingTimeCheck(player, Optional.empty()))
                 return Player.BedSleepingProblem.NOT_POSSIBLE_NOW;
             
             if (!player.isCreative()) {

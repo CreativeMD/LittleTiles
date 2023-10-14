@@ -32,13 +32,14 @@ import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.CompiledSection;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.chunk.VisibilitySet;
 import net.minecraft.core.BlockPos;
@@ -77,7 +78,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     public final LittleLevelRenderManager manager;
     public final SectionPos section;
     public final BlockPos pos;
-    public final AtomicReference<CompiledSection> compiled = new AtomicReference<>(CompiledSection.UNCOMPILED);
+    public final AtomicReference<CompiledChunk> compiled = new AtomicReference<>(CompiledChunk.UNCOMPILED);
     private AABB bb;
     public final AtomicBoolean considered = new AtomicBoolean();
     @Nullable
@@ -164,7 +165,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         return d0 * d0 + d1 * d1 + d2 * d2;
     }
     
-    public CompiledSection getCompiledChunk() {
+    public ChunkRenderDispatcher.CompiledChunk getCompiledChunk() {
         return this.compiled.get();
     }
     
@@ -175,7 +176,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     
     private void reset() {
         this.cancelTasks();
-        this.compiled.set(CompiledSection.UNCOMPILED);
+        this.compiled.set(ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
         this.dirty = true;
     }
     
@@ -209,7 +210,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     public boolean resortTransparency(RenderType layer) {
-        CompiledSection compiled = this.getCompiledChunk();
+        CompiledChunk compiled = this.getCompiledChunk();
         if (this.lastResortTransparencyTask != null)
             this.lastResortTransparencyTask.cancel();
         
@@ -239,7 +240,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     
     public ChunkCompileTask createCompileTask() {
         boolean canceled = this.cancelTasks();
-        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), level().asLevel(), canceled || this.compiled.get() != CompiledSection.UNCOMPILED);
+        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), level().asLevel(), canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
         return this.lastRebuildTask;
     }
     
@@ -272,8 +273,8 @@ public class LittleRenderChunk implements RenderChunkExtender {
     
     @Override
     public void setHasBlock(RenderType layer) {
-        CompiledSection compiled = getCompiledChunk();
-        if (compiled != CompiledSection.UNCOMPILED)
+        CompiledChunk compiled = getCompiledChunk();
+        if (compiled != CompiledChunk.UNCOMPILED)
             ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
     }
     
@@ -310,7 +311,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
             this.modelData = pos == null ? Collections.EMPTY_MAP : level().getModelDataManager().getAt(pos);
         }
         
-        public abstract CompletableFuture<ChunkTaskResult> doTask(SectionBufferBuilderPack p_112853_);
+        public abstract CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack p_112853_);
         
         public abstract void cancel();
         
@@ -331,7 +332,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         @Nullable
         protected Level level;
         private ChunkLayerMap<BufferCollection> caches;
-        private SectionBufferBuilderPack pack;
+        private ChunkBufferBuilderPack pack;
         private Set<RenderType> renderTypes;
         
         @Deprecated
@@ -350,7 +351,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         }
         
         @Override
-        public CompletableFuture<ChunkTaskResult> doTask(SectionBufferBuilderPack pack) {
+        public CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack pack) {
             if (this.isCancelled.get())
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             
@@ -375,13 +376,13 @@ public class LittleRenderChunk implements RenderChunkExtender {
             
             if (results.isEmpty()) {
                 manager.emptyChunk(LittleRenderChunk.this);
-                LittleRenderChunk.this.compiled.set(CompiledSection.UNCOMPILED);
+                LittleRenderChunk.this.compiled.set(CompiledChunk.UNCOMPILED);
                 results.renderedLayers.values().forEach(BufferBuilder.RenderedBuffer::release);
                 LittleRenderChunk.this.prepareUpload();
                 return CompletableFuture.completedFuture(ChunkTaskResult.SUCCESSFUL);
             }
             
-            CompiledSection compiled = new CompiledSection();
+            CompiledChunk compiled = new CompiledChunk();
             ((CompiledChunkAccessor) compiled).setVisibilitySet(results.visibilitySet);
             compiled.getRenderableBlockEntities().addAll(results.blockEntities);
             ((CompiledChunkAccessor) compiled).setTransparencyState(results.transparencyState);
@@ -413,7 +414,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
             
         }
         
-        private CompileResults compile(float x, float y, float z, SectionBufferBuilderPack pack) {
+        private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
             this.pack = pack;
             LittleRenderPipelineType.startCompile(LittleRenderChunk.this, this);
             CompileResults results = new CompileResults();
@@ -555,14 +556,14 @@ public class LittleRenderChunk implements RenderChunkExtender {
     @OnlyIn(Dist.CLIENT)
     class ResortTransparencyTask extends ChunkCompileTask {
         
-        private final CompiledSection compiledChunk;
+        private final CompiledChunk compiledChunk;
         
         @Deprecated
-        public ResortTransparencyTask(double distAtCreation, CompiledSection chunk) {
+        public ResortTransparencyTask(double distAtCreation, CompiledChunk chunk) {
             this(null, distAtCreation, chunk);
         }
         
-        public ResortTransparencyTask(@Nullable ChunkPos pos, double distAtCreation, CompiledSection chunk) {
+        public ResortTransparencyTask(@Nullable ChunkPos pos, double distAtCreation, CompiledChunk chunk) {
             super(pos, distAtCreation, true);
             this.compiledChunk = chunk;
         }
@@ -573,7 +574,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         }
         
         @Override
-        public CompletableFuture<ChunkTaskResult> doTask(SectionBufferBuilderPack p_112893_) {
+        public CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack p_112893_) {
             if (this.isCancelled.get())
                 return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
             if (this.isCancelled.get())

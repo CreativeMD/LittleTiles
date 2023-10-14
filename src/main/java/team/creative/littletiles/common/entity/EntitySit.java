@@ -76,7 +76,7 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
     }
     
     @Override
-    protected float ridingOffset(Entity entity) {
+    public double getPassengersRidingOffset() {
         return 0;
     }
     

@@ -15,8 +15,6 @@
         "common.level.LevelAccessor",
         "common.item.BlockPlaceContextMixin",
         "common.network.FriendlyByteBufMixin",
-        "common.recipe.ShapedRecipeAccessor",
-        "common.recipe.ShapedRecipeSerializerAccessor",
         "server.level.ChunkSerializerAccessor",
         "server.level.MinecraftServerAccessor",
         "server.level.ServerChunkCacheMixin",
@@ -26,7 +24,6 @@
         "server.level.ServerEntityAccessor",
         "server.level.ChunkMapAccessor",
         "server.network.ServerGamePacketListenerImplAccessor",
-        "server.network.ServerCommonPacketListenerImplAccessor",
         "server.network.ServerGamePacketListenerImplMixin",
         "server.network.ServerboundCustomPayloadPacketMixin"
     ],

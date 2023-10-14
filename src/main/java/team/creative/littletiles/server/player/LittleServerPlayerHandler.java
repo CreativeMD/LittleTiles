@@ -25,11 +25,6 @@ import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ServerboundClientInformationPacket;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-import net.minecraft.network.protocol.common.ServerboundKeepAlivePacket;
-import net.minecraft.network.protocol.common.ServerboundPongPacket;
-import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundTagQueryPacket;
@@ -41,17 +36,18 @@ import net.minecraft.network.protocol.game.ServerboundChatAckPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundChatSessionUpdatePacket;
-import net.minecraft.network.protocol.game.ServerboundChunkBatchReceivedPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
-import net.minecraft.network.protocol.game.ServerboundConfigurationAcknowledgedPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
 import net.minecraft.network.protocol.game.ServerboundEntityTagQuery;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
+import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
 import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
@@ -62,9 +58,11 @@ import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
+import net.minecraft.network.protocol.game.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
+import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket;
 import net.minecraft.network.protocol.game.ServerboundSelectTradePacket;
 import net.minecraft.network.protocol.game.ServerboundSetBeaconPacket;
@@ -79,7 +77,6 @@ import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
-import net.minecraft.network.protocol.status.ServerboundPingRequestPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RunningOnDifferentThreadException;
@@ -504,8 +501,18 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     }
     
     @Override
+    public void handleResourcePackResponse(ServerboundResourcePackPacket packet) {
+        getVanilla().handleResourcePackResponse(packet);
+    }
+    
+    @Override
     public void handlePaddleBoat(ServerboundPaddleBoatPacket packet) {
         getVanilla().handlePaddleBoat(packet);
+    }
+    
+    @Override
+    public void handlePong(ServerboundPongPacket packet) {
+        getVanilla().handlePong(packet);
     }
     
     @Override
@@ -718,7 +725,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     }
     
     public void handleBlockBreakAction(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction direction, int buildHeight, int sequence) {
-        PlayerInteractEvent.LeftClickBlock event = ForgeHooks.onLeftClickBlock(player, pos, direction, action);
+        PlayerInteractEvent.LeftClickBlock event = ForgeHooks.onLeftClickBlock(player, pos, direction);
         if (event.isCanceled() || (!this.isCreative() && event.getResult() == Event.Result.DENY))
             return;
         
@@ -887,8 +894,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
             if (gameType == GameType.SPECTATOR)
                 preCancelEvent = true;
             
-            if (!player.mayBuild() && itemstack.isEmpty() || !itemstack.hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK),
-                new BlockInWorld(level, pos, false)))
+            if (!player.mayBuild() && itemstack.isEmpty() || !itemstack
+                    .hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), new BlockInWorld(level, pos, false)))
                 preCancelEvent = true;
         }
         
@@ -1021,31 +1028,6 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     @FunctionalInterface
     interface EntityInteraction {
         InteractionResult run(ServerPlayer player, Entity entity, InteractionHand hand);
-    }
-    
-    @Override
-    public void handlePingRequest(ServerboundPingRequestPacket packet) {
-        getVanilla().handlePingRequest(packet);
-    }
-    
-    @Override
-    public void handlePong(ServerboundPongPacket packet) {
-        getVanilla().handlePong(packet);
-    }
-    
-    @Override
-    public void handleResourcePackResponse(ServerboundResourcePackPacket packet) {
-        getVanilla().handleResourcePackResponse(packet);
-    }
-    
-    @Override
-    public void handleConfigurationAcknowledged(ServerboundConfigurationAcknowledgedPacket packet) {
-        getVanilla().handleConfigurationAcknowledged(packet);
-    }
-    
-    @Override
-    public void handleChunkBatchReceived(ServerboundChunkBatchReceivedPacket packet) {
-        getVanilla().handleChunkBatchReceived(packet);
     }
     
 }

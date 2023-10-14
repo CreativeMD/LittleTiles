@@ -4,18 +4,17 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraftforge.common.crafting.IIngredientSerializer;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 
 public class StructureIngredient extends Ingredient {
-    
-    public static final Codec<StructureIngredient> CODEC = RecordCodecBuilder.create(b -> b.group(Codec.STRING.fieldOf("structure").forGetter(x -> x.structureType)).apply(b,
-        StructureIngredient::new));
     
     public final String structureType;
     
@@ -33,9 +32,31 @@ public class StructureIngredient extends Ingredient {
         return false;
     }
     
-    @Override
-    public boolean isSimple() {
-        return false;
+    public static class StructureIngredientSerializer implements IIngredientSerializer<StructureIngredient> {
+        
+        public static final StructureIngredientSerializer INSTANCE = new StructureIngredientSerializer();
+        
+        @Override
+        public StructureIngredient parse(FriendlyByteBuf buffer) {
+            return create(buffer.readUtf());
+        }
+        
+        @Override
+        public StructureIngredient parse(JsonObject json) {
+            if (json.has("structure"))
+                return create(json.get("structure").getAsString());
+            throw new JsonSyntaxException("Missing 'structure' type!");
+        }
+        
+        public StructureIngredient create(String id) {
+            return new StructureIngredient(id);
+        }
+        
+        @Override
+        public void write(FriendlyByteBuf buffer, StructureIngredient ingredient) {
+            buffer.writeUtf(ingredient.structureType);
+        }
+        
     }
     
 }

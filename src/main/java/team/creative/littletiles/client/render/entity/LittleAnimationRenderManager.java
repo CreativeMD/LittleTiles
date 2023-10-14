@@ -25,9 +25,9 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
@@ -250,10 +250,10 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     private class RebuildTask implements RebuildTaskExtender {
         
         private ChunkLayerMap<BufferCollection> caches;
-        private SectionBufferBuilderPack pack;
+        private ChunkBufferBuilderPack pack;
         private Set<RenderType> renderTypes;
         
-        private CompileResults compile(float x, float y, float z, SectionBufferBuilderPack pack) {
+        private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
             this.pack = pack;
             
             CompileResults results = new CompileResults();
