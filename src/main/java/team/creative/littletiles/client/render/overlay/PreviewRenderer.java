@@ -188,6 +188,8 @@ public class PreviewRenderer implements LevelAwareHandler {
             if (mc.options.hideGui)
                 return;
             
+            Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
+            
             if (stack.getItem() instanceof ILittleTool tool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
                 BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult ? (BlockHitResult) mc.hitResult : null;
                 
@@ -221,8 +223,6 @@ public class PreviewRenderer implements LevelAwareHandler {
                         RenderSystem.setShader(GameRenderer::getPositionColorShader);
                         
                         RenderSystem.depthMask(false);
-                        
-                        Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
                         
                         boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                         PlacementPreview result = getPreviews(player, level, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution);
@@ -260,9 +260,12 @@ public class PreviewRenderer implements LevelAwareHandler {
                 } else
                     processMarkKey(player, (ILittleTool) stack.getItem(), stack, null);
                 
+                pose.pushPose();
+                pose.translate(-cam.x, -cam.y, -cam.z);
                 tool.render(player, stack, pose);
                 if (marked != null)
                     marked.render(tool.getPositionGrid(stack), pose);
+                pose.popPose();
             }
         } else
             marked = null;
@@ -421,7 +424,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                         BlockPos renderCenter = result.position.getPos();
                         pose.translate(renderCenter.getX() - cam.x, renderCenter.getY() - cam.y, renderCenter.getZ() - cam.z);
                         
-                        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+                        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
                         RenderSystem.lineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
                         
                         bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);

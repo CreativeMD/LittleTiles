@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.nbt.CompoundTag;
@@ -390,13 +392,33 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         
         @OnlyIn(Dist.CLIENT)
         public void render(LittleGrid grid, PoseStack pose, boolean selected) {
-            Minecraft mc = Minecraft.getInstance();
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder bufferbuilder = tesselator.getBuilder();
+            
+            RenderSystem.depthMask(true);
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.enableDepthTest();
+            
             AABB box = this.getBox().inflate(0.002);
-            VertexConsumer consumer = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
+            
+            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+            
             RenderSystem.lineWidth(4.0F);
-            LevelRenderer.renderLineBox(pose, consumer, box, 0, 0, 0, 1F);
-            RenderSystem.lineWidth(1.0F);
-            LevelRenderer.renderLineBox(pose, consumer, box, 1F, 0.3F, 0.0F, 1F);
+            LevelRenderer.renderLineBox(pose, bufferbuilder, box, 0, 0, 0, 1F);
+            tesselator.end();
+            
+            RenderSystem.disableDepthTest();
+            if (selected) {
+                bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                RenderSystem.lineWidth(1.0F);
+                LevelRenderer.renderLineBox(pose, bufferbuilder, box, 1F, 0.3F, 0.0F, 1F);
+                tesselator.end();
+            }
+            
+            RenderSystem.enableDepthTest();
         }
         
         public AABB getBox() {
