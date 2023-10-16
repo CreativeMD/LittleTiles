@@ -107,13 +107,9 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     
     @OnlyIn(Dist.CLIENT)
     protected void renderItem(GuiTreeItem item, PoseStack pose, Matrix4f projection, Minecraft mc) {
-        
-        if (item.tree.hasCheckboxes() && !item.isChecked())
-            return;
-        
         pose.pushPose();
         
-        if (item instanceof GuiTreeItemStructure s) {
+        if ((!item.tree.hasCheckboxes() || item.isChecked()) && item instanceof GuiTreeItemStructure s) {
             AnimationPreview preview = get(s);
             if (preview == null) {
                 pose.popPose();
