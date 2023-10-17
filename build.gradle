@@ -1,10 +1,11 @@
 plugins {
     id 'eclipse'
     id 'idea'
-    id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'com.diffplug.eclipse.apt'
     id 'org.spongepowered.mixin'
+    id 'com.modrinth.minotaur' version '2.+'
+    id 'com.matthewprenger.cursegradle' version '1.4+'
 }
 
 repositories {
@@ -143,19 +144,76 @@ mixin {
     config 'littletiles.mixins.json'
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+String getChangelogText() {
+    String result = ''
+    boolean first = true
+    file('changelog.txt').readLines().find {
+        if (first) {
+            if (it.equals(project.mod_version)) {
+                first = false
+            }
+            return false
+        } else if (!it?.trim()) {
+            return true
+        } else {
+            result += "* " + it + "\n"
+            return false
         }
     }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
+    
+    return result
+}
+
+task upload(type: GradleBuild) {
+    description 'Uploads new version to modrinth and curseforge.'
+    group = 'publishing'
+    tasks = ['modrinth', 'curseforge']
+}
+
+gradle.taskGraph.whenReady {
+    if (it.hasTask(tasks.modrinth) || it.hasTask(tasks.curseforge)) {
+        if (!getChangelogText()?.trim()) {
+            throw new GradleException('No changelog provided')
         }
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+tasks.modrinth.enabled = System.getenv("MODRINTH_TOKEN") != null
+tasks.modrinth.group = 'publishing'
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = project.mod_id
+    versionNumber = project.mod_version
+    versionType = project.release_type
+    uploadFile = jar
+    gameVersions = [ project.minecraft_version ]
+    changelog = getChangelogText()
+    loaders = [ "forge", "neoforge" ]
+    dependencies {
+        required.project "creativecore"
+    }
+}
+
+tasks.modrinth.enabled = System.getenv("CURSEFORGE_TOKEN") != null
+tasks.curseforge.group = 'publishing'
+curseforge {
+    apiKey = System.getenv("CURSEFORGE_TOKEN")
+    project {
+        id = project.curse_id
+        changelog = getChangelogText()
+        changelogType = "markdown"
+        addGameVersion project.minecraft_version
+        addGameVersion "Forge"
+        addGameVersion "NeoForge"
+        releaseType = project.release_type
+        mainArtifact(jar) {
+        }
+        relations {
+            requiredLibrary "creativecore"
+        }
+    }
 }
