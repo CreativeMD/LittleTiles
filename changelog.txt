@@ -1,3 +1,6 @@
+1.6.0-pre066
+Fixed intersection method being too accurate, causing pillar shapes to be removed due to the floating point precision
+
 1.6.0-pre065
 Fixed pillar and wall shape not properly calculation correct start and end position when using thickness greater than 1
 Fixed overlap not working properly when child structures have different grid
