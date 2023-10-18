@@ -617,8 +617,8 @@ public class LittleTransformableBox extends LittleBox {
     @Override
     protected boolean intersectsWith(LittleBox box) {
         if (super.intersectsWith(box)) {
-            if (box instanceof LittleTransformableBox)
-                return intersectsWith(((LittleTransformableBox) box).requestCache()) || ((LittleTransformableBox) box).intersectsWith(this.requestCache());
+            if (box instanceof LittleTransformableBox t)
+                return intersectsWith(t.requestCache()) || t.intersectsWith(this.requestCache());
             
             VectorFanCache ownCache = requestCache();
             for (int i = 0; i < ownCache.faces.length; i++)
@@ -655,7 +655,7 @@ public class LittleTransformableBox extends LittleBox {
                 
                 for (VectorFan fan : face.axisStrips)
                     for (VectorFan fan2 : otherFace.axisStrips)
-                        if (fan.get(0).get(axis) == fan2.get(0).get(axis) && fan.intersect2d(fan2, one, two, facing.positive))
+                        if (fan.get(0).get(axis) == fan2.get(0).get(axis) && fan.intersect2d(fan2, one, two, facing.positive, 0.001F))
                             return true;
             }
         }
@@ -1575,7 +1575,7 @@ public class LittleTransformableBox extends LittleBox {
                 VectorFan strip = axisStrips.get(i).cut(plane);
                 VectorFan strip2 = axisStrips.get(i).cut(plane2);
                 
-                if (strip != null && strip2 != null && strip.intersect2d(strip2, one, two, inverse)) {
+                if (strip != null && strip2 != null && strip.intersect2d(strip2, one, two, inverse, 0.001F)) {
                     List<VectorFan> fans = strip.cut2d(strip2, one, two, inverse, false);
                     newAxisStrips.add(strip2);
                     newAxisStrips.addAll(fans);
