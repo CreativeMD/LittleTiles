@@ -34,14 +34,16 @@ import team.creative.littletiles.common.math.vec.LittleVecGrid;
 public class RecipeOverlapTest extends RecipeTestModule {
     
     public static void removeOverlap(GuiTreeItemStructure item, LittleBoxesNoOverlap boxes) {
-        List<LittleBox> cutter = boxes.all();
-        List<LittleBox> cutout = new ArrayList<>();
-        for (Iterator<LittleTile> iterator = item.group.iterator(); iterator.hasNext();) {
-            LittleTile tile = iterator.next();
-            tile.cutOut(cutter, cutout, null);
-            if (tile.isEmpty())
-                iterator.remove();
-        }
+        boxes.sameGrid(item.group, () -> {
+            List<LittleBox> cutter = boxes.all();
+            List<LittleBox> cutout = new ArrayList<>();
+            for (Iterator<LittleTile> iterator = item.group.iterator(); iterator.hasNext();) {
+                LittleTile tile = iterator.next();
+                tile.cutOut(cutter, cutout, null);
+                if (tile.isEmpty())
+                    iterator.remove();
+            }
+        });
         
         if (item.group.isEmpty())
             item.recipe.removeItem(item);
@@ -123,7 +125,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
                 for (LittleBox other : entry.getValue()) {
                     if (LittleBox.intersectsWith(box, other)) {
                         LittleBox intersecting = box.intersection(other);
-                        addOverlay(entry.getKey(), pos, grid, intersecting);
+                        addOverlay(entry.getKey(), pos, this.grid, intersecting);
                     }
                 }
             }
