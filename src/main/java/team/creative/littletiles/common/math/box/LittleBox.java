@@ -1139,6 +1139,20 @@ public class LittleBox {
             return getMin(facing.axis) == 0;
     }
     
+    public void growAway(int size, Facing facing) {
+        int invSize = size / 2;
+        size -= invSize;
+        minX -= invSize;
+        minY -= invSize;
+        minZ -= invSize;
+        maxX += size;
+        maxY += size;
+        maxZ += size;
+        int by = facing.positive ? invSize : -size;
+        setMin(facing.axis, getMin(facing.axis) + by);
+        setMax(facing.axis, getMax(facing.axis) + by);
+    }
+    
     public void growCentered(int size) {
         int invSize = size / 2;
         size -= invSize;

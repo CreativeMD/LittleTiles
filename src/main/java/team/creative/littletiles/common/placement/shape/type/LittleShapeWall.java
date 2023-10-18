@@ -106,23 +106,8 @@ public class LittleShapeWall extends LittleShape {
             }
         }
         
-        int invSize = thickness / 2;
-        int size = thickness - invSize;
-        minBox.growCentered(thickness);
-        LittleVec vec = new LittleVec(originalMin.facing);
-        if (originalMin.facing.positive)
-            vec.scale(size);
-        else
-            vec.scale(-invSize);
-        minBox.add(vec);
-        
-        maxBox.growCentered(thickness);
-        vec = new LittleVec(originalMax.facing);
-        if (originalMax.facing.positive)
-            vec.scale(size);
-        else
-            vec.scale(-invSize);
-        maxBox.add(vec);
+        minBox.growAway(thickness, originalMin.facing);
+        maxBox.growAway(thickness, originalMax.facing);
         
         box.growToInclude(minBox);
         box.growToInclude(maxBox);
