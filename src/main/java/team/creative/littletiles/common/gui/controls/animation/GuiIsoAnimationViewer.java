@@ -16,6 +16,7 @@ import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -319,20 +320,40 @@ public class GuiIsoAnimationViewer extends GuiControl {
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
         
+        pose = graphics.pose();
         {
             pose.pushPose();
             RenderSystem.applyModelViewMatrix();
             
             int axisWidth = 20;
             int axisHeight = 16;
-            pose.translate(rect.getWidth() / 2 - axisWidth / 2, rect.getHeight() - axisHeight - 2, 0);
-            graphics.drawString(Minecraft.getInstance().font, view.xAxis.axis.name(), 0, 0, ColorUtils.WHITE);
+            
+            Font font = Minecraft.getInstance().font;
+            
+            graphics.drawString(font, view.xAxis.axis.name(), (int) rect.getWidth() / 2 - axisWidth / 2, (int) rect.getHeight() - axisHeight + font.lineHeight / 2,
+                ColorUtils.WHITE);
             GuiIcon icon = view.xAxis.positive ? GuiIcon.ARROW_RIGHT : GuiIcon.ARROW_LEFT;
+            
+            pose.translate(rect.getWidth() / 2 - axisWidth / 2, rect.getHeight() - axisHeight, 0);
             RenderSystem.setShaderTexture(0, icon.location());
             RenderSystem.setShaderColor(0, 0, 0, 1);
-            GuiRenderHelper.textureRect(pose, 5, 0, icon.minX(), icon.minY(), icon.minX() + icon.width(), icon.minY() + icon.height());
+            GuiRenderHelper.textureRect(pose, 9, 0, icon.width(), icon.height(), icon.minX(), icon.minY());
             RenderSystem.setShaderColor(1, 1, 1, 1);
-            GuiRenderHelper.textureRect(pose, 4, 0, icon.minX(), icon.minY(), icon.minX() + icon.width(), icon.minY() + icon.height());
+            GuiRenderHelper.textureRect(pose, 8, 0, icon.width(), icon.height(), icon.minX(), icon.minY());
+            
+            pose.popPose();
+            pose.pushPose();
+            RenderSystem.applyModelViewMatrix();
+            
+            graphics.drawString(font, view.yAxis.axis.name(), 5, (int) rect.getHeight() / 2 - axisHeight / 2, ColorUtils.WHITE);
+            icon = view.yAxis.positive ? GuiIcon.ARROW_UP : GuiIcon.ARROW_DOWN;
+            
+            pose.translate(0, (int) rect.getHeight() / 2 - axisHeight - 2, 0);
+            RenderSystem.setShaderTexture(0, icon.location());
+            RenderSystem.setShaderColor(0, 0, 0, 1);
+            GuiRenderHelper.textureRect(pose, 0, -9, icon.width(), icon.height(), icon.minX(), icon.minY());
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            GuiRenderHelper.textureRect(pose, 0, -8, icon.width(), icon.height(), icon.minX(), icon.minY());
             
             pose.popPose();
         }
