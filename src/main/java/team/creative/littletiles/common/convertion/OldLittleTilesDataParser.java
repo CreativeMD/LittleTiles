@@ -83,7 +83,7 @@ public class OldLittleTilesDataParser {
     public static LittleGroup load(CompoundTag nbt) throws LittleConvertException {
         LittleGrid grid;
         try {
-            grid = LittleGrid.get(nbt);
+            grid = LittleGrid.getOrThrow(nbt);
         } catch (RuntimeException e) {
             throw new LittleConvertException("Invalid grid size " + nbt.getInt("grid"));
         }
