@@ -1,0 +1,7 @@
+1.6.0-pre065
+Fixed pillar and wall shape not properly calculation correct start and end position when using thickness greater than 1
+Fixed overlap not working properly when child structures have different grid
+Fixed not throwing error when importing old data with unsupported grid
+Fixed not showing proper axis (+ direction) in axis selection
+Fixed filter rendered not working as expected in recipe gui
+Fixed not rendering marked position when using mark mode
