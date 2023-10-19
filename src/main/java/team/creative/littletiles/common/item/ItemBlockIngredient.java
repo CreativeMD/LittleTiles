@@ -48,9 +48,9 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
     @Override
     public Component getName(ItemStack stack) {
         BlockIngredientEntry entry = loadIngredient(stack);
-        if (entry != null) {
-            return entry.getBlockStack().getDisplayName();
-        } else
+        if (entry != null)
+            return entry.getBlockStack().getHoverName();
+        else
             return super.getName(stack);
     }
     
