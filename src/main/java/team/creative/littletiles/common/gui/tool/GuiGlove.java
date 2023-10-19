@@ -52,6 +52,9 @@ public class GuiGlove extends GuiConfigure {
     
     @Override
     public void create() {
+        if (!isClient())
+            return;
+        
         flow = GuiFlow.STACK_Y;
         GuiParent upperBar = new GuiParent(GuiFlow.STACK_X);
         add(upperBar.setVAlign(VAlign.CENTER).setExpandableX());

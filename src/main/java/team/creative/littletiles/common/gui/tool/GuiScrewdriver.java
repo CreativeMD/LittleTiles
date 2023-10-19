@@ -55,6 +55,9 @@ public class GuiScrewdriver extends GuiConfigure {
     
     @Override
     public void create() {
+        if (!isClient())
+            return;
+        
         tool.get().getOrCreateTag();
         
         add(new GuiCheckBox("any", false).setTranslate("gui.any"));
@@ -143,8 +146,8 @@ public class GuiScrewdriver extends GuiConfigure {
                 if (stackReplace != null) {
                     Block replacementBlock = Block.byItem(stackReplace.getItem());
                     if (!LittleAction.isBlockValid(replacementBlock.defaultBlockState())) {
-                        GuiDialogHandler.openDialog(getIntegratedParent(), "screwdriver_dialog", Component
-                                .translatable("dialog.screwdriver.invalid_replacement"), (x, y) -> {}, DialogButton.OK);
+                        GuiDialogHandler.openDialog(getIntegratedParent(), "screwdriver_dialog", Component.translatable("dialog.screwdriver.invalid_replacement"), (x, y) -> {},
+                            DialogButton.OK);
                         return null;
                     }
                     actions.add(new LittleActionDestroyBoxes(level, boxes));

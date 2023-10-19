@@ -61,6 +61,8 @@ public class GuiPaintBrush extends GuiConfigureTool {
     
     @Override
     public void create() {
+        if (!isClient())
+            return;
         Color color = new Color(ItemLittlePaintBrush.getColor(tool.get()));
         add(new GuiColorPicker("picker", color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
         
