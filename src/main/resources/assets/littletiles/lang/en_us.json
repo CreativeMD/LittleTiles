@@ -180,7 +180,7 @@
 	
 	"gui.noclip.slowness": "Slowness (codweb)",
 	
-	"itemGroup.littletiles": "LittleTiles",
+	"creative_tab.littletiles": "LittleTiles",
 	"item.littletiles.hammer": "Little Hammer",
     "item.littletiles.multi_tiles": "Little Structure",
     "item.littletiles.name": "Little Recipe",

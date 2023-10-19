@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.datafix.fixes.References;
@@ -181,7 +182,7 @@ public class LittleTilesRegistry {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LittleTiles.MODID);
     
     public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_TABS.register("items", () -> CreativeModeTab.builder().icon(() -> new ItemStack(LittleTilesRegistry.HAMMER
-            .get())).displayItems((features, output) -> {
+            .get())).title(Component.translatable("creative_tab.littletiles")).displayItems((features, output) -> {
                 for (ExampleStructures example : ExampleStructures.values())
                     if (example.stack != null)
                         output.accept(example.stack);
