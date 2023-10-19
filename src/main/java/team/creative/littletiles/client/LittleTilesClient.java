@@ -321,7 +321,7 @@ public class LittleTilesClient {
             }));
         
         CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "blockingredient"),
-            new CreativeItemBoxModel(new ModelResourceLocation("miencraft", "stone", "inventory")) {
+            new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
                 
                 @Override
                 public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
