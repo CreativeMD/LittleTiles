@@ -1,3 +1,7 @@
+1.6.0-pre067
+Added missing translation for creative tab
+Fixed exception on server side when using configuring glove, paint brush and screwdriver
+
 1.6.0-pre066
 Fixed intersection method being too accurate, causing pillar shapes to be removed due to the floating point precision
 
