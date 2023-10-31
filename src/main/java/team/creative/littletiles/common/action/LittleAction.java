@@ -445,7 +445,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     public static boolean isBlockValid(BlockState state) {
         if (isBlockValid(state.getBlock()))
             return true;
-        if (state.isSolid())
+        if (state.isSolid() && state.isCollisionShapeFullBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
             return true;
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
             return true;
