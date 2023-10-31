@@ -1,6 +1,8 @@
 package team.creative.littletiles.client.render.block;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -12,7 +14,7 @@ import team.creative.littletiles.api.common.block.LittleBlock;
 public class LittleBlockClientRegistry {
     
     private static final ChunkRenderTypeSet SOLID = ChunkRenderTypeSet.of(RenderType.solid());
-    private static final HashMap<LittleBlock, ChunkRenderTypeSet> CACHED_LAYERS = new HashMap<>();
+    private static final Map<LittleBlock, ChunkRenderTypeSet> CACHED_LAYERS = Collections.synchronizedMap(new HashMap<>());
     
     public static boolean canRenderInLayer(LittleBlock block, RenderType layer) {
         ChunkRenderTypeSet layers = CACHED_LAYERS.get(block);
