@@ -400,15 +400,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             schedule();
     }
     
-    public void notifyAfterPlaced() {
-        afterPlaced();
-        for (StructureChildConnection child : children.all())
-            try {
-                child.getStructure().notifyAfterPlaced();
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-    }
-    
-    protected void afterPlaced() {}
+    public void afterPlaced() {}
     
     // ================Save and loading================
     
