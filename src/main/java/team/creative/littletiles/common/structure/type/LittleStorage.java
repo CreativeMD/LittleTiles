@@ -161,7 +161,7 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    protected void afterPlaced() {
+    public void afterPlaced() {
         super.afterPlaced();
         double volume = 0;
         try {
