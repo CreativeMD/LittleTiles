@@ -198,7 +198,7 @@ modrinth {
     }
 }
 
-tasks.modrinth.enabled = System.getenv("CURSEFORGE_TOKEN") != null
+tasks.curseforge.enabled = System.getenv("CURSEFORGE_TOKEN") != null
 tasks.curseforge.group = 'publishing'
 curseforge {
     apiKey = System.getenv("CURSEFORGE_TOKEN")
