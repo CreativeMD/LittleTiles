@@ -174,8 +174,8 @@ public class LittleToolHandler {
         ItemEntity entityItem = event.getItem();
         ItemStack stack = entityItem.getItem();
         
-        if (stack.getItem() instanceof ILittleIngredientInventory && ((ILittleIngredientInventory) stack.getItem()).shouldBeMerged()) {
-            LittleIngredients ingredients = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
+        if (stack.getItem() instanceof ILittleIngredientInventory inv && inv.shouldBeMerged()) {
+            LittleIngredients ingredients = inv.getInventory(stack);
             LittleInventory inventory = new LittleInventory(player);
             inventory.allowDrop = false;
             

@@ -50,7 +50,27 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
     }
     
     @Override
-    public boolean overrideOtherStackedOnMe(ItemStack me, ItemStack other, Slot p_150894_, ClickAction action, Player player, SlotAccess slot) {
+    public boolean overrideOtherStackedOnMe(ItemStack me, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess otherSlot) {
+        if (other.getItem() instanceof ItemBlockIngredient ingredient) {
+            BlockIngredientEntry meEntry = loadIngredient(me);
+            BlockIngredientEntry otherEntry = loadIngredient(other);
+            if (meEntry.equals(otherEntry)) {
+                double amount = Math.min(Item.MAX_STACK_SIZE - meEntry.value, otherEntry.value);
+                otherEntry.value -= amount;
+                meEntry.value += amount;
+                
+                if (meEntry.value == 1)
+                    slot.set(meEntry.getBlockStack());
+                else
+                    saveIngredient(me, meEntry);
+                
+                if (otherEntry.value <= 0)
+                    otherSlot.set(ItemStack.EMPTY);
+                else
+                    saveIngredient(other, otherEntry);
+                return true;
+            }
+        }
         return false;
     }
     
