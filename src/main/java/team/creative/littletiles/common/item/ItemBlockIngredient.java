@@ -2,6 +2,7 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -23,6 +25,13 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
     
     public ItemBlockIngredient() {
         super(new Item.Properties().stacksTo(1));
+    }
+    
+    public static ItemStack of(BlockIngredientEntry entry) {
+        ItemStack stack = new ItemStack(LittleTilesRegistry.BLOCK_INGREDIENT.get());
+        stack.setTag(new CompoundTag());
+        saveIngredient(stack, entry);
+        return stack;
     }
     
     public static BlockIngredientEntry loadIngredient(ItemStack stack) {

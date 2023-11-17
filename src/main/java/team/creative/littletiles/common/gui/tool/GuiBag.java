@@ -1,11 +1,13 @@
 package team.creative.littletiles.common.gui.tool;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -14,12 +16,13 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.inventory.GuiInventoryGrid;
 import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
+import team.creative.creativecore.common.gui.controls.inventory.IGuiInventory;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.creativecore.common.util.type.Color;
-import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.gui.controls.GuiColorProgressBar;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
@@ -37,8 +40,11 @@ import team.creative.littletiles.common.item.ItemLittleBag;
 public class GuiBag extends GuiConfigure {
     
     public SimpleContainer bagInventory;
+    public GuiInventoryGrid bagInventoryGui;
     public LittleIngredients bag;
     public SimpleContainer input = new SimpleContainer(1);
+    private List<IGuiInventory> inventories = new ArrayList<>();
+    private List<IGuiInventory> inventoriesInv = new ArrayList<>();
     
     public final GuiSyncLocal<EndTag> RELOAD = getSyncHolder().register("reload", v -> {
         tool.changed();
@@ -59,7 +65,7 @@ public class GuiBag extends GuiConfigure {
                 if (!inventory.addStack(colorStack))
                     LevelUtils.dropItem(player, colorStack);
                 
-                ((ItemLittleBag) tool.get().getItem()).setInventory(tool.get(), bag, null);
+                saveBagInventory();
                 RELOAD.send(EndTag.INSTANCE);
                 tick();
             }
@@ -72,33 +78,12 @@ public class GuiBag extends GuiConfigure {
             if (x.control instanceof GuiColorProgressBar)
                 DROP_COLOR.send(StringTag.valueOf(x.control.name));
         });
-        
-        /*registerEventChanged(x -> {
-            Player player = getPlayer();
-            if (x.control instanceof GuiSlotBase) {
-                if (x.control instanceof SlotControlBlockIngredient) {
-                    SlotControlBlockIngredient slot = (SlotControlBlockIngredient) event.source;
-                    
-                    BlockIngredient blocks = new BlockIngredient().setLimits(ItemLittleBag.inventorySize, ItemLittleBag.maxStackSize);
-                    for (int y = 0; y < ItemLittleBag.inventoryHeight; y++) {
-                        for (int x = 0; x < ItemLittleBag.inventoryWidth; x++) {
-                            int index = x + y * ItemLittleBag.inventoryWidth;
-                            BlockIngredientEntry ingredient = ((SlotControlBlockIngredient) get("item" + index)).getIngredient();
-                            if (ingredient != null)
-                                blocks.add(ingredient);
-                        }
-                    }
-                    
-                    bag.set(blocks.getClass(), blocks);
-                    ((ItemLittleBag) stack.getItem()).setInventory(stack, bag, null);
-                    if (player instanceof EntityPlayerMP)
-                        ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
-                    reloadControls();
-                } else if (event.source.name.startsWith("input")) {
-                    
-                }
-            }
-        });*/
+    }
+    
+    protected GuiInventoryGrid addInventory(GuiInventoryGrid inventory) {
+        inventories.add(inventory);
+        inventoriesInv.add(0, inventory);
+        return inventory;
     }
     
     @Override
@@ -113,20 +98,21 @@ public class GuiBag extends GuiConfigure {
         ColorIngredient unit = bag.get(ColorIngredient.class);
         
         GuiParent upper = new GuiParent(GuiFlow.STACK_X);
-        add(upper.setExpandableX());
+        add(upper);
         GuiParent left = new GuiParent();
         upper.add(left);
         
         GuiParent right = new GuiParent(GuiFlow.STACK_Y);
         upper.add(right.setAlign(Align.STRETCH).setExpandableX());
         
-        right.add(new GuiInventoryGrid("input", input).addListener(x -> {
+        GuiInventoryGrid inputInventory;
+        right.add(inputInventory = new GuiInventoryGrid("input", input).addListener(x -> {
             Player player = getPlayer();
             ItemStack input = GuiBag.this.input.getItem(0);
             
-            if (input.getItem() instanceof ILittleIngredientInventory) {
+            if (input.getItem() instanceof ILittleIngredientInventory inv) {
                 
-                LittleIngredients ingredients = ((ILittleIngredientInventory) input.getItem()).getInventory(input);
+                LittleIngredients ingredients = inv.getInventory(input);
                 
                 boolean containsBlocks = ingredients.contains(BlockIngredient.class);
                 boolean containsColor = ingredients.contains(ColorIngredient.class);
@@ -139,7 +125,7 @@ public class GuiBag extends GuiConfigure {
                 
                 if (remaining.copy().sub(ingredients.copy()) != null) {
                     if (containsBlocks) {
-                        updateSlots();
+                        clearItemCache();
                         player.playSound(SoundEvents.ITEM_FRAME_PLACE, 1.0F, 1.0F);
                     }
                     
@@ -149,7 +135,8 @@ public class GuiBag extends GuiConfigure {
                     }
                 }
                 
-                ((ILittleIngredientInventory) input.getItem()).setInventory(input, remaining, null);
+                inv.setInventory(input, remaining, null);
+                saveBagInventory();
             } else {
                 LittleIngredients ingredients = LittleIngredient.extractWithoutCount(input, true);
                 if (ingredients != null) {
@@ -171,7 +158,7 @@ public class GuiBag extends GuiConfigure {
                         } catch (NotEnoughSpaceException e) {}
                         
                         if (containsBlocks) {
-                            updateSlots();
+                            clearItemCache();
                             player.playSound(SoundEvents.ITEM_FRAME_PLACE, 1.0F, 1.0F);
                         }
                         
@@ -184,60 +171,136 @@ public class GuiBag extends GuiConfigure {
                         bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
                     
                 }
+                
+                saveBagInventory();
             }
             
         }));
-        right.add(new GuiColorProgressBar("black", unit.black, ItemLittleBag.colorUnitMaximum, Color.BLACK));
-        right.add(new GuiColorProgressBar("cyan", unit.cyan, ItemLittleBag.colorUnitMaximum, Color.CYAN));
-        right.add(new GuiColorProgressBar("magenta", unit.magenta, ItemLittleBag.colorUnitMaximum, Color.MAGENTA));
-        right.add(new GuiColorProgressBar("yellow", unit.yellow, ItemLittleBag.colorUnitMaximum, Color.YELLOW));
+        int colorStorage = LittleTiles.CONFIG.general.bag.colorStorage;
+        right.add(new GuiColorProgressBar("black", unit.black, colorStorage, Color.BLACK));
+        right.add(new GuiColorProgressBar("cyan", unit.cyan, colorStorage, Color.CYAN));
+        right.add(new GuiColorProgressBar("magenta", unit.magenta, colorStorage, Color.MAGENTA));
+        right.add(new GuiColorProgressBar("yellow", unit.yellow, colorStorage, Color.YELLOW));
         
         bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
-        List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
         
-        bagInventory = new SimpleContainer(ItemLittleBag.inventorySize) {
-            @Override
-            public int getMaxStackSize() {
-                return ItemLittleBag.maxStackSizeOfTiles;
-            }
-        };
-        left.add(new GuiInventoryGrid(name, bagInventory, ItemLittleBag.inventoryWidth, ItemLittleBag.inventoryHeight, (c, i) -> new Slot(c, i, 0, 0) {
-            
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return false;
-            }
-            
-        }).addListener(x -> {
-            updateSlots();
-        }));
+        bagInventory = new SimpleContainer(LittleTiles.CONFIG.general.bag.inventorySize);
+        left.add(
+            bagInventoryGui = new GuiInventoryGrid(name, bagInventory, LittleTiles.CONFIG.general.bag.inventoryWidth, LittleTiles.CONFIG.general.bag.inventoryHeight, (c, i) -> new BagSlot(c, i)));
         
-        for (int i = 0; i < inventory.size(); i++) {
-            ItemStack stack = new ItemStack(LittleTilesRegistry.BLOCK_INGREDIENT.get());
-            stack.getOrCreateTag();
-            ItemBlockIngredient.saveIngredient(stack, inventory.get(i));
-            bagInventory.setItem(i, stack);
-        }
+        add(addInventory(new GuiPlayerInventoryGrid(getPlayer())).disableSlot(tool.index));
         
-        add(new GuiPlayerInventoryGrid(getPlayer()).disableSlot(tool.index));
+        addInventory(inputInventory);
+        addInventory(bagInventoryGui);
     }
     
-    public void updateSlots() {
-        List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
-        for (int i = 0; i < inventory.size(); i++) {
-            ItemStack stack = new ItemStack(LittleTilesRegistry.BLOCK_INGREDIENT.get());
-            stack.getOrCreateTag();
-            ItemBlockIngredient.saveIngredient(stack, inventory.get(i));
-            bagInventory.setItem(i, stack);
-        }
+    public void clearItemCache() {
+        for (int i = 0; i < bagInventoryGui.inventorySize(); i++)
+            ((BagSlot) bagInventoryGui.getSlot(i).slot).resetCache();
+    }
+    
+    @Override
+    public boolean isExpandableX() {
+        return false;
+    }
+    
+    @Override
+    public boolean isExpandableY() {
+        return false;
+    }
+    
+    public void saveBagInventory() {
+        ((ItemLittleBag) tool.get().getItem()).setInventory(tool.get(), bag, null);
+    }
+    
+    @Override
+    public void closed() {
+        super.closed();
+        ItemStack stack = input.getItem(0);
+        if (!stack.isEmpty())
+            getPlayer().drop(stack, true);
     }
     
     @Override
     public CompoundTag saveConfiguration(CompoundTag nbt) {
-        ItemStack stack = input.getItem(0);
-        if (!stack.isEmpty())
-            getPlayer().drop(stack, true);
         return null;
+    }
+    
+    @Override
+    protected boolean supportsConfiguration() {
+        return false;
+    }
+    
+    @Override
+    public Iterable<IGuiInventory> inventoriesToInsert() {
+        return inventories;
+    }
+    
+    @Override
+    public Iterable<IGuiInventory> inventoriesToExract() {
+        return inventoriesInv;
+    }
+    
+    public class BagSlot extends Slot {
+        
+        private ItemStack cache;
+        private boolean full;
+        
+        public BagSlot(Container container, int index) {
+            super(container, index, 0, 0);
+        }
+        
+        public void resetCache() {
+            cache = null;
+        }
+        
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return false;
+        }
+        
+        public BlockIngredientEntry getEntry() {
+            List<BlockIngredientEntry> entries = bag.get(BlockIngredient.class).getContent();
+            if (entries.size() > getSlotIndex())
+                return entries.get(getSlotIndex());
+            return null;
+        }
+        
+        @Override
+        public ItemStack getItem() {
+            if (cache == null) {
+                BlockIngredientEntry entry = getEntry();
+                if (entry == null || entry.isEmpty()) {
+                    cache = ItemStack.EMPTY;
+                    full = false;
+                } else {
+                    cache = ItemBlockIngredient.of(entry);
+                    cache.setCount(Math.max(1, (int) entry.value));
+                    full = entry.value > 1;
+                }
+            }
+            return cache;
+        }
+        
+        @Override
+        public ItemStack remove(int count) {
+            ItemStack taken = cache;
+            BlockIngredientEntry entry = getEntry();
+            if (entry != null) {
+                if (full) {
+                    taken = entry.getBlockStack();
+                    taken.setCount((int) entry.value);
+                    entry.value -= taken.getCount();
+                } else
+                    entry.value = 0;
+                
+                if (entry.isEmpty())
+                    bag.get(BlockIngredient.class).getContent().remove(getSlotIndex());
+            }
+            cache = null;
+            saveBagInventory();
+            return taken;
+        }
     }
     
 }

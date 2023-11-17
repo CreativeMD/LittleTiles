@@ -11,8 +11,8 @@ public abstract class GuiConfigure extends GuiLayer {
     
     public ContainerSlotView tool;
     public final GuiSyncLocal<CompoundTag> SAVE_CONFIG = getSyncHolder().register("save_config", nbt -> {
-        if (tool.get().getItem() instanceof ILittleTool) {
-            ((ILittleTool) tool.get().getItem()).configured(tool.get(), nbt);
+        if (supportsConfiguration() && tool.get().getItem() instanceof ILittleTool item) {
+            item.configured(tool.get(), nbt);
             tool.changed();
         }
     });
@@ -25,6 +25,10 @@ public abstract class GuiConfigure extends GuiLayer {
     public GuiConfigure(String name, ContainerSlotView tool) {
         super(name);
         this.tool = tool;
+    }
+    
+    protected boolean supportsConfiguration() {
+        return true;
     }
     
     public abstract CompoundTag saveConfiguration(CompoundTag nbt);

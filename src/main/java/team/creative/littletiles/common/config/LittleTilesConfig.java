@@ -17,7 +17,6 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.item.ItemLittleBag;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 
@@ -252,6 +251,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public int maxDoorDistance = 512;
         
+        @CreativeConfig
+        public LittleBagConfig bag = new LittleBagConfig();
+        
     }
     
     public static class Building {
@@ -279,7 +281,6 @@ public class LittleTilesConfig {
             LittleGrid.configure(highest);
             if (side.isClient())
                 configuredClient();
-            ItemLittleBag.maxStackSizeOfTiles = (int) (ItemLittleBag.maxStackSize * LittleGrid.overallDefault().count3d);
             LittlePremadeRegistry.reload();
             ItemMultiTiles.reloadExampleStructures();
         }

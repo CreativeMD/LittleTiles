@@ -130,12 +130,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                         stacks.add(stack);
                     }
                     
-                    if (volume > 0) {
-                        ItemStack stack = new ItemStack(LittleTilesRegistry.BLOCK_INGREDIENT.get());
-                        stack.setTag(new CompoundTag());
-                        ItemBlockIngredient.saveIngredient(stack, entry);
-                        stacks.add(stack);
-                    }
+                    if (volume > 0)
+                        stacks.add(ItemBlockIngredient.of(entry));
                 }
                 return stacks;
             }

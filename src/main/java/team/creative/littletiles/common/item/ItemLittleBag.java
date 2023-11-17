@@ -10,15 +10,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
+import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.creator.GuiCreator;
+import team.creative.creativecore.common.gui.creator.ItemGuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiBag;
-import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
@@ -26,22 +25,15 @@ import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 
-public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredientInventory {
-    
-    public static int colorUnitMaximum = 10000000;
-    public static int inventoryWidth = 6;
-    public static int inventoryHeight = 4;
-    public static int inventorySize = inventoryWidth * inventoryHeight;
-    public static int maxStackSize = 64;
-    public static int maxStackSizeOfTiles;
+public class ItemLittleBag extends Item implements ILittleIngredientInventory, ItemGuiCreator {
     
     public ItemLittleBag() {
         super(new Item.Properties().stacksTo(1));
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new GuiBag(view);
+    public GuiLayer create(CompoundTag nbt, Player player) {
+        return new GuiBag(ContainerSlotView.mainHand(player));
     }
     
     @Override
@@ -65,10 +57,10 @@ public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredien
             }
             
         };
-        BlockIngredient blocks = new BlockIngredient().setLimits(inventorySize, maxStackSize);
+        BlockIngredient blocks = new BlockIngredient().setLimits(LittleTiles.CONFIG.general.bag.inventorySize, Item.MAX_STACK_SIZE);
         
         ListTag list = nbt.getList("inv", Tag.TAG_COMPOUND);
-        int size = Math.min(inventorySize, list.size());
+        int size = Math.min(LittleTiles.CONFIG.general.bag.inventorySize, list.size());
         for (int i = 0; i < size; i++) {
             CompoundTag blockNBT = list.getCompound(i);
             BlockIngredientEntry ingredient = IngredientUtils.loadBlockIngredient(blockNBT);
@@ -78,7 +70,7 @@ public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredien
         ingredients.set(blocks.getClass(), blocks);
         
         ColorIngredient color = new ColorIngredient(nbt.getInt("black"), nbt.getInt("cyan"), nbt.getInt("magenta"), nbt.getInt("yellow"));
-        color.setLimit(colorUnitMaximum);
+        color.setLimit(LittleTiles.CONFIG.general.bag.colorStorage);
         ingredients.set(color.getClass(), color);
         return ingredients;
     }
@@ -92,7 +84,7 @@ public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredien
         for (BlockIngredientEntry ingredient : ingredients.get(BlockIngredient.class).getContent()) {
             if (ingredient.block instanceof AirBlock && ingredient.value < LittleGrid.getMax().pixelVolume)
                 continue;
-            if (i >= inventorySize)
+            if (i >= LittleTiles.CONFIG.general.bag.inventorySize)
                 break;
             list.add(ingredient.save(new CompoundTag()));
             i++;
@@ -106,16 +98,5 @@ public class ItemLittleBag extends Item implements ILittleTool, ILittleIngredien
         nbt.putInt("magenta", color.magenta);
         nbt.putInt("yellow", color.yellow);
     }
-    
-    @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
-        return LittleGrid.overallDefault();
-    }
-    
-    @Override
-    public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {}
-    
-    @Override
-    public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {}
     
 }

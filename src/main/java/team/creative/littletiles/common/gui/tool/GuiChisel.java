@@ -129,7 +129,7 @@ public class GuiChisel extends GuiConfigureTool {
     
     @Override
     public CompoundTag saveConfiguration(CompoundTag nbt) {
-        GuiComboBoxMapped<LittleShape> box = (GuiComboBoxMapped<LittleShape>) get("shape");
+        GuiComboBoxMapped<LittleShape> box = get("shape");
         GuiScrollY scroll = (GuiScrollY) get("settings");
         LittleShape shape = box.getSelected(ShapeRegistry.DEFAULT_SHAPE);
         

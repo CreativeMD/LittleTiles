@@ -1,12 +1,13 @@
 package team.creative.littletiles.common.ingredient;
 
-import team.creative.littletiles.common.item.ItemLittleBag;
+import net.minecraft.world.item.Item;
+import team.creative.littletiles.LittleTiles;
 
 public class LittleBagInventory extends LittleIngredients {
     
     public LittleBagInventory() {
-        content[LittleIngredient.indexOf(BlockIngredient.class)] = new BlockIngredient().setLimits(ItemLittleBag.inventorySize, ItemLittleBag.maxStackSize);
-        content[LittleIngredient.indexOf(ColorIngredient.class)] = new ColorIngredient().setLimit(ItemLittleBag.colorUnitMaximum);
+        content[LittleIngredient.indexOf(BlockIngredient.class)] = new BlockIngredient().setLimits(LittleTiles.CONFIG.general.bag.inventorySize, Item.MAX_STACK_SIZE);
+        content[LittleIngredient.indexOf(ColorIngredient.class)] = new ColorIngredient().setLimit(LittleTiles.CONFIG.general.bag.colorStorage);
     }
     
     @Override
