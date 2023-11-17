@@ -1,3 +1,13 @@
+1.6.0-pre068
+Added configuration for color storage size, inventory with and height
+Fixed several issues related to bag
+Fixed creating littleblock endlessly causing lots of troubles related to block ingredients
+Fixed afterPlaced() not being called to all structures if none structures are involved
+Fixed random crash which could occur once in a while when loading new blocks
+Fixed being able to edit non solid blocks
+Fixed weird hover name of block ingredients
+Fixed rendering block ingredients incorrectly
+
 1.6.0-pre067
 Added missing translation for creative tab
 Fixed exception on server side when using configuring glove, paint brush and screwdriver
