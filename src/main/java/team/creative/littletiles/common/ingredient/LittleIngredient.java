@@ -131,7 +131,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                     }
                     
                     if (volume > 0)
-                        stacks.add(ItemBlockIngredient.of(entry));
+                        stacks.add(ItemBlockIngredient.of(entry.copy(volume)));
                 }
                 return stacks;
             }
