@@ -1,3 +1,9 @@
+1.6.0-pre069
+Added ability to stack block ingredients in inventory
+Fixed little blocks getting saved to registry without name causing lots of troubles
+Fixed picking up block ingredient with value higher than one causing duplicates
+Fixed crash on server side when mining tiles
+
 1.6.0-pre068
 Added configuration for color storage size, inventory with and height
 Fixed several issues related to bag
