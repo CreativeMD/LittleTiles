@@ -380,9 +380,10 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     
     @Override
     public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
+        if (!player.level().isClientSide)
+            return super.getDestroyProgress(state, player, level, pos);
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
         if (context.isComplete()) {
-            
             state = context.tile.getState();
             
             float hardness = state.getDestroySpeed(level, pos);
