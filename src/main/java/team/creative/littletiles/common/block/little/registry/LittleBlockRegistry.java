@@ -67,8 +67,8 @@ public class LittleBlockRegistry {
         StringBuilder name = new StringBuilder();
         name.append(state.getBlock().builtInRegistryHolder().key().location());
         if (!state.getValues().isEmpty())
-            name.append('[').append(state.getValues().entrySet().stream().map(StateHolderAccessor.getPROPERTY_ENTRY_TO_STRING_FUNCTION()).collect(Collectors.joining(",")))
-                    .append(']');
+            name.append('[').append(state.getValues().entrySet().stream().map(StateHolderAccessor.getPROPERTY_ENTRY_TO_STRING_FUNCTION()).collect(Collectors.joining(","))).append(
+                ']');
         return name.toString();
     }
     
@@ -147,9 +147,11 @@ public class LittleBlockRegistry {
             if (pair.key.is(block)) {
                 LittleBlock little = pair.value.apply(block);
                 BLOCK_MAP.put(block, little);
+                NAME_MAP.put(name, little);
                 return little;
             }
         LittleBlock little = FALLBACK.apply(block);
+        NAME_MAP.put(name, little);
         BLOCK_MAP.put(block, little);
         return little;
     }
