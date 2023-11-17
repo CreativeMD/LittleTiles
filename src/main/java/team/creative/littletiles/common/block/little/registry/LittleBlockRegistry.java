@@ -143,6 +143,8 @@ public class LittleBlockRegistry {
             return little;
         }
         
+        if (name == null)
+            name = block.builtInRegistryHolder().key().location().toString();
         for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
             if (pair.key.is(block)) {
                 LittleBlock little = pair.value.apply(block);
