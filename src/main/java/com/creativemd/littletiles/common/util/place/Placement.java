@@ -253,6 +253,11 @@ public class Placement {
             
         removedTiles.convertToSmallest();
         unplaceableTiles.convertToSmallest();
+        
+        for (PlacementStructurePreview preview : structures)
+            if (preview.isStructure())
+                preview.getStructure().finishedPlacement(this);
+        
         return result;
     }
     
