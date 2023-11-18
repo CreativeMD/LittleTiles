@@ -66,7 +66,7 @@ public class LittleChair extends LittleStructure {
     }
     
     @Override
-    protected void afterPlaced() {
+    public void afterPlaced() {
         super.afterPlaced();
         if (sitUUID != null) {
             World world = getWorld();

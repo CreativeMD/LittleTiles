@@ -240,10 +240,10 @@ public class Placement {
         }
         
         constructStructureRelations();
-        
-        if (this.notifyAfterPlace && origin.isStructure())
-            origin.getStructure().notifyAfterPlaced();
-        
+        for (PlacementStructurePreview preview : structures)
+            if (preview.isStructure())
+                preview.getStructure().afterPlaced();
+            
         neighbor.process();
         
         if (playSounds)
