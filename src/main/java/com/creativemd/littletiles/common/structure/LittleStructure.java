@@ -63,6 +63,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHol
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
+import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 import com.creativemd.littletiles.common.world.LittleNeighborUpdateCollector;
 
@@ -486,6 +487,8 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     }
     
     public void afterPlaced() {}
+    
+    public void finishedPlacement(Placement placement) {}
     
     // ================Save and loading================
     
