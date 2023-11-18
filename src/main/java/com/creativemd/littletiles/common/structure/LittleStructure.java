@@ -485,7 +485,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
-    protected void afterPlaced() {}
+    public void afterPlaced() {}
     
     // ================Save and loading================
     
