@@ -402,6 +402,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public void afterPlaced() {}
     
+    public void finishedPlacement(Placement placement) {}
+    
     // ================Save and loading================
     
     public void load(CompoundTag nbt) {
