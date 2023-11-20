@@ -39,6 +39,12 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
         return of(element, LittleGrid.MIN, LittleGrid.MIN.box());
     }
     
+    public static ItemStack of(LittleGroup group) {
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+        stack.setTag(LittleGroup.save(group));
+        return stack;
+    }
+    
     public static ItemStack of(LittleElement element, LittleGrid grid, LittleBox box) {
         ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
         LittleGroup group = new LittleGroup();
