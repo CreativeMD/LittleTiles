@@ -233,14 +233,12 @@ public class Placement {
         for (PlacementBlock block : blocks.values())
             block.placeLate();
         
-        for (PlacementStructurePreview preview : structures)
-            if (preview.isStructure()) {
-                LittleStructure structure = preview.getStructure();
-                if (structure == null)
-                    throw new LittleActionException("Missing missing mainblock of structure. Placed " + result.placedPreviews
-                            .size() + " tile(s).");
-                notifyStructurePlaced(structure);
-            }
+        if (origin.isStructure()) {
+            if (origin.getStructure() == null)
+                throw new LittleActionException("Missing missing mainblock of structure. Placed " + result.placedPreviews
+                        .size() + " tile(s).");
+            notifyStructurePlaced();
+        }
         
         constructStructureRelations();
         for (PlacementStructurePreview preview : structures)
@@ -266,10 +264,6 @@ public class Placement {
     
     public void notifyStructurePlaced() {
         origin.getStructure().placedStructure(stack);
-    }
-    
-    public void notifyStructurePlaced(LittleStructure structure) {
-        structure.placedStructure(stack);
     }
     
     public void constructStructureRelations() {

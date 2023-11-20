@@ -474,8 +474,6 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
         NBTTagCompound nbt;
         if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
             name = nbt.getString("Name");
-        if (!isClient())
-            schedule();
     }
     
     public void notifyAfterPlaced() {
@@ -486,7 +484,10 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
-    public void afterPlaced() {}
+    public void afterPlaced() {
+        if (!isClient())
+            schedule();
+    }
     
     public void finishedPlacement(Placement placement) {}
     
