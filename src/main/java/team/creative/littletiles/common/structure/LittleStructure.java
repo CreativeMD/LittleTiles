@@ -396,11 +396,12 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         CompoundTag nbt;
         if (name == null && stack != null && (nbt = stack.getTagElement("display")) != null && nbt.contains("Name", 8))
             name = nbt.getString("Name");
+    }
+    
+    public void afterPlaced() {
         if (!isClient())
             schedule();
     }
-    
-    public void afterPlaced() {}
     
     public void finishedPlacement(Placement placement) {}
     
