@@ -235,7 +235,8 @@ public class Placement {
         
         if (origin.isStructure()) {
             if (origin.getStructure() == null)
-                throw new LittleActionException("Missing missing mainblock of structure. Placed " + result.placedPreviews.size() + " tile(s).");
+                throw new LittleActionException("Missing missing mainblock of structure. Placed " + result.placedPreviews
+                        .size() + " tile(s).");
             notifyStructurePlaced();
         }
         
