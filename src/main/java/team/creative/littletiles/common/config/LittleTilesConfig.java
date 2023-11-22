@@ -189,6 +189,7 @@ public class LittleTilesConfig {
         public boolean useCubeCache = true;
         
         @CreativeConfig
+        @CreativeConfig.IntRange(slider = false, min = 1, max = 1024)
         public int renderingThreadCount = 2;
         
         @CreativeConfig
