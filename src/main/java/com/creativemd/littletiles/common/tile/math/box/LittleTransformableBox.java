@@ -485,7 +485,7 @@ public class LittleTransformableBox extends LittleBox {
             if (faceCache.tiltedStrip1 != null && faceCache.tiltedStrip2 != null) {
                 for (int j = 0; j < faceCache.tiltedStrip2.count(); j++) {
                     Vector3f vec = faceCache.tiltedStrip2.get(j);
-                    if (BooleanUtils.isTrue(tiltedPlanes[i * 2].isInFront(vec))) {
+                    if (BooleanUtils.isTrue(tiltedPlanes[i * 2].isInFront(vec, VectorFan.EPSILON))) {
                         faceCache.convex = false; // If path strips face inwards the axis strip has to be copied and each cut by one plane
                         break;
                     }
@@ -1577,7 +1577,7 @@ public class LittleTransformableBox extends LittleBox {
         
         public boolean isInside(List<NormalPlane> shape, Vector3f vec) {
             for (int i = 0; i < shape.size(); i++)
-                if (!BooleanUtils.isFalse(shape.get(i).isInFront(vec)))
+                if (!BooleanUtils.isFalse(shape.get(i).isInFront(vec, VectorFan.EPSILON)))
                     return false;
             return true;
         }
