@@ -1473,7 +1473,7 @@ public class LittleTransformableBox extends LittleBox {
         
         public boolean isInside(List<NormalPlaneF> shape, Vec3f vec) {
             for (int i = 0; i < shape.size(); i++)
-                if (!BooleanUtils.isFalse(shape.get(i).isInFront(vec)))
+                if (!BooleanUtils.isFalse(shape.get(i).isInFront(vec, VectorFan.EPSILON)))
                     return false;
             return true;
         }
