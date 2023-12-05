@@ -134,7 +134,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         return size;
     }
     
-    public static void serverTick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+    public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         if (blockEntity instanceof BETiles be) {
             if (!be.tiles.hasTicking() && !be.level.isClientSide) {
                 be.customTilesUpdate();

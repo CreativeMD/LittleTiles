@@ -761,7 +761,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (ticking)
-            return level.isClientSide ? null : BETiles::serverTick;
+            return BETiles::tick;
         return null;
     }
     
