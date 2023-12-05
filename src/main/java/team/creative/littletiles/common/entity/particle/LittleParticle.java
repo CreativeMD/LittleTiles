@@ -41,6 +41,7 @@ public class LittleParticle extends TextureSheetParticle {
         this.sprites = ((ParticleEngineAccessor) mc.particleEngine).getSpriteSets().get(settings.texture.particleTexture);
         this.scaleDeviation = (float) (Math.random() * settings.sizeDeviation);
         settings.texture.init(this);
+        settings.texture.tick(this);
         this.setSize(0.2F * settings.startSize, 0.2F * settings.startSize);
     }
     
