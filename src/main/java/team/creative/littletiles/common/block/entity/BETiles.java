@@ -389,11 +389,11 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
      * @param cutout
      *            filled with all boxes which are cutout by tiles
      * @return all boxes which are not cutout by other tiles */
-    public List<LittleBox> cutOut(LittleBox box, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
+    public List<LittleBox> cutOut(LittleGrid grid, LittleBox box, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> cutting = new ArrayList<>();
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             pair.value.getIntersectingBoxes(box, cutting);
-        return box.cutOut(cutting, cutout, volume);
+        return box.cutOut(grid, cutting, cutout, volume);
     }
     
     public Pair<IParentCollection, LittleTile> intersectingTile(LittleBox box) {

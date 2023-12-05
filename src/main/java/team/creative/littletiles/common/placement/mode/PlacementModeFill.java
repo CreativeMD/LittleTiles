@@ -39,7 +39,7 @@ public class PlacementModeFill extends PlacementMode {
         List<LittleBox> boxes = new ArrayList();
         LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
         for (LittleBox tileBox : tile)
-            boxes.addAll(context.getBE().cutOut(tileBox, cutout, volume));
+            boxes.addAll(context.getBE().cutOut(context.block.getGrid(), tileBox, cutout, volume));
         if (!cutout.isEmpty())
             for (LittleBox box : boxes)
                 context.addUnplaceable(tile, box);

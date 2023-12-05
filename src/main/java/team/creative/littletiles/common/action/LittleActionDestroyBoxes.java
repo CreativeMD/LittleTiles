@@ -125,7 +125,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                             
                             List<LittleBox> cutout = new ArrayList<>();
                             LittleBoxReturnedVolume returnedVolume = new LittleBoxReturnedVolume();
-                            List<LittleBox> newBoxes = box.cutOut(boxes, cutout, returnedVolume);
+                            List<LittleBox> newBoxes = box.cutOut(grid, boxes, cutout, returnedVolume);
                             
                             if (newBoxes != null) {
                                 if (!simulate) {
@@ -248,6 +248,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
             }
         }
         
+        final LittleGrid usedGrid = grid;
+        
         LittleCollection removed = new LittleCollection();
         
         Consumer<BlockEntityInteractor> consumer = x -> {
@@ -265,7 +267,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                         List<LittleBox> cutout = new ArrayList<>();
                         List<LittleBox> boxes = new ArrayList<>();
                         boxes.add(toCut);
-                        List<LittleBox> newBoxes = box.cutOut(boxes, cutout, null);
+                        List<LittleBox> newBoxes = box.cutOut(usedGrid, boxes, cutout, null);
                         
                         if (newBoxes != null) {
                             toAdd.add(element, newBoxes);
@@ -296,6 +298,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                 grid = be.getGrid();
             }
         }
+        
+        final LittleGrid usedGrid = grid;
         LittleCollection removed = new LittleCollection();
         be.updateTiles(x -> {
             LittleCollection toAdd = new LittleCollection();
@@ -318,7 +322,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                     
                     if (!box.equals(intersecting)) {
                         List<LittleBox> cutout = new ArrayList<>();
-                        List<LittleBox> newBoxes = box.cutOut(boxes, cutout, null);
+                        List<LittleBox> newBoxes = box.cutOut(usedGrid, boxes, cutout, null);
                         
                         if (newBoxes != null) {
                             toAdd.add(element, newBoxes);

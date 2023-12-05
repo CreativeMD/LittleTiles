@@ -129,7 +129,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                                 double volume = 0;
                                 List<LittleBox> cutout = new ArrayList<>();
                                 LittleBoxReturnedVolume returnedVolume = new LittleBoxReturnedVolume();
-                                box.cutOut(boxes, cutout, returnedVolume);
+                                box.cutOut(grid, boxes, cutout, returnedVolume);
                                 for (LittleBox box2 : cutout) {
                                     colorVolume += box2.getPercentVolume(grid);
                                     volume += box2.getPercentVolume(grid);
@@ -142,7 +142,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
                                 gained.add(ColorIngredient.getColors(element, volume));
                             } else {
                                 List<LittleBox> cutout = new ArrayList<>();
-                                List<LittleBox> newBoxes = box.cutOut(boxes, cutout, null);
+                                List<LittleBox> newBoxes = box.cutOut(grid, boxes, cutout, null);
                                 
                                 if (newBoxes != null) {
                                     addRevert(element.color, be.getBlockPos(), grid, cutout);

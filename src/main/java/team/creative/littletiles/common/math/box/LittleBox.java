@@ -138,9 +138,7 @@ public class LittleBox {
     
     // ================Save================
     
-    public void changed() {
-        
-    }
+    public void changed() {}
     
     public int[] getArray() {
         return new int[] { minX, minY, minZ, maxX, maxY, maxZ };
@@ -222,22 +220,22 @@ public class LittleBox {
     }
     
     public int get(Facing facing) {
-        switch (facing) {
-            case EAST:
-                return maxX;
-            case WEST:
-                return minX;
-            case UP:
-                return maxY;
-            case DOWN:
-                return minY;
-            case SOUTH:
-                return maxZ;
-            case NORTH:
-                return minZ;
-            
-        }
-        return 0;
+        return switch (facing) {
+            case EAST -> maxX;
+            case WEST -> minX;
+            case UP -> maxY;
+            case DOWN -> minY;
+            case SOUTH -> maxZ;
+            case NORTH -> minZ;
+        
+        };
+    }
+    
+    public void set(Facing facing, int value) {
+        if (facing.positive)
+            setMax(facing.axis, value);
+        else
+            setMin(facing.axis, value);
     }
     
     public LittleVec get(BoxCorner corner) {
@@ -261,69 +259,45 @@ public class LittleBox {
     }
     
     public int getSize(Axis axis) {
-        switch (axis) {
-            case X:
-                return maxX - minX;
-            case Y:
-                return maxY - minY;
-            case Z:
-                return maxZ - minZ;
-        }
-        return 0;
+        return switch (axis) {
+            case X -> maxX - minX;
+            case Y -> maxY - minY;
+            case Z -> maxZ - minZ;
+        };
     }
     
     public void setMin(Axis axis, int value) {
         switch (axis) {
-            case X:
-                minX = value;
-                break;
-            case Y:
-                minY = value;
-                break;
-            case Z:
-                minZ = value;
-                break;
+            case X -> minX = value;
+            case Y -> minY = value;
+            case Z -> minZ = value;
         }
         changed();
     }
     
     public int getMin(Axis axis) {
-        switch (axis) {
-            case X:
-                return minX;
-            case Y:
-                return minY;
-            case Z:
-                return minZ;
-        }
-        return 0;
+        return switch (axis) {
+            case X -> minX;
+            case Y -> minY;
+            case Z -> minZ;
+        };
     }
     
     public void setMax(Axis axis, int value) {
         switch (axis) {
-            case X:
-                maxX = value;
-                break;
-            case Y:
-                maxY = value;
-                break;
-            case Z:
-                maxZ = value;
-                break;
+            case X -> maxX = value;
+            case Y -> maxY = value;
+            case Z -> maxZ = value;
         }
         changed();
     }
     
     public int getMax(Axis axis) {
-        switch (axis) {
-            case X:
-                return maxX;
-            case Y:
-                return maxY;
-            case Z:
-                return maxZ;
-        }
-        return 0;
+        return switch (axis) {
+            case X -> maxX;
+            case Y -> maxY;
+            case Z -> maxZ;
+        };
     }
     
     public LittleVec[] getCorners() {
@@ -381,7 +355,7 @@ public class LittleBox {
                     if (maxX > minX && maxY > minY && maxZ > minZ) {
                         toUse.set(x, y, z);
                         
-                        LittleBox box = extractBox(minX - vec.x, minY - vec.y, minZ - vec.z, maxX - vec.x, maxY - vec.y, maxZ - vec.z, null);
+                        LittleBox box = extractBox(grid, minX - vec.x, minY - vec.y, minZ - vec.z, maxX - vec.x, maxY - vec.y, maxZ - vec.z, null);
                         if (box != null) {
                             box.add(vec);
                             box.sub(x * grid.count, y * grid.count, z * grid.count);
@@ -415,7 +389,7 @@ public class LittleBox {
                     if (maxX > minX && maxY > minY && maxZ > minZ) {
                         BlockPos pos = new BlockPos(x + offset.getX(), y + offset.getY(), z + offset.getZ());
                         
-                        LittleBox box = extractBox(minX - vec.x, minY - vec.y, minZ - vec.z, maxX - vec.x, maxY - vec.y, maxZ - vec.z, volume);
+                        LittleBox box = extractBox(grid, minX - vec.x, minY - vec.y, minZ - vec.z, maxX - vec.x, maxY - vec.y, maxZ - vec.z, volume);
                         if (box != null) {
                             box.add(vec);
                             box.sub(x * grid.count, y * grid.count, z * grid.count);
@@ -599,7 +573,7 @@ public class LittleBox {
     /** @param cutout
      *            a list of boxes which have been cut out.
      * @return all remaining boxes or null if the box remains as it is */
-    public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
+    public List<LittleBox> cutOut(LittleGrid grid, List<LittleBox> boxes, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> newBoxes = new ArrayList<>();
         
         if (boxes.isEmpty()) {
@@ -610,7 +584,7 @@ public class LittleBox {
         SplitRangeBoxes ranges;
         if ((ranges = split(boxes)) != null) {
             for (SplitRangeBox range : ranges) {
-                LittleBox box = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
+                LittleBox box = extractBox(grid, range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
                 
                 if (box != null) {
                     boolean cutted = false;
@@ -678,7 +652,7 @@ public class LittleBox {
     }
     
     /** @return all remaining boxes or null if the box remains as it is */
-    public List<LittleBox> cutOut(LittleBox box, LittleBoxReturnedVolume volume) {
+    public List<LittleBox> cutOut(LittleGrid grid, LittleBox box, LittleBoxReturnedVolume volume) {
         if (intersectsWith(box)) {
             List<LittleBox> boxes = new ArrayList<>();
             
@@ -687,7 +661,7 @@ public class LittleBox {
                 splitting.add(box);
                 
                 for (SplitRangeBox range : split(splitting)) {
-                    LittleBox tempBox = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
+                    LittleBox tempBox = extractBox(grid, range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
                     
                     boolean cutted = false;
                     if (tempBox != null) {
@@ -1124,7 +1098,7 @@ public class LittleBox {
         return new LittleBox(x, y, z, x + 1, y + 1, z + 1);
     }
     
-    public LittleBox extractBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, @Nullable LittleBoxReturnedVolume volume) {
+    public LittleBox extractBox(LittleGrid grid, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, @Nullable LittleBoxReturnedVolume volume) {
         return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
     }
     

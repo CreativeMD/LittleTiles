@@ -39,7 +39,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
             List<LittleBox> cutout = new ArrayList<>();
             for (Iterator<LittleTile> iterator = item.group.iterator(); iterator.hasNext();) {
                 LittleTile tile = iterator.next();
-                tile.cutOut(cutter, cutout, null);
+                tile.cutOut(item.group.getGrid(), cutter, cutout, null);
                 if (tile.isEmpty())
                     iterator.remove();
             }
@@ -200,7 +200,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
             final Iterator<LittleBox> itr = collection.boxes();
             for (LittleBox placedBox : (Iterable<LittleBox>) () -> itr) {
                 if (LittleBox.intersectsWith(box, placedBox)) {
-                    List<LittleBox> left = box.cutOut(placedBox, null);
+                    List<LittleBox> left = box.cutOut(grid, placedBox, null);
                     if (!left.isEmpty())
                         for (LittleBox leftBox : left)
                             add(element, leftBox, pos, grid, blocks);

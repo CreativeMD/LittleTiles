@@ -315,10 +315,10 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return false;
     }
     
-    public void cutOut(LittleBox cutter, @Nullable LittleBoxReturnedVolume volume) {
+    public void cutOut(LittleGrid grid, LittleBox cutter, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> result = null;
         for (LittleBox box : boxes) {
-            List<LittleBox> temp = box.cutOut(cutter, volume);
+            List<LittleBox> temp = box.cutOut(grid, cutter, volume);
             if (result == null)
                 result = temp;
             else if (temp != null)
@@ -328,10 +328,10 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         boxes.addAll(result);
     }
     
-    public void cutOut(List<LittleBox> cutter, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
+    public void cutOut(LittleGrid grid, List<LittleBox> cutter, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> result = null;
         for (LittleBox box : boxes) {
-            List<LittleBox> temp = box.cutOut(cutter, cutout, volume);
+            List<LittleBox> temp = box.cutOut(grid, cutter, cutout, volume);
             if (result == null)
                 result = temp;
             else if (temp != null)

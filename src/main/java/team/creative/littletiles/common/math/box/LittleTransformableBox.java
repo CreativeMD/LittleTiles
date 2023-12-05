@@ -443,13 +443,17 @@ public class LittleTransformableBox extends LittleBox {
         return array;
     }
     
-    @Override
-    public int getSmallest(LittleGrid grid) {
-        int size = super.getSmallest(grid);
+    public int getSmallestOfPoints(LittleGrid grid) {
+        int size = LittleGrid.MIN.count;
         Iterator<TransformablePoint> points = points();
         while (points.hasNext())
             size = Math.max(size, grid.getMinGrid(points.next().getRelative()));
         return size;
+    }
+    
+    @Override
+    public int getSmallest(LittleGrid grid) {
+        return Math.max(getSmallestOfPoints(grid), super.getSmallest(grid));
     }
     
     @Override
@@ -873,7 +877,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public LittleBox extractBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, @Nullable LittleBoxReturnedVolume volume) {
+    public LittleBox extractBox(LittleGrid grid, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, @Nullable LittleBoxReturnedVolume volume) {
         LittleTransformableBox box = this.copy();
         CornerCache cache = box.new CornerCache(false);
         
@@ -890,9 +894,9 @@ public class LittleTransformableBox extends LittleBox {
         box.cache = null;
         if (!box.requestCache().isInvalid())
             if (box.requestCache().isCompletelyFilled())
-                return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ); //System.out.println("Complete!" + box); //boxes.add(new LittleBox(minX, minY, minZ, maxX, maxY, maxZ));
+                return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
             else {
-                box.requestCache().setBounds(minX, minY, minZ, maxX, maxY, maxZ);
+                box.requestCache().setBounds(minX, minY, minZ, maxX, maxY, maxZ, grid);
                 box.data = cache.getData();
                 if (volume != null)
                     volume.addDifBox(box, minX, minY, minZ, maxX, maxY, maxZ);
@@ -1478,13 +1482,14 @@ public class LittleTransformableBox extends LittleBox {
             return true;
         }
         
-        protected void setBounds(int oldMinX, int oldMinY, int oldMinZ, int oldMaxX, int oldMaxY, int oldMaxZ) {
+        protected void setBounds(int oldMinX, int oldMinY, int oldMinZ, int oldMaxX, int oldMaxY, int oldMaxZ, LittleGrid grid) {
             int minX = Integer.MAX_VALUE;
             int minY = Integer.MAX_VALUE;
             int minZ = Integer.MAX_VALUE;
             int maxX = Integer.MIN_VALUE;
             int maxY = Integer.MIN_VALUE;
             int maxZ = Integer.MIN_VALUE;
+            
             for (int i = 0; i < faces.length; i++)
                 for (VectorFan fan : faces[i])
                     for (int j = 0; j < fan.count(); j++) {
@@ -1497,13 +1502,46 @@ public class LittleTransformableBox extends LittleBox {
                         maxZ = Math.max(maxZ, (int) Math.ceil(vec.z));
                     }
                 
-            minX = Math.max(minX, oldMinX);
-            minY = Math.max(minY, oldMinY);
-            minZ = Math.max(minZ, oldMinZ);
-            maxX = Math.min(maxX, oldMaxX);
-            maxY = Math.min(maxY, oldMaxY);
-            maxZ = Math.min(maxZ, oldMaxZ);
-            set(minX, minY, minZ, maxX, maxY, maxZ);
+            int smallest = getSmallestOfPoints(grid);
+            if (smallest < grid.count) { // Rather make the box larger where possible to make it work with a smaller grid
+                for (int i = 0; i < faces.length; i++) {
+                    Facing facing = Facing.VALUES[i];
+                    int value = facing.get(minX, minY, minZ, maxX, maxY, maxZ);
+                    if (!faces[i].hasAxisStrip())
+                        value = calculateNecessaryBound(facing.positive, value, facing.get(oldMinX, oldMinY, oldMinZ, oldMaxX, oldMaxY, oldMaxZ), smallest, grid);
+                    else
+                        value = facing.positive ? Math.min(value, facing.get(oldMinX, oldMinY, oldMinZ, oldMaxX, oldMaxY, oldMaxZ)) : Math.max(value, facing.get(oldMinX, oldMinY,
+                            oldMinZ, oldMaxX, oldMaxY, oldMaxZ));
+                    setSecretly(facing, value);
+                }
+            } else {
+                minX = Math.max(minX, oldMinX);
+                minY = Math.max(minY, oldMinY);
+                minZ = Math.max(minZ, oldMinZ);
+                maxX = Math.min(maxX, oldMaxX);
+                maxY = Math.min(maxY, oldMaxY);
+                maxZ = Math.min(maxZ, oldMaxZ);
+                
+                set(minX, minY, minZ, maxX, maxY, maxZ);
+            }
+        }
+        
+        private void setSecretly(Facing facing, int value) {
+            switch (facing) {
+                case WEST -> minX = value;
+                case EAST -> maxX = value;
+                case DOWN -> minY = value;
+                case UP -> maxY = value;
+                case NORTH -> minZ = value;
+                case SOUTH -> maxZ = value;
+            }
+        }
+        
+        private int calculateNecessaryBound(boolean positive, int newValue, int originalValue, int smallest, LittleGrid grid) {
+            if (newValue == originalValue)
+                return originalValue;
+            newValue = grid.findNextValue(newValue, smallest, positive);
+            return positive ? Math.min(newValue, originalValue) : Math.max(newValue, originalValue);
         }
     }
     

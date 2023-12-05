@@ -41,7 +41,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
                 existingBoxes = new ArrayList<>();
             for (LittleBox splitted : entry.getValue()) {
                 cutOutTemp.clear();
-                existingBoxes.addAll(splitted.cutOut(existingBoxes, cutOutTemp, null));
+                existingBoxes.addAll(splitted.cutOut(getGrid(), existingBoxes, cutOutTemp, null));
             }
             
             LittleBoxCombiner.combineLast(existingBoxes);

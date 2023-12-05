@@ -225,6 +225,23 @@ public class LittleGrid {
         return (int) pos;
     }
     
+    public int findNextValue(int value, int grid, boolean positive) {
+        int index = value;
+        if (value < 0 || value > count)
+            index %= count;
+        
+        while (minSizes[index] > grid) {
+            if (positive) {
+                index++;
+                value++;
+            } else {
+                index--;
+                value--;
+            }
+        }
+        return value;
+    }
+    
     @Override
     public String toString() {
         return "" + count;
