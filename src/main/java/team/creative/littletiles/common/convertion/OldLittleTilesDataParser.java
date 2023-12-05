@@ -44,7 +44,7 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 public class OldLittleTilesDataParser {
     
     private static boolean LOADED_BLOCK_MAP = false;
-    private static final HashMap<String, String> BLOCK_MAP = new HashMap<>();
+    public static final HashMap<String, String> BLOCK_MAP = new HashMap<>();
     
     public static boolean isOld(CompoundTag nbt) {
         return nbt.contains("tiles", Tag.TAG_LIST);

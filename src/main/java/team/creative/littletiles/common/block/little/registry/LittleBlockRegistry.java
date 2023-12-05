@@ -13,14 +13,15 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.LittleBlock;
+import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
 import team.creative.littletiles.mixin.common.block.StateHolderAccessor;
 
 public class LittleBlockRegistry {
@@ -73,22 +74,32 @@ public class LittleBlockRegistry {
     }
     
     public static BlockState loadState(String name) {
+        return loadState(name, true);
+    }
+    
+    public static BlockState loadState(String name, boolean checkOld) {
         String[] parts;
         if (name.contains("["))
             parts = name.split("\\[");
         else
             parts = new String[] { name };
         if (parts.length == 0)
-            return Blocks.AIR.defaultBlockState();
+            return LittleTilesRegistry.MISSING.get().defaultBlockState();
         ResourceLocation location;
         try {
             location = new ResourceLocation(parts[0]);
         } catch (ResourceLocationException e) {
-            throw new RuntimeException(e);
+            return LittleTilesRegistry.MISSING.get().defaultBlockState();
         }
         Block block = ForgeRegistries.BLOCKS.getValue(location);
-        if (block == null || block instanceof AirBlock)
-            return Blocks.AIR.defaultBlockState();
+        if (block == null || block instanceof AirBlock) {
+            if (checkOld) {
+                String converted = OldLittleTilesDataParser.BLOCK_MAP.get(name);
+                if (converted != null)
+                    return loadState(converted, false);
+            }
+            return LittleTilesRegistry.MISSING.get().defaultBlockState();
+        }
         if (parts.length == 1)
             return block.defaultBlockState();
         if (parts.length > 2)

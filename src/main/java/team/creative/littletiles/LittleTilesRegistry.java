@@ -131,6 +131,8 @@ public class LittleTilesRegistry {
     
     public static final RegistryObject<Block> SIGNAL_CONVERTER = register("signal_converter", () -> new BlockSignalConverter());
     
+    public static final RegistryObject<Block> MISSING = register("missing", () -> new Block(BlockBehaviour.Properties.of()));
+    
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<? extends T> sup) {
         RegistryObject<T> ret = BLOCKS.register(name, sup);
         ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties()));

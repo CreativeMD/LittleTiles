@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 
@@ -52,7 +53,7 @@ public class LittleElement {
     
     public LittleElement(String name, int color) {
         setState(LittleBlockRegistry.loadState(name));
-        if (state.getBlock() instanceof AirBlock)
+        if (state.getBlock() == LittleTilesRegistry.MISSING.get())
             this.block = LittleBlockRegistry.getMissing(name);
         this.color = color;
     }
