@@ -183,20 +183,21 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public BETiles forceSupportAttribute(int attribute) {
-        boolean rendered = tiles.hasRendered() || LittleStructureAttribute.tickRendering(attribute);
-        boolean ticking = tiles.hasTicking() || LittleStructureAttribute.ticking(attribute);
-        BlockState state = BlockTile.getState(ticking, rendered);
-        if (ticking != isTicking() || rendered != isRendered()) {
-            preventUnload = true;
-            level.setBlock(worldPosition, state, 20);
-            BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
-            newBE.assign(this);
-            newBE.tiles.be = newBE;
-            setRemoved();
-            preventUnload = false;
-            return newBE;
-        }
-        return this;
+        return changeState(tiles.hasTicking() || LittleStructureAttribute.ticking(attribute), tiles.hasRendered() || LittleStructureAttribute.tickRendering(attribute));
+    }
+    
+    protected BETiles changeState(boolean ticking, boolean rendered) {
+        if (ticking == isTicking() && rendered == isRendered())
+            return this;
+        BlockState state = BlockTile.getState(getBlockState(), ticking, rendered);
+        preventUnload = true;
+        level.setBlock(worldPosition, state, 20);
+        BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
+        newBE.assign(this);
+        newBE.tiles.be = newBE;
+        setRemoved();
+        preventUnload = false;
+        return newBE;
     }
     
     protected void customTilesUpdate() {
@@ -212,19 +213,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             return;
         }
         
-        boolean rendered = tiles.hasRendered();
-        boolean ticking = tiles.hasTicking();
-        
-        if (ticking != isTicking() || rendered != isRendered()) {
-            preventUnload = true;
-            BlockState state = BlockTile.getState(getBlockState(), ticking, rendered);
-            level.setBlock(worldPosition, state, 20);
-            BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
-            newBE.assign(this);
-            newBE.tiles.be = newBE;
-            setRemoved();
-            preventUnload = false;
-        }
+        changeState(tiles.hasTicking(), tiles.hasRendered());
     }
     
     private void updateNeighbour(Facing facing) {
