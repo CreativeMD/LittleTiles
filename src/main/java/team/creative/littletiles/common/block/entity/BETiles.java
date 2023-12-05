@@ -202,6 +202,16 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     protected void customTilesUpdate() {
         if (level.isClientSide)
             return;
+        
+        if (tiles.isCompletelyEmpty()) {
+            BlockState state = getBlockState();
+            if (state.getValue(BlockTile.WATERLOGGED))
+                level.setBlockAndUpdate(getBlockPos(), level.getFluidState(worldPosition).createLegacyBlock());
+            else
+                level.setBlockAndUpdate(getBlockPos(), Blocks.AIR.defaultBlockState());
+            return;
+        }
+        
         boolean rendered = tiles.hasRendered();
         boolean ticking = tiles.hasTicking();
         BlockState state = BlockTile.getState(ticking, rendered);
@@ -263,14 +273,6 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         if (isClient())
             render.tilesChanged();
-        
-        if (!level.isClientSide && tiles.isCompletelyEmpty()) {
-            BlockState state = getBlockState();
-            if (state.getValue(BlockTile.WATERLOGGED))
-                level.setBlockAndUpdate(getBlockPos(), level.getFluidState(worldPosition).createLegacyBlock());
-            else
-                level.setBlockAndUpdate(getBlockPos(), Blocks.AIR.defaultBlockState());
-        }
         
         customTilesUpdate();
     }
@@ -546,15 +548,11 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public boolean isTicking() {
-        return false;
+        return BlockTile.isTicking(getBlockState());
     }
     
     public boolean isRendered() {
         return false;
-    }
-    
-    public BlockState getBlockTileState() {
-        return BlockTile.getState(this);
     }
     
     public boolean combineTiles(int structureIndex) {

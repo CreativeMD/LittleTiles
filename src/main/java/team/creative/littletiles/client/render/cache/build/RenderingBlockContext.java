@@ -21,7 +21,7 @@ public class RenderingBlockContext {
     
     public RenderingBlockContext(BETiles be, RenderChunkExtender chunk) {
         this.be = be;
-        this.state = be.getBlockTileState();
+        this.state = be.getBlockState();
         this.chunk = chunk;
     }
     

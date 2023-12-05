@@ -142,6 +142,10 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         return getState(te.isTicking(), te.isRendered());
     }
     
+    public static boolean isTicking(BlockState state) {
+        return state.getBlock() == LittleTilesRegistry.BLOCK_TILES_TICKING.get() || state.getBlock() == LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED.get();
+    }
+    
     public static BlockState getState(List<StructureParentCollection> structures) {
         boolean ticking = false;
         boolean rendered = false;
