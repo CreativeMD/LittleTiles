@@ -138,6 +138,10 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
                 .defaultBlockState()) : (ticking ? LittleTilesRegistry.BLOCK_TILES_TICKING.get().defaultBlockState() : LittleTilesRegistry.BLOCK_TILES.get().defaultBlockState());
     }
     
+    public static BlockState getState(BlockState previous, boolean ticking, boolean rendered) {
+        return getState(ticking, rendered).setValue(BlockTile.WATERLOGGED, previous.getValue(BlockTile.WATERLOGGED));
+    }
+    
     public static BlockState getState(BETiles te) {
         return getState(te.isTicking(), te.isRendered());
     }

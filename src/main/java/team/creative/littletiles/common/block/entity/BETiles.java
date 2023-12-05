@@ -214,9 +214,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         boolean rendered = tiles.hasRendered();
         boolean ticking = tiles.hasTicking();
-        BlockState state = BlockTile.getState(ticking, rendered);
+        
         if (ticking != isTicking() || rendered != isRendered()) {
             preventUnload = true;
+            BlockState state = BlockTile.getState(getBlockState(), ticking, rendered);
             level.setBlock(worldPosition, state, 20);
             BETiles newBE = (BETiles) level.getBlockEntity(worldPosition);
             newBE.assign(this);
