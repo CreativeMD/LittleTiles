@@ -1,3 +1,19 @@
+1.6.0-pre070
+Added translation for workbench and particle emitter
+Added finishedPlacement to LittleStructure
+Fixed particle emitter
+Fixed workbench
+Fixed crash by missing particle texture
+Fixed blockentity only ticking on server side
+Fixed converting tiles block causing it to lose waterlogged status
+Fixed not checking if blockentity is ticking properly (causing unnecessary block changes)
+Fixed converting block to different blockstate even though it is empty
+Fixed setting bounds of transformable box too small which causes it to not be compatible with its original grid
+Fixed crash when importing 1.12 structures with unknown blocks
+Fixed transformable box missing after rotation
+Fixed being able to set zero renderingThreadCount
+Fixed structure signal update not being done for all placed structures
+
 1.6.0-pre069
 Added ability to stack block ingredients in inventory
 Fixed little blocks getting saved to registry without name causing lots of troubles
