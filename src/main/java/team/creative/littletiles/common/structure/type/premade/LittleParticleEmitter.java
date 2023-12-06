@@ -138,7 +138,10 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     
     public void loadSettings(CompoundTag nbt) {
         spread = loadSpread(nbt);
-        delay = nbt.getInt("tickDelay");
+        if (nbt.contains("tickDelay"))
+            delay = nbt.getInt("tickDelay");
+        else
+            delay = 10;
         ticker = nbt.getInt("ticker");
         if (nbt.contains("tickCount"))
             count = nbt.getInt("tickCount");
@@ -172,17 +175,16 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public int color = ColorUtils.rgba(20, 20, 20, 255);
         public int lifetime = 40;
         public int lifetimeDeviation = 5;
-        public float startSize = 0.4F;
-        public float endSize = 0.5F;
-        public float sizeDeviation = 0.04F;
+        public float startSize = 0.1F;
+        public float endSize = 0.1F;
+        public float sizeDeviation = 0.02F;
         public LittleParticleTexture texture = LittleParticleTexture.dust_fade_out;
         public boolean randomColor = false;
+        public boolean collision = true;
         
-        public ParticleSettings() {
-            
-        }
+        public ParticleSettings() {}
         
-        public ParticleSettings(float gravity, int color, int lifetime, int lifetimeDeviation, float startSize, float endSize, float sizeDeviation, LittleParticleTexture texture, boolean randomColor) {
+        public ParticleSettings(float gravity, int color, int lifetime, int lifetimeDeviation, float startSize, float endSize, float sizeDeviation, LittleParticleTexture texture, boolean randomColor, boolean collision) {
             this.gravity = gravity;
             this.color = color;
             this.lifetime = lifetime;
@@ -192,6 +194,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             this.sizeDeviation = sizeDeviation;
             this.texture = texture;
             this.randomColor = randomColor;
+            this.collision = collision;
         }
         
         public ParticleSettings(CompoundTag nbt) {
@@ -203,6 +206,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             endSize = nbt.getFloat("endSize");
             sizeDeviation = nbt.getFloat("sizeDeviation");
             randomColor = nbt.getBoolean("randomColor");
+            collision = nbt.getBoolean("collision");
             texture = LittleParticleTexture.get(nbt.getString("texture"));
         }
         
@@ -216,10 +220,11 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             nbt.putFloat("sizeDeviation", sizeDeviation);
             nbt.putString("texture", texture.name());
             nbt.putBoolean("randomColor", randomColor);
+            nbt.putBoolean("collision", collision);
         }
         
         public ParticleSettings copy() {
-            return new ParticleSettings(gravity, color, lifetime, lifetimeDeviation, startSize, endSize, sizeDeviation, texture, randomColor);
+            return new ParticleSettings(gravity, color, lifetime, lifetimeDeviation, startSize, endSize, sizeDeviation, texture, randomColor, collision);
         }
     }
     
@@ -276,7 +281,6 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             populate(vec);
             float half = spread / 2;
             vec.x += Math.random() * spread - half;
-            vec.y += Math.random() * spread - half;
             vec.z += Math.random() * spread - half;
             return vec;
         }
@@ -293,9 +297,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public float speedX = 0F;
         public float speedZ = 0F;
         
-        public ParticleSpreadRandom() {
-            
-        }
+        public ParticleSpreadRandom() {}
         
         public ParticleSpreadRandom(float power, float x, float z, float deviation) {
             this.speedY = power;
@@ -325,9 +327,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         public float angle = 0;
         public int steps = 30;
         
-        public ParticleSpreadCircular() {
-            
-        }
+        public ParticleSpreadCircular() {}
         
         public ParticleSpreadCircular(float power, float radius, float angle, int steps, float deviation) {
             this.speedY = power;

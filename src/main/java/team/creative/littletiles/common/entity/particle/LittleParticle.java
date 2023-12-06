@@ -37,6 +37,7 @@ public class LittleParticle extends TextureSheetParticle {
             this.gCol *= Math.random();
             this.bCol *= Math.random();
         }
+        this.hasPhysics = settings.collision;
         this.settings = settings;
         this.sprites = ((ParticleEngineAccessor) mc.particleEngine).getSpriteSets().get(settings.texture.particleTexture);
         this.scaleDeviation = (float) (Math.random() * settings.sizeDeviation);
@@ -48,7 +49,8 @@ public class LittleParticle extends TextureSheetParticle {
     @Override
     public void tick() {
         settings.texture.tick(this);
-        this.scaleDeviation = scaleDeviation + getAge() / (float) getMaxAge() * (settings.endSize - settings.startSize) + settings.startSize;
+        float lifePercentage = getAge() / (float) getMaxAge();
+        this.quadSize = scaleDeviation + lifePercentage * (settings.endSize - settings.startSize) + settings.startSize;
         super.tick();
     }
     

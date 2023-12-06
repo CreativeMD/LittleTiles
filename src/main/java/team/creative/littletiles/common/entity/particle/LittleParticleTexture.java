@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.entity.particle;
 
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 
@@ -55,17 +56,6 @@ public enum LittleParticleTexture {
         @Override
         public void init(LittleParticle particle) {
             particle.pickSprite(particle.sprites);
-        }
-        
-        @Override
-        public void tick(LittleParticle particle) {}
-        
-    },
-    square(new ResourceLocation("minecraft", "smoke"), ParticleRenderType.PARTICLE_SHEET_OPAQUE) {
-        
-        @Override
-        public void init(LittleParticle particle) {
-            particle.setSpriteFirst(particle.sprites);
         }
         
         @Override
@@ -279,8 +269,8 @@ public enum LittleParticleTexture {
     
     public abstract void tick(LittleParticle particle);
     
-    public String translatedName() {
-        return LanguageUtils.translateOr("particle.texture." + name(), name());
+    public Component title() {
+        return Component.literal(LanguageUtils.translateOr("particle.texture." + name(), name()));
     }
     
 }
