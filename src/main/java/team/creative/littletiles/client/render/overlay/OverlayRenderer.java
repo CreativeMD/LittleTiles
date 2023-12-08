@@ -33,6 +33,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     
     private static final Minecraft MC = Minecraft.getInstance();
     private final GuiActionDisplay actionDisplay = new GuiActionDisplay("action").setMessageCount(1);
+    private boolean doneInit = false;
     private final GuiLayer transparentLayer = new GuiLayer("overlay") {
         
         private TupleList<GuiChildControl, OverlayPosition> positions = new TupleList<>();
@@ -82,7 +83,6 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     
     public OverlayRenderer() {
         MinecraftForge.EVENT_BUS.addListener(this::renderPost);
-        transparentLayer.init();
     }
     
     public void displayActionMessage(List<Component> message) {
@@ -93,6 +93,11 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         Player player = MC.player;
         Font font = MC.font;
         if (player != null && !MC.options.hideGui) {
+            if (!doneInit) {
+                transparentLayer.init();
+                doneInit = true;
+            }
+            
             GuiGraphics graphics = event.getGuiGraphics();
             screen.width = MC.getWindow().getGuiScaledWidth();
             screen.height = MC.getWindow().getGuiScaledHeight();
