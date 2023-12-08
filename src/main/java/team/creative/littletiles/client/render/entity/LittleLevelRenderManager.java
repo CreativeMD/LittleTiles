@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.shaders.Uniform;
@@ -187,8 +188,8 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
                 if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED)
                     immediate = chunk.isDirtyFromPlayer();
                 else if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.NEARBY) {
-                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread
-                            .get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk.isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
+                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread.get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk
+                            .isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
                 }
                 
                 if (immediate) {
@@ -231,7 +232,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     }
     
     @Override
-    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset) {
+    public void renderChunkLayer(RenderType layer, Matrix4f modelView, double x, double y, double z, Matrix4fc projectionMatrix, Uniform offset) {
         for (Iterator<LittleRenderChunk> iterator = layer == RenderType.translucent() ? visibleChunksInverse() : visibleChunks().iterator(); iterator.hasNext();) {
             LittleRenderChunk chunk = iterator.next();
             if (!chunk.getCompiledChunk().isEmpty(layer)) {

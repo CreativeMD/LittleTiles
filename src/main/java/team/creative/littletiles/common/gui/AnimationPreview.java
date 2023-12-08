@@ -72,7 +72,7 @@ public class AnimationPreview {
     
     @OnlyIn(Dist.CLIENT)
     public void setupRendering(PoseStack pose) {
-        animation.getOrigin().setupRendering(pose, 0, 0, 0, Minecraft.getInstance().getPartialTick());
+        animation.getOrigin().setupRendering(pose.last().pose(), 0, 0, 0, Minecraft.getInstance().getPartialTick());
     }
     
     public void unload() {

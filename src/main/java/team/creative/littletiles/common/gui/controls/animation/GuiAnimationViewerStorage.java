@@ -122,7 +122,7 @@ public interface GuiAnimationViewerStorage {
         RenderSystem.setupShaderLights(shaderinstance);
         shaderinstance.apply();
         
-        preview.animation.getRenderManager().renderChunkLayer(layer, pose, 0, 0, 0, matrix, shaderinstance.CHUNK_OFFSET);
+        preview.animation.getRenderManager().renderChunkLayer(layer, pose.last().pose(), 0, 0, 0, matrix, shaderinstance.CHUNK_OFFSET);
         shaderinstance.clear();
         VertexBuffer.unbind();
         layer.clearRenderState();
