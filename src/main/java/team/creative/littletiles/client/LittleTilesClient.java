@@ -202,7 +202,6 @@ public class LittleTilesClient {
         
         // MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
         // overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
-        MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
         MinecraftForge.EVENT_BUS.register(new LittleClientEventHandler());
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
