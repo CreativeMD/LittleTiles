@@ -1,3 +1,9 @@
+1.6.0-pre071
+Fixed blanc-o-matic
+Fixed issue with oculus
+Fixed potential crash when starting up the game
+Removed PreviewRender duplicate
+
 1.6.0-pre070
 Added translation for workbench and particle emitter
 Added finishedPlacement to LittleStructure
