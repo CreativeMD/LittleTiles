@@ -23,13 +23,14 @@ public class LittleBlankOMatic extends LittleStructurePremade {
     
     @Override
     protected void loadExtra(CompoundTag nbt) {
-        inventory = InventoryUtils.load(nbt, 1);
+        inventory = InventoryUtils.load(nbt.getCompound("inv"), 1);
+        inventory.addListener(x -> markDirty());
         whiteColor = nbt.getInt("white");
     }
     
     @Override
     protected void saveExtra(CompoundTag nbt) {
-        InventoryUtils.save(inventory);
+        nbt.put("inv", InventoryUtils.save(inventory));
         nbt.putInt("white", whiteColor);
     }
     

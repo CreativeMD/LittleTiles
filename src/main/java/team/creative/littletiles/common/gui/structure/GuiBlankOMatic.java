@@ -76,6 +76,7 @@ public class GuiBlankOMatic extends GuiLayer {
                 stackSize = Math.min(stackSize, whitener.whiteColor / selected.needed);
             ItemStack newStack = new ItemStack(block, stackSize);
             stack.shrink(stackSize);
+            whitener.inventory.setItem(0, stack);
             Player player = getPlayer();
             if (!player.addItem(newStack))
                 player.drop(newStack, false);
@@ -86,13 +87,21 @@ public class GuiBlankOMatic extends GuiLayer {
     });
     
     public GuiBlankOMatic(LittleBlankOMatic whitener) {
-        super("whitener");
+        super("whitener", 170, 200);
         this.whitener = whitener;
-        VOLUME.send(IntTag.valueOf(whitener.whiteColor));
+        this.whiteInput.addListener(x -> whitener.markDirty());
+        
         registerEventChanged(x -> {
             if (x.control.is("variant"))
                 updateLabel();
         });
+    }
+    
+    @Override
+    public void init() {
+        super.init();
+        if (!isClient())
+            VOLUME.send(IntTag.valueOf(whitener.whiteColor));
     }
     
     @Override
@@ -115,7 +124,7 @@ public class GuiBlankOMatic extends GuiLayer {
             
         }).addListener(x -> updateVariants()));
         
-        leftUpper.add(new GuiVariantSelector("variant", 100, 40));
+        leftUpper.add(new GuiVariantSelector("variant"));
         
         GuiParent leftLower = new GuiParent();
         left.add(leftLower);
@@ -153,12 +162,14 @@ public class GuiBlankOMatic extends GuiLayer {
             nbt.putInt("amount", Screen.hasShiftDown() ? 2 : Screen.hasControlDown() ? 1 : 0);
             nbt.putInt("variant", get("variant", GuiVariantSelector.class).selected);
             CRAFT.send(nbt);
-        }));
+        }).setTranslate("gui.blancomatic.craft"));
         
         right.add(new GuiLabel("cost"));
-        right.add(new GuiShowItem("item").setDim(60, 60));
+        right.add(new GuiShowItem("item").setDim(50, 50));
         
         add(new GuiPlayerInventoryGrid(getPlayer()));
+        
+        updateVariants();
     }
     
     public void updateLabel() {
@@ -171,7 +182,7 @@ public class GuiBlankOMatic extends GuiLayer {
             stack = ItemStack.EMPTY;
         get("item", GuiShowItem.class).stack = stack;
         BleachRecipe recipe = selector.getSelectedRecipe();
-        get("cost", GuiLabel.class).setTitle(recipe == null ? Component.empty() : Component.translatable("gui.cost").append(": " + recipe.needed));
+        get("cost", GuiLabel.class).setTitle(recipe == null ? Component.empty() : Component.translatable("gui.blancomatic.cost").append(": " + recipe.needed));
     }
     
     public void updateVariants() {
@@ -185,9 +196,8 @@ public class GuiBlankOMatic extends GuiLayer {
         public List<Pair<BleachRecipe, Block>> states;
         private int selected = 0;
         
-        public GuiVariantSelector(String name, int width, int height) {
+        public GuiVariantSelector(String name) {
             super(name, GuiFlow.FIT_X);
-            setDim(width, height);
         }
         
         @Override
@@ -227,8 +237,8 @@ public class GuiBlankOMatic extends GuiLayer {
             this.states = states;
             
             for (int i = 0; i < states.size(); i++)
-                add(new GuiSlotControlSelect(this, i, new ItemStack(states.get(i).value))
-                        .setTooltip(new TextBuilder().translate("gui.cost").text(": " + states.get(i).key.needed).build()));
+                add(new GuiSlotControlSelect(this, i, new ItemStack(states.get(i).value)).setTooltip(new TextBuilder().translate("gui.blancomatic.cost").text(": " + states.get(
+                    i).key.needed).build()));
             
             if (selected >= states.size())
                 select(0);

@@ -47,6 +47,7 @@ public class BlankOMaticRecipeRegistry {
     }
     
     static {
+        registerBleacher(new CreativeIngredientItem(Items.BONE_MEAL), 4);
         registerBleacher(new CreativeIngredientItem(Items.WHITE_DYE), 4);
         registerBleacher(new CreativeIngredientItem(Items.LIGHT_GRAY_DYE), 2);
         registerBleacher(new CreativeIngredientItem(Items.GRAY_DYE), 1);

@@ -796,6 +796,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return !mainBlock.isRemoved();
     }
     
+    public void markDirty() {
+        getStructureLevel().blockEntityChanged(mainBlock.getPos());
+    }
+    
     @Override
     public boolean hasChanged() {
         return signalChanged;
@@ -948,12 +952,14 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public void updateStructure() {
         if (getStructureLevel() == null || isClient())
             return;
+        markDirty();
         LittleTiles.TICKERS.markUpdate(this);
     }
     
     public void sendUpdatePacket() {
         if (mainBlock.isRemoved())
             return;
+        markDirty();
         CompoundTag nbt = new CompoundTag();
         save(nbt);
         LittleTiles.NETWORK.sendToClient(new StructureUpdate(getStructureLocation(), nbt), getStructureLevel(), getStructurePos());
