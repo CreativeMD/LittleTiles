@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -201,7 +200,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
-    public void renderChunkLayer(RenderType layer, Matrix4f modelView, double x, double y, double z, Matrix4fc projectionMatrix, Uniform offset) {
+    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset) {
         if (hasBlocks.contains(layer)) {
             VertexBuffer vertexbuffer = buffers.get(layer);
             if (vertexbuffer == null)

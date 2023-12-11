@@ -55,7 +55,6 @@
         "rubidium.ChunkBuilderMeshingTaskMixin",
         "rubidium.ChunkMeshBufferBuilderAccessor",
         "rubidium.ChunkModelBuilderMixin",
-        "rubidium.DefaultChunkRendererMixin",
         "rubidium.GlBufferMixin",
         "rubidium.GlBufferSegmentAccessor",
         "rubidium.GLRenderDeviceAccessor",

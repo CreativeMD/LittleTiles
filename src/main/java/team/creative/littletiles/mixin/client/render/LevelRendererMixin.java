@@ -68,10 +68,4 @@ public class LevelRendererMixin {
             LittleTilesClient.ANIMATION_HANDLER.compileChunks(camera);
     }
     
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ShaderInstance;clear()V"), method = "renderChunkLayer", require = 0)
-    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
-        if (LittleTilesClient.ANIMATION_HANDLER != null)
-            LittleTilesClient.ANIMATION_HANDLER.renderChunkLayer(layer, pose.last().pose(), x, y, z, projectionMatrix);
-    }
-    
 }

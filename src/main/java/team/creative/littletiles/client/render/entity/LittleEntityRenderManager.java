@@ -7,7 +7,6 @@ import java.util.SortedSet;
 import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.shaders.Uniform;
@@ -149,8 +148,8 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
             int j1 = sortedset.last().getProgress();
             if (j1 >= 0) {
                 PoseStack.Pose posestack$pose1 = pose.last();
-                VertexConsumer vertexconsumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(
-                    j1)), posestack$pose1.pose(), posestack$pose1.normal(), 1.0F);
+                VertexConsumer vertexconsumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource()
+                        .getBuffer(ModelBakery.DESTROY_TYPES.get(j1)), posestack$pose1.pose(), posestack$pose1.normal(), 1.0F);
                 
                 newSource = (type) -> type.affectsCrumbling() ? VertexMultiConsumer.create(vertexconsumer, bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
             }
@@ -172,7 +171,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     
     public void renderBlockEntitiesAndDestruction(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         pose.pushPose();
-        entity.getOrigin().setupRendering(pose.last().pose(), cam.x, cam.y, cam.z, frameTime);
+        entity.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, frameTime);
         
         renderAllBlockEntities(pose, frustum, cam, frameTime, bufferSource);
         
@@ -209,7 +208,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
                 return;
             
             pose.pushPose();
-            entity.getOrigin().setupRendering(pose.last().pose(), cam.x, cam.y, cam.z, frameTime);
+            entity.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, frameTime);
             
             for (BlockEntity blockEntity : globalBlockEntities)
                 renderBlockEntity(blockEntity, pose, frustum, cam, frameTime, bufferSource);
@@ -219,7 +218,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     
     public abstract void resortTransparency(RenderType layer, double x, double y, double z);
     
-    public abstract void renderChunkLayer(RenderType layer, Matrix4f modelView, double x, double y, double z, Matrix4fc projectionMatrix, Uniform offset);
+    public abstract void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset);
     
     public void blockChanged(BlockGetter level, BlockPos pos, BlockState actualState, BlockState setState, int updateType) {
         this.setBlockDirty(pos, (updateType & 8) != 0);

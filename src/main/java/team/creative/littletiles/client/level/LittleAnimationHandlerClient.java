@@ -13,7 +13,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
@@ -154,22 +153,22 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 ChunkBufferBuilderPack pack = this.freeBuffers.poll();
                 this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
                 this.freeBufferCount = this.freeBuffers.size();
-                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(x -> x).whenComplete(
-                    (result, throwable) -> {
-                        if (throwable != null)
-                            Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Batching chunks"));
-                        else
-                            this.mailbox.tell(() -> {
-                                if (result == LittleRenderChunk.ChunkTaskResult.SUCCESSFUL)
-                                    pack.clearAll();
-                                else
-                                    pack.discardAll();
-                                
-                                this.freeBuffers.add(pack);
-                                this.freeBufferCount = this.freeBuffers.size();
-                                this.runTask();
-                            });
-                    });
+                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(x -> x)
+                        .whenComplete((result, throwable) -> {
+                            if (throwable != null)
+                                Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Batching chunks"));
+                            else
+                                this.mailbox.tell(() -> {
+                                    if (result == LittleRenderChunk.ChunkTaskResult.SUCCESSFUL)
+                                        pack.clearAll();
+                                    else
+                                        pack.discardAll();
+                                    
+                                    this.freeBuffers.add(pack);
+                                    this.freeBufferCount = this.freeBuffers.size();
+                                    this.runTask();
+                                });
+                        });
             }
         }
     }
@@ -349,20 +348,81 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 animation.getRenderManager().renderGlobalEntities(pose, frustum, cam, frameTime, bufferSource);
     }
     
-    public void renderChunkLayer(RenderType layer, Matrix4fc modelView, double x, double y, double z, Matrix4fc projectionMatrix) {
+    @SubscribeEvent
+    public void renderChunkLayer(RenderLevelStageEvent event) {
+        RenderType layer = null;
+        
+        if (event.getStage() == Stage.AFTER_SOLID_BLOCKS)
+            layer = RenderType.solid();
+        else if (event.getStage() == Stage.AFTER_CUTOUT_BLOCKS)
+            layer = RenderType.cutout();
+        else if (event.getStage() == Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS)
+            layer = RenderType.cutoutMipped();
+        else if (event.getStage() == Stage.AFTER_TRANSLUCENT_BLOCKS)
+            layer = RenderType.translucent();
+        else if (event.getStage() == Stage.AFTER_TRIPWIRE_BLOCKS)
+            layer = RenderType.tripwire();
+        
+        if (layer == null)
+            return;
+        
+        if (RubidiumManager.installed())
+            layer.setupRenderState();
+        
+        PoseStack pose = event.getPoseStack();
+        Matrix4f projectionMatrix = event.getProjectionMatrix();
+        
         ShaderInstance shaderinstance = RenderSystem.getShader();
+        
+        for (int i = 0; i < 12; ++i) {
+            int j1 = RenderSystem.getShaderTexture(i);
+            shaderinstance.setSampler("Sampler" + i, j1);
+        }
+        
+        if (shaderinstance.MODEL_VIEW_MATRIX != null)
+            shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
+        
+        if (shaderinstance.PROJECTION_MATRIX != null)
+            shaderinstance.PROJECTION_MATRIX.set(projectionMatrix);
+        
+        if (shaderinstance.COLOR_MODULATOR != null)
+            shaderinstance.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
+        
+        if (shaderinstance.GLINT_ALPHA != null)
+            shaderinstance.GLINT_ALPHA.set(RenderSystem.getShaderGlintAlpha());
+        
+        if (shaderinstance.FOG_START != null)
+            shaderinstance.FOG_START.set(RenderSystem.getShaderFogStart());
+        
+        if (shaderinstance.FOG_END != null)
+            shaderinstance.FOG_END.set(RenderSystem.getShaderFogEnd());
+        
+        if (shaderinstance.FOG_COLOR != null)
+            shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
+        
+        if (shaderinstance.FOG_SHAPE != null)
+            shaderinstance.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
+        
+        if (shaderinstance.TEXTURE_MATRIX != null)
+            shaderinstance.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
+        
+        if (shaderinstance.GAME_TIME != null)
+            shaderinstance.GAME_TIME.set(RenderSystem.getShaderGameTime());
+        
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         
-        Uniform offset = shaderinstance.CHUNK_OFFSET;
+        RenderSystem.setupShaderLights(shaderinstance);
+        shaderinstance.apply();
+        Uniform offset = RenderSystem.getShader().CHUNK_OFFSET;
         float partialTicks = mc.getPartialTick();
-        Matrix4f modelViewCopy = new Matrix4f();
         for (LittleEntity animation : this) {
-            modelViewCopy.set(modelView);
-            animation.getOrigin().setupRendering(modelViewCopy, cam.x, cam.y, cam.z, partialTicks);
+            pose.pushPose();
+            animation.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, partialTicks);
             if (shaderinstance.MODEL_VIEW_MATRIX != null)
-                shaderinstance.MODEL_VIEW_MATRIX.set(modelViewCopy);
+                shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
             shaderinstance.apply();
-            animation.getRenderManager().renderChunkLayer(layer, modelViewCopy, cam.x, cam.y, cam.z, projectionMatrix, offset);
+            animation.getRenderManager().renderChunkLayer(layer, pose, cam.x, cam.y, cam.z, projectionMatrix, offset);
+            pose.popPose();
         }
         
         if (RubidiumManager.installed())
@@ -410,8 +470,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 else {
                     BlockInWorld blockinworld = new BlockInWorld(result.level, blockpos, false);
                     Registry<Block> registry = result.level.registryAccess().registryOrThrow(Registries.BLOCK);
-                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack.hasAdventureModePlaceTagForBlock(registry,
-                        blockinworld));
+                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack
+                            .hasAdventureModePlaceTagForBlock(registry, blockinworld));
                 }
             }
         }
@@ -437,7 +497,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
         LittleEntity entity = result.getHolder();
         Vec3 position = mc.gameRenderer.getMainCamera().getPosition();
-        entity.getOrigin().setupRendering(event.getPoseStack().last().pose(), position.x, position.y, position.z, event.getPartialTick());
+        entity.getOrigin().setupRendering(event.getPoseStack(), position.x, position.y, position.z, event.getPartialTick());
         RenderSystem.enableDepthTest();
         
         double d0 = pos.getX() - position.x();
@@ -454,10 +514,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 f /= f3;
                 f1 /= f3;
                 f2 /= f3;
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
-                    posestack$pose.normal(), f, f1, f2).endVertex();
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
-                    posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
+                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
+                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
             });
         }
         
