@@ -153,22 +153,22 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 ChunkBufferBuilderPack pack = this.freeBuffers.poll();
                 this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
                 this.freeBufferCount = this.freeBuffers.size();
-                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(x -> x)
-                        .whenComplete((result, throwable) -> {
-                            if (throwable != null)
-                                Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Batching chunks"));
-                            else
-                                this.mailbox.tell(() -> {
-                                    if (result == LittleRenderChunk.ChunkTaskResult.SUCCESSFUL)
-                                        pack.clearAll();
-                                    else
-                                        pack.discardAll();
-                                    
-                                    this.freeBuffers.add(pack);
-                                    this.freeBufferCount = this.freeBuffers.size();
-                                    this.runTask();
-                                });
-                        });
+                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(x -> x).whenComplete(
+                    (result, throwable) -> {
+                        if (throwable != null)
+                            Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Batching chunks"));
+                        else
+                            this.mailbox.tell(() -> {
+                                if (result == LittleRenderChunk.ChunkTaskResult.SUCCESSFUL)
+                                    pack.clearAll();
+                                else
+                                    pack.discardAll();
+                                
+                                this.freeBuffers.add(pack);
+                                this.freeBufferCount = this.freeBuffers.size();
+                                this.runTask();
+                            });
+                    });
             }
         }
     }
@@ -427,6 +427,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         if (RubidiumManager.installed())
             layer.clearRenderState();
+        shaderinstance.clear();
     }
     
     @SubscribeEvent
@@ -470,8 +471,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 else {
                     BlockInWorld blockinworld = new BlockInWorld(result.level, blockpos, false);
                     Registry<Block> registry = result.level.registryAccess().registryOrThrow(Registries.BLOCK);
-                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack
-                            .hasAdventureModePlaceTagForBlock(registry, blockinworld));
+                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack.hasAdventureModePlaceTagForBlock(registry,
+                        blockinworld));
                 }
             }
         }
@@ -514,10 +515,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 f /= f3;
                 f1 /= f3;
                 f2 /= f3;
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
-                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F)
-                        .normal(posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
+                    posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
+                    posestack$pose.normal(), f, f1, f2).endVertex();
             });
         }
         
