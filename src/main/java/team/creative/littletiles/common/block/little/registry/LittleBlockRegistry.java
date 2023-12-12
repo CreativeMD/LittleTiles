@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.AirBlock;
@@ -31,7 +31,7 @@ public class LittleBlockRegistry {
     private static final PairList<Filter<Block>, Function<Block, LittleBlock>> BLOCK_HANDLERS = new PairList<>();
     private static final Function<Block, LittleBlock> FALLBACK = x -> new LittleMCBlock(x);
     private static final List<Function<String, LittleBlock>> SPECIAL_HANDLERS = new ArrayList<>();
-    private static final Object2BooleanMap<Block> HAS_HANDLER_CACHE = new Object2BooleanOpenHashMap<>();
+    private static final Object2BooleanMap<Block> HAS_HANDLER_CACHE = new Object2BooleanArrayMap<>();
     
     public static LittleBlock getMissing(String name) {
         LittleBlock little = NAME_MAP.get(name);
@@ -126,14 +126,16 @@ public class LittleBlockRegistry {
     }
     
     public static boolean hasHandler(Block block) {
-        return HAS_HANDLER_CACHE.computeIfAbsent(block, x -> {
-            if (block instanceof LittleBlock)
-                return true;
-            for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
-                if (pair.key.is(block))
+        synchronized (HAS_HANDLER_CACHE) {
+            return HAS_HANDLER_CACHE.computeIfAbsent(block, x -> {
+                if (block instanceof LittleBlock)
                     return true;
-            return false;
-        });
+                for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
+                    if (pair.key.is(block))
+                        return true;
+                return false;
+            });
+        }
     }
     
     private static LittleBlock create(String name, Block block) {
