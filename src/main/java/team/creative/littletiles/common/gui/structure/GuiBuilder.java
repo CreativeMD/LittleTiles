@@ -7,12 +7,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.controls.inventory.GuiInventoryGrid;
 import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
+import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
+import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.controls.parent.GuiRow;
+import team.creative.creativecore.common.gui.controls.parent.GuiTable;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiCounter;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
@@ -20,8 +23,9 @@ import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMappe
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
@@ -50,38 +54,53 @@ public class GuiBuilder extends GuiLayer {
             LittleStructureBuilderType type = LittleStructureBuilder.REGISTRY.get(builder.lastStructureType);
             if (type != null) {
                 ItemStack stack = builder.inventory.getItem(0);
-                if (stack.isEmpty()) {
+                if (!LittleAction.needIngredients(getPlayer()) && stack.isEmpty()) {
                     stack = new ItemStack(LittleTilesRegistry.BLUEPRINT.get());
                     builder.inventory.setItem(0, stack);
                 }
-                stack.setTag(LittleGroup.save(type.construct(grid, width, height, thickness, block.defaultBlockState())));
+                if (stack.getItem() instanceof ItemLittleBlueprint blue)
+                    blue.saveTiles(stack, type.construct(grid, width, height, thickness, block.defaultBlockState()));
             }
         }
     });
     
     public GuiBuilder(LittleStructureBuilder builder) {
-        super("structure_builder");
+        super("structure_builder", 200, 200);
         this.builder = builder;
     }
     
     @Override
     public void create() {
         flow = GuiFlow.STACK_Y;
-        GuiParent config = new GuiParent(GuiFlow.STACK_X);
-        add(config.setExpandableX());
-        config.add(new GuiLabel("widthLabel").setTranslate("gui.structure_builder.width"));
-        config.add(new GuiLabel("heightLabel").setTranslate("gui.structure_builder.height"));
-        config.add(new GuiLabel("thicknessLabel").setTranslate("gui.structure_builder.thickness"));
-        config.add(new GuiCounter("width", builder.lastSizeX, 1, Integer.MAX_VALUE));
-        config.add(new GuiCounter("height", builder.lastSizeY, 1, Integer.MAX_VALUE));
-        config.add(new GuiCounter("thickness", builder.lastThickness, 1, Integer.MAX_VALUE));
+        GuiTable table = new GuiTable();
+        add(table.setExpandableX());
+        GuiRow row = new GuiRow();
+        table.addRow(row);
+        GuiColumn col = new GuiColumn();
+        row.addColumn(col);
+        col.add(new GuiLabeledControl("gui.structure_builder.width", new GuiCounter("width", builder.lastSizeX, 1, Integer.MAX_VALUE)));
         
-        GuiComboBoxMapped<LittleStructureBuilderType> box = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureBuilderType>()
-                .addEntrySet(LittleStructureBuilder.REGISTRY.entrySet(), x -> Component.translatable("structure." + x.getKey() + ".name")));
+        col = new GuiColumn();
+        row.addColumn(col);
+        col.add(new GuiLabeledControl("gui.structure_builder.height", new GuiCounter("height", builder.lastSizeX, 1, Integer.MAX_VALUE)));
+        
+        row = new GuiRow();
+        table.addRow(row);
+        col = new GuiColumn();
+        row.addColumn(col);
+        col.add(new GuiLabeledControl("gui.structure_builder.thickness", new GuiCounter("thickness", builder.lastThickness, 1, Integer.MAX_VALUE)));
+        
+        var gridSelect = new GuiStateButtonMapped<LittleGrid>("grid", LittleGrid.mapBuilder());
+        gridSelect.select(LittleTiles.CONFIG.build.get(getPlayer()).defaultGrid());
+        col = new GuiColumn();
+        row.addColumn(col);
+        col.add(new GuiLabeledControl("gui.grid", gridSelect));
+        
+        GuiComboBoxMapped<LittleStructureBuilderType> box = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureBuilderType>().addEntrySet(
+            LittleStructureBuilder.REGISTRY.entrySet(), x -> Component.translatable("structure." + x.getKey())));
         box.select(LittleStructureBuilder.REGISTRY.get(builder.lastStructureType));
         add(box.setExpandableX());
         
-        add(new GuiStateButtonMapped<LittleGrid>("grid", LittleGrid.mapBuilder()));
         GuiStackSelector selector = new GuiStackSelector("preview", getPlayer(), LittleGuiUtils.getCollector(getPlayer()), true);
         selector.setSelectedForce(new ItemStack(builder.lastBlockState.getBlock()));
         add(selector.setExpandableX());

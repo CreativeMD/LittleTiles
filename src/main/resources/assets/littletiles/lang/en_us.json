@@ -349,6 +349,5 @@
     "structure.door.activator": "Door Activator",
     "structure.simple.light": "Light",
     "structure.simple.message": "Message",
-    "structure.simple.item_holder": "Item Holder",
-    "structure.simple.little_frame": "Little Frame"
+    "structure.item_holder": "Item Holder"
 }
