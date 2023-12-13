@@ -416,7 +416,7 @@ public abstract class SignalState {
         
         private static int shrinkTo(int number, int bandwidth) {
             bandwidth--;
-            return number & ~(-1 >>> (31 - bandwidth));
+            return number & (-1 >>> (31 - bandwidth));
         }
     }
     
