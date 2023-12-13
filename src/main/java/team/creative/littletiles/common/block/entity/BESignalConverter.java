@@ -160,7 +160,7 @@ public class BESignalConverter extends BlockEntity implements ISignalStructureCo
     }
     
     public void setPower(int level) {
-        SignalState newLevel = SignalState.of(4);
+        SignalState newLevel = SignalState.of(level);
         if (!inputRedstoneState.equals(newLevel)) {
             inputRedstoneState = inputRedstoneState.overwrite(newLevel);
             changed();
