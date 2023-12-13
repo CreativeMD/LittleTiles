@@ -20,6 +20,8 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     private boolean ticking = false;
     private final List<LittleStructure> queuedTickingStructures = new ArrayList<>();
     private List<ISignalSchedulable> signalChanged = new ArrayList<>();
+    private boolean processingChanged = false;
+    private List<ISignalSchedulable> signalChangedSchedule = new ArrayList<>();
     
     public int tick = Integer.MIN_VALUE;
     public int latest = Integer.MIN_VALUE;
@@ -59,7 +61,10 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     
     public void markSignalChanged(ISignalSchedulable schedulable) {
         synchronized (signalChanged) {
-            signalChanged.add(schedulable);
+            if (processingChanged)
+                signalChangedSchedule.add(schedulable);
+            else
+                signalChanged.add(schedulable);
         }
     }
     
@@ -133,11 +138,15 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
         
         if (!signalChanged.isEmpty()) {
             synchronized (signalChanged) {
+                processingChanged = true;
                 for (ISignalSchedulable signal : signalChanged)
                     try {
                         signal.updateSignaling();
                     } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 signalChanged.clear();
+                processingChanged = false;
+                signalChanged.addAll(signalChangedSchedule);
+                signalChangedSchedule.clear();
             }
         }
     }
