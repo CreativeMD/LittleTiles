@@ -1,3 +1,11 @@
+1.6.0-pre072
+Fixed signal converter
+Fixed structure builder
+Fixed crash when structure schedules a signal update during processing signal changes
+Fixed issue when comparing signals using a specified bandwidth
+Fixed equals for SignalState not working
+Fixed issue which can occur while scanning for block handlers
+
 1.6.0-pre071
 Fixed blanc-o-matic
 Fixed issue with oculus
