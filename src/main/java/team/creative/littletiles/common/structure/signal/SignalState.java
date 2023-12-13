@@ -72,6 +72,9 @@ public abstract class SignalState {
     public static final SignalState TRUE = new PrimitveState(true);
     public static final SignalState FALSE = new PrimitveState(false);
     
+    @Override
+    public abstract boolean equals(Object object);
+    
     public abstract SignalState overwrite(SignalState state);
     
     public abstract SignalState set(int index, boolean value);
@@ -131,7 +134,7 @@ public abstract class SignalState {
         
         private final boolean value;
         
-        public PrimitveState(boolean value) {
+        private PrimitveState(boolean value) {
             this.value = value;
         }
         
@@ -250,6 +253,17 @@ public abstract class SignalState {
         
         @Override
         public void shrinkTo(int bandwidth) {}
+        
+        @Override
+        public boolean equals(Object object) {
+            if (object instanceof PrimitveState prim)
+                return this == object;
+            else if (object instanceof IntegerState integer)
+                return integer.number() == number();
+            else if (object instanceof SignalState state)
+                return state.longNumber() == longNumber();
+            return false;
+        }
         
     }
     
@@ -389,6 +403,15 @@ public abstract class SignalState {
         @Override
         public void shrinkTo(int bandwidth) {
             value = shrinkTo(value, bandwidth);
+        }
+        
+        @Override
+        public boolean equals(Object object) {
+            if (object instanceof IntegerState integer)
+                return this.value == integer.value;
+            else if (object instanceof SignalState state)
+                return state.longNumber() == longNumber();
+            return false;
         }
         
         private static int shrinkTo(int number, int bandwidth) {
