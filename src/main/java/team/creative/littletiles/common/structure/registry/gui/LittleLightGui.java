@@ -20,7 +20,7 @@ public class LittleLightGui extends LittleStructureGuiControl {
     @Override
     public void create(@Nullable LittleStructure structure) {
         add(new GuiSteppedSlider("level", structure instanceof LittleLight ? ((LittleLight) structure).level : 15, 0, 15));
-        add(new GuiCheckBox("rightclick", structure instanceof LittleLight ? ((LittleLight) structure).allowRightClick : true).setTranslate("gui.door.rightclick"));
+        add(new GuiCheckBox("rightclick", structure instanceof LittleLight ? ((LittleLight) structure).allowRightClick : true).setTranslate("gui.rightclick"));
     }
     
     @Override
