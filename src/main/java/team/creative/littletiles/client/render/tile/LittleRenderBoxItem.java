@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.client.render.VertexFormatUtils;
 import team.creative.creativecore.client.render.box.QuadGeneratorContext;
@@ -39,6 +40,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         this.structure = structure;
         this.allowOverlap = true;
         this.keepVU = true;
+        this.state = Blocks.STONE.defaultBlockState();
     }
     
     @Override
@@ -123,7 +125,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         List<BakedQuad> quads = new ArrayList<>();
         for (int i = 0; i < blockQuads.size(); i++) {
             int[] originalData = blockQuads.get(i).getVertices();
-            CreativeBakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, defaultColor, overrideTint, null);
+            CreativeBakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, defaultColor, overrideTint);
             
             for (int k = 0; k < 4; k++) {
                 int index = k * VertexFormatUtils.blockFormatIntSize();
