@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -67,7 +68,12 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     public void updateTexture() {
         if (textureId == -1)
             textureId = GlStateManager._genTexture();
-        GlStateManager._bindTexture(textureId);
+        
+        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, GL11.GL_ZERO);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, GL11.GL_ZERO);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, GL11.GL_ZERO);
+        
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         int bandwidth = getOutput(0).getBandwidth();
         SignalState state = getOutput(0).getState();
         ByteBuffer buffer = ByteBuffer.allocateDirect(bandwidth * 3);
@@ -83,7 +89,8 @@ public class LittleSignalDisplay extends LittleStructurePremade {
             }
         }
         buffer.rewind();
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA2, 4, 4, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
+        
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, 4, 4, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
     }
     
     @Override
@@ -93,7 +100,11 @@ public class LittleSignalDisplay extends LittleStructurePremade {
         if (textureId == -1)
             updateTexture();
         
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.bindTexture(textureId);
+        RenderSystem.setShaderTexture(0, textureId);
         
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
@@ -103,18 +114,19 @@ public class LittleSignalDisplay extends LittleStructurePremade {
         AlignedBox box = frame.getBox().getBox(frame.getGrid());
         BoxFace face = BoxFace.get(facing);
         if (facing.positive)
-            box.setMax(facing.axis, box.getMin(facing.axis) + 0.01F);
+            box.setMax(facing.axis, box.getMin(facing.axis) + 0.005F);
         else
-            box.setMin(facing.axis, box.getMax(facing.axis) - 0.01F);
+            box.setMin(facing.axis, box.getMax(facing.axis) - 0.005F);
         Axis uAxis = face.getTexUAxis();
         Axis vAxis = face.getTexVAxis();
         
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder builder = tessellator.getBuilder();
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         for (BoxCorner corner : face.corners)
-            builder.vertex(pose.last().pose(), box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                    .uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).endVertex();
+            builder.vertex(pose.last().pose(), box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0,
+                corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).endVertex();
         tessellator.end();
         
         pose.popPose();
