@@ -490,6 +490,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     
     @OnlyIn(Dist.CLIENT)
     public boolean canRenderInLayer(RenderType layer) {
+        if (ColorUtils.isInvisible(color))
+            return false;
         if (ColorUtils.isTransparent(color))
             return layer == RenderType.translucent();
         return LittleBlockClientRegistry.canRenderInLayer(getBlock(), layer);
