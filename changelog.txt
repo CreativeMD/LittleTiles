@@ -1,3 +1,13 @@
+1.6.0-pre073
+Added ability for a structure to schedule an update which notifies neighbours
+Fixed item holder
+Fixed crash when rendering box item
+Fixed missing translation of premade structure inside recipe gui
+Fixed interaction with light structure being inverted
+Fixed rotating group causing child structures to be rotated multiple times
+Small performance improvement when rendering quads (remove creation of unnecessary iteration objects)
+Adapted CreativeCore iterator changes
+
 1.6.0-pre072
 Fixed signal converter
 Fixed structure builder
