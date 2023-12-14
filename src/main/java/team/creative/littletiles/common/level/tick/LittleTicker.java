@@ -89,9 +89,9 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
                 return;
             }
             
-            if (next.tickTime >= result.tickTime) {
+            if (next == null || next.tickTime >= result.tickTime) {
                 result.next = next;
-                next = null;
+                next = result;
                 return;
             }
             
