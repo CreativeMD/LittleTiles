@@ -16,6 +16,8 @@ import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetChild;
@@ -76,9 +78,17 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
             if (nested.child < 0 || nested.child >= item.itemsCount())
                 return false;
             return searchForTarget((GuiTreeItemStructure) item.getItem(nested.child), nested.subTarget);
-        } else if (target instanceof SignalTargetChild) {
+        } else if (target instanceof SignalTargetChild c) {
             if (item.structure == null)
                 return false;
+            if (c.external) {
+                if (c.child < 0 || c.child >= item.itemsCount())
+                    return false;
+                GuiTreeItemStructure child = (GuiTreeItemStructure) item.getItem(c.child);
+                if (child.structure instanceof ISignalStructureComponent s)
+                    return c.input ? s.getComponentType() == SignalComponentType.INPUT : s.getComponentType() == SignalComponentType.OUTPUT;
+                return false;
+            }
             return target.getTarget(item.structure) != null;
         }
         return true;
@@ -127,8 +137,8 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         public void create(GuiRecipe recipe, GuiParent parent, Runnable refresh) {
             List<GuiSignalComponent> inputs = structure.signalSearch.search(true, true, true);
             
-            parent.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(parent.getIntegratedParent(), new CompoundTag()).init(inputs, event))
-                    .setTranslate("gui.edit"));
+            parent.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(parent.getIntegratedParent(), new CompoundTag()).init(inputs, event)).setTranslate(
+                "gui.edit"));
             parent.add(new GuiButton("reset", x -> {
                 event.reset();
                 refresh.run();
