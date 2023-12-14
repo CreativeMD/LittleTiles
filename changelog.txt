@@ -1,3 +1,19 @@
+1.6.0-pre074
+Fixed signal display
+Fixed missing translations for signal configuration
+Fixed item holder rendering offset when placed on certain positions
+Fixed attempting to render invisible tiles
+Fixed rendering issue with cable, inputs and outputs (have to be placed again in order to make them work)
+Fixed signal tickers not being able to handle situation where there are no tickets yet
+Fixed rendered blockentity not working properly (causing all content to vanish)
+Fixed signal component search having incorrect indexes
+Fixed missing translation in light structure configuration
+Fixed external inputs and outputs not getting recognized in recipe test
+Fixed placement and grid configuration gui
+Fixed grid config not having expected behavior when it comes to changes listener
+Removed debug information from wrench signal tooltip
+Removed unused lang file from 1.12
+
 1.6.0-pre073
 Added ability for a structure to schedule an update which notifies neighbours
 Fixed item holder
