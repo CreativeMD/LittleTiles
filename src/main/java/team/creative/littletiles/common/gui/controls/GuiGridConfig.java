@@ -27,8 +27,8 @@ public class GuiGridConfig extends GuiParent {
         add(new GuiButtonHoldSlim("right", x -> comboBox.next()).setTranslate("gui.next"));
         this.consumer = consumer;
         registerEventChanged(x -> {
-            if (x.control.is("grid"))
-                consumer.accept(get());
+            if (x.control.is("grid") && this.consumer != null)
+                this.consumer.accept(get());
         });
     }
     
