@@ -51,8 +51,10 @@ public class GuiComponentSearch {
             
         int i = 0;
         for (GuiTreeItem child : item.items()) {
-            if (child == this.item)
+            if (child == this.item) {
+                i++;
                 continue;
+            }
             GuiTreeItemStructure childStructure = (GuiTreeItemStructure) child;
             if (childStructure.structure == null)
                 continue;
@@ -82,8 +84,10 @@ public class GuiComponentSearch {
     protected void addExternalOutputs(GuiTreeItemStructure item, String prefix, List<GuiSignalComponent> list, boolean includeRelations) {
         int i = 0;
         for (GuiTreeItem child : item.items()) {
-            if (child == this.item)
+            if (child == this.item) {
+                i++;
                 continue;
+            }
             GuiTreeItemStructure childStructure = (GuiTreeItemStructure) child;
             if (childStructure.structure == null)
                 continue;
@@ -93,6 +97,7 @@ public class GuiComponentSearch {
                 list.add(new GuiSignalComponent(prefix + "o" + i, item.getTitle() + "." + (name != null ? name : "o" + i), com, true, i));
             else if (includeRelations)
                 gatherOutputs(childStructure, prefix + "c" + i + ".", list, includeRelations, false);
+            i++;
         }
     }
     
