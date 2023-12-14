@@ -155,9 +155,9 @@ public class LittleRenderBoxItem extends LittleRenderBox {
                 int newIndex = index;
                 if (reverse)
                     newIndex = (3 - k) * VertexFormatUtils.blockFormatIntSize();
-                quad.getVertices()[newIndex] = Float.floatToIntBits(vec.x + offset.getX());
-                quad.getVertices()[newIndex + 1] = Float.floatToIntBits(vec.y + offset.getY());
-                quad.getVertices()[newIndex + 2] = Float.floatToIntBits(vec.z + offset.getZ());
+                quad.getVertices()[newIndex] = Float.floatToIntBits(vec.x);
+                quad.getVertices()[newIndex + 1] = Float.floatToIntBits(vec.y);
+                quad.getVertices()[newIndex + 2] = Float.floatToIntBits(vec.z);
                 if (reverse)
                     for (int j = 3; j < VertexFormatUtils.blockFormatIntSize(); j++)
                         quad.getVertices()[newIndex + j] = originalData[index + j];

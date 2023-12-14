@@ -17,6 +17,7 @@ import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxItem;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
@@ -82,9 +83,10 @@ public class LittleItemHolder extends LittleStructure {
     @Override
     public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> cubes) {
         if (layer == RenderType.cutout()) {
-            AlignedBox box = frame.getBox().getBox(frame.getGrid());
+            LittleBox littleBox = frame.getBox();
+            AlignedBox box = littleBox.getBox(frame.getGrid());
             if (!stack.isEmpty())
-                cubes.add(new LittleRenderBoxItem(this, box, frame.getBox()));
+                cubes.add(new LittleRenderBoxItem(this, box, littleBox));
         }
     }
     
