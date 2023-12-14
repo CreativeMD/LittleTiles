@@ -57,7 +57,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     
     @Override
     public String getDescriptionId(ItemStack stack) {
-        return super.getDescriptionId(stack) + "." + getPremadeId(stack);
+        return "structure." + getPremadeId(stack);
     }
     
     @Override
