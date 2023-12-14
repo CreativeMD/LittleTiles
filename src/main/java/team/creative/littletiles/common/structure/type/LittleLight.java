@@ -43,12 +43,12 @@ public class LittleLight extends LittleStructure {
     
     @Override
     public boolean canInteract() {
-        return !allowRightClick;
+        return allowRightClick;
     }
     
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
-        if (!level.isClientSide && !allowRightClick)
+        if (!level.isClientSide && allowRightClick)
             getOutput(0).toggle();
         return InteractionResult.SUCCESS;
     }
