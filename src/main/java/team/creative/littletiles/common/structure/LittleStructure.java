@@ -33,6 +33,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
@@ -912,19 +913,20 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ====================Packets====================
     
     public void updateStructure() {
+        updateStructure(false);
+    }
+    
+    public void updateStructure(boolean notifyNeighbours) {
         if (getStructureLevel() == null || isClient())
             return;
         markDirty();
-        LittleTiles.TICKERS.markUpdate(this);
+        LittleTiles.TICKERS.markUpdate(this, notifyNeighbours);
     }
     
-    public void sendUpdatePacket() {
-        if (mainBlock.isRemoved())
-            return;
-        markDirty();
+    public CreativePacket generateUpdatePacket(boolean notifyNeighbours) {
         CompoundTag nbt = new CompoundTag();
         save(nbt);
-        LittleTiles.NETWORK.sendToClient(new StructureUpdate(getStructureLocation(), nbt), getStructureLevel(), getStructurePos());
+        return new StructureUpdate(getStructureLocation(), nbt, notifyNeighbours);
     }
     
     // ====================Extra====================

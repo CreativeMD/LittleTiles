@@ -96,8 +96,8 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
         return ticket;
     }
     
-    public synchronized void markUpdate(LittleStructure structure) {
-        get(structure.getStructureLevel()).markUpdate(structure);
+    public synchronized void markUpdate(LittleStructure structure, boolean notifyNeighbours) {
+        get(structure.getStructureLevel()).markUpdate(structure, notifyNeighbours);
     }
     
     public synchronized void queueNexTick(LittleStructure structure) {

@@ -5,8 +5,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap.Entry;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.handler.LevelHandler;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -15,7 +19,7 @@ import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedul
 
 public class LittleTicker extends LevelHandler implements Iterable<LittleTickTicket> {
     
-    private final HashSet<LittleStructure> updateStructures = new HashSet<>();
+    private final Object2BooleanMap<LittleStructure> updateStructures = new Object2BooleanLinkedOpenHashMap<>();
     private final HashSet<LittleStructure> tickingStructures = new HashSet<>();
     private boolean ticking = false;
     private final List<LittleStructure> queuedTickingStructures = new ArrayList<>();
@@ -42,11 +46,14 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
         return result;
     }
     
-    public void markUpdate(LittleStructure structure) {
+    public void markUpdate(LittleStructure structure, boolean notifyNeighbours) {
         if (structure.isClient())
             return;
         synchronized (updateStructures) {
-            updateStructures.add(structure);
+            if (notifyNeighbours)
+                updateStructures.put(structure, true);
+            else
+                updateStructures.put(structure, updateStructures.getBoolean(structure));
         }
     }
     
@@ -130,8 +137,13 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
         
         if (!updateStructures.isEmpty()) {
             synchronized (updateStructures) {
-                for (LittleStructure structure : updateStructures)
-                    structure.sendUpdatePacket();
+                for (Entry<LittleStructure> entry : updateStructures.object2BooleanEntrySet()) {
+                    LittleStructure structure = entry.getKey();
+                    if (structure.mainBlock.isRemoved())
+                        continue;
+                    LittleTiles.NETWORK.sendToClient(structure.generateUpdatePacket(entry.getBooleanValue()), structure.getStructureLevel(), structure.getStructurePos());
+                }
+                
                 updateStructures.clear();
             }
         }
