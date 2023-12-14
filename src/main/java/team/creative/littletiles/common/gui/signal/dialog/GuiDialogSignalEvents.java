@@ -81,7 +81,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
         right.flow = GuiFlow.STACK_Y;
         upper.add(right.setDim(new GuiFixedDimension(100)).setExpandableY());
         
-        right.add(new GuiLabel("title").setTranslate("gui.signal.component"));
+        right.add(new GuiLabel("title").setTranslate("gui.signal.components"));
         
         for (GuiSignalComponent component : inputs)
             right.add(new GuiLabel(component.name()).setTitle(Component.literal(component.display())));

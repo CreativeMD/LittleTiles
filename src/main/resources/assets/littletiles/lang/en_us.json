@@ -348,5 +348,19 @@
     "structure.particle_emitter": "Particle Emitter",
     "structure.signal_display_16": "Signal Display (16 bit)",
     "structure.item_holder": "Item Holder",
-    "structure.structure_builder": "Structure Builder"
+    "structure.structure_builder": "Structure Builder",
+    "gui.signal.components": "Components",
+    "gui.signal.configuration.result": "result:",
+    "gui.signal.configuration.addop": "+",
+    "gui.signal.configuration.add": "+",
+    "gui.signal.configuration.input.operation.type.none": "none",
+    "gui.signal.configuration.input.operation.type.operation": "operation",
+    "gui.signal.configuration.input.operation.type.pattern": "pattern",
+    "gui.signal.configuration.input.operation.type.equation": "equation",
+    "signal.mode.equal": "EQUAL",
+    "signal.mode.toggle": "TOGGLE",
+    "signal.mode.pulse": "PULSE",
+    "signal.mode.threshold": "THRESHOLD",
+    "signal.mode.stabilizer": "STABILIZER",
+    "signal.mode.extender": "EXTENDER"
 }
