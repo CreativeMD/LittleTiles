@@ -64,13 +64,13 @@ public class LittleItemHolder extends LittleStructure {
             if (player.getInventory().add(player.getInventory().selected, stack))
                 stack = ItemStack.EMPTY;
             updateInput();
-            updateStructure();
+            updateStructure(true);
         } else if (stack.isEmpty()) {
             stack = mainStack.copy();
             if (!player.getAbilities().instabuild)
                 mainStack.shrink(1);
             updateInput();
-            updateStructure();
+            updateStructure(true);
         }
         return InteractionResult.SUCCESS;
     }
