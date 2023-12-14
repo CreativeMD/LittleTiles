@@ -90,8 +90,11 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                         quads = bakedQuadWrapper;
                     }
                     if (quads != null && !quads.isEmpty())
-                        for (BakedQuad quad : quads)
-                            lighter.process(builder, pose.last(), quad, overlay);
+                        if (quads instanceof SingletonList<BakedQuad> single)
+                            lighter.process(builder, pose.last(), single.get(0), overlay);
+                        else
+                            for (BakedQuad quad : quads)
+                                lighter.process(builder, pose.last(), quad, overlay);
                 }
                 
                 bakedQuadWrapper.setElement(null);
