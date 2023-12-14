@@ -10,4 +10,8 @@ public class BETilesRendered extends BETiles {
         super(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), pos, state);
     }
     
+    @Override
+    public boolean isRendered() {
+        return true;
+    }
 }
