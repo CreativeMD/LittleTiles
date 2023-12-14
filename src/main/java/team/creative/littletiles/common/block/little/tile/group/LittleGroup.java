@@ -389,11 +389,11 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         return content.iterator();
     }
     
-    protected Iterable<LittleTile> allTiles() {
+    public Iterable<LittleTile> allTiles() {
         if (hasChildren())
             return new IterableIterator<LittleTile>() {
                 
-                public Iterator<LittleTile> subIterator = iterator();
+                public Iterator<LittleTile> subIterator = LittleGroup.this.iterator();
                 public Iterator<LittleGroup> children = LittleGroup.this.children.all().iterator();
                 
                 @Override
