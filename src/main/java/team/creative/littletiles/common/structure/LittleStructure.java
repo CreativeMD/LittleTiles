@@ -1062,7 +1062,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 infos.add("a" + i + ":" + inputs[i].getState().print(inputs[i].getBandwidth()));
         for (ISignalStructureComponent component : inputs())
             try {
-                infos.add("i" + component.getId() + ":" + component.getState().print(component.getBandwidth()) + component.getNetwork());
+                infos.add("i" + component.getId() + ":" + component.getState().print(component.getBandwidth()));
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("i" + component.getId() + ":broken");
             }
@@ -1071,7 +1071,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 infos.add("b" + i + ":" + outputs[i].getState().print(outputs[i].getBandwidth()));
         for (ISignalStructureComponent component : outputs())
             try {
-                infos.add("o" + component.getId() + ":" + component.getState().print(component.getBandwidth()) + component.getNetwork());
+                infos.add("o" + component.getId() + ":" + component.getState().print(component.getBandwidth()));
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
                 infos.add("o" + component.getId() + ":broken");
             }

@@ -29,6 +29,8 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 
 public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTooltip {
     
+    private static HashMap<String, LittleGroup> cachedPreviews = new HashMap<>();
+    
     public static ItemStack of(String structure) {
         ItemStack stack = new ItemStack(LittleTilesRegistry.PREMADE.get());
         CompoundTag nbt = new CompoundTag();
@@ -84,8 +86,6 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
             stack.getTag().remove("min");
         }
     }
-    
-    private static HashMap<String, LittleGroup> cachedPreviews = new HashMap<>();
     
     public static void clearCache() {
         cachedPreviews.clear();
