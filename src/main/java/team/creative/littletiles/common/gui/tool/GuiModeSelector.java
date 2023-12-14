@@ -2,12 +2,15 @@ package team.creative.littletiles.common.gui.tool;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public abstract class GuiModeSelector extends GuiConfigure {
@@ -32,18 +35,20 @@ public abstract class GuiModeSelector extends GuiConfigure {
     
     @Override
     public void create() {
+        GuiParent place = new GuiParent(GuiFlow.STACK_Y);
+        add(place);
         GuiComboBoxMapped<PlacementMode> box = new GuiComboBoxMapped<>("mode", PlacementMode.map());
         box.select(mode);
-        add(box);
-        add(new GuiLabel("text"));
-        GuiComboBoxMapped<LittleGrid> gridBox = new GuiComboBoxMapped<>("grid", LittleGrid.mapBuilder());
+        place.add(box);
+        place.add(new GuiLabel("text"));
+        GuiGridConfig gridBox = new GuiGridConfig("grid", getPlayer(), grid, null);
         gridBox.select(grid);
         add(gridBox);
         raiseEvent(new GuiControlChangedEvent(box));
     }
     
     public PlacementMode getMode() {
-        GuiComboBoxMapped<PlacementMode> box = (GuiComboBoxMapped<PlacementMode>) get("mode");
+        GuiComboBoxMapped<PlacementMode> box = get("mode");
         return box.getSelected(PlacementMode.getDefault());
     }
     
@@ -52,8 +57,7 @@ public abstract class GuiModeSelector extends GuiConfigure {
     @Override
     public CompoundTag saveConfiguration(CompoundTag nbt) {
         mode = getMode();
-        GuiComboBoxMapped<LittleGrid> gridBox = (GuiComboBoxMapped<LittleGrid>) get("grid");
-        grid = gridBox.getSelected(LittleGrid.overallDefault());
+        grid = get("grid", GuiGridConfig.class).get();
         return saveConfiguration(nbt, grid, mode);
     }
     
