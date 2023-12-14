@@ -121,7 +121,7 @@ public class BlockPacket extends CreativePacket {
                     previews = new LittleGroup();
                     if (nbt.getBoolean("secondMode"))
                         for (IParentCollection collection : be.groups())
-                            previews.addAll(be.getGrid(), () -> new FunctionIterator<>(collection, x -> x.copy()));
+                            previews.addAll(be.getGrid(), new FunctionIterator<>(collection, x -> x.copy()));
                     else
                         previews.addTile(be.getGrid(), context.tile.copy());
                 }

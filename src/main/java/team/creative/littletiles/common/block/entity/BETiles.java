@@ -35,6 +35,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.ILittleBlockEntity;
@@ -701,32 +702,26 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     public class BlockEntityInteractor {
         
         public Iterable<ParentCollection> groups() {
-            return new Iterable<ParentCollection>() {
+            return new IterableIterator<ParentCollection>() {
+                
+                ParentCollection current = tiles;
+                Iterator<StructureParentCollection> children = structures().iterator();
                 
                 @Override
-                public Iterator<ParentCollection> iterator() {
-                    return new Iterator<ParentCollection>() {
-                        
-                        ParentCollection current = tiles;
-                        Iterator<StructureParentCollection> children = structures().iterator();
-                        
-                        @Override
-                        public boolean hasNext() {
-                            if (current != null)
-                                return true;
-                            if (!children.hasNext())
-                                return false;
-                            current = children.next();
-                            return true;
-                        }
-                        
-                        @Override
-                        public ParentCollection next() {
-                            ParentCollection result = current;
-                            current = null;
-                            return result;
-                        }
-                    };
+                public boolean hasNext() {
+                    if (current != null)
+                        return true;
+                    if (!children.hasNext())
+                        return false;
+                    current = children.next();
+                    return true;
+                }
+                
+                @Override
+                public ParentCollection next() {
+                    ParentCollection result = current;
+                    current = null;
+                    return result;
                 }
             };
         }

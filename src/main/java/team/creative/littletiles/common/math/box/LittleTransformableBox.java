@@ -31,6 +31,7 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.utils.IntegerUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxTransformable;
@@ -1753,38 +1754,33 @@ public class LittleTransformableBox extends LittleBox {
             if (tiltedStrip1 == null && tiltedStrip2 == null)
                 return Collections.EMPTY_LIST;
             
-            return new Iterable<VectorFan>() {
+            return new IterableIterator<VectorFan>() {
+                
+                int additionalCount = (tiltedStrip1 != null ? 1 : 0) + (tiltedStrip2 != null ? 1 : 0);
+                int index = 0;
                 
                 @Override
-                public Iterator<VectorFan> iterator() {
-                    return new Iterator<VectorFan>() {
-                        
-                        int additionalCount = (tiltedStrip1 != null ? 1 : 0) + (tiltedStrip2 != null ? 1 : 0);
-                        int index = 0;
-                        
-                        @Override
-                        public boolean hasNext() {
-                            return index < additionalCount;
-                        }
-                        
-                        @Override
-                        public VectorFan next() {
-                            VectorFan result;
-                            int secondIndex = index;
-                            if (secondIndex < additionalCount)
-                                if (secondIndex == 0)
-                                    result = tiltedStrip1 != null ? tiltedStrip1 : tiltedStrip2;
-                                else
-                                    result = tiltedStrip2;
-                            else
-                                throw new RuntimeException("Missing next element in iterator");
-                            
-                            index++;
-                            return result;
-                        }
-                    };
+                public boolean hasNext() {
+                    return index < additionalCount;
+                }
+                
+                @Override
+                public VectorFan next() {
+                    VectorFan result;
+                    int secondIndex = index;
+                    if (secondIndex < additionalCount)
+                        if (secondIndex == 0)
+                            result = tiltedStrip1 != null ? tiltedStrip1 : tiltedStrip2;
+                        else
+                            result = tiltedStrip2;
+                    else
+                        throw new RuntimeException("Missing next element in iterator");
+                    
+                    index++;
+                    return result;
                 }
             };
+            
         }
         
         @Override

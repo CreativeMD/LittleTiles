@@ -27,8 +27,8 @@ public class RotatePacket extends CreativePacket {
     @Override
     public void execute(Player player) {
         ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() instanceof ILittleTool)
-            ((ILittleTool) stack.getItem()).rotate(player, stack, rotation, player.level().isClientSide);
+        if (stack.getItem() instanceof ILittleTool tool)
+            tool.rotate(player, stack, rotation, player.level().isClientSide);
     }
     
     @Override

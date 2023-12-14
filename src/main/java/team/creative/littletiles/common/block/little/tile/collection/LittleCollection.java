@@ -113,7 +113,7 @@ public class LittleCollection implements Iterable<LittleTile> {
         return new ArrayList<>();
     }
     
-    public Iterator<LittleBox> boxes() {
+    public Iterable<LittleBox> boxes() {
         return new NestedIterator<LittleBox>(content);
     }
     

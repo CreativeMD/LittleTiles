@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.network.chat.Component;
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
@@ -49,24 +50,18 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     
     @Override
     public Iterable<GuiSignalConnection> toConnections() {
-        return new Iterable<GuiSignalConnection>() {
+        return new IterableIterator<GuiSignalConnection>() {
             
             @Override
-            public Iterator<GuiSignalConnection> iterator() {
-                return new Iterator<GuiSignalConnection>() {
-                    
-                    @Override
-                    public boolean hasNext() {
-                        return false;
-                    }
-                    
-                    @Override
-                    public GuiSignalConnection next() {
-                        return null;
-                    }
-                    
-                };
+            public boolean hasNext() {
+                return false;
             }
+            
+            @Override
+            public GuiSignalConnection next() {
+                return null;
+            }
+            
         };
     }
     

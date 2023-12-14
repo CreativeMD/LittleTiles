@@ -15,10 +15,11 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
+
 public abstract class ChildrenList<T> {
     
     protected T parent;
-    private Iterable<T> all;
     private List<T> children;
     protected HashMap<String, T> extensions = new HashMap<>();
     
@@ -68,19 +69,7 @@ public abstract class ChildrenList<T> {
     }
     
     public Iterable<T> all() {
-        if (all == null)
-            all = new Iterable<T>() {
-                
-                @Override
-                public Iterator<T> iterator() {
-                    return ChildrenList.this.iteratorAll();
-                }
-            };
-        return all;
-    }
-    
-    public Iterator<T> iteratorAll() {
-        return new Iterator<T>() {
+        return new IterableIterator<T>() {
             
             private Iterator<T> itr = children.iterator();
             private boolean firstItr = true;

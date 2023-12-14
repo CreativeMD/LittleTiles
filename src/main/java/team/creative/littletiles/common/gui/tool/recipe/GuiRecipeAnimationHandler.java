@@ -39,7 +39,7 @@ public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
     }
     
     protected void prepareChildEvents(GuiTreeItemStructure parent, AnimationTimeline timeline) {
-        prepareChildEvents(current, () -> new FilterIterator<AnimationEventEntry>(timeline.allEvents(), x -> x.getEvent().getClass() == ChildDoorEvent.class));
+        prepareChildEvents(current, new FilterIterator<AnimationEventEntry>(timeline.allEvents(), x -> x.getEvent().getClass() == ChildDoorEvent.class));
     }
     
     protected void prepareChildEvents(GuiTreeItemStructure parent, Iterable<AnimationEventEntry> events) {
@@ -89,7 +89,7 @@ public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
     public void reset() {
         if (timeline != null) {
             if (current != null)
-                for (GuiTreeItem item : (Iterable<GuiTreeItem>) () -> new TreeIterator<GuiTreeItem>(current, x -> x.items().iterator()))
+                for (GuiTreeItem item : new TreeIterator<GuiTreeItem>(current, x -> x.items().iterator()))
                     ((GuiTreeItemStructure) item).physicalState.setZero();
             timeline = null;
             current = null;

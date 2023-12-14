@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -89,66 +90,54 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     public Iterable<LittleStructure> loadedStructures() {
-        return new Iterable<LittleStructure>() {
+        return new IterableIterator<LittleStructure>() {
+            
+            Iterator<StructureParentCollection> itr = structures.values().iterator();
+            StructureParentCollection next = null;
             
             @Override
-            public Iterator<LittleStructure> iterator() {
-                return new Iterator<LittleStructure>() {
+            public boolean hasNext() {
+                while (next == null) {
+                    if (itr.hasNext())
+                        next = itr.next();
+                    else
+                        return false;
                     
-                    Iterator<StructureParentCollection> itr = structures.values().iterator();
-                    StructureParentCollection next = null;
-                    
-                    @Override
-                    public boolean hasNext() {
-                        while (next == null) {
-                            if (itr.hasNext())
-                                next = itr.next();
-                            else
-                                return false;
-                            
-                            try {
-                                next.checkConnection();
-                            } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                next = null;
-                            }
-                        }
-                        return next != null;
+                    try {
+                        next.checkConnection();
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                        next = null;
                     }
-                    
-                    @Override
-                    public LittleStructure next() {
-                        try {
-                            StructureParentCollection temp = next;
-                            next = null;
-                            return temp.getStructure();
-                        } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                };
+                }
+                return next != null;
+            }
+            
+            @Override
+            public LittleStructure next() {
+                try {
+                    StructureParentCollection temp = next;
+                    next = null;
+                    return temp.getStructure();
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
     }
     
     public Iterable<IStructureParentCollection> structures() {
-        return new Iterable<IStructureParentCollection>() {
+        return new IterableIterator<IStructureParentCollection>() {
+            
+            Iterator<StructureParentCollection> iterator = structures.values().iterator();
             
             @Override
-            public Iterator<IStructureParentCollection> iterator() {
-                return new Iterator<IStructureParentCollection>() {
-                    
-                    Iterator<StructureParentCollection> iterator = structures.values().iterator();
-                    
-                    @Override
-                    public boolean hasNext() {
-                        return iterator.hasNext();
-                    }
-                    
-                    @Override
-                    public IStructureParentCollection next() {
-                        return iterator.next();
-                    }
-                };
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+            
+            @Override
+            public IStructureParentCollection next() {
+                return iterator.next();
             }
         };
     }
@@ -158,61 +147,55 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     public Iterable<LittleStructure> loadedStructures(int attribute) {
-        return new Iterable<LittleStructure>() {
+        if (LittleStructureAttribute.listener(attribute) || LittleStructureAttribute.active(attribute)) {
+            return new IterableIterator<LittleStructure>() {
+                
+                public Iterator<StructureParentCollection> iterator = structures.values().iterator();
+                public LittleStructure next;
+                
+                {
+                    findNext();
+                }
+                
+                public void findNext() {
+                    while (iterator.hasNext()) {
+                        StructureParentCollection structure = iterator.next();
+                        if ((structure.getAttribute() & attribute) != 0) {
+                            try {
+                                next = structure.getStructure();
+                            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                                
+                            }
+                            return;
+                        }
+                    }
+                    
+                    next = null;
+                }
+                
+                @Override
+                public boolean hasNext() {
+                    return next != null;
+                }
+                
+                @Override
+                public LittleStructure next() {
+                    LittleStructure toReturn = next;
+                    findNext();
+                    return toReturn;
+                }
+            };
+        }
+        return new IterableIterator<LittleStructure>() {
             
             @Override
-            public Iterator<LittleStructure> iterator() {
-                if (LittleStructureAttribute.listener(attribute) || LittleStructureAttribute.active(attribute)) {
-                    return new Iterator<LittleStructure>() {
-                        
-                        public Iterator<StructureParentCollection> iterator = structures.values().iterator();
-                        public LittleStructure next;
-                        
-                        {
-                            findNext();
-                        }
-                        
-                        public void findNext() {
-                            while (iterator.hasNext()) {
-                                StructureParentCollection structure = iterator.next();
-                                if ((structure.getAttribute() & attribute) != 0) {
-                                    try {
-                                        next = structure.getStructure();
-                                    } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                        
-                                    }
-                                    return;
-                                }
-                            }
-                            
-                            next = null;
-                        }
-                        
-                        @Override
-                        public boolean hasNext() {
-                            return next != null;
-                        }
-                        
-                        @Override
-                        public LittleStructure next() {
-                            LittleStructure toReturn = next;
-                            findNext();
-                            return toReturn;
-                        }
-                    };
-                }
-                return new Iterator<LittleStructure>() {
-                    
-                    @Override
-                    public boolean hasNext() {
-                        return false;
-                    }
-                    
-                    @Override
-                    public LittleStructure next() {
-                        return null;
-                    }
-                };
+            public boolean hasNext() {
+                return false;
+            }
+            
+            @Override
+            public LittleStructure next() {
+                return null;
             }
         };
     }
@@ -235,65 +218,53 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     public Iterable<IParentCollection> groups() {
-        return new Iterable<IParentCollection>() {
+        return new IterableIterator<IParentCollection>() {
+            
+            IParentCollection current = BlockParentCollection.this;
+            Iterator<IStructureParentCollection> children = structures().iterator();
             
             @Override
-            public Iterator<IParentCollection> iterator() {
-                return new Iterator<IParentCollection>() {
-                    
-                    IParentCollection current = BlockParentCollection.this;
-                    Iterator<IStructureParentCollection> children = structures().iterator();
-                    
-                    @Override
-                    public boolean hasNext() {
-                        if (current != null)
-                            return true;
-                        if (!children.hasNext())
-                            return false;
-                        current = children.next();
-                        return true;
-                    }
-                    
-                    @Override
-                    public IParentCollection next() {
-                        IParentCollection result = current;
-                        current = null;
-                        return result;
-                    }
-                };
+            public boolean hasNext() {
+                if (current != null)
+                    return true;
+                if (!children.hasNext())
+                    return false;
+                current = children.next();
+                return true;
+            }
+            
+            @Override
+            public IParentCollection next() {
+                IParentCollection result = current;
+                current = null;
+                return result;
             }
         };
     }
     
     public Iterable<Pair<IParentCollection, LittleTile>> allTiles() {
         Iterator<IParentCollection> iterator = groups().iterator();
-        return new Iterable<Pair<IParentCollection, LittleTile>>() {
+        return new IterableIterator<Pair<IParentCollection, LittleTile>>() {
+            
+            Iterator<LittleTile> inBlock = null;
+            Pair<IParentCollection, LittleTile> pair = null;
             
             @Override
-            public Iterator<Pair<IParentCollection, LittleTile>> iterator() {
-                return new Iterator<Pair<IParentCollection, LittleTile>>() {
-                    
-                    Iterator<LittleTile> inBlock = null;
-                    Pair<IParentCollection, LittleTile> pair = null;
-                    
-                    @Override
-                    public boolean hasNext() {
-                        while (inBlock == null || !inBlock.hasNext()) {
-                            if (!iterator.hasNext())
-                                return false;
-                            IParentCollection list = iterator.next();
-                            pair = new Pair<>(list, null);
-                            inBlock = list.iterator();
-                        }
-                        return true;
-                    }
-                    
-                    @Override
-                    public Pair<IParentCollection, LittleTile> next() {
-                        pair.setValue(inBlock.next());
-                        return pair;
-                    }
-                };
+            public boolean hasNext() {
+                while (inBlock == null || !inBlock.hasNext()) {
+                    if (!iterator.hasNext())
+                        return false;
+                    IParentCollection list = iterator.next();
+                    pair = new Pair<>(list, null);
+                    inBlock = list.iterator();
+                }
+                return true;
+            }
+            
+            @Override
+            public Pair<IParentCollection, LittleTile> next() {
+                pair.setValue(inBlock.next());
+                return pair;
             }
         };
     }

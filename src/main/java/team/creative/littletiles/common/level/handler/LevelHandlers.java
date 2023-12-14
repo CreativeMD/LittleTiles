@@ -35,7 +35,7 @@ public class LevelHandlers<T extends LevelHandler> {
     }
     
     public Iterable<T> handlers(boolean client) {
-        return () -> new FilterIterator<>(handlers.values(), x -> x.level.isClientSide == client);
+        return new FilterIterator<>(handlers.values(), x -> x.level.isClientSide == client);
     }
     
     public Iterable<T> handlers() {

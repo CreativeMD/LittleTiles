@@ -57,7 +57,7 @@ public class AnimationPreview {
                 newChildren.add(group.copy());
             LittleGroup group = new LittleGroup(nbt, newChildren);
             final var oldPreviews = previews;
-            group.addAll(grid, () -> new FunctionIterator<>(oldPreviews, x -> x.copy()));
+            group.addAll(grid, new FunctionIterator<>(oldPreviews, x -> x.copy()));
             previews = group;
         }
         entireBox = previews.getSurroundingBox();

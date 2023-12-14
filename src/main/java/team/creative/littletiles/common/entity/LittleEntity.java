@@ -42,9 +42,6 @@ import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity implements OrientationAwareEntity, INoPushEntity, LevelTransitionListener {
     
-    private Iterable<OrientationAwareEntity> childrenItr = () -> new FilterIterator<OrientationAwareEntity>(entities(), x -> x instanceof OrientationAwareEntity e && e
-            .hasLoaded());
-    
     protected LittleSubLevel subLevel;
     protected IVecOrigin origin;
     protected boolean hasOriginChanged = false;
@@ -170,7 +167,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     }
     
     public Iterable<OrientationAwareEntity> children() {
-        return childrenItr;
+        return new FilterIterator<OrientationAwareEntity>(entities(), x -> x instanceof OrientationAwareEntity e && e.hasLoaded());
     }
     
     // ================Rendering================

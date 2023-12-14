@@ -23,6 +23,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.type.Bunch;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -284,7 +285,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
             throw new RuntimeException("Cannot transform group with links");
         
         forceSameGrid(vec);
-        for (LittleBox box : (Iterable<LittleBox>) () -> boxes())
+        for (LittleBox box : boxes())
             box.add(vec.getVec());
         
         if (hasStructure())
@@ -368,7 +369,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         LittleGroup group = new LittleGroup(structure, Collections.EMPTY_LIST);
         for (Entry<String, LittleGroup> extension : children.extensionEntries())
             group.children.addExtension(extension.getKey(), extension.getValue().copy());
-        group.addAll(grid, () -> new FunctionIterator<>(this, x -> x.copy()));
+        group.addAll(grid, new FunctionIterator<>(this, x -> x.copy()));
         return group;
     }
     
@@ -379,7 +380,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         LittleGroup group = new LittleGroup(structure, newChildren);
         for (Entry<String, LittleGroup> extension : children.extensionEntries())
             group.children.addExtension(extension.getKey(), extension.getValue().copy());
-        group.addAll(grid, () -> new FunctionIterator<>(this, x -> x.copy()));
+        group.addAll(grid, new FunctionIterator<>(this, x -> x.copy()));
         return group;
     }
     
@@ -388,19 +389,19 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         return content.iterator();
     }
     
-    protected Iterator<LittleTile> allTilesIterator() {
+    protected Iterable<LittleTile> allTiles() {
         if (hasChildren())
-            return new Iterator<LittleTile>() {
+            return new IterableIterator<LittleTile>() {
                 
                 public Iterator<LittleTile> subIterator = iterator();
-                public Iterator<LittleGroup> children = LittleGroup.this.children.iteratorAll();
+                public Iterator<LittleGroup> children = LittleGroup.this.children.all().iterator();
                 
                 @Override
                 public boolean hasNext() {
                     while (!subIterator.hasNext()) {
                         if (!children.hasNext())
                             return false;
-                        subIterator = children.next().allTilesIterator();
+                        subIterator = children.next().allTiles().iterator();
                     }
                     
                     return true;
@@ -416,50 +417,34 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
                     subIterator.remove();
                 }
             };
-        return iterator();
-    }
-    
-    public Iterable<LittleTile> allTiles() {
-        return new Iterable<LittleTile>() {
-            
-            @Override
-            public Iterator<LittleTile> iterator() {
-                return allTilesIterator();
-            }
-        };
+        return this;
     }
     
     public Iterable<LittleBox> allBoxes() {
-        return new Iterable<LittleBox>() {
+        return new IterableIterator<LittleBox>() {
+            
+            public Iterator<LittleBox> subIterator = null;
+            public Iterator<LittleTile> children = allTiles().iterator();
             
             @Override
-            public Iterator<LittleBox> iterator() {
-                return new Iterator<LittleBox>() {
-                    
-                    public Iterator<LittleBox> subIterator = null;
-                    public Iterator<LittleTile> children = allTilesIterator();
-                    
-                    @Override
-                    public boolean hasNext() {
-                        while (subIterator == null || !subIterator.hasNext()) {
-                            if (!children.hasNext())
-                                return false;
-                            subIterator = children.next().iterator();
-                        }
-                        
-                        return true;
-                    }
-                    
-                    @Override
-                    public LittleBox next() {
-                        return subIterator.next();
-                    }
-                    
-                    @Override
-                    public void remove() {
-                        subIterator.remove();
-                    }
-                };
+            public boolean hasNext() {
+                while (subIterator == null || !subIterator.hasNext()) {
+                    if (!children.hasNext())
+                        return false;
+                    subIterator = children.next().iterator();
+                }
+                
+                return true;
+            }
+            
+            @Override
+            public LittleBox next() {
+                return subIterator.next();
+            }
+            
+            @Override
+            public void remove() {
+                subIterator.remove();
             }
         };
     }
@@ -500,7 +485,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     }
     
     public void advancedScale(int from, int to) {
-        for (LittleBox box : (Iterable<LittleBox>) () -> boxes())
+        for (LittleBox box : boxes())
             box.convertTo(from, to);
         
         if (hasStructure())
@@ -521,7 +506,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         return true;
     }
     
-    public Iterator<LittleBox> boxes() {
+    public Iterable<LittleBox> boxes() {
         return content.boxes();
     }
     

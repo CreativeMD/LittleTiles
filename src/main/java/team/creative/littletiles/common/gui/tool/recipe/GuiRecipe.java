@@ -2,7 +2,6 @@ package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -133,7 +132,7 @@ public class GuiRecipe extends GuiConfigure {
         }
         
         LittleGroup copy = new LittleGroup(group.hasStructure() ? group.getStructureTag().copy() : null, Collections.EMPTY_LIST);
-        copy.addAll(group.getGrid(), () -> new FunctionIterator<>(group, x -> x.copy()));
+        copy.addAll(group.getGrid(), new FunctionIterator<>(group, x -> x.copy()));
         for (Entry<String, LittleGroup> extension : group.children.extensionEntries())
             copy.children.addExtension(extension.getKey(), extension.getValue().copy());
         GuiTreeItemStructure item = new GuiTreeItemStructure(this, tree, copy, index);
@@ -317,11 +316,9 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     public void actionOnAllItems(Consumer<GuiTreeItemStructure> con) {
-        for (Iterator<GuiTreeItem> itr = tree.allItems(); itr.hasNext();) {
-            GuiTreeItem item = itr.next();
+        for (GuiTreeItem item : tree.allItems())
             if (item instanceof GuiTreeItemStructure s)
                 con.accept(s);
-        }
     }
     
     public boolean runTest() {

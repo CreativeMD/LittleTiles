@@ -197,8 +197,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
             LittleCollection collection = blocks.get(pos);
             if (collection == null)
                 blocks.put(pos.immutable(), collection = new LittleCollection());
-            final Iterator<LittleBox> itr = collection.boxes();
-            for (LittleBox placedBox : (Iterable<LittleBox>) () -> itr) {
+            for (LittleBox placedBox : collection.boxes()) {
                 if (LittleBox.intersectsWith(box, placedBox)) {
                     List<LittleBox> left = box.cutOut(grid, placedBox, null);
                     if (!left.isEmpty())

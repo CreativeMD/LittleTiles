@@ -38,6 +38,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
@@ -243,133 +244,106 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public Iterable<BlockPos> positions() {
-        return new Iterable<BlockPos>() {
+        return new IterableIterator<BlockPos>() {
+            
+            boolean first = true;
+            Iterator<StructureBlockConnector> iterator = blocks.iterator();
             
             @Override
-            public Iterator<BlockPos> iterator() {
-                
-                return new Iterator<BlockPos>() {
-                    
-                    boolean first = true;
-                    Iterator<StructureBlockConnector> iterator = blocks.iterator();
-                    
-                    @Override
-                    public boolean hasNext() {
-                        return first || iterator.hasNext();
-                    }
-                    
-                    @Override
-                    public BlockPos next() {
-                        if (first) {
-                            first = false;
-                            return mainBlock.getPos();
-                        }
-                        return iterator.next().getAbsolutePos();
-                    }
-                };
+            public boolean hasNext() {
+                return first || iterator.hasNext();
+            }
+            
+            @Override
+            public BlockPos next() {
+                if (first) {
+                    first = false;
+                    return mainBlock.getPos();
+                }
+                return iterator.next().getAbsolutePos();
             }
         };
     }
     
     public Iterable<BETiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
         checkConnections();
-        return new Iterable<BETiles>() {
+        return new IterableIterator<BETiles>() {
+            
+            boolean first = true;
+            Iterator<StructureBlockConnector> iterator = blocks.iterator();
             
             @Override
-            public Iterator<BETiles> iterator() {
-                
-                return new Iterator<BETiles>() {
-                    
-                    boolean first = true;
-                    Iterator<StructureBlockConnector> iterator = blocks.iterator();
-                    
-                    @Override
-                    public boolean hasNext() {
-                        return first || iterator.hasNext();
-                    }
-                    
-                    @Override
-                    public BETiles next() {
-                        if (first) {
-                            first = false;
-                            return mainBlock.getBE();
-                        }
-                        try {
-                            return iterator.next().getBlockEntity();
-                        } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                            e.printStackTrace();
-                            throw new RuntimeException(e);
-                        }
-                    }
-                };
+            public boolean hasNext() {
+                return first || iterator.hasNext();
+            }
+            
+            @Override
+            public BETiles next() {
+                if (first) {
+                    first = false;
+                    return mainBlock.getBE();
+                }
+                try {
+                    return iterator.next().getBlockEntity();
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
             }
         };
     }
     
     public Iterable<IStructureParentCollection> blocksList() throws CorruptedConnectionException, NotYetConnectedException {
         checkConnections();
-        return new Iterable<IStructureParentCollection>() {
+        return new IterableIterator<IStructureParentCollection>() {
+            
+            boolean first = true;
+            Iterator<StructureBlockConnector> iterator = blocks.iterator();
             
             @Override
-            public Iterator<IStructureParentCollection> iterator() {
-                
-                return new Iterator<IStructureParentCollection>() {
-                    
-                    boolean first = true;
-                    Iterator<StructureBlockConnector> iterator = blocks.iterator();
-                    
-                    @Override
-                    public boolean hasNext() {
-                        return first || iterator.hasNext();
-                    }
-                    
-                    @Override
-                    public IStructureParentCollection next() {
-                        if (first) {
-                            first = false;
-                            return mainBlock;
-                        }
-                        try {
-                            return iterator.next().getList();
-                        } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                            e.printStackTrace();
-                            throw new RuntimeException(e);
-                        }
-                    }
-                };
+            public boolean hasNext() {
+                return first || iterator.hasNext();
+            }
+            
+            @Override
+            public IStructureParentCollection next() {
+                if (first) {
+                    first = false;
+                    return mainBlock;
+                }
+                try {
+                    return iterator.next().getList();
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
             }
         };
     }
     
     public Iterable<Pair<IStructureParentCollection, LittleTile>> tiles() throws CorruptedConnectionException, NotYetConnectedException {
         Iterator<IStructureParentCollection> iterator = blocksList().iterator();
-        return new Iterable<Pair<IStructureParentCollection, LittleTile>>() {
+        return new IterableIterator<Pair<IStructureParentCollection, LittleTile>>() {
+            
+            Iterator<LittleTile> inBlock = null;
+            Pair<IStructureParentCollection, LittleTile> pair = null;
             
             @Override
-            public Iterator<Pair<IStructureParentCollection, LittleTile>> iterator() {
-                return new Iterator<Pair<IStructureParentCollection, LittleTile>>() {
-                    
-                    Iterator<LittleTile> inBlock = null;
-                    Pair<IStructureParentCollection, LittleTile> pair = null;
-                    
-                    @Override
-                    public boolean hasNext() {
-                        while (inBlock == null || !inBlock.hasNext()) {
-                            if (!iterator.hasNext())
-                                return false;
-                            IStructureParentCollection list = iterator.next();
-                            pair = new Pair<>(list, null);
-                            inBlock = list.iterator();
-                        }
-                        return true;
-                    }
-                    
-                    @Override
-                    public Pair<IStructureParentCollection, LittleTile> next() {
-                        pair.setValue(inBlock.next());
-                        return pair;
-                    }
-                };
+            public boolean hasNext() {
+                while (inBlock == null || !inBlock.hasNext()) {
+                    if (!iterator.hasNext())
+                        return false;
+                    IStructureParentCollection list = iterator.next();
+                    pair = new Pair<>(list, null);
+                    inBlock = list.iterator();
+                }
+                return true;
+            }
+            
+            @Override
+            public Pair<IStructureParentCollection, LittleTile> next() {
+                pair.setValue(inBlock.next());
+                return pair;
             }
         };
     }
@@ -688,77 +662,65 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     // ================Signal================
     
     public Iterable<ISignalStructureComponent> inputs() {
-        return new Iterable<ISignalStructureComponent>() {
+        return new IterableIterator<ISignalStructureComponent>() {
+            
+            Iterator<StructureChildConnection> iterator = children.all().iterator();
+            ISignalStructureComponent next;
             
             @Override
-            public Iterator<ISignalStructureComponent> iterator() {
-                return new Iterator<ISignalStructureComponent>() {
-                    
-                    Iterator<StructureChildConnection> iterator = children.iteratorAll();
-                    ISignalStructureComponent next;
-                    
-                    @Override
-                    public boolean hasNext() {
-                        if (next == null) {
-                            while (iterator.hasNext()) {
-                                StructureChildConnection connection = iterator.next();
-                                try {
-                                    if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
-                                            .getComponentType() == SignalComponentType.INPUT) {
-                                        next = (ISignalStructureComponent) connection.getStructure();
-                                        break;
-                                    }
-                                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            public boolean hasNext() {
+                if (next == null) {
+                    while (iterator.hasNext()) {
+                        StructureChildConnection connection = iterator.next();
+                        try {
+                            if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
+                                    .getComponentType() == SignalComponentType.INPUT) {
+                                next = (ISignalStructureComponent) connection.getStructure();
+                                break;
                             }
-                        }
-                        return next != null;
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                     }
-                    
-                    @Override
-                    public ISignalStructureComponent next() {
-                        ISignalStructureComponent result = next;
-                        next = null;
-                        return result;
-                    }
-                };
+                }
+                return next != null;
+            }
+            
+            @Override
+            public ISignalStructureComponent next() {
+                ISignalStructureComponent result = next;
+                next = null;
+                return result;
             }
         };
     }
     
     public Iterable<ISignalStructureComponent> outputs() {
-        return new Iterable<ISignalStructureComponent>() {
+        return new IterableIterator<ISignalStructureComponent>() {
+            
+            Iterator<StructureChildConnection> iterator = children.all().iterator();
+            ISignalStructureComponent next;
             
             @Override
-            public Iterator<ISignalStructureComponent> iterator() {
-                return new Iterator<ISignalStructureComponent>() {
-                    
-                    Iterator<StructureChildConnection> iterator = children.iteratorAll();
-                    ISignalStructureComponent next;
-                    
-                    @Override
-                    public boolean hasNext() {
-                        if (next == null) {
-                            while (iterator.hasNext()) {
-                                StructureChildConnection connection = iterator.next();
-                                try {
-                                    if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
-                                            .getComponentType() == SignalComponentType.OUTPUT) {
-                                        next = (ISignalStructureComponent) connection.getStructure();
-                                        break;
-                                    }
-                                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            public boolean hasNext() {
+                if (next == null) {
+                    while (iterator.hasNext()) {
+                        StructureChildConnection connection = iterator.next();
+                        try {
+                            if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure())
+                                    .getComponentType() == SignalComponentType.OUTPUT) {
+                                next = (ISignalStructureComponent) connection.getStructure();
+                                break;
                             }
-                        }
-                        return next != null;
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                     }
-                    
-                    @Override
-                    public ISignalStructureComponent next() {
-                        ISignalStructureComponent result = next;
-                        next = null;
-                        return result;
-                    }
-                };
+                }
+                return next != null;
+            }
+            
+            @Override
+            public ISignalStructureComponent next() {
+                ISignalStructureComponent result = next;
+                next = null;
+                return result;
             }
         };
     }

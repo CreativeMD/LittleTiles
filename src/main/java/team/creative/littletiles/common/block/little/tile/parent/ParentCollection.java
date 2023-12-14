@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -59,34 +60,28 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     protected abstract void saveExtra(CompoundTag nbt, LittleServerFace face);
     
     public Iterable<LittleTile> filter(BiFilter<IParentCollection, LittleTile> selector) {
-        return new Iterable<LittleTile>() {
+        return new IterableIterator<LittleTile>() {
+            
+            Iterator<LittleTile> itr = content.iterator();
+            LittleTile next = null;
             
             @Override
-            public Iterator<LittleTile> iterator() {
-                return new Iterator<LittleTile>() {
-                    
-                    Iterator<LittleTile> itr = content.iterator();
-                    LittleTile next = null;
-                    
-                    @Override
-                    public boolean hasNext() {
-                        while (next == null && itr.hasNext()) {
-                            LittleTile test = itr.next();
-                            if (selector.is(ParentCollection.this, test))
-                                next = test;
-                        }
-                        return next != null;
-                    }
-                    
-                    @Override
-                    public LittleTile next() {
-                        LittleTile result = next;
-                        next = null;
-                        return result;
-                    }
-                    
-                };
+            public boolean hasNext() {
+                while (next == null && itr.hasNext()) {
+                    LittleTile test = itr.next();
+                    if (selector.is(ParentCollection.this, test))
+                        next = test;
+                }
+                return next != null;
             }
+            
+            @Override
+            public LittleTile next() {
+                LittleTile result = next;
+                next = null;
+                return result;
+            }
+            
         };
     }
     

@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.gui.tool.recipe;
 
 import java.util.Collections;
-import java.util.Iterator;
 
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.Align;
@@ -49,7 +48,7 @@ public class GuiRecipeMove extends GuiLayer {
     public void closed() {
         if (tree == null)
             return;
-        for (GuiTreeItem item : (Iterable<GuiTreeItem>) () -> tree.allItems())
+        for (GuiTreeItem item : tree.allItems())
             if (item instanceof GuiRecipeMoveItem move)
                 move.structure.resetOffset();
     }
@@ -105,7 +104,7 @@ public class GuiRecipeMove extends GuiLayer {
             RecipeTest.testModule(recipe, RecipeTest.OVERLAP_TEST);
         }).setTranslate("gui.recipe.test.overlap"));
         bottom.addRight(new GuiButton("save", x -> {
-            for (GuiTreeItem item : (Iterable<GuiTreeItem>) () -> tree.allItems())
+            for (GuiTreeItem item : tree.allItems())
                 if (item instanceof GuiRecipeMoveItem move)
                     move.structure.applyOffset();
             closeThisLayer();
@@ -120,7 +119,7 @@ public class GuiRecipeMove extends GuiLayer {
         LittleVec direction = new LittleVec(facing);
         direction.scale(distance.getDistance());
         LittleVecGrid vec = new LittleVecGrid(direction, distance.getDistanceGrid());
-        for (GuiRecipeMoveItem item : (Iterable<GuiRecipeMoveItem>) () -> modes.getSelected().iterator(tree))
+        for (GuiRecipeMoveItem item : modes.getSelected().iterator(tree))
             item.addOffset(vec);
     }
     
@@ -138,15 +137,15 @@ public class GuiRecipeMove extends GuiLayer {
         DEFAULT(false) {
             
             @Override
-            public Iterator<GuiRecipeMoveItem> iterator(GuiTree tree) {
+            public Iterable<GuiRecipeMoveItem> iterator(GuiTree tree) {
                 if (tree.selected() == null)
-                    return Collections.emptyIterator();
+                    return Collections.EMPTY_LIST;
                 return new SingleIterator<>((GuiRecipeMoveItem) tree.selected());
             }
         },
         CHECKBOX(true) {
             @Override
-            public Iterator<GuiRecipeMoveItem> iterator(GuiTree tree) {
+            public Iterable<GuiRecipeMoveItem> iterator(GuiTree tree) {
                 return new FunctionIterator<>(tree.itemsChecked(), x -> (GuiRecipeMoveItem) x);
             }
         };
@@ -166,7 +165,7 @@ public class GuiRecipeMove extends GuiLayer {
             tree.updateTree();
         }
         
-        public abstract Iterator<GuiRecipeMoveItem> iterator(GuiTree tree);
+        public abstract Iterable<GuiRecipeMoveItem> iterator(GuiTree tree);
     }
     
     public class GuiRecipeMoveItem extends GuiTreeItem {
