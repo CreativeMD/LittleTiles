@@ -1,3 +1,8 @@
+1.6.0-pre075
+Fixed crash when importing doors from 1.12 without events
+Reworked structure directional to allow for special types
+Added list type to structure directional
+
 1.6.0-pre074
 Fixed signal display
 Fixed missing translations for signal configuration
