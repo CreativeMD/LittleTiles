@@ -26,6 +26,16 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 project.evaluationDependsOn(":CreativeCore")
 
+gradle.afterProject { project ->
+    if (project.name == 'LittleFrames') {
+        project.tasks.whenTaskAdded { task ->
+            if(task.name == "copyEclipseResources") {
+                task.dependsOn += tasks.copyEclipseResources;
+            }
+        }
+    }
+}
+
 java.sourceSets.create("api") {
     
     java {
