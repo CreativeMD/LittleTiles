@@ -434,7 +434,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     protected Object failedLoadingRelative(CompoundTag nbt, StructureDirectionalField field) {
-        return field.getDefault();
+        return field.getDefault(this);
     }
     
     protected abstract void loadExtra(CompoundTag nbt);

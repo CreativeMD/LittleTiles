@@ -18,12 +18,13 @@ import team.creative.littletiles.common.structure.attribute.LittleAttributeBuild
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalType;
+import team.creative.littletiles.common.structure.directional.StructureDirectionalType.StructureDirectionalTypeSimple;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public class LittleAxisDoor extends LittleDoor {
     
     public static void load() {
-        StructureDirectionalType.registerType(LittleAxisDoorRotation.class, new StructureDirectionalType<LittleAxisDoorRotation>() {
+        StructureDirectionalType.register(LittleAxisDoorRotation.class, new StructureDirectionalTypeSimple<LittleAxisDoorRotation>() {
             
             @Override
             public LittleAxisDoorRotation read(Tag nbt) {
@@ -160,8 +161,8 @@ public class LittleAxisDoor extends LittleDoor {
         @Override
         protected LittlePlaceBoxRelative getPlaceBox(Object value, StructureDirectionalField type, LittleGroup previews) {
             if (type.key.equals("center"))
-                return new LittlePlaceBoxRelativeAxis(((StructureRelative) value)
-                        .getBox(), (StructureRelative) value, type, Axis.values()[previews.getStructureTag().getCompound("rotation").getInt("a")]);
+                return new LittlePlaceBoxRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, Axis.values()[previews.getStructureTag().getCompound(
+                    "rotation").getInt("a")]);
             return super.getPlaceBox(value, type, previews);
         }
     }

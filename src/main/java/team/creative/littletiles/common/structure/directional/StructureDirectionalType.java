@@ -1,10 +1,15 @@
 package team.creative.littletiles.common.structure.directional;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Function;
 
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -16,28 +21,118 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
+import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public abstract class StructureDirectionalType<T> {
     
     private static HashMap<Class, StructureDirectionalType> types = new HashMap<>();
+    private static List<Function<Field, StructureDirectionalType>> specialFactories = new ArrayList<>();
     
     public static StructureDirectionalType getType(Field field) {
         StructureDirectionalType type = types.get(field.getType());
-        if (type == null)
-            throw new RuntimeException("No registered directional type for " + field.getType() + ", " + field.getName());
-        return type;
+        if (type != null)
+            return type;
+        
+        for (Function<Field, StructureDirectionalType> factory : specialFactories) {
+            type = factory.apply(field);
+            if (type != null)
+                return type;
+        }
+        
+        throw new RuntimeException("No registered directional type for " + field.getType() + ", " + field.getName());
     }
     
-    public static <T> void registerType(Class<T> clazz, StructureDirectionalType<T> type) {
+    public static StructureDirectionalType getSubType(Class clazz) {
+        StructureDirectionalType type = types.get(clazz);
+        if (type != null)
+            return type;
+        throw new RuntimeException("No registered directional type for " + clazz + ", " + clazz.getName());
+    }
+    
+    public static <T> void register(Class<T> clazz, StructureDirectionalType<T> type) {
         if (types.containsKey(clazz))
             throw new IllegalArgumentException("Type already exists. " + clazz);
         
         types.put(clazz, type);
     }
     
+    public static void register(Function<Field, StructureDirectionalType> factory) {
+        specialFactories.add(factory);
+    }
+    
     static {
-        registerType(Facing.class, new StructureDirectionalType<Facing>() {
+        register(x -> {
+            if (List.class.isAssignableFrom(x.getType()))
+                return new StructureDirectionalType<List>() {
+                    
+                    private final StructureDirectionalType subType;
+                    
+                    {
+                        ParameterizedType type = (ParameterizedType) x.getGenericType();
+                        subType = getSubType((Class) type.getActualTypeArguments()[0]);
+                    }
+                    
+                    @Override
+                    public List read(StructureDirectionalField field, LittleStructure structure, Tag nbt) {
+                        List list = structure != null ? (List) field.get(structure) : new ArrayList<>();
+                        list.clear();
+                        if (nbt instanceof ListTag tag) {
+                            for (int i = 0; i < tag.size(); i++) {
+                                Object object = subType.read(field, structure, tag.get(i));
+                                if (object != null)
+                                    list.add(object);
+                            }
+                        }
+                        return list;
+                    }
+                    
+                    @Override
+                    public Tag write(StructureDirectionalField field, List value) {
+                        ListTag list = new ListTag();
+                        for (int i = 0; i < value.size(); i++) {
+                            Tag tag = subType.write(field, value.get(i));
+                            if (tag != null)
+                                list.add(tag);
+                        }
+                        return list;
+                    }
+                    
+                    @Override
+                    public List move(StructureDirectionalField field, List value, LittleVecGrid vec) {
+                        for (int i = 0; i < value.size(); i++)
+                            subType.move(field, value.get(i), vec);
+                        return value;
+                    }
+                    
+                    @Override
+                    public List mirror(StructureDirectionalField field, List value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+                        for (int i = 0; i < value.size(); i++)
+                            subType.mirror(field, value.get(i), grid, axis, doubledCenter);
+                        return value;
+                    }
+                    
+                    @Override
+                    public List rotate(StructureDirectionalField field, List value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
+                        for (int i = 0; i < value.size(); i++)
+                            subType.rotate(field, value.get(i), grid, rotation, doubledCenter);
+                        return value;
+                    }
+                    
+                    @Override
+                    public Object getDefault(StructureDirectionalField field, LittleStructure structure, Object defaultValue) {
+                        List value = (List) field.get(structure);
+                        value.clear();
+                        if (defaultValue != null && defaultValue instanceof List list)
+                            value.addAll(list);
+                        return value;
+                    }
+                    
+                };
+            return null;
+        });
+        
+        register(Facing.class, new StructureDirectionalTypeSimple<Facing>() {
             @Override
             public Facing read(Tag nbt) {
                 if (nbt instanceof IntTag)
@@ -56,12 +151,12 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Facing mirror(Facing value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+            public Facing mirror(Facing value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
                 return axis.mirror(value);
             }
             
             @Override
-            public Facing rotate(Facing value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
+            public Facing rotate(Facing value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
                 return rotation.rotate(value);
             }
             
@@ -70,7 +165,7 @@ public abstract class StructureDirectionalType<T> {
                 return Facing.EAST;
             }
         });
-        registerType(Axis.class, new StructureDirectionalType<Axis>() {
+        register(Axis.class, new StructureDirectionalTypeSimple<Axis>() {
             
             @Override
             public Axis read(Tag nbt) {
@@ -90,12 +185,12 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Axis mirror(Axis value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+            public Axis mirror(Axis value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
                 return value;
             }
             
             @Override
-            public Axis rotate(Axis value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
+            public Axis rotate(Axis value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
                 return rotation.rotate(value);
             }
             
@@ -105,7 +200,7 @@ public abstract class StructureDirectionalType<T> {
             }
             
         });
-        registerType(StructureRelative.class, new StructureDirectionalType<StructureRelative>() {
+        register(StructureRelative.class, new StructureDirectionalTypeSimple<StructureRelative>() {
             
             @Override
             public StructureRelative read(Tag nbt) {
@@ -126,14 +221,14 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public StructureRelative mirror(StructureRelative value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
-                value.mirror(context, axis, doubledCenter);
+            public StructureRelative mirror(StructureRelative value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+                value.mirror(grid, axis, doubledCenter);
                 return value;
             }
             
             @Override
-            public StructureRelative rotate(StructureRelative value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
-                value.rotate(context, rotation, doubledCenter);
+            public StructureRelative rotate(StructureRelative value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
+                value.rotate(grid, rotation, doubledCenter);
                 return value;
             }
             
@@ -163,7 +258,7 @@ public abstract class StructureDirectionalType<T> {
             }
             
         });
-        registerType(Vec3f.class, new StructureDirectionalType<Vec3f>() {
+        register(Vec3f.class, new StructureDirectionalTypeSimple<Vec3f>() {
             
             @Override
             public Vec3f read(Tag nbt) {
@@ -186,13 +281,13 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Vec3f mirror(Vec3f value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+            public Vec3f mirror(Vec3f value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
                 axis.mirror(value);
                 return value;
             }
             
             @Override
-            public Vec3f rotate(Vec3f value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
+            public Vec3f rotate(Vec3f value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
                 rotation.transform(value);
                 return value;
             }
@@ -204,32 +299,85 @@ public abstract class StructureDirectionalType<T> {
         });
     }
     
-    public abstract T read(Tag nbt);
+    public abstract T read(StructureDirectionalField field, LittleStructure structure, Tag nbt);
     
-    public abstract Tag write(T value);
+    public abstract Tag write(StructureDirectionalField field, T value);
     
-    public abstract T move(T value, LittleVecGrid vec);
+    public abstract T move(StructureDirectionalField field, T value, LittleVecGrid vec);
     
-    public abstract T mirror(T value, LittleGrid context, Axis axis, LittleVec doubledCenter);
+    public abstract T mirror(StructureDirectionalField field, T value, LittleGrid grid, Axis axis, LittleVec doubledCenter);
     
-    public abstract T rotate(T value, LittleGrid context, Rotation rotation, LittleVec doubledCenter);
+    public abstract T rotate(StructureDirectionalField field, T value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter);
     
-    public abstract T getDefault();
+    public abstract Object getDefault(StructureDirectionalField field, LittleStructure structure, Object defaultValue);
     
-    public LittleGrid getGrid(T value) {
+    public LittleGrid getGrid(StructureDirectionalField field, T value) {
         return null;
     }
     
-    public void convertToSmallest(T value) {
-        
-    }
+    public void convertToSmallest(T value) {}
     
-    public void advancedScale(T value, int from, int to) {
-        
-    }
+    public void advancedScale(T value, int from, int to) {}
     
     public LittlePlaceBoxRelative getPlaceBox(T value, LittleGroup group, StructureDirectionalField field) {
         return null;
+    }
+    
+    public static abstract class StructureDirectionalTypeSimple<T> extends StructureDirectionalType<T> {
+        
+        @Override
+        public T read(StructureDirectionalField field, LittleStructure structure, Tag nbt) {
+            return read(nbt);
+        }
+        
+        public abstract T read(Tag nbt);
+        
+        @Override
+        public Tag write(StructureDirectionalField field, T value) {
+            return write(value);
+        }
+        
+        public abstract Tag write(T value);
+        
+        @Override
+        public T move(StructureDirectionalField field, T value, LittleVecGrid vec) {
+            return move(value, vec);
+        }
+        
+        public abstract T move(T value, LittleVecGrid vec);
+        
+        @Override
+        public T mirror(StructureDirectionalField field, T value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+            return mirror(value, grid, axis, doubledCenter);
+        }
+        
+        public abstract T mirror(T value, LittleGrid grid, Axis axis, LittleVec doubledCenter);
+        
+        @Override
+        public T rotate(StructureDirectionalField field, T value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
+            return rotate(value, grid, rotation, doubledCenter);
+        }
+        
+        public abstract T rotate(T value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter);
+        
+        @Override
+        public Object getDefault(StructureDirectionalField field, LittleStructure structure, Object defaultValue) {
+            if (defaultValue != null)
+                return defaultValue;
+            return getDefault();
+        }
+        
+        public abstract T getDefault();
+        
+        @Override
+        public LittleGrid getGrid(StructureDirectionalField field, T value) {
+            return getGrid(value);
+        }
+        
+        public LittleGrid getGrid(T value) {
+            return null;
+        }
+        
     }
     
 }

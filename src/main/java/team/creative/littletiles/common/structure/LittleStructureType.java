@@ -153,7 +153,7 @@ public class LittleStructureType {
         List<LittlePlaceBox> placePreviews = new ArrayList<>();
         
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(group.getStructureTag());
+            Object value = field.createTemporary(group.getStructureTag());
             LittlePlaceBoxRelative tile = getPlaceBox(value, field, group);
             if (tile == null)
                 continue;
@@ -174,7 +174,7 @@ public class LittleStructureType {
         LittleGrid context = LittleGrid.MIN;
         
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(group.getStructureTag());
+            Object value = field.createTemporary(group.getStructureTag());
             field.convertToSmallest(value);
             LittleGrid fieldContext = field.getGrid(value);
             if (fieldContext == null)
@@ -189,7 +189,7 @@ public class LittleStructureType {
     public Object loadDirectional(LittleGroup group, String key) {
         for (StructureDirectionalField field : directional)
             if (field.key.equals(key))
-                return field.create(group.getStructureTag());
+                return field.createTemporary(group.getStructureTag());
         return null;
     }
     
@@ -212,7 +212,7 @@ public class LittleStructureType {
     
     public void move(LittleGroup group, LittleVecGrid offset) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(group.getStructureTag());
+            Object value = field.createTemporary(group.getStructureTag());
             value = field.move(value, offset);
             field.save(group.getStructureTag(), value);
         }
@@ -220,7 +220,7 @@ public class LittleStructureType {
     
     public void mirror(LittleGroup group, LittleGrid context, Axis axis, LittleVec doubledCenter) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(group.getStructureTag());
+            Object value = field.createTemporary(group.getStructureTag());
             value = field.mirror(value, context, axis, doubledCenter);
             field.save(group.getStructureTag(), value);
         }
@@ -228,7 +228,7 @@ public class LittleStructureType {
     
     public void rotate(LittleGroup group, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(group.getStructureTag());
+            Object value = field.createTemporary(group.getStructureTag());
             value = field.rotate(value, context, rotation, doubledCenter);
             field.save(group.getStructureTag(), value);
         }
@@ -236,7 +236,7 @@ public class LittleStructureType {
     
     public void advancedScale(LittleGroup group, int from, int to) {
         for (StructureDirectionalField field : directional) {
-            Object value = field.create(group.getStructureTag());
+            Object value = field.createTemporary(group.getStructureTag());
             field.advancedScale(value, from, to);
             field.save(group.getStructureTag(), value);
         }
