@@ -150,8 +150,6 @@ public class OldLittleTilesDataParser {
             if (event != null)
                 events.add(new AnimationEventEntry(eventTag.getInt("tick"), event));
         }
-        if (events.isEmpty())
-            return null;
         return events;
     }
     
