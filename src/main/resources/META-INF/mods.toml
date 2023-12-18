@@ -1,34 +1,35 @@
 modLoader="javafml"
-loaderVersion="${loader_version_range}"
-issueTrackerURL="https://github.com/${github_project}/issues"
-license="${mod_license}"
+loaderVersion="[46,)"
+issueTrackerURL="https://github.com/CreativeMD/LittleTiles/issues"
+license="LGPL-3.0-only"
 
 [[mods]]
-    modId="${mod_id}"
-    logoFile="${mod_id}.png"
-    version="${mod_version}"
-    displayName="${mod_name}"
-    displayURL="${mod_display_url}"
-    authors="${mod_authors}"
-    description='''${mod_description}'''
-    
-[[dependencies.${mod_id}]]
+    modId="littletiles"
+    logoFile="littletiles.png"
+    version="1.6.0-pre075"
+    displayName="LittleTiles"
+    displayURL="https://modrinth.com/mod/littletiles"
+    authors="CreativeMD, N247S"
+    description='''#BuildItYourself'''
+
+[[dependencies.littletiles]]
     modId="forge"
     mandatory=true
-    versionRange="${forge_version_range}"
+    versionRange="[46,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies.littletiles]]
     modId="minecraft"
     mandatory=true
-    versionRange="${minecraft_version_range}"
+    versionRange="[1.20,1.21)"
     ordering="NONE"
     side="BOTH"
-    
-[[dependencies.${mod_id}]]
-    modId="creativecore"
-    mandatory=true
-    ordering="NONE"
-    side="BOTH"
-    versionRange="${creativecore_version}"
+
+[[dependencies.littletiles]]
+   modId="creativecore"
+   mandatory=true
+   ordering="NONE"
+   side="BOTH"
+   versionRange="2.11.14"
+

@@ -26,16 +26,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 project.evaluationDependsOn(":CreativeCore")
 
-gradle.afterProject { project ->
-    if (project.name == 'LittleFrames') {
-        project.tasks.whenTaskAdded { task ->
-            if(task.name == "copyEclipseResources") {
-                task.dependsOn += tasks.copyEclipseResources;
-            }
-        }
-    }
-}
-
 java.sourceSets.create("api") {
     
     java {
@@ -50,8 +40,6 @@ sourceSets.main.runtimeClasspath += sourceSets.api.output
 
 minecraft {
     mappings channel: 'official', version: "${project.property 'minecraft_version'}"
-    
-    copyIdeResources = true
     
     runs {
         client {
@@ -107,24 +95,9 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
-def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
-def replaceProperties = [
-        minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-        forge_version: forge_version, forge_version_range: forge_version_range,
-        loader_version_range: loader_version_range,
-        mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-        mod_authors: mod_authors, mod_description: mod_description, mod_display_url: mod_display_url,
-        creativecore_version: creativecore_version, github_project: github_project,
-        resource_pack_format: resource_pack_format, data_pack_format: data_pack_format
+modDependencies = [
+    [ modId: "creativecore", mandatory: true, ordering: "NONE", side: "BOTH", versionRange: creativecore_version ]
 ]
-processResources {
-    inputs.properties replaceProperties
-    replaceProperties.put 'project', project
-
-    filesMatching(resourceTargets) {
-        expand replaceProperties
-    }
-}
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
