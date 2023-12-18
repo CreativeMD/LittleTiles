@@ -89,6 +89,8 @@ public class Placement {
         this.removedTiles = new LittleGroupAbsolute(preview.position.getPos());
         this.unplaceableTiles = new LittleGroup();
         
+        preview.position.forceSameGrid(preview.previews);
+        
         createPreviews(origin, preview.position.getVec());
         
         for (PlacementBlock block : blocks.values())
