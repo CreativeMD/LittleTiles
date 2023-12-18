@@ -49,7 +49,7 @@ public class LittlePacketTypes {
                 buffer.writeBlockPos(content.pos);
                 buffer.writeBoolean(content.isStructure);
                 buffer.writeInt(content.index);
-                buffer.writeVarIntArray(content.box.getArray());
+                NetworkFieldTypes.writeIntArray(content.box.getArray(), buffer);
                 if (content.levelUUID != null) {
                     buffer.writeBoolean(true);
                     buffer.writeUUID(content.levelUUID);
@@ -62,7 +62,7 @@ public class LittlePacketTypes {
                 BlockPos pos = buffer.readBlockPos();
                 boolean isStructure = buffer.readBoolean();
                 int index = buffer.readInt();
-                int[] boxArray = buffer.readVarIntArray();
+                int[] boxArray = NetworkFieldTypes.readIntArray(buffer);
                 UUID level = null;
                 if (buffer.readBoolean())
                     level = buffer.readUUID();
@@ -101,7 +101,7 @@ public class LittlePacketTypes {
             protected void writeContent(LittleTile content, FriendlyByteBuf buffer) {
                 buffer.writeInt(content.size());
                 for (LittleBox box : content)
-                    buffer.writeVarIntArray(box.getArray());
+                    NetworkFieldTypes.writeIntArray(box.getArray(), buffer);
                 buffer.writeUtf(content.getBlockName());
                 buffer.writeInt(content.color);
             }
@@ -111,7 +111,7 @@ public class LittlePacketTypes {
                 int size = buffer.readInt();
                 List<LittleBox> boxes = new ArrayList<>(size);
                 for (int i = 0; i < size; i++)
-                    boxes.add(LittleBox.create(buffer.readVarIntArray()));
+                    boxes.add(LittleBox.create(NetworkFieldTypes.readIntArray(buffer)));
                 return new LittleTile(buffer.readUtf(), buffer.readInt(), boxes);
             }
             
@@ -308,12 +308,12 @@ public class LittlePacketTypes {
             
             @Override
             protected void writeContent(LittleBox content, FriendlyByteBuf buffer) {
-                buffer.writeVarIntArray(content.getArray());
+                NetworkFieldTypes.writeIntArray(content.getArray(), buffer);
             }
             
             @Override
             protected LittleBox readContent(FriendlyByteBuf buffer) {
-                return LittleBox.create(buffer.readVarIntArray());
+                return LittleBox.create(NetworkFieldTypes.readIntArray(buffer));
             }
             
         }, LittleBox.class);
@@ -322,13 +322,13 @@ public class LittlePacketTypes {
             @Override
             protected void writeContent(LittleBoxAbsolute content, FriendlyByteBuf buffer) {
                 buffer.writeBlockPos(content.pos);
-                buffer.writeVarIntArray(content.box.getArray());
+                NetworkFieldTypes.writeIntArray(content.box.getArray(), buffer);
                 buffer.writeInt(content.getGrid().count);
             }
             
             @Override
             protected LittleBoxAbsolute readContent(FriendlyByteBuf buffer) {
-                return new LittleBoxAbsolute(buffer.readBlockPos(), LittleBox.create(buffer.readVarIntArray()), LittleGrid.get(buffer.readInt()));
+                return new LittleBoxAbsolute(buffer.readBlockPos(), LittleBox.create(NetworkFieldTypes.readIntArray(buffer)), LittleGrid.get(buffer.readInt()));
             }
             
         }, LittleBoxAbsolute.class);
@@ -336,13 +336,13 @@ public class LittlePacketTypes {
             
             @Override
             protected void writeContent(StructureRelative content, FriendlyByteBuf buffer) {
-                buffer.writeVarIntArray(content.getBox().getArray());
+                NetworkFieldTypes.writeIntArray(content.getBox().getArray(), buffer);
                 buffer.writeInt(content.getGrid().count);
             }
             
             @Override
             protected StructureRelative readContent(FriendlyByteBuf buffer) {
-                return new StructureRelative(LittleBox.create(buffer.readVarIntArray()), LittleGrid.get(buffer.readInt()));
+                return new StructureRelative(LittleBox.create(NetworkFieldTypes.readIntArray(buffer)), LittleGrid.get(buffer.readInt()));
             }
             
         }, StructureAbsolute.class);
@@ -351,13 +351,13 @@ public class LittlePacketTypes {
             @Override
             protected void writeContent(StructureAbsolute content, FriendlyByteBuf buffer) {
                 buffer.writeBlockPos(content.baseOffset);
-                buffer.writeVarIntArray(content.getBox().getArray());
+                NetworkFieldTypes.writeIntArray(content.getBox().getArray(), buffer);
                 buffer.writeInt(content.getGrid().count);
             }
             
             @Override
             protected StructureAbsolute readContent(FriendlyByteBuf buffer) {
-                return new StructureAbsolute(buffer.readBlockPos(), LittleBox.create(buffer.readVarIntArray()), LittleGrid.get(buffer.readInt()));
+                return new StructureAbsolute(buffer.readBlockPos(), LittleBox.create(NetworkFieldTypes.readIntArray(buffer)), LittleGrid.get(buffer.readInt()));
             }
             
         }, StructureAbsolute.class);
@@ -371,7 +371,7 @@ public class LittlePacketTypes {
                     buffer.writeBoolean(true);
                     buffer.writeInt(content.size());
                     for (LittleBox box : content.all())
-                        buffer.writeVarIntArray(box.getArray());
+                        NetworkFieldTypes.writeIntArray(box.getArray(), buffer);
                 } else {
                     buffer.writeBoolean(false);
                     HashMapList<BlockPos, LittleBox> map = content.generateBlockWise();
@@ -380,7 +380,7 @@ public class LittlePacketTypes {
                         buffer.writeBlockPos(entry.getKey());
                         buffer.writeInt(entry.getValue().size());
                         for (LittleBox box : entry.getValue())
-                            buffer.writeVarIntArray(box.getArray());
+                            NetworkFieldTypes.writeIntArray(box.getArray(), buffer);
                     }
                 }
             }
@@ -393,7 +393,7 @@ public class LittlePacketTypes {
                     LittleBoxes boxes = new LittleBoxesSimple(pos, grid);
                     int length = buffer.readInt();
                     for (int i = 0; i < length; i++)
-                        boxes.add(LittleBox.create(buffer.readVarIntArray()));
+                        boxes.add(LittleBox.create(NetworkFieldTypes.readIntArray(buffer)));
                     return boxes;
                 } else {
                     int posCount = buffer.readInt();
@@ -403,7 +403,7 @@ public class LittlePacketTypes {
                         int boxCount = buffer.readInt();
                         List<LittleBox> blockBoxes = new ArrayList<>();
                         for (int j = 0; j < boxCount; j++)
-                            blockBoxes.add(LittleBox.create(buffer.readVarIntArray()));
+                            blockBoxes.add(LittleBox.create(NetworkFieldTypes.readIntArray(buffer)));
                         map.add(posList, blockBoxes);
                     }
                     return new LittleBoxesNoOverlap(pos, grid, map);
