@@ -19,6 +19,7 @@ import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.integration.IGuiIntegratedParent;
 import team.creative.creativecore.common.gui.integration.ScreenEventListener;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
+import team.creative.creativecore.common.gui.style.GuiStyle;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
@@ -94,6 +95,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         Font font = MC.font;
         if (player != null && !MC.options.hideGui) {
             if (!doneInit) {
+                transparentLayer.style = GuiStyle.getStyle(transparentLayer.name);
                 transparentLayer.init();
                 doneInit = true;
             }
