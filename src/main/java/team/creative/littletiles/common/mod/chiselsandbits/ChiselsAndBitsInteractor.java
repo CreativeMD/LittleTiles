@@ -23,7 +23,7 @@ public class ChiselsAndBitsInteractor {
     }
     
     public static boolean isChiselsAndBitsStructure(ItemStack stack) {
-        return IChiselsAndBitsAPI.getInstance().getConversionManager().getChiseledVariantOf(stack.getItem()).isPresent();
+        return stack.getItem() instanceof IMultiStateItem;
     }
     
     public static LittleGroup getGroup(Stream<IStateEntryInfo> stream) {
@@ -39,8 +39,8 @@ public class ChiselsAndBitsInteractor {
     }
     
     public static LittleGroup getGroup(ItemStack stack) {
-        if (isChiselsAndBitsStructure(stack))
-            return getGroup(((IMultiStateItem) stack.getItem()).createItemStack(stack).stream());
+        if (stack.getItem() instanceof IMultiStateItem item)
+            return getGroup(item.createItemStack(stack).stream());
         return null;
     }
     
