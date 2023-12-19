@@ -228,9 +228,11 @@ public class LittleGrid {
     public int findNextValue(int value, int grid, boolean positive) {
         int index = value;
         if (value < 0 || value > count)
-            index %= count;
+            index = value % count;
+        if (index < 0)
+            index += count;
         
-        while (minSizes[index] > grid) {
+        while (index < count && minSizes[index] > grid) {
             if (positive) {
                 index++;
                 value++;
