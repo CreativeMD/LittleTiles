@@ -1,3 +1,10 @@
+1.6.0-pre076
+Fixed crash in overlay renderer due to missing style
+Fixed c&b integration causing a crash in certain cases
+Fixed crash when placing transformable box which tries to figure out minimal required grid
+Fixed placement issue on server side (caused by tiles and offset having different grids)
+Fixed potential issue when sending int arrays
+
 1.6.0-pre075
 Fixed crash when importing doors from 1.12 without events
 Reworked structure directional to allow for special types
