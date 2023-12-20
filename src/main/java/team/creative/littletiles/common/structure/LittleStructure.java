@@ -81,6 +81,7 @@ import team.creative.littletiles.common.structure.directional.StructureDirection
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.MissingChildException;
 import team.creative.littletiles.common.structure.exception.MissingParentException;
+import team.creative.littletiles.common.structure.exception.NotEnoughSpaceForStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.exception.RemovedStructureException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -636,6 +637,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
+        
+        if (result == null)
+            throw new NotEnoughSpaceForStructureException();
         
         result.parentStructure.transferChildrenFromAnimation(level);
         if (getParent() != null)

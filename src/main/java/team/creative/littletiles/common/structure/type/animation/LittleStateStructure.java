@@ -37,6 +37,7 @@ import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotEnoughSpaceForStructureException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
@@ -149,7 +150,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             try {
                 changeToBlockForm();
             } catch (LittleActionException e) {
-                e.printStackTrace();
+                if (!(e instanceof NotEnoughSpaceForStructureException))
+                    e.printStackTrace();
             }
     }
     
@@ -200,7 +202,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         this.states = new ObjectImmutableList<>(states);
         
         currentState = nbt.getInt("cS");
-        //if (currentState < 0 || currentState >= states.size()) 
+        //if (currentState < 0 || currentState >= states.size())
         //throw new RuntimeException("Invalid state structure! State " + currentState + " not found. Only got " + states.size() + " states");
         
         aimedState = nbt.getInt("aS");
