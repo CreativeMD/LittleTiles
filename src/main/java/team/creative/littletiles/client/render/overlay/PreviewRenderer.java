@@ -222,7 +222,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                         
                         RenderSystem.setShader(GameRenderer::getPositionColorShader);
                         
-                        RenderSystem.depthMask(false);
+                        RenderSystem.depthMask(Minecraft.useShaderTransparency());
                         
                         boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                         PlacementPreview result = getPreviews(player, level, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution);
