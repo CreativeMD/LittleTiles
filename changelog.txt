@@ -1,3 +1,8 @@
+1.6.0-pre077
+Fixed crash when door closes and does not have space to be placed
+Fixed removal of additional might not be synchronized causing a crash
+Fixed crash when rendering entity level
+
 1.6.0-pre076
 Fixed crash in overlay renderer due to missing style
 Fixed c&b integration causing a crash in certain cases
