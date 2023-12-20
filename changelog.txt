@@ -1,3 +1,7 @@
+1.6.0-pre078
+Fixed not rendering preview when fabulous graphics are enabled
+Reworked left and right click (should finally fix all issues regarding interactions)
+
 1.6.0-pre077
 Fixed crash when door closes and does not have space to be placed
 Fixed removal of additional might not be synchronized causing a crash
