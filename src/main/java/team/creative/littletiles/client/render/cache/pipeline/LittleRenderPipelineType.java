@@ -31,8 +31,8 @@ public abstract class LittleRenderPipelineType {
         be.updateQuadCache(chunk);
         
         BlockBufferCache cache = be.render.getBufferCache();
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
-            synchronized (cache) {
+        synchronized (be.render) {
+            for (RenderType layer : RenderType.chunkBufferLayers()) {
                 if (!cache.has(layer))
                     continue;
                 cache.setUploaded(layer, rebuildTask.upload(layer, cache.get(layer)));
