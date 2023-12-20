@@ -406,8 +406,9 @@ public class LittleRenderChunk implements RenderChunkExtender {
             }).whenComplete((result, exception) -> {
                 if (result == ChunkTaskResult.SUCCESSFUL) {
                     LittleRenderChunk.this.prepareUpload();
-                    for (Tuple<RenderType, BufferCollection> tuple : caches.tuples())
-                        LittleRenderChunk.this.uploaded(tuple.key, tuple.value);
+                    if (caches != null)
+                        for (Tuple<RenderType, BufferCollection> tuple : caches.tuples())
+                            LittleRenderChunk.this.uploaded(tuple.key, tuple.value);
                 }
                 this.caches = null;
             });
