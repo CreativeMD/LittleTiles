@@ -93,7 +93,7 @@ public class LittleToolHandler {
                 
                 if (stack.getItem() instanceof ILittleTool) {
                     PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(event.getLevel(), stack, ray);
-                    if (((ILittleTool) stack.getItem()).onClickBlock(event.getLevel(), event.getEntity(), stack, position, ray))
+                    if (((ILittleTool) stack.getItem()).onClickBlock(event.getLevel(), event.getEntity(), stack, position, ray) && LittleTilesClient.INTERACTION.start(false))
                         event.setCanceled(true);
                     tool = (ILittleTool) stack.getItem();
                     lastSelectedItem = stack;
@@ -130,11 +130,13 @@ public class LittleToolHandler {
             return false;
         PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
         if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && iTile instanceof ILittlePlacer placer && placer.hasTiles(stack)) {
-            PlacementPreview preview = placer.getPlacement(level, stack, position, false);
-            if (preview == null)
-                return true;
-            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, preview));
-            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
+            if (LittleTilesClient.INTERACTION.start(true)) {
+                PlacementPreview preview = placer.getPlacement(level, stack, position, false);
+                if (preview == null)
+                    return true;
+                LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, preview));
+                LittleTilesClient.PREVIEW_RENDERER.removeMarked();
+            }
             iTile.onDeselect(level, stack, player);
             return true;
         }

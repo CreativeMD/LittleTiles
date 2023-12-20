@@ -51,9 +51,10 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
+import team.creative.littletiles.client.action.interact.LittleInteractionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
-import team.creative.littletiles.client.level.LittleInteractionHandlerClient;
+import team.creative.littletiles.client.level.LittleVanillaInteractionHandlerClient;
 import team.creative.littletiles.client.mod.oculus.OculusManager;
 import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.player.LittleClientPlayerConnection;
@@ -107,7 +108,8 @@ public class LittleTilesClient {
     public static final LevelHandlersClient LEVEL_HANDLERS = new LevelHandlersClient();
     public static LittleActionHandlerClient ACTION_HANDLER;
     public static LittleAnimationHandlerClient ANIMATION_HANDLER;
-    public static LittleInteractionHandlerClient INTERACTION_HANDLER;
+    public static LittleVanillaInteractionHandlerClient INTERACTION_HANDLER;
+    public static LittleInteractionHandlerClient INTERACTION;
     public static PreviewRenderer PREVIEW_RENDERER;
     public static ItemRenderCache ITEM_RENDER_CACHE;
     public static LittleClientPlayerConnection PLAYER_CONNECTION;
@@ -200,15 +202,15 @@ public class LittleTilesClient {
             return ItemLittlePaintBrush.getColor(stack);
         }, LittleTilesRegistry.PAINT_BRUSH.get());
         
-        // MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
         // overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
         MinecraftForge.EVENT_BUS.register(new LittleClientEventHandler());
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
-        LEVEL_HANDLERS.register(LittleInteractionHandlerClient::new, x -> INTERACTION_HANDLER = x);
+        LEVEL_HANDLERS.register(LittleVanillaInteractionHandlerClient::new, x -> INTERACTION_HANDLER = x);
         LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
         LEVEL_HANDLERS.register(ITEM_RENDER_CACHE = new ItemRenderCache());
         LEVEL_HANDLERS.register(PLAYER_CONNECTION = new LittleClientPlayerConnection());
+        LEVEL_HANDLERS.register(INTERACTION = new LittleInteractionHandlerClient());
         
         // Init overlays
         MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);

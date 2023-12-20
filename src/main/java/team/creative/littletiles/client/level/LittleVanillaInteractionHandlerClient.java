@@ -47,7 +47,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.level.handler.LevelHandler;
 import team.creative.littletiles.mixin.client.MultiPlayerGameModeAccessor;
 
-public class LittleInteractionHandlerClient extends LevelHandler {
+public class LittleVanillaInteractionHandlerClient extends LevelHandler {
     
     private static Minecraft mc = Minecraft.getInstance();
     
@@ -58,7 +58,7 @@ public class LittleInteractionHandlerClient extends LevelHandler {
     private float destroyTicks;
     private boolean isDestroying;
     
-    public LittleInteractionHandlerClient(Level level) {
+    public LittleVanillaInteractionHandlerClient(Level level) {
         super(level);
     }
     

@@ -69,6 +69,7 @@ import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.LittleInteractionPacket;
 import team.creative.littletiles.common.packet.action.PlacementPlayerSettingPacket;
 import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
 import team.creative.littletiles.common.packet.entity.EntityOriginChanged;
@@ -170,6 +171,8 @@ public class LittleTiles {
         NETWORK.registerType(LittleVanillaPacket.class, LittleVanillaPacket::new);
         NETWORK.registerType(LittleVanillaPackets.class, LittleVanillaPackets::new);
         NETWORK.registerType(LittleLevelInitPacket.class, LittleLevelInitPacket::new);
+        
+        NETWORK.registerType(LittleInteractionPacket.class, LittleInteractionPacket::new);
         
         CreativeConfigRegistry.ROOT.registerValue(MODID, CONFIG = new LittleTilesConfig());
         

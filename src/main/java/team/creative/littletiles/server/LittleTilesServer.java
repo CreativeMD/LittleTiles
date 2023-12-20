@@ -15,15 +15,18 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.server.action.interact.LittleInteractionHandlerServer;
 import team.creative.littletiles.server.level.handler.LittleActionHandlerServer;
 import team.creative.littletiles.server.level.util.NeighborUpdateOrganizer;
 
 public class LittleTilesServer {
     
     public static NeighborUpdateOrganizer NEIGHBOR;
+    public static LittleInteractionHandlerServer INTERACTION;
     
     public static void init(FMLCommonSetupEvent event) {
         NEIGHBOR = new NeighborUpdateOrganizer();
+        INTERACTION = new LittleInteractionHandlerServer();
         MinecraftForge.EVENT_BUS.addListener(LittleActionHandlerServer::playerLoggedIn);
     }
     
