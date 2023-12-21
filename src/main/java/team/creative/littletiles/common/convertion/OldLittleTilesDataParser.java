@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import com.google.common.base.Charsets;
 
@@ -90,6 +91,26 @@ public class OldLittleTilesDataParser {
         return loadGroup(nbt, grid);
     }
     
+    public static void collect(ListTag tiles, Consumer<LittleTile> consumer) {
+        for (int i = 0; i < tiles.size(); i++) {
+            CompoundTag tileNbt = tiles.getCompound(i);
+            LittleTile tile;
+            if (tileNbt.contains("tile"))
+                tile = createTile(tileNbt.getCompound("tile"));
+            else
+                tile = createTile(tileNbt);
+            if (tileNbt.contains("boxes")) {
+                ListTag boxes = tileNbt.getList("boxes", Tag.TAG_INT_ARRAY);
+                for (int j = 0; j < boxes.size(); j++)
+                    tile.add(LittleBox.create(boxes.getIntArray(j)));
+            } else if (tileNbt.contains("bBox"))
+                tile.add(LittleBox.create(tileNbt.getIntArray("bBox")));
+            else if (tileNbt.contains("box"))
+                tile.add(LittleBox.create(tileNbt.getIntArray("box")));
+            consumer.accept(tile);
+        }
+    }
+    
     public static LittleGroup loadGroup(CompoundTag nbt, LittleGrid grid) throws LittleConvertException {
         List<LittleGroup> children = Collections.EMPTY_LIST;
         if (nbt.contains("children")) {
@@ -99,19 +120,7 @@ public class OldLittleTilesDataParser {
                 children.add(loadGroup(list.getCompound(i), grid));
         }
         LittleGroup group = new LittleGroup(convertStructureData(nbt.contains("structure") ? nbt.getCompound("structure") : null), children);
-        ListTag tiles = nbt.getList("tiles", Tag.TAG_COMPOUND);
-        for (int i = 0; i < tiles.size(); i++) {
-            CompoundTag tileNbt = tiles.getCompound(i);
-            LittleTile tile = createTile(tileNbt.getCompound("tile"));
-            if (tileNbt.contains("boxes")) {
-                ListTag boxes = tileNbt.getList("boxes", Tag.TAG_INT_ARRAY);
-                for (int j = 0; j < boxes.size(); j++)
-                    tile.add(LittleBox.create(boxes.getIntArray(j)));
-            } else
-                tile.add(LittleBox.create(tileNbt.getIntArray("bBox")));
-            group.addTile(grid, tile);
-        }
-        
+        collect(nbt.getList("tiles", Tag.TAG_COMPOUND), x -> group.addTile(grid, x));
         return group;
     }
     
@@ -238,6 +247,12 @@ public class OldLittleTilesDataParser {
             String name = nbt.getString("name");
             nbt.remove("name");
             nbt.putString("n", name);
+        }
+        
+        if (nbt.contains("blocks")) {
+            int[] array = nbt.getIntArray("blocks");
+            nbt.remove("blocks");
+            nbt.putIntArray("b", array);
         }
         
         return switch (nbt.getString("id")) {
