@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
@@ -71,7 +72,7 @@ public class StructureConnection implements IStructureConnection {
         
         BlockPos absoluteCoord = getStructurePosition();
         if (level.hasChunkAt(absoluteCoord)) {
-            BlockEntity be = level.getBlockEntity(absoluteCoord);
+            BlockEntity be = level.getChunkAt(absoluteCoord).getBlockEntity(absoluteCoord, LevelChunk.EntityCreationType.IMMEDIATE);
             if (be instanceof BETiles)
                 return cachedBE = (BETiles) be;
             else

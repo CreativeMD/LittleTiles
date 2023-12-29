@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -145,7 +146,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
         
         BlockPos absoluteCoord = getStructurePosition();
         if (level.hasChunkAt(absoluteCoord)) {
-            BlockEntity te = level.getBlockEntity(absoluteCoord);
+            BlockEntity te = level.getChunkAt(absoluteCoord).getBlockEntity(absoluteCoord, LevelChunk.EntityCreationType.IMMEDIATE);
             if (te instanceof BETiles)
                 return (BETiles) (cache = te);
             else
