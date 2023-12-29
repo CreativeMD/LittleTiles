@@ -201,8 +201,8 @@ public class LittleVec {
     
     @Override
     public boolean equals(Object object) {
-        if (object instanceof LittleVec)
-            return x == ((LittleVec) object).x && y == ((LittleVec) object).y && z == ((LittleVec) object).z;
+        if (object instanceof LittleVec vec)
+            return x == vec.x && y == vec.y && z == vec.z;
         return super.equals(object);
     }
     

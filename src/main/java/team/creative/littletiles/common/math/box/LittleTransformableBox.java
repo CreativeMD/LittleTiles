@@ -568,22 +568,23 @@ public class LittleTransformableBox extends LittleBox {
                 BoxCorner otherCorner = corner.mirror(facing.axis);
                 ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(otherCorner));
                 ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(otherCorner));
-                if (!ray.parallel(ray2))
-                    return null;
                 
-                if (ray.direction.x == 0 && ray.direction.y == 0 && ray.direction.z == 0) {
+                if (ray.noDirection()) {
+                    if (!ray2.noDirection())
+                        return null;
                     BoxCorner newCorner = otherCorner.mirror(one);
                     ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(newCorner));
                     ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(newCorner));
-                    if (!ray.parallel(ray2))
+                    if (!ray.same(ray2))
                         return null;
                     
                     newCorner = otherCorner.mirror(two);
                     ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(newCorner));
                     ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(newCorner));
-                    if (!ray.parallel(ray2))
+                    if (!ray.same(ray2))
                         return null;
-                }
+                } else if (ray2.noDirection() || !ray.same(ray2))
+                    return null;
             }
             
             LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data.clone());
