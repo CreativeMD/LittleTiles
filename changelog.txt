@@ -1,3 +1,9 @@
+1.6.0-pre079
+Fixed combine transformable boxes even though it should not (not checking if lines are the same but only if they are parallel)
+Fixed structure not being able to connect on server side when calling it from off thread
+Moved shape intersection calculations to CreativeCore
+Fixed not being able to convert all tile data from 1.12
+
 1.6.0-pre078
 Fixed not rendering preview when fabulous graphics are enabled
 Reworked left and right click (should finally fix all issues regarding interactions)
