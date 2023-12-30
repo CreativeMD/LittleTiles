@@ -49,6 +49,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
@@ -65,6 +66,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
@@ -501,24 +503,29 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         entity.getOrigin().setupRendering(event.getPoseStack(), position.x, position.y, position.z, event.getPartialTick());
         RenderSystem.enableDepthTest();
         
-        double d0 = pos.getX() - position.x();
-        double d1 = pos.getY() - position.y();
-        double d2 = pos.getZ() - position.z();
+        double x = pos.getX() - position.x();
+        double y = pos.getY() - position.y();
+        double z = pos.getZ() - position.z();
         
         if (!state.isAir() && this.level.getWorldBorder().isWithinBounds(pos)) {
             PoseStack.Pose posestack$pose = event.getPoseStack().last();
-            state.getShape(result.level, pos, CollisionContext.of(mc.cameraEntity)).forAllEdges((p_194324_, p_194325_, p_194326_, p_194327_, p_194328_, p_194329_) -> {
-                float f = (float) (p_194327_ - p_194324_);
-                float f1 = (float) (p_194328_ - p_194325_);
-                float f2 = (float) (p_194329_ - p_194326_);
+            VoxelShape shape;
+            if (state.getBlock() instanceof BlockTile block)
+                shape = block.getSelectionShape(result.level, pos);
+            else
+                shape = state.getShape(result.level, pos, CollisionContext.of(mc.cameraEntity));
+            shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
+                float f = (float) (x2 - x1);
+                float f1 = (float) (y2 - y1);
+                float f2 = (float) (z2 - z1);
                 float f3 = Mth.sqrt(f * f + f1 * f1 + f2 * f2);
                 f /= f3;
                 f1 /= f3;
                 f2 /= f3;
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194324_ + d0), (float) (p_194325_ + d1), (float) (p_194326_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
-                    posestack$pose.normal(), f, f1, f2).endVertex();
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (p_194327_ + d0), (float) (p_194328_ + d1), (float) (p_194329_ + d2)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(
-                    posestack$pose.normal(), f, f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (x1 + x), (float) (y1 + y), (float) (z1 + z)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(posestack$pose.normal(), f,
+                    f1, f2).endVertex();
+                vertexconsumer2.vertex(posestack$pose.pose(), (float) (x2 + x), (float) (y2 + y), (float) (z2 + z)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(posestack$pose.normal(), f,
+                    f1, f2).endVertex();
             });
         }
         
