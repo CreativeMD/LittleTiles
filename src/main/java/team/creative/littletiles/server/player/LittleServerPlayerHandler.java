@@ -474,8 +474,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                         this.player.sendSystemMessage(component1, true);
                     }
                     
-                    this.player.connection.send(new ClientboundBlockUpdatePacket(level, blockpos));
-                    this.player.connection.send(new ClientboundBlockUpdatePacket(level, blockpos.relative(direction)));
+                    send(level, new ClientboundBlockUpdatePacket(level, blockpos));
+                    send(level, new ClientboundBlockUpdatePacket(level, blockpos.relative(direction)));
                 } else {
                     LOGGER.warn("Rejecting UseItemOnPacket from {}: Location {} too far away from hit block {}.", this.player.getGameProfile().getName(), vec3, blockpos);
                 }
@@ -894,8 +894,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
             if (gameType == GameType.SPECTATOR)
                 preCancelEvent = true;
             
-            if (!player.mayBuild() && itemstack.isEmpty() || !itemstack
-                    .hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), new BlockInWorld(level, pos, false)))
+            if (!player.mayBuild() && itemstack.isEmpty() || !itemstack.hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK),
+                new BlockInWorld(level, pos, false)))
                 preCancelEvent = true;
         }
         
