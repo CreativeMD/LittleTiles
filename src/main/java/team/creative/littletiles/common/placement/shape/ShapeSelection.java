@@ -244,7 +244,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         int index = -1;
         double distance = Double.MAX_VALUE;
         float partialTickTime = TickUtils.getFrameTime(player.level());
-        Vec3 pos = player.getPosition(partialTickTime);
+        Vec3 pos = player.getEyePosition(partialTickTime);
         double reach = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
