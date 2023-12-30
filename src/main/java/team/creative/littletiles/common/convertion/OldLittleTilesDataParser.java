@@ -303,7 +303,7 @@ public class OldLittleTilesDataParser {
                 converted.putInt("direction", direction.ordinal());
                 int distance = nbt.getInt("distance");
                 converted.putInt("dis", distance);
-                LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
+                LittleGrid grid = LittleGrid.get(nbt);
                 converted.putInt("disG", grid.count);
                 
                 end.off(direction, grid.toVanillaGrid(distance));
