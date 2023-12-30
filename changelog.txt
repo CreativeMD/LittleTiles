@@ -1,3 +1,8 @@
+1.6.0-pre080
+Fixed outline box being different during animation
+Fixed sync issue when interacting with entity causing blocks in world to disappear
+Fixed crash when importing old sliding door structure with 16 grid offset
+
 1.6.0-pre079
 Fixed combine transformable boxes even though it should not (not checking if lines are the same but only if they are parallel)
 Fixed structure not being able to connect on server side when calling it from off thread
