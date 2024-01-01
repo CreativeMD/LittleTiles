@@ -25,6 +25,10 @@ public class LittleInteractionHandlerClient implements LevelAwareHandler {
         return false;
     }
     
+    public boolean can() {
+        return interaction == null;
+    }
+    
     public void finish() {
         LittleTiles.NETWORK.sendToServer(new LittleInteractionPacket(interaction, false));
         interaction = null;

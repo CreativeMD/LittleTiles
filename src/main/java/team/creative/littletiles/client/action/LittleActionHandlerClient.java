@@ -89,9 +89,8 @@ public class LittleActionHandlerClient extends LevelHandler {
                 MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
                 
                 LittleTiles.NETWORK.sendToServer(action);
-                
-                return result;
             }
+            return result;
         } catch (LittleActionException e) {
             handleException(e);
         }
