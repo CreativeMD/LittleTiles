@@ -146,7 +146,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
                 }
             }
             
-            if (!placement.removedTiles.isEmpty())
+            if (!placement.removedTiles.isEmpty() && !player.level().isClientSide)
                 destroyed = placement.removedTiles.copy();
         }
         return result;
