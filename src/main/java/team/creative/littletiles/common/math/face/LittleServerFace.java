@@ -80,11 +80,13 @@ public non-sealed class LittleServerFace implements ILittleFace {
     }
     
     @Override
-    public void ensureGrid(LittleGrid context) {
-        if (context == this.grid || this.grid.count > grid.count)
-            return;
-        
-        int ratio = context.count / this.grid.count;
+    public int getSmallest() {
+        return box.getSmallest(grid);
+    }
+    
+    @Override
+    public void convertTo(LittleGrid to) {
+        int ratio = to.count / this.grid.count;
         this.minOne *= ratio;
         this.minTwo *= ratio;
         this.maxOne *= ratio;
@@ -92,8 +94,8 @@ public non-sealed class LittleServerFace implements ILittleFace {
         this.origin *= ratio;
         this.oldOrigin *= ratio;
         box = box.copy(); // Make sure the original one will not be modified
-        box.convertTo(this.grid, context);
-        this.grid = context;
+        box.convertTo(this.grid, to);
+        this.grid = to;
         filled = new boolean[maxOne - minOne][maxTwo - minTwo];
     }
     
@@ -186,28 +188,28 @@ public non-sealed class LittleServerFace implements ILittleFace {
     }
     
     public static LittleFaceState calculate(BETiles be, Facing facing, LittleServerFace face, LittleTile rendered, boolean outside) {
-        face.ensureGrid(be.getGrid());
-        
-        for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
-            if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
-                continue;
-            if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
-                pair.value.fillFace(pair.key, face, be.getGrid());
-        }
-        
-        if (outside)
-            if (face.isFilled())
-                return LittleFaceState.OUTISDE_COVERED;
-            else if (face.isPartiallyFilled())
-                return LittleFaceState.OUTSIDE_PARTIALLY_COVERED;
-            else
-                return LittleFaceState.OUTSIDE_UNCOVERED;
+        return face.sameGrid(be, () -> {
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
+                if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
+                    continue;
+                if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
+                    pair.value.fillFace(pair.key, face, be.getGrid());
+            }
             
-        if (face.isFilled())
-            return LittleFaceState.INSIDE_COVERED;
-        else if (face.isPartiallyFilled())
-            return LittleFaceState.INSIDE_PARTIALLY_COVERED;
-        return LittleFaceState.INSIDE_UNCOVERED;
+            if (outside)
+                if (face.isFilled())
+                    return LittleFaceState.OUTISDE_COVERED;
+                else if (face.isPartiallyFilled())
+                    return LittleFaceState.OUTSIDE_PARTIALLY_COVERED;
+                else
+                    return LittleFaceState.OUTSIDE_UNCOVERED;
+                
+            if (face.isFilled())
+                return LittleFaceState.INSIDE_COVERED;
+            else if (face.isPartiallyFilled())
+                return LittleFaceState.INSIDE_PARTIALLY_COVERED;
+            return LittleFaceState.INSIDE_UNCOVERED;
+        });
     }
     
     public LittleFaceState calculate() {

@@ -5,16 +5,12 @@ import java.util.List;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
-import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.math.box.LittleBox;
 
-public sealed interface ILittleFace permits LittleFace, LittleServerFace {
-    
-    public LittleGrid getGrid();
+public sealed interface ILittleFace extends IGridBased permits LittleFace, LittleServerFace {
     
     public LittleBox box();
-    
-    public void ensureGrid(LittleGrid context);
     
     public Facing facing();
     

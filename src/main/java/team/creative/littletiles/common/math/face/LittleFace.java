@@ -61,11 +61,13 @@ public non-sealed class LittleFace implements ILittleFace {
     }
     
     @Override
-    public void ensureGrid(LittleGrid context) {
-        if (context == this.grid || this.grid.count > grid.count)
-            return;
-        
-        int ratio = context.count / this.grid.count;
+    public int getSmallest() {
+        return grid.count;
+    }
+    
+    @Override
+    public void convertTo(LittleGrid to) {
+        int ratio = to.count / this.grid.count;
         this.minOne *= ratio;
         this.minTwo *= ratio;
         this.maxOne *= ratio;
@@ -73,8 +75,9 @@ public non-sealed class LittleFace implements ILittleFace {
         this.origin *= ratio;
         this.oldOrigin *= ratio;
         box = box.copy(); // Make sure the original one will not be modified
-        box.convertTo(this.grid, context);
-        this.grid = context;
+        box.convertTo(this.grid, to);
+        this.grid = to;
+        
         filled = new boolean[maxOne - minOne][maxTwo - minTwo];
         if (faceFans != null) {
             List<VectorFan> newFans = new ArrayList<>(faceFans.size());
