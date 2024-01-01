@@ -1,3 +1,10 @@
+1.6.0-pre081
+Fixed not being able to place blocks when right clicking tile
+Fixed animation handler not being loaded in certain case causing a crash
+Fixed crash when using stencil mode on dedicated server
+Fixed face culling over multiple blocks not working if they have different grid sizes
+Fixed mark mode selecting position not working
+
 1.6.0-pre080
 Fixed outline box being different during animation
 Fixed sync issue when interacting with entity causing blocks in world to disappear
