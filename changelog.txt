@@ -1,3 +1,8 @@
+1.6.0-pre082
+Fixed player placement settings not being available on server causing lots of issues
+Fixed performance issue calculating faces of block entity
+Fixed getPositionGrid only being available on client side
+
 1.6.0-pre081
 Fixed not being able to place blocks when right clicking tile
 Fixed animation handler not being loaded in certain case causing a crash
