@@ -22,7 +22,6 @@ import team.creative.littletiles.common.placement.mark.MarkMode;
 
 public interface ILittleTool {
     
-    @OnlyIn(Dist.CLIENT)
     public default LittleGrid getPositionGrid(ItemStack stack) {
         return LittleTilesClient.grid();
     }
