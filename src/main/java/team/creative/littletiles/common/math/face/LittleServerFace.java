@@ -188,7 +188,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
     }
     
     public static LittleFaceState calculate(BETiles be, Facing facing, LittleServerFace face, LittleTile rendered, boolean outside) {
-        return face.sameGrid(be, () -> {
+        return face.unsafeSameGridRestore(be, () -> {
             for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                 if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
                     continue;

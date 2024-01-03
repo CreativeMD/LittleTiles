@@ -2,8 +2,6 @@ package team.creative.littletiles.common.grid;
 
 import java.util.function.Supplier;
 
-import team.creative.creativecore.common.util.type.RunnableReturn;
-
 public interface IGridBased {
     
     public LittleGrid getGrid();
@@ -32,21 +30,6 @@ public interface IGridBased {
         other.convertToSmallest();
     }
     
-    public default boolean sameGridReturn(IGridBased other, RunnableReturn runnable) {
-        if (getGrid() != other.getGrid()) {
-            if (getGrid().count > other.getGrid().count)
-                other.convertTo(getGrid());
-            else
-                convertTo(other.getGrid());
-        }
-        
-        boolean result = runnable.run();
-        
-        convertToSmallest();
-        other.convertToSmallest();
-        return result;
-    }
-    
     public default <T> T sameGrid(IGridBased other, Supplier<T> supplier) {
         if (getGrid() != other.getGrid()) {
             if (getGrid().count > other.getGrid().count)
@@ -59,6 +42,45 @@ public interface IGridBased {
         
         convertToSmallest();
         other.convertToSmallest();
+        return result;
+    }
+    
+    public default void unsafeSameGridRestore(IGridBased other, Runnable runnable) {
+        LittleGrid thisGrid = getGrid();
+        LittleGrid otherGrid = other.getGrid();
+        
+        if (getGrid() != other.getGrid()) {
+            if (getGrid().count > other.getGrid().count)
+                other.convertTo(getGrid());
+            else
+                convertTo(other.getGrid());
+        }
+        
+        runnable.run();
+        
+        if (thisGrid != getGrid())
+            convertTo(thisGrid);
+        if (otherGrid != other.getGrid())
+            other.convertTo(otherGrid);
+    }
+    
+    public default <T> T unsafeSameGridRestore(IGridBased other, Supplier<T> supplier) {
+        LittleGrid thisGrid = getGrid();
+        LittleGrid otherGrid = other.getGrid();
+        
+        if (getGrid() != other.getGrid()) {
+            if (getGrid().count > other.getGrid().count)
+                other.convertTo(getGrid());
+            else
+                convertTo(other.getGrid());
+        }
+        
+        T result = supplier.get();
+        
+        if (thisGrid != getGrid())
+            convertTo(thisGrid);
+        if (otherGrid != other.getGrid())
+            other.convertTo(otherGrid);
         return result;
     }
     

@@ -366,7 +366,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public boolean shouldFaceBeRendered(LittleFace face, LittleTile rendered) {
-        return sameGrid(face, () -> {
+        return unsafeSameGridRestore(face, () -> {
             for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
                 if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
                     continue;
