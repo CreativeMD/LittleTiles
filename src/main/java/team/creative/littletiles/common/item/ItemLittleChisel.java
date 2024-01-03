@@ -43,6 +43,7 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
@@ -171,7 +172,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     public void tick(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (selection == null)
             selection = new ShapeSelection(stack, false);
-        selection.setLast(player, stack, getPosition(position, result, LittleTilesClient.placementMode()), result);
+        selection.setLast(player, stack, getPosition(position, result, PlacementPlayerSetting.placementMode(player)), result);
     }
     
     @Override
@@ -218,7 +219,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
             selection = null;
             LittleTilesClient.PREVIEW_RENDERER.removeMarked();
         } else if (selection != null)
-            return selection.addAndCheckIfPlace(player, getPosition(position, result, LittleTilesClient.placementMode()), result);
+            return selection.addAndCheckIfPlace(player, getPosition(position, result, PlacementPlayerSetting.placementMode(player)), result);
         return false;
     }
     

@@ -15,7 +15,7 @@ public abstract class GuiConfigureTool extends GuiConfigure {
     }
     
     public LittleGrid getGrid() {
-        return ((ILittleTool) tool.get().getItem()).getPositionGrid(tool.get());
+        return ((ILittleTool) tool.get().getItem()).getPositionGrid(getPlayer(), tool.get());
     }
     
 }

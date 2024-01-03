@@ -55,13 +55,13 @@ public class LittleToolHandler {
         Minecraft mc = Minecraft.getInstance();
         if (mc.hitResult.getType() == Type.BLOCK && mc.hitResult instanceof BlockHitResult hit) {
             ItemStack stack = mc.player.getMainHandItem();
-            if (stack.getItem() instanceof ILittleTool tool && tool.onMouseWheelClickBlock(mc.level, mc.player, stack, new PlacementPosition(hit, tool.getPositionGrid(stack)),
-                hit))
+            if (stack.getItem() instanceof ILittleTool tool && tool.onMouseWheelClickBlock(mc.level, mc.player, stack, new PlacementPosition(hit, tool.getPositionGrid(mc.player,
+                stack)), hit))
                 event.setCanceled(true);
         } else if (mc.hitResult instanceof LittleHitResult result && result.isBlock()) {
             ItemStack stack = mc.player.getMainHandItem();
             if (stack.getItem() instanceof ILittleTool tool && tool.onMouseWheelClickBlock((Level) result.level, mc.player, stack, new PlacementPosition(result.asBlockHit(), tool
-                    .getPositionGrid(stack)), result.asBlockHit()))
+                    .getPositionGrid(mc.player, stack)), result.asBlockHit()))
                 event.setCanceled(true);
         }
     }
@@ -92,7 +92,7 @@ public class LittleToolHandler {
                 }
                 
                 if (stack.getItem() instanceof ILittleTool) {
-                    PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(event.getLevel(), stack, ray);
+                    PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(event.getEntity(), event.getLevel(), stack, ray);
                     if (((ILittleTool) stack.getItem()).onClickBlock(event.getLevel(), event.getEntity(), stack, position, ray) && LittleTilesClient.INTERACTION.start(false))
                         event.setCanceled(true);
                     tool = (ILittleTool) stack.getItem();
@@ -128,7 +128,7 @@ public class LittleToolHandler {
         HitResult result = Minecraft.getInstance().hitResult;
         if (!(result instanceof BlockHitResult))
             return false;
-        PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(level, stack, (BlockHitResult) result);
+        PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(player, level, stack, (BlockHitResult) result);
         if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && iTile instanceof ILittlePlacer placer && placer.hasTiles(stack)) {
             if (LittleTilesClient.INTERACTION.start(true)) {
                 PlacementPreview preview = placer.getPlacement(level, stack, position, false);

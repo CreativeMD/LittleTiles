@@ -52,7 +52,7 @@ public class PixelMode extends ElementGloveMode {
         LittleElement element = getElement(stack);
         LittleBox box = PixelMode.getBox(stack);
         LittleGrid oldContext = LittleGrid.get(stack.getTag());
-        LittleGrid grid = tool.getPositionGrid(stack);
+        LittleGrid grid = tool.getPositionGrid(gui.getPlayer(), stack);
         
         if (oldContext != grid)
             box.convertTo(oldContext, grid);

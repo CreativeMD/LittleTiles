@@ -99,7 +99,7 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     @Override
-    public LittleGrid getPositionGrid(ItemStack stack) {
+    public LittleGrid getPositionGrid(Player player, ItemStack stack) {
         return LittleGrid.overallDefault();
     }
     

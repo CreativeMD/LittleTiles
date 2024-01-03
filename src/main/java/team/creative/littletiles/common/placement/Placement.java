@@ -419,7 +419,7 @@ public class Placement {
                 if (size > LittleTiles.CONFIG.general.maxAllowedDensity)
                     throw new LittleTilesConfig.TooDenseException();
                 
-                if (!te.sameGridReturn(te, () -> {
+                if (!te.sameGrid(te, () -> {
                     for (int i = 0; i < tiles.length; i++)
                         if (tiles[i] != null)
                             for (LittleTile tile : tiles[i])

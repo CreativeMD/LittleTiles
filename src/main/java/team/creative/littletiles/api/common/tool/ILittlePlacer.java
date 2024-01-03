@@ -77,7 +77,7 @@ public interface ILittlePlacer extends ILittleTool {
     
     @OnlyIn(Dist.CLIENT)
     public default PlacementMode getPlacementMode(ItemStack stack) {
-        return LittleTilesClient.placementMode();
+        return LittleTilesClient.ACTION_HANDLER.setting.placementMode();
     }
     
     public default boolean canSnapToGrid(ItemStack stack) {

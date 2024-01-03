@@ -22,6 +22,7 @@ import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadePreview;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
@@ -64,7 +65,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     
     @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, LittleTilesClient.grid(), LittleTilesClient.placementMode()) {
+        return new GuiModeSelector(view, PlacementPlayerSetting.grid(player), PlacementPlayerSetting.placementMode(player)) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {

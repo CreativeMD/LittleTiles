@@ -29,6 +29,7 @@ import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 
@@ -73,7 +74,7 @@ public class GuiChisel extends GuiConfigureTool {
         GuiParent parent = new GuiParent(GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         left.add(parent);
         parent.add(new GuiShowItem("item").setDim(60, 60));
-        parent.add(new GuiGridConfig("grid", getPlayer(), LittleTilesClient.grid(), x -> {
+        parent.add(new GuiGridConfig("grid", getPlayer(), PlacementPlayerSetting.grid(getPlayer()), x -> {
             LittleTilesClient.grid(x);
             if (ItemLittleChisel.selection != null)
                 ItemLittleChisel.selection.convertTo(x);
@@ -92,7 +93,7 @@ public class GuiChisel extends GuiConfigureTool {
         add(right);
         
         GuiComboBoxMapped<PlacementMode> modeBox = new GuiComboBoxMapped<>("mode", PlacementMode.map());
-        modeBox.select(LittleTilesClient.placementMode());
+        modeBox.select(PlacementPlayerSetting.placementMode(getPlayer()));
         right.add(modeBox);
         right.add(new GuiLabel("text"));
         raiseEvent(new GuiControlChangedEvent(modeBox));

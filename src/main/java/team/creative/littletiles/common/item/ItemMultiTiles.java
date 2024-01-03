@@ -31,6 +31,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade;
 
 public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip {
@@ -106,7 +107,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     
     @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new GuiModeSelector(view, LittleTilesClient.grid(), LittleTilesClient.placementMode()) {
+        return new GuiModeSelector(view, PlacementPlayerSetting.grid(player), PlacementPlayerSetting.placementMode(player)) {
             
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {

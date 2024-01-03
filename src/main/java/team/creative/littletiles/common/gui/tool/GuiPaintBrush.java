@@ -27,6 +27,7 @@ import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.item.ItemLittleHammer;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 
@@ -73,7 +74,7 @@ public class GuiPaintBrush extends GuiConfigureTool {
         add(box);
         add(scroll);
         
-        add(new GuiGridConfig("grid", getPlayer(), LittleTilesClient.grid(), x -> {
+        add(new GuiGridConfig("grid", getPlayer(), PlacementPlayerSetting.grid(getPlayer()), x -> {
             LittleTilesClient.grid(x);
             if (ItemLittlePaintBrush.selection != null)
                 ItemLittlePaintBrush.selection.convertTo(x);

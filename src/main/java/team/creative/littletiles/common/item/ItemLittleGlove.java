@@ -113,7 +113,7 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     
     @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
-        return new GuiGlove(getMode(view.get()), view, 140, 140, ((ILittlePlacer) view.get().getItem()).getPositionGrid(view.get()));
+        return new GuiGlove(getMode(view.get()), view, 140, 140, ((ILittlePlacer) view.get().getItem()).getPositionGrid(player, view.get()));
     }
     
     @Override

@@ -128,14 +128,6 @@ public class LittleTilesClient {
     
     public static BETilesRenderer blockEntityRenderer;
     
-    public static LittleGrid grid() {
-        return ACTION_HANDLER.setting.grid();
-    }
-    
-    public static PlacementMode placementMode() {
-        return ACTION_HANDLER.setting.placementMode();
-    }
-    
     public static void grid(LittleGrid grid) {
         ACTION_HANDLER.setting.grid(grid);
     }

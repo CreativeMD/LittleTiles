@@ -78,9 +78,9 @@ public class PreviewRenderer implements LevelAwareHandler {
         MinecraftForge.EVENT_BUS.register(this);
     }
     
-    public PlacementPosition getPosition(Level level, ItemStack stack, BlockHitResult result) {
+    public PlacementPosition getPosition(Player player, Level level, ItemStack stack, BlockHitResult result) {
         ILittleTool iTile = (ILittleTool) stack.getItem();
-        return marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, result, iTile.getPositionGrid(stack), iTile, stack);
+        return marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, result, iTile.getPositionGrid(player, stack), iTile, stack);
     }
     
     /** @param centered
@@ -193,9 +193,9 @@ public class PreviewRenderer implements LevelAwareHandler {
             if (stack.getItem() instanceof ILittleTool tool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
                 BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult ? (BlockHitResult) mc.hitResult : null;
                 
-                PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, tool.getPositionGrid(stack), tool, stack);
+                PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, tool.getPositionGrid(player, stack), tool, stack);
                 
-                processKeys(stack, tool.getPositionGrid(stack));
+                processKeys(stack, tool.getPositionGrid(player, stack));
                 
                 tool.tick(player, stack, position, blockHit);
                 
@@ -264,7 +264,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                 pose.translate(-cam.x, -cam.y, -cam.z);
                 tool.render(player, stack, pose);
                 if (marked != null)
-                    marked.render(tool.getPositionGrid(stack), pose);
+                    marked.render(tool.getPositionGrid(player, stack), pose);
                 pose.popPose();
             }
         } else
@@ -274,7 +274,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void processMarkKey(Player player, ILittleTool iTile, ItemStack stack, PlacementPreview preview) {
         while (LittleTilesClient.mark.consumeClick()) {
             if (marked == null) {
-                marked = iTile.onMark(player, stack, getPosition(player.level(), stack, (BlockHitResult) mc.hitResult), (BlockHitResult) mc.hitResult, preview);
+                marked = iTile.onMark(player, stack, getPosition(player, player.level(), stack, (BlockHitResult) mc.hitResult), (BlockHitResult) mc.hitResult, preview);
                 if (Screen.hasControlDown())
                     GuiCreator.openClientSide(marked.getConfigurationGui());
             } else {
@@ -380,7 +380,7 @@ public class PreviewRenderer implements LevelAwareHandler {
             
             if (stack.getItem() instanceof ILittleEditor selector) {
                 processMarkKey(player, selector, stack, null);
-                PlacementPosition result = getPosition(level, stack, blockHit);
+                PlacementPosition result = getPosition(player, level, stack, blockHit);
                 
                 if (selector.hasCustomBoxes(level, stack, player, state, result, blockHit) || marked != null) {
                     LittleBoxes boxes = selector.getBoxes(level, stack, player, result, blockHit);
@@ -412,7 +412,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                 PlacementMode mode = iTile.getPlacementMode(stack);
                 if (mode.getPreviewMode() == PreviewMode.LINES) {
                     
-                    PlacementPosition position = getPosition(level, stack, blockHit);
+                    PlacementPosition position = getPosition(player, level, stack, blockHit);
                     boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
                     
                     PlacementPreview result = getPreviews(player, level, stack, position, isCentered(stack, iTile), isFixed(stack, iTile), allowLowResolution);
