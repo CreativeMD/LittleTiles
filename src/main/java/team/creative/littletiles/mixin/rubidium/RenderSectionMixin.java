@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -182,7 +181,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         
         try {
             RenderDevice.INSTANCE.createCommandList().bindBuffer(GlBufferTarget.ARRAY_BUFFER, (GlBuffer) buffer);
-            ByteBuffer result = MemoryTracker.create(size);
+            ByteBuffer result = ByteBuffer.allocateDirect(size);
             GL15C.glGetBufferSubData(GlBufferTarget.ARRAY_BUFFER.getTargetParameter(), offset, result);
             return result;
         } catch (IllegalArgumentException | IllegalStateException e) {

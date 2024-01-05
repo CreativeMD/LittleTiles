@@ -3,7 +3,6 @@ package team.creative.littletiles.client.render.cache.buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 
 import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
@@ -42,7 +41,7 @@ public class BufferHolder implements BufferCache {
     
     public BufferHolder(RenderedBuffer buffer, int[] indexes) {
         this.length = buffer.drawState().vertexBufferSize();
-        this.buffer = MemoryTracker.create(length);
+        this.buffer = ByteBuffer.allocateDirect(length);
         this.buffer.put(buffer.vertexBuffer());
         this.buffer.rewind();
         this.vertexCount = buffer.drawState().vertexCount();
@@ -141,7 +140,7 @@ public class BufferHolder implements BufferCache {
     
     public boolean download(ByteBuffer buffer) {
         if (buffer.capacity() >= uploadIndex + length()) {
-            ByteBuffer downloaded = MemoryTracker.create(length());
+            ByteBuffer downloaded = ByteBuffer.allocateDirect(length());
             downloaded.put(0, buffer, uploadIndex, length());
             downloaded.rewind();
             this.buffer = downloaded;
@@ -229,7 +228,7 @@ public class BufferHolder implements BufferCache {
         
         int div = length() / vertexCount();
         int vertexCount = length / div;
-        ByteBuffer newBuffer = MemoryTracker.create(length); // Create new vertex buffer
+        ByteBuffer newBuffer = ByteBuffer.allocate(length); // Create new vertex buffer
         newBuffer.put(0, buffer, start, length);
         newBuffer.rewind();
         removeEntry(length, vertexCount); // Notify buffer holder of changed length and vertexCount

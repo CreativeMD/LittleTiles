@@ -6,9 +6,9 @@ import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL15C;
+import org.lwjgl.system.MemoryUtil;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -23,6 +23,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader.SimpleChunkBufferDownloader;
@@ -140,7 +141,7 @@ public interface RenderChunkExtender {
     public default ByteBuffer downloadUploadedData(VertexBufferExtender buffer, long offset, int size) {
         GlStateManager._glBindBuffer(GL15.GL_ARRAY_BUFFER, buffer.getVertexBufferId());
         try {
-            ByteBuffer result = MemoryTracker.create(size);
+            ByteBuffer result = ByteBuffer.allocateDirect(size);
             GL15C.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, offset, result);
             return result;
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -193,6 +194,7 @@ public interface RenderChunkExtender {
             
             uploadBuffer.bind();
             uploadBuffer.upload(builder.end());
+            MemoryUtil.memFree(((BufferBuilderAccessor) builder).getBuffer());
             VertexBuffer.unbind();
             setHasBlock(layer);
         }
