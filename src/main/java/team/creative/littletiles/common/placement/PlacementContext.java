@@ -41,7 +41,7 @@ public class PlacementContext {
     }
     
     public void addRemoved(LittleTile tile) {
-        placement.removedTiles.add(parent, tile);
+        placement.removedTiles.addFast(parent, tile);
     }
     
     public boolean removeTile(LittleTile tile) {
@@ -68,7 +68,6 @@ public class PlacementContext {
     public void placeTile(LittleTile tile) {
         parent.add(tile.copy());
         result.addPlacedTile(parent, tile);
-        
     }
     
 }

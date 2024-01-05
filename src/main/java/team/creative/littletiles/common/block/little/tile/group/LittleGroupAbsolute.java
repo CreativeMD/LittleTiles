@@ -64,7 +64,7 @@ public class LittleGroupAbsolute implements IGridBased {
         group.add(grid, element, boxes.all());
     }
     
-    public void add(IParentCollection parent, LittleTile tile) {
+    public void addFast(IParentCollection parent, LittleTile tile) {
         tile = tile.copy();
         
         if (this.getGrid() != parent.getGrid())
@@ -74,10 +74,15 @@ public class LittleGroupAbsolute implements IGridBased {
                 convertTo(parent.getGrid());
             
         tile.move(new LittleVec(getGrid(), parent.getPos().subtract(pos)));
-        group.addTile(getGrid(), tile);
+        group.addTileFast(getGrid(), tile);
     }
     
-    public void add(IParentCollection parent, LittleElement element, LittleBox box) {
+    public void add(IParentCollection parent, LittleTile tile) {
+        addFast(parent, tile);
+        group.convertToSmallest();
+    }
+    
+    public void addFast(IParentCollection parent, LittleElement element, LittleBox box) {
         box = box.copy();
         
         if (this.getGrid() != parent.getGrid())
@@ -86,7 +91,12 @@ public class LittleGroupAbsolute implements IGridBased {
             else
                 convertTo(parent.getGrid());
         box.add(new LittleVec(getGrid(), parent.getPos().subtract(pos)));
-        group.add(getGrid(), element, box);
+        group.addFast(getGrid(), element, box);
+    }
+    
+    public void add(IParentCollection parent, LittleElement element, LittleBox box) {
+        addFast(parent, element, box);
+        group.convertToSmallest();
     }
     
     public LittleGroupAbsolute copy() {

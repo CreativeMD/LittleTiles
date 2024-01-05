@@ -617,12 +617,10 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     }
     
     public void add(LittleGroup group) {
-        sameGrid(group, () -> {
-            content.addAll(group);
-        });
+        sameGrid(group, () -> content.addAll(group));
     }
     
-    public void addTile(LittleGrid grid, LittleTile tile) {
+    public void addTileFast(LittleGrid grid, LittleTile tile) {
         if (grid != this.grid)
             if (grid.count > this.grid.count)
                 convertTo(grid);
@@ -630,7 +628,10 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
                 tile.convertTo(grid, this.grid);
             
         content.add(tile);
-        
+    }
+    
+    public void addTile(LittleGrid grid, LittleTile tile) {
+        addTileFast(grid, tile);
         convertToSmallest();
     }
     
@@ -665,7 +666,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         convertToSmallest();
     }
     
-    public void add(LittleGrid grid, LittleElement element, LittleBox box) {
+    public void addFast(LittleGrid grid, LittleElement element, LittleBox box) {
         if (grid != this.grid)
             if (grid.count > this.grid.count)
                 convertTo(grid);
@@ -673,7 +674,10 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
                 box.convertTo(grid, this.grid);
             
         content.add(element, box);
-        
+    }
+    
+    public void add(LittleGrid grid, LittleElement element, LittleBox box) {
+        addFast(grid, element, box);
         convertToSmallest();
     }
     

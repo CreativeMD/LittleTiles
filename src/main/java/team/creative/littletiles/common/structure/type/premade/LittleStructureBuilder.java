@@ -115,7 +115,8 @@ public class LittleStructureBuilder extends LittleStructurePremade {
                 for (int y = 0; y < height; y += grid.count)
                     for (int z = 0; z < width; z += grid.count)
                         boxes.add(new LittleBox(x, y, z, Math.min(x + 16, thickness), Math.min(y + 16, height), Math.min(z + 16, width)));
-            previews.addTile(grid, new LittleTile(state, ColorUtils.WHITE, boxes));
+            previews.addTileFast(grid, new LittleTile(state, ColorUtils.WHITE, boxes));
+            previews.convertToSmallest();
             return previews;
         }
         

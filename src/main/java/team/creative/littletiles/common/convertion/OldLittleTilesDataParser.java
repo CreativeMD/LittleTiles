@@ -120,7 +120,7 @@ public class OldLittleTilesDataParser {
                 children.add(loadGroup(list.getCompound(i), grid));
         }
         LittleGroup group = new LittleGroup(convertStructureData(nbt.contains("structure") ? nbt.getCompound("structure") : null), children);
-        collect(nbt.getList("tiles", Tag.TAG_COMPOUND), x -> group.addTile(grid, x));
+        collect(nbt.getList("tiles", Tag.TAG_COMPOUND), x -> group.addTileFast(grid, x));
         return group;
     }
     

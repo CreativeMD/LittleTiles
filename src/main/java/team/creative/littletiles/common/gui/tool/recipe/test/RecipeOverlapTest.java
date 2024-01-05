@@ -228,13 +228,14 @@ public class RecipeOverlapTest extends RecipeTestModule {
                 LittleVec vec = new LittleVec(0, 0, 0);
                 for (Entry<BlockPos, LittleCollection> entry : blocks.entrySet()) {
                     vec.set(grid, entry.getKey());
-                    for (LittleTile tile : entry.getValue())
-                        for (LittleBox box : tile) {
+                    for (LittleTile tile : entry.getValue()) {
+                        for (LittleBox box : tile)
                             box.add(vec);
-                            group.addTile(grid, tile);
-                        }
+                        group.addTileFast(grid, tile);
+                    }
                     
                 }
+                group.convertToSmallest();
                 group.combine();
                 structure.group = group;
                 structure.refreshAnimation();
