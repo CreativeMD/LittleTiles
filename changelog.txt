@@ -1,3 +1,8 @@
+1.6.0-pre083
+Improved performance when adding tiles (especially apparent in recipe overlap fix)
+Fixed bug in memory leak causing it to adding back n^n boxes
+Fixed memory buffer leak
+
 1.6.0-pre082
 Fixed player placement settings not being available on server causing lots of issues
 Fixed performance issue calculating faces of block entity
