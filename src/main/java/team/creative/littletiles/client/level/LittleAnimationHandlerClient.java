@@ -62,7 +62,6 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.entity.LevelTransitionListener;
-import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
@@ -443,7 +442,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     @Override
     public void unload() {
         super.unload();
-        LittleTilesClient.ANIMATION_HANDLER = null;
         transitions.clear();
         RenderUploader.unload();
     }
