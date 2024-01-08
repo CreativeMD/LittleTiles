@@ -1,3 +1,6 @@
+1.6.0-pre084
+Fixed not loading animation handler when switching dimensions
+
 1.6.0-pre083
 Improved performance when adding tiles (especially apparent in recipe overlap fix)
 Fixed bug in memory leak causing it to adding back n^n boxes
