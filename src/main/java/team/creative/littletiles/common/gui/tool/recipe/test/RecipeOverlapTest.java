@@ -193,21 +193,19 @@ public class RecipeOverlapTest extends RecipeTestModule {
             return new SingleIterator<>(structure);
         }
         
-        private void add(LittleElement element, LittleBox box, MutableBlockPos pos, LittleGrid grid, HashMap<BlockPos, LittleCollection> blocks) {
+        private void add(LittleElement element, LittleBox box, MutableBlockPos pos, LittleGrid grid, List<LittleBox> temp, List<LittleBox> temp2, HashMap<BlockPos, LittleCollection> blocks) {
             LittleCollection collection = blocks.get(pos);
             if (collection == null)
                 blocks.put(pos.immutable(), collection = new LittleCollection());
-            for (LittleBox placedBox : collection.boxes()) {
-                if (LittleBox.intersectsWith(box, placedBox)) {
-                    List<LittleBox> left = box.cutOut(grid, placedBox, null);
-                    if (!left.isEmpty())
-                        for (LittleBox leftBox : left)
-                            add(element, leftBox, pos, grid, blocks);
-                    return;
-                }
-            }
             
-            collection.add(element, box);
+            for (LittleBox placedBox : collection.boxes())
+                temp.add(placedBox);
+            List<LittleBox> remaining = box.cutOut(grid, temp, temp2, null);
+            temp.clear();
+            temp2.clear();
+            
+            if (remaining != null && !remaining.isEmpty())
+                collection.add(element, remaining);
         }
         
         @Override
@@ -217,13 +215,14 @@ public class RecipeOverlapTest extends RecipeTestModule {
                 LittleGrid grid = group.getGrid();
                 HashMap<BlockPos, LittleCollection> blocks = new HashMap<>();
                 
+                List<LittleBox> temp = new ArrayList<>();
+                List<LittleBox> temp2 = new ArrayList<>();
+                
                 MutableBlockPos pos = new MutableBlockPos();
                 for (LittleTile tile : group)
-                    for (LittleBox toAdd : tile) {
-                        toAdd.setMinPos(pos, grid);
-                        toAdd.splitIterator(grid, pos, LittleVec.ZERO, (blockPos, littleBox) -> add(tile, littleBox, blockPos, grid, blocks));
-                    }
-                
+                    for (LittleBox toAdd : tile)
+                        toAdd.splitIterator(grid, pos, LittleVec.ZERO, (blockPos, littleBox) -> add(tile, littleBox, blockPos, grid, temp, temp2, blocks));
+                    
                 group = new LittleGroup(group.getStructureTag(), Collections.EMPTY_LIST);
                 LittleVec vec = new LittleVec(0, 0, 0);
                 for (Entry<BlockPos, LittleCollection> entry : blocks.entrySet()) {
