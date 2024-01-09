@@ -589,8 +589,8 @@ public class LittleTransformableBox extends LittleBox {
             
             LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data.clone());
             CornerCache cache = result.new CornerCache(false);
-            ((LittleTransformableBox) box).setAbsoluteCornersTakeBounds(cache);
-            setAbsoluteCornersTakeBounds(cache);
+            ((LittleTransformableBox) box).setAbsoluteCornersTakeBounds(cache, facing);
+            setAbsoluteCornersTakeBounds(cache, facing.opposite());
             result.data = cache.getData();
             
             return result;
@@ -827,7 +827,7 @@ public class LittleTransformableBox extends LittleBox {
         }
     }
     
-    protected void setAbsoluteCornersTakeBounds(CornerCache cache) {
+    protected void setAbsoluteCornersTakeBounds(CornerCache cache, Facing facing) {
         int indicator = getIndicator();
         
         int activeBits = 0;
@@ -836,17 +836,20 @@ public class LittleTransformableBox extends LittleBox {
             
             int index = i * 3;
             if (IntegerUtils.bitIs(indicator, index)) {
-                cache.setAbsolute(corner, Axis.X, getData(activeBits) + get(corner.x));
+                if (corner.isFacing(facing))
+                    cache.setAbsolute(corner, Axis.X, getData(activeBits) + get(corner.x));
                 activeBits++;
             }
             
             if (IntegerUtils.bitIs(indicator, index + 1)) {
-                cache.setAbsolute(corner, Axis.Y, getData(activeBits) + get(corner.y));
+                if (corner.isFacing(facing))
+                    cache.setAbsolute(corner, Axis.Y, getData(activeBits) + get(corner.y));
                 activeBits++;
             }
             
             if (IntegerUtils.bitIs(indicator, index + 2)) {
-                cache.setAbsolute(corner, Axis.Z, getData(activeBits) + get(corner.z));
+                if (corner.isFacing(facing))
+                    cache.setAbsolute(corner, Axis.Z, getData(activeBits) + get(corner.z));
                 activeBits++;
             }
         }
