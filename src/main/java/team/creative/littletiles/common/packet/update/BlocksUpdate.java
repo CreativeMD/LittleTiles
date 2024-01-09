@@ -14,6 +14,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -23,6 +24,7 @@ public class BlocksUpdate extends CreativePacket {
     public List<BlockPos> positions;
     public List<BlockState> states;
     public List<CompoundTag> tags;
+    @CanBeNull
     public UUID uuid;
     
     public BlocksUpdate(LevelAccessor level, Set<BlockPos> positions) {

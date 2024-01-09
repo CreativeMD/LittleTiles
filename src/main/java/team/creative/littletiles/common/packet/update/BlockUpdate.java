@@ -20,6 +20,7 @@ import team.creative.littletiles.common.entity.LittleEntity;
 
 public class BlockUpdate extends CreativePacket {
     
+    @CanBeNull
     public UUID uuid;
     public BlockState state;
     public BlockPos pos;
