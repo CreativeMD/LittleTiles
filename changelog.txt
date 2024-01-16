@@ -1,3 +1,6 @@
+1.6.0-pre087
+Optimized performance of connected shape
+
 1.6.0-pre086
 Reworked filters for screwdriver, hammer and paintbrush
 Fixed crash when using replace with screwdriver
