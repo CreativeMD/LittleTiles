@@ -85,7 +85,7 @@ public class LittleShapeCurve extends LittleShape {
     }
     
     @Override
-    public boolean requiresNoOverlap() {
+    public boolean requiresNoOverlap(ShapeSelection selection) {
         return true;
     }
     

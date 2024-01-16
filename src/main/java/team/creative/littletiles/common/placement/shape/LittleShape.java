@@ -42,13 +42,13 @@ public abstract class LittleShape {
     protected abstract void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution);
     
     public LittleBoxes getBoxes(ShapeSelection selection, boolean lowResolution) {
-        LittleBoxes boxes = requiresNoOverlap() ? new LittleBoxesNoOverlap(selection.getPos(), selection.getGrid()) : new LittleBoxesSimple(selection.getPos(), selection
+        LittleBoxes boxes = requiresNoOverlap(selection) ? new LittleBoxesNoOverlap(selection.getPos(), selection.getGrid()) : new LittleBoxesSimple(selection.getPos(), selection
                 .getGrid());
         addBoxes(boxes, selection, lowResolution);
         return boxes;
     }
     
-    public boolean requiresNoOverlap() {
+    public boolean requiresNoOverlap(ShapeSelection selection) {
         return false;
     }
     

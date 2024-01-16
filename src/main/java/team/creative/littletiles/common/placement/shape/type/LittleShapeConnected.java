@@ -35,6 +35,11 @@ public class LittleShapeConnected extends LittleShapeSelectable {
     }
     
     @Override
+    public boolean requiresNoOverlap(ShapeSelection selection) {
+        return !selection.inside;
+    }
+    
+    @Override
     protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
         for (ShapeSelectPos pos : selection) {
             if (pos.result.isComplete())

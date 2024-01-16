@@ -7,6 +7,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.shape.LittleShape;
+import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public abstract class LittleShapeSelectable extends LittleShape {
     
@@ -15,7 +16,7 @@ public abstract class LittleShapeSelectable extends LittleShape {
     }
     
     @Override
-    public boolean requiresNoOverlap() {
+    public boolean requiresNoOverlap(ShapeSelection selection) {
         return true;
     }
     
@@ -23,7 +24,6 @@ public abstract class LittleShapeSelectable extends LittleShape {
         if (inside)
             boxes.addBox(parent.getGrid(), parent.getPos(), box.copy());
         else {
-            
             box = box.copy();
             if (parent.getGrid().count > grid.count)
                 grid = parent.getGrid();

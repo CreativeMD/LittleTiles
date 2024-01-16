@@ -37,12 +37,15 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
             List<LittleBox> existingBoxes = blockMap.get(entry.getKey());
             boolean missing = existingBoxes == null;
             
-            if (missing)
+            if (missing) {
                 existingBoxes = new ArrayList<>();
-            for (LittleBox splitted : entry.getValue()) {
-                cutOutTemp.clear();
-                existingBoxes.addAll(splitted.cutOut(getGrid(), existingBoxes, cutOutTemp, null));
-            }
+                for (LittleBox splitted : entry.getValue())
+                    existingBoxes.add(splitted.copy());
+            } else
+                for (LittleBox splitted : entry.getValue()) {
+                    cutOutTemp.clear();
+                    existingBoxes.addAll(splitted.cutOut(getGrid(), existingBoxes, cutOutTemp, null));
+                }
             
             LittleBoxCombiner.combineLast(existingBoxes);
             if (missing)
