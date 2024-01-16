@@ -362,5 +362,14 @@
     "signal.mode.pulse": "PULSE",
     "signal.mode.threshold": "THRESHOLD",
     "signal.mode.stabilizer": "STABILIZER",
-    "signal.mode.extender": "EXTENDER"
+    "signal.mode.extender": "EXTENDER",
+    "gui.filter": "Filter",
+    "gui.filter.block": "by Block",
+    "gui.filter.block_tag": "by Tag",
+    "gui.filter.color": "by Color",
+    "gui.filter.group": "Group",
+    "gui.filter.or": "At least one",
+    "gui.filter.and": "All",
+    "gui.filter.not_or": "None",
+    "gui.filter.not_and": "Not all"
 }

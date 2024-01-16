@@ -2,16 +2,15 @@ package team.creative.littletiles.common.gui.tool;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
@@ -20,11 +19,8 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.filter.TileFilters;
-import team.creative.littletiles.common.filter.TileFilters.TileBlockFilter;
-import team.creative.littletiles.common.filter.TileFilters.TileBlockStateFilter;
-import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.controls.GuiGridConfig;
+import team.creative.littletiles.common.gui.controls.filter.GuiElementFilter;
 import team.creative.littletiles.common.item.ItemLittleHammer;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
@@ -32,6 +28,8 @@ import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 
 public class GuiPaintBrush extends GuiConfigureTool {
+    
+    protected GuiElementFilter filter;
     
     public GuiPaintBrush(ContainerSlotView view) {
         super("paint_brush", 140, 200, view);
@@ -54,8 +52,7 @@ public class GuiPaintBrush extends GuiConfigureTool {
         GuiColorPicker picker = get("picker", GuiColorPicker.class);
         nbt.putInt("color", picker.color.toInt());
         
-        GuiStackSelector filter = get("filter", GuiStackSelector.class);
-        ItemLittleHammer.setFilter(!((GuiCheckBox) get("any")).value, TileFilters.block(Block.byItem(filter.getSelected().getItem())));
+        ItemLittleHammer.setFilter(!get("any", GuiCheckBox.class).value, filter.get());
         
         return nbt;
     }
@@ -82,15 +79,9 @@ public class GuiPaintBrush extends GuiConfigureTool {
         
         BiFilter<IParentCollection, LittleTile> selector = ItemLittleHammer.getFilter();
         boolean activeFilter = ItemLittleHammer.isFiltered();
+        add(new GuiLabel("filter_label").setTranslate("gui.filter"));
         add(new GuiCheckBox("any", selector == null || !activeFilter).setTranslate("gui.any"));
-        
-        GuiStackSelector guiSelector = new GuiStackSelector("filter", getPlayer(), LittleGuiUtils.getCollector(getPlayer()));
-        if (selector instanceof TileBlockStateFilter stateFilter)
-            guiSelector.setSelectedForce(new ItemStack(stateFilter.state.getBlock()));
-        else if (selector instanceof TileBlockFilter blockFilter)
-            guiSelector.setSelectedForce(new ItemStack(blockFilter.block));
-        
-        add(guiSelector);
+        add(filter = (GuiElementFilter) GuiElementFilter.ofGroup(getPlayer(), selector).setExpandableX().setDim(new GuiSizeRules().prefHeight(60)));
         onChange();
     }
     
